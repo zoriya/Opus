@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:layout_width="fill_parent"
+  android:layout_height="wrap_content"
+  android:id="@+id/infoPanel"
+  android:paddingBottom="20dp"
+  android:background="#2b5568">
+  <TextView
+    android:text="Title"
+    android:id="@+id/playerTitle"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:singleLine="true"
+    android:scrollHorizontally="true"
+    android:ellipsize="marquee"
+    android:marqueeRepeatLimit ="marquee_forever"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:textSize="34sp"
+    android:textColor="#FFFFFF"
+    android:alpha=".92"
+    android:textStyle="bold"
+    android:paddingLeft="65dp"
+    android:layout_alignParentBottom="true"
+    android:layout_alignParentStart="true"/>
+  <TextView
+    android:text="Artist"
+    android:id="@+id/playerArtist"
+    android:singleLine="true"
+    android:scrollHorizontally="true"
+    android:ellipsize="marquee"
+    android:marqueeRepeatLimit ="marquee_forever"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    android:layout_alignParentStart="true"
+    android:paddingLeft="65dp"
+    android:alpha=".92"
+    android:textSize="20sp"
+    android:textColor="#FFFFFF"/>
+</LinearLayout>

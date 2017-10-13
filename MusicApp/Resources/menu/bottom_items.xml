@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+  <item
+    android:id="@+id/musicLayout"
+    android:enabled="true"
+    android:title="Music"
+    android:icon="@drawable/MusicIcon"
+    app:showAsAction="ifRoom" />
+  <item
+    android:id="@+id/browseLayout"
+    android:enabled="true"
+    android:title="Browse"
+    android:icon="@drawable/folderIcon"
+    app:showAsAction="ifRoom" />
+  <item
+    android:id="@+id/downloadLayout"
+    android:enabled="true"
+    android:title="Download"
+    android:icon="@drawable/DownloadIcon"
+    app:showAsAction="ifRoom" />
+  <item
+    android:id="@+id/playlistLayout"
+    android:enabled="true"
+    android:title="Playlist"
+    android:icon="@drawable/PlaylistPlayIcon"
+    app:showAsAction="ifRoom" />
+</menu>
