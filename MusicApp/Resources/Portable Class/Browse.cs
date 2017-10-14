@@ -8,14 +8,20 @@ using MusicApp.Resources.values;
 using Android.Content;
 using Android;
 using Android.Support.Design.Widget;
+using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Content.PM;
 using Android.Support.V4.App;
+using Android.Support.V4.View;
 using Android.Support.V7.App;
+using Android.Support.V4.Widget;
+using Android.Runtime;
+using System;
+using Java.Lang;
 
 namespace MusicApp.Resources.Portable_Class
 {
-    public class Browse : ListFragment//, ActionBar.ITabListener
+    public class Browse : ListFragment
     {
         public static Browse instance;
         public static Context act;
@@ -34,42 +40,25 @@ namespace MusicApp.Resources.Portable_Class
             base.OnActivityCreated(savedInstanceState);
             act = Activity;
             inflater = LayoutInflater;
+            View tabs = LayoutInflater.Inflate(Resource.Layout.tabs, null);
             emptyView = LayoutInflater.Inflate(Resource.Layout.NoSong, null);
             ListView.EmptyView = emptyView;
 
-            //ActionBar.Tab tab = MainActivity.instance.SupportActionBar.NewTab();
-            //tab.SetText("Songs");
-            //tab.SetTabListener(this);
-            //MainActivity.instance.SupportActionBar.AddTab(tab);
+            TabLayout tabLayout = tabs.FindViewById<TabLayout>(Resource.Id.tabs);
+            ViewPager pager = tabs.FindViewById<ViewPager>(Resource.Id.pager);
+            ViewPagerAdapter adapter = new ViewPagerAdapter(FragmentManager);
+            adapter.AddFragment(this, "Songs");
+            //adapter.AddFragment(new FolderBrowse(), "Folders");
 
-            //tab = MainActivity.instance.SupportActionBar.NewTab();
-            //tab.SetText("Folders");
-            //tab.SetTabListener(this);
-            //MainActivity.instance.SupportActionBar.AddTab(tab);
+            pager.Adapter = adapter;
+            tabLayout.SetupWithViewPager(pager);
 
-            //tab = MainActivity.instance.SupportActionBar.NewTab();
-            //tab.SetText("Albums");
-            //tab.SetTabListener(this);
-            //MainActivity.instance.SupportActionBar.AddTab(tab);
+            tabs.SetPadding(0, 100, 0, 0);
+            Activity.AddContentView(tabs, View.LayoutParameters);
 
             GetStoragePermission();
             InitialiseSearchService();
         }
-
-        //public void OnTabReselected(ActionBar.Tab tab, FragmentTransaction ft)
-        //{
-        //    throw new System.NotImplementedException();
-        //}
-
-        //public void OnTabSelected(ActionBar.Tab tab, FragmentTransaction ft)
-        //{
-        //    throw new System.NotImplementedException();
-        //}
-
-        //public void OnTabUnselected(ActionBar.Tab tab, FragmentTransaction ft)
-        //{
-        //    throw new System.NotImplementedException();
-        //}
 
         public override void OnDestroy()
         {
@@ -132,7 +121,7 @@ namespace MusicApp.Resources.Portable_Class
 
         void PopulateList()
         {
-            Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
+            Android.Net.Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
 
             CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
             ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
@@ -262,7 +251,7 @@ namespace MusicApp.Resources.Portable_Class
             playList.Add("Create a playlist");
             playListId.Add(0);
 
-            Uri uri = MediaStore.Audio.Playlists.ExternalContentUri;
+            Android.Net.Uri uri = MediaStore.Audio.Playlists.ExternalContentUri;
             CursorLoader loader = new CursorLoader(Android.App.Application.Context, uri, null, null, null, null);
             ICursor cursor = (ICursor)loader.LoadInBackground();
 
@@ -323,10 +312,46 @@ namespace MusicApp.Resources.Portable_Class
         public void CreatePlaylist(string name)
         {
             ContentResolver resolver = Activity.ContentResolver;
-            Uri uri = MediaStore.Audio.Playlists.ExternalContentUri;
+            Android.Net.Uri uri = MediaStore.Audio.Playlists.ExternalContentUri;
             ContentValues value = new ContentValues();
             value.Put(MediaStore.Audio.Playlists.InterfaceConsts.Name, name);
             resolver.Insert(uri, value);
+        }
+    }
+
+    public class ViewPagerAdapter : FragmentPagerAdapter
+    {
+        private List<Fragment> fragmentList = new List<Fragment>();
+        private List<string> titles = new List<string>();
+
+
+        public ViewPagerAdapter(FragmentManager fm) : base(fm)
+        {
+
+        }
+
+        protected ViewPagerAdapter(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer)
+        {
+
+        }
+
+        public override int Count => fragmentList.Count;
+
+        public override Fragment GetItem(int position)
+        {
+            return fragmentList[position];
+        }
+
+        public void AddFragment (Fragment fragment, string title)
+        {
+            fragmentList.Add(fragment);
+            titles.Add(title);
+        }
+
+        public override ICharSequence GetPageTitleFormatted(int position)
+        {
+            ICharSequence title = CharSequence.ArrayFromStringArray(new string[] { titles[position] })[0];
+            return title;
         }
     }
 }

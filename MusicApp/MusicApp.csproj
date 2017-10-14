@@ -146,6 +146,7 @@
     <Compile Include="Resources\Portable Class\Browse.cs" />
     <Compile Include="Resources\Portable Class\DownloadList.cs" />
     <Compile Include="Resources\Portable Class\FolderAdapter.cs" />
+    <Compile Include="Resources\Portable Class\FolderBrowse.cs" />
     <Compile Include="Resources\Portable Class\MusicPlayer.cs" />
     <Compile Include="Resources\Portable Class\Playlist.cs" />
     <Compile Include="Resources\Portable Class\PlaylistTracks.cs" />
@@ -315,6 +316,11 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\ic_expand_more_black_24dp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\tabs.xml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
