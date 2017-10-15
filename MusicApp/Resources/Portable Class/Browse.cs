@@ -40,21 +40,8 @@ namespace MusicApp.Resources.Portable_Class
             base.OnActivityCreated(savedInstanceState);
             act = Activity;
             inflater = LayoutInflater;
-            View tabs = LayoutInflater.Inflate(Resource.Layout.tabs, null);
             emptyView = LayoutInflater.Inflate(Resource.Layout.NoSong, null);
             ListView.EmptyView = emptyView;
-
-            TabLayout tabLayout = tabs.FindViewById<TabLayout>(Resource.Id.tabs);
-            ViewPager pager = tabs.FindViewById<ViewPager>(Resource.Id.pager);
-            ViewPagerAdapter adapter = new ViewPagerAdapter(FragmentManager);
-            adapter.AddFragment(this, "Songs");
-            //adapter.AddFragment(new FolderBrowse(), "Folders");
-
-            pager.Adapter = adapter;
-            tabLayout.SetupWithViewPager(pager);
-
-            tabs.SetPadding(0, 100, 0, 0);
-            Activity.AddContentView(tabs, View.LayoutParameters);
 
             GetStoragePermission();
             InitialiseSearchService();
@@ -89,6 +76,7 @@ namespace MusicApp.Resources.Portable_Class
 
         private void InitialiseSearchService()
         {
+            HasOptionsMenu = true;
             MainActivity.instance.CreateSearch(0);
         }
 
@@ -162,7 +150,7 @@ namespace MusicApp.Resources.Portable_Class
             ListView.ItemClick += ListView_ItemClick;
             ListView.ItemLongClick += ListView_ItemLongClick;
 
-            view.SetPadding(0, 100, 0, 0);
+            //view.SetPadding(0, 55, 0, 0);
 
             if (adapter == null || adapter.Count == 0)
             {

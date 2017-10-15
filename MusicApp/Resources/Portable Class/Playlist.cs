@@ -49,7 +49,7 @@ namespace MusicApp.Resources.Portable_Class
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             View view = base.OnCreateView(inflater, container, savedInstanceState);
-            view.SetPadding(0, 100, 0, 0);
+            //view.SetPadding(0, 150, 0, 0);
             return view;
         }
 

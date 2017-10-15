@@ -1,15 +1,13 @@
-﻿using Android.Widget;
-using Android.App;
+﻿using Android.App;
 using Android.OS;
 using Android.Support.V7.App;
 using Android.Support.Design.Widget;
 using MusicApp.Resources.Fragments;
 using MusicApp.Resources.Portable_Class;
 using Android.Views;
-using System;
-using Android.Util;
 using Android.Support.V4.View;
 using Android.Runtime;
+using Android.Widget;
 
 namespace MusicApp
 {
@@ -33,9 +31,10 @@ namespace MusicApp
 
             Navigate(Resource.Id.musicLayout);
 
-            ToolBar = FindViewById<Android.Support.V7.Widget.Toolbar>(Resource.Id.toolbar);
+            ToolBar = (Android.Support.V7.Widget.Toolbar) FindViewById(Resource.Id.toolbar);
             SetSupportActionBar(ToolBar);
             SupportActionBar.Title = "MusicApp";
+            HideTabs();
         }
 
         public override bool OnCreateOptionsMenu(IMenu menu)
@@ -68,6 +67,7 @@ namespace MusicApp
             }
             else if(item.ItemId == Resource.Id.settings)
             {
+                HideTabs();
                 Android.Support.V4.App.Fragment fragment = Preferences.NewInstance();
                 SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, fragment).Commit();
             }
@@ -135,26 +135,66 @@ namespace MusicApp
             switch (layout)
             {
                 case Resource.Id.musicLayout:
+                    HideTabs();
                     fragment = Queue.NewInstance();
                     break;
 
                 case Resource.Id.browseLayout:
-                    fragment = Browse.NewInstance();
+                    SetTabs();
                     break;
 
                 case Resource.Id.downloadLayout:
+                    HideTabs();
                     fragment = DownloadList.NewInstance();
                     break;
 
                 case Resource.Id.playlistLayout:
+                    HideTabs();
                     fragment = Playlist.NewInstance();
                     break;
             }
 
             if (fragment == null)
-                return;
+                fragment = EmptyFragment.NewInstance();
 
             SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, fragment).Commit();
+        }
+
+        void SetTabs()
+        {
+            FrameLayout frame = FindViewById<FrameLayout>(Resource.Id.contentView);
+            frame.Visibility = ViewStates.Gone;
+
+            TabLayout tabs = FindViewById<TabLayout>(Resource.Id.tabs);
+            tabs.Visibility = ViewStates.Visible;
+            tabs.RemoveAllTabs();
+            tabs.AddTab(tabs.NewTab().SetText("Songs"));
+            tabs.AddTab(tabs.NewTab().SetText("Artist"));
+            tabs.AddTab(tabs.NewTab().SetText("Folders"));
+            ViewPager pager = FindViewById<ViewPager>(Resource.Id.pager);
+            pager.SetPadding(0, 200, 0, 0);
+            pager.AddOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
+            ViewPagerAdapter adapter = new ViewPagerAdapter(SupportFragmentManager);
+
+            adapter.AddFragment(Browse.NewInstance(), "Songs");
+            adapter.AddFragment(DownloadFragment.NewInstance(), "Artists");
+            adapter.AddFragment(DownloadFragment.NewInstance(), "Folders");
+
+            pager.Adapter = adapter;
+            tabs.SetupWithViewPager(pager);
+            //tabs.TabSelected += (sender, e) => { Console.WriteLine("Clicked"); pager.SetCurrentItem(e.Tab.Position, true); };
+        }
+
+        void HideTabs()
+        {
+            TabLayout tabs = FindViewById<TabLayout>(Resource.Id.tabs);
+            tabs.RemoveAllTabs();
+            tabs.Visibility = ViewStates.Gone;
+            ViewPager pager = FindViewById<ViewPager>(Resource.Id.pager);
+            pager.Adapter = null;
+
+            FrameLayout frame = FindViewById<FrameLayout>(Resource.Id.contentView);
+            frame.Visibility = ViewStates.Visible;
         }
     }
 }
