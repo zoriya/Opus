@@ -1,5 +1,4 @@
-﻿using Android.Support.V4.App;
-using Android.Support.V7.Preferences;
+﻿using Android.Preferences;
 using Android.Support.V7.App;
 using Android.Views;
 using Android.OS;
@@ -9,20 +8,35 @@ using MusicApp.Resources.values;
 using Java.IO;
 using Android.Widget;
 using Android.Content;
+using Android.App;
+
+using AlertDialog = Android.Support.V7.App.AlertDialog;
 
 namespace MusicApp.Resources.Portable_Class
 {
-    public class Preferences : PreferenceFragmentCompat
+    [Activity(Label = "Settings", Theme = "@style/Theme")]
+    public class Preferences : PreferenceActivity
     {
-        public static Preferences instance;
+        protected override void OnCreate(Bundle savedInstanceState)
+        {
+            base.OnCreate(savedInstanceState);
+            FragmentManager.BeginTransaction().Replace(Android.Resource.Id.Content, new PreferencesFragment()).Commit();
+        }
+    }
+
+    public class PreferencesFragment : PreferenceFragment
+    {
+        public static PreferencesFragment instance;
         private List<Folder> folders;
         private FolderAdapter adapter;
         private ListView folderList;
         private string path;
         private AlertDialog dialog;
 
-        public override void OnCreatePreferences(Bundle savedInstanceState, string rootKey)
+        public override void OnCreate(Bundle savedInstanceState)
         {
+            base.OnCreate(savedInstanceState);
+            instance = this;
             AddPreferencesFromResource(Resource.Layout.Preferences);
             Preference pref = PreferenceScreen.FindPreference("downloadPath");
             pref.PreferenceClick += Pref_PreferenceClick;
@@ -35,19 +49,6 @@ namespace MusicApp.Resources.Portable_Class
         {
             base.OnDestroy();
             instance = null;
-        }
-
-        public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-        {
-            View view = base.OnCreateView(inflater, container, savedInstanceState);
-            //view.SetPadding(0, 150, 0, 0);
-            return view;
-        }
-
-        public static Fragment NewInstance()
-        {
-            instance = new Preferences { Arguments = new Bundle() };
-            return instance;
         }
 
         private void Pref_PreferenceClick(object sender, Preference.PreferenceClickEventArgs e)
@@ -146,7 +147,7 @@ namespace MusicApp.Resources.Portable_Class
             editor.PutString("downloadPath", path);
             editor.Apply();
 
-            Preference prefButton = PreferenceScreen.FindPreference("downloadPath");
+            Preference prefButton = FindPreference("downloadPath");
             prefButton.Summary = path;
         }
 

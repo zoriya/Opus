@@ -19,12 +19,13 @@ namespace MusicApp.Resources.Portable_Class
         public static FolderBrowse instance;
         public static Context act;
         public static LayoutInflater inflater;
-        public List<Song> musicList = new List<Song>();
-        public Adapter adapter;
+        public List<string> paths = new List<string>();
+        public List<int> pathUse = new List<int>();
+        public ArrayAdapter adapter;
         public View emptyView;
 
         private View view;
-        private string[] actions = new string[] { "Play", "Play Next", "Play Last", "Add To Playlist" };
+        private string[] actions = new string[] { "Add To Playlist" };
         private bool isEmpty = false;
 
 
@@ -37,12 +38,10 @@ namespace MusicApp.Resources.Portable_Class
             ListView.EmptyView = emptyView;
 
             GetStoragePermission();
-            InitialiseSearchService();
         }
 
         public override void OnDestroy()
         {
-            MainActivity.instance.RemoveSearchService(0);
             if (isEmpty)
             {
                 ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
@@ -58,6 +57,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             View view = base.OnCreateView(inflater, container, savedInstanceState);
             this.view = view;
+            view.SetPadding(0, 0, 0, 100);
             return view;
         }
 
@@ -65,12 +65,6 @@ namespace MusicApp.Resources.Portable_Class
         {
             instance = new FolderBrowse { Arguments = new Bundle() };
             return instance;
-        }
-
-        private void InitialiseSearchService()
-        {
-            HasOptionsMenu = true;
-            MainActivity.instance.CreateSearch(0);
         }
 
         void GetStoragePermission()
@@ -102,7 +96,7 @@ namespace MusicApp.Resources.Portable_Class
 
         void PopulateList()
         {
-            Android.Net.Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
+            Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
 
             CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
             ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
@@ -110,40 +104,30 @@ namespace MusicApp.Resources.Portable_Class
 
             if (musicCursor != null && musicCursor.MoveToFirst())
             {
-                int titleID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Title);
-                int artistID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Artist);
-                int albumID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Album);
-                int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
                 int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
                 do
                 {
-                    string Artist = musicCursor.GetString(artistID);
-                    string Title = musicCursor.GetString(titleID);
-                    string Album = musicCursor.GetString(albumID);
-                    long AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
-                    long id = musicCursor.GetLong(thisID);
                     string path = musicCursor.GetString(pathID);
+                    path = path.Substring(0, path.LastIndexOf("/"));
 
-                    if (Title == null)
-                        Title = "Unknown Title";
-                    if (Artist == null)
-                        Artist = "Unknow Artist";
-                    if (Album == null)
-                        Album = "Unknow Album";
 
-                    musicList.Add(new Song(Title, Artist, Album, AlbumArt, id, path));
+                    if (!paths.Contains(path))
+                    {
+                        paths.Add(path);
+                        pathUse.Add(1);
+                    }
+                    else
+                        pathUse[paths.IndexOf(path)] += 1;
                 }
                 while (musicCursor.MoveToNext());
                 musicCursor.Close();
             }
 
-            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, musicList);
+            adapter = new TwoLineAdapter(Android.App.Application.Context, Resource.Layout.TwoLineLayout, paths, pathUse);
             ListAdapter = adapter;
             ListView.TextFilterEnabled = true;
             ListView.ItemClick += ListView_ItemClick;
             ListView.ItemLongClick += ListView_ItemLongClick;
-
-            //view.SetPadding(0, 55, 0, 0);
 
             if (adapter == null || adapter.Count == 0)
             {
@@ -152,21 +136,26 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
-        public void Search(string search)
-        {
-            List<Song> result = new List<Song>();
-            foreach (Song item in musicList)
-            {
-                if (item.GetName().ToLower().Contains(search.ToLower()) || item.GetArtist().ToLower().Contains(search.ToLower()))
-                {
-                    result.Add(item);
-                }
-            }
-            ListAdapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, result);
-        }
-
         public void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
         {
-            Song item = musicList[e.Position];
-            Play(item);
+            ListSongs(paths[e.Position]);
         }
+
+        private void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
+        {
+            
+        }
+
+        void ListSongs(string paths)
+        {
+            //AppCompatActivity act = (AppCompatActivity)Activity;
+            //act.SupportActionBar.SetHomeButtonEnabled(true);
+            //act.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
+            //act.SupportActionBar.Title = playList[e.Position];
+            //FragmentTransaction transaction = FragmentManager.BeginTransaction();
+            //transaction.Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(playlistId[e.Position]));
+            //transaction.AddToBackStack(null);
+            //transaction.Commit();
+        }
+    }
+}

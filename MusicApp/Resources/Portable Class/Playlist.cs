@@ -21,6 +21,7 @@ namespace MusicApp.Resources.Portable_Class
         public View emptyView;
 
         private List<string> playList = new List<string>();
+        private List<int> playListCount = new List<int>();
         private List<long> playlistId = new List<long>();
         private string[] actions = new string[] { "Random play", "Rename", "Delete" };
         private bool isEmpty = false;
@@ -49,7 +50,7 @@ namespace MusicApp.Resources.Portable_Class
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             View view = base.OnCreateView(inflater, container, savedInstanceState);
-            //view.SetPadding(0, 150, 0, 0);
+            view.SetPadding(0, 100, 0, 0);
             return view;
         }
 
@@ -100,17 +101,22 @@ namespace MusicApp.Resources.Portable_Class
             if (cursor != null && cursor.MoveToFirst())
             {
                 int nameID = cursor.GetColumnIndex(MediaStore.Audio.Playlists.InterfaceConsts.Name);
+                //int countID = cursor.GetColumnIndex(MediaStore.Audio.Playlists.InterfaceConsts.Count);
                 int listID = cursor.GetColumnIndex(MediaStore.Audio.Playlists.InterfaceConsts.Id);
                 do
                 {
                     string name = cursor.GetString(nameID);
+                    //int count = cursor.GetInt(countID);
                     long id = cursor.GetLong(listID);
                     playList.Add(name);
+                    //playListCount.Add(count);
                     playlistId.Add(id);
+
                 }
                 while (cursor.MoveToNext());
                 cursor.Close();
             }
+            //ListAdapter = new TwoLineAdapter(Android.App.Application.Context, Resource.Layout.TwoLineLayout, playList, playListCount);
             ListAdapter = new ArrayAdapter(Android.App.Application.Context, Resource.Layout.PlaylistList, playList);
             ListView.TextFilterEnabled = true;
             ListView.ItemClick += ListView_ItemClick;

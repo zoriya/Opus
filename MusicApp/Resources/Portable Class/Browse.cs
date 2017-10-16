@@ -65,6 +65,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             View view = base.OnCreateView(inflater, container, savedInstanceState);
             this.view = view;
+            view.SetPadding(0, 0, 0, 100);
             return view;
         }
 
@@ -149,8 +150,6 @@ namespace MusicApp.Resources.Portable_Class
             ListView.TextFilterEnabled = true;
             ListView.ItemClick += ListView_ItemClick;
             ListView.ItemLongClick += ListView_ItemLongClick;
-
-            //view.SetPadding(0, 55, 0, 0);
 
             if (adapter == null || adapter.Count == 0)
             {

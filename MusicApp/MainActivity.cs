@@ -8,6 +8,7 @@ using Android.Views;
 using Android.Support.V4.View;
 using Android.Runtime;
 using Android.Widget;
+using Android.Content;
 
 namespace MusicApp
 {
@@ -50,28 +51,37 @@ namespace MusicApp
         {
             if(item.ItemId == Android.Resource.Id.Home)
             {
-                var item2 = menu.FindItem(Resource.Id.search);
-                item2.SetVisible(false);
                 if (PlaylistTracks.instance != null)
                 {
+                    var item2 = menu.FindItem(Resource.Id.search);
+                    item2.SetVisible(false);
                     if (PlaylistTracks.instance.isEmpty)
                     {
                         ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
                         rootView.RemoveView(PlaylistTracks.instance.emptyView);
                     }
+                    SupportActionBar.SetHomeButtonEnabled(false);
+                    SupportActionBar.SetDisplayHomeAsUpEnabled(false);
+                    SupportActionBar.Title = "MusicApp";
+                    Navigate(Resource.Id.playlistLayout);
                 }
-                SupportActionBar.SetHomeButtonEnabled(false);
-                SupportActionBar.SetDisplayHomeAsUpEnabled(false);
-                SupportActionBar.Title = "MusicApp";
-                Navigate(Resource.Id.playlistLayout);
             }
             else if(item.ItemId == Resource.Id.settings)
             {
-                HideTabs();
-                Android.Support.V4.App.Fragment fragment = Preferences.NewInstance();
-                SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, fragment).Commit();
-            }
+                //HideTabs();
+                //SupportActionBar.SetDisplayHomeAsUpEnabled(true);
+                //FindViewById<BottomNavigationView>(Resource.Id.bottomView).Visibility = ViewStates.Gone;
+                //SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, fragment).AddToBackStack(null).Commit();
 
+                //FragmentTransaction transaction = FragmentManager.BeginTransaction();
+                //transaction.Replace(Resource.Id.contentView, fragment);
+                //transaction.AddToBackStack(null);
+                //transaction.Commit();
+
+                Intent intent = new Intent(Android.App.Application.Context, typeof(Preferences));
+                StartActivity(intent);
+                //startActivity(mainIntent);
+            }
             return base.OnOptionsItemSelected(item);
         }
 
@@ -178,7 +188,7 @@ namespace MusicApp
 
             adapter.AddFragment(Browse.NewInstance(), "Songs");
             adapter.AddFragment(DownloadFragment.NewInstance(), "Artists");
-            adapter.AddFragment(DownloadFragment.NewInstance(), "Folders");
+            adapter.AddFragment(FolderBrowse.NewInstance(), "Folders");
 
             pager.Adapter = adapter;
             tabs.SetupWithViewPager(pager);
