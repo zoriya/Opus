@@ -42,8 +42,6 @@ namespace MusicApp.Resources.Portable_Class
             ListView.ItemLongClick += ListView_ItemLongClick; ;
             ListAdapter = null;
             Activity.AddContentView(emptyView, View.LayoutParameters);
-
-            InitialiseSearchService();
         }
 
         public override void OnDestroy()
@@ -55,12 +53,6 @@ namespace MusicApp.Resources.Portable_Class
             }
             base.OnDestroy();
             instance = null;
-            MainActivity.instance.RemoveSearchService(2);
-        }
-
-        private void InitialiseSearchService()
-        {
-            MainActivity.instance.CreateSearch(2);
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)

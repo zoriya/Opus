@@ -148,6 +148,7 @@
     <Compile Include="Resources\Portable Class\DownloadList.cs" />
     <Compile Include="Resources\Portable Class\FolderAdapter.cs" />
     <Compile Include="Resources\Portable Class\FolderBrowse.cs" />
+    <Compile Include="Resources\Portable Class\FolderTracks.cs" />
     <Compile Include="Resources\Portable Class\MusicPlayer.cs" />
     <Compile Include="Resources\Portable Class\Playlist.cs" />
     <Compile Include="Resources\Portable Class\PlaylistTracks.cs" />
@@ -322,6 +323,9 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\layout\TwoLineLayout.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\PreferenceToolbar.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

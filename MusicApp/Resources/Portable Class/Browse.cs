@@ -43,13 +43,12 @@ namespace MusicApp.Resources.Portable_Class
             emptyView = LayoutInflater.Inflate(Resource.Layout.NoSong, null);
             ListView.EmptyView = emptyView;
 
-            GetStoragePermission();
-            InitialiseSearchService();
+            if(ListView.Adapter == null)
+                GetStoragePermission();
         }
 
         public override void OnDestroy()
         {
-            MainActivity.instance.RemoveSearchService(0);
             if (isEmpty)
             {
                 ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
@@ -73,12 +72,6 @@ namespace MusicApp.Resources.Portable_Class
         {
             instance = new Browse { Arguments = new Bundle() };
             return instance;
-        }
-
-        private void InitialiseSearchService()
-        {
-            HasOptionsMenu = true;
-            MainActivity.instance.CreateSearch(0);
         }
 
         void GetStoragePermission()
@@ -231,7 +224,7 @@ namespace MusicApp.Resources.Portable_Class
             context.StartService(intent);
         }
 
-        public void GetPlaylist(Song item)
+        public static void GetPlaylist(Song item)
         {
             List<string> playList = new List<string>();
             List<long> playListId = new List<long>();
@@ -266,14 +259,14 @@ namespace MusicApp.Resources.Portable_Class
             builder.Show();
         }
 
-        public void AddToPlaylist(Song item, string playList, long playlistID)
+        public static void AddToPlaylist(Song item, string playList, long playlistID)
         {
             if (playList == "Create a playlist")
                 CreatePlalistDialog();
 
             else
             {
-                ContentResolver resolver = Activity.ContentResolver;
+                ContentResolver resolver = act.ContentResolver;
                 ContentValues value = new ContentValues();
                 value.Put(MediaStore.Audio.Playlists.Members.AudioId, item.GetID());
                 value.Put(MediaStore.Audio.Playlists.InterfaceConsts.Id, playlistID);
@@ -282,9 +275,9 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
-        public void CreatePlalistDialog()
+        public static void CreatePlalistDialog()
         {
-            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, Resource.Style.AppCompatAlertDialogStyle);
+            AlertDialog.Builder builder = new AlertDialog.Builder(act, Resource.Style.AppCompatAlertDialogStyle);
             builder.SetTitle("Playlist name");
             View view = inflater.Inflate(Resource.Layout.CreatePlaylistDialog, null);
             builder.SetView(view);
@@ -296,9 +289,9 @@ namespace MusicApp.Resources.Portable_Class
             builder.Show();
         }
 
-        public void CreatePlaylist(string name)
+        public static void CreatePlaylist(string name)
         {
-            ContentResolver resolver = Activity.ContentResolver;
+            ContentResolver resolver = act.ContentResolver;
             Android.Net.Uri uri = MediaStore.Audio.Playlists.ExternalContentUri;
             ContentValues value = new ContentValues();
             value.Put(MediaStore.Audio.Playlists.InterfaceConsts.Name, name);

@@ -11,6 +11,7 @@ using Android.Support.Design.Widget;
 using Android.Views;
 using Android.Content.PM;
 using Android.Support.V4.App;
+using Android.Support.V7.App;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -37,7 +38,8 @@ namespace MusicApp.Resources.Portable_Class
             emptyView = LayoutInflater.Inflate(Resource.Layout.NoSong, null);
             ListView.EmptyView = emptyView;
 
-            GetStoragePermission();
+            if(ListView.Adapter == null)
+                GetStoragePermission();
         }
 
         public override void OnDestroy()
@@ -146,16 +148,17 @@ namespace MusicApp.Resources.Portable_Class
             
         }
 
-        void ListSongs(string paths)
+        void ListSongs(string path)
         {
-            //AppCompatActivity act = (AppCompatActivity)Activity;
-            //act.SupportActionBar.SetHomeButtonEnabled(true);
-            //act.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
-            //act.SupportActionBar.Title = playList[e.Position];
-            //FragmentTransaction transaction = FragmentManager.BeginTransaction();
-            //transaction.Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(playlistId[e.Position]));
-            //transaction.AddToBackStack(null);
-            //transaction.Commit();
+            AppCompatActivity act = (AppCompatActivity)Activity;
+            act.SupportActionBar.SetHomeButtonEnabled(true);
+            act.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
+            act.SupportActionBar.Title = path;
+            MainActivity.instance.HideTabs();
+            FragmentTransaction transaction = FragmentManager.BeginTransaction();
+            transaction.Replace(Resource.Id.contentView, FolderTracks.NewInstance(path));
+            transaction.AddToBackStack(null);
+            transaction.Commit();
         }
     }
 }

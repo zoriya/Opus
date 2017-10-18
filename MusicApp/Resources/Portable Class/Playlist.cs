@@ -33,7 +33,8 @@ namespace MusicApp.Resources.Portable_Class
             emptyView = LayoutInflater.Inflate(Resource.Layout.NoPlaylist, null);
             ListView.EmptyView = emptyView;
 
-            GetStoragePermission();
+            if(ListView.Adapter == null)
+                GetStoragePermission();
         }
 
         public override void OnDestroy()

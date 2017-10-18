@@ -10,6 +10,8 @@ using Android.Runtime;
 using Android.Widget;
 using Android.Content;
 
+using SearchView = Android.Support.V7.Widget.SearchView;
+
 namespace MusicApp
 {
     [Activity(Label = "MusicApp", MainLauncher = true, Icon = "@drawable/MusicIcon", Theme = "@style/Theme")]
@@ -35,7 +37,6 @@ namespace MusicApp
             ToolBar = (Android.Support.V7.Widget.Toolbar) FindViewById(Resource.Id.toolbar);
             SetSupportActionBar(ToolBar);
             SupportActionBar.Title = "MusicApp";
-            HideTabs();
         }
 
         public override bool OnCreateOptionsMenu(IMenu menu)
@@ -66,72 +67,58 @@ namespace MusicApp
                     Navigate(Resource.Id.playlistLayout);
                 }
             }
+            else if(item.ItemId == Resource.Id.search)
+            {
+                var searchItem = MenuItemCompat.GetActionView(item);
+                var searchView = searchItem.JavaCast<Android.Support.V7.Widget.SearchView>();
+
+                searchView.QueryTextChange += Search;
+
+                searchView.QueryTextSubmit += (s, e) =>
+                {
+                    if (DownloadList.instance != null)
+                        DownloadList.instance.Search(e.Query);
+
+                    e.Handled = true;
+                };
+            }
             else if(item.ItemId == Resource.Id.settings)
             {
-                //HideTabs();
-                //SupportActionBar.SetDisplayHomeAsUpEnabled(true);
-                //FindViewById<BottomNavigationView>(Resource.Id.bottomView).Visibility = ViewStates.Gone;
-                //SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, fragment).AddToBackStack(null).Commit();
-
-                //FragmentTransaction transaction = FragmentManager.BeginTransaction();
-                //transaction.Replace(Resource.Id.contentView, fragment);
-                //transaction.AddToBackStack(null);
-                //transaction.Commit();
-
-                Intent intent = new Intent(Android.App.Application.Context, typeof(Preferences));
+                Intent intent = new Intent(Application.Context, typeof(Preferences));
                 StartActivity(intent);
-                //startActivity(mainIntent);
             }
             return base.OnOptionsItemSelected(item);
         }
 
-        public void CreateSearch(int requestID)
+        void Search(object sender, SearchView.QueryTextChangeEventArgs e)
         {
-            var item = menu.FindItem(Resource.Id.search);
-            item.SetVisible(true);
-            var searchItem = MenuItemCompat.GetActionView(item);
-            var searchView = searchItem.JavaCast<Android.Support.V7.Widget.SearchView>();
-
-            if (requestID == 0)
-                searchView.QueryTextChange += (s, e) =>
-                {
-                    if(Browse.instance != null)
-                        Browse.instance.Search(e.NewText);
-                };
-            if (requestID == 1)
-                searchView.QueryTextChange += (s, e) =>
-                {
-                    if(PlaylistTracks.instance != null)
-                        PlaylistTracks.instance.Search(e.NewText);
-                };
-            if (requestID == 2)
-                searchView.QueryTextSubmit += (s, e) =>
-                {
-                    if(DownloadList.instance != null)
-                        DownloadList.instance.Search(e.Query);
-                };
-
-            searchView.QueryTextSubmit += (s, e) =>
-            {
-                e.Handled = true;
-            };
+            if (Browse.instance != null)
+                Browse.instance.Search(e.NewText);
+            if (PlaylistTracks.instance != null)
+                PlaylistTracks.instance.Search(e.NewText);
+            if (PlaylistTracks.instance != null)
+                PlaylistTracks.instance.Search(e.NewText);
+            if (FolderTracks.instance != null)
+                FolderTracks.instance.Search(e.NewText);
         }
 
-        public void RemoveSearchService(int requestID)
+        void HideSearch()
         {
+            if (menu == null)
+                return;
+
             var item = menu.FindItem(Resource.Id.search);
             item.SetVisible(false);
             var searchItem = MenuItemCompat.GetActionView(item);
             var searchView = searchItem.JavaCast<Android.Support.V7.Widget.SearchView>();
 
             searchView.ClearFocus();
+        }
 
-            if (requestID == 0)
-                searchView.QueryTextChange -= (s, e) => Browse.instance.Search(e.NewText);
-            if (requestID == 1)
-                searchView.QueryTextChange -= (s, e) => PlaylistTracks.instance.Search(e.NewText);
-            if (requestID == 2)
-                searchView.QueryTextSubmit -= (s, e) => DownloadList.instance.Search(e.Query);
+        public void DisplaySearch()
+        {
+            var item = menu.FindItem(Resource.Id.search);
+            item.SetVisible(true);
         }
 
         private void PreNavigate(object sender, BottomNavigationView.NavigationItemSelectedEventArgs e)
@@ -146,20 +133,24 @@ namespace MusicApp
             {
                 case Resource.Id.musicLayout:
                     HideTabs();
+                    HideSearch();
                     fragment = Queue.NewInstance();
                     break;
 
                 case Resource.Id.browseLayout:
                     SetTabs();
+                    DisplaySearch();
                     break;
 
                 case Resource.Id.downloadLayout:
                     HideTabs();
+                    DisplaySearch();
                     fragment = DownloadList.NewInstance();
                     break;
 
                 case Resource.Id.playlistLayout:
                     HideTabs();
+                    HideSearch();
                     fragment = Playlist.NewInstance();
                     break;
             }
@@ -192,10 +183,9 @@ namespace MusicApp
 
             pager.Adapter = adapter;
             tabs.SetupWithViewPager(pager);
-            //tabs.TabSelected += (sender, e) => { Console.WriteLine("Clicked"); pager.SetCurrentItem(e.Tab.Position, true); };
         }
 
-        void HideTabs()
+        public void HideTabs()
         {
             TabLayout tabs = FindViewById<TabLayout>(Resource.Id.tabs);
             tabs.RemoveAllTabs();

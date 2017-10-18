@@ -15,16 +15,16 @@ using Android.Support.V7.App;
 
 namespace MusicApp.Resources.Portable_Class
 {
-    public class PlaylistTracks : ListFragment
+    public class FolderTracks : ListFragment
     {
-        public static PlaylistTracks instance;
+        public static FolderTracks instance;
         public Adapter adapter;
         public View emptyView;
-        public long playlistId;
         public bool isEmpty = false;
+        public string path;
 
         private List<Song> tracks = new List<Song>();
-        private string[] actions = new string[] { "Play", "Play Next", "Play Last", "Remove Track from playlist" };
+        private string[] actions = new string[] { "Play", "Play Next", "Play Last", "Add To Playlist" };
 
 
         public override void OnActivityCreated(Bundle savedInstanceState)
@@ -40,21 +40,8 @@ namespace MusicApp.Resources.Portable_Class
 
         public override void OnDestroy()
         {
-            if(isEmpty)
-            {
-                ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
-                rootView.RemoveView(emptyView);
-            }
-
-            ActionBar toolbar = MainActivity.instance.SupportActionBar;
-            if (toolbar != null)
-            {
-                toolbar.Title = "MusicApp";
-                toolbar.SetDisplayHomeAsUpEnabled(false);
-            }
-
-            base.OnDestroy();
             instance = null;
+            base.OnDestroy();
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -64,16 +51,16 @@ namespace MusicApp.Resources.Portable_Class
             return view;
         }
 
-        public static Fragment NewInstance(long playlistId)
+        public static Fragment NewInstance(string path)
         {
-            instance = new PlaylistTracks { Arguments = new Bundle() };
-            instance.playlistId = playlistId;
+            instance = new FolderTracks { Arguments = new Bundle() };
+            instance.path = path;
             return instance;
         }
 
         void PopulateList()
         {
-            Uri musicUri = MediaStore.Audio.Playlists.Members.GetContentUri("external", playlistId);
+            Uri musicUri = MediaStore.Audio.Media.GetContentUriForPath(path);
 
             CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
             ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
@@ -161,28 +148,13 @@ namespace MusicApp.Resources.Portable_Class
                         Browse.PlayLast(item);
                         break;
                     case 3:
-                        RemoveFromPlaylist(item);
+                        Browse.GetPlaylist(item);
                         break;
                     default:
                         break;
                 }
             });
             builder.Show();
-        }
-
-        void RemoveFromPlaylist(Song item)
-        {
-            ContentResolver resolver = Activity.ContentResolver;
-            Uri uri = MediaStore.Audio.Playlists.Members.GetContentUri("external", playlistId);
-            resolver.Delete(uri, MediaStore.Audio.Playlists.Members.Id + "=?", new string[] { item.GetID().ToString() });
-            tracks.Remove(item);
-            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, tracks);
-            ListAdapter = adapter;
-            if (adapter == null || adapter.Count == 0)
-            {
-                isEmpty = true;
-                Activity.AddContentView(emptyView, View.LayoutParameters);
-            }
         }
     }
 }

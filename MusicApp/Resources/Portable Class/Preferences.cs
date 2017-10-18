@@ -11,6 +11,7 @@ using Android.Content;
 using Android.App;
 
 using AlertDialog = Android.Support.V7.App.AlertDialog;
+using Toolbar = Android.Support.V7.Widget.Toolbar;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -21,6 +22,16 @@ namespace MusicApp.Resources.Portable_Class
         {
             base.OnCreate(savedInstanceState);
             FragmentManager.BeginTransaction().Replace(Android.Resource.Id.Content, new PreferencesFragment()).Commit();
+        }
+
+        protected override void OnPostCreate(Bundle savedInstanceState)
+        {
+            base.OnPostCreate(savedInstanceState);
+            LinearLayout root = (LinearLayout) FindViewById(Android.Resource.Id.List).Parent.Parent.Parent;
+            Toolbar toolbar = (Toolbar) LayoutInflater.From(this).Inflate(Resource.Layout.PreferenceToolbar, root, false);
+            root.AddView(toolbar, 0);
+            toolbar.Title = "Settings";
+            toolbar.NavigationClick += (sender, e) => { Finish(); };
         }
     }
 
@@ -49,6 +60,13 @@ namespace MusicApp.Resources.Portable_Class
         {
             base.OnDestroy();
             instance = null;
+        }
+
+        public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+        {
+            View view = base.OnCreateView(inflater, container, savedInstanceState);
+            view.SetPadding(0, 100, 0, 0);
+            return view;
         }
 
         private void Pref_PreferenceClick(object sender, Preference.PreferenceClickEventArgs e)

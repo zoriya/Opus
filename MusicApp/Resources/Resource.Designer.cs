@@ -3260,31 +3260,34 @@ namespace MusicApp
 			public const int Preferences = 2130903119;
 			
 			// aapt resource value: 0x7f030050
-			public const int search_layout = 2130903120;
+			public const int PreferenceToolbar = 2130903120;
 			
 			// aapt resource value: 0x7f030051
-			public const int select_dialog_item_material = 2130903121;
+			public const int search_layout = 2130903121;
 			
 			// aapt resource value: 0x7f030052
-			public const int select_dialog_multichoice_material = 2130903122;
+			public const int select_dialog_item_material = 2130903122;
 			
 			// aapt resource value: 0x7f030053
-			public const int select_dialog_singlechoice_material = 2130903123;
+			public const int select_dialog_multichoice_material = 2130903123;
 			
 			// aapt resource value: 0x7f030054
-			public const int SongList = 2130903124;
+			public const int select_dialog_singlechoice_material = 2130903124;
 			
 			// aapt resource value: 0x7f030055
-			public const int support_simple_spinner_dropdown_item = 2130903125;
+			public const int SongList = 2130903125;
 			
 			// aapt resource value: 0x7f030056
-			public const int tabs = 2130903126;
+			public const int support_simple_spinner_dropdown_item = 2130903126;
 			
 			// aapt resource value: 0x7f030057
-			public const int TimerLayout = 2130903127;
+			public const int tabs = 2130903127;
 			
 			// aapt resource value: 0x7f030058
-			public const int TwoLineLayout = 2130903128;
+			public const int TimerLayout = 2130903128;
+			
+			// aapt resource value: 0x7f030059
+			public const int TwoLineLayout = 2130903129;
 			
 			static Layout()
 			{
