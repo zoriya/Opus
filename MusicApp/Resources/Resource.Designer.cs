@@ -26,6 +26,8 @@ namespace MusicApp
 		
 		public static void UpdateIdValues()
 		{
+			global::FFMpeg.Xamarin.Resource.String.ApplicationName = global::MusicApp.Resource.String.ApplicationName;
+			global::FFMpeg.Xamarin.Resource.String.Hello = global::MusicApp.Resource.String.Hello;
 		}
 		
 		public partial class Animation
@@ -3321,6 +3323,12 @@ namespace MusicApp
 		public partial class String
 		{
 			
+			// aapt resource value: 0x7f09002c
+			public const int ApplicationName = 2131296300;
+			
+			// aapt resource value: 0x7f09002b
+			public const int Hello = 2131296299;
+			
 			// aapt resource value: 0x7f090002
 			public const int abc_action_bar_home_description = 2131296258;
 			
@@ -3414,8 +3422,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f090014
 			public const int abc_toolbar_collapse_description = 2131296276;
 			
-			// aapt resource value: 0x7f09002b
-			public const int app_name = 2131296299;
+			// aapt resource value: 0x7f09002d
+			public const int app_name = 2131296301;
 			
 			// aapt resource value: 0x7f090023
 			public const int appbar_scrolling_view_behavior = 2131296291;

@@ -170,7 +170,7 @@ namespace MusicApp
             tabs.Visibility = ViewStates.Visible;
             tabs.RemoveAllTabs();
             tabs.AddTab(tabs.NewTab().SetText("Songs"));
-            tabs.AddTab(tabs.NewTab().SetText("Artist"));
+            //tabs.AddTab(tabs.NewTab().SetText("Artist"));
             tabs.AddTab(tabs.NewTab().SetText("Folders"));
             ViewPager pager = FindViewById<ViewPager>(Resource.Id.pager);
             pager.SetPadding(0, 200, 0, 0);
@@ -178,7 +178,7 @@ namespace MusicApp
             ViewPagerAdapter adapter = new ViewPagerAdapter(SupportFragmentManager);
 
             adapter.AddFragment(Browse.NewInstance(), "Songs");
-            adapter.AddFragment(DownloadFragment.NewInstance(), "Artists");
+            //adapter.AddFragment(DownloadFragment.NewInstance(), "Artists");
             adapter.AddFragment(FolderBrowse.NewInstance(), "Folders");
 
             pager.Adapter = adapter;

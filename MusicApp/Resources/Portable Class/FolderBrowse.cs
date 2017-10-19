@@ -86,6 +86,9 @@ namespace MusicApp.Resources.Portable_Class
             switch (requestCode)
             {
                 case 0:
+                    if (grantResults != null)
+                        return;
+
                     if (grantResults[0] == Permission.Granted)
                         PopulateList();
 
