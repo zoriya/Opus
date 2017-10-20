@@ -81,6 +81,8 @@ namespace MusicApp
 
                     e.Handled = true;
                 };
+
+                searchView.Close += SearchClose;
             }
             else if(item.ItemId == Resource.Id.settings)
             {
@@ -102,23 +104,51 @@ namespace MusicApp
                 FolderTracks.instance.Search(e.NewText);
         }
 
+        void SearchClose(object sender, SearchView.CloseEventArgs e)
+        {
+            if (Browse.instance != null)
+                Browse.instance.result = null;
+        }
+
         void HideSearch()
         {
             if (menu == null)
                 return;
 
             var item = menu.FindItem(Resource.Id.search);
-            item.SetVisible(false);
             var searchItem = MenuItemCompat.GetActionView(item);
             var searchView = searchItem.JavaCast<Android.Support.V7.Widget.SearchView>();
 
+            searchView.SetQuery("", false);
             searchView.ClearFocus();
+            searchView.OnActionViewCollapsed();
+
+            item.SetVisible(false);
+            item.CollapseActionView();
+
+            SupportActionBar.SetHomeButtonEnabled(false);
+            SupportActionBar.SetDisplayHomeAsUpEnabled(false);
+            SupportActionBar.Title = "MusicApp";
         }
 
-        public void DisplaySearch()
+        public void DisplaySearch(int id = 0)
         {
             var item = menu.FindItem(Resource.Id.search);
             item.SetVisible(true);
+            item.CollapseActionView();
+            var searchItem = MenuItemCompat.GetActionView(item);
+            var searchView = searchItem.JavaCast<Android.Support.V7.Widget.SearchView>();
+
+            searchView.SetQuery("", false);
+            searchView.ClearFocus();
+            searchView.OnActionViewCollapsed();
+
+            if (id == 3)
+                return;
+
+            SupportActionBar.SetHomeButtonEnabled(false);
+            SupportActionBar.SetDisplayHomeAsUpEnabled(false);
+            SupportActionBar.Title = "MusicApp";
         }
 
         private void PreNavigate(object sender, BottomNavigationView.NavigationItemSelectedEventArgs e)

@@ -1,20 +1,16 @@
 ﻿using Android.OS;
 using System.Collections.Generic;
 using Android.Widget;
-using Android.Net;
 using Android.Database;
 using Android.Provider;
 using MusicApp.Resources.values;
 using Android.Content;
 using Android;
 using Android.Support.Design.Widget;
-using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Content.PM;
 using Android.Support.V4.App;
-using Android.Support.V4.View;
 using Android.Support.V7.App;
-using Android.Support.V4.Widget;
 using Android.Runtime;
 using System;
 using Java.Lang;
@@ -27,6 +23,7 @@ namespace MusicApp.Resources.Portable_Class
         public static Context act;
         public static LayoutInflater inflater;
         public List<Song> musicList = new List<Song>();
+        public List<Song> result;
         public Adapter adapter;
         public View emptyView;
 
@@ -153,7 +150,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public void Search(string search)
         {
-            List<Song> result = new List<Song>();
+            result = new List<Song>();
             foreach(Song item in musicList)
             {
                 if(item.GetName().ToLower().Contains(search.ToLower()) || item.GetArtist().ToLower().Contains(search.ToLower()))
@@ -167,12 +164,18 @@ namespace MusicApp.Resources.Portable_Class
         public void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
         {
             Song item = musicList[e.Position];
+            if (result != null)
+                item = result[e.Position];
+
             Play(item);
         }
 
         public void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
         {
             Song item = musicList[e.Position];
+            if (result != null)
+                item = result[e.Position];
+
             AlertDialog.Builder builder = new AlertDialog.Builder(Activity, Resource.Style.AppCompatAlertDialogStyle);
             builder.SetTitle("Pick an action");
             builder.SetItems(actions, (senderAlert, args) => 

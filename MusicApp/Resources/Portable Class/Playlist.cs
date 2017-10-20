@@ -95,7 +95,7 @@ namespace MusicApp.Resources.Portable_Class
 
         void PopulateView()
         {
-            Android.Net.Uri uri = MediaStore.Audio.Playlists.ExternalContentUri;
+            Uri uri = MediaStore.Audio.Playlists.ExternalContentUri;
             CursorLoader loader = new CursorLoader(Android.App.Application.Context, uri, null, null, null, null);
             ICursor cursor = (ICursor)loader.LoadInBackground();
 
