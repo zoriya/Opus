@@ -108,6 +108,10 @@ namespace MusicApp
         {
             if (Browse.instance != null)
                 Browse.instance.result = null;
+            if (PlaylistTracks.instance != null)
+                PlaylistTracks.instance.result = null;
+            if (FolderTracks.instance != null)
+                FolderTracks.instance.result = null;
         }
 
         void HideSearch()

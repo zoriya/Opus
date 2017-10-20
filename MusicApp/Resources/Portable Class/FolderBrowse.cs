@@ -26,7 +26,7 @@ namespace MusicApp.Resources.Portable_Class
         public View emptyView;
 
         private View view;
-        private string[] actions = new string[] { "Add To Playlist" };
+        private string[] actions = new string[] { "List songs", "Add To Playlist", "Random Play" };
         private bool isEmpty = false;
 
 
@@ -39,7 +39,7 @@ namespace MusicApp.Resources.Portable_Class
             ListView.EmptyView = emptyView;
 
             if(ListView.Adapter == null)
-                GetStoragePermission();
+                PopulateList();
         }
 
         public override void OnDestroy()
@@ -67,36 +67,6 @@ namespace MusicApp.Resources.Portable_Class
         {
             instance = new FolderBrowse { Arguments = new Bundle() };
             return instance;
-        }
-
-        void GetStoragePermission()
-        {
-            const string permission = Manifest.Permission.ReadExternalStorage;
-            if (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(Android.App.Application.Context, permission) == (int)Permission.Granted)
-            {
-                PopulateList();
-                return;
-            }
-            string[] permissions = new string[] { permission };
-            RequestPermissions(permissions, 0);
-        }
-
-        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, Permission[] grantResults)
-        {
-            switch (requestCode)
-            {
-                case 0:
-                    if (grantResults != null)
-                        return;
-
-                    if (grantResults[0] == Permission.Granted)
-                        PopulateList();
-
-                    else
-                        Snackbar.Make(View, "Permission denied, can't list musics.", Snackbar.LengthShort).Show();
-
-                    break;
-            }
         }
 
         void PopulateList()
@@ -148,7 +118,28 @@ namespace MusicApp.Resources.Portable_Class
 
         private void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
         {
-            
+            string path = paths[e.Position];
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, Resource.Style.AppCompatAlertDialogStyle);
+            builder.SetTitle("Pick an action");
+            builder.SetItems(actions, (senderAlert, args) =>
+            {
+                switch (args.Which)
+                {
+                    case 0:
+                        ListSongs(path);
+                        break;
+                    case 1:
+                        GetPlaylist(path);
+                        break;
+                    case 2:
+                        //random play
+                        break;
+                    default:
+                        break;
+                }
+            });
+            builder.Show();
         }
 
         void ListSongs(string path)
@@ -162,6 +153,120 @@ namespace MusicApp.Resources.Portable_Class
             transaction.Replace(Resource.Id.contentView, FolderTracks.NewInstance(path));
             transaction.AddToBackStack(null);
             transaction.Commit();
+        }
+
+        public void GetPlaylist(string item)
+        {
+            List<string> playList = new List<string>();
+            List<long> playListId = new List<long>();
+            playList.Add("Create a playlist");
+            playListId.Add(0);
+
+            Uri uri = MediaStore.Audio.Playlists.ExternalContentUri;
+            CursorLoader loader = new CursorLoader(Android.App.Application.Context, uri, null, null, null, null);
+            ICursor cursor = (ICursor)loader.LoadInBackground();
+
+            if (cursor != null && cursor.MoveToFirst())
+            {
+                int nameID = cursor.GetColumnIndex(MediaStore.Audio.Playlists.InterfaceConsts.Name);
+                int playlistID = cursor.GetColumnIndex(MediaStore.Audio.Playlists.InterfaceConsts.Id);
+                do
+                {
+                    string name = cursor.GetString(nameID);
+                    long id = cursor.GetLong(playlistID);
+                    playList.Add(name);
+                    playListId.Add(id);
+                }
+                while (cursor.MoveToNext());
+                cursor.Close();
+            }
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(act, Resource.Style.AppCompatAlertDialogStyle);
+            builder.SetTitle("Add to a playlist");
+            builder.SetItems(playList.ToArray(), (senderAlert, args) =>
+            {
+                AddToPlaylist(item, playList[args.Which], playListId[args.Which]);
+            });
+            builder.Show();
+        }
+
+        public void AddToPlaylist(string path, string playList, long playlistID)
+        {
+            if (playList == "Create a playlist")
+                CreatePlalistDialog(path);
+
+            else
+            {
+                ContentResolver resolver = act.ContentResolver;
+
+                Uri musicUri = MediaStore.Audio.Media.GetContentUriForPath(path);
+
+                CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
+                ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
+
+                if (musicCursor != null && musicCursor.MoveToFirst())
+                {
+                    int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
+                    do
+                    {
+                        long id = musicCursor.GetLong(thisID);
+
+                        ContentValues value = new ContentValues();
+                        value.Put(MediaStore.Audio.Playlists.Members.AudioId, id);
+                        value.Put(MediaStore.Audio.Playlists.InterfaceConsts.Id, playlistID);
+                        value.Put(MediaStore.Audio.Playlists.Members.PlayOrder, 0);
+                        resolver.Insert(MediaStore.Audio.Playlists.Members.GetContentUri("external", playlistID), value);
+                    }
+                    while (musicCursor.MoveToNext());
+                    musicCursor.Close();
+                }
+            }
+        }
+
+        public void CreatePlalistDialog(string path)
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(act, Resource.Style.AppCompatAlertDialogStyle);
+            builder.SetTitle("Playlist name");
+            View view = inflater.Inflate(Resource.Layout.CreatePlaylistDialog, null);
+            builder.SetView(view);
+            builder.SetNegativeButton("Cancel", (senderAlert, args) => { });
+            builder.SetPositiveButton("Create", (senderAlert, args) =>
+            {
+                CreatePlaylist(view.FindViewById<EditText>(Resource.Id.playlistName).Text, path);
+            });
+            builder.Show();
+        }
+
+        public void CreatePlaylist(string name, string path)
+        {
+            ContentResolver resolver = act.ContentResolver;
+            Uri uri = MediaStore.Audio.Playlists.ExternalContentUri;
+            ContentValues value = new ContentValues();
+            value.Put(MediaStore.Audio.Playlists.InterfaceConsts.Name, name);
+            resolver.Insert(uri, value);
+
+            long playlistID = 0;
+
+            CursorLoader loader = new CursorLoader(Android.App.Application.Context, uri, null, null, null, null);
+            ICursor cursor = (ICursor)loader.LoadInBackground();
+
+            if (cursor != null && cursor.MoveToFirst())
+            {
+                int nameID = cursor.GetColumnIndex(MediaStore.Audio.Playlists.InterfaceConsts.Name);
+                int getplaylistID = cursor.GetColumnIndex(MediaStore.Audio.Playlists.InterfaceConsts.Id);
+                do
+                {
+                    string playlistName = cursor.GetString(nameID);
+                    long id = cursor.GetLong(getplaylistID);
+
+                    if (playlistName == name)
+                        playlistID = id;
+                }
+                while (cursor.MoveToNext());
+                cursor.Close();
+            }
+
+            AddToPlaylist(path, "foo", playlistID);
         }
     }
 }

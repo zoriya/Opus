@@ -20,6 +20,7 @@ namespace MusicApp.Resources.Portable_Class
         public static FolderTracks instance;
         public Adapter adapter;
         public View emptyView;
+        public List<Song> result;
         public bool isEmpty = false;
         public string path;
 
@@ -35,7 +36,7 @@ namespace MusicApp.Resources.Portable_Class
             ListAdapter = adapter;
 
             PopulateList();
-            MainActivity.instance.DisplaySearch();
+            MainActivity.instance.DisplaySearch(1);
         }
 
         public override void OnDestroy()
@@ -110,7 +111,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public void Search(string search)
         {
-            List<Song> result = new List<Song>();
+            result = new List<Song>();
             foreach (Song item in tracks)
             {
                 if (item.GetName().ToLower().Contains(search.ToLower()) || item.GetArtist().ToLower().Contains(search.ToLower()))
@@ -124,7 +125,12 @@ namespace MusicApp.Resources.Portable_Class
         private void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
         {
             Browse.act = Activity;
-            Browse.Play(tracks[e.Position]);
+
+            Song item = tracks[e.Position];
+            if (result != null)
+                item = result[e.Position];
+
+            Browse.Play(item);
         }
 
         private void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
@@ -132,6 +138,9 @@ namespace MusicApp.Resources.Portable_Class
             Browse.act = Activity;
             Browse.inflater = LayoutInflater;
             Song item = tracks[e.Position];
+            if (result != null)
+                item = result[e.Position];
+
             AlertDialog.Builder builder = new AlertDialog.Builder(Activity, Resource.Style.AppCompatAlertDialogStyle);
             builder.SetTitle("Pick an action");
             builder.SetItems(actions, (senderAlert, args) =>

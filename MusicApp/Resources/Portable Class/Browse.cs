@@ -265,7 +265,7 @@ namespace MusicApp.Resources.Portable_Class
         public static void AddToPlaylist(Song item, string playList, long playlistID)
         {
             if (playList == "Create a playlist")
-                CreatePlalistDialog();
+                CreatePlalistDialog(item);
 
             else
             {
@@ -278,7 +278,7 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
-        public static void CreatePlalistDialog()
+        public static void CreatePlalistDialog(Song item)
         {
             AlertDialog.Builder builder = new AlertDialog.Builder(act, Resource.Style.AppCompatAlertDialogStyle);
             builder.SetTitle("Playlist name");
@@ -287,18 +287,42 @@ namespace MusicApp.Resources.Portable_Class
             builder.SetNegativeButton("Cancel", (senderAlert, args) => { });
             builder.SetPositiveButton("Create", (senderAlert, args) => 
             {
-                CreatePlaylist(view.FindViewById<EditText>(Resource.Id.playlistName).Text);
+                CreatePlaylist(view.FindViewById<EditText>(Resource.Id.playlistName).Text, item);
             });
             builder.Show();
         }
 
-        public static void CreatePlaylist(string name)
+        public static void CreatePlaylist(string name, Song item)
         {
             ContentResolver resolver = act.ContentResolver;
             Android.Net.Uri uri = MediaStore.Audio.Playlists.ExternalContentUri;
             ContentValues value = new ContentValues();
             value.Put(MediaStore.Audio.Playlists.InterfaceConsts.Name, name);
             resolver.Insert(uri, value);
+
+            string playList = "foo";
+            long playlistID = 0;
+
+            CursorLoader loader = new CursorLoader(Android.App.Application.Context, uri, null, null, null, null);
+            ICursor cursor = (ICursor)loader.LoadInBackground();
+
+            if (cursor != null && cursor.MoveToFirst())
+            {
+                int nameID = cursor.GetColumnIndex(MediaStore.Audio.Playlists.InterfaceConsts.Name);
+                int getplaylistID = cursor.GetColumnIndex(MediaStore.Audio.Playlists.InterfaceConsts.Id);
+                do
+                {
+                    string playlistName = cursor.GetString(nameID);
+                    long id = cursor.GetLong(getplaylistID);
+
+                    if (playlistName == name)
+                        playlistID = id;
+                }
+                while (cursor.MoveToNext());
+                cursor.Close();
+            }
+
+            AddToPlaylist(item, playList, playlistID);
         }
     }
 

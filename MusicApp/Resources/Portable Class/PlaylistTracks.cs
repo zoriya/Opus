@@ -36,7 +36,7 @@ namespace MusicApp.Resources.Portable_Class
             ListAdapter = adapter;
 
             PopulateList();
-            MainActivity.instance.DisplaySearch(3);
+            MainActivity.instance.DisplaySearch(1);
         }
 
         public override void OnDestroy()
