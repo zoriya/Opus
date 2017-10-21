@@ -66,6 +66,21 @@ namespace MusicApp
                     SupportActionBar.Title = "MusicApp";
                     Navigate(Resource.Id.playlistLayout);
                 }
+                if (FolderTracks.instance != null)
+                {
+                    var item2 = menu.FindItem(Resource.Id.search);
+                    item2.SetVisible(false);
+                    if (FolderTracks.instance.isEmpty)
+                    {
+                        ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
+                        rootView.RemoveView(PlaylistTracks.instance.emptyView);
+                    }
+                    SupportActionBar.SetHomeButtonEnabled(false);
+                    SupportActionBar.SetDisplayHomeAsUpEnabled(false);
+                    SupportActionBar.Title = "MusicApp";
+                    FolderTracks.instance = null;
+                    SetTabs(1);
+                }
             }
             else if(item.ItemId == Resource.Id.search)
             {
@@ -147,7 +162,7 @@ namespace MusicApp
             searchView.ClearFocus();
             searchView.OnActionViewCollapsed();
 
-            if (id == 3)
+            if (id != 0)
                 return;
 
             SupportActionBar.SetHomeButtonEnabled(false);
@@ -195,7 +210,7 @@ namespace MusicApp
             SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, fragment).Commit();
         }
 
-        void SetTabs()
+        void SetTabs(int selectedTab = 0)
         {
             FrameLayout frame = FindViewById<FrameLayout>(Resource.Id.contentView);
             frame.Visibility = ViewStates.Gone;
@@ -217,7 +232,12 @@ namespace MusicApp
 
             pager.Adapter = adapter;
             tabs.SetupWithViewPager(pager);
+
+            pager.CurrentItem = selectedTab;
+            tabs.SetScrollPosition(selectedTab, 0f, true);
         }
+
+        //AFTER USING FOLDERTRACKS, BROWSE AND FOLDERBROWSE OONCLICK DOES NOT WORK;
 
         public void HideTabs()
         {
@@ -225,6 +245,8 @@ namespace MusicApp
             tabs.RemoveAllTabs();
             tabs.Visibility = ViewStates.Gone;
             ViewPager pager = FindViewById<ViewPager>(Resource.Id.pager);
+            if (pager.Adapter != null)
+                pager.Adapter.Dispose();
             pager.Adapter = null;
 
             FrameLayout frame = FindViewById<FrameLayout>(Resource.Id.contentView);

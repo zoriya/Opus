@@ -56,12 +56,14 @@ namespace MusicApp.Resources.Portable_Class
         {
             instance = new FolderTracks { Arguments = new Bundle() };
             instance.path = path;
+            System.Console.WriteLine("Path : " + path);
             return instance;
         }
 
         void PopulateList()
         {
             Uri musicUri = MediaStore.Audio.Media.GetContentUriForPath(path);
+            System.Console.WriteLine(path);
 
             CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
             ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
@@ -76,12 +78,16 @@ namespace MusicApp.Resources.Portable_Class
                 int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
                 do
                 {
+                    string path = musicCursor.GetString(pathID);
+
+                    if (!path.Contains(this.path))
+                        continue;
+
                     string Artist = musicCursor.GetString(artistID);
                     string Title = musicCursor.GetString(titleID);
                     string Album = musicCursor.GetString(albumID);
                     long AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
                     long id = musicCursor.GetLong(thisID);
-                    string path = musicCursor.GetString(pathID);
 
                     if (Title == null)
                         Title = "Unknown Title";

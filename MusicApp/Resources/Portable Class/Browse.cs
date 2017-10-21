@@ -77,6 +77,8 @@ namespace MusicApp.Resources.Portable_Class
             if (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(Android.App.Application.Context, permission) == (int)Permission.Granted)
             {
                 PopulateList();
+                //if(FolderBrowse.instance != null)
+                //    FolderBrowse.instance.PopulateList();
                 return;
             }
             string[] permissions = new string[] { permission };

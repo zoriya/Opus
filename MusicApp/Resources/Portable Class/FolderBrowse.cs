@@ -20,6 +20,7 @@ namespace MusicApp.Resources.Portable_Class
         public static FolderBrowse instance;
         public static Context act;
         public static LayoutInflater inflater;
+        public List<string> pathDisplay = new List<string>();
         public List<string> paths = new List<string>();
         public List<int> pathUse = new List<int>();
         public ArrayAdapter adapter;
@@ -69,8 +70,11 @@ namespace MusicApp.Resources.Portable_Class
             return instance;
         }
 
-        void PopulateList()
+        public void PopulateList()
         {
+            if (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(Android.App.Application.Context, Manifest.Permission.ReadExternalStorage) != (int)Permission.Granted)
+                return;
+
             Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
 
             CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
@@ -84,10 +88,11 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     string path = musicCursor.GetString(pathID);
                     path = path.Substring(0, path.LastIndexOf("/"));
-
+                    string displayPath = path.Substring(path.LastIndexOf("/") + 1, path.Length - (path.LastIndexOf("/") + 1));
 
                     if (!paths.Contains(path))
                     {
+                        pathDisplay.Add(displayPath);
                         paths.Add(path);
                         pathUse.Add(1);
                     }
@@ -98,7 +103,7 @@ namespace MusicApp.Resources.Portable_Class
                 musicCursor.Close();
             }
 
-            adapter = new TwoLineAdapter(Android.App.Application.Context, Resource.Layout.TwoLineLayout, paths, pathUse);
+            adapter = new TwoLineAdapter(Android.App.Application.Context, Resource.Layout.TwoLineLayout, pathDisplay, pathUse);
             ListAdapter = adapter;
             ListView.TextFilterEnabled = true;
             ListView.ItemClick += ListView_ItemClick;
@@ -113,12 +118,13 @@ namespace MusicApp.Resources.Portable_Class
 
         public void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
         {
-            ListSongs(paths[e.Position]);
+            ListSongs(pathDisplay[e.Position], paths[e.Position]);
         }
 
         private void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
         {
             string path = paths[e.Position];
+            string displayPath = pathDisplay[e.Position];
 
             AlertDialog.Builder builder = new AlertDialog.Builder(Activity, Resource.Style.AppCompatAlertDialogStyle);
             builder.SetTitle("Pick an action");
@@ -127,7 +133,7 @@ namespace MusicApp.Resources.Portable_Class
                 switch (args.Which)
                 {
                     case 0:
-                        ListSongs(path);
+                        ListSongs(displayPath, path);
                         break;
                     case 1:
                         GetPlaylist(path);
@@ -142,15 +148,15 @@ namespace MusicApp.Resources.Portable_Class
             builder.Show();
         }
 
-        void ListSongs(string path)
+        void ListSongs(string displayPath, string path)
         {
             AppCompatActivity act = (AppCompatActivity)Activity;
             act.SupportActionBar.SetHomeButtonEnabled(true);
             act.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
-            act.SupportActionBar.Title = path;
-            MainActivity.instance.HideTabs();
+            act.SupportActionBar.Title = displayPath;
+            //MainActivity.instance.HideTabs();
             FragmentTransaction transaction = FragmentManager.BeginTransaction();
-            transaction.Replace(Resource.Id.contentView, FolderTracks.NewInstance(path));
+            transaction.Replace(Resource.Id.pager, FolderTracks.NewInstance(path));
             transaction.AddToBackStack(null);
             transaction.Commit();
         }
