@@ -159,6 +159,7 @@
     <Compile Include="Resources\Portable Class\Preferences.cs" />
     <Compile Include="Resources\Portable Class\Queue.cs" />
     <Compile Include="Resources\Portable Class\TwoLineAdapter.cs" />
+    <Compile Include="Resources\Portable Class\ViewPagerAdapter.cs" />
     <Compile Include="Resources\Portable Class\YTitemToSong.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

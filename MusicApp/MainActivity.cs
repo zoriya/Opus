@@ -237,17 +237,22 @@ namespace MusicApp
             tabs.SetScrollPosition(selectedTab, 0f, true);
         }
 
-        //AFTER USING FOLDERTRACKS, BROWSE AND FOLDERBROWSE OONCLICK DOES NOT WORK;
-
         public void HideTabs()
         {
             TabLayout tabs = FindViewById<TabLayout>(Resource.Id.tabs);
             tabs.RemoveAllTabs();
             tabs.Visibility = ViewStates.Gone;
             ViewPager pager = FindViewById<ViewPager>(Resource.Id.pager);
-            if (pager.Adapter != null)
-                pager.Adapter.Dispose();
-            pager.Adapter = null;
+
+            ViewPagerAdapter adapter = (ViewPagerAdapter) pager.Adapter;
+            if (adapter != null)
+            {
+                for(int i = 0; i < adapter.Count; i++)
+                    SupportFragmentManager.BeginTransaction().Remove(adapter.GetItem(i)).Commit();
+
+                adapter.Dispose();
+                pager.Adapter = null;
+            }
 
             FrameLayout frame = FindViewById<FrameLayout>(Resource.Id.contentView);
             frame.Visibility = ViewStates.Visible;

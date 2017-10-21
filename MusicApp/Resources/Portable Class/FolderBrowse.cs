@@ -139,7 +139,7 @@ namespace MusicApp.Resources.Portable_Class
                         GetPlaylist(path);
                         break;
                     case 2:
-                        //random play
+                        RandomPlay(path);
                         break;
                     default:
                         break;
@@ -154,9 +154,10 @@ namespace MusicApp.Resources.Portable_Class
             act.SupportActionBar.SetHomeButtonEnabled(true);
             act.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
             act.SupportActionBar.Title = displayPath;
-            //MainActivity.instance.HideTabs();
+
+            MainActivity.instance.HideTabs();
             FragmentTransaction transaction = FragmentManager.BeginTransaction();
-            transaction.Replace(Resource.Id.pager, FolderTracks.NewInstance(path));
+            transaction.Replace(Resource.Id.contentView, FolderTracks.NewInstance(path));
             transaction.AddToBackStack(null);
             transaction.Commit();
         }
@@ -273,6 +274,36 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             AddToPlaylist(path, "foo", playlistID);
+        }
+
+        void RandomPlay(string folderPath)
+        {
+            List<string> trackPaths = new List<string>();
+            Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
+
+            CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
+            ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
+
+
+            if (musicCursor != null && musicCursor.MoveToFirst())
+            {
+                int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
+                do
+                {
+                    string path = musicCursor.GetString(pathID);
+
+                    if (path.Contains(folderPath))
+                        trackPaths.Add(path);
+                }
+                while (musicCursor.MoveToNext());
+                musicCursor.Close();
+            }
+
+
+            Intent intent = new Intent(Android.App.Application.Context, typeof(MusicPlayer));
+            intent.PutStringArrayListExtra("files", trackPaths.ToArray());
+            intent.SetAction("RandomPlay");
+            Activity.StartService(intent);
         }
     }
 }

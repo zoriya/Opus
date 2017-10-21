@@ -33,7 +33,6 @@ namespace MusicApp.Resources.Portable_Class
             base.OnActivityCreated(savedInstanceState);
             emptyView = LayoutInflater.Inflate(Resource.Layout.NoPlaylist, null);
             ListView.EmptyView = emptyView;
-            ListAdapter = adapter;
 
             PopulateList();
             MainActivity.instance.DisplaySearch(1);
@@ -56,14 +55,12 @@ namespace MusicApp.Resources.Portable_Class
         {
             instance = new FolderTracks { Arguments = new Bundle() };
             instance.path = path;
-            System.Console.WriteLine("Path : " + path);
             return instance;
         }
 
         void PopulateList()
         {
             Uri musicUri = MediaStore.Audio.Media.GetContentUriForPath(path);
-            System.Console.WriteLine(path);
 
             CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
             ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();

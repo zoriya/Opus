@@ -11,9 +11,6 @@ using Android.Views;
 using Android.Content.PM;
 using Android.Support.V4.App;
 using Android.Support.V7.App;
-using Android.Runtime;
-using System;
-using Java.Lang;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -325,42 +322,6 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             AddToPlaylist(item, playList, playlistID);
-        }
-    }
-
-    public class ViewPagerAdapter : FragmentPagerAdapter
-    {
-        private List<Fragment> fragmentList = new List<Fragment>();
-        private List<string> titles = new List<string>();
-
-
-        public ViewPagerAdapter(FragmentManager fm) : base(fm)
-        {
-
-        }
-
-        protected ViewPagerAdapter(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer)
-        {
-
-        }
-
-        public override int Count => fragmentList.Count;
-
-        public override Fragment GetItem(int position)
-        {
-            return fragmentList[position];
-        }
-
-        public void AddFragment (Fragment fragment, string title)
-        {
-            fragmentList.Add(fragment);
-            titles.Add(title);
-        }
-
-        public override ICharSequence GetPageTitleFormatted(int position)
-        {
-            ICharSequence title = CharSequence.ArrayFromStringArray(new string[] { titles[position] })[0];
-            return title;
         }
     }
 }

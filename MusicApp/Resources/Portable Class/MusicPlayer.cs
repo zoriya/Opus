@@ -62,9 +62,7 @@ namespace MusicApp.Resources.Portable_Class
 
                 case "RandomPlay":
                     List<string> files = intent.GetStringArrayListExtra("files").ToList();
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                     RandomPlay(files);
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                     break;
 
                 case "PlayNext":
@@ -118,6 +116,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public async void Play(string filePath)
         {
+            Console.WriteLine("Playing : " + filePath);
             if (player == null)
                 InitializeService();
 
@@ -159,20 +158,19 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
-        public async Task RandomPlay(List<string> filePath)
+        public async void RandomPlay(List<string> filePath)
         {
-            await Task.Run(async () =>
+            Random r = new Random();
+            filePath = filePath.OrderBy(x => r.Next()).ToList();
+            await Task.Delay(1000);
+            Play(filePath[0]);
+            await Task.Delay(1000);
+            for (int i = 1; i < filePath.Count; i++)
             {
-                 Random r = new Random();
-                 filePath = filePath.OrderBy(x => r.Next()).ToList();
-                 Play(filePath[0]);
-                 await Task.Delay(1000);
-                 for (int i = 1; i < filePath.Count; i++)
-                 {
-                     GetTrackSong(filePath[i], out Song song);
-                     queue.Add(song);
-                 }
-            });
+                GetTrackSong(filePath[i], out Song song);
+                queue.Add(song);
+                await Task.Delay(10);
+            }
         }
 
         public void AddToQueue(string filePath)
@@ -242,7 +240,7 @@ namespace MusicApp.Resources.Portable_Class
             string path = filePath;
 
             Android.Net.Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
-            CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
+            CursorLoader cursorLoader = new CursorLoader(Application.Context, musicUri, null, null, null, null);
             ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
 
             if (musicCursor != null && musicCursor.MoveToFirst())
@@ -253,7 +251,9 @@ namespace MusicApp.Resources.Portable_Class
                 int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
                 int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
 
-                while (musicCursor.GetString(pathID) != filePath)
+                path = musicCursor.GetString(pathID);
+
+                while (path != filePath)
                     musicCursor.MoveToNext();
 
                 Artist = musicCursor.GetString(artistID);
@@ -261,7 +261,6 @@ namespace MusicApp.Resources.Portable_Class
                 Album = musicCursor.GetString(albumID);
                 AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
                 id = musicCursor.GetLong(thisID);
-                path = musicCursor.GetString(pathID);
 
                 if (Title == null)
                     Title = "Unknown Title";
