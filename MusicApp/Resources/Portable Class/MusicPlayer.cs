@@ -12,6 +12,10 @@ using Android.Database;
 using Android.Provider;
 using System.Linq;
 using System.Threading.Tasks;
+using Square.Picasso;
+
+using Uri = Android.Net.Uri;
+using FileNotFoundException = System.IO.FileNotFoundException;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -116,7 +120,6 @@ namespace MusicApp.Resources.Portable_Class
 
         public async void Play(string filePath)
         {
-            Console.WriteLine("Playing : " + filePath);
             if (player == null)
                 InitializeService();
 
@@ -126,8 +129,8 @@ namespace MusicApp.Resources.Portable_Class
                 InitializePlayer();
                 await player.SetDataSourceAsync(Application.Context, Android.Net.Uri.Parse(filePath));
                 player.PrepareAsync();
-                GetTrackInfo(filePath, out string title, out string artist, out Bitmap icon);
-                CreateNotification(title, artist, icon);
+                GetTrackSong(filePath, out Song song);
+                CreateNotification(song.GetName(), song.GetArtist(), song.GetAlbumArt());
                 queue.Clear();
                 AddToQueue(filePath);
                 return;
@@ -147,8 +150,8 @@ namespace MusicApp.Resources.Portable_Class
                     return;
                 }
                 player.PrepareAsync();
-                GetTrackInfo(filePath, out string title, out string artist, out Bitmap icon);
-                CreateNotification(title, artist, icon);
+                GetTrackSong(filePath, out Song song);
+                CreateNotification(song.GetName(), song.GetArtist(), song.GetAlbumArt());
                 queue.Clear();
                 AddToQueue(filePath);
             }
@@ -214,8 +217,8 @@ namespace MusicApp.Resources.Portable_Class
             InitializePlayer();
             await player.SetDataSourceAsync(Application.Context, Android.Net.Uri.Parse(filePath));
             player.PrepareAsync();
-            GetTrackInfo(filePath, out string title, out string artist, out Bitmap icon);
-            CreateNotification(title, artist, icon);
+            GetTrackSong(filePath, out Song song);
+            CreateNotification(song.GetName(), song.GetArtist(), song.GetAlbumArt());
         }
 
         public static int CurentID()
@@ -239,7 +242,9 @@ namespace MusicApp.Resources.Portable_Class
             long id = 0;
             string path = filePath;
 
-            Android.Net.Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
+
+            Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
+
             CursorLoader cursorLoader = new CursorLoader(Application.Context, musicUri, null, null, null, null);
             ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
 
@@ -250,52 +255,51 @@ namespace MusicApp.Resources.Portable_Class
                 int albumID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Album);
                 int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
                 int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
+                do
+                {
+                    path = musicCursor.GetString(pathID);
 
-                path = musicCursor.GetString(pathID);
+                    if (path == filePath)
+                    {
+                        Artist = musicCursor.GetString(artistID);
+                        Title = musicCursor.GetString(titleID);
+                        Album = musicCursor.GetString(albumID);
+                        AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
+                        id = musicCursor.GetLong(thisID);
 
-                while (path != filePath)
-                    musicCursor.MoveToNext();
-
-                Artist = musicCursor.GetString(artistID);
-                Title = musicCursor.GetString(titleID);
-                Album = musicCursor.GetString(albumID);
-                AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
-                id = musicCursor.GetLong(thisID);
-
-                if (Title == null)
-                    Title = "Unknown Title";
-                if (Artist == null)
-                    Artist = "Unknow Artist";
-                if (Album == null)
-                    Album = "Unknow Album";
+                        if (Title == null)
+                            Title = "Unknown Title";
+                        if (Artist == null)
+                            Artist = "Unknow Artist";
+                        if (Album == null)
+                            Album = "Unknow Album";
+                    }
+                }
+                while (musicCursor.MoveToNext());
                 musicCursor.Close();
             }
             song = new Song(Title, Artist, Album, AlbumArt, id, path);
         }
 
-        void GetTrackInfo(string filePath, out string title, out string artist, out Bitmap icon)
-        {
-            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-            retriever.SetDataSource(filePath);
-
-            title = retriever.ExtractMetadata(MetadataKey.Title);
-            if (title == null)
-                title = "Unknow";
-
-            artist = retriever.ExtractMetadata(MetadataKey.Artist);
-            if (artist == null)
-                artist = "Unknow";
-
-            byte[] data = retriever.GetEmbeddedPicture();
-            if (data != null)
-                icon = BitmapFactory.DecodeByteArray(data, 0, data.Length);
-            else
-                icon = BitmapFactory.DecodeResource(Application.Context.Resources, Resource.Drawable.MusicIcon);
-        }
-
-        void CreateNotification(string title, string artist, Bitmap icon)
+        async void CreateNotification(string title, string artist, long albumArt)
         {
             MusicPlayer.title = title;
+
+            Uri songCover = Uri.Parse("content://media/external/audio/albumart");
+            Uri iconURI = ContentUris.WithAppendedId(songCover, albumArt);
+            Bitmap icon = null;
+
+            await Task.Run(() =>
+            {
+                try
+                {
+                    icon = Picasso.With(Application.Context).Load(iconURI).Error(Resource.Drawable.MusicIcon).Placeholder(Resource.Drawable.MusicIcon).NetworkPolicy(NetworkPolicy.Offline).Resize(400, 400).CenterCrop().Get();
+                }
+                catch (Exception)
+                {
+                    icon = Picasso.With(Application.Context).Load(Resource.Drawable.MusicIcon).Get();
+                }
+            });
 
             Intent tmpPreviusIntent = new Intent(Application.Context, typeof(MusicPlayer));
             tmpPreviusIntent.SetAction("Previus");

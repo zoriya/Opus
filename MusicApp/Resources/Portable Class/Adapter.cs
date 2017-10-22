@@ -56,10 +56,6 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             convertView.SetBackgroundColor(Color.White);
-            //if (position % 2 == 0)
-            //{
-            //    convertView.SetBackgroundColor(Color.LightGreen);
-            //}
             return convertView;
         }
     }
