@@ -2,18 +2,15 @@
 using Android.OS;
 using Android.Views;
 using Android.Widget;
-using Android.Support.V7.App;
 using Android.Support.V4.App;
 using System.Collections.Generic;
-using Android.Provider;
-using Android.Database;
-using Android.Content.PM;
 using Android.Support.Design.Widget;
-using Android;
-using Android.Net;
 using YoutubeSearch;
 using MusicApp.Resources.values;
 using Android.Support.V7.Preferences;
+using YoutubeExtractor;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -88,10 +85,30 @@ namespace MusicApp.Resources.Portable_Class
             ListAdapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, list);
         }
 
-        private void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
+        private /*async*/ void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
         {
-            Toast.MakeText(Android.App.Application.Context, "Play: comming soon", ToastLength.Short).Show();
+            //await Task.Run(() =>
+            //{
+            Toast.MakeText(Android.App.Application.Context, "Playing : " + list[e.Position].GetPath(), ToastLength.Short).Show();
+            IEnumerable<VideoInfo> videoInfos = DownloadUrlResolver.GetDownloadUrls(list[e.Position].GetPath(), false);
+            //VideoInfo video = videoInfos.Where(info => info.VideoType == VideoType.Mp4 && info.Resolution == 0).OrderByDescending(info => info.AudioBitrate).First();
+            VideoInfo video = videoInfos.Where(info => info.AudioBitrate > 0 && info.AdaptiveType == AdaptiveType.Audio).OrderByDescending(info => info.AudioBitrate).First();
 
+            if (video.RequiresDecryption)
+            {
+                DownloadUrlResolver.DecryptDownloadUrl(video);
+            }
+
+            System.Console.WriteLine(video.DownloadUrl);
+
+            Song song = list[e.Position];
+
+            Intent intent = new Intent(Android.App.Application.Context, typeof(MusicPlayer));
+            intent.SetAction("YTPlay");
+            intent.PutExtra("file", video.DownloadUrl);
+            intent.PutStringArrayListExtra("song", new string[] { song.GetName(), song.GetArtist(), song.GetAlbum() });
+            Activity.StartService(intent);
+            //});
         }
 
         private void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)

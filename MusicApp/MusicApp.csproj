@@ -136,6 +136,9 @@
     <Reference Include="YoutubeExplode, Version=3.2.5.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\YoutubeExplode.3.2.5\lib\netstandard1.1\YoutubeExplode.dll</HintPath>
     </Reference>
+    <Reference Include="YoutubeExtractor, Version=0.10.11.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\YoutubeExtractor.0.10.11\lib\portable-net45+win8+wpa81+wp8\YoutubeExtractor.dll</HintPath>
+    </Reference>
     <Reference Include="YoutubeSearch, Version=0.1.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\YoutubeSearch.dll.1.1\lib\YoutubeSearch.dll</HintPath>
     </Reference>
@@ -154,6 +157,7 @@
     <Compile Include="Resources\Portable Class\FolderBrowse.cs" />
     <Compile Include="Resources\Portable Class\FolderTracks.cs" />
     <Compile Include="Resources\Portable Class\MusicPlayer.cs" />
+    <Compile Include="Resources\Portable Class\Player.cs" />
     <Compile Include="Resources\Portable Class\Playlist.cs" />
     <Compile Include="Resources\Portable Class\PlaylistTracks.cs" />
     <Compile Include="Resources\Portable Class\Preferences.cs" />
@@ -331,6 +335,12 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\layout\PreferenceToolbar.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\anim\SlideInUp.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\anim\SlideOutUp.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

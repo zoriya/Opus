@@ -16,6 +16,7 @@
       <ImageView
         android:id="@+id/playerAlbum"
         android:layout_width="fill_parent"
+        android:background="@null"
         android:layout_height="wrap_content"
         android:scaleType="fitCenter"
         android:adjustViewBounds="true" />
@@ -24,9 +25,39 @@
         android:background="@drawable/ic_timer_white_24dp"
         android:layout_width="35dp"
         android:layout_height="35dp"
-        android:layout_gravity="top|right"
-        android:paddingTop="80dp"
-        android:paddingRight="40dp"/>
+        android:layout_gravity="top|center"
+        android:paddingTop="280dp" />
+      <LinearLayout
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" >
+        <ImageButton
+          android:id="@+id/lastButton"
+          android:background="@null"
+          android:tint="#ffffff"
+          android:layout_width="60dp"
+          android:layout_height="60dp"
+          android:src="@drawable/ic_skip_previous_black_24dp"/>
+        <ImageButton
+          android:id="@+id/playButton"
+          android:layout_width="60dp"
+          android:layout_height="60dp"
+          android:layout_marginLeft="50dp"
+          android:background="@null"
+          android:layout_marginRight="50dp"
+          android:layout_gravity="center"
+          android:tint="#ffffff"
+          android:src="@drawable/ic_pause_black_24dp"/>
+        <ImageButton
+          android:id="@+id/nextButton"
+          android:layout_width="60dp"
+          android:layout_height="60dp"
+          android:background="@null"
+          android:tint="#ffffff"
+          android:src="@drawable/ic_skip_next_black_24dp"/>
+      </LinearLayout>
     </FrameLayout>
     <LinearLayout
       android:orientation="vertical"
@@ -53,7 +84,7 @@
         android:textColor="#FFFFFF"
         android:alpha=".92"
         android:textStyle="bold"
-        android:paddingLeft="65dp"
+        android:paddingLeft="60dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"/>
       <TextView
@@ -69,22 +100,21 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:paddingLeft="65dp"
+        android:paddingLeft="60dp"
         android:alpha=".92"
         android:textSize="20sp"
         android:textColor="#FFFFFF"/>
     </LinearLayout>
   </LinearLayout>
   <android.support.design.widget.FloatingActionButton
-    android:id="@+id/playFAB"
+    android:id="@+id/downFAB"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    app:layout_anchor="@id/playerAlbum"
-    app:layout_anchorGravity="bottom|right|end"
-    android:transitionName="playButton"
+    app:layout_anchor="@id/infoPanel"
+    app:layout_anchorGravity="bottom|center"
     android:layout_margin="10dip"
     app:elevation="12dp"
     app:borderWidth="0dp"
     app:backgroundTint="#4cb5ae"
-    android:src="@drawable/ic_pause_black_24dp" />
+    android:src="@drawable/ic_expand_more_black_24dp" />
 </android.support.design.widget.CoordinatorLayout>

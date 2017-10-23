@@ -11,6 +11,7 @@ using Android.Widget;
 using Android.Content;
 
 using SearchView = Android.Support.V7.Widget.SearchView;
+using static Android.App.ActivityManager;
 
 namespace MusicApp
 {
@@ -183,7 +184,14 @@ namespace MusicApp
                 case Resource.Id.musicLayout:
                     HideTabs();
                     HideSearch();
-                    fragment = Queue.NewInstance();
+                    if (MusicPlayer.isRunning)
+                    {
+                        fragment = Player.NewInstance();
+                        break;
+                    }
+                    if(fragment == null)
+                        fragment = Queue.NewInstance();
+
                     break;
 
                 case Resource.Id.browseLayout:

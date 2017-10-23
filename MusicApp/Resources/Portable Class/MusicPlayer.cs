@@ -16,6 +16,7 @@ using Square.Picasso;
 
 using Uri = Android.Net.Uri;
 using FileNotFoundException = System.IO.FileNotFoundException;
+using Android.Widget;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -27,6 +28,7 @@ namespace MusicApp.Resources.Portable_Class
         public MediaSessionCompat mediaSession;
         public AudioManager audioManager;
         public NotificationManager notificationManager;
+        public static bool isRunning = false;
         public static string title;
 
         private Notification notification;
@@ -84,6 +86,15 @@ namespace MusicApp.Resources.Portable_Class
                     if (player.IsPlaying)
                         Pause();
                     break;
+                case "YTPlay":
+                    string[] song = intent.GetStringArrayListExtra("song").ToArray();
+                    Console.WriteLine(song.Length);
+                    Console.WriteLine(song[0]);
+                    Console.WriteLine(song[1]);
+                    Console.WriteLine(song[2]);
+
+                    PlayFromYT(file, song[0], song[1], song[2]);
+                    break;
             }
 
             if (intent.Action != null)
@@ -120,6 +131,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public async void Play(string filePath)
         {
+            isRunning = true;
             if (player == null)
                 InitializeService();
 
@@ -154,6 +166,52 @@ namespace MusicApp.Resources.Portable_Class
                 CreateNotification(song.GetName(), song.GetArtist(), song.GetAlbumArt());
                 queue.Clear();
                 AddToQueue(filePath);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex);
+            }
+        }
+
+        public async void PlayFromYT(string url, string title, string artist, string imageURL)
+        {
+            isRunning = true;
+            if (player == null)
+                InitializeService();
+
+            if (mediaSession != null)
+            {
+                player.Reset();
+                InitializePlayer();
+                await player.SetDataSourceAsync(Application.Context, Uri.Parse(url));
+                player.PrepareAsync();
+                CreateNotification(title, artist, 0, imageURL);
+
+                queue.Clear();
+                Song item = new Song(title, artist, imageURL, -1, 1, url);
+                queue.Add(item);
+                return;
+            }
+            try
+            {
+                mediaSession = new MediaSessionCompat(Application.Context, "MusicApp");
+                mediaSession.SetFlags(MediaSessionCompat.FlagHandlesMediaButtons | MediaSessionCompat.FlagHandlesTransportControls);
+                PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder().SetActions(PlaybackStateCompat.ActionPlay | PlaybackStateCompat.ActionPause);
+                mediaSession.SetPlaybackState(builder.Build());
+
+                await player.SetDataSourceAsync(Application.Context, Uri.Parse(url));
+                var audioFocus = audioManager.RequestAudioFocus(this, Stream.Music, AudioFocus.Gain);
+                if (audioFocus != AudioFocusRequest.Granted)
+                {
+                    Console.WriteLine("Can't Get Audio Focus");
+                    return;
+                }
+                player.PrepareAsync();
+                CreateNotification(title, artist, 0, imageURL);
+
+                queue.Clear();
+                Song item = new Song(title, artist, imageURL, -1, 1, url);
+                queue.Add(item);
             }
             catch (Exception ex)
             {
@@ -215,7 +273,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             player.Reset();
             InitializePlayer();
-            await player.SetDataSourceAsync(Application.Context, Android.Net.Uri.Parse(filePath));
+            await player.SetDataSourceAsync(Application.Context, Uri.Parse(filePath));
             player.PrepareAsync();
             GetTrackSong(filePath, out Song song);
             CreateNotification(song.GetName(), song.GetArtist(), song.GetAlbumArt());
@@ -281,25 +339,35 @@ namespace MusicApp.Resources.Portable_Class
             song = new Song(Title, Artist, Album, AlbumArt, id, path);
         }
 
-        async void CreateNotification(string title, string artist, long albumArt)
+        async void CreateNotification(string title, string artist, long albumArt = 0, string imageURI = "")
         {
             MusicPlayer.title = title;
-
-            Uri songCover = Uri.Parse("content://media/external/audio/albumart");
-            Uri iconURI = ContentUris.WithAppendedId(songCover, albumArt);
             Bitmap icon = null;
 
-            await Task.Run(() =>
+            if (albumArt != 0)
             {
-                try
+                Uri songCover = Uri.Parse("content://media/external/audio/albumart");
+                Uri iconURI = ContentUris.WithAppendedId(songCover, albumArt);
+
+                await Task.Run(() =>
                 {
-                    icon = Picasso.With(Application.Context).Load(iconURI).Error(Resource.Drawable.MusicIcon).Placeholder(Resource.Drawable.MusicIcon).NetworkPolicy(NetworkPolicy.Offline).Resize(400, 400).CenterCrop().Get();
-                }
-                catch (Exception)
+                    try
+                    {
+                        icon = Picasso.With(Application.Context).Load(iconURI).Error(Resource.Drawable.MusicIcon).Placeholder(Resource.Drawable.MusicIcon).NetworkPolicy(NetworkPolicy.Offline).Resize(400, 400).CenterCrop().Get();
+                    }
+                    catch (Exception)
+                    {
+                        icon = Picasso.With(Application.Context).Load(Resource.Drawable.MusicIcon).Get();
+                    }
+                });
+            }
+            else
+            {
+                await Task.Run(() =>
                 {
-                    icon = Picasso.With(Application.Context).Load(Resource.Drawable.MusicIcon).Get();
-                }
-            });
+                    icon = Picasso.With(Application.Context).Load(imageURI).Get();
+                });
+            }
 
             Intent tmpPreviusIntent = new Intent(Application.Context, typeof(MusicPlayer));
             tmpPreviusIntent.SetAction("Previus");
@@ -344,6 +412,11 @@ namespace MusicApp.Resources.Portable_Class
 
                 player.Pause();
                 StopForeground(false);
+
+                if(Player.instance != null)
+                {
+                    Player.instance.playerView.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
+                }
             }
         }
 
@@ -359,11 +432,17 @@ namespace MusicApp.Resources.Portable_Class
 
                 player.Start();
                 StartForeground(notificationID, notification);
+
+                if (Player.instance != null)
+                {
+                    Player.instance.playerView.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
+                }
             }
         }
 
         public void Stop()
         {
+            isRunning = false;
             if(player != null)
             {
                 if (player.IsPlaying)
@@ -408,6 +487,8 @@ namespace MusicApp.Resources.Portable_Class
         public override void OnDestroy()
         {
             base.OnDestroy();
+
+            isRunning = false;
 
             if (player != null)
                 player.Release();
