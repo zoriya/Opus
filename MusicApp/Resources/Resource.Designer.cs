@@ -2320,46 +2320,49 @@ namespace MusicApp
 			public const int ic_play_arrow_black_24dp = 2130837600;
 			
 			// aapt resource value: 0x7f020061
-			public const int ic_skip_next_black_24dp = 2130837601;
+			public const int ic_playlist_add_white_24dp = 2130837601;
 			
 			// aapt resource value: 0x7f020062
-			public const int ic_skip_previous_black_24dp = 2130837602;
+			public const int ic_skip_next_black_24dp = 2130837602;
 			
 			// aapt resource value: 0x7f020063
-			public const int ic_timer_white_24dp = 2130837603;
+			public const int ic_skip_previous_black_24dp = 2130837603;
 			
 			// aapt resource value: 0x7f020064
-			public const int MusicIcon = 2130837604;
+			public const int ic_timer_white_24dp = 2130837604;
 			
 			// aapt resource value: 0x7f020065
-			public const int navigation_empty_icon = 2130837605;
+			public const int MusicIcon = 2130837605;
 			
 			// aapt resource value: 0x7f020066
-			public const int noAlbum = 2130837606;
+			public const int navigation_empty_icon = 2130837606;
 			
 			// aapt resource value: 0x7f020067
-			public const int notification_action_background = 2130837607;
+			public const int noAlbum = 2130837607;
 			
 			// aapt resource value: 0x7f020068
-			public const int notification_bg = 2130837608;
+			public const int notification_action_background = 2130837608;
 			
 			// aapt resource value: 0x7f020069
-			public const int notification_bg_low = 2130837609;
+			public const int notification_bg = 2130837609;
 			
 			// aapt resource value: 0x7f02006a
-			public const int notification_bg_low_normal = 2130837610;
+			public const int notification_bg_low = 2130837610;
 			
 			// aapt resource value: 0x7f02006b
-			public const int notification_bg_low_pressed = 2130837611;
+			public const int notification_bg_low_normal = 2130837611;
 			
 			// aapt resource value: 0x7f02006c
-			public const int notification_bg_normal = 2130837612;
+			public const int notification_bg_low_pressed = 2130837612;
 			
 			// aapt resource value: 0x7f02006d
-			public const int notification_bg_normal_pressed = 2130837613;
+			public const int notification_bg_normal = 2130837613;
 			
 			// aapt resource value: 0x7f02006e
-			public const int notification_icon_background = 2130837614;
+			public const int notification_bg_normal_pressed = 2130837614;
+			
+			// aapt resource value: 0x7f02006f
+			public const int notification_icon_background = 2130837615;
 			
 			// aapt resource value: 0x7f020076
 			public const int notification_template_icon_bg = 2130837622;
@@ -2367,14 +2370,11 @@ namespace MusicApp
 			// aapt resource value: 0x7f020077
 			public const int notification_template_icon_low_bg = 2130837623;
 			
-			// aapt resource value: 0x7f02006f
-			public const int notification_tile_bg = 2130837615;
-			
 			// aapt resource value: 0x7f020070
-			public const int notify_panel_notification_icon_bg = 2130837616;
+			public const int notification_tile_bg = 2130837616;
 			
 			// aapt resource value: 0x7f020071
-			public const int PlaylistAdd = 2130837617;
+			public const int notify_panel_notification_icon_bg = 2130837617;
 			
 			// aapt resource value: 0x7f020072
 			public const int PlaylistPlay = 2130837618;

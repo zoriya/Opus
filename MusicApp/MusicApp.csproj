@@ -337,7 +337,9 @@
     <AndroidResource Include="Resources\layout\PreferenceToolbar.xml" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\anim\SlideInUp.xml" />
+    <AndroidResource Include="Resources\anim\SlideInUp.xml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\anim\SlideOutUp.xml" />
@@ -346,7 +348,7 @@
     <AndroidResource Include="Resources\drawable\noAlbum.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\drawable\PlaylistAdd.png" />
+    <AndroidResource Include="Resources\drawable\ic_playlist_add_white_24dp.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

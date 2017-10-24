@@ -24,11 +24,14 @@
         android:gravity="center"
         android:layout_gravity="center"
         android:orientation="vertical"
+        android:paddingBottom="10dp"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" >
         <LinearLayout
           android:orientation="horizontal"
           android:layout_width="fill_parent"
+          android:gravity="center"
+          android:layout_gravity="center"
           android:layout_height="wrap_content" >
           <ImageButton
             android:id="@+id/lastButton"
@@ -58,22 +61,26 @@
         <LinearLayout 
           android:orientation="horizontal"
           android:layout_width="fill_parent"
+          android:paddingTop="10dp"
+          android:gravity="center"
+          android:layout_gravity="center"
           android:layout_height="wrap_content" >
           <ImageButton
             android:id="@+id/playerSleep"
             android:src="@drawable/ic_timer_white_24dp"
+            android:layout_gravity="center"
             android:background="@null"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:paddingRight="35dp" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingRight="50dp" />
           <ImageButton
             android:id="@+id/playerPlaylistAdd"
-            android:src="@drawable/PlaylistAdd"
+            android:src="@drawable/ic_playlist_add_white_24dp"
             android:background="@null"
-            android:tint="#ffffff"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:paddingLeft="35dp" />
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="50dp" />
         </LinearLayout>
       </LinearLayout>
     </FrameLayout>
