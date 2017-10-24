@@ -32,7 +32,7 @@ namespace MusicApp.Resources.Portable_Class
         public static string title;
 
         private Notification notification;
-        private int notificationID = 1000;
+        private const int notificationID = 1000;
 
 
         public override IBinder OnBind(Intent intent)
@@ -84,7 +84,7 @@ namespace MusicApp.Resources.Portable_Class
                     break;
                 case "Stop":
                     if (player.IsPlaying)
-                        Pause();
+                        Stop();
                     break;
                 case "YTPlay":
                     string[] song = intent.GetStringArrayListExtra("song").ToArray();
@@ -435,7 +435,10 @@ namespace MusicApp.Resources.Portable_Class
                 player.Pause();
                 StopForeground(false);
 
-                if(Player.instance != null)
+                RelativeLayout smallPlayer = MainActivity.instance.FindViewById<RelativeLayout>(Resource.Id.smallPlayer);
+                smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
+
+                if (Player.instance != null)
                 {
                     Player.instance.playerView.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
                 }
@@ -454,6 +457,9 @@ namespace MusicApp.Resources.Portable_Class
 
                 player.Start();
                 StartForeground(notificationID, notification);
+
+                RelativeLayout smallPlayer = MainActivity.instance.FindViewById<RelativeLayout>(Resource.Id.smallPlayer);
+                smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
 
                 if (Player.instance != null)
                 {

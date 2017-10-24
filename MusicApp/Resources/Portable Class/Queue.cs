@@ -4,21 +4,12 @@ using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
 using Android.Support.V4.App;
-using System;
 using Square.Picasso;
-using Android.Graphics;
-using Android.Support.Design.Widget;
-using MusicApp.Resources.Fragments;
-using Android.Transitions;
-using Android.Animation;
-using Android.App.Job;
-using System.Threading.Tasks;
-using System.Threading;
-using Android.Support.V7.App;
+using System;
 
 namespace MusicApp.Resources.Portable_Class
 {
-    public class Queue: ListFragment/*, ViewTreeObserver.IOnPreDrawListener*/
+    public class Queue: ListFragment
     {
         public static Queue instance;
         public Adapter adapter;
@@ -26,28 +17,6 @@ namespace MusicApp.Resources.Portable_Class
 
         private View view;
         private bool isEmpty = false;
-        //private float yFraction = 0;
-
-
-        //public void SetYFraction(float fraction)
-        //{
-        //    yFraction = fraction;
-
-        //    float translationY = View.Height * fraction;
-        //    View.TranslationY = translationY;
-        //}
-
-        //public bool OnPreDraw()
-        //{
-        //    if(View.Height == 0)
-        //        SetYFraction(yFraction);
-        //    return true;
-        //}
-
-        //public float GetYFraction()
-        //{
-        //    return yFraction;
-        //}
 
         public override void OnActivityCreated(Bundle savedInstanceState)
         {
@@ -57,10 +26,53 @@ namespace MusicApp.Resources.Portable_Class
             ListView.EmptyView = emptyView;
 
             PopulateView();
+
+            if (MusicPlayer.isRunning)
+            {
+                Song current = MusicPlayer.queue[MusicPlayer.CurrentID()];
+
+                RelativeLayout smallPlayer = Activity.FindViewById<RelativeLayout>(Resource.Id.smallPlayer);
+                smallPlayer.Visibility = ViewStates.Visible;
+                smallPlayer.FindViewById<TextView>(Resource.Id.spTitle).Text = current.GetName();
+                smallPlayer.FindViewById<TextView>(Resource.Id.spArtist).Text = current.GetArtist();
+                ImageView art = smallPlayer.FindViewById<ImageView>(Resource.Id.spArt);
+
+                var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
+                var songAlbumArtUri = ContentUris.WithAppendedId(songCover, current.GetAlbumArt());
+
+                Picasso.With(Android.App.Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Into(art);
+
+                smallPlayer.FindViewById<ImageButton>(Resource.Id.spLast).Click += Last_Click;
+                smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).Click += Play_Click;
+                smallPlayer.FindViewById<ImageButton>(Resource.Id.spNext).Click += Next_Click;
+            }
+        }
+
+        private void Last_Click(object sender, EventArgs e)
+        {
+            Intent intent = new Intent(Android.App.Application.Context, typeof(MusicPlayer));
+            intent.SetAction("Previus");
+            Activity.StartService(intent);
+        }
+
+        private void Play_Click(object sender, EventArgs e)
+        {
+            Intent intent = new Intent(Android.App.Application.Context, typeof(MusicPlayer));
+            intent.SetAction("Pause");
+            Activity.StartService(intent);
+        }
+
+        private void Next_Click(object sender, EventArgs e)
+        {
+            Intent intent = new Intent(Android.App.Application.Context, typeof(MusicPlayer));
+            intent.SetAction("Next");
+            Activity.StartService(intent);
         }
 
         public override void OnDestroy()
         {
+            RelativeLayout smallPlayer = Activity.FindViewById<RelativeLayout>(Resource.Id.smallPlayer);
+            smallPlayer.Visibility = ViewStates.Gone;
             if (isEmpty)
             {
                 ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);

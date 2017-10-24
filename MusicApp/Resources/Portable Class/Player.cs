@@ -3,13 +3,15 @@ using Android.OS;
 using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
-using Android.Support.V4.App;
 using System;
 using Square.Picasso;
 using Android.Support.Design.Widget;
 using System.Threading.Tasks;
-using System.Threading;
-using Android.Support.V7.App;
+using Android.Support.V4.App;
+using Java.Util;
+
+using AlarmManager = Android.App.AlarmManager;
+using PendingIntent = Android.App.PendingIntent;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -17,11 +19,11 @@ namespace MusicApp.Resources.Portable_Class
     {
         public static Player instance;
         public View playerView;
+        public const int notificationID = 1001;
 
         private Handler handler = new Handler();
         private SeekBar bar;
         private ImageView imgView;
-        private CancellationTokenSource cancelToken;
         private int[] timers = new int[] { 0, 1, 10, 30, 60, 120 };
         private string[] items = new string[] { "Off", "1 minute", "10 minutes", "30 minutes", "1 hour", "2 hours" };
         private int checkedItem = 0;
@@ -123,7 +125,10 @@ namespace MusicApp.Resources.Portable_Class
         private void UpdateSeekBar()
         {
             if (!MusicPlayer.isRunning)
+            {
                 handler.RemoveCallbacks(UpdateSeekBar);
+                return;
+            }
 
 
             bar.Progress = MusicPlayer.CurrentPosition;
@@ -158,7 +163,7 @@ namespace MusicApp.Resources.Portable_Class
 
         private void SleepButton_Click(object sender, EventArgs e)
         {
-            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, Resource.Style.AppCompatAlertDialogStyle);
+            Android.Support.V7.App.AlertDialog.Builder builder = new Android.Support.V7.App.AlertDialog.Builder(Activity, Resource.Style.AppCompatAlertDialogStyle);
             builder.SetTitle("Sleep in :");
             builder.SetSingleChoiceItems(items, checkedItem, ((senders, eventargs) => { checkedItem = eventargs.Which; }));
             builder.SetPositiveButton("Ok", ((senders, args) => { Sleep(timers[checkedItem]); }));
@@ -166,30 +171,32 @@ namespace MusicApp.Resources.Portable_Class
             builder.Show();
         }
 
-        async void Sleep(int time)
+        #pragma warning disable CS0618
+        void Sleep(int time)
         {
-            cancelToken?.Cancel();
+            Date date = new Date(Java.Lang.JavaSystem.CurrentTimeMillis());
+            date.Minutes += time;
 
-            if (time == 0)
-                return;
+            Context.RegisterReceiver(new SleepManager(), new IntentFilter("SleepManager"));
 
-            using (cancelToken = new CancellationTokenSource())
-            {
-                try
-                {
-                    await Task.Run(() =>
-                    {
-                        Thread.Sleep(time * 60 * 1000);
-                        Intent intent = new Intent(Android.App.Application.Context, typeof(MusicPlayer));
-                        intent.SetAction("Stop");
-                        Activity.StartService(intent);
-                    });
-                }
-                catch (TaskCanceledException)
-                {
-                    Console.WriteLine("Sleep Timer Canceled");
-                }
-            }
+            Intent intent = new Intent("SleepManager");
+            PendingIntent pendingIntent = PendingIntent.GetBroadcast(Android.App.Application.Context, 0, intent, Android.App.PendingIntentFlags.CancelCurrent);
+
+            AlarmManager alarms = (AlarmManager)Context.GetSystemService(Context.AlarmService);
+            alarms.Set(Android.App.AlarmType.RtcWakeup, date.Time, pendingIntent);
+
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(Android.App.Application.Context)
+                .SetVisibility(NotificationCompat.VisibilityPublic)
+                .SetSmallIcon(Resource.Drawable.MusicIcon)
+                .SetContentTitle("Music will stop in:")
+                .SetContentText(time + " minutes")
+                .SetOngoing(true);
+
+            Android.App.Notification notification = builder.Build();
+
+            Android.App.NotificationManager notificationManager = (Android.App.NotificationManager)Context.GetSystemService(Context.NotificationService);
+            notificationManager.Notify(notificationID, notification);
         }
+        #pragma warning restore CS0618
     }
 }
