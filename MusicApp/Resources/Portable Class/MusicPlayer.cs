@@ -23,7 +23,7 @@ namespace MusicApp.Resources.Portable_Class
     [Service]
     public class MusicPlayer : Service, AudioManager.IOnAudioFocusChangeListener
     {
-        public MediaPlayer player;
+        public static MediaPlayer player;
         public static List<Song> queue = new List<Song>();
         public MediaSessionCompat mediaSession;
         public AudioManager audioManager;
@@ -156,7 +156,7 @@ namespace MusicApp.Resources.Portable_Class
 
                 await player.SetDataSourceAsync(Application.Context, Android.Net.Uri.Parse(filePath));
                 var audioFocus = audioManager.RequestAudioFocus(this, Stream.Music, AudioFocus.Gain);
-                if(audioFocus != AudioFocusRequest.Granted)
+                if (audioFocus != AudioFocusRequest.Granted)
                 {
                     Console.WriteLine("Can't Get Audio Focus");
                     return;
@@ -237,10 +237,10 @@ namespace MusicApp.Resources.Portable_Class
         public void AddToQueue(string filePath)
         {
             GetTrackSong(filePath, out Song song);
-            if (CurentID() == -1)
+            if (CurrentID() == -1)
                 queue.Add(song);
             else
-                queue.Insert(CurentID() + 1, song);
+                queue.Insert(CurrentID() + 1, song);
         }
 
         public void PlayLastInQueue(string filePath)
@@ -251,20 +251,23 @@ namespace MusicApp.Resources.Portable_Class
 
         public void PlayLast()
         {
-            if (CurentID() - 1 < 0)
+            if (CurrentID() - 1 < 0)
                 return;
 
-            Song last = queue[CurentID() - 1];
+            Song last = queue[CurrentID() - 1];
             string filePath = last.GetPath();
             SwitchQueue(filePath);
         }
 
         public void PlayNext()
         {
-            if (CurentID() + 1 > queue.Count)
+            if (CurrentID() + 1 > queue.Count - 1)
+            {
+                Stop();
                 return;
+            }
 
-            Song next = queue[CurentID() + 1];
+            Song next = queue[CurrentID() + 1];
             string filePath = next.GetPath();
             SwitchQueue(filePath);
         }
@@ -279,16 +282,35 @@ namespace MusicApp.Resources.Portable_Class
             CreateNotification(song.GetName(), song.GetArtist(), song.GetAlbumArt());
         }
 
-        public static int CurentID()
+        public static int CurrentID()
         {
             int id = 0;
-            foreach(Song song in queue)
+            foreach (Song song in queue)
             {
                 if (song.GetName() == title)
                     return id;
                 id++;
             }
             return -1;
+        }
+
+        public static void SetSeekBar(SeekBar bar)
+        {
+            bar.Max = player.Duration;
+            bar.Progress = player.CurrentPosition;
+            bar.ProgressChanged += (sender, e) =>
+            {
+                if (player != null && e.FromUser)
+                    player.SeekTo(e.Progress);
+            };
+        }
+
+        public static int CurrentPosition
+        {
+            get
+            {
+                return player.CurrentPosition;
+            }
         }
 
         void GetTrackSong(string filePath, out Song song)

@@ -61,8 +61,6 @@ namespace MusicApp.Resources.Portable_Class
 
         public override void OnDestroy()
         {
-            MainActivity.instance.ToolBar.Visibility = ViewStates.Visible;
-            MainActivity.instance.FindViewById<BottomNavigationView>(Resource.Id.bottomView).Visibility = ViewStates.Visible;
             if (isEmpty)
             {
                 ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
