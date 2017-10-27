@@ -32,6 +32,8 @@ namespace MusicApp.Resources.Portable_Class
                 Song current = MusicPlayer.queue[MusicPlayer.CurrentID()];
 
                 RelativeLayout smallPlayer = Activity.FindViewById<RelativeLayout>(Resource.Id.smallPlayer);
+                FrameLayout parent = (FrameLayout) smallPlayer.Parent;
+                parent.Visibility = ViewStates.Visible;
                 smallPlayer.Visibility = ViewStates.Visible;
                 smallPlayer.FindViewById<TextView>(Resource.Id.spTitle).Text = current.GetName();
                 smallPlayer.FindViewById<TextView>(Resource.Id.spArtist).Text = current.GetArtist();
@@ -72,7 +74,12 @@ namespace MusicApp.Resources.Portable_Class
         public override void OnDestroy()
         {
             RelativeLayout smallPlayer = Activity.FindViewById<RelativeLayout>(Resource.Id.smallPlayer);
-            smallPlayer.Visibility = ViewStates.Gone;
+            FrameLayout parent = (FrameLayout)smallPlayer.Parent;
+            parent.Visibility = ViewStates.Gone;
+            smallPlayer.FindViewById<ImageButton>(Resource.Id.spLast).Click -= Last_Click;
+            smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).Click -= Play_Click;
+            smallPlayer.FindViewById<ImageButton>(Resource.Id.spNext).Click -= Next_Click;
+
             if (isEmpty)
             {
                 ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
@@ -86,7 +93,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             View view = base.OnCreateView(inflater, container, savedInstanceState);
             this.view = view;
-            view.SetPadding(0, 100, 0, 100);
+            view.SetPadding(0, 100, 0, MainActivity.paddingBot);
             return view;
         }
 
@@ -107,7 +114,6 @@ namespace MusicApp.Resources.Portable_Class
 
             if (adapter == null || adapter.Count == 0)
             {
-                view.SetPadding(0, 100, 0, 0);
                 isEmpty = true;
                 Activity.AddContentView(emptyView, View.LayoutParameters);
             }

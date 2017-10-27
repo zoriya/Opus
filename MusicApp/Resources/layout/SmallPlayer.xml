@@ -1,57 +1,75 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="fill_parent"
-  android:layout_height="wrap_content"
-  android:id="@+id/smallPlayer"
-  android:elevation="12dp" >
-  <ImageView
-    android:id="@+id/spArt"
-    android:layout_width="120dp"
-    android:layout_height="120dp"
-    android:src="@drawable/MusicIcon"
-    android:layout_alignParentLeft="true" />
+  android:layout_height="70dp"
+  android:background="#ffffff"
+  android:id="@+id/smallPlayer" >
   <LinearLayout
-     android:orientation="vertical"
-     android:layout_width="wrap_content"
-     android:layout_height="wrap_content"
-     android:paddingLeft="140dp">
-    <TextView
-      android:id="@+id/spTitle"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:textColor="#000"
-      android:textSize="24dip"
-      android:textStyle="bold" />
-    <TextView
-      android:id="@+id/spArtist"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:textSize="18dip"
-      android:textColor="#000" />
+    android:orientation="horizontal"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content" >
+    <ImageView
+      android:id="@+id/spArt"
+      android:layout_width="70dp"
+      android:layout_height="70dp"
+      android:src="@drawable/noAlbum"
+      android:layout_gravity="left|center" />
     <LinearLayout
-      android:orientation="horizontal"
+      android:orientation="vertical"
+      android:paddingLeft="10dp"
       android:layout_width="wrap_content"
-      android:layout_height="wrap_content" >
-      <ImageButton
-        android:id="@+id/spLast"
-        android:background="@null"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:src="@drawable/ic_skip_previous_black_24dp"/>
-      <ImageButton
-        android:id="@+id/spPlay"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_marginLeft="10dp"
-        android:background="@null"
-        android:layout_marginRight="10dp"
-        android:src="@drawable/ic_pause_black_24dp"/>
-      <ImageButton
-        android:id="@+id/spNext"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:background="@null"
-        android:src="@drawable/ic_skip_next_black_24dp"/>
+      android:layout_gravity="center_vertical"
+      android:layout_height="wrap_content">
+      <TextView
+        android:id="@+id/spTitle"
+        android:text="Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:textColor="#000"
+        android:textSize="18dip" />
+      <TextView
+        android:id="@+id/spArtist"
+        android:text="Artist"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:textSize="14dip"
+        android:textColor="#4f5b62" />
     </LinearLayout>
   </LinearLayout>
+  <ImageButton
+    android:id="@+id/spNext"
+    android:layout_alignParentBottom="true"
+    android:layout_width="40dp"
+    android:layout_height="40dp"
+    android:background="@null"
+    android:layout_alignParentRight="true"
+    android:src="@drawable/ic_skip_next_black_24dp"/>
+  <ImageButton
+    android:id="@+id/spPlay"
+    android:layout_alignParentBottom="true"
+    android:layout_width="40dp"
+    android:layout_height="40dp"
+    android:layout_marginLeft="3dp"
+    android:layout_toLeftOf="@id/spNext"
+    android:background="@null"
+    android:layout_marginRight="3dp"
+    android:src="@drawable/ic_pause_black_24dp"/>
+  <ImageButton
+    android:id="@+id/spLast"
+    android:layout_alignParentBottom="true"
+    android:background="@null"
+    android:layout_width="40dp"
+    android:layout_height="40dp"
+    android:layout_toLeftOf="@id/spPlay"
+    android:src="@drawable/ic_skip_previous_black_24dp"/>
+  <ProgressBar
+    android:id="@+id/spProgress"
+    style="@android:style/Widget.ProgressBar.Horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="3dp"
+    android:layout_gravity="top"
+    android:layout_toRightOf="@id/spArt"
+    android:progress="25"/>
 </RelativeLayout >

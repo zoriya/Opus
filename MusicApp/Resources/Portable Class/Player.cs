@@ -58,8 +58,8 @@ namespace MusicApp.Resources.Portable_Class
 
         async void CreatePlayer()
         {
-            if (MusicPlayer.CurrentID() == -1)
-                await Task.Delay(500);
+            while (MusicPlayer.CurrentID() == -1)
+                await Task.Delay(100);
 
             MainActivity.instance.ToolBar.Visibility = ViewStates.Gone;
             MainActivity.instance.FindViewById<BottomNavigationView>(Resource.Id.bottomView).Visibility = ViewStates.Gone;
@@ -92,6 +92,48 @@ namespace MusicApp.Resources.Portable_Class
             bar = playerView.FindViewById<SeekBar>(Resource.Id.songTimer);
             MusicPlayer.SetSeekBar(bar);
             handler.PostDelayed(UpdateSeekBar, 1000);
+
+            bool asNext = MusicPlayer.queue.Count > MusicPlayer.CurrentID() + 1;
+            if (asNext)
+            {
+                Song next = MusicPlayer.queue[MusicPlayer.CurrentID() + 1];
+                playerView.FindViewById<TextView>(Resource.Id.nextTitle).Text = "Next music:";
+                playerView.FindViewById<TextView>(Resource.Id.nextArtist).Text = next.GetName();
+
+                var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, next.GetAlbumArt());
+
+                ImageView nextArt = playerView.FindViewById<ImageView>(Resource.Id.nextArt);
+                Picasso.With(Android.App.Application.Context).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Into(nextArt);
+            }
+            else
+            {
+                playerView.FindViewById<TextView>(Resource.Id.nextTitle).Text = "Next music:";
+                playerView.FindViewById<TextView>(Resource.Id.nextArtist).Text = "Nothing.";
+
+                ImageView nextArt = playerView.FindViewById<ImageView>(Resource.Id.nextArt);
+                Picasso.With(Android.App.Application.Context).Load(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.MusicIcon).Into(nextArt);
+            }
+        }
+
+        public async void RefreshPlayer()
+        {
+            while (MusicPlayer.CurrentID() == -1)
+                await Task.Delay(100);
+
+            TextView title = playerView.FindViewById<TextView>(Resource.Id.playerTitle);
+            TextView artist = playerView.FindViewById<TextView>(Resource.Id.playerArtist);
+            imgView = playerView.FindViewById<ImageView>(Resource.Id.playerAlbum);
+
+            Song current = MusicPlayer.queue[MusicPlayer.CurrentID()];
+
+            title.Text = current.GetName();
+            artist.Text = current.GetArtist();
+
+            var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
+            var songAlbumArtUri = ContentUris.WithAppendedId(songCover, current.GetAlbumArt());
+
+            Picasso.With(Android.App.Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Into(imgView);
+
 
             bool asNext = MusicPlayer.queue.Count > MusicPlayer.CurrentID() + 1;
             if (asNext)

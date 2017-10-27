@@ -237,6 +237,7 @@ namespace MusicApp.Resources.Portable_Class
         public void AddToQueue(string filePath)
         {
             GetTrackSong(filePath, out Song song);
+            Console.WriteLine("AddToQueue path: " + song.GetPath() + " Before get track song: " + filePath);
             if (CurrentID() == -1)
                 queue.Add(song);
             else
@@ -263,7 +264,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             if (CurrentID() + 1 > queue.Count - 1)
             {
-                Stop();
+                Pause();
                 return;
             }
 
@@ -274,12 +275,28 @@ namespace MusicApp.Resources.Portable_Class
 
         async void SwitchQueue(string filePath)
         {
-            player.Reset();
+            isRunning = true;
+
+            if(player != null)
+                player.Reset();
             InitializePlayer();
             await player.SetDataSourceAsync(Application.Context, Uri.Parse(filePath));
             player.PrepareAsync();
             GetTrackSong(filePath, out Song song);
             CreateNotification(song.GetName(), song.GetArtist(), song.GetAlbumArt());
+
+            if (Player.instance != null)
+                Player.instance.RefreshPlayer();
+
+            RelativeLayout smallPlayer = MainActivity.instance.FindViewById<RelativeLayout>(Resource.Id.smallPlayer);
+            smallPlayer.FindViewById<TextView>(Resource.Id.spTitle).Text = song.GetName();
+            smallPlayer.FindViewById<TextView>(Resource.Id.spArtist).Text = song.GetArtist();
+            ImageView art = smallPlayer.FindViewById<ImageView>(Resource.Id.spArt);
+
+            var songCover = Uri.Parse("content://media/external/audio/albumart");
+            var songAlbumArtUri = ContentUris.WithAppendedId(songCover, song.GetAlbumArt());
+
+            Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Into(art);
         }
 
         public static int CurrentID()
@@ -353,12 +370,14 @@ namespace MusicApp.Resources.Portable_Class
                             Artist = "Unknow Artist";
                         if (Album == null)
                             Album = "Unknow Album";
+
+                        break;
                     }
                 }
                 while (musicCursor.MoveToNext());
                 musicCursor.Close();
             }
-            song = new Song(Title, Artist, Album, AlbumArt, id, path);
+            song = new Song(Title, Artist, Album, AlbumArt, id, filePath);
         }
 
         async void CreateNotification(string title, string artist, long albumArt = 0, string imageURI = "")

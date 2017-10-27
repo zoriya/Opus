@@ -22,6 +22,18 @@ namespace MusicApp
         public Android.Support.V7.Widget.Toolbar ToolBar;
         public IMenu menu;
 
+        public static int paddingBot
+        {
+            get
+            {
+                if (((FrameLayout)instance.FindViewById(Resource.Id.smallPlayer).Parent).Visibility == ViewStates.Gone)
+                    return instance.FindViewById<BottomNavigationView>(Resource.Id.bottomView).Height;
+                else
+                    return instance.FindViewById<BottomNavigationView>(Resource.Id.bottomView).Height + ((FrameLayout)instance.FindViewById(Resource.Id.smallPlayer).Parent).Height;
+            }
+        }
+
+
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -130,7 +142,7 @@ namespace MusicApp
                 FolderTracks.instance.result = null;
         }
 
-        void HideSearch()
+        public void HideSearch()
         {
             if (menu == null)
                 return;

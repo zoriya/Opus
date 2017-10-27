@@ -44,8 +44,6 @@ namespace MusicApp.Resources.Portable_Class
                 Line1 = { Text = line1[position] },
                 Line2 = { Text = line2[position].ToString() + ((line2[position] > 1) ? " elements" : " element") },
             };
-
-            convertView.SetBackgroundColor(Color.White);
             return convertView;
         }
     }

@@ -11,6 +11,10 @@ using Android.Content.PM;
 using Android.Support.Design.Widget;
 using Android;
 using Android.Net;
+using MusicApp.Resources.values;
+using Square.Picasso;
+
+using EventArgs = System.EventArgs;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -35,10 +39,60 @@ namespace MusicApp.Resources.Portable_Class
 
             if(ListView.Adapter == null)
                 GetStoragePermission();
+
+            if (MusicPlayer.isRunning)
+            {
+                Song current = MusicPlayer.queue[MusicPlayer.CurrentID()];
+
+                RelativeLayout smallPlayer = Activity.FindViewById<RelativeLayout>(Resource.Id.smallPlayer);
+                FrameLayout parent = (FrameLayout)smallPlayer.Parent;
+                parent.Visibility = ViewStates.Visible;
+                smallPlayer.Visibility = ViewStates.Visible;
+                smallPlayer.FindViewById<TextView>(Resource.Id.spTitle).Text = current.GetName();
+                smallPlayer.FindViewById<TextView>(Resource.Id.spArtist).Text = current.GetArtist();
+                ImageView art = smallPlayer.FindViewById<ImageView>(Resource.Id.spArt);
+
+                var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
+                var songAlbumArtUri = ContentUris.WithAppendedId(songCover, current.GetAlbumArt());
+
+                Picasso.With(Android.App.Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Into(art);
+
+                smallPlayer.FindViewById<ImageButton>(Resource.Id.spLast).Click += Last_Click;
+                smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).Click += Play_Click;
+                smallPlayer.FindViewById<ImageButton>(Resource.Id.spNext).Click += Next_Click;
+            }
+        }
+
+        private void Last_Click(object sender, EventArgs e)
+        {
+            Intent intent = new Intent(Android.App.Application.Context, typeof(MusicPlayer));
+            intent.SetAction("Previus");
+            Activity.StartService(intent);
+        }
+
+        private void Play_Click(object sender, EventArgs e)
+        {
+            Intent intent = new Intent(Android.App.Application.Context, typeof(MusicPlayer));
+            intent.SetAction("Pause");
+            Activity.StartService(intent);
+        }
+
+        private void Next_Click(object sender, EventArgs e)
+        {
+            Intent intent = new Intent(Android.App.Application.Context, typeof(MusicPlayer));
+            intent.SetAction("Next");
+            Activity.StartService(intent);
         }
 
         public override void OnDestroy()
         {
+            RelativeLayout smallPlayer = Activity.FindViewById<RelativeLayout>(Resource.Id.smallPlayer);
+            FrameLayout parent = (FrameLayout)smallPlayer.Parent;
+            parent.Visibility = ViewStates.Gone;
+            smallPlayer.FindViewById<ImageButton>(Resource.Id.spLast).Click -= Last_Click;
+            smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).Click -= Play_Click;
+            smallPlayer.FindViewById<ImageButton>(Resource.Id.spNext).Click -= Next_Click;
+
             if (isEmpty)
             {
                 ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
@@ -51,7 +105,7 @@ namespace MusicApp.Resources.Portable_Class
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             View view = base.OnCreateView(inflater, container, savedInstanceState);
-            view.SetPadding(0, 100, 0, 0);
+            view.SetPadding(0, 100, 0, MainActivity.paddingBot);
             return view;
         }
 

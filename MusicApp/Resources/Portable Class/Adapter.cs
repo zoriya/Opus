@@ -1,13 +1,9 @@
 ﻿using System.Collections.Generic;
-
 using Android.Content;
 using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
 using Android.Graphics;
-using Android.Util;
-using System.IO;
-using Android.OS;
 using Android.App;
 using Square.Picasso;
 
@@ -55,7 +51,7 @@ namespace MusicApp.Resources.Portable_Class
                 Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
             }
 
-            convertView.SetBackgroundColor(Color.White);
+            //convertView.SetBackgroundColor(Color.White);
             return convertView;
         }
     }
