@@ -9,9 +9,11 @@ using Android.Support.V4.View;
 using Android.Runtime;
 using Android.Widget;
 using Android.Content;
+using MusicApp.Resources.values;
+using Square.Picasso;
+using System;
 
 using SearchView = Android.Support.V7.Widget.SearchView;
-using static Android.App.ActivityManager;
 
 namespace MusicApp
 {
@@ -21,6 +23,11 @@ namespace MusicApp
         public static MainActivity instance;
         public Android.Support.V7.Widget.Toolbar ToolBar;
         public IMenu menu;
+
+        private Handler handler = new Handler();
+        private ProgressBar bar;
+        private bool prepared = false;
+
 
         public static int paddingBot
         {
@@ -196,14 +203,7 @@ namespace MusicApp
                 case Resource.Id.musicLayout:
                     HideTabs();
                     HideSearch();
-                    if (MusicPlayer.isRunning)
-                    {
-                        fragment = Player.NewInstance();
-                        break;
-                    }
-                    if(fragment == null)
-                        fragment = Queue.NewInstance();
-
+                    fragment = Queue.NewInstance();
                     break;
 
                 case Resource.Id.browseLayout:
@@ -239,7 +239,6 @@ namespace MusicApp
             tabs.Visibility = ViewStates.Visible;
             tabs.RemoveAllTabs();
             tabs.AddTab(tabs.NewTab().SetText("Songs"));
-            //tabs.AddTab(tabs.NewTab().SetText("Artist"));
             tabs.AddTab(tabs.NewTab().SetText("Folders"));
             ViewPager pager = FindViewById<ViewPager>(Resource.Id.pager);
             pager.SetPadding(0, 200, 0, 0);
@@ -247,7 +246,6 @@ namespace MusicApp
             ViewPagerAdapter adapter = new ViewPagerAdapter(SupportFragmentManager);
 
             adapter.AddFragment(Browse.NewInstance(), "Songs");
-            //adapter.AddFragment(DownloadFragment.NewInstance(), "Artists");
             adapter.AddFragment(FolderBrowse.NewInstance(), "Folders");
 
             pager.Adapter = adapter;
@@ -276,6 +274,96 @@ namespace MusicApp
 
             FrameLayout frame = FindViewById<FrameLayout>(Resource.Id.contentView);
             frame.Visibility = ViewStates.Visible;
+        }
+
+        public void PrepareSmallPlayer()
+        {
+            Song current = MusicPlayer.queue[MusicPlayer.CurrentID()];
+
+            RelativeLayout smallPlayer = FindViewById<RelativeLayout>(Resource.Id.smallPlayer);
+            smallPlayer.FindViewById<TextView>(Resource.Id.spTitle).Text = current.GetName();
+            smallPlayer.FindViewById<TextView>(Resource.Id.spArtist).Text = current.GetArtist();
+            ImageView art = smallPlayer.FindViewById<ImageView>(Resource.Id.spArt);
+
+            var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
+            var songAlbumArtUri = ContentUris.WithAppendedId(songCover, current.GetAlbumArt());
+
+            Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Into(art);
+
+            SetSmallPlayerProgressBar();
+
+            if (!prepared)
+            {
+                smallPlayer.FindViewById<ImageButton>(Resource.Id.spLast).Click += Last_Click;
+                smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).Click += Play_Click;
+                smallPlayer.FindViewById<ImageButton>(Resource.Id.spNext).Click += Next_Click;
+
+                smallPlayer.FindViewById<LinearLayout>(Resource.Id.spContainer).Click += Container_Click;
+                prepared = true;
+            }
+        }
+
+        public void ShowSmallPlayer()
+        {
+            RelativeLayout smallPlayer = FindViewById<RelativeLayout>(Resource.Id.smallPlayer);
+            FrameLayout parent = (FrameLayout)smallPlayer.Parent;
+            parent.Visibility = ViewStates.Visible;
+            smallPlayer.Visibility = ViewStates.Visible;
+        }
+
+        private void Last_Click(object sender, EventArgs e)
+        {
+            Intent intent = new Intent(Application.Context, typeof(MusicPlayer));
+            intent.SetAction("Previus");
+            StartService(intent);
+        }
+
+        private void Play_Click(object sender, EventArgs e)
+        {
+            Intent intent = new Intent(Application.Context, typeof(MusicPlayer));
+            intent.SetAction("Pause");
+            StartService(intent);
+        }
+
+        private void Next_Click(object sender, EventArgs e)
+        {
+            Intent intent = new Intent(Application.Context, typeof(MusicPlayer));
+            intent.SetAction("Next");
+            StartService(intent);
+        }
+
+        private void Container_Click(object sender, EventArgs e)
+        {
+            HideTabs();
+            HideSearch();
+            SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).Commit(); 
+        }
+
+        void SetSmallPlayerProgressBar()
+        {
+            bar = FindViewById<ProgressBar>(Resource.Id.spProgress);
+            bar.Max = MusicPlayer.Duration;
+            bar.Progress = MusicPlayer.CurrentPosition;
+            handler.PostDelayed(UpdateProgressBar, 1000);
+        }
+
+        private void UpdateProgressBar()
+        {
+            if (!MusicPlayer.isRunning)
+            {
+                handler.RemoveCallbacks(UpdateProgressBar);
+                return;
+            }
+
+            bar.Progress = MusicPlayer.CurrentPosition;
+            handler.PostDelayed(UpdateProgressBar, 1000);
+        }
+
+        public void HideSmallPlayer()
+        {
+            RelativeLayout smallPlayer = FindViewById<RelativeLayout>(Resource.Id.smallPlayer);
+            FrameLayout parent = (FrameLayout)smallPlayer.Parent;
+            parent.Visibility = ViewStates.Gone;
         }
     }
 }

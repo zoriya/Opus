@@ -6,23 +6,30 @@
   android:id="@+id/smallPlayer" >
   <LinearLayout
     android:orientation="horizontal"
+    android:clickable="true"
+    android:id="@+id/spContainer"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content" >
     <ImageView
       android:id="@+id/spArt"
       android:layout_width="70dp"
+      android:clickable="false"
       android:layout_height="70dp"
       android:src="@drawable/noAlbum"
-      android:layout_gravity="left|center" />
+      android:layout_gravity="left"
+      android:layout_alignParentBottom="true"/>
     <LinearLayout
       android:orientation="vertical"
       android:paddingLeft="10dp"
+      android:paddingRight="130dp"
+      android:clickable="false"
       android:layout_width="wrap_content"
       android:layout_gravity="center_vertical"
       android:layout_height="wrap_content">
       <TextView
         android:id="@+id/spTitle"
         android:text="Title"
+        android:clickable="false"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:singleLine="true"
@@ -34,6 +41,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:singleLine="true"
+        android:clickable="false"
         android:textSize="14dip"
         android:textColor="#4f5b62" />
     </LinearLayout>
@@ -67,9 +75,9 @@
   <ProgressBar
     android:id="@+id/spProgress"
     style="@android:style/Widget.ProgressBar.Horizontal"
+    android:paddingLeft="70dp"
     android:layout_width="match_parent"
     android:layout_height="3dp"
-    android:layout_gravity="top"
-    android:layout_toRightOf="@id/spArt"
+    android:layout_alignParentTop="true"
     android:progress="25"/>
 </RelativeLayout >

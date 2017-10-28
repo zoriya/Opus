@@ -50,6 +50,7 @@
         app:menu="@menu/bottom_items" />
       <FrameLayout
         android:layout_height="70dp"
+        android:visibility="gone"
         android:layout_below="@id/bottomView"
         android:layout_width="match_parent" >
         <include 

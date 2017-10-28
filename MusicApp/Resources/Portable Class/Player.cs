@@ -38,6 +38,8 @@ namespace MusicApp.Resources.Portable_Class
         {
             MainActivity.instance.ToolBar.Visibility = ViewStates.Visible;
             MainActivity.instance.FindViewById<BottomNavigationView>(Resource.Id.bottomView).Visibility = ViewStates.Visible;
+            MainActivity.instance.ShowSmallPlayer();
+            MainActivity.instance.PrepareSmallPlayer();
             base.OnDestroy();
             instance = null;
         }
@@ -58,6 +60,8 @@ namespace MusicApp.Resources.Portable_Class
 
         async void CreatePlayer()
         {
+            MainActivity.instance.HideSmallPlayer();
+
             while (MusicPlayer.CurrentID() == -1)
                 await Task.Delay(100);
 
@@ -171,7 +175,6 @@ namespace MusicApp.Resources.Portable_Class
                 handler.RemoveCallbacks(UpdateSeekBar);
                 return;
             }
-
 
             bar.Progress = MusicPlayer.CurrentPosition;
             handler.PostDelayed(UpdateSeekBar, 1000);

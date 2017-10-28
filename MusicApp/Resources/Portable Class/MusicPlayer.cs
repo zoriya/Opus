@@ -15,7 +15,6 @@ using System.Threading.Tasks;
 using Square.Picasso;
 
 using Uri = Android.Net.Uri;
-using FileNotFoundException = System.IO.FileNotFoundException;
 using Android.Widget;
 
 namespace MusicApp.Resources.Portable_Class
@@ -139,7 +138,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 player.Reset();
                 InitializePlayer();
-                await player.SetDataSourceAsync(Application.Context, Android.Net.Uri.Parse(filePath));
+                await player.SetDataSourceAsync(Application.Context, Uri.Parse(filePath));
                 player.PrepareAsync();
                 GetTrackSong(filePath, out Song song);
                 CreateNotification(song.GetName(), song.GetArtist(), song.GetAlbumArt());
@@ -208,7 +207,6 @@ namespace MusicApp.Resources.Portable_Class
                 }
                 player.PrepareAsync();
                 CreateNotification(title, artist, 0, imageURL);
-
                 queue.Clear();
                 Song item = new Song(title, artist, imageURL, -1, 1, url);
                 queue.Add(item);
@@ -320,6 +318,14 @@ namespace MusicApp.Resources.Portable_Class
                 if (player != null && e.FromUser)
                     player.SeekTo(e.Progress);
             };
+        }
+
+        public static int Duration
+        {
+            get
+            {
+                return player.Duration;
+            }
         }
 
         public static int CurrentPosition
@@ -490,7 +496,8 @@ namespace MusicApp.Resources.Portable_Class
         public void Stop()
         {
             isRunning = false;
-            if(player != null)
+            MainActivity.instance.HideSmallPlayer();
+            if (player != null)
             {
                 if (player.IsPlaying)
                     player.Stop();
