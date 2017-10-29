@@ -157,6 +157,7 @@
     <Compile Include="Resources\Portable Class\FolderAdapter.cs" />
     <Compile Include="Resources\Portable Class\FolderBrowse.cs" />
     <Compile Include="Resources\Portable Class\FolderTracks.cs" />
+    <Compile Include="Resources\Portable Class\Format.cs" />
     <Compile Include="Resources\Portable Class\MusicPlayer.cs" />
     <Compile Include="Resources\Portable Class\Player.cs" />
     <Compile Include="Resources\Portable Class\Playlist.cs" />
@@ -165,7 +166,10 @@
     <Compile Include="Resources\Portable Class\Queue.cs" />
     <Compile Include="Resources\Portable Class\SleepManager.cs" />
     <Compile Include="Resources\Portable Class\TwoLineAdapter.cs" />
+    <Compile Include="Resources\Portable Class\VideoMeta.cs" />
     <Compile Include="Resources\Portable Class\ViewPagerAdapter.cs" />
+    <Compile Include="Resources\Portable Class\YoutubeExtractor.cs" />
+    <Compile Include="Resources\Portable Class\YtFile.cs" />
     <Compile Include="Resources\Portable Class\YTitemToSong.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
