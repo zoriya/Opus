@@ -11,10 +11,6 @@ using Android.Content.PM;
 using Android.Support.Design.Widget;
 using Android;
 using Android.Net;
-using MusicApp.Resources.values;
-using Square.Picasso;
-
-using EventArgs = System.EventArgs;
 
 namespace MusicApp.Resources.Portable_Class
 {

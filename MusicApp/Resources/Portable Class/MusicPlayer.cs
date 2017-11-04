@@ -174,47 +174,51 @@ namespace MusicApp.Resources.Portable_Class
 
         public async void PlayFromYT(string url, string title, string artist, string imageURL)
         {
-            isRunning = true;
-            if (player == null)
-                InitializeService();
+            Console.WriteLine("URL: " + url);
+            InitializeService();
+            await player.SetDataSourceAsync(Application.Context, Uri.Parse(url));
+            player.PrepareAsync();
+            //isRunning = true;
+            //if (player == null)
+            //    InitializeService();
 
-            if (mediaSession != null)
-            {
-                player.Reset();
-                InitializePlayer();
-                await player.SetDataSourceAsync(Application.Context, Uri.Parse(url));
-                player.PrepareAsync();
-                CreateNotification(title, artist, 0, imageURL);
+            //if (mediaSession != null)
+            //{
+            //    player.Reset();
+            //    InitializePlayer();
+            //    await player.SetDataSourceAsync(Application.Context, Uri.Parse(url));
+            //    player.PrepareAsync();
+            //    CreateNotification(title, artist, 0, imageURL);
 
-                queue.Clear();
-                Song item = new Song(title, artist, imageURL, -1, 1, url);
-                queue.Add(item);
-                return;
-            }
-            try
-            {
-                mediaSession = new MediaSessionCompat(Application.Context, "MusicApp");
-                mediaSession.SetFlags(MediaSessionCompat.FlagHandlesMediaButtons | MediaSessionCompat.FlagHandlesTransportControls);
-                PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder().SetActions(PlaybackStateCompat.ActionPlay | PlaybackStateCompat.ActionPause);
-                mediaSession.SetPlaybackState(builder.Build());
+            //    queue.Clear();
+            //    Song item = new Song(title, artist, imageURL, -1, 1, url);
+            //    queue.Add(item);
+            //    return;
+            //}
+            //try
+            //{
+            //    mediaSession = new MediaSessionCompat(Application.Context, "MusicApp");
+            //    mediaSession.SetFlags(MediaSessionCompat.FlagHandlesMediaButtons | MediaSessionCompat.FlagHandlesTransportControls);
+            //    PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder().SetActions(PlaybackStateCompat.ActionPlay | PlaybackStateCompat.ActionPause);
+            //    mediaSession.SetPlaybackState(builder.Build());
 
-                await player.SetDataSourceAsync(Application.Context, Uri.Parse(url));
-                var audioFocus = audioManager.RequestAudioFocus(this, Stream.Music, AudioFocus.Gain);
-                if (audioFocus != AudioFocusRequest.Granted)
-                {
-                    Console.WriteLine("Can't Get Audio Focus");
-                    return;
-                }
-                player.PrepareAsync();
-                CreateNotification(title, artist, 0, imageURL);
-                queue.Clear();
-                Song item = new Song(title, artist, imageURL, -1, 1, url);
-                queue.Add(item);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error: " + ex);
-            }
+            //    await player.SetDataSourceAsync(Application.Context, Uri.Parse(url));
+            //    var audioFocus = audioManager.RequestAudioFocus(this, Stream.Music, AudioFocus.Gain);
+            //    if (audioFocus != AudioFocusRequest.Granted)
+            //    {
+            //        Console.WriteLine("Can't Get Audio Focus");
+            //        return;
+            //    }
+            //    player.PrepareAsync();
+            //    CreateNotification(title, artist, 0, imageURL);
+            //    queue.Clear();
+            //    Song item = new Song(title, artist, imageURL, -1, 1, url);
+            //    queue.Add(item);
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine("Error: " + ex);
+            //}
         }
 
         public async void RandomPlay(List<string> filePath)

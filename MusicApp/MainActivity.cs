@@ -208,7 +208,6 @@ namespace MusicApp
 
                 case Resource.Id.browseLayout:
                     SetTabs();
-                    DisplaySearch();
                     break;
 
                 case Resource.Id.downloadLayout:

@@ -8,14 +8,16 @@ using Java.Net;
 using Java.IO;
 using Java.Util.Concurrent.Locks;
 using Android.Webkit;
+using MusicApp.Resources.values;
 
 namespace MusicApp.Resources.Portable_Class
 {
-    public abstract class YoutubeExtractor : Android.OS.AsyncTask<string, int, SparseArray<YtFile>>, IValueCallback
+    public class YoutubeExtractor : Android.OS.AsyncTask<string, int, SparseArray<YtFile>>, IValueCallback
     {
         private const int dashRetries = 5;
         private bool parseDashManifest;
         private bool includeWebM;
+        private Song song = null;
 
         private string videoID;
         private bool useHttps = true;
@@ -123,16 +125,21 @@ namespace MusicApp.Resources.Portable_Class
 #endregion
 
 
+        public YoutubeExtractor()
+        {
+
+        }
 
         public YoutubeExtractor(IntPtr doNotUse, JniHandleOwnership transfer) : base(doNotUse, transfer)
         {
 
         }
 
-        public void Extract(string youtubeURL, bool parseDashManifest, bool includeWebM)
+        public void Extract(string youtubeURL, bool parseDashManifest, bool includeWebM, Song song = null)
         {
             this.parseDashManifest = parseDashManifest;
             this.includeWebM = includeWebM;
+            this.song = song;
             this.Execute(youtubeURL);
         }
 
@@ -141,12 +148,21 @@ namespace MusicApp.Resources.Portable_Class
             base.OnPreExecute();
         }
 
-        protected override void OnPostExecute(SparseArray<YtFile> ytFiles)
+        protected override void OnPostExecute(Java.Lang.Object result)
         {
-            OnExtractionComplete(ytFiles);
+            base.OnPostExecute(result);
+            OnExtractionComplete((SparseArray<YtFile>) result, song);
         }
 
-        protected abstract void OnExtractionComplete(SparseArray<YtFile> ytFiles);
+        protected override void OnPostExecute(SparseArray<YtFile> ytFiles)
+        {
+            System.Console.WriteLine("Post Execute");
+            base.OnPostExecute(ytFiles);
+            OnExtractionComplete(ytFiles, song);
+        }
+
+        public delegate void ExtractionComplete(SparseArray<YtFile> ytFiles, Song song);
+        public event ExtractionComplete OnExtractionComplete;
 
         protected override Java.Lang.Object DoInBackground(params Java.Lang.Object[] native_parms)
         {
@@ -170,7 +186,9 @@ namespace MusicApp.Resources.Portable_Class
             {
                 try
                 {
-                    return GetStreamUrls();
+                    var urls = GetStreamUrls();
+                    System.Console.WriteLine("Finial Size: " + urls.Size());
+                    return urls;
                 }
                 catch (Java.Lang.Exception e)
                 {
@@ -207,6 +225,7 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             VideoMeta videoMeta = ParseVideoMeta(streamMap);
+            System.Console.WriteLine(videoMeta.title);
             if (videoMeta.isLiveStream)
             {
                 return GetLiveStreamUrls(streamMap);
@@ -233,7 +252,7 @@ namespace MusicApp.Resources.Portable_Class
             string[] streams = streamMapJL.Split(",|url_encoded_fmt_stream_map|&adaptive_fmts=");
             SparseArray<YtFile> ytFiles = new SparseArray<YtFile>();
 
-            foreach(string foo in streams)
+            foreach (string foo in streams)
             {
                 string encStream = foo + ",";
                 if (!encStream.Contains("itag%3D"))
@@ -275,10 +294,13 @@ namespace MusicApp.Resources.Portable_Class
                     ytFiles.Put(itag, newVideo);
                 }
             }
+            System.Console.WriteLine("Size: " + ytFiles.Size());
             if(encSignatures != null)
             {
                 decipheredSignature = null;
-                if (DecipherSignature(encSignatures))
+                bool boo = DecipherSignature(encSignatures);
+                System.Console.WriteLine("booleanbOO : " + boo);
+                if (boo)
                 {
                     Ilock.Lock();
                     try
@@ -332,6 +354,9 @@ namespace MusicApp.Resources.Portable_Class
 
         private bool DecipherSignature(SparseArray<string> encSignatures)
         {
+            bool dfn = decipherFunctionName == null;
+            bool dfs = decipherFunctions == null;
+            System.Console.WriteLine("DecipherFunctionName: " + dfn + " DecipherFunctions: " + dfs);
             if(decipherFunctionName == null || decipherFunctions == null)
             {
                 string decipherFunctUrl = "https://s.ytimg.com/yts/jsbin/" + decipherJsFileName;
@@ -378,6 +403,7 @@ namespace MusicApp.Resources.Portable_Class
                         mainDecipherFunct = "function " + decipherFunctionName + matcher.Group(2);
                     }
 
+                    System.Console.WriteLine("Etap 1 succed");
                     int startIndex = matcher.End();
                     char[] javascriptChars = javascriptFile.ToCharArray();
                     for (int braces = 1, i = 0; i < javascriptFile.Length; i++)
@@ -393,6 +419,7 @@ namespace MusicApp.Resources.Portable_Class
                             braces--;
                     }
                     decipherFunctions = mainDecipherFunct;
+                    System.Console.WriteLine("Etap 2 succed");
                     matcher = patVariableFunction.Matcher(mainDecipherFunct);
                     while (matcher.Find())
                     {
@@ -401,21 +428,21 @@ namespace MusicApp.Resources.Portable_Class
                             continue;
 
                         startIndex = javascriptFile.IndexOf(variableDef) + variableDef.Length;
-                        javascriptChars = javascriptFile.ToCharArray();
-                        for (int braces = 1, i = startIndex; i < javascriptFile.Length; i++)
+                        for (int braces = 1, i = 0; i < javascriptFile.Length - startIndex; i++)
                         {
                             if (braces == 0)
                             {
                                 decipherFunctions += variableDef + javascriptFile.Substring(startIndex, i) + ";";
                                 break;
                             }
-                            if (javascriptChars[i] == '{')
+                            if (javascriptFile[i] == '{')
                                 braces++;
-                            else if (javascriptChars[i] == '}')
+                            else if (javascriptFile[i] == '}')
                                 braces--;
                         }
                     }
 
+                    System.Console.WriteLine("Etap 3 succed");
                     matcher = patFunction.Matcher(mainDecipherFunct);
                     while (matcher.Find())
                     {
@@ -424,22 +451,22 @@ namespace MusicApp.Resources.Portable_Class
                             continue;
 
                         startIndex = javascriptFile.IndexOf(functionDef) + functionDef.Length;
-                        javascriptChars = javascriptFile.ToCharArray();
-                        for (int braces = 0, i = startIndex; i < javascriptFile.Length; i++)
+                        for (int braces = 0, i = 0; i < javascriptFile.Length - startIndex; i++)
                         {
                             if (braces == 0 && startIndex + 5 < i)
                             {
                                 decipherFunctions += functionDef + javascriptFile.Substring(startIndex, i) + ";";
                                 break;
                             }
-                            if (javascriptChars[i] == '{')
+                            if (javascriptFile[i] == '{')
                                 braces++;
-                            else if (javascriptChars[i] == '}')
+                            else if (javascriptFile[i] == '}')
                                 braces--;
                         }
                     }
-
+                    System.Console.WriteLine("Work fine");
                     DecipherViaWebView(encSignatures);
+                    System.Console.WriteLine("Deciphered via Web");
                     WriteDeciperFunctToCache();
                 }
                 else
@@ -464,15 +491,23 @@ namespace MusicApp.Resources.Portable_Class
             }
             stringBuilder.Append("};decipher();");
 
-            Android.OS.Handler handler = new Android.OS.Handler((sender) => 
+            Android.OS.Handler handler = new Android.OS.Handler(MainActivity.instance.MainLooper);
+            handler.Post(() =>
             {
                 WebView webView = new WebView(Android.App.Application.Context);
                 webView.EvaluateJavascript(stringBuilder.ToString(), this);
             });
+
+            //Android.OS.Handler handler = new Android.OS.Handler((sender) => 
+            //{
+            //    WebView webView = new WebView(Android.App.Application.Context);
+            //    webView.EvaluateJavascript(stringBuilder.ToString(), this);
+            //});
         }
 
         public void OnReceiveValue(Java.Lang.Object value)
         {
+            System.Console.WriteLine("Value receive");
             Ilock.Lock();
             try
             {
@@ -719,6 +754,11 @@ namespace MusicApp.Resources.Portable_Class
                 viewCount = Long.ParseLong(matcher.Group(1));
 
             return new VideoMeta(videoID, title, author, channelID, length, viewCount, isLiveStream);
+        }
+
+        protected override SparseArray<YtFile> RunInBackground(params string[] @params)
+        {
+            throw new NotImplementedException();
         }
     }
 }

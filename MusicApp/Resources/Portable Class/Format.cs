@@ -163,5 +163,6 @@
                ", isDashContainer=" + isDashContainer +
                ", isHlsContent=" + isHlsContent +
                '}';
+        }
     }
 }
