@@ -113,6 +113,8 @@ namespace MusicApp
                 {
                     if (DownloadList.instance != null)
                         DownloadList.instance.Search(e.Query);
+                    if (YoutubeEngine.instance != null)
+                        YoutubeEngine.instance.Search(e.Query);
 
                     e.Handled = true;
                 };
@@ -147,6 +149,8 @@ namespace MusicApp
                 PlaylistTracks.instance.result = null;
             if (FolderTracks.instance != null)
                 FolderTracks.instance.result = null;
+            if (YoutubeEngine.instance != null)
+                YoutubeEngine.instance.result = null;
         }
 
         public void HideSearch()
@@ -213,7 +217,7 @@ namespace MusicApp
                 case Resource.Id.downloadLayout:
                     HideTabs();
                     DisplaySearch();
-                    fragment = DownloadList.NewInstance();
+                    fragment = YoutubeEngine.NewInstance();
                     break;
 
                 case Resource.Id.playlistLayout:

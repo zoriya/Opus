@@ -3,7 +3,6 @@ using Android.Content;
 using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
-using Android.Graphics;
 using Android.App;
 using Square.Picasso;
 
