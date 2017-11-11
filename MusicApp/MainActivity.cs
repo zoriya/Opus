@@ -111,8 +111,6 @@ namespace MusicApp
 
                 searchView.QueryTextSubmit += (s, e) =>
                 {
-                    if (DownloadList.instance != null)
-                        DownloadList.instance.Search(e.Query);
                     if (YoutubeEngine.instance != null)
                         YoutubeEngine.instance.Search(e.Query);
 

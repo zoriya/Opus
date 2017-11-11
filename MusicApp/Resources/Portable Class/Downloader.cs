@@ -41,21 +41,19 @@ namespace MusicApp.Resources.Portable_Class
         public override StartCommandResult OnStartCommand(Intent intent, StartCommandFlags flags, int startId)
         {
             Console.WriteLine("Downloader service started");
-            string uri = intent.GetStringExtra("file");
+            string videoID = intent.GetStringExtra("videoID");
             string path = intent.GetStringExtra("path");
             string name = intent.GetStringExtra("name");
-            DownloadAudio(uri, path, name);
+            DownloadAudio(videoID, path, name);
             return StartCommandResult.Sticky;
         }
 
-        private async void DownloadAudio(string uri, string path, string name)
+        private async void DownloadAudio(string videoID, string path, string name)
         {
             CreateNotification("Downloading: ", name);
-            string videoID = uri.Remove(0, uri.IndexOf("=") + 1);
 
             var client = new YoutubeClient();
             var videoInfo = await client.GetVideoInfoAsync(videoID);
-
             var streamInfo = videoInfo.AudioStreams.OrderBy(s => s.Bitrate).Last();
 
             string fileExtension = streamInfo.Container.GetFileExtension();

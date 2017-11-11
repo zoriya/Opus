@@ -38,7 +38,7 @@ namespace MusicApp.Resources.Portable_Class
                 Artist = { Text = ytList[position].channelTitle },
             };
 
-            Picasso.With(Application.Context).Load(ytList[position].thumbnailUrl).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
+            Picasso.With(Application.Context).Load(ytList[position].thumbnailUrl).Placeholder(Resource.Drawable.MusicIcon).Into(holder.AlbumArt);
             return convertView;
         }
     }

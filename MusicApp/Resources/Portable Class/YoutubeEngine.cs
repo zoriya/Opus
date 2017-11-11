@@ -14,6 +14,10 @@ using Android.Gms.Auth.Api;
 using System.Collections.Generic;
 using Google.Apis.Services;
 using Android.Accounts;
+using Android.Preferences;
+using System;
+using YoutubeExplode;
+using System.Linq;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -27,6 +31,7 @@ namespace MusicApp.Resources.Portable_Class
 
         private string ApiKey = "AIzaSyBOQyZVnBAKjur0ztBuYPSopS725Qudgc4";
         private YouTubeService youtubeService;
+        private string videoID;
         //private string oAuthKey;
         //private GoogleApiClient googleClient;
         //private const int signPickerID = 9001;
@@ -47,6 +52,8 @@ namespace MusicApp.Resources.Portable_Class
             ListView.EmptyView = emptyView;
             Activity.AddContentView(emptyView, View.LayoutParameters);
             ListAdapter = null;
+            ListView.ItemClick += ListView_ItemClick;
+            ListView.ItemLongClick += ListView_ItemLongClick;
 
             if (youtubeService == null)
             {
@@ -152,48 +159,48 @@ namespace MusicApp.Resources.Portable_Class
         #endregion
 
         #region Permissions
-        void GetPermissions(string[] permissions)
-        {
-            bool hasPermissions = CheckPermissions(permissions);
+        //void GetPermissions(string[] permissions)
+        //{
+        //    bool hasPermissions = CheckPermissions(permissions);
 
-            if (!hasPermissions)
-                RequestPermissions(permissions, 0);
-            //else
-            //    PopulateList();
-        }
+        //    if (!hasPermissions)
+        //        RequestPermissions(permissions, 0);
+        //    //else
+        //    //    PopulateList();
+        //}
 
-        bool CheckPermissions(string[] permissions)
-        {
-            bool hasPermissions = true;
-            foreach (string permission in permissions)
-            {
-                if (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(Android.App.Application.Context, permission) != (int)Permission.Granted)
-                {
-                    hasPermissions = false;
-                    break;
-                }
-            }
-            return hasPermissions;
-        }
+        //bool CheckPermissions(string[] permissions)
+        //{
+        //    bool hasPermissions = true;
+        //    foreach (string permission in permissions)
+        //    {
+        //        if (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(Android.App.Application.Context, permission) != (int)Permission.Granted)
+        //        {
+        //            hasPermissions = false;
+        //            break;
+        //        }
+        //    }
+        //    return hasPermissions;
+        //}
 
-        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, Permission[] grantResults)
-        {
-            switch (requestCode)
-            {
-                case 0:
-                    {
-                        if (grantResults[0] == Permission.Granted)
-                        {
-                            PopulateList();
-                        }
-                        else
-                        {
-                            Snackbar.Make(View, "Permission denied, can't list search on youtube.", Snackbar.LengthShort).Show();
-                        }
-                    }
-                    break;
-            }
-        }
+        //public override void OnRequestPermissionsResult(int requestCode, string[] permissions, Permission[] grantResults)
+        //{
+        //    switch (requestCode)
+        //    {
+        //        case 0:
+        //            {
+        //                if (grantResults[0] == Permission.Granted)
+        //                {
+        //                    PopulateList();
+        //                }
+        //                else
+        //                {
+        //                    Snackbar.Make(View, "Permission denied, can't list search on youtube.", Snackbar.LengthShort).Show();
+        //                }
+        //            }
+        //            break;
+        //    }
+        //}
 #endregion
 
         public async void Search(string search)
@@ -220,9 +227,39 @@ namespace MusicApp.Resources.Portable_Class
             ListAdapter = new YtAdapter(Android.App.Application.Context, Resource.Layout.YtList, result);
         }
 
-        void PopulateList()
+        private async void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
         {
+            videoID = result[e.Position].Id;
+            var client = new YoutubeClient();
+            var videoInfo = await client.GetVideoInfoAsync(videoID);
+            var streamInfo = videoInfo.AudioStreams.OrderBy(s => s.Bitrate).Last();
 
+            Intent intent = new Intent(Android.App.Application.Context, typeof(MusicPlayer));
+            intent.PutExtra("file", streamInfo.Url);
+            Android.App.Application.Context.StartService(intent);
+        }
+
+        private void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
+        {
+            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Android.App.Application.Context);
+            if (prefManager.GetString("downloadPath", null) != null)
+            {
+                Toast.MakeText(Android.App.Application.Context, "Downloading...", ToastLength.Short).Show();
+                Context context = Android.App.Application.Context;
+                Intent intent = new Intent(context, typeof(Downloader));
+                intent.PutExtra("videoID", result[e.Position].Id);
+                intent.PutExtra("path", prefManager.GetString("downloadPath", null));
+                intent.PutExtra("name", result[e.Position].Title);
+                context.StartService(intent);
+            }
+            else
+            {
+                Snackbar.Make(View, "Download Path Not Set.", Snackbar.LengthShort).SetAction("Set Path", (v) =>
+                {
+                    Intent intent = new Intent(Android.App.Application.Context, typeof(Preferences));
+                    StartActivity(intent);
+                }).Show();
+            }
         }
     }
 }

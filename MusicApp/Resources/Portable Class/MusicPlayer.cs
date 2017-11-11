@@ -16,13 +16,18 @@ using Square.Picasso;
 
 using Uri = Android.Net.Uri;
 using Android.Widget;
+using Com.Google.Android.Exoplayer2;
+using Com.Google.Android.Exoplayer2.Trackselection;
+using Com.Google.Android.Exoplayer2.Upstream;
+using Com.Google.Android.Exoplayer2.Source;
+using Com.Google.Android.Exoplayer2.Extractor;
 
 namespace MusicApp.Resources.Portable_Class
 {
     [Service]
-    public class MusicPlayer : Service, AudioManager.IOnAudioFocusChangeListener
+    public class MusicPlayer : Service, IPlayerEventListener, AudioManager.IOnAudioFocusChangeListener
     {
-        public static MediaPlayer player;
+        public static SimpleExoPlayer player;
         public static List<Song> queue = new List<Song>();
         public MediaSessionCompat mediaSession;
         public AudioManager audioManager;
@@ -55,7 +60,7 @@ namespace MusicApp.Resources.Portable_Class
                     break;
 
                 case "Pause":
-                    if (player.IsPlaying)
+                    if(isRunning)
                         Pause();
                     else
                         Resume();
@@ -82,17 +87,8 @@ namespace MusicApp.Resources.Portable_Class
                     SwitchQueue(file);
                     break;
                 case "Stop":
-                    if (player.IsPlaying)
+                    if(isRunning)
                         Stop();
-                    break;
-                case "YTPlay":
-                    string[] song = intent.GetStringArrayListExtra("song").ToArray();
-                    Console.WriteLine(song.Length);
-                    Console.WriteLine(song[0]);
-                    Console.WriteLine(song[1]);
-                    Console.WriteLine(song[2]);
-
-                    PlayFromYT(file, song[0], song[1], song[2]);
                     break;
             }
 
@@ -109,90 +105,47 @@ namespace MusicApp.Resources.Portable_Class
         {
             audioManager = (AudioManager)Application.Context.GetSystemService(AudioService);
             notificationManager = (NotificationManager)Application.Context.GetSystemService(NotificationService);
-
-            player = new MediaPlayer();
-            InitializePlayer();
+            DefaultBandwidthMeter bandwithMeter = new DefaultBandwidthMeter();
+            AdaptiveTrackSelection.Factory trackSelectionFactory = new AdaptiveTrackSelection.Factory(bandwithMeter);
+            TrackSelector trackSelector = new DefaultTrackSelector(trackSelectionFactory);
+            player = ExoPlayerFactory.NewSimpleInstance(Application.Context, trackSelector);
+            player.PlayWhenReady = true;
+            player.AddListener(this);
         }
 
-        private void InitializePlayer()
-        {
-            player.SetAudioStreamType(Stream.Music);
-            player.SetWakeMode(Application.Context, WakeLockFlags.Partial);
-
-            player.Prepared += (sender, args) => player.Start();
-            player.Completion += (sender, args) => PlayNext();
-            player.Error += (sender, args) =>
-            {
-                Console.WriteLine("Error in playback resetting: " + args.What);
-                Stop();
-            };
-        }
-
-        public async void Play(string filePath)
+        public void Play(string filePath)
         {
             isRunning = true;
             if (player == null)
                 InitializeService();
 
-            if (mediaSession != null)
+            DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(Application.Context, "MusicApp");
+            IExtractorsFactory extractorFactory = new DefaultExtractorsFactory();
+            Handler handler = new Handler();
+            IMediaSource mediaSource = new ExtractorMediaSource(Uri.Parse(filePath), dataSourceFactory, extractorFactory, handler, null);
+            var audioFocus = audioManager.RequestAudioFocus(this, Stream.Music, AudioFocus.Gain);
+            if (audioFocus != AudioFocusRequest.Granted)
             {
-                player.Reset();
-                InitializePlayer();
-                await player.SetDataSourceAsync(Application.Context, Uri.Parse(filePath));
-                player.PrepareAsync();
-                GetTrackSong(filePath, out Song song);
-                CreateNotification(song.GetName(), song.GetArtist(), song.GetAlbumArt());
-                queue.Clear();
-                AddToQueue(filePath);
+                Console.WriteLine("Can't Get Audio Focus");
                 return;
             }
-            try
-            {
-                mediaSession = new MediaSessionCompat(Application.Context, "MusicApp");
-                mediaSession.SetFlags(MediaSessionCompat.FlagHandlesMediaButtons | MediaSessionCompat.FlagHandlesTransportControls);
-                PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder().SetActions(PlaybackStateCompat.ActionPlay | PlaybackStateCompat.ActionPause);
-                mediaSession.SetPlaybackState(builder.Build());
+            player.Prepare(mediaSource, true, true);
 
-                await player.SetDataSourceAsync(Application.Context, Android.Net.Uri.Parse(filePath));
-                var audioFocus = audioManager.RequestAudioFocus(this, Stream.Music, AudioFocus.Gain);
-                if (audioFocus != AudioFocusRequest.Granted)
-                {
-                    Console.WriteLine("Can't Get Audio Focus");
-                    return;
-                }
-                player.PrepareAsync();
-                GetTrackSong(filePath, out Song song);
-                CreateNotification(song.GetName(), song.GetArtist(), song.GetAlbumArt());
-                queue.Clear();
-                AddToQueue(filePath);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error: " + ex);
-            }
-        }
-
-        public async void PlayFromYT(string url, string title, string artist, string imageURL)
-        {
-            Console.WriteLine("URL: " + url);
-            InitializeService();
-            await player.SetDataSourceAsync(Application.Context, Uri.Parse(url));
-            player.PrepareAsync();
-            //isRunning = true;
-            //if (player == null)
-            //    InitializeService();
+            GetTrackSong(filePath, out Song song);
+            CreateNotification(song.GetName(), song.GetArtist(), song.GetAlbumArt());
+            queue.Clear();
+            AddToQueue(song);
 
             //if (mediaSession != null)
             //{
             //    player.Reset();
             //    InitializePlayer();
-            //    await player.SetDataSourceAsync(Application.Context, Uri.Parse(url));
+            //    await player.SetDataSourceAsync(Application.Context, Uri.Parse(filePath));
             //    player.PrepareAsync();
-            //    CreateNotification(title, artist, 0, imageURL);
-
+            //    GetTrackSong(filePath, out Song song);
+            //    CreateNotification(song.GetName(), song.GetArtist(), song.GetAlbumArt());
             //    queue.Clear();
-            //    Song item = new Song(title, artist, imageURL, -1, 1, url);
-            //    queue.Add(item);
+            //    AddToQueue(filePath);
             //    return;
             //}
             //try
@@ -202,7 +155,7 @@ namespace MusicApp.Resources.Portable_Class
             //    PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder().SetActions(PlaybackStateCompat.ActionPlay | PlaybackStateCompat.ActionPause);
             //    mediaSession.SetPlaybackState(builder.Build());
 
-            //    await player.SetDataSourceAsync(Application.Context, Uri.Parse(url));
+            //    await player.SetDataSourceAsync(Application.Context, Android.Net.Uri.Parse(filePath));
             //    var audioFocus = audioManager.RequestAudioFocus(this, Stream.Music, AudioFocus.Gain);
             //    if (audioFocus != AudioFocusRequest.Granted)
             //    {
@@ -210,10 +163,10 @@ namespace MusicApp.Resources.Portable_Class
             //        return;
             //    }
             //    player.PrepareAsync();
-            //    CreateNotification(title, artist, 0, imageURL);
+            //    GetTrackSong(filePath, out Song song);
+            //    CreateNotification(song.GetName(), song.GetArtist(), song.GetAlbumArt());
             //    queue.Clear();
-            //    Song item = new Song(title, artist, imageURL, -1, 1, url);
-            //    queue.Add(item);
+            //    AddToQueue(filePath);
             //}
             //catch (Exception ex)
             //{
@@ -239,7 +192,14 @@ namespace MusicApp.Resources.Portable_Class
         public void AddToQueue(string filePath)
         {
             GetTrackSong(filePath, out Song song);
-            Console.WriteLine("AddToQueue path: " + song.GetPath() + " Before get track song: " + filePath);
+            if (CurrentID() == -1)
+                queue.Add(song);
+            else
+                queue.Insert(CurrentID() + 1, song);
+        }
+
+        public void AddToQueue(Song song)
+        {
             if (CurrentID() == -1)
                 queue.Add(song);
             else
@@ -275,17 +235,11 @@ namespace MusicApp.Resources.Portable_Class
             SwitchQueue(filePath);
         }
 
-        async void SwitchQueue(string filePath)
+        void SwitchQueue(string filePath)
         {
-            isRunning = true;
+            Play(filePath);
 
-            if(player != null)
-                player.Reset();
-            InitializePlayer();
-            await player.SetDataSourceAsync(Application.Context, Uri.Parse(filePath));
-            player.PrepareAsync();
             GetTrackSong(filePath, out Song song);
-            CreateNotification(song.GetName(), song.GetArtist(), song.GetAlbumArt());
 
             if (Player.instance != null)
                 Player.instance.RefreshPlayer();
@@ -315,8 +269,8 @@ namespace MusicApp.Resources.Portable_Class
 
         public static void SetSeekBar(SeekBar bar)
         {
-            bar.Max = player.Duration;
-            bar.Progress = player.CurrentPosition;
+            bar.Max = (int) player.Duration;
+            bar.Progress = (int) player.CurrentPosition;
             bar.ProgressChanged += (sender, e) =>
             {
                 if (player != null && e.FromUser)
@@ -328,7 +282,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             get
             {
-                return player.Duration;
+                return (int) player.Duration;
             }
         }
 
@@ -336,7 +290,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             get
             {
-                return player.CurrentPosition;
+                return (int) player.CurrentPosition;
             }
         }
 
@@ -349,6 +303,10 @@ namespace MusicApp.Resources.Portable_Class
             long id = 0;
             string path = filePath;
 
+            if (false /*Check if it's a youtube video*/)
+            {
+                //return information about a youtube video
+            }
 
             Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
 
@@ -406,7 +364,7 @@ namespace MusicApp.Resources.Portable_Class
                     {
                         icon = Picasso.With(Application.Context).Load(iconURI).Error(Resource.Drawable.MusicIcon).Placeholder(Resource.Drawable.MusicIcon).NetworkPolicy(NetworkPolicy.Offline).Resize(400, 400).CenterCrop().Get();
                     }
-                    catch (Exception)
+                    catch (System.Exception)
                     {
                         icon = Picasso.With(Application.Context).Load(Resource.Drawable.MusicIcon).Get();
                     }
@@ -452,7 +410,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public void Pause()
         {
-            if(player != null && player.IsPlaying)
+            if(player != null && isRunning)
             {
                 Intent tmpPauseIntent = new Intent(Application.Context, typeof(MusicPlayer));
                 tmpPauseIntent.SetAction("Pause");
@@ -461,7 +419,7 @@ namespace MusicApp.Resources.Portable_Class
                 notification.Actions[1] = new Notification.Action(Resource.Drawable.ic_play_arrow_black_24dp, "Play", pauseIntent);
                 notificationManager.Notify(notificationID, notification);
 
-                player.Pause();
+                player.PlayWhenReady = false;
                 StopForeground(false);
 
                 RelativeLayout smallPlayer = MainActivity.instance.FindViewById<RelativeLayout>(Resource.Id.smallPlayer);
@@ -476,7 +434,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public void Resume()
         {
-            if(player != null && !player.IsPlaying)
+            if(player != null && !isRunning)
             {
                 Intent tmpPauseIntent = new Intent(Application.Context, typeof(MusicPlayer));
                 tmpPauseIntent.SetAction("Pause");
@@ -484,7 +442,7 @@ namespace MusicApp.Resources.Portable_Class
 
                 notification.Actions[1] = new Notification.Action(Resource.Drawable.ic_pause_black_24dp, "Pause", pauseIntent);
 
-                player.Start();
+                player.PlayWhenReady = true;
                 StartForeground(notificationID, notification);
 
                 RelativeLayout smallPlayer = MainActivity.instance.FindViewById<RelativeLayout>(Resource.Id.smallPlayer);
@@ -503,9 +461,9 @@ namespace MusicApp.Resources.Portable_Class
             MainActivity.instance.HideSmallPlayer();
             if (player != null)
             {
-                if (player.IsPlaying)
+                if (isRunning)
                     player.Stop();
-                player.Reset();
+                player.Release();
                 StopForeground(true);
             }
         }
@@ -516,12 +474,12 @@ namespace MusicApp.Resources.Portable_Class
             {
                 case AudioFocus.Gain:
                     if (player == null)
-                        InitializePlayer();
+                        InitializeService();
 
-                    if (!player.IsPlaying)
-                        player.Start();
+                    if (!isRunning)
+                        player.PlayWhenReady = true;
 
-                    player.SetVolume(1, 1);
+                    player.Volume = 1;
                     break;
 
                 case AudioFocus.Loss:
@@ -533,8 +491,8 @@ namespace MusicApp.Resources.Portable_Class
                     break;
 
                 case AudioFocus.LossTransientCanDuck:
-                    if (player.IsPlaying)
-                        player.SetVolume(.2f, .2f);
+                    if (isRunning)
+                        player.Volume = 0.2f;
                     break;
 
                 default:
@@ -550,6 +508,46 @@ namespace MusicApp.Resources.Portable_Class
 
             if (player != null)
                 player.Release();
+        }
+
+        public void OnLoadingChanged(bool p0)
+        {
+
+        }
+
+        public void OnPlaybackParametersChanged(PlaybackParameters p0)
+        {
+
+        }
+
+        public void OnPlayerError(ExoPlaybackException args)
+        {
+            Console.WriteLine("Error in playback resetting: " + args.Cause);
+        }
+
+        public void OnPlayerStateChanged(bool p0, int p1)
+        {
+
+        }
+
+        public void OnPositionDiscontinuity()
+        {
+
+        }
+
+        public void OnRepeatModeChanged(int p0)
+        {
+
+        }
+
+        public void OnTimelineChanged(Timeline p0, Java.Lang.Object p1)
+        {
+
+        }
+
+        public void OnTracksChanged(TrackGroupArray p0, TrackSelectionArray p1)
+        {
+
         }
     }
 }
