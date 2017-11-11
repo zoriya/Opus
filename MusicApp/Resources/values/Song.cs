@@ -16,7 +16,6 @@
         public long GetAlbumArt() { return AlbumArt; }
         public long GetID() { return id; }
         public string GetPath() { return path; }
-
         
         public Song(string Name, string Artist, string Album, long AlbumArt, long id, string path)
         {

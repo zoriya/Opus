@@ -96,7 +96,17 @@ namespace MusicApp.Resources.Portable_Class
                 return StartCommandResult.Sticky;
 
             if (file != null)
+            {
+                string title = intent.GetStringExtra("title");
+                if(title != null)
+                {
+                    string artist = intent.GetStringExtra("artist");
+                    string thumbnailURI = intent.GetStringExtra("thumbnailURI");
+                    Play(file, title, artist, thumbnailURI);
+                    return StartCommandResult.Sticky;
+                }
                 Play(file);
+            }
 
             return StartCommandResult.Sticky;
         }
@@ -113,11 +123,19 @@ namespace MusicApp.Resources.Portable_Class
             player.AddListener(this);
         }
 
-        public void Play(string filePath)
+        public void Play(string filePath, string title = null, string artist = null, string thumbnailURI = null)
         {
             isRunning = true;
             if (player == null)
                 InitializeService();
+
+            if(mediaSession == null)
+            {
+                mediaSession = new MediaSessionCompat(Application.Context, "MusicApp");
+                mediaSession.SetFlags(MediaSessionCompat.FlagHandlesMediaButtons | MediaSessionCompat.FlagHandlesTransportControls);
+                PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder().SetActions(PlaybackStateCompat.ActionPlay | PlaybackStateCompat.ActionPause);
+                mediaSession.SetPlaybackState(builder.Build());
+            }
 
             DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(Application.Context, "MusicApp");
             IExtractorsFactory extractorFactory = new DefaultExtractorsFactory();
@@ -129,49 +147,19 @@ namespace MusicApp.Resources.Portable_Class
                 Console.WriteLine("Can't Get Audio Focus");
                 return;
             }
+            player.PlayWhenReady = true;
             player.Prepare(mediaSource, true, true);
 
-            GetTrackSong(filePath, out Song song);
-            CreateNotification(song.GetName(), song.GetArtist(), song.GetAlbumArt());
-            queue.Clear();
+            Song song = null;
+            if(title == null)
+                GetTrackSong(filePath, out song);
+            else
+            {
+                song = new Song(title, artist, thumbnailURI, -1, -1, filePath);
+            }
+            CreateNotification(song.GetName(), song.GetArtist(), song.GetAlbumArt(), song.GetAlbum());
+            //queue.Clear();
             AddToQueue(song);
-
-            //if (mediaSession != null)
-            //{
-            //    player.Reset();
-            //    InitializePlayer();
-            //    await player.SetDataSourceAsync(Application.Context, Uri.Parse(filePath));
-            //    player.PrepareAsync();
-            //    GetTrackSong(filePath, out Song song);
-            //    CreateNotification(song.GetName(), song.GetArtist(), song.GetAlbumArt());
-            //    queue.Clear();
-            //    AddToQueue(filePath);
-            //    return;
-            //}
-            //try
-            //{
-            //    mediaSession = new MediaSessionCompat(Application.Context, "MusicApp");
-            //    mediaSession.SetFlags(MediaSessionCompat.FlagHandlesMediaButtons | MediaSessionCompat.FlagHandlesTransportControls);
-            //    PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder().SetActions(PlaybackStateCompat.ActionPlay | PlaybackStateCompat.ActionPause);
-            //    mediaSession.SetPlaybackState(builder.Build());
-
-            //    await player.SetDataSourceAsync(Application.Context, Android.Net.Uri.Parse(filePath));
-            //    var audioFocus = audioManager.RequestAudioFocus(this, Stream.Music, AudioFocus.Gain);
-            //    if (audioFocus != AudioFocusRequest.Granted)
-            //    {
-            //        Console.WriteLine("Can't Get Audio Focus");
-            //        return;
-            //    }
-            //    player.PrepareAsync();
-            //    GetTrackSong(filePath, out Song song);
-            //    CreateNotification(song.GetName(), song.GetArtist(), song.GetAlbumArt());
-            //    queue.Clear();
-            //    AddToQueue(filePath);
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine("Error: " + ex);
-            //}
         }
 
         public async void RandomPlay(List<string> filePath)
@@ -249,10 +237,17 @@ namespace MusicApp.Resources.Portable_Class
             smallPlayer.FindViewById<TextView>(Resource.Id.spArtist).Text = song.GetArtist();
             ImageView art = smallPlayer.FindViewById<ImageView>(Resource.Id.spArt);
 
-            var songCover = Uri.Parse("content://media/external/audio/albumart");
-            var songAlbumArtUri = ContentUris.WithAppendedId(songCover, song.GetAlbumArt());
+            if(song.GetAlbum() == null)
+            {
+                var songCover = Uri.Parse("content://media/external/audio/albumart");
+                var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, song.GetAlbumArt());
 
-            Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Into(art);
+                Picasso.With(Application.Context).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Into(art);
+            }
+            else
+            {
+                Picasso.With(Application.Context).Load(song.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Into(art);
+            }
         }
 
         public static int CurrentID()
@@ -298,15 +293,9 @@ namespace MusicApp.Resources.Portable_Class
         {
             string Title = "Unknow";
             string Artist = "Unknow";
-            string Album = "Unknow";
             long AlbumArt = 0;
             long id = 0;
             string path = filePath;
-
-            if (false /*Check if it's a youtube video*/)
-            {
-                //return information about a youtube video
-            }
 
             Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
 
@@ -317,7 +306,6 @@ namespace MusicApp.Resources.Portable_Class
             {
                 int titleID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Title);
                 int artistID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Artist);
-                int albumID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Album);
                 int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
                 int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
                 do
@@ -328,7 +316,6 @@ namespace MusicApp.Resources.Portable_Class
                     {
                         Artist = musicCursor.GetString(artistID);
                         Title = musicCursor.GetString(titleID);
-                        Album = musicCursor.GetString(albumID);
                         AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
                         id = musicCursor.GetLong(thisID);
 
@@ -336,16 +323,13 @@ namespace MusicApp.Resources.Portable_Class
                             Title = "Unknown Title";
                         if (Artist == null)
                             Artist = "Unknow Artist";
-                        if (Album == null)
-                            Album = "Unknow Album";
-
                         break;
                     }
                 }
                 while (musicCursor.MoveToNext());
                 musicCursor.Close();
             }
-            song = new Song(Title, Artist, Album, AlbumArt, id, filePath);
+            song = new Song(Title, Artist, null, AlbumArt, id, filePath);
         }
 
         async void CreateNotification(string title, string artist, long albumArt = 0, string imageURI = "")
@@ -353,28 +337,45 @@ namespace MusicApp.Resources.Portable_Class
             MusicPlayer.title = title;
             Bitmap icon = null;
 
-            if (albumArt != 0)
+            if (imageURI == null)
             {
-                Uri songCover = Uri.Parse("content://media/external/audio/albumart");
-                Uri iconURI = ContentUris.WithAppendedId(songCover, albumArt);
-
-                await Task.Run(() =>
+                if (albumArt != 0)
                 {
-                    try
+                    Uri songCover = Uri.Parse("content://media/external/audio/albumart");
+                    Uri iconURI = ContentUris.WithAppendedId(songCover, albumArt);
+
+                    await Task.Run(() =>
                     {
-                        icon = Picasso.With(Application.Context).Load(iconURI).Error(Resource.Drawable.MusicIcon).Placeholder(Resource.Drawable.MusicIcon).NetworkPolicy(NetworkPolicy.Offline).Resize(400, 400).CenterCrop().Get();
-                    }
-                    catch (System.Exception)
+                        try
+                        {
+                            icon = Picasso.With(Application.Context).Load(iconURI).Error(Resource.Drawable.MusicIcon).Placeholder(Resource.Drawable.MusicIcon).NetworkPolicy(NetworkPolicy.Offline).Resize(400, 400).CenterCrop().Get();
+                        }
+                        catch (Exception)
+                        {
+                            icon = Picasso.With(Application.Context).Load(Resource.Drawable.MusicIcon).Get();
+                        }
+                    });
+                }
+                else
+                {
+                    await Task.Run(() =>
                     {
-                        icon = Picasso.With(Application.Context).Load(Resource.Drawable.MusicIcon).Get();
-                    }
-                });
+                        icon = Picasso.With(Application.Context).Load(imageURI).Get();
+                    });
+                }
             }
             else
             {
                 await Task.Run(() =>
                 {
-                    icon = Picasso.With(Application.Context).Load(imageURI).Get();
+                    try
+                    {
+                        icon = Picasso.With(Application.Context).Load(imageURI).Error(Resource.Drawable.MusicIcon).Placeholder(Resource.Drawable.MusicIcon).NetworkPolicy(NetworkPolicy.Offline).Resize(400, 400).CenterCrop().Get();
+                    }
+                    catch (Exception)
+                    {
+                        icon = Picasso.With(Application.Context).Load(Resource.Drawable.MusicIcon).Get();
+                    }
                 });
             }
 
@@ -412,6 +413,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             if(player != null && isRunning)
             {
+                isRunning = false;
                 Intent tmpPauseIntent = new Intent(Application.Context, typeof(MusicPlayer));
                 tmpPauseIntent.SetAction("Pause");
                 PendingIntent pauseIntent = PendingIntent.GetService(Application.Context, 0, tmpPauseIntent, PendingIntentFlags.UpdateCurrent);
@@ -436,6 +438,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             if(player != null && !isRunning)
             {
+                isRunning = true;
                 Intent tmpPauseIntent = new Intent(Application.Context, typeof(MusicPlayer));
                 tmpPauseIntent.SetAction("Pause");
                 PendingIntent pauseIntent = PendingIntent.GetService(Application.Context, 0, tmpPauseIntent, PendingIntentFlags.UpdateCurrent);

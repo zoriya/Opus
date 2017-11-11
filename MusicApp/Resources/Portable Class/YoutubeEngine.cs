@@ -236,6 +236,9 @@ namespace MusicApp.Resources.Portable_Class
 
             Intent intent = new Intent(Android.App.Application.Context, typeof(MusicPlayer));
             intent.PutExtra("file", streamInfo.Url);
+            intent.PutExtra("title", videoInfo.Title);
+            intent.PutExtra("artist", videoInfo.Author.Title);
+            intent.PutExtra("thumbnailURI", videoInfo.ImageThumbnailUrl);
             Android.App.Application.Context.StartService(intent);
         }
 
