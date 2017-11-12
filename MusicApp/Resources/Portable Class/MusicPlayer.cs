@@ -76,10 +76,26 @@ namespace MusicApp.Resources.Portable_Class
                     break;
 
                 case "PlayNext":
+                    string title = intent.GetStringExtra("title");
+                    if (title != null)
+                    {
+                        string artist = intent.GetStringExtra("artist");
+                        string thumbnailURI = intent.GetStringExtra("thumbnailURI");
+                        AddToQueue(file, title, artist, thumbnailURI);
+                        return StartCommandResult.Sticky;
+                    }
                     AddToQueue(file);
                     break;
 
                 case "PlayLast":
+                    title = intent.GetStringExtra("title");
+                    if (title != null)
+                    {
+                        string artist = intent.GetStringExtra("artist");
+                        string thumbnailURI = intent.GetStringExtra("thumbnailURI");
+                        PlayLastInQueue(file, title, artist, thumbnailURI);
+                        return StartCommandResult.Sticky;
+                    }
                     PlayLastInQueue(file);
                     break;
 
@@ -123,7 +139,7 @@ namespace MusicApp.Resources.Portable_Class
             player.AddListener(this);
         }
 
-        public void Play(string filePath, string title = null, string artist = null, string thumbnailURI = null)
+        public void Play(string filePath, string title = null, string artist = null, string thumbnailURI = null, bool addToQueue = true)
         {
             isRunning = true;
             if (player == null)
@@ -155,11 +171,12 @@ namespace MusicApp.Resources.Portable_Class
                 GetTrackSong(filePath, out song);
             else
             {
-                song = new Song(title, artist, thumbnailURI, -1, -1, filePath);
+                song = new Song(title, artist, thumbnailURI, -1, -1, filePath, true);
             }
             CreateNotification(song.GetName(), song.GetArtist(), song.GetAlbumArt(), song.GetAlbum());
-            //queue.Clear();
-            AddToQueue(song);
+
+            if(addToQueue)
+                AddToQueue(song);
         }
 
         public async void RandomPlay(List<string> filePath)
@@ -177,9 +194,13 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
-        public void AddToQueue(string filePath)
+        public void AddToQueue(string filePath, string title = null, string artist = null, string thumbnailURI = null)
         {
-            GetTrackSong(filePath, out Song song);
+            Song song = null;
+            if(title == null)
+                GetTrackSong(filePath, out song);
+            else
+                song = new Song(title, artist, thumbnailURI, -1, -1, filePath, true);
             if (CurrentID() == -1)
                 queue.Add(song);
             else
@@ -197,6 +218,12 @@ namespace MusicApp.Resources.Portable_Class
         public void PlayLastInQueue(string filePath)
         {
             GetTrackSong(filePath, out Song song);
+            queue.Add(song);
+        }
+
+        public void PlayLastInQueue(string filePath, string title, string artist, string thumbnailURI)
+        {
+            Song song = new Song(title, artist, thumbnailURI, -1, -1, filePath, true);
             queue.Add(song);
         }
 
@@ -225,7 +252,7 @@ namespace MusicApp.Resources.Portable_Class
 
         void SwitchQueue(string filePath)
         {
-            Play(filePath);
+            Play(filePath, null, null, null, false);
 
             GetTrackSong(filePath, out Song song);
 
@@ -237,7 +264,7 @@ namespace MusicApp.Resources.Portable_Class
             smallPlayer.FindViewById<TextView>(Resource.Id.spArtist).Text = song.GetArtist();
             ImageView art = smallPlayer.FindViewById<ImageView>(Resource.Id.spArt);
 
-            if(song.GetAlbum() == null)
+            if(!song.IsYt)
             {
                 var songCover = Uri.Parse("content://media/external/audio/albumart");
                 var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, song.GetAlbumArt());

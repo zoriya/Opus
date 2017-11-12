@@ -147,8 +147,8 @@ namespace MusicApp
                 PlaylistTracks.instance.result = null;
             if (FolderTracks.instance != null)
                 FolderTracks.instance.result = null;
-            if (YoutubeEngine.instance != null)
-                YoutubeEngine.instance.result = null;
+            //if (YoutubeEngine.instance != null)
+            //    YoutubeEngine.result = null;
         }
 
         public void HideSearch()
@@ -286,10 +286,17 @@ namespace MusicApp
             smallPlayer.FindViewById<TextView>(Resource.Id.spArtist).Text = current.GetArtist();
             ImageView art = smallPlayer.FindViewById<ImageView>(Resource.Id.spArt);
 
-            var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
-            var songAlbumArtUri = ContentUris.WithAppendedId(songCover, current.GetAlbumArt());
+            if (current.IsYt)
+            {
+                Picasso.With(Application.Context).Load(current.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Into(art);
+            }
+            else
+            {
+                var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
+                var songAlbumArtUri = ContentUris.WithAppendedId(songCover, current.GetAlbumArt());
 
-            Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Into(art);
+                Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Into(art);
+            }
 
             SetSmallPlayerProgressBar();
 

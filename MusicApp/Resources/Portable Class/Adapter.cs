@@ -37,7 +37,7 @@ namespace MusicApp.Resources.Portable_Class
                 Title = { Text = songList[position].GetName() },
                 Artist = { Text = songList[position].GetArtist() },
             };
-            if(songList[position].GetAlbumArt() == -1)
+            if(songList[position].GetAlbumArt() == -1 || songList[position].IsYt)
             {
                 var songAlbumArtUri = Android.Net.Uri.Parse(songList[position].GetAlbum()); 
                 Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
@@ -49,8 +49,6 @@ namespace MusicApp.Resources.Portable_Class
 
                 Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
             }
-
-            //convertView.SetBackgroundColor(Color.White);
             return convertView;
         }
     }

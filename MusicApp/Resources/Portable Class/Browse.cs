@@ -12,9 +12,6 @@ using Android.Content.PM;
 using Android.Support.V4.App;
 using Android.Support.V7.App;
 
-using EventArgs = System.EventArgs;
-using Square.Picasso;
-
 namespace MusicApp.Resources.Portable_Class
 {
     public class Browse : ListFragment
