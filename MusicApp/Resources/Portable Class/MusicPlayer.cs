@@ -99,9 +99,6 @@ namespace MusicApp.Resources.Portable_Class
                     PlayLastInQueue(file);
                     break;
 
-                case "QueueSwitch":
-                    SwitchQueue(file);
-                    break;
                 case "Stop":
                     if(isRunning)
                         Stop();
@@ -179,6 +176,38 @@ namespace MusicApp.Resources.Portable_Class
                 AddToQueue(song);
         }
 
+        public void Play(Song song, bool addToQueue = true)
+        {
+            isRunning = true;
+            if (player == null)
+                InitializeService();
+
+            if (mediaSession == null)
+            {
+                mediaSession = new MediaSessionCompat(Application.Context, "MusicApp");
+                mediaSession.SetFlags(MediaSessionCompat.FlagHandlesMediaButtons | MediaSessionCompat.FlagHandlesTransportControls);
+                PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder().SetActions(PlaybackStateCompat.ActionPlay | PlaybackStateCompat.ActionPause);
+                mediaSession.SetPlaybackState(builder.Build());
+            }
+
+            DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(Application.Context, "MusicApp");
+            IExtractorsFactory extractorFactory = new DefaultExtractorsFactory();
+            Handler handler = new Handler();
+            IMediaSource mediaSource = new ExtractorMediaSource(Uri.Parse(song.GetPath()), dataSourceFactory, extractorFactory, handler, null);
+            var audioFocus = audioManager.RequestAudioFocus(this, Stream.Music, AudioFocus.Gain);
+            if (audioFocus != AudioFocusRequest.Granted)
+            {
+                Console.WriteLine("Can't Get Audio Focus");
+                return;
+            }
+            player.PlayWhenReady = true;
+            player.Prepare(mediaSource, true, true);
+            CreateNotification(song.GetName(), song.GetArtist(), song.GetAlbumArt(), song.GetAlbum());
+
+            if (addToQueue)
+                AddToQueue(song);
+        }
+
         public async void RandomPlay(List<string> filePath)
         {
             Random r = new Random();
@@ -233,8 +262,7 @@ namespace MusicApp.Resources.Portable_Class
                 return;
 
             Song last = queue[CurrentID() - 1];
-            string filePath = last.GetPath();
-            SwitchQueue(filePath);
+            SwitchQueue(last);
         }
 
         public void PlayNext()
@@ -246,15 +274,12 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             Song next = queue[CurrentID() + 1];
-            string filePath = next.GetPath();
-            SwitchQueue(filePath);
+            SwitchQueue(next);
         }
 
-        void SwitchQueue(string filePath)
+        void SwitchQueue(Song song)
         {
-            Play(filePath, null, null, null, false);
-
-            GetTrackSong(filePath, out Song song);
+            Play(song, false);
 
             if (Player.instance != null)
                 Player.instance.RefreshPlayer();
@@ -269,11 +294,12 @@ namespace MusicApp.Resources.Portable_Class
                 var songCover = Uri.Parse("content://media/external/audio/albumart");
                 var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, song.GetAlbumArt());
 
-                Picasso.With(Application.Context).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Into(art);
+                Picasso.With(Application.Context).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(art);
             }
             else
             {
-                Picasso.With(Application.Context).Load(song.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Into(art);
+                Console.WriteLine("Yt song: " + song.GetAlbum());
+                Picasso.With(Application.Context).Load(song.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(art);
             }
         }
 

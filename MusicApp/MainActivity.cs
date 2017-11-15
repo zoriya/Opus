@@ -288,17 +288,22 @@ namespace MusicApp
 
             if (current.IsYt)
             {
-                Picasso.With(Application.Context).Load(current.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Into(art);
+                Picasso.With(Application.Context).Load(current.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(art);
             }
             else
             {
                 var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
                 var songAlbumArtUri = ContentUris.WithAppendedId(songCover, current.GetAlbumArt());
 
-                Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Into(art);
+                Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(art);
             }
 
             SetSmallPlayerProgressBar();
+
+            if (MusicPlayer.isRunning)
+                smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
+            else
+                smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
 
             if (!prepared)
             {

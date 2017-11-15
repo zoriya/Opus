@@ -11,6 +11,12 @@ using Android.Content.PM;
 using Android.Support.Design.Widget;
 using Android;
 using Android.Net;
+using System.Threading.Tasks;
+using Java.Util;
+using Google.Apis.YouTube.v3;
+using Google.Apis.YouTube.v3.Data;
+using MusicApp.Resources.values;
+using static Android.Provider.MediaStore.Audio;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -35,6 +41,14 @@ namespace MusicApp.Resources.Portable_Class
 
             if(ListView.Adapter == null)
                 GetStoragePermission();
+
+            //if(GoogleAccount != null)
+            {
+                if (YoutubeEngine.youtubeService == null)
+                    YoutubeEngine.CreateYoutube();
+
+                GetYoutubePlaylists();
+            }
         }
 
         public override void OnDestroy()
@@ -128,6 +142,56 @@ namespace MusicApp.Resources.Portable_Class
                 isEmpty = true;
                 Activity.AddContentView(emptyView, View.LayoutParameters);
             }
+        }
+
+        async void GetYoutubePlaylists()
+        {
+            while (YoutubeEngine.youtubeService == null)
+                await Task.Delay(100);
+
+            HashMap parameters = new HashMap();
+            parameters.Put("part", "snippet,contentDetails");
+            parameters.Put("mine", "true");
+            parameters.Put("maxResults", "25");
+            parameters.Put("onBehalfOfContentOwner", "");
+            parameters.Put("onBehalfOfContentOwnerChannel", "");
+
+            YouTubeService youtube = YoutubeEngine.youtubeService;
+
+            PlaylistsResource.ListRequest ytPlaylists = youtube.Playlists.List(parameters.Get("part").ToString());
+
+            if (parameters.ContainsKey("mine") && parameters.Get("mine").ToString() != "")
+            {
+                bool mine = (parameters.Get("mine").ToString() == "true") ? true : false;
+                ytPlaylists.Mine = mine;
+            }
+
+            if (parameters.ContainsKey("maxResults"))
+            {
+                ytPlaylists.MaxResults = long.Parse(parameters.Get("maxResults").ToString());
+            }
+
+            if (parameters.ContainsKey("onBehalfOfContentOwner") && parameters.Get("onBehalfOfContentOwner").ToString() != "")
+            {
+                ytPlaylists.OnBehalfOfContentOwner = parameters.Get("onBehalfOfContentOwner").ToString();
+            }
+
+            if (parameters.ContainsKey("onBehalfOfContentOwnerChannel") && parameters.Get("onBehalfOfContentOwnerChannel").ToString() != "")
+            {
+                ytPlaylists.OnBehalfOfContentOwnerChannel = parameters.Get("onBehalfOfContentOwnerChannel").ToString();
+            }
+
+            PlaylistListResponse response = await ytPlaylists.ExecuteAsync();
+            List<Song> ytList = new List<Song>();
+
+            for (int i = 0; i < response.Items.Count ; i++)
+            {
+                Google.Apis.YouTube.v3.Data.Playlist playlist = response.Items[i];
+                Song song = new Song(playlist.Snippet.Title, playlist.Snippet.ChannelTitle, playlist.Snippet.Thumbnails.Default__.Url, -1, -1, playlist.Id, true);
+                ytList.Add(song);
+            }
+
+            Adapter ytAdapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, ytList);
         }
 
         private void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)

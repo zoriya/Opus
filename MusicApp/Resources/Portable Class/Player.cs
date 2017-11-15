@@ -88,16 +88,21 @@ namespace MusicApp.Resources.Portable_Class
             artist.Selected = true;
             artist.SetMarqueeRepeatLimit(3);
 
-            if(current.GetAlbum() == null)
+            if (MusicPlayer.isRunning)
+                playerView.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
+            else
+                playerView.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
+
+            if (current.GetAlbum() == null)
             {
                 var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
                 var songAlbumArtUri = ContentUris.WithAppendedId(songCover, current.GetAlbumArt());
 
-                Picasso.With(Android.App.Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Into(imgView);
+                Picasso.With(Android.App.Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(imgView);
             }
             else
             {
-                Picasso.With(Android.App.Application.Context).Load(current.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Into(imgView);
+                Picasso.With(Android.App.Application.Context).Load(current.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(imgView);
             }
 
             bar = playerView.FindViewById<SeekBar>(Resource.Id.songTimer);
@@ -117,11 +122,11 @@ namespace MusicApp.Resources.Portable_Class
                     var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
                     var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, next.GetAlbumArt());
 
-                    Picasso.With(Android.App.Application.Context).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Into(nextArt);
+                    Picasso.With(Android.App.Application.Context).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
                 }
                 else
                 {
-                    Picasso.With(Android.App.Application.Context).Load(next.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Into(nextArt);
+                    Picasso.With(Android.App.Application.Context).Load(next.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
                 }
             }
             else
@@ -130,8 +135,13 @@ namespace MusicApp.Resources.Portable_Class
                 playerView.FindViewById<TextView>(Resource.Id.nextArtist).Text = "Nothing.";
 
                 ImageView nextArt = playerView.FindViewById<ImageView>(Resource.Id.nextArt);
-                Picasso.With(Android.App.Application.Context).Load(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.MusicIcon).Into(nextArt);
+                Picasso.With(Android.App.Application.Context).Load(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
             }
+
+            while (MusicPlayer.player.Duration < 1)
+                await Task.Delay(100);
+
+            bar.Max = (int)MusicPlayer.player.Duration;
         }
 
         public async void RefreshPlayer()
@@ -148,16 +158,21 @@ namespace MusicApp.Resources.Portable_Class
             title.Text = current.GetName();
             artist.Text = current.GetArtist();
 
-            if (current.GetAlbum() == null)
+            if (MusicPlayer.isRunning)
+                playerView.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
+            else
+                playerView.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
+
+            if (!current.IsYt)
             {
                 var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
                 var songAlbumArtUri = ContentUris.WithAppendedId(songCover, current.GetAlbumArt());
 
-                Picasso.With(Android.App.Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Into(imgView);
+                Picasso.With(Android.App.Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(imgView);
             }
             else
             {
-                Picasso.With(Android.App.Application.Context).Load(current.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Into(imgView);
+                Picasso.With(Android.App.Application.Context).Load(current.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(imgView);
             }
 
             bool asNext = MusicPlayer.queue.Count > MusicPlayer.CurrentID() + 1;
@@ -173,11 +188,11 @@ namespace MusicApp.Resources.Portable_Class
                     var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
                     var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, next.GetAlbumArt());
 
-                    Picasso.With(Android.App.Application.Context).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Into(nextArt);
+                    Picasso.With(Android.App.Application.Context).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
                 }
                 else
                 {
-                    Picasso.With(Android.App.Application.Context).Load(next.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Into(nextArt);
+                    Picasso.With(Android.App.Application.Context).Load(next.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
                 }
             }
             else
@@ -186,8 +201,13 @@ namespace MusicApp.Resources.Portable_Class
                 playerView.FindViewById<TextView>(Resource.Id.nextArtist).Text = "Nothing.";
 
                 ImageView nextArt = playerView.FindViewById<ImageView>(Resource.Id.nextArt);
-                Picasso.With(Android.App.Application.Context).Load(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.MusicIcon).Into(nextArt);
+                Picasso.With(Android.App.Application.Context).Load(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
             }
+
+            while (MusicPlayer.player.Duration < 1)
+                await Task.Delay(100);
+
+            bar.Max = (int)MusicPlayer.player.Duration;
         }
 
         private void AddToPlaylist_Click(object sender, EventArgs e)

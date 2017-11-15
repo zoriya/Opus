@@ -20,14 +20,14 @@ namespace MusicApp.Resources.Portable_Class
     public class YoutubeEngine : ListFragment
     {
         public static YoutubeEngine instance;
+        public static YouTubeService youtubeService;
         public static List<Song> result;
 
         private View emptyView;
         private bool isEmpty = true;
         private string[] actions = new string[] { "Play", "Play Next", "Play Last", "Download" };
 
-        private string ApiKey = "AIzaSyBOQyZVnBAKjur0ztBuYPSopS725Qudgc4";
-        private YouTubeService youtubeService;
+        public const string ApiKey = "AIzaSyBOQyZVnBAKjur0ztBuYPSopS725Qudgc4";
         private string videoID;
 
         public override void OnActivityCreated(Bundle savedInstanceState)
@@ -52,7 +52,7 @@ namespace MusicApp.Resources.Portable_Class
             CreateYoutube();
         }
 
-        private async void CreateYoutube()
+        public static  async void CreateYoutube()
         {
             await Task.Run(() =>
             {
