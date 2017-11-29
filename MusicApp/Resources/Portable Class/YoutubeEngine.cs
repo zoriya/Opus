@@ -7,12 +7,10 @@ using Android.Support.Design.Widget;
 using Google.Apis.YouTube.v3;
 using Android.Gms.Common.Apis;
 using System.Collections.Generic;
-using Google.Apis.Services;
 using Android.Preferences;
 using YoutubeExplode;
 using System.Linq;
 using MusicApp.Resources.values;
-using System.Threading.Tasks;
 using Android.Support.V7.App;
 
 namespace MusicApp.Resources.Portable_Class
@@ -27,7 +25,6 @@ namespace MusicApp.Resources.Portable_Class
         private bool isEmpty = true;
         private string[] actions = new string[] { "Play", "Play Next", "Play Last", "Download" };
 
-        public const string ApiKey = "AIzaSyBOQyZVnBAKjur0ztBuYPSopS725Qudgc4";
         private string videoID;
 
         public override void OnActivityCreated(Bundle savedInstanceState)
@@ -49,22 +46,8 @@ namespace MusicApp.Resources.Portable_Class
                 Activity.AddContentView(emptyView, View.LayoutParameters);
             }
 
-            CreateYoutube();
-        }
-
-        public static  async void CreateYoutube()
-        {
-            await Task.Run(() =>
-            {
-                if (youtubeService == null)
-                {
-                    youtubeService = new YouTubeService(new BaseClientService.Initializer()
-                    {
-                        ApiKey = ApiKey,
-                        ApplicationName = "MusicApp"
-                    });
-                }
-            });
+            if(youtubeService == null)
+                MainActivity.instance.Login();
         }
 
         public override void OnDestroy()
@@ -94,6 +77,11 @@ namespace MusicApp.Resources.Portable_Class
         {
             if (search == null || search == "")
                 return;
+
+            if (MainActivity.instance.TokenHasExpire())
+            {
+                MainActivity.instance.Login();
+            }
 
             SearchResource.ListRequest searchResult = youtubeService.Search.List("snippet");
             searchResult.Fields = "items(id/videoId,snippet/title,snippet/thumbnails/default/url,snippet/channelTitle)";

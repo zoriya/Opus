@@ -24,7 +24,8 @@ namespace MusicApp.Resources.Portable_Class
         public Adapter adapter;
         public View emptyView;
         public List<Song> result;
-        public long playlistId;
+        public long playlistId = 0;
+        public string ytID = "";
         public bool isEmpty = false;
 
         private List<Song> tracks = new List<Song>();
@@ -75,53 +76,63 @@ namespace MusicApp.Resources.Portable_Class
             return instance;
         }
 
+        public static Fragment NewInstance(string ytID)
+        {
+            instance = new PlaylistTracks { Arguments = new Bundle() };
+            instance.ytID = ytID;
+            return instance;
+        }
+
         void PopulateList()
         {
-            Uri musicUri = MediaStore.Audio.Playlists.Members.GetContentUri("external", playlistId);
-
-            CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
-            ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
-
-
-            if (musicCursor != null && musicCursor.MoveToFirst())
+            if(playlistId != 0)
             {
-                int titleID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Title);
-                int artistID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Artist);
-                int albumID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Album);
-                int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
-                int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
-                do
+                Uri musicUri = MediaStore.Audio.Playlists.Members.GetContentUri("external", playlistId);
+
+                CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
+                ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
+
+
+                if (musicCursor != null && musicCursor.MoveToFirst())
                 {
-                    string Artist = musicCursor.GetString(artistID);
-                    string Title = musicCursor.GetString(titleID);
-                    string Album = musicCursor.GetString(albumID);
-                    long AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
-                    long id = musicCursor.GetLong(thisID);
-                    string path = musicCursor.GetString(pathID);
+                    int titleID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Title);
+                    int artistID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Artist);
+                    int albumID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Album);
+                    int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
+                    int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
+                    do
+                    {
+                        string Artist = musicCursor.GetString(artistID);
+                        string Title = musicCursor.GetString(titleID);
+                        string Album = musicCursor.GetString(albumID);
+                        long AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
+                        long id = musicCursor.GetLong(thisID);
+                        string path = musicCursor.GetString(pathID);
 
-                    if (Title == null)
-                        Title = "Unknown Title";
-                    if (Artist == null)
-                        Artist = "Unknow Artist";
-                    if (Album == null)
-                        Album = "Unknow Album";
+                        if (Title == null)
+                            Title = "Unknown Title";
+                        if (Artist == null)
+                            Artist = "Unknow Artist";
+                        if (Album == null)
+                            Album = "Unknow Album";
 
-                    tracks.Add(new Song(Title, Artist, Album, AlbumArt, id, path));
+                        tracks.Add(new Song(Title, Artist, Album, AlbumArt, id, path));
+                    }
+                    while (musicCursor.MoveToNext());
+                    musicCursor.Close();
                 }
-                while (musicCursor.MoveToNext());
-                musicCursor.Close();
-            }
 
-            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, tracks);
-            ListAdapter = adapter;
-            ListView.TextFilterEnabled = true;
-            ListView.ItemClick += ListView_ItemClick;
-            ListView.ItemLongClick += ListView_ItemLongClick;
+                adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, tracks);
+                ListAdapter = adapter;
+                ListView.TextFilterEnabled = true;
+                ListView.ItemClick += ListView_ItemClick;
+                ListView.ItemLongClick += ListView_ItemLongClick;
 
-            if (adapter == null || adapter.Count == 0)
-            {
-                isEmpty = true;
-                Activity.AddContentView(emptyView, View.LayoutParameters);
+                if (adapter == null || adapter.Count == 0)
+                {
+                    isEmpty = true;
+                    Activity.AddContentView(emptyView, View.LayoutParameters);
+                }
             }
         }
 

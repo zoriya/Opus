@@ -1,18 +1,24 @@
 ﻿using Android.App;
+using Android.Content;
 using Android.OS;
-using Android.Support.V7.App;
+using Android.Runtime;
 using Android.Support.Design.Widget;
+using Android.Support.V4.View;
+using Android.Support.V7.App;
+using Android.Support.V7.Preferences;
+using Android.Views;
+using Android.Widget;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Services;
+using Google.Apis.YouTube.v3;
 using MusicApp.Resources.Fragments;
 using MusicApp.Resources.Portable_Class;
-using Android.Views;
-using Android.Support.V4.View;
-using Android.Runtime;
-using Android.Widget;
-using Android.Content;
 using MusicApp.Resources.values;
 using Square.Picasso;
 using System;
-
+using System.Collections.Generic;
+using System.Linq;
+using Xamarin.Auth;
 using SearchView = Android.Support.V7.Widget.SearchView;
 
 namespace MusicApp
@@ -27,6 +33,133 @@ namespace MusicApp
         private Handler handler = new Handler();
         private ProgressBar bar;
         private bool prepared = false;
+
+
+        #region Youtube
+        
+        public const string clientID = "758089506779-tstocfigqvjsog2mq5j295b1305igle0.apps.googleusercontent.com";
+        public static YouTubeService youtubeService;
+        public static OAuth2Authenticator auth;
+        public static string refreshToken;
+
+        public void Login()
+        {
+            AccountStore accountStore = AccountStore.Create();
+            Account account = accountStore.FindAccountsForService("Google").FirstOrDefault();
+            if (account != null)
+            {
+                if (!TokenHasExpire(account.Properties["refresh_token"]))
+                {
+                    refreshToken = account.Properties["refresh_token"];
+
+                    if (YoutubeEngine.youtubeService != null)
+                        return;
+
+                    GoogleCredential credential = GoogleCredential.FromAccessToken(account.Properties["access_token"]);
+                    YoutubeEngine.youtubeService = new YouTubeService(new BaseClientService.Initializer()
+                    {
+                        HttpClientInitializer = credential
+                    });
+                }
+            }
+            else
+            {
+                auth = new OAuth2Authenticator(
+                   clientID,
+                   string.Empty,
+                   YouTubeService.Scope.Youtube,
+                   new Uri("https://accounts.google.com/o/oauth2/v2/auth"),
+                   new Uri("com.musicapp.android:/oauth2redirect"),
+                   new Uri("https://www.googleapis.com/oauth2/v4/token"),
+                   isUsingNativeUI: true);
+
+                auth.Completed += (s, e) =>
+                {
+                    if (e.IsAuthenticated)
+                    {
+                        string tokenType = e.Account.Properties["token_type"];
+                        string accessToken = e.Account.Properties["access_token"];
+                        string refreshToken = e.Account.Properties["refresh_token"];
+                        string expiresIN = e.Account.Properties["expires_in"];
+                        MainActivity.refreshToken = refreshToken;
+
+                        DateTime expireDate = DateTime.UtcNow.AddSeconds(double.Parse(expiresIN));
+                        ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(this);
+                        ISharedPreferencesEditor editor = pref.Edit();
+                        editor.PutString("expireDate", expireDate.ToString());
+                        editor.Apply();
+
+                        GoogleCredential credential = GoogleCredential.FromAccessToken(accessToken);
+
+                        YoutubeEngine.youtubeService = new YouTubeService(new BaseClientService.Initializer()
+                        {
+                            HttpClientInitializer = credential,
+                            ApplicationName = "MusicApp"
+                        });
+
+                        AccountStore.Create().Save(e.Account, "Google");
+                    }
+                    else
+                    {
+                        Toast.MakeText(this, "Error in authentification.", ToastLength.Short).Show();
+                    }
+                };
+
+                StartActivity(auth.GetUI(this));
+            }
+        }
+
+        public bool TokenHasExpire(string refreshToken = null)
+        {
+            if (refreshToken == null)
+                refreshToken = MainActivity.refreshToken;
+
+            ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(this);
+            string expireDate = pref.GetString("expireDate", null);
+            if (expireDate != null)
+            {
+                DateTime expiresDate = DateTime.Parse(expireDate);
+
+                if (expiresDate > DateTime.UtcNow)
+                    return false;
+                else
+                {
+                    RequestNewToken(refreshToken);
+                    return true;
+                }
+            }
+            return true;
+        }
+
+        public async void RequestNewToken(string refreshToken)
+        {
+            Dictionary<string, string> queryValues = new Dictionary<string, string>
+            {
+                {"refresh_token", refreshToken },
+                {"client_id", clientID },
+                {"grant_type", "refresh_token" }
+            };
+            await auth.RequestAccessTokenAsync(queryValues).ContinueWith(result =>
+            {
+                string accessToken = result.Result["access_token"];
+                string expiresIN = result.Result["expires_in"];
+
+                DateTime expireDate = DateTime.UtcNow.AddSeconds(double.Parse(expiresIN));
+                ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(this);
+                ISharedPreferencesEditor editor = pref.Edit();
+                editor.PutString("expireDate", expireDate.ToString());
+                editor.Apply();
+
+                GoogleCredential credential = GoogleCredential.FromAccessToken(accessToken);
+                YoutubeEngine.youtubeService = new YouTubeService(new BaseClientService.Initializer()
+                {
+                    HttpClientInitializer = credential,
+                    ApplicationName = "MusicApp"
+                });
+            });
+        }
+
+        #endregion
 
 
         public static int paddingBot
@@ -99,7 +232,7 @@ namespace MusicApp
                     SupportActionBar.SetDisplayHomeAsUpEnabled(false);
                     SupportActionBar.Title = "MusicApp";
                     FolderTracks.instance = null;
-                    SetTabs(1);
+                    SetBrowseTabs(1);
                 }
             }
             else if(item.ItemId == Resource.Id.search)
@@ -209,7 +342,7 @@ namespace MusicApp
                     break;
 
                 case Resource.Id.browseLayout:
-                    SetTabs();
+                    SetBrowseTabs();
                     break;
 
                 case Resource.Id.downloadLayout:
@@ -219,7 +352,7 @@ namespace MusicApp
                     break;
 
                 case Resource.Id.playlistLayout:
-                    HideTabs();
+                    SetYtTabs();
                     HideSearch();
                     fragment = Playlist.NewInstance();
                     break;
@@ -231,11 +364,10 @@ namespace MusicApp
             SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, fragment).Commit();
         }
 
-        void SetTabs(int selectedTab = 0)
+        void SetBrowseTabs(int selectedTab = 0)
         {
             FrameLayout frame = FindViewById<FrameLayout>(Resource.Id.contentView);
             frame.Visibility = ViewStates.Gone;
-
             TabLayout tabs = FindViewById<TabLayout>(Resource.Id.tabs);
             tabs.Visibility = ViewStates.Visible;
             tabs.RemoveAllTabs();
@@ -243,11 +375,38 @@ namespace MusicApp
             tabs.AddTab(tabs.NewTab().SetText("Folders"));
             ViewPager pager = FindViewById<ViewPager>(Resource.Id.pager);
             pager.SetPadding(0, 200, 0, 0);
+            pager.ClearOnPageChangeListeners();
             pager.AddOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
             ViewPagerAdapter adapter = new ViewPagerAdapter(SupportFragmentManager);
 
             adapter.AddFragment(Browse.NewInstance(), "Songs");
             adapter.AddFragment(FolderBrowse.NewInstance(), "Folders");
+
+            pager.Adapter = adapter;
+            tabs.SetupWithViewPager(pager);
+
+            pager.CurrentItem = selectedTab;
+            tabs.SetScrollPosition(selectedTab, 0f, true);
+        }
+
+        void SetYtTabs(int selectedTab = 0)
+        {
+            FrameLayout frame = FindViewById<FrameLayout>(Resource.Id.contentView);
+            frame.Visibility = ViewStates.Gone;
+
+            TabLayout tabs = FindViewById<TabLayout>(Resource.Id.tabs);
+            tabs.Visibility = ViewStates.Visible;
+            tabs.RemoveAllTabs();
+            tabs.AddTab(tabs.NewTab().SetText("Playlists"));
+            tabs.AddTab(tabs.NewTab().SetText("Youtube playlists"));
+            ViewPager pager = FindViewById<ViewPager>(Resource.Id.pager);
+            pager.SetPadding(0, 200, 0, 0);
+            pager.ClearOnPageChangeListeners();
+            pager.AddOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
+            ViewPagerAdapter adapter = new ViewPagerAdapter(SupportFragmentManager);
+
+            adapter.AddFragment(Playlist.NewInstance(), "Playlists");
+            adapter.AddFragment(YtPlaylist.NewInstance(), "Youtube playlists");
 
             pager.Adapter = adapter;
             tabs.SetupWithViewPager(pager);
