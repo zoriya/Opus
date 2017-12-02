@@ -1,11 +1,9 @@
 ﻿using Android.Content;
 using Android.OS;
+using Android.Support.V4.App;
 using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
-using Android.Support.V4.App;
-using Square.Picasso;
-using System;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -43,7 +41,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             View view = base.OnCreateView(inflater, container, savedInstanceState);
             this.view = view;
-            view.SetPadding(0, 100, 0, MainActivity.paddingBot);
+            view.SetPadding(0, MainActivity.paddinTop, 0, MainActivity.paddingBot);
             return view;
         }
 
@@ -73,11 +71,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             Song item = MusicPlayer.queue[e.Position];
 
-            Context context = Android.App.Application.Context;
-            Intent intent = new Intent(context, typeof(MusicPlayer));
-            intent.PutExtra("file", item.GetPath());
-            intent.SetAction("QueueSwitch");
-            context.StartService(intent);
+            MusicPlayer.instance.SwitchQueue(item);
         }
     }
 }

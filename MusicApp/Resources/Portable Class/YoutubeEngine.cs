@@ -1,17 +1,20 @@
-﻿using Android.Support.V4.App;
-using Android.Content;
+﻿using Android.Content;
 using Android.OS;
+using Android.Preferences;
+using Android.Support.Design.Widget;
+using Android.Support.V4.App;
+using Android.Support.V7.App;
 using Android.Views;
 using Android.Widget;
-using Android.Support.Design.Widget;
 using Google.Apis.YouTube.v3;
-using Android.Gms.Common.Apis;
-using System.Collections.Generic;
-using Android.Preferences;
-using YoutubeExplode;
-using System.Linq;
+using Java.Util;
 using MusicApp.Resources.values;
-using Android.Support.V7.App;
+using System.Collections.Generic;
+using System.Linq;
+using YoutubeExplode;
+using YoutubeExplode.Models.MediaStreams;
+using System;
+using System.Threading.Tasks;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -23,9 +26,7 @@ namespace MusicApp.Resources.Portable_Class
 
         private View emptyView;
         private bool isEmpty = true;
-        private string[] actions = new string[] { "Play", "Play Next", "Play Last", "Download" };
-
-        private string videoID;
+        private string[] actions = new string[] { "Play", "Play Next", "Play Last", "Add To Playlist", "Download" };
 
         public override void OnActivityCreated(Bundle savedInstanceState)
         {
@@ -63,7 +64,7 @@ namespace MusicApp.Resources.Portable_Class
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             View view = base.OnCreateView(inflater, container, savedInstanceState);
-            view.SetPadding(0, 100, 0, MainActivity.paddingBot);
+            view.SetPadding(0, MainActivity.paddinTop, 0, MainActivity.paddingBot);
             return view;
         }
 
@@ -80,7 +81,11 @@ namespace MusicApp.Resources.Portable_Class
 
             if (MainActivity.instance.TokenHasExpire())
             {
+                youtubeService = null;
                 MainActivity.instance.Login();
+
+                while (youtubeService == null)
+                    await Task.Delay(500);
             }
 
             SearchResource.ListRequest searchResult = youtubeService.Search.List("snippet");
@@ -104,7 +109,7 @@ namespace MusicApp.Resources.Portable_Class
 
         private void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
         {
-            videoID = result[e.Position].GetPath();
+            string videoID = result[e.Position].GetPath();
             Play(videoID);
         }
 
@@ -128,6 +133,9 @@ namespace MusicApp.Resources.Portable_Class
                         PlayLast(item.GetPath());
                         break;
                     case 3:
+                        GetPlaylists(item.GetPath());
+                        break;
+                    case 4:
                         Download(item.GetName(), item.GetPath());
                         break;
                     default:
@@ -138,17 +146,17 @@ namespace MusicApp.Resources.Portable_Class
 
         }
 
-        private async void Play(string videoID)
+        public static async void Play(string videoID)
         {
-            var client = new YoutubeClient();
-            var videoInfo = await client.GetVideoInfoAsync(videoID);
-            var streamInfo = videoInfo.AudioStreams.OrderBy(s => s.Bitrate).Last();
+            YoutubeClient client = new YoutubeClient();
+            var videoInfo = await client.GetVideoAsync(videoID);
+            AudioStreamInfo streamInfo = videoInfo.AudioStreamInfos.OrderBy(s => s.Bitrate).Last();
 
             Intent intent = new Intent(Android.App.Application.Context, typeof(MusicPlayer));
             intent.PutExtra("file", streamInfo.Url);
             intent.PutExtra("title", videoInfo.Title);
             intent.PutExtra("artist", videoInfo.Author.Title);
-            intent.PutExtra("thumbnailURI", videoInfo.ImageThumbnailUrl);
+            intent.PutExtra("thumbnailURI", videoInfo.Thumbnails.HighResUrl);
             Android.App.Application.Context.StartService(intent);
 
             MainActivity.instance.HideTabs();
@@ -156,37 +164,37 @@ namespace MusicApp.Resources.Portable_Class
             MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).Commit();
         }
 
-        private async void PlayNext(string videoID)
+        public static async void PlayNext(string videoID)
         {
-            var client = new YoutubeClient();
-            var videoInfo = await client.GetVideoInfoAsync(videoID);
-            var streamInfo = videoInfo.AudioStreams.OrderBy(s => s.Bitrate).Last();
+            YoutubeClient client = new YoutubeClient();
+            var videoInfo = await client.GetVideoAsync(videoID);
+            AudioStreamInfo streamInfo = videoInfo.AudioStreamInfos.OrderBy(s => s.Bitrate).Last();
 
             Intent intent = new Intent(Android.App.Application.Context, typeof(MusicPlayer));
             intent.SetAction("PlayNext");
             intent.PutExtra("file", streamInfo.Url);
             intent.PutExtra("title", videoInfo.Title);
             intent.PutExtra("artist", videoInfo.Author.Title);
-            intent.PutExtra("thumbnailURI", videoInfo.ImageThumbnailUrl);
+            intent.PutExtra("thumbnailURI", videoInfo.Thumbnails.HighResUrl);
             Android.App.Application.Context.StartService(intent);
         }
 
-        private async void PlayLast(string videoID)
+        public static async void PlayLast(string videoID)
         {
-            var client = new YoutubeClient();
-            var videoInfo = await client.GetVideoInfoAsync(videoID);
-            var streamInfo = videoInfo.AudioStreams.OrderBy(s => s.Bitrate).Last();
+            YoutubeClient client = new YoutubeClient();
+            var videoInfo = await client.GetVideoAsync(videoID);
+            AudioStreamInfo streamInfo = videoInfo.AudioStreamInfos.OrderBy(s => s.Bitrate).Last();
 
             Intent intent = new Intent(Android.App.Application.Context, typeof(MusicPlayer));
             intent.SetAction("PlayLast");
             intent.PutExtra("file", streamInfo.Url);
             intent.PutExtra("title", videoInfo.Title);
             intent.PutExtra("artist", videoInfo.Author.Title);
-            intent.PutExtra("thumbnailURI", videoInfo.ImageThumbnailUrl);
+            intent.PutExtra("thumbnailURI", videoInfo.Thumbnails.HighResUrl);
             Android.App.Application.Context.StartService(intent);
         }
 
-        private void Download(string name, string videoID)
+        public static void Download(string name, string videoID)
         {
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Android.App.Application.Context);
             if (prefManager.GetString("downloadPath", null) != null)
@@ -201,12 +209,55 @@ namespace MusicApp.Resources.Portable_Class
             }
             else
             {
-                Snackbar.Make(View, "Download Path Not Set.", Snackbar.LengthShort).SetAction("Set Path", (v) =>
+                Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.contentView), "Download Path Not Set.", Snackbar.LengthShort).SetAction("Set Path", (v) =>
                 {
                     Intent intent = new Intent(Android.App.Application.Context, typeof(Preferences));
-                    StartActivity(intent);
+                    MainActivity.instance.StartActivity(intent);
                 }).Show();
             }
+        }
+
+        public static void RemoveFromPlaylist(string videoID, string playlistID)
+        {
+            HashMap parameters = new HashMap();
+            parameters.Put("id", videoID);
+            parameters.Put("onBehalfOfContentOwner", "");
+
+            PlaylistItemsResource.DeleteRequest deleteRequest = youtubeService.PlaylistItems.Delete(playlistID);
+            if (parameters.ContainsKey("onBehalfOfContentOwner") && parameters.Get("onBehalfOfContentOwner").ToString() != "")
+            {
+                deleteRequest.OnBehalfOfContentOwner = parameters.Get("onBehalfOfContentOwner").ToString();
+            }
+
+            deleteRequest.Execute();
+        }
+
+
+        public static async void GetPlaylists(string videoID)
+        {
+            if (MainActivity.instance.TokenHasExpire())
+            {
+                youtubeService = null;
+                MainActivity.instance.Login();
+
+                while (youtubeService == null)
+                    await Task.Delay(500);
+            }
+
+            List<string> playList = new List<string>();
+            List<long> playListId = new List<long>();
+            playList.Add("Create a playlist");
+            playListId.Add(0);
+
+            
+
+            //AlertDialog.Builder builder = new AlertDialog.Builder(act, Resource.Style.AppCompatAlertDialogStyle);
+            //builder.SetTitle("Add to a playlist");
+            //builder.SetItems(playList.ToArray(), (senderAlert, args) =>
+            //{
+            //    AddToPlaylist(item, playList[args.Which], playListId[args.Which]);
+            //});
+            //builder.Show();
         }
     }
 }

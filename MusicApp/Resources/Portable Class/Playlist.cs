@@ -33,9 +33,12 @@ namespace MusicApp.Resources.Portable_Class
             base.OnActivityCreated(savedInstanceState);
             emptyView = LayoutInflater.Inflate(Resource.Layout.NoPlaylist, null);
             ListView.EmptyView = emptyView;
+            ListView.TextFilterEnabled = true;
+            ListView.ItemClick += ListView_ItemClick;
+            ListView.ItemLongClick += ListView_ItemLongClick;
 
-            if(ListView.Adapter == null)
-                GetStoragePermission();
+            if (ListView.Adapter == null)
+                MainActivity.instance.GetStoragePermission();
         }
 
         public override void OnDestroy()
@@ -62,49 +65,17 @@ namespace MusicApp.Resources.Portable_Class
             return instance;
         }
 
-        void GetStoragePermission()
+        public void PopulateView()
         {
-            const string permission = Manifest.Permission.ReadExternalStorage;
-            if (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(Android.App.Application.Context, permission) == (int)Permission.Granted)
-            {
-                PopulateView();
-                return;
-            }
-            string[] permissions = new string[] { Manifest.Permission.ReadExternalStorage };
-            RequestPermissions(permissions, 0);
-        }
-
-        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, Permission[] grantResults)
-        {
-            switch (requestCode)
-            {
-                case 0:
-                    {
-                        if (grantResults[0] == Permission.Granted)
-                        {
-                            PopulateView();
-                        }
-                        else
-                        {
-                            var snack = Snackbar.Make(View, "Permission denied, can't list musics.", Snackbar.LengthShort);
-                            snack.Show();
-                        }
-                    }
-                    break;
-            }
-        }
-
-        void PopulateView()
-        {
-            Uri uri = MediaStore.Audio.Playlists.ExternalContentUri;
+            Uri uri = Playlists.ExternalContentUri;
             CursorLoader loader = new CursorLoader(Android.App.Application.Context, uri, null, null, null, null);
             ICursor cursor = (ICursor)loader.LoadInBackground();
 
             if (cursor != null && cursor.MoveToFirst())
             {
-                int nameID = cursor.GetColumnIndex(MediaStore.Audio.Playlists.InterfaceConsts.Name);
+                int nameID = cursor.GetColumnIndex(Playlists.InterfaceConsts.Name);
                 //int countID = cursor.GetColumnIndex(MediaStore.Audio.Playlists.InterfaceConsts.Count);
-                int listID = cursor.GetColumnIndex(MediaStore.Audio.Playlists.InterfaceConsts.Id);
+                int listID = cursor.GetColumnIndex(Playlists.InterfaceConsts.Id);
                 do
                 {
                     string name = cursor.GetString(nameID);
@@ -120,9 +91,6 @@ namespace MusicApp.Resources.Portable_Class
             }
             //ListAdapter = new TwoLineAdapter(Android.App.Application.Context, Resource.Layout.TwoLineLayout, playList, playListCount);
             ListAdapter = new ArrayAdapter(Android.App.Application.Context, Resource.Layout.PlaylistList, playList);
-            ListView.TextFilterEnabled = true;
-            ListView.ItemClick += ListView_ItemClick;
-            ListView.ItemLongClick += ListView_ItemLongClick;
 
             if (adapter == null || adapter.Count == 0)
             {
@@ -137,6 +105,8 @@ namespace MusicApp.Resources.Portable_Class
             act.SupportActionBar.SetHomeButtonEnabled(true);
             act.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
             act.SupportActionBar.Title = playList[e.Position];
+
+            MainActivity.instance.HideTabs();
             FragmentTransaction transaction = FragmentManager.BeginTransaction();
             transaction.Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(playlistId[e.Position]));
             transaction.AddToBackStack(null);

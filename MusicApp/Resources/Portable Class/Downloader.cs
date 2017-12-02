@@ -1,23 +1,15 @@
-﻿using System;
-using System.Linq;
-using Android.Widget;
+﻿using Android.App;
+using Android.Content;
+using Android.OS;
+using Android.Provider;
+using Android.Support.V4.App;
 using System.IO;
-using System.Threading.Tasks;
+using System.Linq;
 using YoutubeExplode;
 using YoutubeExplode.Models;
-using MusicApp.Resources.values;
-using Android.App;
-using Android.OS;
-using Android.Content;
-using Android.Support.V4.App;
-using Android.Media;
-using Java.Nio;
-using Java.IO;
-
+using YoutubeExplode.Models.MediaStreams;
 using Console = System.Console;
 using File = System.IO.File;
-using static Android.Media.MediaCodec;
-using Android.Provider;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -52,23 +44,22 @@ namespace MusicApp.Resources.Portable_Class
         {
             CreateNotification("Downloading: ", name);
 
-            var client = new YoutubeClient();
-            var videoInfo = await client.GetVideoInfoAsync(videoID);
-            var streamInfo = videoInfo.AudioStreams.OrderBy(s => s.Bitrate).Last();
+            YoutubeClient client = new YoutubeClient();
+            Video videoInfo = await client.GetVideoAsync(videoID);
+            AudioStreamInfo streamInfo = videoInfo.AudioStreamInfos.OrderBy(s => s.Bitrate).Last();
 
             string fileExtension = streamInfo.Container.GetFileExtension();
             string fileName = $"{videoInfo.Title}.{fileExtension}";
 
             string filePath = Path.Combine(path, fileName);
-            string finalPath = Path.Combine(path, videoInfo.Title + ".pcm");
 
-            var input = await client.GetMediaStreamAsync(streamInfo);
+            MediaStream input = await client.GetMediaStreamAsync(streamInfo);
 
-            var output = File.Create(filePath);
+            FileStream output = File.Create(filePath);
             await input.CopyToAsync(output);
             output.Dispose();
 
-            SetMetaData(filePath, videoInfo.Title, videoInfo.Author.Name, videoInfo.ImageThumbnailUrl);
+            SetMetaData(filePath, videoInfo.Title, videoInfo.Author.Name, videoInfo.Thumbnails.HighResUrl);
         }
 
         private void SetMetaData(string filePath, string title, string artist, string album)

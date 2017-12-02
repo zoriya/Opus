@@ -29,5 +29,7 @@
             this.path = path;
             this.isYT = isYT;
         }
+
+        public void SetName(string Name) { this.Name = Name; }
     }
 }

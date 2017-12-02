@@ -1,20 +1,14 @@
 ﻿using Android.Content;
+using Android.Database;
+using Android.Net;
 using Android.OS;
+using Android.Provider;
+using Android.Support.V4.App;
+using Android.Support.V7.App;
 using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
-using Android.Support.V4.App;
 using System.Collections.Generic;
-using Android.Provider;
-using Android.Database;
-using Android.Content.PM;
-using Android.Support.Design.Widget;
-using Android;
-using Android.Net;
-using Android.Support.V7.App;
-
-using EventArgs = System.EventArgs;
-using Square.Picasso;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -65,7 +59,7 @@ namespace MusicApp.Resources.Portable_Class
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             View view = base.OnCreateView(inflater, container, savedInstanceState);
-            view.SetPadding(0, 100, 0, MainActivity.paddingBot);
+            view.SetPadding(0, MainActivity.paddinTop, 0, MainActivity.paddingBot);
             return view;
         }
 
@@ -83,7 +77,7 @@ namespace MusicApp.Resources.Portable_Class
             return instance;
         }
 
-        void PopulateList()
+        async void PopulateList()
         {
             if(playlistId != 0)
             {
@@ -134,6 +128,40 @@ namespace MusicApp.Resources.Portable_Class
                     Activity.AddContentView(emptyView, View.LayoutParameters);
                 }
             }
+            else if(ytID != null)
+            {
+                string nextPageToken = "";
+                while(nextPageToken != null)
+                {
+                    var ytPlaylistRequest = YoutubeEngine.youtubeService.PlaylistItems.List("snippet");
+                    ytPlaylistRequest.PlaylistId = ytID;
+                    ytPlaylistRequest.MaxResults = 50;
+                    ytPlaylistRequest.PageToken = nextPageToken;
+
+                    var ytPlaylist = await ytPlaylistRequest.ExecuteAsync();
+
+                    foreach (var item in ytPlaylist.Items)
+                    {
+                        Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.Default__.Url, -1, -1, item.Id, true);
+                        System.Console.WriteLine(song.GetName());
+                        tracks.Add(song);
+                    }
+
+                    nextPageToken = ytPlaylist.NextPageToken;
+                }
+
+                adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, tracks);
+                ListAdapter = adapter;
+                ListView.TextFilterEnabled = true;
+                ListView.ItemClick += ListView_ItemClick;
+                ListView.ItemLongClick += ListView_ItemLongClick;
+
+                if (adapter == null || adapter.Count == 0)
+                {
+                    isEmpty = true;
+                    Activity.AddContentView(emptyView, View.LayoutParameters);
+                }
+            }
         }
 
         public void Search(string search)
@@ -155,17 +183,26 @@ namespace MusicApp.Resources.Portable_Class
             if (result != null)
                 item = result[e.Position];
 
-            Browse.act = Activity;
-            Browse.Play(item);
+            if (!item.IsYt)
+            {
+                Browse.act = Activity;
+                Browse.Play(item);
+            }
+            else
+                YoutubeEngine.Play(item.GetPath());
         }
 
         private void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
         {
-            Browse.act = Activity;
-            Browse.inflater = LayoutInflater;
             Song item = tracks[e.Position];
             if (result != null)
                 item = result[e.Position];
+
+            if (!item.IsYt)
+            {
+                Browse.act = Activity;
+                Browse.inflater = LayoutInflater;
+            }
 
             AlertDialog.Builder builder = new AlertDialog.Builder(Activity, Resource.Style.AppCompatAlertDialogStyle);
             builder.SetTitle("Pick an action");
@@ -174,16 +211,28 @@ namespace MusicApp.Resources.Portable_Class
                 switch (args.Which)
                 {
                     case 0:
-                        Browse.Play(item);
+                        if (!item.IsYt)
+                            Browse.Play(item);
+                        else
+                            YoutubeEngine.Play(item.GetPath());
                         break;
                     case 1:
-                        Browse.PlayNext(item);
+                        if (!item.IsYt)
+                            Browse.PlayNext(item);
+                        else
+                            YoutubeEngine.PlayNext(item.GetPath());
                         break;
                     case 2:
-                        Browse.PlayLast(item);
+                        if (!item.IsYt)
+                            Browse.PlayLast(item);
+                        else
+                            YoutubeEngine.PlayLast(item.GetPath());
                         break;
                     case 3:
-                        RemoveFromPlaylist(item);
+                        if (!item.IsYt)
+                            RemoveFromPlaylist(item);
+                        else
+                            YoutubeEngine.RemoveFromPlaylist(item.GetPath(), ytID);
                         break;
                     default:
                         break;

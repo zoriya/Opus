@@ -1,5 +1,7 @@
-﻿using Android.App;
+﻿using Android;
+using Android.App;
 using Android.Content;
+using Android.Content.PM;
 using Android.OS;
 using Android.Runtime;
 using Android.Support.Design.Widget;
@@ -9,6 +11,8 @@ using Android.Support.V7.Preferences;
 using Android.Views;
 using Android.Widget;
 using Google.Apis.Auth.OAuth2;
+using Google.Apis.Auth.OAuth2.Flows;
+using Google.Apis.Auth.OAuth2.Responses;
 using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
 using MusicApp.Resources.Fragments;
@@ -16,9 +20,11 @@ using MusicApp.Resources.Portable_Class;
 using MusicApp.Resources.values;
 using Square.Picasso;
 using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Xamarin.Auth;
+using YoutubeExplode;
+using YoutubeExplode.Models.MediaStreams;
 using SearchView = Android.Support.V7.Widget.SearchView;
 
 namespace MusicApp
@@ -34,13 +40,13 @@ namespace MusicApp
         private ProgressBar bar;
         private bool prepared = false;
 
+        private const int RequestCode = 8539;
 
-        #region Youtube
-        
         public const string clientID = "758089506779-tstocfigqvjsog2mq5j295b1305igle0.apps.googleusercontent.com";
         public static YouTubeService youtubeService;
         public static OAuth2Authenticator auth;
         public static string refreshToken;
+
 
         public void Login()
         {
@@ -111,17 +117,24 @@ namespace MusicApp
 
         public bool TokenHasExpire(string refreshToken = null)
         {
+            Console.WriteLine("Checking if token has expired with:" + refreshToken);
             if (refreshToken == null)
                 refreshToken = MainActivity.refreshToken;
+
+            Console.WriteLine("new refrehs token:" + refreshToken);
 
             ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(this);
             string expireDate = pref.GetString("expireDate", null);
             if (expireDate != null)
             {
+                Console.WriteLine("expiredatae: " + expireDate);
                 DateTime expiresDate = DateTime.Parse(expireDate);
 
                 if (expiresDate > DateTime.UtcNow)
+                {
+                    Console.WriteLine("token hasn't expired");
                     return false;
+                }
                 else
                 {
                     RequestNewToken(refreshToken);
@@ -131,35 +144,73 @@ namespace MusicApp
             return true;
         }
 
-        public async void RequestNewToken(string refreshToken)
+        public /*async*/ void RequestNewToken(string refreshToken)
         {
-            Dictionary<string, string> queryValues = new Dictionary<string, string>
-            {
-                {"refresh_token", refreshToken },
-                {"client_id", clientID },
-                {"grant_type", "refresh_token" }
-            };
-            await auth.RequestAccessTokenAsync(queryValues).ContinueWith(result =>
-            {
-                string accessToken = result.Result["access_token"];
-                string expiresIN = result.Result["expires_in"];
+            Console.WriteLine("Token has expire getting a new one");
+            //Dictionary<string, string> queryValues = new Dictionary<string, string>
+            //{
+            //    {"refresh_token", refreshToken },
+            //    {"client_id", clientID },
+            //    {"grant_type", "refresh_token" }
+            //};
 
-                DateTime expireDate = DateTime.UtcNow.AddSeconds(double.Parse(expiresIN));
-                ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(this);
-                ISharedPreferencesEditor editor = pref.Edit();
-                editor.PutString("expireDate", expireDate.ToString());
-                editor.Apply();
+            IAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow(new GoogleAuthorizationCodeFlow.Initializer { ClientSecrets = new ClientSecrets() { ClientId = clientID } });
+            Console.WriteLine("Flow created");
+            TokenResponse token = new TokenResponse { RefreshToken = refreshToken };
+            Console.WriteLine("Token created");
 
-                GoogleCredential credential = GoogleCredential.FromAccessToken(accessToken);
-                YoutubeEngine.youtubeService = new YouTubeService(new BaseClientService.Initializer()
-                {
-                    HttpClientInitializer = credential,
-                    ApplicationName = "MusicApp"
-                });
+            UserCredential credential = new UserCredential(flow, "user", token);
+            Console.WriteLine("credential created");
+            YoutubeEngine.youtubeService = new YouTubeService(new BaseClientService.Initializer()
+            {
+                HttpClientInitializer = credential,
+                ApplicationName = "MusicApp"
             });
-        }
 
-        #endregion
+            //OAuth2Request request = new OAuth2Request("POST"; new Uri())
+            //var refreshRequest = new OAuth2Request("POST", new Uri(OAuthSettings.TokenURL), postDictionary, googleAccount);
+            //refreshRequest.GetResponseAsync().ContinueWith(task => {
+            //    if (task.IsFaulted)
+            //        Console.WriteLine("Error: " + task.Exception.InnerException.Message);
+            //    else
+            //    {
+            //        string json = task.Result.GetResponseText();
+            //        Console.WriteLine(json);
+            //        try
+            //        {
+            //        << just deserialize the json response, eg. with Newtonsoft>>
+            //        }
+            //        catch (Exception exception)
+            //        {
+            //            Console.WriteLine("!!!!!Exception: {0}", exception.ToString());
+            //            Logout();
+            //        }
+            //    }
+            //});
+
+            //await auth.RequestAccessTokenAsync(queryValues).ContinueWith(result =>
+            //{
+            //    Console.WriteLine("Requesting new token from auth api");
+            //    string accessToken = result.Result["access_token"];
+            //    string expiresIN = result.Result["expires_in"];
+
+            //    Console.WriteLine("new acces token: " + accessToken);
+            //    Console.WriteLine("new expire date: " + expiresIN);
+
+            //    DateTime expireDate = DateTime.UtcNow.AddSeconds(double.Parse(expiresIN));
+            //    ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(this);
+            //    ISharedPreferencesEditor editor = pref.Edit();
+            //    editor.PutString("expireDate", expireDate.ToString());
+            //    editor.Apply();
+
+            //    GoogleCredential credential = GoogleCredential.FromAccessToken(accessToken);
+            //    YoutubeEngine.youtubeService = new YouTubeService(new BaseClientService.Initializer()
+            //    {
+            //        HttpClientInitializer = credential,
+            //        ApplicationName = "MusicApp"
+            //    });
+            //});
+        }
 
 
         public static int paddingBot
@@ -170,6 +221,14 @@ namespace MusicApp
                     return instance.FindViewById<BottomNavigationView>(Resource.Id.bottomView).Height;
                 else
                     return instance.FindViewById<BottomNavigationView>(Resource.Id.bottomView).Height + ((FrameLayout)instance.FindViewById(Resource.Id.smallPlayer).Parent).Height;
+            }
+        }
+
+        public static int paddinTop
+        {
+            get
+            {
+                return instance.SupportActionBar.Height;
             }
         }
 
@@ -190,6 +249,16 @@ namespace MusicApp
             ToolBar = (Android.Support.V7.Widget.Toolbar) FindViewById(Resource.Id.toolbar);
             SetSupportActionBar(ToolBar);
             SupportActionBar.Title = "MusicApp";
+
+            Play();
+        }
+
+        async void Play()
+        {
+            YoutubeClient client = new YoutubeClient();
+            var videoInfo = await client.GetVideoAsync("ziaf3RrG80U");
+            AudioStreamInfo streamInfo = videoInfo.AudioStreamInfos.OrderBy(s => s.Bitrate).Last();
+            Console.WriteLine(streamInfo.Url);
         }
 
         public override bool OnCreateOptionsMenu(IMenu menu)
@@ -343,6 +412,7 @@ namespace MusicApp
 
                 case Resource.Id.browseLayout:
                     SetBrowseTabs();
+                    DisplaySearch();
                     break;
 
                 case Resource.Id.downloadLayout:
@@ -364,8 +434,10 @@ namespace MusicApp
             SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, fragment).Commit();
         }
 
-        void SetBrowseTabs(int selectedTab = 0)
+        async void SetBrowseTabs(int selectedTab = 0)
         {
+            await ResetTabs();
+
             FrameLayout frame = FindViewById<FrameLayout>(Resource.Id.contentView);
             frame.Visibility = ViewStates.Gone;
             TabLayout tabs = FindViewById<TabLayout>(Resource.Id.tabs);
@@ -374,7 +446,7 @@ namespace MusicApp
             tabs.AddTab(tabs.NewTab().SetText("Songs"));
             tabs.AddTab(tabs.NewTab().SetText("Folders"));
             ViewPager pager = FindViewById<ViewPager>(Resource.Id.pager);
-            pager.SetPadding(0, 200, 0, 0);
+            pager.SetPadding(0, (int) Math.Round(paddinTop * 1.90f), 0, 0);
             pager.ClearOnPageChangeListeners();
             pager.AddOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
             ViewPagerAdapter adapter = new ViewPagerAdapter(SupportFragmentManager);
@@ -389,8 +461,10 @@ namespace MusicApp
             tabs.SetScrollPosition(selectedTab, 0f, true);
         }
 
-        void SetYtTabs(int selectedTab = 0)
+        async void SetYtTabs(int selectedTab = 0)
         {
+            await ResetTabs();
+
             FrameLayout frame = FindViewById<FrameLayout>(Resource.Id.contentView);
             frame.Visibility = ViewStates.Gone;
 
@@ -400,7 +474,7 @@ namespace MusicApp
             tabs.AddTab(tabs.NewTab().SetText("Playlists"));
             tabs.AddTab(tabs.NewTab().SetText("Youtube playlists"));
             ViewPager pager = FindViewById<ViewPager>(Resource.Id.pager);
-            pager.SetPadding(0, 200, 0, 0);
+            pager.SetPadding(0, (int)Math.Round(paddinTop * 1.90f), 0, 0);
             pager.ClearOnPageChangeListeners();
             pager.AddOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
             ViewPagerAdapter adapter = new ViewPagerAdapter(SupportFragmentManager);
@@ -413,6 +487,25 @@ namespace MusicApp
 
             pager.CurrentItem = selectedTab;
             tabs.SetScrollPosition(selectedTab, 0f, true);
+        }
+
+        async Task ResetTabs()
+        {
+            TabLayout tabs = FindViewById<TabLayout>(Resource.Id.tabs);
+            tabs.RemoveAllTabs();
+            ViewPager pager = FindViewById<ViewPager>(Resource.Id.pager);
+
+            ViewPagerAdapter adapter = (ViewPagerAdapter)pager.Adapter;
+            if (adapter != null)
+            {
+                for (int i = 0; i < adapter.Count; i++)
+                    SupportFragmentManager.BeginTransaction().Remove(adapter.GetItem(i)).Commit();
+
+                adapter.Dispose();
+                pager.Adapter = null;
+
+                await Task.Delay(250);
+            }
         }
 
         public void HideTabs()
@@ -536,6 +629,38 @@ namespace MusicApp
             RelativeLayout smallPlayer = FindViewById<RelativeLayout>(Resource.Id.smallPlayer);
             FrameLayout parent = (FrameLayout)smallPlayer.Parent;
             parent.Visibility = ViewStates.Gone;
+        }
+
+        public void GetStoragePermission()
+        {
+            const string permission = Manifest.Permission.ReadExternalStorage;
+            if (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(this, permission) == (int)Permission.Granted)
+            {
+                PremissionAuthorized();
+                return;
+            }
+            string[] permissions = new string[] { permission };
+            RequestPermissions(permissions, RequestCode);
+        }
+
+        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, Permission[] grantResults)
+        {
+            if (requestCode == RequestCode)
+            {
+                if(grantResults.Length > 0)
+                {
+                    if (grantResults[0] == Permission.Granted)
+                        PremissionAuthorized();
+                    else
+                        Snackbar.Make(FindViewById<View>(Resource.Id.contentView), "Permission denied, can't list musics.", Snackbar.LengthShort).Show();
+                }
+            }
+        }
+
+        void PremissionAuthorized()
+        {
+            Browse.instance?.PopulateList();
+            Playlist.instance?.PopulateView();
         }
     }
 }

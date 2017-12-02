@@ -27,6 +27,7 @@ namespace MusicApp.Resources.Portable_Class
     [Service]
     public class MusicPlayer : Service, IPlayerEventListener, AudioManager.IOnAudioFocusChangeListener
     {
+        public static MusicPlayer instance;
         public static SimpleExoPlayer player;
         public static List<Song> queue = new List<Song>();
         public MediaSessionCompat mediaSession;
@@ -47,6 +48,7 @@ namespace MusicApp.Resources.Portable_Class
         public override void OnCreate()
         {
             base.OnCreate();
+            instance = this;
         }
 
         public override StartCommandResult OnStartCommand(Intent intent, StartCommandFlags flags, int startId)
@@ -277,7 +279,7 @@ namespace MusicApp.Resources.Portable_Class
             SwitchQueue(next);
         }
 
-        void SwitchQueue(Song song)
+        public void SwitchQueue(Song song)
         {
             Play(song, false);
 
@@ -561,6 +563,7 @@ namespace MusicApp.Resources.Portable_Class
             base.OnDestroy();
 
             isRunning = false;
+            instance = null;
 
             if (player != null)
                 player.Release();

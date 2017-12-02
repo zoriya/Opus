@@ -38,7 +38,7 @@ namespace MusicApp.Resources.Portable_Class
             ListView.EmptyView = emptyView;
 
             if (ListView.Adapter == null)
-                GetStoragePermission();
+                MainActivity.instance.GetStoragePermission();
         }
 
         public override void OnDestroy()
@@ -68,36 +68,7 @@ namespace MusicApp.Resources.Portable_Class
             return instance;
         }
 
-        void GetStoragePermission()
-        {
-            const string permission = Manifest.Permission.ReadExternalStorage;
-            if (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(Android.App.Application.Context, permission) == (int)Permission.Granted)
-            {
-                PopulateList();
-                //if(FolderBrowse.instance != null)
-                //    FolderBrowse.instance.PopulateList();
-                return;
-            }
-            string[] permissions = new string[] { permission };
-            RequestPermissions(permissions, 0);
-        }
-
-        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, Permission[] grantResults)
-        {
-            switch (requestCode)
-            {
-                case 0:
-                    if (grantResults[0] == Permission.Granted)
-                        PopulateList();
-
-                    else
-                        Snackbar.Make(View , "Permission denied, can't list musics.", Snackbar.LengthShort).Show();
-
-                    break;
-            }
-        }
-
-        void PopulateList()
+        public void PopulateList()
         {
             Android.Net.Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
 
