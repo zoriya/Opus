@@ -166,7 +166,7 @@ namespace MusicApp.Resources.Portable_Class
 
         async void RandomPlay(string playlistID)
         {
-            List<string> tracksPath = new List<string>();
+            List<Song> tracks = new List<Song>();
             string nextPageToken = "";
             while (nextPageToken != null)
             {
@@ -179,16 +179,14 @@ namespace MusicApp.Resources.Portable_Class
 
                 foreach (var item in ytPlaylist.Items)
                 {
-                    tracksPath.Add(item.Id);
+                    Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.Default__.Url, -1, -1, item.Id, true, false);
+                    tracks.Add(song);
                 }
 
                 nextPageToken = ytPlaylist.NextPageToken;
             }
 
-            Intent intent = new Intent(Android.App.Application.Context, typeof(MusicPlayer));
-            intent.PutStringArrayListExtra("files", tracksPath);
-            intent.SetAction("RandomPlay");
-            Activity.StartService(intent);
+            YoutubeEngine.PlayFiles(tracks.ToArray());
         }
 
         void Rename(int position, string playlistID)

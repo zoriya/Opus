@@ -164,6 +164,25 @@ namespace MusicApp.Resources.Portable_Class
             MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).Commit();
         }
 
+        public static async void PlayFiles(Song[] files)
+        {
+            if (files.Length < 1)
+                return;
+
+            Play(files[0].GetPath());
+
+            if (files.Length < 2)
+                return;
+
+            await Task.Delay(10000);
+
+            for(int i = 1; i < files.Length; i++)
+            {
+                MusicPlayer.queue.Add(files[i]);
+            }
+        }
+
+
         public static async void PlayNext(string videoID)
         {
             YoutubeClient client = new YoutubeClient();

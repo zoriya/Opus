@@ -10,6 +10,7 @@
         private long id;
         private string path;
         private bool isYT;
+        public bool isParsed;
 
         public string GetName() { return Name; }
         public string GetArtist() { return Artist; }
@@ -19,7 +20,7 @@
         public string GetPath() { return path; }
         public bool IsYt { get { return isYT; } }
         
-        public Song(string Name, string Artist, string Album, long AlbumArt, long id, string path, bool isYT = false)
+        public Song(string Name, string Artist, string Album, long AlbumArt, long id, string path, bool isYT = false, bool isParsed = true)
         {
             this.Name = Name;
             this.Artist = Artist;
@@ -28,8 +29,10 @@
             this.id = id;
             this.path = path;
             this.isYT = isYT;
+            this.isParsed = isParsed;
         }
 
         public void SetName(string Name) { this.Name = Name; }
+        public void SetPath(string path) { this.path = path; }
     }
 }

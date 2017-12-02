@@ -1,26 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using Android.App;
+﻿using Android.App;
 using Android.Content;
-using Android.OS;
-using Android.Media;
-using Android.Support.V7.App;
-using Android.Support.V4.Media.Session;
-using Android.Graphics;
-using MusicApp.Resources.values;
 using Android.Database;
+using Android.Graphics;
+using Android.Media;
+using Android.OS;
 using Android.Provider;
-using System.Linq;
-using System.Threading.Tasks;
-using Square.Picasso;
-
-using Uri = Android.Net.Uri;
+using Android.Support.V4.Media.Session;
+using Android.Support.V7.App;
 using Android.Widget;
 using Com.Google.Android.Exoplayer2;
+using Com.Google.Android.Exoplayer2.Extractor;
+using Com.Google.Android.Exoplayer2.Source;
 using Com.Google.Android.Exoplayer2.Trackselection;
 using Com.Google.Android.Exoplayer2.Upstream;
-using Com.Google.Android.Exoplayer2.Source;
-using Com.Google.Android.Exoplayer2.Extractor;
+using MusicApp.Resources.values;
+using Square.Picasso;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using YoutubeExplode;
+using YoutubeExplode.Models.MediaStreams;
+using Uri = Android.Net.Uri;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -279,8 +280,17 @@ namespace MusicApp.Resources.Portable_Class
             SwitchQueue(next);
         }
 
-        public void SwitchQueue(Song song)
+        public async void SwitchQueue(Song song)
         {
+            if (!song.isParsed)
+            {
+                YoutubeClient client = new YoutubeClient();
+                var videoInfo = await client.GetVideoAsync(song.GetPath());
+                AudioStreamInfo streamInfo = videoInfo.AudioStreamInfos.OrderBy(s => s.Bitrate).Last();
+                song.SetPath(streamInfo.Url);
+                song.isParsed = true;
+            }
+
             Play(song, false);
 
             if (Player.instance != null)
@@ -584,10 +594,16 @@ namespace MusicApp.Resources.Portable_Class
             Console.WriteLine("Error in playback resetting: " + args.Cause);
         }
 
-        public void OnPlayerStateChanged(bool p0, int p1)
+#pragma warning disable CS0618 // Type or member is obsolete
+        public void OnPlayerStateChanged(bool playWhenReady, int state)
         {
-
+            if (state == ExoPlayer.StateEnded)
+            {
+                PlayNext();
+            }
         }
+#pragma warning restore CS0618 // Type or member is obsolete
+
 
         public void OnPositionDiscontinuity()
         {
