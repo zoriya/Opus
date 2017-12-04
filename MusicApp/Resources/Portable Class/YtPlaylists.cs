@@ -11,6 +11,7 @@ using Java.Util;
 using MusicApp.Resources.values;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -23,7 +24,7 @@ namespace MusicApp.Resources.Portable_Class
 
         private List<Song> playlists = new List<Song>();
         private List<Google.Apis.YouTube.v3.Data.Playlist> YtPlaylists = new List<Google.Apis.YouTube.v3.Data.Playlist>();
-        private string[] actions = new string[] { "Random play", "Rename", "Delete" };
+        private string[] actions = new string[] { "Random play", "Rename", "Delete", "Download" };
         private bool isEmpty = false;
 
 
@@ -158,6 +159,9 @@ namespace MusicApp.Resources.Portable_Class
                     case 2:
                         RemovePlaylist(e.Position, playlists[e.Position].GetPath());
                         break;
+                    case 3:
+                        DownloadPlaylist(playlists[e.Position].GetPath());
+                        break;
                     default:
                         break;
                 }
@@ -180,14 +184,12 @@ namespace MusicApp.Resources.Portable_Class
 
                 foreach (var item in ytPlaylist.Items)
                 {
-                    System.Console.WriteLine(item.Snippet.Title);
                     Song song = new Song(item.Snippet.Title, "", item.Snippet.Thumbnails.Default__.Url, -1, -1, item.ContentDetails.VideoId, true, false);
                     tracks.Add(song);
                 }
 
                 nextPageToken = ytPlaylist.NextPageToken;
             }
-            System.Console.WriteLine("All tracks are retrived");
             YoutubeEngine.PlayFiles(tracks.ToArray());
         }
 
@@ -248,6 +250,31 @@ namespace MusicApp.Resources.Portable_Class
                 isEmpty = true;
                 Activity.AddContentView(emptyView, View.LayoutParameters);
             }
+        }
+
+        private async void DownloadPlaylist(string playlistID)
+        {
+            List<string> names = new List<string>();
+            List<string> videoIDs = new List<string>();
+            string nextPageToken = "";
+            while (nextPageToken != null)
+            {
+                var ytPlaylistRequest = YoutubeEngine.youtubeService.PlaylistItems.List("snippet, contentDetails");
+                ytPlaylistRequest.PlaylistId = playlistID;
+                ytPlaylistRequest.MaxResults = 50;
+                ytPlaylistRequest.PageToken = nextPageToken;
+
+                var ytPlaylist = await ytPlaylistRequest.ExecuteAsync();
+
+                foreach (var item in ytPlaylist.Items)
+                {
+                    names.Add(item.Snippet.Title);
+                    videoIDs.Add(item.ContentDetails.VideoId);
+                }
+
+                nextPageToken = ytPlaylist.NextPageToken;
+            }
+            YoutubeEngine.DownloadFiles(names.ToArray(), videoIDs.ToArray());
         }
     }
 }

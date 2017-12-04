@@ -236,6 +236,33 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
+        public static async void DownloadFiles(string[] names, string[] videoIDs)
+        {
+            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Android.App.Application.Context);
+            if (prefManager.GetString("downloadPath", null) != null)
+            {
+                Toast.MakeText(Android.App.Application.Context, "Downloading...", ToastLength.Short).Show();
+                Context context = Android.App.Application.Context;
+                for(int i = 0; i < names.Length; i++)
+                {
+                    Intent intent = new Intent(context, typeof(Downloader));
+                    intent.PutExtra("videoID", videoIDs[i]);
+                    intent.PutExtra("path", prefManager.GetString("downloadPath", null));
+                    intent.PutExtra("name", names[i]);
+                    context.StartService(intent);
+                    await Task.Delay(10000);
+                }
+            }
+            else
+            {
+                Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.contentView), "Download Path Not Set.", Snackbar.LengthShort).SetAction("Set Path", (v) =>
+                {
+                    Intent intent = new Intent(Android.App.Application.Context, typeof(Preferences));
+                    MainActivity.instance.StartActivity(intent);
+                }).Show();
+            }
+        }
+
         public static void RemoveFromPlaylist(string videoID)
         {
             youtubeService.PlaylistItems.Delete(videoID).Execute();

@@ -4,18 +4,22 @@ using Android.OS;
 using Android.Provider;
 using Android.Support.V4.App;
 using System.IO;
+using System.Collections.Generic;
 using System.Linq;
 using YoutubeExplode;
 using YoutubeExplode.Models;
 using YoutubeExplode.Models.MediaStreams;
 using Console = System.Console;
 using File = System.IO.File;
+using MusicApp.Resources.values;
+using System.Threading.Tasks;
 
 namespace MusicApp.Resources.Portable_Class
 {
     [Service]
     public class Downloader : Service
     {
+        private static bool isDownloading = false;
         private NotificationCompat.Builder notification;
         private int notificationID = 1001;
 
@@ -42,6 +46,10 @@ namespace MusicApp.Resources.Portable_Class
 
         private async void DownloadAudio(string videoID, string path, string name)
         {
+            while (isDownloading)
+                await Task.Delay(1000);
+
+            isDownloading = true;
             CreateNotification("Downloading: ", name);
 
             YoutubeClient client = new YoutubeClient();
@@ -58,6 +66,7 @@ namespace MusicApp.Resources.Portable_Class
             FileStream output = File.Create(filePath);
             await input.CopyToAsync(output);
             output.Dispose();
+            isDownloading = false;
 
             SetMetaData(filePath, videoInfo.Title, videoInfo.Author.Name, videoInfo.Thumbnails.HighResUrl);
         }
