@@ -7,14 +7,14 @@ using Android.Support.V7.App;
 using Android.Views;
 using Android.Widget;
 using Google.Apis.YouTube.v3;
+using Google.Apis.YouTube.v3.Data;
 using Java.Util;
 using MusicApp.Resources.values;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using YoutubeExplode;
 using YoutubeExplode.Models.MediaStreams;
-using System;
-using System.Threading.Tasks;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -133,7 +133,7 @@ namespace MusicApp.Resources.Portable_Class
                         PlayLast(item.GetPath());
                         break;
                     case 3:
-                        GetPlaylists(item.GetPath());
+                        GetPlaylists(item.GetPath(), Activity);
                         break;
                     case 4:
                         Download(item.GetName(), item.GetPath());
@@ -174,11 +174,11 @@ namespace MusicApp.Resources.Portable_Class
             if (files.Length < 2)
                 return;
 
-            await Task.Delay(10000);
+            await Task.Delay(5000);
 
             for(int i = 1; i < files.Length; i++)
             {
-                MusicPlayer.queue.Add(files[i]);
+                MusicPlayer.queue.Insert(MusicPlayer.CurrentID() + i, files[i]);
             }
         }
 
@@ -236,23 +236,12 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
-        public static void RemoveFromPlaylist(string videoID, string playlistID)
+        public static void RemoveFromPlaylist(string videoID)
         {
-            HashMap parameters = new HashMap();
-            parameters.Put("id", videoID);
-            parameters.Put("onBehalfOfContentOwner", "");
-
-            PlaylistItemsResource.DeleteRequest deleteRequest = youtubeService.PlaylistItems.Delete(playlistID);
-            if (parameters.ContainsKey("onBehalfOfContentOwner") && parameters.Get("onBehalfOfContentOwner").ToString() != "")
-            {
-                deleteRequest.OnBehalfOfContentOwner = parameters.Get("onBehalfOfContentOwner").ToString();
-            }
-
-            deleteRequest.Execute();
+            youtubeService.PlaylistItems.Delete(videoID).Execute();
         }
 
-
-        public static async void GetPlaylists(string videoID)
+        public static async void GetPlaylists(string videoID, Context context)
         {
             if (MainActivity.instance.TokenHasExpire())
             {
@@ -264,19 +253,144 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             List<string> playList = new List<string>();
-            List<long> playListId = new List<long>();
+            List<string> playListId = new List<string>();
             playList.Add("Create a playlist");
-            playListId.Add(0);
+            playListId.Add("newPlaylist");
 
-            
 
-            //AlertDialog.Builder builder = new AlertDialog.Builder(act, Resource.Style.AppCompatAlertDialogStyle);
-            //builder.SetTitle("Add to a playlist");
-            //builder.SetItems(playList.ToArray(), (senderAlert, args) =>
-            //{
-            //    AddToPlaylist(item, playList[args.Which], playListId[args.Which]);
-            //});
-            //builder.Show();
+            HashMap parameters = new HashMap();
+            parameters.Put("part", "snippet,contentDetails");
+            parameters.Put("mine", "true");
+            parameters.Put("maxResults", "25");
+            parameters.Put("onBehalfOfContentOwner", "");
+            parameters.Put("onBehalfOfContentOwnerChannel", "");
+
+            PlaylistsResource.ListRequest ytPlaylists = youtubeService.Playlists.List(parameters.Get("part").ToString());
+
+            if (parameters.ContainsKey("mine") && parameters.Get("mine").ToString() != "")
+            {
+                bool mine = (parameters.Get("mine").ToString() == "true") ? true : false;
+                ytPlaylists.Mine = mine;
+            }
+
+            if (parameters.ContainsKey("maxResults"))
+            {
+                ytPlaylists.MaxResults = long.Parse(parameters.Get("maxResults").ToString());
+            }
+
+            if (parameters.ContainsKey("onBehalfOfContentOwner") && parameters.Get("onBehalfOfContentOwner").ToString() != "")
+            {
+                ytPlaylists.OnBehalfOfContentOwner = parameters.Get("onBehalfOfContentOwner").ToString();
+            }
+
+            if (parameters.ContainsKey("onBehalfOfContentOwnerChannel") && parameters.Get("onBehalfOfContentOwnerChannel").ToString() != "")
+            {
+                ytPlaylists.OnBehalfOfContentOwnerChannel = parameters.Get("onBehalfOfContentOwnerChannel").ToString();
+            }
+
+            PlaylistListResponse response = await ytPlaylists.ExecuteAsync();
+
+            for (int i = 0; i < response.Items.Count; i++)
+            {
+                Google.Apis.YouTube.v3.Data.Playlist playlist = response.Items[i];
+                playList.Add(playlist.Snippet.Title);
+                playListId.Add(playlist.Id);
+            }
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(context, Resource.Style.AppCompatAlertDialogStyle);
+            builder.SetTitle("Add to a playlist");
+            builder.SetItems(playList.ToArray(), (senderAlert, args) =>
+            {
+                AddToPlaylist(videoID, playListId[args.Which], context);
+            });
+            builder.Show();
+        }
+
+        public static void AddToPlaylist(string videoID, string playlistID, Context context)
+        {
+            if(playlistID == "newPlaylist")
+            {
+                AlertDialog.Builder builder = new AlertDialog.Builder(context, Resource.Style.AppCompatAlertDialogStyle);
+                builder.SetTitle("Playlist name");
+                View view = MainActivity.instance.LayoutInflater.Inflate(Resource.Layout.CreatePlaylistDialog, null);
+                builder.SetView(view);
+                builder.SetNegativeButton("Cancel", (senderAlert, args) => { });
+                builder.SetPositiveButton("Create", (senderAlert, args) =>
+                {
+                    NewPlaylist(view.FindViewById<EditText>(Resource.Id.playlistName).Text, videoID);
+                });
+                builder.Show();
+            }
+            else
+            {
+                HashMap parameters = new HashMap();
+                parameters.Put("part", "snippet");
+                parameters.Put("onBehalfOfContentOwner", "");
+
+                PlaylistItem playlistItem = new PlaylistItem();
+                PlaylistItemSnippet snippet = new PlaylistItemSnippet();
+                snippet.PlaylistId = playlistID;
+                ResourceId resourceId = new ResourceId();
+                resourceId.Kind = "youtube#video";
+                resourceId.VideoId = videoID;
+                snippet.ResourceId = resourceId;
+                playlistItem.Snippet = snippet;
+
+                var insertRequest = youtubeService.PlaylistItems.Insert(playlistItem, parameters.Get("part").ToString());
+
+                if (parameters.ContainsKey("onBehalfOfContentOwner") && parameters.Get("onBehalfOfContentOwner").ToString() != "")
+                {
+                    insertRequest.OnBehalfOfContentOwner = parameters.Get("onBehalfOfContentOwner").ToString();
+                }
+
+                insertRequest.Execute();
+            }
+        }
+
+        public static void NewPlaylist(string playlistName, string videoID)
+        {
+            HashMap parameters = new HashMap();
+            parameters.Put("part", "snippet,status");
+            parameters.Put("onBehalfOfContentOwner", "");
+
+
+            Google.Apis.YouTube.v3.Data.Playlist playlist = new Google.Apis.YouTube.v3.Data.Playlist();
+            PlaylistSnippet snippet = new PlaylistSnippet();
+            PlaylistStatus status = new PlaylistStatus();
+            snippet.Title = playlistName;
+            playlist.Snippet = snippet;
+            playlist.Status = status;
+
+            var createRequest = youtubeService.Playlists.Insert(playlist, parameters.Get("part").ToString());
+
+            if (parameters.ContainsKey("onBehalfOfContentOwner") && parameters.Get("onBehalfOfContentOwner").ToString() != "")
+            {
+                createRequest.OnBehalfOfContentOwner = parameters.Get("onBehalfOfContentOwner").ToString();
+            }
+
+            Google.Apis.YouTube.v3.Data.Playlist response = createRequest.Execute();
+
+            parameters = new HashMap();
+            parameters.Put("part", "snippet");
+            parameters.Put("onBehalfOfContentOwner", "");
+
+            PlaylistItem playlistItem = new PlaylistItem();
+            PlaylistItemSnippet snippetItem = new PlaylistItemSnippet();
+            snippetItem.PlaylistId = response.Id;
+            ResourceId resourceId = new ResourceId();
+            resourceId.Kind = "youtube#video";
+            resourceId.VideoId = videoID;
+            snippetItem.ResourceId = resourceId;
+            playlistItem.Snippet = snippetItem;
+
+            var insertRequest = youtubeService.PlaylistItems.Insert(playlistItem, parameters.Get("part").ToString());
+
+            if (parameters.ContainsKey("onBehalfOfContentOwner") && parameters.Get("onBehalfOfContentOwner").ToString() != "")
+            {
+                insertRequest.OnBehalfOfContentOwner = parameters.Get("onBehalfOfContentOwner").ToString();
+            }
+
+            insertRequest.Execute();
         }
     }
 }

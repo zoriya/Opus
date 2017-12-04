@@ -36,10 +36,11 @@ namespace MusicApp.Resources.Portable_Class
         public NotificationManager notificationManager;
         public static bool isRunning = false;
         public static string title;
+        private static bool parsing = false;
+        public static int currendID = -1;
 
         private Notification notification;
         private const int notificationID = 1000;
-
 
         public override IBinder OnBind(Intent intent)
         {
@@ -310,7 +311,6 @@ namespace MusicApp.Resources.Portable_Class
             }
             else
             {
-                Console.WriteLine("Yt song: " + song.GetAlbum());
                 Picasso.With(Application.Context).Load(song.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(art);
             }
         }
@@ -333,9 +333,34 @@ namespace MusicApp.Resources.Portable_Class
             bar.Progress = (int) player.CurrentPosition;
             bar.ProgressChanged += (sender, e) =>
             {
+                Console.WriteLine(player.Duration - e.Progress);
                 if (player != null && e.FromUser)
                     player.SeekTo(e.Progress);
+
+                if (player != null && player.Duration - e.Progress <= 1500 && player.Duration - e.Progress > 0)
+                    ParseNextSong();
             };
+        }
+
+        public static async void ParseNextSong()
+        {
+            if (CurrentID() + 1 > queue.Count)
+                return;
+
+            Song song = queue[CurrentID() + 1];
+            if (song.isParsed)
+                return;
+
+            if (!song.isParsed && !parsing)
+            {
+                parsing = true;
+                YoutubeClient client = new YoutubeClient();
+                var videoInfo = await client.GetVideoAsync(song.GetPath());
+                AudioStreamInfo streamInfo = videoInfo.AudioStreamInfos.OrderBy(s => s.Bitrate).Last();
+                song.SetPath(streamInfo.Url);
+                song.isParsed = true;
+                parsing = false;
+            }
         }
 
         public static int Duration

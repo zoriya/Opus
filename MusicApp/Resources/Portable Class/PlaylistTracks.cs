@@ -9,6 +9,7 @@ using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -23,7 +24,9 @@ namespace MusicApp.Resources.Portable_Class
         public bool isEmpty = false;
 
         private List<Song> tracks = new List<Song>();
-        private string[] actions = new string[] { "Play", "Play Next", "Play Last", "Remove Track from playlist" };
+        private List<string> ytTracksIDs = new List<string>();
+        private List<string> ytTracksIdsResult;
+        private string[] actions = new string[] { "Play", "Play Next", "Play Last", "Remove Track from playlist", "Add To Playlist" };
 
 
         public override void OnActivityCreated(Bundle savedInstanceState)
@@ -118,6 +121,7 @@ namespace MusicApp.Resources.Portable_Class
 
                 adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, tracks);
                 ListAdapter = adapter;
+                ListView.Adapter = adapter;
                 ListView.TextFilterEnabled = true;
                 ListView.ItemClick += ListView_ItemClick;
                 ListView.ItemLongClick += ListView_ItemLongClick;
@@ -133,7 +137,7 @@ namespace MusicApp.Resources.Portable_Class
                 string nextPageToken = "";
                 while(nextPageToken != null)
                 {
-                    var ytPlaylistRequest = YoutubeEngine.youtubeService.PlaylistItems.List("snippet");
+                    var ytPlaylistRequest = YoutubeEngine.youtubeService.PlaylistItems.List("snippet, contentDetails");
                     ytPlaylistRequest.PlaylistId = ytID;
                     ytPlaylistRequest.MaxResults = 50;
                     ytPlaylistRequest.PageToken = nextPageToken;
@@ -142,9 +146,9 @@ namespace MusicApp.Resources.Portable_Class
 
                     foreach (var item in ytPlaylist.Items)
                     {
-                        Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.Default__.Url, -1, -1, item.Id, true);
-                        System.Console.WriteLine(song.GetName());
+                        Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.Default__.Url, -1, -1, item.ContentDetails.VideoId, true);
                         tracks.Add(song);
+                        ytTracksIDs.Add(item.Id);
                     }
 
                     nextPageToken = ytPlaylist.NextPageToken;
@@ -152,6 +156,7 @@ namespace MusicApp.Resources.Portable_Class
 
                 adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, tracks);
                 ListAdapter = adapter;
+                ListView.Adapter = adapter;
                 ListView.TextFilterEnabled = true;
                 ListView.ItemClick += ListView_ItemClick;
                 ListView.ItemLongClick += ListView_ItemLongClick;
@@ -167,11 +172,15 @@ namespace MusicApp.Resources.Portable_Class
         public void Search(string search)
         {
             result = new List<Song>();
-            foreach (Song item in tracks)
+            ytTracksIdsResult = new List<string>();
+            for(int i = 0; i < tracks.Count; i++)
             {
+                Song item = tracks[i];
                 if (item.GetName().ToLower().Contains(search.ToLower()) || item.GetArtist().ToLower().Contains(search.ToLower()))
                 {
                     result.Add(item);
+                    if (ytID != null)
+                        ytTracksIdsResult.Add(ytTracksIDs[i]);
                 }
             }
             ListAdapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, result);
@@ -194,6 +203,8 @@ namespace MusicApp.Resources.Portable_Class
 
         private void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
         {
+            List<string> action = actions.ToList();
+
             Song item = tracks[e.Position];
             if (result != null)
                 item = result[e.Position];
@@ -203,10 +214,14 @@ namespace MusicApp.Resources.Portable_Class
                 Browse.act = Activity;
                 Browse.inflater = LayoutInflater;
             }
+            else
+            {
+                action.Add("Download");
+            }
 
             AlertDialog.Builder builder = new AlertDialog.Builder(Activity, Resource.Style.AppCompatAlertDialogStyle);
             builder.SetTitle("Pick an action");
-            builder.SetItems(actions, (senderAlert, args) =>
+            builder.SetItems(action.ToArray(), (senderAlert, args) =>
             {
                 switch (args.Which)
                 {
@@ -216,29 +231,58 @@ namespace MusicApp.Resources.Portable_Class
                         else
                             YoutubeEngine.Play(item.GetPath());
                         break;
+
                     case 1:
                         if (!item.IsYt)
                             Browse.PlayNext(item);
                         else
                             YoutubeEngine.PlayNext(item.GetPath());
                         break;
+
                     case 2:
                         if (!item.IsYt)
                             Browse.PlayLast(item);
                         else
                             YoutubeEngine.PlayLast(item.GetPath());
                         break;
+
                     case 3:
                         if (!item.IsYt)
                             RemoveFromPlaylist(item);
                         else
-                            YoutubeEngine.RemoveFromPlaylist(item.GetPath(), ytID);
+                        {
+                            string ytTrackID = ytTracksIDs[e.Position];
+                            if (ytTracksIdsResult != null)
+                                ytTrackID = ytTracksIdsResult[e.Position];
+
+                            YoutubeEngine.RemoveFromPlaylist(ytTrackID);
+                            RemoveFromYtPlaylist(item, ytTrackID);
+                        }
                         break;
+
+                    case 4:
+                        YoutubeEngine.GetPlaylists(item.GetPath(), Activity);
+                        break;
+
+                    case 5:
+                        YoutubeEngine.Download(item.GetName(), item.GetPath());
+                        break;
+
                     default:
                         break;
                 }
             });
             builder.Show();
+        }
+
+        private void RemoveFromYtPlaylist(Song item, string ytTrackID)
+        {
+            tracks.Remove(item);
+            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, tracks);
+            ListAdapter = adapter;
+            ListView.Adapter = adapter;
+            ytTracksIDs.Remove(ytTrackID);
+            ytTracksIdsResult?.Remove(ytTrackID);
         }
 
         void RemoveFromPlaylist(Song item)

@@ -166,50 +166,6 @@ namespace MusicApp
                 HttpClientInitializer = credential,
                 ApplicationName = "MusicApp"
             });
-
-            //OAuth2Request request = new OAuth2Request("POST"; new Uri())
-            //var refreshRequest = new OAuth2Request("POST", new Uri(OAuthSettings.TokenURL), postDictionary, googleAccount);
-            //refreshRequest.GetResponseAsync().ContinueWith(task => {
-            //    if (task.IsFaulted)
-            //        Console.WriteLine("Error: " + task.Exception.InnerException.Message);
-            //    else
-            //    {
-            //        string json = task.Result.GetResponseText();
-            //        Console.WriteLine(json);
-            //        try
-            //        {
-            //        << just deserialize the json response, eg. with Newtonsoft>>
-            //        }
-            //        catch (Exception exception)
-            //        {
-            //            Console.WriteLine("!!!!!Exception: {0}", exception.ToString());
-            //            Logout();
-            //        }
-            //    }
-            //});
-
-            //await auth.RequestAccessTokenAsync(queryValues).ContinueWith(result =>
-            //{
-            //    Console.WriteLine("Requesting new token from auth api");
-            //    string accessToken = result.Result["access_token"];
-            //    string expiresIN = result.Result["expires_in"];
-
-            //    Console.WriteLine("new acces token: " + accessToken);
-            //    Console.WriteLine("new expire date: " + expiresIN);
-
-            //    DateTime expireDate = DateTime.UtcNow.AddSeconds(double.Parse(expiresIN));
-            //    ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(this);
-            //    ISharedPreferencesEditor editor = pref.Edit();
-            //    editor.PutString("expireDate", expireDate.ToString());
-            //    editor.Apply();
-
-            //    GoogleCredential credential = GoogleCredential.FromAccessToken(accessToken);
-            //    YoutubeEngine.youtubeService = new YouTubeService(new BaseClientService.Initializer()
-            //    {
-            //        HttpClientInitializer = credential,
-            //        ApplicationName = "MusicApp"
-            //    });
-            //});
         }
 
 
@@ -249,16 +205,6 @@ namespace MusicApp
             ToolBar = (Android.Support.V7.Widget.Toolbar) FindViewById(Resource.Id.toolbar);
             SetSupportActionBar(ToolBar);
             SupportActionBar.Title = "MusicApp";
-
-            Play();
-        }
-
-        async void Play()
-        {
-            YoutubeClient client = new YoutubeClient();
-            var videoInfo = await client.GetVideoAsync("ziaf3RrG80U");
-            AudioStreamInfo streamInfo = videoInfo.AudioStreamInfos.OrderBy(s => s.Bitrate).Last();
-            Console.WriteLine(streamInfo.Url);
         }
 
         public override bool OnCreateOptionsMenu(IMenu menu)

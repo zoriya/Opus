@@ -120,8 +120,9 @@ namespace MusicApp.Resources.Portable_Class
                 playlists.Add(song);
             }
 
-            Adapter ytAdapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, playlists);
-            ListAdapter = ytAdapter;
+            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, playlists);
+            ListAdapter = adapter;
+            ListView.Adapter = adapter;
             ListView.ItemClick += ListView_ItemClick;
             ListView.ItemLongClick += ListView_ItemLongClick;
         }
@@ -170,7 +171,7 @@ namespace MusicApp.Resources.Portable_Class
             string nextPageToken = "";
             while (nextPageToken != null)
             {
-                var ytPlaylistRequest = YoutubeEngine.youtubeService.PlaylistItems.List("snippet");
+                var ytPlaylistRequest = YoutubeEngine.youtubeService.PlaylistItems.List("snippet, contentDetails");
                 ytPlaylistRequest.PlaylistId = playlistID;
                 ytPlaylistRequest.MaxResults = 50;
                 ytPlaylistRequest.PageToken = nextPageToken;
@@ -179,13 +180,14 @@ namespace MusicApp.Resources.Portable_Class
 
                 foreach (var item in ytPlaylist.Items)
                 {
-                    Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.Default__.Url, -1, -1, item.Id, true, false);
+                    System.Console.WriteLine(item.Snippet.Title);
+                    Song song = new Song(item.Snippet.Title, "", item.Snippet.Thumbnails.Default__.Url, -1, -1, item.ContentDetails.VideoId, true, false);
                     tracks.Add(song);
                 }
 
                 nextPageToken = ytPlaylist.NextPageToken;
             }
-
+            System.Console.WriteLine("All tracks are retrived");
             YoutubeEngine.PlayFiles(tracks.ToArray());
         }
 
@@ -205,11 +207,16 @@ namespace MusicApp.Resources.Portable_Class
 
         void RenamePlaylist(int position, string name, string playlistID)
         {
+            Google.Apis.YouTube.v3.Data.Playlist playlist = new Google.Apis.YouTube.v3.Data.Playlist();
+            playlist.Snippet = YtPlaylists[position].Snippet;
+            playlist.Snippet.Title = name;
+            playlist.Id = playlistID;
+        
             YtPlaylists[position].Snippet.Title = name;
-            YoutubeEngine.youtubeService.Playlists.Update(YtPlaylists[position], "snippet/title").Execute();
+            YoutubeEngine.youtubeService.Playlists.Update(playlist, "snippet").Execute();
 
             playlists[position].SetName(name);
-            ListAdapter = new ArrayAdapter(Android.App.Application.Context, Resource.Layout.PlaylistList, playlists);
+            adapter.NotifyDataSetChanged();
             if (ListAdapter.Count == 0)
             {
                 isEmpty = true;
@@ -232,7 +239,10 @@ namespace MusicApp.Resources.Portable_Class
             deleteRequest.Execute();
 
             playlists.RemoveAt(position);
-            ListAdapter = new ArrayAdapter(Android.App.Application.Context, Resource.Layout.PlaylistList, playlists);
+            YtPlaylists.RemoveAt(position);
+            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, playlists);
+            ListAdapter = adapter;
+            ListView.Adapter = adapter;
             if (ListAdapter.Count == 0)
             {
                 isEmpty = true;

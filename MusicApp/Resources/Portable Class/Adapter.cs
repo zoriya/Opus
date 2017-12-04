@@ -24,6 +24,9 @@ namespace MusicApp.Resources.Portable_Class
 
         public override View GetView(int position, View convertView, ViewGroup parent)
         {
+            if (position > songList.Count || position < 0)
+                return convertView;
+
             if (inflater == null)
             {
                 inflater = (LayoutInflater)context.GetSystemService(Context.LayoutInflaterService);
@@ -49,6 +52,12 @@ namespace MusicApp.Resources.Portable_Class
 
                 Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
             }
+
+            if (!songList[position].isParsed)
+            {
+
+            }
+
             return convertView;
         }
     }
