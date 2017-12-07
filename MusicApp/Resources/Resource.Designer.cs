@@ -3691,9 +3691,6 @@ namespace MusicApp
 			// aapt resource value: 0x7f060015
 			public const int abc_toolbar_collapse_description = 2131099669;
 			
-			// aapt resource value: 0x7f060038
-			public const int app_name = 2131099704;
-			
 			// aapt resource value: 0x7f060024
 			public const int appbar_scrolling_view_behavior = 2131099684;
 			

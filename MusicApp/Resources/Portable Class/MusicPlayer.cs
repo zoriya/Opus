@@ -37,7 +37,7 @@ namespace MusicApp.Resources.Portable_Class
         public static bool isRunning = false;
         public static string title;
         private static bool parsing = false;
-        public static int currendID = -1;
+        public static int currentID = -1;
 
         private Notification notification;
         private const int notificationID = 1000;
@@ -174,6 +174,13 @@ namespace MusicApp.Resources.Portable_Class
             {
                 song = new Song(title, artist, thumbnailURI, -1, -1, filePath, true);
             }
+
+            if(song.queueSlot == -1)
+                song.queueSlot = CurrentID() + 1;
+
+            Console.WriteLine("QueueSlot: " + song.queueSlot);
+            currentID = song.queueSlot;
+
             CreateNotification(song.GetName(), song.GetArtist(), song.GetAlbumArt(), song.GetAlbum());
 
             if(addToQueue)
@@ -208,6 +215,11 @@ namespace MusicApp.Resources.Portable_Class
             player.Prepare(mediaSource, true, true);
             CreateNotification(song.GetName(), song.GetArtist(), song.GetAlbumArt(), song.GetAlbum());
 
+            if (song.queueSlot == -1)
+                song.queueSlot = CurrentID() + 1;
+            Console.WriteLine(song.GetName() + " : " + song.queueSlot);
+            currentID = song.queueSlot;
+
             if (addToQueue)
                 AddToQueue(song);
         }
@@ -222,6 +234,7 @@ namespace MusicApp.Resources.Portable_Class
             for (int i = 1; i < filePath.Count; i++)
             {
                 GetTrackSong(filePath[i], out Song song);
+                song.queueSlot = queue.Count;
                 queue.Add(song);
                 await Task.Delay(10);
             }
@@ -234,29 +247,34 @@ namespace MusicApp.Resources.Portable_Class
                 GetTrackSong(filePath, out song);
             else
                 song = new Song(title, artist, thumbnailURI, -1, -1, filePath, true);
-            if (CurrentID() == -1)
-                queue.Add(song);
-            else
-                queue.Insert(CurrentID() + 1, song);
+
+            if (song.queueSlot == -1)
+                song.queueSlot = CurrentID() + 1;
+
+            queue.Insert(song.queueSlot, song);
         }
 
         public void AddToQueue(Song song)
         {
-            if (CurrentID() == -1)
-                queue.Add(song);
-            else
-                queue.Insert(CurrentID() + 1, song);
+            if (song.queueSlot == -1)
+                song.queueSlot = CurrentID() + 1;
+
+            queue.Insert(song.queueSlot, song);
         }
 
         public void PlayLastInQueue(string filePath)
         {
             GetTrackSong(filePath, out Song song);
+            song.queueSlot = CurrentID() + 1;
+
             queue.Add(song);
         }
 
         public void PlayLastInQueue(string filePath, string title, string artist, string thumbnailURI)
         {
             Song song = new Song(title, artist, thumbnailURI, -1, -1, filePath, true);
+            song.queueSlot = CurrentID() + 1;
+
             queue.Add(song);
         }
 
@@ -300,6 +318,7 @@ namespace MusicApp.Resources.Portable_Class
             RelativeLayout smallPlayer = MainActivity.instance.FindViewById<RelativeLayout>(Resource.Id.smallPlayer);
             smallPlayer.FindViewById<TextView>(Resource.Id.spTitle).Text = song.GetName();
             smallPlayer.FindViewById<TextView>(Resource.Id.spArtist).Text = song.GetArtist();
+            smallPlayer.FindViewById<ImageView>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
             ImageView art = smallPlayer.FindViewById<ImageView>(Resource.Id.spArt);
 
             if(!song.IsYt)
@@ -317,14 +336,17 @@ namespace MusicApp.Resources.Portable_Class
 
         public static int CurrentID()
         {
-            int id = 0;
-            foreach (Song song in queue)
-            {
-                if (song.GetName() == title)
-                    return id;
-                id++;
-            }
-            return -1;
+            if (queue.Count < currentID)
+                currentID = -1;
+            return currentID;
+            //int id = 0;
+            //foreach (Song song in queue)
+            //{
+            //    if (song.GetName() == title)
+            //        return id;
+            //    id++;
+            //}
+            //return -1;
         }
 
         public static void SetSeekBar(SeekBar bar)
@@ -333,7 +355,6 @@ namespace MusicApp.Resources.Portable_Class
             bar.Progress = (int) player.CurrentPosition;
             bar.ProgressChanged += (sender, e) =>
             {
-                Console.WriteLine(player.Duration - e.Progress);
                 if (player != null && e.FromUser)
                     player.SeekTo(e.Progress);
 

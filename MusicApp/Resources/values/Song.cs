@@ -11,6 +11,7 @@
         private string path;
         private bool isYT;
         public bool isParsed;
+        public int queueSlot;
 
         public string GetName() { return Name; }
         public string GetArtist() { return Artist; }
@@ -19,8 +20,8 @@
         public long GetID() { return id; }
         public string GetPath() { return path; }
         public bool IsYt { get { return isYT; } }
-        
-        public Song(string Name, string Artist, string Album, long AlbumArt, long id, string path, bool isYT = false, bool isParsed = true)
+
+        public Song(string Name, string Artist, string Album, long AlbumArt, long id, string path, bool isYT = false, bool isParsed = true, int queueSlot = -1)
         {
             this.Name = Name;
             this.Artist = Artist;
@@ -30,6 +31,7 @@
             this.path = path;
             this.isYT = isYT;
             this.isParsed = isParsed;
+            this.queueSlot = queueSlot;
         }
 
         public void SetName(string Name) { this.Name = Name; }
