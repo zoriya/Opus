@@ -59,6 +59,7 @@ namespace MusicApp.Resources.Portable_Class
                 rootView.RemoveView(emptyView);
             }
             base.OnDestroy();
+            instance = null;
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -105,6 +106,11 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             ListAdapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, result);
+        }
+
+        public void Refresh()
+        {
+
         }
 
         private void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)

@@ -67,6 +67,11 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
+        public void Refresh()
+        {
+
+        }
+
         private void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
         {
             Song item = MusicPlayer.queue[e.Position];

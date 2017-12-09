@@ -118,6 +118,11 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
+        public void Refresh()
+        {
+
+        }
+
         public void Search(string search)
         {
             result = new List<Song>();

@@ -1,16 +1,14 @@
 ﻿using Android.Content;
+using Android.Database;
+using Android.Net;
 using Android.OS;
+using Android.Provider;
+using Android.Support.V4.App;
+using Android.Support.V4.View;
+using Android.Support.V7.App;
 using Android.Views;
 using Android.Widget;
-using Android.Support.V7.App;
-using Android.Support.V4.App;
 using System.Collections.Generic;
-using Android.Provider;
-using Android.Database;
-using Android.Content.PM;
-using Android.Support.Design.Widget;
-using Android;
-using Android.Net;
 using static Android.Provider.MediaStore.Audio;
 
 namespace MusicApp.Resources.Portable_Class
@@ -20,12 +18,12 @@ namespace MusicApp.Resources.Portable_Class
         public static Playlist instance;
         public Adapter adapter;
         public View emptyView;
+        public bool isEmpty = false;
 
         private List<string> playList = new List<string>();
         private List<int> playListCount = new List<int>();
         private List<long> playlistId = new List<long>();
         private string[] actions = new string[] { "Random play", "Rename", "Delete" };
-        private bool isEmpty = false;
 
 
         public override void OnActivityCreated(Bundle savedInstanceState)
@@ -39,6 +37,17 @@ namespace MusicApp.Resources.Portable_Class
 
             if (ListView.Adapter == null)
                 MainActivity.instance.GetStoragePermission();
+        }
+
+        public void AddEmptyView()
+        {
+            Activity.AddContentView(emptyView, View.LayoutParameters);
+        }
+
+        public void RemoveEmptyView()
+        {
+            ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
+            rootView.RemoveView(emptyView);
         }
 
         public override void OnDestroy()
@@ -94,10 +103,16 @@ namespace MusicApp.Resources.Portable_Class
 
             if (adapter == null || adapter.Count == 0)
             {
+                if (isEmpty)
+                    return;
                 isEmpty = true;
-                if(emptyView != null)
-                    Activity.AddContentView(emptyView, View.LayoutParameters);
+                Activity.AddContentView(emptyView, View.LayoutParameters);
             }
+        }
+
+        public void Refresh()
+        {
+
         }
 
         private void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)

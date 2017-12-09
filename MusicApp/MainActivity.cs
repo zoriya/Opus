@@ -23,14 +23,12 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Xamarin.Auth;
-using YoutubeExplode;
-using YoutubeExplode.Models.MediaStreams;
 using SearchView = Android.Support.V7.Widget.SearchView;
 
 namespace MusicApp
 {
     [Activity(Label = "MusicApp", MainLauncher = true, Icon = "@drawable/MusicIcon", Theme = "@style/Theme")]
-    public class MainActivity : AppCompatActivity
+    public class MainActivity : AppCompatActivity, ViewPager.IOnPageChangeListener
     {
         public static MainActivity instance;
         public Android.Support.V7.Widget.Toolbar ToolBar;
@@ -46,7 +44,7 @@ namespace MusicApp
         public static YouTubeService youtubeService;
         public static OAuth2Authenticator auth;
         public static string refreshToken;
-
+        private bool searchDisplayed;
 
         public void Login()
         {
@@ -144,15 +142,9 @@ namespace MusicApp
             return true;
         }
 
-        public /*async*/ void RequestNewToken(string refreshToken)
+        public void RequestNewToken(string refreshToken)
         {
             Console.WriteLine("Token has expire getting a new one");
-            //Dictionary<string, string> queryValues = new Dictionary<string, string>
-            //{
-            //    {"refresh_token", refreshToken },
-            //    {"client_id", clientID },
-            //    {"grant_type", "refresh_token" }
-            //};
 
             IAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow(new GoogleAuthorizationCodeFlow.Initializer { ClientSecrets = new ClientSecrets() { ClientId = clientID } });
             Console.WriteLine("Flow created");
@@ -200,11 +192,22 @@ namespace MusicApp
             var bottomNavigation = FindViewById<BottomNavigationView>(Resource.Id.bottomView);
             bottomNavigation.NavigationItemSelected += PreNavigate;
 
-            Navigate(Resource.Id.musicLayout);
-
             ToolBar = (Android.Support.V7.Widget.Toolbar) FindViewById(Resource.Id.toolbar);
             SetSupportActionBar(ToolBar);
             SupportActionBar.Title = "MusicApp";
+
+            if (MusicPlayer.queue.Count > 0)
+                ReCreateSmallPlayer();
+            else
+                Navigate(Resource.Id.musicLayout);
+        }
+
+        private async void ReCreateSmallPlayer()
+        {
+            await Task.Delay(100);
+            PrepareSmallPlayer();
+            ShowSmallPlayer();
+            Navigate(Resource.Id.musicLayout);
         }
 
         public override bool OnCreateOptionsMenu(IMenu menu)
@@ -253,7 +256,7 @@ namespace MusicApp
             else if(item.ItemId == Resource.Id.search)
             {
                 var searchItem = MenuItemCompat.GetActionView(item);
-                var searchView = searchItem.JavaCast<Android.Support.V7.Widget.SearchView>();
+                var searchView = searchItem.JavaCast<SearchView>();
 
                 searchView.QueryTextChange += Search;
 
@@ -301,12 +304,17 @@ namespace MusicApp
 
         public void HideSearch()
         {
+            if (!searchDisplayed)
+                return;
+
+            searchDisplayed = false;
+
             if (menu == null)
                 return;
 
             var item = menu.FindItem(Resource.Id.search);
             var searchItem = MenuItemCompat.GetActionView(item);
-            var searchView = searchItem.JavaCast<Android.Support.V7.Widget.SearchView>();
+            var searchView = searchItem.JavaCast<SearchView>();
 
             searchView.SetQuery("", false);
             searchView.ClearFocus();
@@ -322,11 +330,16 @@ namespace MusicApp
 
         public void DisplaySearch(int id = 0)
         {
+            if (searchDisplayed)
+                return;
+
+            searchDisplayed = true;
+
             var item = menu.FindItem(Resource.Id.search);
             item.SetVisible(true);
             item.CollapseActionView();
             var searchItem = MenuItemCompat.GetActionView(item);
-            var searchView = searchItem.JavaCast<Android.Support.V7.Widget.SearchView>();
+            var searchView = searchItem.JavaCast<SearchView>();
 
             searchView.SetQuery("", false);
             searchView.ClearFocus();
@@ -351,26 +364,49 @@ namespace MusicApp
             switch (layout)
             {
                 case Resource.Id.musicLayout:
+                    if (Queue.instance != null)
+                    {
+                        Queue.instance.Refresh();
+                        return;
+                    }
+
                     HideTabs();
                     HideSearch();
                     fragment = Queue.NewInstance();
                     break;
 
                 case Resource.Id.browseLayout:
+                    if (Browse.instance != null)
+                    {
+                        Browse.instance.Refresh();
+                        return;
+                    }
+
                     SetBrowseTabs();
                     DisplaySearch();
                     break;
 
                 case Resource.Id.downloadLayout:
+                    if (YoutubeEngine.instance != null)
+                    {
+                        YoutubeEngine.instance.Refresh();
+                        return;
+                    }
+
                     HideTabs();
                     DisplaySearch();
                     fragment = YoutubeEngine.NewInstance();
                     break;
 
                 case Resource.Id.playlistLayout:
+                    if (Playlist.instance != null)
+                    {
+                        Playlist.instance.Refresh();
+                        return;
+                    }
+
                     SetYtTabs();
                     HideSearch();
-                    fragment = Playlist.NewInstance();
                     break;
             }
 
@@ -380,25 +416,41 @@ namespace MusicApp
             SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, fragment).Commit();
         }
 
-        async void SetBrowseTabs(int selectedTab = 0)
+        void SetBrowseTabs(int selectedTab = 0)
         {
-            await ResetTabs();
+            if (Browse.instance != null)
+                return;
 
             FrameLayout frame = FindViewById<FrameLayout>(Resource.Id.contentView);
             frame.Visibility = ViewStates.Gone;
+
             TabLayout tabs = FindViewById<TabLayout>(Resource.Id.tabs);
             tabs.Visibility = ViewStates.Visible;
             tabs.RemoveAllTabs();
             tabs.AddTab(tabs.NewTab().SetText("Songs"));
             tabs.AddTab(tabs.NewTab().SetText("Folders"));
+            Console.WriteLine("tabs created");
+
             ViewPager pager = FindViewById<ViewPager>(Resource.Id.pager);
             pager.SetPadding(0, (int) Math.Round(paddinTop * 1.90f), 0, 0);
             pager.ClearOnPageChangeListeners();
             pager.AddOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
-            ViewPagerAdapter adapter = new ViewPagerAdapter(SupportFragmentManager);
 
+            ViewPagerAdapter oldAdapter = (ViewPagerAdapter)pager.Adapter;
+            if (oldAdapter != null)
+            {
+                for (int i = 0; i < oldAdapter.Count; i++)
+                {
+                    SupportFragmentManager.BeginTransaction().Remove(oldAdapter.GetItem(i)).Commit();
+                }
+                oldAdapter.Dispose();
+            }
+            Console.WriteLine("old adapter removed");
+
+            ViewPagerAdapter adapter = new ViewPagerAdapter(SupportFragmentManager);
             adapter.AddFragment(Browse.NewInstance(), "Songs");
             adapter.AddFragment(FolderBrowse.NewInstance(), "Folders");
+            Console.WriteLine("new adapter created");
 
             pager.Adapter = adapter;
             tabs.SetupWithViewPager(pager);
@@ -407,9 +459,10 @@ namespace MusicApp
             tabs.SetScrollPosition(selectedTab, 0f, true);
         }
 
-        async void SetYtTabs(int selectedTab = 0)
+        void SetYtTabs(int selectedTab = 0)
         {
-            await ResetTabs();
+            if (Playlist.instance != null)
+                return;
 
             FrameLayout frame = FindViewById<FrameLayout>(Resource.Id.contentView);
             frame.Visibility = ViewStates.Gone;
@@ -419,12 +472,23 @@ namespace MusicApp
             tabs.RemoveAllTabs();
             tabs.AddTab(tabs.NewTab().SetText("Playlists"));
             tabs.AddTab(tabs.NewTab().SetText("Youtube playlists"));
+
             ViewPager pager = FindViewById<ViewPager>(Resource.Id.pager);
             pager.SetPadding(0, (int)Math.Round(paddinTop * 1.90f), 0, 0);
             pager.ClearOnPageChangeListeners();
-            pager.AddOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
-            ViewPagerAdapter adapter = new ViewPagerAdapter(SupportFragmentManager);
+            pager.AddOnPageChangeListener(this);
 
+            ViewPagerAdapter oldAdapter = (ViewPagerAdapter)pager.Adapter;
+            if (oldAdapter != null)
+            {
+                for (int i = 0; i < oldAdapter.Count; i++)
+                {
+                    SupportFragmentManager.BeginTransaction().Remove(oldAdapter.GetItem(i)).Commit();
+                }
+                oldAdapter.Dispose();
+            }
+
+            ViewPagerAdapter adapter = new ViewPagerAdapter(SupportFragmentManager);
             adapter.AddFragment(Playlist.NewInstance(), "Playlists");
             adapter.AddFragment(YtPlaylist.NewInstance(), "Youtube playlists");
 
@@ -435,22 +499,29 @@ namespace MusicApp
             tabs.SetScrollPosition(selectedTab, 0f, true);
         }
 
-        async Task ResetTabs()
+        public void OnPageScrollStateChanged(int state)
         {
-            TabLayout tabs = FindViewById<TabLayout>(Resource.Id.tabs);
-            tabs.RemoveAllTabs();
-            ViewPager pager = FindViewById<ViewPager>(Resource.Id.pager);
+        }
 
-            ViewPagerAdapter adapter = (ViewPagerAdapter)pager.Adapter;
-            if (adapter != null)
+        public void OnPageScrolled(int position, float positionOffset, int positionOffsetPixels)
+        {
+        }
+
+        public void OnPageSelected(int position)
+        {
+            if(position == 0)
             {
-                for (int i = 0; i < adapter.Count; i++)
-                    SupportFragmentManager.BeginTransaction().Remove(adapter.GetItem(i)).Commit();
-
-                adapter.Dispose();
-                pager.Adapter = null;
-
-                await Task.Delay(250);
+                if (Playlist.instance.isEmpty)
+                    Playlist.instance.AddEmptyView();
+                if (YtPlaylist.instance.isEmpty)
+                    YtPlaylist.instance.RemoveEmptyView();
+            }
+            if(position == 1)
+            {
+                if (Playlist.instance.isEmpty)
+                    Playlist.instance.RemoveEmptyView();
+                if (YtPlaylist.instance.isEmpty)
+                    YtPlaylist.instance.AddEmptyView();
             }
         }
 

@@ -1,7 +1,7 @@
-﻿using Android.Content;
-using Android.Net;
+﻿using Android.Net;
 using Android.OS;
 using Android.Support.V4.App;
+using Android.Support.V4.View;
 using Android.Support.V7.App;
 using Android.Views;
 using Android.Widget;
@@ -9,9 +9,9 @@ using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
 using Java.Util;
 using MusicApp.Resources.values;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -20,24 +20,34 @@ namespace MusicApp.Resources.Portable_Class
         public static YtPlaylist instance;
         public Adapter adapter;
         public View emptyView;
-        public static Credentials credentials;
+        public bool isEmpty = false;
 
         private List<Song> playlists = new List<Song>();
         private List<Google.Apis.YouTube.v3.Data.Playlist> YtPlaylists = new List<Google.Apis.YouTube.v3.Data.Playlist>();
         private string[] actions = new string[] { "Random play", "Rename", "Delete", "Download" };
-        private bool isEmpty = false;
 
 
         public override void OnActivityCreated(Bundle savedInstanceState)
         {
             base.OnActivityCreated(savedInstanceState);
-            emptyView = LayoutInflater.Inflate(Resource.Layout.NoPlaylist, null);
+            emptyView = LayoutInflater.Inflate(Resource.Layout.NoYtPlaylist, null);
             ListView.EmptyView = emptyView;
 
             if (YoutubeEngine.youtubeService == null)
                 MainActivity.instance.Login();
 
             GetYoutubePlaylists();
+        }
+
+        public void AddEmptyView()
+        {
+            Activity.AddContentView(emptyView, View.LayoutParameters);
+        }
+
+        public void RemoveEmptyView()
+        {
+            ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
+            rootView.RemoveView(emptyView);
         }
 
         public override void OnDestroy()
@@ -126,6 +136,14 @@ namespace MusicApp.Resources.Portable_Class
             ListView.Adapter = adapter;
             ListView.ItemClick += ListView_ItemClick;
             ListView.ItemLongClick += ListView_ItemLongClick;
+
+            if (adapter == null || adapter.Count == 0)
+            {
+                if (isEmpty)
+                    return;
+                isEmpty = true;
+                Activity.AddContentView(emptyView, View.LayoutParameters);
+            }
         }
 
         private void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
@@ -275,6 +293,33 @@ namespace MusicApp.Resources.Portable_Class
                 nextPageToken = ytPlaylist.NextPageToken;
             }
             YoutubeEngine.DownloadFiles(names.ToArray(), videoIDs.ToArray());
+        }
+
+        public void OnPageScrollStateChanged(int state)
+        {
+            if (isEmpty)
+            {
+                ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
+                rootView.RemoveView(emptyView);
+            }
+        }
+
+        public void OnPageScrolled(int position, float positionOffset, int positionOffsetPixels)
+        {
+            if (isEmpty)
+            {
+                ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
+                rootView.RemoveView(emptyView);
+            }
+        }
+
+        public void OnPageSelected(int position)
+        {
+            if (isEmpty)
+            {
+                ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
+                rootView.RemoveView(emptyView);
+            }
         }
     }
 }
