@@ -45,6 +45,8 @@ namespace MusicApp
         public static OAuth2Authenticator auth;
         public static string refreshToken;
         private bool searchDisplayed;
+        private bool canSwitch = true;
+        private string tab;
 
         public void Login()
         {
@@ -118,8 +120,6 @@ namespace MusicApp
             Console.WriteLine("Checking if token has expired with:" + refreshToken);
             if (refreshToken == null)
                 refreshToken = MainActivity.refreshToken;
-
-            Console.WriteLine("new refrehs token:" + refreshToken);
 
             ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(this);
             string expireDate = pref.GetString("expireDate", null);
@@ -370,6 +370,7 @@ namespace MusicApp
                         return;
                     }
 
+                    tab = "Queue";
                     HideTabs();
                     HideSearch();
                     fragment = Queue.NewInstance();
@@ -382,6 +383,7 @@ namespace MusicApp
                         return;
                     }
 
+                    tab = "Browse";
                     SetBrowseTabs();
                     DisplaySearch();
                     break;
@@ -393,6 +395,7 @@ namespace MusicApp
                         return;
                     }
 
+                    tab = "Youtube";
                     HideTabs();
                     DisplaySearch();
                     fragment = YoutubeEngine.NewInstance();
@@ -405,6 +408,7 @@ namespace MusicApp
                         return;
                     }
 
+                    tab = "Playlist";
                     SetYtTabs();
                     HideSearch();
                     break;
@@ -416,99 +420,139 @@ namespace MusicApp
             SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, fragment).Commit();
         }
 
-        void SetBrowseTabs(int selectedTab = 0)
+        async void SetBrowseTabs(int selectedTab = 0)
         {
             if (Browse.instance != null)
                 return;
+            while (!canSwitch)
+                await Task.Delay(10);
 
-            FrameLayout frame = FindViewById<FrameLayout>(Resource.Id.contentView);
-            frame.Visibility = ViewStates.Gone;
+            if (tab != "Browse" || Browse.instance != null)
+                return;
+
+            Console.WriteLine("Switching: " + canSwitch);
+            canSwitch = false;
 
             TabLayout tabs = FindViewById<TabLayout>(Resource.Id.tabs);
-            tabs.Visibility = ViewStates.Visible;
-            tabs.RemoveAllTabs();
-            tabs.AddTab(tabs.NewTab().SetText("Songs"));
-            tabs.AddTab(tabs.NewTab().SetText("Folders"));
-            Console.WriteLine("tabs created");
-
             ViewPager pager = FindViewById<ViewPager>(Resource.Id.pager);
-            pager.SetPadding(0, (int) Math.Round(paddinTop * 1.90f), 0, 0);
-            pager.ClearOnPageChangeListeners();
-            pager.AddOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
 
-            ViewPagerAdapter oldAdapter = (ViewPagerAdapter)pager.Adapter;
-            if (oldAdapter != null)
+            if (Playlist.instance != null)
             {
-                for (int i = 0; i < oldAdapter.Count; i++)
-                {
-                    SupportFragmentManager.BeginTransaction().Remove(oldAdapter.GetItem(i)).Commit();
-                }
-                oldAdapter.Dispose();
+                ViewPagerAdapter oldAdapter = (ViewPagerAdapter)pager.Adapter;
+                SupportFragmentManager.BeginTransaction().Remove(oldAdapter.GetItem(0)).Commit();
+                SupportFragmentManager.BeginTransaction().Remove(oldAdapter.GetItem(1)).Commit();
+
+                oldAdapter.Clear();
+
+                tabs.AddTab(tabs.NewTab().SetText("Songs"));
+                tabs.AddTab(tabs.NewTab().SetText("Folders"));
+
+                oldAdapter.AddFragment(Browse.NewInstance(), "Songs");
+                oldAdapter.AddFragment(FolderBrowse.NewInstance(), "Folders");
+
+                pager.Adapter = oldAdapter;
+                pager.ClearOnPageChangeListeners();
             }
-            Console.WriteLine("old adapter removed");
+            else
+            {
+                FrameLayout frame = FindViewById<FrameLayout>(Resource.Id.contentView);
+                frame.Visibility = ViewStates.Gone;
+                tabs.Visibility = ViewStates.Visible;
+                tabs.AddTab(tabs.NewTab().SetText("Songs"));
+                tabs.AddTab(tabs.NewTab().SetText("Folders"));
 
-            ViewPagerAdapter adapter = new ViewPagerAdapter(SupportFragmentManager);
-            adapter.AddFragment(Browse.NewInstance(), "Songs");
-            adapter.AddFragment(FolderBrowse.NewInstance(), "Folders");
-            Console.WriteLine("new adapter created");
+                pager.SetPadding(0, (int)Math.Round(paddinTop * 1.90f), 0, 0);
 
-            pager.Adapter = adapter;
-            tabs.SetupWithViewPager(pager);
+                ViewPagerAdapter adapter = new ViewPagerAdapter(SupportFragmentManager);
+                adapter.AddFragment(Browse.NewInstance(), "Songs");
+                adapter.AddFragment(FolderBrowse.NewInstance(), "Folders");
 
+                pager.Adapter = adapter;
+                tabs.SetupWithViewPager(pager);
+            }
+
+            pager.AddOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
             pager.CurrentItem = selectedTab;
             tabs.SetScrollPosition(selectedTab, 0f, true);
+
+            CanSwitchDelay();
         }
 
-        void SetYtTabs(int selectedTab = 0)
+        async void SetYtTabs(int selectedTab = 0)
         {
             if (Playlist.instance != null)
                 return;
 
-            FrameLayout frame = FindViewById<FrameLayout>(Resource.Id.contentView);
-            frame.Visibility = ViewStates.Gone;
+            while (!canSwitch)
+                await Task.Delay(10);
+
+            if (tab != "Playlist" || Playlist.instance != null)
+                return;
+
+            Console.WriteLine("Switching: " + canSwitch);
+            canSwitch = false;
 
             TabLayout tabs = FindViewById<TabLayout>(Resource.Id.tabs);
-            tabs.Visibility = ViewStates.Visible;
-            tabs.RemoveAllTabs();
-            tabs.AddTab(tabs.NewTab().SetText("Playlists"));
-            tabs.AddTab(tabs.NewTab().SetText("Youtube playlists"));
-
             ViewPager pager = FindViewById<ViewPager>(Resource.Id.pager);
-            pager.SetPadding(0, (int)Math.Round(paddinTop * 1.90f), 0, 0);
-            pager.ClearOnPageChangeListeners();
-            pager.AddOnPageChangeListener(this);
 
-            ViewPagerAdapter oldAdapter = (ViewPagerAdapter)pager.Adapter;
-            if (oldAdapter != null)
+            if (Browse.instance != null)
             {
-                for (int i = 0; i < oldAdapter.Count; i++)
-                {
-                    SupportFragmentManager.BeginTransaction().Remove(oldAdapter.GetItem(i)).Commit();
-                }
-                oldAdapter.Dispose();
+                ViewPagerAdapter oldAdapter = (ViewPagerAdapter)pager.Adapter;
+                SupportFragmentManager.BeginTransaction().Remove(oldAdapter.GetItem(0)).Commit();
+                SupportFragmentManager.BeginTransaction().Remove(oldAdapter.GetItem(1)).Commit();
+
+                oldAdapter.Clear();
+
+                tabs.AddTab(tabs.NewTab().SetText("Songs"));
+                tabs.AddTab(tabs.NewTab().SetText("Folders"));
+
+                oldAdapter.AddFragment(Playlist.NewInstance(), "Playlists");
+                oldAdapter.AddFragment(YtPlaylist.NewInstance(), "Youtube playlists");
+
+                pager.Adapter = oldAdapter;
+                pager.ClearOnPageChangeListeners();
+            }
+            else
+            {
+                FrameLayout frame = FindViewById<FrameLayout>(Resource.Id.contentView);
+                frame.Visibility = ViewStates.Gone;
+                tabs.Visibility = ViewStates.Visible;
+                tabs.AddTab(tabs.NewTab().SetText("Playlists"));
+                tabs.AddTab(tabs.NewTab().SetText("Youtube playlists"));
+
+                pager.SetPadding(0, (int)Math.Round(paddinTop * 1.90f), 0, 0);
+
+                ViewPagerAdapter adapter = new ViewPagerAdapter(SupportFragmentManager);
+                adapter.AddFragment(Playlist.NewInstance(), "Playlists");
+                adapter.AddFragment(YtPlaylist.NewInstance(), "Youtube playlists");
+
+                pager.Adapter = adapter;
+                tabs.SetupWithViewPager(pager);
             }
 
-            ViewPagerAdapter adapter = new ViewPagerAdapter(SupportFragmentManager);
-            adapter.AddFragment(Playlist.NewInstance(), "Playlists");
-            adapter.AddFragment(YtPlaylist.NewInstance(), "Youtube playlists");
-
-            pager.Adapter = adapter;
-            tabs.SetupWithViewPager(pager);
-
+            pager.AddOnPageChangeListener(this);
+            pager.AddOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
             pager.CurrentItem = selectedTab;
             tabs.SetScrollPosition(selectedTab, 0f, true);
+
+            CanSwitchDelay();
         }
 
-        public void OnPageScrollStateChanged(int state)
+        async void CanSwitchDelay()
         {
+            await Task.Delay(350);
+            canSwitch = true;
         }
 
-        public void OnPageScrolled(int position, float positionOffset, int positionOffsetPixels)
-        {
-        }
+        public void OnPageScrollStateChanged(int state) { }
+
+        public void OnPageScrolled(int position, float positionOffset, int positionOffsetPixels) { }
 
         public void OnPageSelected(int position)
         {
+            if (Playlist.instance == null)
+                return;
+
             if(position == 0)
             {
                 if (Playlist.instance.isEmpty)

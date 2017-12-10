@@ -41,6 +41,9 @@ namespace MusicApp.Resources.Portable_Class
 
         public void AddEmptyView()
         {
+            if (emptyView.Parent != null)
+                ((ViewGroup)emptyView.Parent).RemoveView(emptyView);
+
             Activity.AddContentView(emptyView, View.LayoutParameters);
         }
 
@@ -57,6 +60,7 @@ namespace MusicApp.Resources.Portable_Class
                 ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
                 rootView.RemoveView(emptyView);
             }
+            System.Console.WriteLine("Playlist destroyed");
             base.OnDestroy();
             instance = null;
         }

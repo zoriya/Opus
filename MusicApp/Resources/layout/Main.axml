@@ -1,62 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto"
-  xmlns:tools="http://schemas.android.com/tools"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:fitsSystemWindows="true"
-  tools:context="com.journaldev.tablayoutviewpager.MainActivity">
-  <android.support.design.widget.AppBarLayout
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-    <android.support.v7.widget.Toolbar
-      android:id="@+id/toolbar"
-      android:layout_width="match_parent"
-      android:layout_height="?attr/actionBarSize"
-      android:background="?attr/colorPrimary"
-      android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-      app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
-    <android.support.design.widget.TabLayout
-      android:id="@+id/tabs"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      app:tabTextColor="@android:color/white"
-      app:tabSelectedTextColor="@android:color/white"
-      app:tabIndicatorColor="@android:color/white"
-      app:tabGravity="fill"
-      app:tabMode="fixed" />
-  </android.support.design.widget.AppBarLayout>
-  <android.support.v4.view.ViewPager
-    android:id="@+id/pager"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content" />
-  <RelativeLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-    <FrameLayout
-      android:id="@+id/contentView"
-      android:layout_height="wrap_content"
-      android:layout_width="match_parent" />
-    <RelativeLayout
-      android:layout_height="wrap_content"
-      android:layout_width="match_parent"
-      android:background="@android:color/white"
-      android:elevation="12dp"
-      android:layout_alignParentBottom="true" >
-      <android.support.design.widget.BottomNavigationView
-        android:id="@+id/bottomView"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context="com.journaldev.tablayoutviewpager.MainActivity">
+    <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        app:menu="@menu/bottom_items" />
-      <FrameLayout
-        android:layout_height="70dp"
-        android:visibility="gone"
-        android:layout_below="@id/bottomView"
-        android:layout_width="match_parent" >
-        <include 
-          layout="@layout/SmallPlayer"
-          android:id="@+id/smallPlayer"/>
-      </FrameLayout>
+        android:layout_height="wrap_content">
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+        <android.support.design.widget.TabLayout
+            android:id="@+id/tabs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:tabTextColor="@android:color/white"
+            app:tabSelectedTextColor="@android:color/white"
+            app:tabIndicatorColor="@android:color/white"
+            app:tabGravity="fill"
+            app:tabMode="fixed" />
+        <ProgressBar 
+          android:layout_height="2dp"
+          android:width="match_parent"
+          android:id="@+id/ytProgress"/>
+    </android.support.design.widget.AppBarLayout>
+    <android.support.v4.view.ViewPager
+        android:id="@+id/pager"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <FrameLayout
+            android:id="@+id/contentView"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent" />
+        <RelativeLayout
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:background="@android:color/white"
+            android:elevation="12dp"
+            android:layout_alignParentBottom="true">
+            <android.support.design.widget.BottomNavigationView
+                android:id="@+id/bottomView"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                app:menu="@menu/bottom_items" />
+            <FrameLayout
+                android:layout_height="70dp"
+                android:visibility="gone"
+                android:layout_below="@id/bottomView"
+                android:layout_width="match_parent">
+                <include
+                    layout="@layout/SmallPlayer"
+                    android:id="@+id/smallPlayer" />
+            </FrameLayout>
+        </RelativeLayout>
     </RelativeLayout>
-  </RelativeLayout>
 </android.support.design.widget.CoordinatorLayout>

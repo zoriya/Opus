@@ -6,21 +6,13 @@ using Android.Support.V4.App;
 
 namespace MusicApp.Resources.Portable_Class
 {
-    public class ViewPagerAdapter : FragmentPagerAdapter
+    public class ViewPagerAdapter : FragmentStatePagerAdapter
     {
         private List<Fragment> fragmentList = new List<Fragment>();
         private List<string> titles = new List<string>();
 
-
-        public ViewPagerAdapter(FragmentManager fm) : base(fm)
-        {
-
-        }
-
-        protected ViewPagerAdapter(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer)
-        {
-
-        }
+        public ViewPagerAdapter(FragmentManager fm) : base(fm) { }
+        protected ViewPagerAdapter(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer) { }
 
         public override int Count => fragmentList.Count;
 
@@ -35,10 +27,24 @@ namespace MusicApp.Resources.Portable_Class
             titles.Add(title);
         }
 
+        public void Clear()
+        {
+            fragmentList.Clear();
+            titles.Clear();
+            fragmentList = new List<Fragment>();
+            titles = new List<string>();
+            NotifyDataSetChanged();
+        }
+
         public override ICharSequence GetPageTitleFormatted(int position)
         {
             ICharSequence title = CharSequence.ArrayFromStringArray(new string[] { titles[position] })[0];
             return title;
+        }
+
+        public override int GetItemPosition(Java.Lang.Object @object)
+        {
+            return PositionNone;
         }
     }
 }

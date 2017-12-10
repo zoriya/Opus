@@ -76,18 +76,6 @@ namespace MusicApp.Resources.Portable_Class
 
         async void GetYoutubePlaylists()
         {
-            if (MainActivity.instance.TokenHasExpire())
-            {
-                YoutubeEngine.youtubeService = null;
-                MainActivity.instance.Login();
-
-                while (YoutubeEngine.youtubeService == null)
-                    await Task.Delay(500);
-            }
-
-            while (YoutubeEngine.youtubeService == null)
-                await Task.Delay(100);
-
             HashMap parameters = new HashMap();
             parameters.Put("part", "snippet,contentDetails");
             parameters.Put("mine", "true");
@@ -121,6 +109,10 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             PlaylistListResponse response = await ytPlaylists.ExecuteAsync();
+
+            if (instance == null)
+                return;
+
             playlists = new List<Song>();
 
             for (int i = 0; i < response.Items.Count; i++)
