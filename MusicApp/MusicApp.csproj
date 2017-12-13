@@ -59,6 +59,7 @@
     <EnableLLVM>false</EnableLLVM>
     <BundleAssemblies>false</BundleAssemblies>
     <EnableProguard>true</EnableProguard>
+    <AndroidSupportedAbis />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ExoPlayer, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -224,6 +225,9 @@
     <None Include="app.config" />
     <None Include="GettingStarted.Xamarin" />
     <None Include="packages.config" />
+    <ProguardConfiguration Include="proguard.cfg">
+      <SubType>Designer</SubType>
+    </ProguardConfiguration>
     <None Include="Properties\AndroidManifest.xml" />
     <AndroidResource Include="Resources\layout\MusicLayout.axml">
       <SubType>Designer</SubType>
