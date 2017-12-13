@@ -200,6 +200,17 @@ namespace MusicApp
                 ReCreateSmallPlayer();
             else
                 Navigate(Resource.Id.musicLayout);
+
+            if (Intent?.Action == "Player")
+                ActionPlayer();
+        }
+
+        private async void ActionPlayer()
+        {
+            await Task.Delay(100);
+            HideTabs();
+            HideSearch();
+            SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).Commit();
         }
 
         private async void ReCreateSmallPlayer()

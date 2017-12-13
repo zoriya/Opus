@@ -154,6 +154,10 @@ namespace MusicApp.Resources.Portable_Class
 
         public static async void Play(string videoID)
         {
+            ProgressBar parseProgress = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress);
+            parseProgress.Visibility = ViewStates.Visible;
+            parseProgress.ScaleY = 6;
+
             YoutubeClient client = new YoutubeClient();
             var videoInfo = await client.GetVideoAsync(videoID);
             AudioStreamInfo streamInfo = videoInfo.AudioStreamInfos.OrderBy(s => s.Bitrate).Last();
@@ -165,6 +169,7 @@ namespace MusicApp.Resources.Portable_Class
             intent.PutExtra("thumbnailURI", videoInfo.Thumbnails.HighResUrl);
             Android.App.Application.Context.StartService(intent);
 
+            parseProgress.Visibility = ViewStates.Gone;
             MainActivity.instance.HideTabs();
             MainActivity.instance.HideSearch();
             MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).Commit();
@@ -191,6 +196,10 @@ namespace MusicApp.Resources.Portable_Class
 
         public static async void PlayNext(string videoID)
         {
+            ProgressBar parseProgress = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress);
+            parseProgress.Visibility = ViewStates.Visible;
+            parseProgress.ScaleY = 6;
+
             YoutubeClient client = new YoutubeClient();
             var videoInfo = await client.GetVideoAsync(videoID);
             AudioStreamInfo streamInfo = videoInfo.AudioStreamInfos.OrderBy(s => s.Bitrate).Last();
@@ -202,10 +211,15 @@ namespace MusicApp.Resources.Portable_Class
             intent.PutExtra("artist", videoInfo.Author.Title);
             intent.PutExtra("thumbnailURI", videoInfo.Thumbnails.HighResUrl);
             Android.App.Application.Context.StartService(intent);
+            parseProgress.Visibility = ViewStates.Gone;
         }
 
         public static async void PlayLast(string videoID)
         {
+            ProgressBar parseProgress = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress);
+            parseProgress.Visibility = ViewStates.Visible;
+            parseProgress.ScaleY = 6;
+
             YoutubeClient client = new YoutubeClient();
             var videoInfo = await client.GetVideoAsync(videoID);
             AudioStreamInfo streamInfo = videoInfo.AudioStreamInfos.OrderBy(s => s.Bitrate).Last();
@@ -217,6 +231,7 @@ namespace MusicApp.Resources.Portable_Class
             intent.PutExtra("artist", videoInfo.Author.Title);
             intent.PutExtra("thumbnailURI", videoInfo.Thumbnails.HighResUrl);
             Android.App.Application.Context.StartService(intent);
+            parseProgress.Visibility = ViewStates.Gone;
         }
 
         public static void Download(string name, string videoID)

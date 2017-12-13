@@ -502,6 +502,10 @@ namespace MusicApp.Resources.Portable_Class
             tmpNextIntent.SetAction("Next");
             PendingIntent nextIntent = PendingIntent.GetService(Application.Context, 0, tmpNextIntent, PendingIntentFlags.UpdateCurrent);
 
+            Intent tmpDefaultIntent = new Intent(Application.Context, typeof(MainActivity));
+            tmpDefaultIntent.SetAction("Player");
+            PendingIntent defaultIntent = PendingIntent.GetActivity(Application.Context, 0, tmpDefaultIntent, PendingIntentFlags.UpdateCurrent);
+
             notification = new NotificationCompat.Builder(Application.Context)
                 .SetVisibility(NotificationCompat.VisibilityPublic)
                 .SetSmallIcon(Resource.Drawable.MusicIcon)
@@ -516,6 +520,7 @@ namespace MusicApp.Resources.Portable_Class
                 .SetContentTitle(title)
                 .SetContentText(artist)
                 .SetLargeIcon(icon)
+                .SetContentIntent(defaultIntent)
                 .Build();
             StartForeground(notificationID, notification);
         }

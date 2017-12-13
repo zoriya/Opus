@@ -6,30 +6,38 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     tools:context="com.journaldev.tablayoutviewpager.MainActivity">
-    <android.support.design.widget.AppBarLayout
+    <LinearLayout
+      android:orientation="vertical"
+      android:layout_height="wrap_content"
+      android:layout_width="match_parent" >
+      <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+          android:id="@+id/toolbar"
+          android:layout_width="match_parent"
+          android:layout_height="?attr/actionBarSize"
+          android:background="?attr/colorPrimary"
+          android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+          app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
         <android.support.design.widget.TabLayout
-            android:id="@+id/tabs"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:tabTextColor="@android:color/white"
-            app:tabSelectedTextColor="@android:color/white"
-            app:tabIndicatorColor="@android:color/white"
-            app:tabGravity="fill"
-            app:tabMode="fixed" />
-        <ProgressBar 
-          android:layout_height="2dp"
-          android:width="match_parent"
-          android:id="@+id/ytProgress"/>
-    </android.support.design.widget.AppBarLayout>
+          android:id="@+id/tabs"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          app:tabTextColor="@android:color/white"
+          app:tabSelectedTextColor="@android:color/white"
+          app:tabIndicatorColor="@android:color/white"
+          app:tabGravity="fill"
+          app:tabMode="fixed" />
+      </android.support.design.widget.AppBarLayout>
+      <ProgressBar 
+        android:layout_height="4dp"
+        android:layout_width="match_parent"
+        android:id="@+id/ytProgress"
+        android:indeterminate="true"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:visibility="gone"/>
+    </LinearLayout>
     <android.support.v4.view.ViewPager
         android:id="@+id/pager"
         android:layout_width="match_parent"
