@@ -1,7 +1,5 @@
-﻿using Android.Net;
-using Android.OS;
+﻿using Android.OS;
 using Android.Support.V4.App;
-using Android.Support.V4.View;
 using Android.Support.V7.App;
 using Android.Views;
 using Android.Widget;
@@ -9,9 +7,7 @@ using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
 using Java.Util;
 using MusicApp.Resources.values;
-using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -146,13 +142,15 @@ namespace MusicApp.Resources.Portable_Class
             act.SupportActionBar.Title = playlists[e.Position].GetName();
 
             MainActivity.instance.HideTabs();
-            FragmentTransaction transaction = FragmentManager.BeginTransaction();
-            transaction.Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(playlists[e.Position].GetPath()));
-            transaction.AddToBackStack(null);
-            transaction.Commit();
+            MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(playlists[e.Position].GetPath()), true);
         }
 
         private void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
+        {
+            More(e.Position);
+        }
+
+        public void More(int position)
         {
             AlertDialog.Builder builder = new AlertDialog.Builder(Activity, Resource.Style.AppCompatAlertDialogStyle);
             builder.SetTitle("Pick an action");
@@ -161,16 +159,16 @@ namespace MusicApp.Resources.Portable_Class
                 switch (args.Which)
                 {
                     case 0:
-                        RandomPlay(playlists[e.Position].GetPath());
+                        RandomPlay(playlists[position].GetPath());
                         break;
                     case 1:
-                        Rename(e.Position, playlists[e.Position].GetPath());
+                        Rename(position, playlists[position].GetPath());
                         break;
                     case 2:
-                        RemovePlaylist(e.Position, playlists[e.Position].GetPath());
+                        RemovePlaylist(position, playlists[position].GetPath());
                         break;
                     case 3:
-                        DownloadPlaylist(playlists[e.Position].GetPath());
+                        DownloadPlaylist(playlists[position].GetPath());
                         break;
                     default:
                         break;

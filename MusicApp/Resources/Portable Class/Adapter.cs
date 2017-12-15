@@ -55,7 +55,19 @@ namespace MusicApp.Resources.Portable_Class
 
             if (!songList[position].isParsed)
             {
+            }
 
+            if (!holder.more.HasOnClickListeners)
+            {
+                holder.more.Click += (sender, e) =>
+                {
+                    Queue.instance?.More(songList[position]);
+                    Browse.instance?.More(songList[position]);
+                    YoutubeEngine.instance?.More(songList[position]);
+                    YtPlaylist.instance?.More(position);
+                    PlaylistTracks.instance?.More(songList[position], position);
+                    FolderTracks.instance?.More(songList[position]);
+                };
             }
 
             return convertView;

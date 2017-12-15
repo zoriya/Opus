@@ -122,7 +122,11 @@ namespace MusicApp.Resources.Portable_Class
         private void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
         {
             Song item = result[e.Position];
+            More(item);
+        }
 
+        public void More(Song item)
+        {
             AlertDialog.Builder builder = new AlertDialog.Builder(Activity, Resource.Style.AppCompatAlertDialogStyle);
             builder.SetTitle("Pick an action");
             builder.SetItems(actions, (senderAlert, args) =>
@@ -149,7 +153,6 @@ namespace MusicApp.Resources.Portable_Class
                 }
             });
             builder.Show();
-
         }
 
         public static async void Play(string videoID)

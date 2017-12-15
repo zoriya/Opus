@@ -203,11 +203,16 @@ namespace MusicApp.Resources.Portable_Class
 
         private void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
         {
-            List<string> action = actions.ToList();
-
             Song item = tracks[e.Position];
             if (result != null)
                 item = result[e.Position];
+
+            More(item, e.Position);
+        }
+
+        public void More(Song item, int position)
+        {
+            List<string> action = actions.ToList();
 
             if (!item.IsYt)
             {
@@ -251,9 +256,9 @@ namespace MusicApp.Resources.Portable_Class
                             RemoveFromPlaylist(item);
                         else
                         {
-                            string ytTrackID = ytTracksIDs[e.Position];
+                            string ytTrackID = ytTracksIDs[position];
                             if (ytTracksIdsResult != null)
-                                ytTrackID = ytTracksIdsResult[e.Position];
+                                ytTrackID = ytTracksIdsResult[position];
 
                             YoutubeEngine.RemoveFromPlaylist(ytTrackID);
                             RemoveFromYtPlaylist(item, ytTrackID);

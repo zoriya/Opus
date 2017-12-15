@@ -138,11 +138,17 @@ namespace MusicApp.Resources.Portable_Class
 
         private void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
         {
-            Browse.act = Activity;
-            Browse.inflater = LayoutInflater;
             Song item = tracks[e.Position];
             if (result != null)
                 item = result[e.Position];
+
+            More(item);
+        }
+
+        public void More(Song item)
+        {
+            Browse.act = Activity;
+            Browse.inflater = LayoutInflater;
 
             AlertDialog.Builder builder = new AlertDialog.Builder(Activity, Resource.Style.AppCompatAlertDialogStyle);
             builder.SetTitle("Pick an action");

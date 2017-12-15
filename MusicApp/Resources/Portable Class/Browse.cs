@@ -1,16 +1,13 @@
-﻿using Android.OS;
-using System.Collections.Generic;
-using Android.Widget;
+﻿using Android.Content;
 using Android.Database;
+using Android.OS;
 using Android.Provider;
-using MusicApp.Resources.values;
-using Android.Content;
-using Android;
-using Android.Support.Design.Widget;
-using Android.Views;
-using Android.Content.PM;
 using Android.Support.V4.App;
 using Android.Support.V7.App;
+using Android.Views;
+using Android.Widget;
+using MusicApp.Resources.values;
+using System.Collections.Generic;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -145,15 +142,20 @@ namespace MusicApp.Resources.Portable_Class
             Play(item);
         }
 
-        public void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
+        private void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
         {
             Song item = musicList[e.Position];
             if (result != null)
                 item = result[e.Position];
 
+            More(item);
+        } 
+
+        public void More(Song item)
+        {
             AlertDialog.Builder builder = new AlertDialog.Builder(Activity, Resource.Style.AppCompatAlertDialogStyle);
             builder.SetTitle("Pick an action");
-            builder.SetItems(actions, (senderAlert, args) => 
+            builder.SetItems(actions, (senderAlert, args) =>
             {
                 switch (args.Which)
                 {
@@ -174,7 +176,7 @@ namespace MusicApp.Resources.Portable_Class
                 }
             });
             builder.Show();
-        } 
+        }
 
         public static void Play(Song item)
         {

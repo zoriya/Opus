@@ -734,5 +734,10 @@ namespace MusicApp
             Browse.instance?.PopulateList();
             Playlist.instance?.PopulateView();
         }
+
+        public void Transition(int Resource, Android.Support.V4.App.Fragment fragment, bool backStack)
+        {
+            SupportFragmentManager.BeginTransaction().Replace(Resource, fragment).AddToBackStack(null).Commit();
+        }
     }
 }

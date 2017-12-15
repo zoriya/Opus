@@ -127,10 +127,7 @@ namespace MusicApp.Resources.Portable_Class
             act.SupportActionBar.Title = playList[e.Position];
 
             MainActivity.instance.HideTabs();
-            FragmentTransaction transaction = FragmentManager.BeginTransaction();
-            transaction.Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(playlistId[e.Position]));
-            transaction.AddToBackStack(null);
-            transaction.Commit();
+            MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(playlistId[e.Position]), true);
         }
 
         private void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)

@@ -1,17 +1,15 @@
-﻿using Android.OS;
-using System.Collections.Generic;
-using Android.Widget;
-using Android.Net;
-using Android.Database;
-using Android.Provider;
-using MusicApp.Resources.values;
+﻿using Android;
 using Android.Content;
-using Android;
-using Android.Support.Design.Widget;
-using Android.Views;
 using Android.Content.PM;
+using Android.Database;
+using Android.Net;
+using Android.OS;
+using Android.Provider;
 using Android.Support.V4.App;
 using Android.Support.V7.App;
+using Android.Views;
+using Android.Widget;
+using System.Collections.Generic;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -123,8 +121,13 @@ namespace MusicApp.Resources.Portable_Class
 
         private void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
         {
-            string path = paths[e.Position];
-            string displayPath = pathDisplay[e.Position];
+            More(e.Position);
+        }
+
+        public void More(int position)
+        {
+            string path = paths[position];
+            string displayPath = pathDisplay[position];
 
             AlertDialog.Builder builder = new AlertDialog.Builder(Activity, Resource.Style.AppCompatAlertDialogStyle);
             builder.SetTitle("Pick an action");
@@ -156,10 +159,7 @@ namespace MusicApp.Resources.Portable_Class
             act.SupportActionBar.Title = displayPath;
 
             MainActivity.instance.HideTabs();
-            FragmentTransaction transaction = FragmentManager.BeginTransaction();
-            transaction.Replace(Resource.Id.contentView, FolderTracks.NewInstance(path));
-            transaction.AddToBackStack(null);
-            transaction.Commit();
+            MainActivity.instance.Transition(Resource.Id.contentView, FolderTracks.NewInstance(path), true);
         }
 
         public void GetPlaylist(string item)

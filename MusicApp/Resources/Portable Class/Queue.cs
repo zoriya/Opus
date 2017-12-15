@@ -1,5 +1,4 @@
-﻿using Android.Content;
-using Android.OS;
+﻿using Android.OS;
 using Android.Support.V4.App;
 using Android.Views;
 using Android.Widget;
@@ -58,6 +57,7 @@ namespace MusicApp.Resources.Portable_Class
             ListAdapter = adapter;
             ListView.TextFilterEnabled = true;
             ListView.ItemClick += ListView_ItemClick;
+            ListView.ItemLongClick += ListView_ItemLongClick;
 
 
             if (adapter == null || adapter.Count == 0)
@@ -77,6 +77,16 @@ namespace MusicApp.Resources.Portable_Class
             Song item = MusicPlayer.queue[e.Position];
 
             MusicPlayer.instance.SwitchQueue(item);
+        }
+
+        private void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
+        {
+            More(MusicPlayer.queue[e.Position]);
+        }
+
+        public void More(Song item)
+        {
+            Toast.MakeText(Android.App.Application.Context, "Comming Soon", ToastLength.Short).Show();
         }
     }
 }
