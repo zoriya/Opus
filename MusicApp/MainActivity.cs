@@ -246,7 +246,8 @@ namespace MusicApp
                     SupportActionBar.SetHomeButtonEnabled(false);
                     SupportActionBar.SetDisplayHomeAsUpEnabled(false);
                     SupportActionBar.Title = "MusicApp";
-                    Navigate(Resource.Id.playlistLayout);
+                    SetYtTabs(PlaylistTracks.instance.ytID == "" ? 0 : 1);
+                    PlaylistTracks.instance = null;
                 }
                 if (FolderTracks.instance != null)
                 {
@@ -561,23 +562,27 @@ namespace MusicApp
 
         public void OnPageSelected(int position)
         {
-            if (Playlist.instance == null)
-                return;
+            if (Playlist.instance != null)
+            {
+                if (position == 0)
+                {
+                    if (Playlist.instance.isEmpty)
+                        Playlist.instance.AddEmptyView();
+                    if (YtPlaylist.instance.isEmpty)
+                        YtPlaylist.instance.RemoveEmptyView();
+                }
+                if (position == 1)
+                {
+                    if (Playlist.instance.isEmpty)
+                        Playlist.instance.RemoveEmptyView();
+                    if (YtPlaylist.instance.isEmpty)
+                        YtPlaylist.instance.AddEmptyView();
+                }
+            }
+            Console.WriteLine("Browse switched" + FolderBrowse.instance.populated);
 
-            if(position == 0)
-            {
-                if (Playlist.instance.isEmpty)
-                    Playlist.instance.AddEmptyView();
-                if (YtPlaylist.instance.isEmpty)
-                    YtPlaylist.instance.RemoveEmptyView();
-            }
-            if(position == 1)
-            {
-                if (Playlist.instance.isEmpty)
-                    Playlist.instance.RemoveEmptyView();
-                if (YtPlaylist.instance.isEmpty)
-                    YtPlaylist.instance.AddEmptyView();
-            }
+            if (Browse.instance != null && !FolderBrowse.instance.populated)
+                FolderBrowse.instance.PopulateList();
         }
 
         public void HideTabs()

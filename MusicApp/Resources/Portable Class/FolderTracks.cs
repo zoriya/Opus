@@ -1,17 +1,14 @@
 ﻿using Android.Content;
+using Android.Database;
+using Android.Net;
 using Android.OS;
+using Android.Provider;
+using Android.Support.V4.App;
+using Android.Support.V7.App;
 using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
-using Android.Support.V4.App;
 using System.Collections.Generic;
-using Android.Provider;
-using Android.Database;
-using Android.Content.PM;
-using Android.Support.Design.Widget;
-using Android;
-using Android.Net;
-using Android.Support.V7.App;
 
 namespace MusicApp.Resources.Portable_Class
 {

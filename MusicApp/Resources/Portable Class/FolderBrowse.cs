@@ -23,6 +23,7 @@ namespace MusicApp.Resources.Portable_Class
         public List<int> pathUse = new List<int>();
         public ArrayAdapter adapter;
         public View emptyView;
+        public bool populated = false;
 
         private View view;
         private string[] actions = new string[] { "List songs", "Add To Playlist", "Random Play" };
@@ -72,6 +73,8 @@ namespace MusicApp.Resources.Portable_Class
         {
             if (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(Android.App.Application.Context, Manifest.Permission.ReadExternalStorage) != (int)Permission.Granted)
                 return;
+
+            populated = true;
 
             Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
 

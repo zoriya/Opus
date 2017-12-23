@@ -42,19 +42,6 @@ namespace MusicApp.Resources.Portable_Class
 
         public override void OnDestroy()
         {
-            if (isEmpty)
-            {
-                ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
-                rootView.RemoveView(emptyView);
-            }
-
-            ActionBar toolbar = MainActivity.instance.SupportActionBar;
-            if (toolbar != null)
-            {
-                toolbar.Title = "MusicApp";
-                toolbar.SetDisplayHomeAsUpEnabled(false);
-            }
-
             base.OnDestroy();
             instance = null;
         }

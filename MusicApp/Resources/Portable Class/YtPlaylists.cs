@@ -8,6 +8,7 @@ using Google.Apis.YouTube.v3.Data;
 using Java.Util;
 using MusicApp.Resources.values;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -72,6 +73,15 @@ namespace MusicApp.Resources.Portable_Class
 
         async void GetYoutubePlaylists()
         {
+            if (MainActivity.instance.TokenHasExpire())
+            {
+                YoutubeEngine.youtubeService = null;
+                MainActivity.instance.Login();
+
+                while (YoutubeEngine.youtubeService == null)
+                    await Task.Delay(500);
+            }
+
             HashMap parameters = new HashMap();
             parameters.Put("part", "snippet,contentDetails");
             parameters.Put("mine", "true");
