@@ -6,6 +6,7 @@ using Android.OS;
 using Android.Runtime;
 using Android.Support.Design.Widget;
 using Android.Support.V4.View;
+using Android.Support.V4.Widget;
 using Android.Support.V7.App;
 using Android.Support.V7.Preferences;
 using Android.Views;
@@ -33,6 +34,8 @@ namespace MusicApp
         public static MainActivity instance;
         public Android.Support.V7.Widget.Toolbar ToolBar;
         public IMenu menu;
+        public SwipeRefreshLayout contentRefresh;
+        public SwipeRefreshLayout pagerRefresh;
 
         private Handler handler = new Handler();
         private ProgressBar bar;
@@ -195,6 +198,9 @@ namespace MusicApp
             ToolBar = (Android.Support.V7.Widget.Toolbar) FindViewById(Resource.Id.toolbar);
             SetSupportActionBar(ToolBar);
             SupportActionBar.Title = "MusicApp";
+
+            pagerRefresh = FindViewById<SwipeRefreshLayout>(Resource.Id.pagerRefresh);
+            contentRefresh = FindViewById<SwipeRefreshLayout>(Resource.Id.contentRefresh);
 
             if (MusicPlayer.queue.Count > 0)
                 ReCreateSmallPlayer();

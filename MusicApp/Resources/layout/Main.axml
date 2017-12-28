@@ -38,17 +38,29 @@
       style="?android:attr/progressBarStyleHorizontal"
       android:visibility="gone" />
   </LinearLayout>
-  <android.support.v4.view.ViewPager
-    android:id="@+id/pager"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content" />
+  <android.support.v4.widget.SwipeRefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/pagerRefresh"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+    <android.support.v4.view.ViewPager
+      android:id="@+id/pager"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content" />
+  </android.support.v4.widget.SwipeRefreshLayout>
   <RelativeLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
-    <FrameLayout
-      android:id="@+id/contentView"
-      android:layout_height="wrap_content"
-      android:layout_width="match_parent" />
+    <android.support.v4.widget.SwipeRefreshLayout
+      xmlns:android="http://schemas.android.com/apk/res/android"
+      android:id="@+id/contentRefresh"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content">
+      <FrameLayout
+        android:id="@+id/contentView"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent" />
+    </android.support.v4.widget.SwipeRefreshLayout>
     <RelativeLayout
       android:layout_height="wrap_content"
       android:layout_width="match_parent"

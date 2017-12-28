@@ -3,6 +3,7 @@ using Android.Database;
 using Android.OS;
 using Android.Provider;
 using Android.Support.V4.App;
+using Android.Support.V4.Widget;
 using Android.Support.V7.App;
 using Android.Views;
 using Android.Widget;
@@ -11,7 +12,7 @@ using System.Collections.Generic;
 
 namespace MusicApp.Resources.Portable_Class
 {
-    public class Browse : ListFragment
+    public class Browse : ListFragment, SwipeRefreshLayout.IOnRefreshListener
     {
         public static Browse instance;
         public static Context act;
@@ -33,6 +34,7 @@ namespace MusicApp.Resources.Portable_Class
             inflater = LayoutInflater;
             emptyView = LayoutInflater.Inflate(Resource.Layout.NoSong, null);
             ListView.EmptyView = emptyView;
+            MainActivity.instance.pagerRefresh.SetOnRefreshListener(this);
 
             if (ListView.Adapter == null)
                 MainActivity.instance.GetStoragePermission();
@@ -303,6 +305,14 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             AddToPlaylist(item, playList, playlistID);
+        }
+
+        public void OnRefresh() 
+
+             
+        {
+            System.Console.WriteLine("Refreshing");
+            Refresh(); //Handle refresh things (like iding the progress rotator)
         }
     }
 }
