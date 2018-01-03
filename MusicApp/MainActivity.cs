@@ -290,7 +290,9 @@ namespace MusicApp
                 searchView.QueryTextSubmit += (s, e) =>
                 {
                     if (YoutubeEngine.instance != null)
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                         YoutubeEngine.instance.Search(e.Query);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
                     e.Handled = true;
                 };
@@ -418,7 +420,9 @@ namespace MusicApp
                 case Resource.Id.downloadLayout:
                     if (YoutubeEngine.instance != null)
                     {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                         YoutubeEngine.instance.Refresh();
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                         return;
                     }
 

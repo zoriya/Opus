@@ -80,12 +80,23 @@ namespace MusicApp.Resources.Portable_Class
             return instance;
         }
 
-        public async Task Search(string search)
+        public async Task Search(string search, bool loadingBar = true)
         {
             if (search == null || search == "")
                 return;
 
             searchKeyWorld = search;
+
+            View empty = null;
+            if (loadingBar)
+            {
+                ListAdapter = null;
+                ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
+                rootView.RemoveView(emptyView);
+                empty = LayoutInflater.Inflate(Resource.Layout.EmptyLoadingLayout, null);
+                ListView.EmptyView = empty;
+                Activity.AddContentView(empty, View.LayoutParameters);
+            }
 
             if (MainActivity.instance.TokenHasExpire())
             {
@@ -112,6 +123,13 @@ namespace MusicApp.Resources.Portable_Class
                 result.Add(videoInfo);
             }
 
+            if (loadingBar)
+            {
+                ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
+                rootView.RemoveView(empty);
+                ListView.EmptyView = emptyView;
+            }
+
             ListAdapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, result);
         }
 
@@ -123,7 +141,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public async Task Refresh()
         {
-            await Search(searchKeyWorld);
+            await Search(searchKeyWorld, false);
         }
 
         private void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
