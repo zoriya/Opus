@@ -18,6 +18,7 @@ namespace MusicApp.Resources.Portable_Class
         public Adapter adapter;
         public View emptyView;
         public bool isEmpty = false;
+        public bool focused = true;
 
         private List<string> playList = new List<string>();
         private List<int> playListCount = new List<int>();
@@ -33,6 +34,8 @@ namespace MusicApp.Resources.Portable_Class
             ListView.TextFilterEnabled = true;
             ListView.ItemClick += ListView_ItemClick;
             ListView.ItemLongClick += ListView_ItemLongClick;
+            ListView.Scroll += MainActivity.instance.Scroll;
+            MainActivity.instance.pagerRefresh.Refresh += OnRefresh;
 
             if (ListView.Adapter == null)
                 MainActivity.instance.GetStoragePermission();
@@ -54,6 +57,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public override void OnDestroy()
         {
+            MainActivity.instance.pagerRefresh.Refresh -= OnRefresh;
             if (isEmpty)
             {
                 ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
@@ -79,6 +83,9 @@ namespace MusicApp.Resources.Portable_Class
 
         public void PopulateView()
         {
+            playList.Clear();
+            playlistId.Clear();
+
             Uri uri = Playlists.ExternalContentUri;
             CursorLoader loader = new CursorLoader(Android.App.Application.Context, uri, null, null, null, null);
             ICursor cursor = (ICursor)loader.LoadInBackground();
@@ -113,9 +120,17 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
+        private void OnRefresh(object sender, System.EventArgs e)
+        {
+            if (!focused)
+                return;
+            Refresh();
+            MainActivity.instance.pagerRefresh.Refreshing = false;
+        }
+
         public void Refresh()
         {
-
+            PopulateView();
         }
 
         private void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)

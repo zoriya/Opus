@@ -36,6 +36,7 @@ namespace MusicApp
         public IMenu menu;
         public SwipeRefreshLayout contentRefresh;
         public SwipeRefreshLayout pagerRefresh;
+        public bool usePager;
 
         private Handler handler = new Handler();
         private ProgressBar bar;
@@ -179,8 +180,16 @@ namespace MusicApp
         {
             get
             {
-                return instance.SupportActionBar.Height;
+                return 0/*instance.SupportActionBar.Height*/;
             }
+        }
+
+        public void Scroll(object sender, AbsListView.ScrollEventArgs e)
+        {
+            if (usePager)
+                pagerRefresh.SetEnabled(e.FirstVisibleItem == 0);
+            else
+                contentRefresh.SetEnabled(e.FirstVisibleItem == 0);
         }
 
 
@@ -450,6 +459,7 @@ namespace MusicApp
 
             Console.WriteLine("Switching: " + canSwitch);
             canSwitch = false;
+            usePager = true;
 
             TabLayout tabs = FindViewById<TabLayout>(Resource.Id.tabs);
             ViewPager pager = FindViewById<ViewPager>(Resource.Id.pager);
@@ -469,12 +479,11 @@ namespace MusicApp
                 oldAdapter.AddFragment(FolderBrowse.NewInstance(), "Folders");
 
                 pager.Adapter = oldAdapter;
-                pager.ClearOnPageChangeListeners();
             }
             else
             {
-                FrameLayout frame = FindViewById<FrameLayout>(Resource.Id.contentView);
-                frame.Visibility = ViewStates.Gone;
+                contentRefresh.Visibility = ViewStates.Gone;
+                pagerRefresh.Visibility = ViewStates.Visible;
                 tabs.Visibility = ViewStates.Visible;
                 tabs.AddTab(tabs.NewTab().SetText("Songs"));
                 tabs.AddTab(tabs.NewTab().SetText("Folders"));
@@ -486,10 +495,12 @@ namespace MusicApp
                 adapter.AddFragment(FolderBrowse.NewInstance(), "Folders");
 
                 pager.Adapter = adapter;
+                pager.AddOnPageChangeListener(this);
+                pager.AddOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
+
                 tabs.SetupWithViewPager(pager);
             }
 
-            pager.AddOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
             pager.CurrentItem = selectedTab;
             tabs.SetScrollPosition(selectedTab, 0f, true);
 
@@ -509,6 +520,7 @@ namespace MusicApp
 
             Console.WriteLine("Switching: " + canSwitch);
             canSwitch = false;
+            usePager = true;
 
             TabLayout tabs = FindViewById<TabLayout>(Resource.Id.tabs);
             ViewPager pager = FindViewById<ViewPager>(Resource.Id.pager);
@@ -528,12 +540,11 @@ namespace MusicApp
                 oldAdapter.AddFragment(YtPlaylist.NewInstance(), "Youtube playlists");
 
                 pager.Adapter = oldAdapter;
-                pager.ClearOnPageChangeListeners();
             }
             else
             {
-                FrameLayout frame = FindViewById<FrameLayout>(Resource.Id.contentView);
-                frame.Visibility = ViewStates.Gone;
+                contentRefresh.Visibility = ViewStates.Gone;
+                pagerRefresh.Visibility = ViewStates.Visible;
                 tabs.Visibility = ViewStates.Visible;
                 tabs.AddTab(tabs.NewTab().SetText("Playlists"));
                 tabs.AddTab(tabs.NewTab().SetText("Youtube playlists"));
@@ -545,11 +556,11 @@ namespace MusicApp
                 adapter.AddFragment(YtPlaylist.NewInstance(), "Youtube playlists");
 
                 pager.Adapter = adapter;
+                pager.AddOnPageChangeListener(this);
+                pager.AddOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
                 tabs.SetupWithViewPager(pager);
             }
 
-            pager.AddOnPageChangeListener(this);
-            pager.AddOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
             pager.CurrentItem = selectedTab;
             tabs.SetScrollPosition(selectedTab, 0f, true);
 
@@ -562,7 +573,10 @@ namespace MusicApp
             canSwitch = true;
         }
 
-        public void OnPageScrollStateChanged(int state) { }
+        public void OnPageScrollStateChanged(int state)
+        {
+            pagerRefresh.SetEnabled( state == ViewPager.ScrollStateIdle );
+        }
 
         public void OnPageScrolled(int position, float positionOffset, int positionOffsetPixels) { }
 
@@ -576,6 +590,9 @@ namespace MusicApp
                         Playlist.instance.AddEmptyView();
                     if (YtPlaylist.instance.isEmpty)
                         YtPlaylist.instance.RemoveEmptyView();
+
+                    Playlist.instance.focused = true;
+                    YtPlaylist.instance.focused = false;
                 }
                 if (position == 1)
                 {
@@ -583,16 +600,33 @@ namespace MusicApp
                         Playlist.instance.RemoveEmptyView();
                     if (YtPlaylist.instance.isEmpty)
                         YtPlaylist.instance.AddEmptyView();
+
+                    Playlist.instance.focused = false;
+                    YtPlaylist.instance.focused = true;
                 }
             }
-            Console.WriteLine("Browse switched" + FolderBrowse.instance.populated);
 
-            if (Browse.instance != null && !FolderBrowse.instance.populated)
-                FolderBrowse.instance.PopulateList();
+            if (Browse.instance != null)
+            {
+                if(!FolderBrowse.instance.populated)
+                    FolderBrowse.instance.PopulateList();
+
+                if(position == 0)
+                {
+                    Browse.instance.focused = true;
+                    FolderBrowse.instance.focused = false;
+                }
+                if(position == 1)
+                {
+                    Browse.instance.focused = false;
+                    FolderBrowse.instance.focused = true;
+                }
+            }
         }
 
         public void HideTabs()
         {
+            usePager = false;
             TabLayout tabs = FindViewById<TabLayout>(Resource.Id.tabs);
             tabs.RemoveAllTabs();
             tabs.Visibility = ViewStates.Gone;
@@ -608,8 +642,8 @@ namespace MusicApp
                 pager.Adapter = null;
             }
 
-            FrameLayout frame = FindViewById<FrameLayout>(Resource.Id.contentView);
-            frame.Visibility = ViewStates.Visible;
+            pagerRefresh.Visibility = ViewStates.Gone;
+            contentRefresh.Visibility = ViewStates.Visible;
         }
 
         public void PrepareSmallPlayer()
@@ -748,7 +782,10 @@ namespace MusicApp
 
         public void Transition(int Resource, Android.Support.V4.App.Fragment fragment, bool backStack)
         {
-            SupportFragmentManager.BeginTransaction().Replace(Resource, fragment).AddToBackStack(null).Commit();
+            if(backStack)
+                SupportFragmentManager.BeginTransaction().Replace(Resource, fragment).AddToBackStack(null).Commit();
+            else
+                SupportFragmentManager.BeginTransaction().Replace(Resource, fragment).Commit();
         }
     }
 }

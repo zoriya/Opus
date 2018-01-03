@@ -18,6 +18,7 @@ namespace MusicApp.Resources.Portable_Class
         public Adapter adapter;
         public View emptyView;
         public bool isEmpty = false;
+        public bool focused = false;
 
         private List<Song> playlists = new List<Song>();
         private List<Google.Apis.YouTube.v3.Data.Playlist> YtPlaylists = new List<Google.Apis.YouTube.v3.Data.Playlist>();
@@ -29,6 +30,8 @@ namespace MusicApp.Resources.Portable_Class
             base.OnActivityCreated(savedInstanceState);
             emptyView = LayoutInflater.Inflate(Resource.Layout.NoYtPlaylist, null);
             ListView.EmptyView = emptyView;
+            ListView.Scroll += MainActivity.instance.Scroll;
+            MainActivity.instance.pagerRefresh.Refresh += OnRefresh;
 
             if (YoutubeEngine.youtubeService == null)
                 MainActivity.instance.Login();
@@ -49,6 +52,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public override void OnDestroy()
         {
+            MainActivity.instance.pagerRefresh.Refresh -= OnRefresh;
             if (isEmpty)
             {
                 ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
@@ -142,6 +146,85 @@ namespace MusicApp.Resources.Portable_Class
                 isEmpty = true;
                 Activity.AddContentView(emptyView, View.LayoutParameters);
             }
+        }
+
+        private async void OnRefresh(object sender, System.EventArgs e)
+        {
+            await Refresh();
+            MainActivity.instance.pagerRefresh.Refreshing = false;
+        }
+
+        private async Task Refresh()
+        {
+            if (MainActivity.instance.TokenHasExpire())
+            {
+                YoutubeEngine.youtubeService = null;
+                MainActivity.instance.Login();
+
+                while (YoutubeEngine.youtubeService == null)
+                    await Task.Delay(500);
+            }
+
+            HashMap parameters = new HashMap();
+            parameters.Put("part", "snippet,contentDetails");
+            parameters.Put("mine", "true");
+            parameters.Put("maxResults", "25");
+            parameters.Put("onBehalfOfContentOwner", "");
+            parameters.Put("onBehalfOfContentOwnerChannel", "");
+
+            YouTubeService youtube = YoutubeEngine.youtubeService;
+
+            PlaylistsResource.ListRequest ytPlaylists = youtube.Playlists.List(parameters.Get("part").ToString());
+
+            if (parameters.ContainsKey("mine") && parameters.Get("mine").ToString() != "")
+            {
+                bool mine = (parameters.Get("mine").ToString() == "true") ? true : false;
+                ytPlaylists.Mine = mine;
+            }
+
+            if (parameters.ContainsKey("maxResults"))
+            {
+                ytPlaylists.MaxResults = long.Parse(parameters.Get("maxResults").ToString());
+            }
+
+            if (parameters.ContainsKey("onBehalfOfContentOwner") && parameters.Get("onBehalfOfContentOwner").ToString() != "")
+            {
+                ytPlaylists.OnBehalfOfContentOwner = parameters.Get("onBehalfOfContentOwner").ToString();
+            }
+
+            if (parameters.ContainsKey("onBehalfOfContentOwnerChannel") && parameters.Get("onBehalfOfContentOwnerChannel").ToString() != "")
+            {
+                ytPlaylists.OnBehalfOfContentOwnerChannel = parameters.Get("onBehalfOfContentOwnerChannel").ToString();
+            }
+
+            PlaylistListResponse response = await ytPlaylists.ExecuteAsync();
+
+            if (instance == null)
+                return;
+
+            playlists = new List<Song>();
+            playlists.Clear();
+
+            for (int i = 0; i < response.Items.Count; i++)
+            {
+                Google.Apis.YouTube.v3.Data.Playlist playlist = response.Items[i];
+                YtPlaylists.Add(playlist);
+                Song song = new Song(playlist.Snippet.Title, playlist.Snippet.ChannelTitle, playlist.Snippet.Thumbnails.Default__.Url, -1, -1, playlist.Id, true);
+                playlists.Add(song);
+            }
+
+            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, playlists);
+            ListAdapter = adapter;
+
+            if (adapter == null || adapter.Count == 0)
+            {
+                if (isEmpty)
+                    return;
+                isEmpty = true;
+                Activity.AddContentView(emptyView, View.LayoutParameters);
+            }
+
+            System.Console.WriteLine("Refreshing done");
         }
 
         private void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)

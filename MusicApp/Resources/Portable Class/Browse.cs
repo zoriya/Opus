@@ -7,12 +7,13 @@ using Android.Support.V4.Widget;
 using Android.Support.V7.App;
 using Android.Views;
 using Android.Widget;
+using Java.Lang;
 using MusicApp.Resources.values;
 using System.Collections.Generic;
 
 namespace MusicApp.Resources.Portable_Class
 {
-    public class Browse : ListFragment, SwipeRefreshLayout.IOnRefreshListener
+    public class Browse : ListFragment
     {
         public static Browse instance;
         public static Context act;
@@ -21,6 +22,7 @@ namespace MusicApp.Resources.Portable_Class
         public List<Song> result;
         public Adapter adapter;
         public View emptyView;
+        public bool focused = true;
 
         private View view;
         private string[] actions = new string[] { "Play", "Play Next", "Play Last", "Add To Playlist" };
@@ -34,7 +36,8 @@ namespace MusicApp.Resources.Portable_Class
             inflater = LayoutInflater;
             emptyView = LayoutInflater.Inflate(Resource.Layout.NoSong, null);
             ListView.EmptyView = emptyView;
-            MainActivity.instance.pagerRefresh.SetOnRefreshListener(this);
+            MainActivity.instance.pagerRefresh.Refresh += OnRefresh;
+            ListView.Scroll += MainActivity.instance.Scroll;
 
             if (ListView.Adapter == null)
                 MainActivity.instance.GetStoragePermission();
@@ -42,6 +45,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public override void OnDestroy()
         {
+            MainActivity.instance.pagerRefresh.Refresh -= OnRefresh;
             if (isEmpty)
             {
                 ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
@@ -73,7 +77,6 @@ namespace MusicApp.Resources.Portable_Class
 
             CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
             ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
-
 
             if (musicCursor != null && musicCursor.MoveToFirst())
             {
@@ -117,9 +120,60 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
+        private void OnRefresh(object sender, System.EventArgs e)
+        {
+            if (!focused)
+                return;
+            Refresh();
+            MainActivity.instance.pagerRefresh.Refreshing = false;
+        }
+
         public void Refresh()
         {
+            musicList.Clear();
 
+            Android.Net.Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
+
+            CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
+            ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
+
+            if (musicCursor != null && musicCursor.MoveToFirst())
+            {
+                int titleID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Title);
+                int artistID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Artist);
+                int albumID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Album);
+                int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
+                int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
+                do
+                {
+                    string Artist = musicCursor.GetString(artistID);
+                    string Title = musicCursor.GetString(titleID);
+                    string Album = musicCursor.GetString(albumID);
+                    long AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
+                    long id = musicCursor.GetLong(thisID);
+                    string path = musicCursor.GetString(pathID);
+
+                    if (Title == null)
+                        Title = "Unknown Title";
+                    if (Artist == null)
+                        Artist = "Unknow Artist";
+                    if (Album == null)
+                        Album = "Unknow Album";
+
+                    musicList.Add(new Song(Title, Artist, Album, AlbumArt, id, path));
+                }
+                while (musicCursor.MoveToNext());
+                musicCursor.Close();
+            }
+
+            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, musicList);
+            ListAdapter = adapter;
+
+            if (adapter == null || adapter.Count == 0)
+            {
+                isEmpty = true;
+                Activity.AddContentView(emptyView, View.LayoutParameters);
+            }
         }
 
         public void Search(string search)
@@ -305,14 +359,6 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             AddToPlaylist(item, playList, playlistID);
-        }
-
-        public void OnRefresh() 
-
-             
-        {
-            System.Console.WriteLine("Refreshing");
-            Refresh(); //Handle refresh things (like iding the progress rotator)
         }
     }
 }

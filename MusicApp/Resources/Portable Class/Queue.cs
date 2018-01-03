@@ -21,12 +21,15 @@ namespace MusicApp.Resources.Portable_Class
 
             emptyView = LayoutInflater.Inflate(Resource.Layout.NoQueue, null);
             ListView.EmptyView = emptyView;
+            ListView.Scroll += MainActivity.instance.Scroll;
+            MainActivity.instance.contentRefresh.Refresh += OnRefresh;
 
             PopulateView();
         }
 
         public override void OnDestroy()
         {
+            MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
             if (isEmpty)
             {
                 ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
@@ -53,12 +56,11 @@ namespace MusicApp.Resources.Portable_Class
         void PopulateView()
         {
             adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, MusicPlayer.queue);
-
             ListAdapter = adapter;
+
             ListView.TextFilterEnabled = true;
             ListView.ItemClick += ListView_ItemClick;
             ListView.ItemLongClick += ListView_ItemLongClick;
-
 
             if (adapter == null || adapter.Count == 0)
             {
@@ -67,9 +69,22 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
+        private void OnRefresh(object sender, System.EventArgs e)
+        {
+            Refresh();
+            MainActivity.instance.contentRefresh.Refreshing = false;
+        }
+
         public void Refresh()
         {
+            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, MusicPlayer.queue);
+            ListAdapter = adapter;
 
+            if (adapter == null || adapter.Count == 0)
+            {
+                isEmpty = true;
+                Activity.AddContentView(emptyView, View.LayoutParameters);
+            }
         }
 
         private void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)

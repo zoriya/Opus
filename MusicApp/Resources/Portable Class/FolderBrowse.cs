@@ -24,6 +24,7 @@ namespace MusicApp.Resources.Portable_Class
         public ArrayAdapter adapter;
         public View emptyView;
         public bool populated = false;
+        public bool focused = false;
 
         private View view;
         private string[] actions = new string[] { "List songs", "Add To Playlist", "Random Play" };
@@ -37,13 +38,16 @@ namespace MusicApp.Resources.Portable_Class
             inflater = LayoutInflater;
             emptyView = LayoutInflater.Inflate(Resource.Layout.NoSong, null);
             ListView.EmptyView = emptyView;
+            ListView.Scroll += MainActivity.instance.Scroll;
+            MainActivity.instance.pagerRefresh.Refresh += OnRefresh;
 
-            if(ListView.Adapter == null)
+            if (ListView.Adapter == null)
                 PopulateList();
         }
 
         public override void OnDestroy()
         {
+            MainActivity.instance.pagerRefresh.Refresh -= OnRefresh;
             if (isEmpty)
             {
                 ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
@@ -109,6 +113,58 @@ namespace MusicApp.Resources.Portable_Class
             ListView.TextFilterEnabled = true;
             ListView.ItemClick += ListView_ItemClick;
             ListView.ItemLongClick += ListView_ItemLongClick;
+
+            if (adapter == null || adapter.Count == 0)
+            {
+                isEmpty = true;
+                Activity.AddContentView(emptyView, View.LayoutParameters);
+            }
+        }
+
+        private void OnRefresh(object sender, System.EventArgs e)
+        {
+            if (!focused)
+                return;
+            Refresh();
+            MainActivity.instance.pagerRefresh.Refreshing = false;
+        }
+
+        public void Refresh()
+        {
+            Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
+
+            CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
+            ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
+
+            paths.Clear();
+            pathDisplay.Clear();
+            pathUse.Clear();
+
+
+            if (musicCursor != null && musicCursor.MoveToFirst())
+            {
+                int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
+                do
+                {
+                    string path = musicCursor.GetString(pathID);
+                    path = path.Substring(0, path.LastIndexOf("/"));
+                    string displayPath = path.Substring(path.LastIndexOf("/") + 1, path.Length - (path.LastIndexOf("/") + 1));
+
+                    if (!paths.Contains(path))
+                    {
+                        pathDisplay.Add(displayPath);
+                        paths.Add(path);
+                        pathUse.Add(1);
+                    }
+                    else
+                        pathUse[paths.IndexOf(path)] += 1;
+                }
+                while (musicCursor.MoveToNext());
+                musicCursor.Close();
+            }
+
+            adapter = new TwoLineAdapter(Android.App.Application.Context, Resource.Layout.TwoLineLayout, pathDisplay, pathUse);
+            ListAdapter = adapter;
 
             if (adapter == null || adapter.Count == 0)
             {

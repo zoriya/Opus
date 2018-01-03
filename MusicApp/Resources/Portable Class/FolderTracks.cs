@@ -30,6 +30,8 @@ namespace MusicApp.Resources.Portable_Class
             base.OnActivityCreated(savedInstanceState);
             emptyView = LayoutInflater.Inflate(Resource.Layout.NoPlaylist, null);
             ListView.EmptyView = emptyView;
+            ListView.Scroll += MainActivity.instance.Scroll;
+            MainActivity.instance.contentRefresh.Refresh += OnRefresh;
 
             PopulateList();
             MainActivity.instance.DisplaySearch(1);
@@ -37,6 +39,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public override void OnDestroy()
         {
+            MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
             instance = null;
             base.OnDestroy();
         }
@@ -90,6 +93,7 @@ namespace MusicApp.Resources.Portable_Class
                     if (Album == null)
                         Album = "Unknow Album";
 
+                    System.Console.WriteLine(Title);
                     tracks.Add(new Song(Title, Artist, Album, AlbumArt, id, path));
                 }
                 while (musicCursor.MoveToNext());
@@ -107,6 +111,60 @@ namespace MusicApp.Resources.Portable_Class
                 isEmpty = true;
                 Activity.AddContentView(emptyView, View.LayoutParameters);
             }
+        }
+
+        private void OnRefresh(object sender, System.EventArgs e)
+        {
+            tracks.Clear();
+
+            Uri musicUri = MediaStore.Audio.Media.GetContentUriForPath(path);
+
+            CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
+            ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
+
+
+            if (musicCursor != null && musicCursor.MoveToFirst())
+            {
+                int titleID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Title);
+                int artistID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Artist);
+                int albumID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Album);
+                int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
+                int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
+                do
+                {
+                    string path = musicCursor.GetString(pathID);
+
+                    if (!path.Contains(this.path))
+                        continue;
+
+                    string Artist = musicCursor.GetString(artistID);
+                    string Title = musicCursor.GetString(titleID);
+                    string Album = musicCursor.GetString(albumID);
+                    long AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
+                    long id = musicCursor.GetLong(thisID);
+
+                    if (Title == null)
+                        Title = "Unknown Title";
+                    if (Artist == null)
+                        Artist = "Unknow Artist";
+                    if (Album == null)
+                        Album = "Unknow Album";
+
+                    tracks.Add(new Song(Title, Artist, Album, AlbumArt, id, path));
+                }
+                while (musicCursor.MoveToNext());
+                musicCursor.Close();
+            }
+
+            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, tracks);
+            ListAdapter = adapter;
+
+            if (adapter == null || adapter.Count == 0)
+            {
+                isEmpty = true;
+                Activity.AddContentView(emptyView, View.LayoutParameters);
+            }
+            MainActivity.instance.contentRefresh.Refreshing = false;
         }
 
         public void Search(string search)

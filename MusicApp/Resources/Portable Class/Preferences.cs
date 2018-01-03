@@ -1,15 +1,13 @@
-﻿using Android.Preferences;
-using Android.Support.V7.App;
-using Android.Views;
+﻿using Android.App;
+using Android.Content;
 using Android.OS;
+using Android.Preferences;
+using Android.Views;
+using Android.Widget;
+using Java.IO;
+using MusicApp.Resources.values;
 using System;
 using System.Collections.Generic;
-using MusicApp.Resources.values;
-using Java.IO;
-using Android.Widget;
-using Android.Content;
-using Android.App;
-
 using AlertDialog = Android.Support.V7.App.AlertDialog;
 using Toolbar = Android.Support.V7.Widget.Toolbar;
 
@@ -65,7 +63,7 @@ namespace MusicApp.Resources.Portable_Class
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             View view = base.OnCreateView(inflater, container, savedInstanceState);
-            view.SetPadding(0, MainActivity.paddinTop, 0, 0);
+            view.SetPadding(0, MainActivity.instance.SupportActionBar.Height, 0, 0);
             return view;
         }
 

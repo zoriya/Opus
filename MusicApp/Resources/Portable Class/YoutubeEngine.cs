@@ -27,6 +27,7 @@ namespace MusicApp.Resources.Portable_Class
         private View emptyView;
         private bool isEmpty = true;
         private string[] actions = new string[] { "Play", "Play Next", "Play Last", "Add To Playlist", "Download" };
+        private string searchKeyWorld;
 
         public override void OnActivityCreated(Bundle savedInstanceState)
         {
@@ -34,6 +35,7 @@ namespace MusicApp.Resources.Portable_Class
 
             ListView.ItemClick += ListView_ItemClick;
             ListView.ItemLongClick += ListView_ItemLongClick;
+            ListView.Scroll += MainActivity.instance.Scroll;
 
             emptyView = LayoutInflater.Inflate(Resource.Layout.DownloadLayout, null);
             ListView.EmptyView = emptyView;
@@ -49,10 +51,13 @@ namespace MusicApp.Resources.Portable_Class
 
             if(youtubeService == null)
                 MainActivity.instance.Login();
+
+            MainActivity.instance.contentRefresh.Refresh += OnRefresh;
         }
 
         public override void OnDestroy()
         {
+            MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
             if (isEmpty)
             {
                 ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
@@ -75,10 +80,12 @@ namespace MusicApp.Resources.Portable_Class
             return instance;
         }
 
-        public async void Search(string search)
+        public async Task Search(string search)
         {
             if (search == null || search == "")
                 return;
+
+            searchKeyWorld = search;
 
             if (MainActivity.instance.TokenHasExpire())
             {
@@ -108,9 +115,15 @@ namespace MusicApp.Resources.Portable_Class
             ListAdapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, result);
         }
 
-        public void Refresh()
+        private async void OnRefresh(object sender, System.EventArgs e)
         {
+            await Refresh();
+            MainActivity.instance.contentRefresh.Refreshing = false;
+        }
 
+        public async Task Refresh()
+        {
+            await Search(searchKeyWorld);
         }
 
         private void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
