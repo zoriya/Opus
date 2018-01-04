@@ -2,6 +2,7 @@
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
+using Android.Graphics.Drawables;
 using Android.OS;
 using Android.Runtime;
 using Android.Support.Design.Widget;
@@ -10,6 +11,7 @@ using Android.Support.V4.Widget;
 using Android.Support.V7.App;
 using Android.Support.V7.Preferences;
 using Android.Views;
+using Android.Views.Animations;
 using Android.Widget;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2.Flows;
@@ -32,15 +34,22 @@ namespace MusicApp
     public class MainActivity : AppCompatActivity, ViewPager.IOnPageChangeListener
     {
         public static MainActivity instance;
+        public static int paddingBot = 0;
+
         public Android.Support.V7.Widget.Toolbar ToolBar;
         public IMenu menu;
         public SwipeRefreshLayout contentRefresh;
         public SwipeRefreshLayout pagerRefresh;
         public bool usePager;
+        public View quickPlayLayout;
 
         private Handler handler = new Handler();
         private ProgressBar bar;
         private bool prepared = false;
+        private bool searchDisplayed;
+        private bool canSwitch = true;
+        private string tab;
+        private bool QuickPlayOpenned = false;
 
         private const int RequestCode = 8539;
 
@@ -48,9 +57,51 @@ namespace MusicApp
         public static YouTubeService youtubeService;
         public static OAuth2Authenticator auth;
         public static string refreshToken;
-        private bool searchDisplayed;
-        private bool canSwitch = true;
-        private string tab;
+
+        public event EventHandler<PaddingChange> OnPaddingChanged;
+
+        public virtual void PaddingHasChanged(PaddingChange e)
+        {
+            paddingBot = (((FrameLayout)instance.FindViewById(Resource.Id.smallPlayer).Parent).Visibility == ViewStates.Gone) 
+                ? FindViewById<BottomNavigationView>(Resource.Id.bottomView).Height 
+                : FindViewById<BottomNavigationView>(Resource.Id.bottomView).Height + ((FrameLayout)instance.FindViewById(Resource.Id.smallPlayer).Parent).Height;
+
+            OnPaddingChanged?.Invoke(this, e);
+        }
+
+        protected override void OnCreate(Bundle savedInstanceState)
+        {
+            base.OnCreate(savedInstanceState);
+
+            SetContentView(Resource.Layout.Main);
+
+            instance = this;
+
+            var bottomNavigation = FindViewById<BottomNavigationView>(Resource.Id.bottomView);
+            bottomNavigation.NavigationItemSelected += PreNavigate;
+
+            ToolBar = (Android.Support.V7.Widget.Toolbar) FindViewById(Resource.Id.toolbar);
+            SetSupportActionBar(ToolBar);
+            SupportActionBar.Title = "MusicApp";
+
+            pagerRefresh = FindViewById<SwipeRefreshLayout>(Resource.Id.pagerRefresh);
+            contentRefresh = FindViewById<SwipeRefreshLayout>(Resource.Id.contentRefresh);
+
+            if (MusicPlayer.queue.Count > 0)
+                ReCreateSmallPlayer();
+            else
+                PrepareApp();
+
+            if (Intent?.Action == "Player")
+                ActionPlayer();
+        }
+
+        async void PrepareApp()
+        {
+            await Task.Delay(100);
+            paddingBot = FindViewById<BottomNavigationView>(Resource.Id.bottomView).Height;
+            Navigate(Resource.Id.musicLayout);
+        }
 
         public void Login()
         {
@@ -164,60 +215,12 @@ namespace MusicApp
             });
         }
 
-
-        public static int paddingBot
-        {
-            get
-            {
-                if (((FrameLayout)instance.FindViewById(Resource.Id.smallPlayer).Parent).Visibility == ViewStates.Gone)
-                    return instance.FindViewById<BottomNavigationView>(Resource.Id.bottomView).Height;
-                else
-                    return instance.FindViewById<BottomNavigationView>(Resource.Id.bottomView).Height + ((FrameLayout)instance.FindViewById(Resource.Id.smallPlayer).Parent).Height;
-            }
-        }
-
-        public static int paddinTop
-        {
-            get
-            {
-                return 0/*instance.SupportActionBar.Height*/;
-            }
-        }
-
         public void Scroll(object sender, AbsListView.ScrollEventArgs e)
         {
             if (usePager)
                 pagerRefresh.SetEnabled(e.FirstVisibleItem == 0);
             else
                 contentRefresh.SetEnabled(e.FirstVisibleItem == 0);
-        }
-
-
-        protected override void OnCreate(Bundle savedInstanceState)
-        {
-            base.OnCreate(savedInstanceState);
-
-            SetContentView(Resource.Layout.Main);
-
-            instance = this;
-
-            var bottomNavigation = FindViewById<BottomNavigationView>(Resource.Id.bottomView);
-            bottomNavigation.NavigationItemSelected += PreNavigate;
-
-            ToolBar = (Android.Support.V7.Widget.Toolbar) FindViewById(Resource.Id.toolbar);
-            SetSupportActionBar(ToolBar);
-            SupportActionBar.Title = "MusicApp";
-
-            pagerRefresh = FindViewById<SwipeRefreshLayout>(Resource.Id.pagerRefresh);
-            contentRefresh = FindViewById<SwipeRefreshLayout>(Resource.Id.contentRefresh);
-
-            if (MusicPlayer.queue.Count > 0)
-                ReCreateSmallPlayer();
-            else
-                Navigate(Resource.Id.musicLayout);
-
-            if (Intent?.Action == "Player")
-                ActionPlayer();
         }
 
         private async void ActionPlayer()
@@ -251,8 +254,7 @@ namespace MusicApp
             {
                 if (PlaylistTracks.instance != null)
                 {
-                    var item2 = menu.FindItem(Resource.Id.search);
-                    item2.SetVisible(false);
+                    HideSearch();
                     if (PlaylistTracks.instance.isEmpty)
                     {
                         ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
@@ -266,8 +268,7 @@ namespace MusicApp
                 }
                 if (FolderTracks.instance != null)
                 {
-                    var item2 = menu.FindItem(Resource.Id.search);
-                    item2.SetVisible(false);
+                    HideSearch();
                     if (FolderTracks.instance.isEmpty)
                     {
                         ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
@@ -402,6 +403,7 @@ namespace MusicApp
                     tab = "Queue";
                     HideTabs();
                     HideSearch();
+                    ShowQuickPlay();
                     fragment = Queue.NewInstance();
                     break;
 
@@ -415,6 +417,7 @@ namespace MusicApp
                     tab = "Browse";
                     SetBrowseTabs();
                     DisplaySearch();
+                    HideQuickPlay();
                     break;
 
                 case Resource.Id.downloadLayout:
@@ -429,6 +432,7 @@ namespace MusicApp
                     tab = "Youtube";
                     HideTabs();
                     DisplaySearch();
+                    HideQuickPlay();
                     fragment = YoutubeEngine.NewInstance();
                     break;
 
@@ -442,6 +446,7 @@ namespace MusicApp
                     tab = "Playlist";
                     SetYtTabs();
                     HideSearch();
+                    HideQuickPlay();
                     break;
             }
 
@@ -492,8 +497,6 @@ namespace MusicApp
                 tabs.AddTab(tabs.NewTab().SetText("Songs"));
                 tabs.AddTab(tabs.NewTab().SetText("Folders"));
 
-                pager.SetPadding(0, (int)Math.Round(paddinTop * 1.90f), 0, 0);
-
                 ViewPagerAdapter adapter = new ViewPagerAdapter(SupportFragmentManager);
                 adapter.AddFragment(Browse.NewInstance(), "Songs");
                 adapter.AddFragment(FolderBrowse.NewInstance(), "Folders");
@@ -503,6 +506,7 @@ namespace MusicApp
                 pager.AddOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
 
                 tabs.SetupWithViewPager(pager);
+                tabs.TabReselected += OnTabReselected;
             }
 
             pager.CurrentItem = selectedTab;
@@ -553,8 +557,6 @@ namespace MusicApp
                 tabs.AddTab(tabs.NewTab().SetText("Playlists"));
                 tabs.AddTab(tabs.NewTab().SetText("Youtube playlists"));
 
-                pager.SetPadding(0, (int)Math.Round(paddinTop * 1.90f), 0, 0);
-
                 ViewPagerAdapter adapter = new ViewPagerAdapter(SupportFragmentManager);
                 adapter.AddFragment(Playlist.NewInstance(), "Playlists");
                 adapter.AddFragment(YtPlaylist.NewInstance(), "Youtube playlists");
@@ -563,12 +565,31 @@ namespace MusicApp
                 pager.AddOnPageChangeListener(this);
                 pager.AddOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
                 tabs.SetupWithViewPager(pager);
+                tabs.TabReselected += OnTabReselected;
             }
 
             pager.CurrentItem = selectedTab;
             tabs.SetScrollPosition(selectedTab, 0f, true);
 
             CanSwitchDelay();
+        }
+
+        private void OnTabReselected(object sender, TabLayout.TabReselectedEventArgs e)
+        {
+            if (Browse.instance != null)
+            {
+                if (Browse.instance.focused)
+                    Browse.instance.ListView.SmoothScrollToPosition(0);
+                else
+                    FolderBrowse.instance.ListView.SmoothScrollToPosition(0);
+            }
+            else if (Playlist.instance != null)
+            {
+                if (Playlist.instance.focused)
+                    Playlist.instance.ListView.SmoothScrollToPosition(0);
+                else
+                    YtPlaylist.instance.ListView.SmoothScrollToPosition(0);
+            }
         }
 
         async void CanSwitchDelay()
@@ -597,6 +618,8 @@ namespace MusicApp
 
                     Playlist.instance.focused = true;
                     YtPlaylist.instance.focused = false;
+
+                    Playlist.instance.ListView.SmoothScrollToPosition(0);
                 }
                 if (position == 1)
                 {
@@ -607,6 +630,8 @@ namespace MusicApp
 
                     Playlist.instance.focused = false;
                     YtPlaylist.instance.focused = true;
+
+                    YtPlaylist.instance.ListView.SmoothScrollToPosition(0);
                 }
             }
 
@@ -619,11 +644,15 @@ namespace MusicApp
                 {
                     Browse.instance.focused = true;
                     FolderBrowse.instance.focused = false;
+                    DisplaySearch();
+                    Browse.instance.ListView.SmoothScrollToPosition(0);
                 }
                 if(position == 1)
                 {
                     Browse.instance.focused = false;
                     FolderBrowse.instance.focused = true;
+                    HideSearch();
+                    Browse.instance.ListView.SmoothScrollToPosition(0);
                 }
             }
         }
@@ -689,14 +718,6 @@ namespace MusicApp
             }
         }
 
-        public void ShowSmallPlayer()
-        {
-            RelativeLayout smallPlayer = FindViewById<RelativeLayout>(Resource.Id.smallPlayer);
-            FrameLayout parent = (FrameLayout)smallPlayer.Parent;
-            parent.Visibility = ViewStates.Visible;
-            smallPlayer.Visibility = ViewStates.Visible;
-        }
-
         private void Last_Click(object sender, EventArgs e)
         {
             Intent intent = new Intent(Application.Context, typeof(MusicPlayer));
@@ -725,6 +746,46 @@ namespace MusicApp
             SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).Commit(); 
         }
 
+        public void GetStoragePermission()
+        {
+            const string permission = Manifest.Permission.ReadExternalStorage;
+            if (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(this, permission) == (int)Permission.Granted)
+            {
+                PremissionAuthorized();
+                return;
+            }
+            string[] permissions = new string[] { permission };
+            RequestPermissions(permissions, RequestCode);
+        }
+
+        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, Permission[] grantResults)
+        {
+            if (requestCode == RequestCode)
+            {
+                if (grantResults.Length > 0)
+                {
+                    if (grantResults[0] == Permission.Granted)
+                        PremissionAuthorized();
+                    else
+                        Snackbar.Make(FindViewById<View>(Resource.Id.contentView), "Permission denied, can't list musics.", Snackbar.LengthShort).Show();
+                }
+            }
+        }
+
+        void PremissionAuthorized()
+        {
+            Browse.instance?.PopulateList();
+            Playlist.instance?.PopulateView();
+        }
+
+        public void Transition(int Resource, Android.Support.V4.App.Fragment fragment, bool backStack)
+        {
+            if (backStack)
+                SupportFragmentManager.BeginTransaction().Replace(Resource, fragment).AddToBackStack(null).Commit();
+            else
+                SupportFragmentManager.BeginTransaction().Replace(Resource, fragment).Commit();
+        }
+
         void SetSmallPlayerProgressBar()
         {
             bar = FindViewById<ProgressBar>(Resource.Id.spProgress);
@@ -745,51 +806,88 @@ namespace MusicApp
             handler.PostDelayed(UpdateProgressBar, 1000);
         }
 
-        public void HideSmallPlayer()
+        public async void HideSmallPlayer()
         {
             RelativeLayout smallPlayer = FindViewById<RelativeLayout>(Resource.Id.smallPlayer);
             FrameLayout parent = (FrameLayout)smallPlayer.Parent;
+            bool hasChanged = parent.Visibility != ViewStates.Gone;
             parent.Visibility = ViewStates.Gone;
+
+            await Task.Delay(75);
+            if (hasChanged)
+                PaddingHasChanged(new PaddingChange(paddingBot));
         }
 
-        public void GetStoragePermission()
+        public async void ShowSmallPlayer()
         {
-            const string permission = Manifest.Permission.ReadExternalStorage;
-            if (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(this, permission) == (int)Permission.Granted)
+            RelativeLayout smallPlayer = FindViewById<RelativeLayout>(Resource.Id.smallPlayer);
+            FrameLayout parent = (FrameLayout)smallPlayer.Parent;
+            bool hasChanged = parent.Visibility == ViewStates.Gone;
+            parent.Visibility = ViewStates.Visible;
+            smallPlayer.Visibility = ViewStates.Visible;
+
+            await Task.Delay(75);
+            if (hasChanged)
+                PaddingHasChanged(new PaddingChange(paddingBot));
+        }
+
+        public void ShowQuickPlay()
+        {
+            if(quickPlayLayout != null)
             {
-                PremissionAuthorized();
+                quickPlayLayout.Visibility = ViewStates.Visible;
+                FloatingActionButton fab = quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.quickPlay);
+                fab.Animate().Alpha(1);
                 return;
             }
-            string[] permissions = new string[] { permission };
-            RequestPermissions(permissions, RequestCode);
+            quickPlayLayout = LayoutInflater.Inflate(Resource.Layout.QuickPlayLayout, null);
+            ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
+            AddContentView(quickPlayLayout, rootView.LayoutParameters);
+            Console.WriteLine("&Starting padding bot: " + paddingBot);
+            quickPlayLayout.SetPadding(0, 0, 0, paddingBot + PxToDp(6));
+            FloatingActionButton QuickPlayFAB = quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.quickPlay);
+            QuickPlayFAB.Click += QuickPlay;
+            OnPaddingChanged += QuickPlayChangePosition;
         }
 
-        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, Permission[] grantResults)
+        public void HideQuickPlay()
         {
-            if (requestCode == RequestCode)
+            FloatingActionButton QuickPlayFAB = quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.quickPlay);
+            QuickPlayFAB.Animate().Alpha(0);
+        }
+
+        private void QuickPlayChangePosition(object sender, PaddingChange e)
+        {
+            Console.WriteLine("&Padding bot: " + paddingBot);
+            FloatingActionButton QuickPlayFab = quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.quickPlay);
+            QuickPlayFab.Animate().TranslationYBy(-(paddingBot - e.oldPadding));
+        }
+
+        public async void QuickPlay(object sender, EventArgs e)
+        {
+            FloatingActionButton quickPlay = FindViewById<FloatingActionButton>(Resource.Id.quickPlay);
+            if (QuickPlayOpenned)
             {
-                if(grantResults.Length > 0)
-                {
-                    if (grantResults[0] == Permission.Granted)
-                        PremissionAuthorized();
-                    else
-                        Snackbar.Make(FindViewById<View>(Resource.Id.contentView), "Permission denied, can't list musics.", Snackbar.LengthShort).Show();
-                }
+                Drawable icon = quickPlay.Drawable;
+                ((AnimatedVectorDrawable)icon).Start();
+                QuickPlayOpenned = false;
+                await Task.Delay(200);
+                quickPlay.SetImageResource(Resource.Drawable.PlayToCross);
+            }
+            else
+            {
+                Drawable icon = quickPlay.Drawable;
+                ((AnimatedVectorDrawable)icon).Start();
+                QuickPlayOpenned = true;
+                await Task.Delay(200);
+                quickPlay.SetImageResource(Resource.Drawable.CrossToPlay);
             }
         }
 
-        void PremissionAuthorized()
+        int PxToDp(int px)
         {
-            Browse.instance?.PopulateList();
-            Playlist.instance?.PopulateView();
-        }
-
-        public void Transition(int Resource, Android.Support.V4.App.Fragment fragment, bool backStack)
-        {
-            if(backStack)
-                SupportFragmentManager.BeginTransaction().Replace(Resource, fragment).AddToBackStack(null).Commit();
-            else
-                SupportFragmentManager.BeginTransaction().Replace(Resource, fragment).Commit();
+            float scale = Resources.DisplayMetrics.Density;
+            return (int) (px * scale + 0.5f);
         }
     }
 }

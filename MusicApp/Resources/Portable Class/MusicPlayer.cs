@@ -178,7 +178,6 @@ namespace MusicApp.Resources.Portable_Class
             if(song.queueSlot == -1)
                 song.queueSlot = CurrentID() + 1;
 
-            Console.WriteLine("QueueSlot: " + song.queueSlot);
             currentID = song.queueSlot;
 
             CreateNotification(song.GetName(), song.GetArtist(), song.GetAlbumArt(), song.GetAlbum());
@@ -217,7 +216,7 @@ namespace MusicApp.Resources.Portable_Class
 
             if (song.queueSlot == -1)
                 song.queueSlot = CurrentID() + 1;
-            Console.WriteLine(song.GetName() + " : " + song.queueSlot);
+
             currentID = song.queueSlot;
 
             if (addToQueue)

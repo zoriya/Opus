@@ -70,7 +70,7 @@ namespace MusicApp.Resources.Portable_Class
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             View view = base.OnCreateView(inflater, container, savedInstanceState);
-            view.SetPadding(0, MainActivity.paddinTop, 0, MainActivity.paddingBot);
+            view.SetPadding(0, 0, 0, MainActivity.paddingBot);
             return view;
         }
 
@@ -268,7 +268,7 @@ namespace MusicApp.Resources.Portable_Class
             parseProgress.Visibility = ViewStates.Gone;
         }
 
-        public static void Download(string name, string videoID)
+        public async static void Download(string name, string videoID)
         {
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Android.App.Application.Context);
             if (prefManager.GetString("downloadPath", null) != null)
@@ -276,10 +276,13 @@ namespace MusicApp.Resources.Portable_Class
                 Toast.MakeText(Android.App.Application.Context, "Downloading...", ToastLength.Short).Show();
                 Context context = Android.App.Application.Context;
                 Intent intent = new Intent(context, typeof(Downloader));
-                intent.PutExtra("videoID", videoID);
-                intent.PutExtra("path", prefManager.GetString("downloadPath", null));
-                intent.PutExtra("name", name);
                 context.StartService(intent);
+
+                while (Downloader.instance == null)
+                    await Task.Delay(10);
+
+                Downloader.instance.downloadPath = prefManager.GetString("downloadPath", null);
+                Downloader.instance.Download(new DownloadFile(name, videoID));
             }
             else
             {
@@ -298,15 +301,16 @@ namespace MusicApp.Resources.Portable_Class
             {
                 Toast.MakeText(Android.App.Application.Context, "Downloading...", ToastLength.Short).Show();
                 Context context = Android.App.Application.Context;
+                Intent intent = new Intent(context, typeof(Downloader));
+                context.StartService(intent);
+
+                while (Downloader.instance == null)
+                    await Task.Delay(10);
+
+                Downloader.instance.downloadPath = prefManager.GetString("downloadPath", null);
+
                 for(int i = 0; i < names.Length; i++)
-                {
-                    Intent intent = new Intent(context, typeof(Downloader));
-                    intent.PutExtra("videoID", videoIDs[i]);
-                    intent.PutExtra("path", prefManager.GetString("downloadPath", null));
-                    intent.PutExtra("name", names[i]);
-                    context.StartService(intent);
-                    await Task.Delay(10000);
-                }
+                    Downloader.instance.Download(new DownloadFile(names[i], videoIDs[i]));
             }
             else
             {

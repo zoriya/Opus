@@ -1,4 +1,5 @@
 ﻿using Android.OS;
+using Android.Support.Design.Widget;
 using Android.Support.V4.App;
 using Android.Views;
 using Android.Widget;
@@ -43,7 +44,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             View view = base.OnCreateView(inflater, container, savedInstanceState);
             this.view = view;
-            view.SetPadding(0, MainActivity.paddinTop, 0, MainActivity.paddingBot);
+            view.SetPadding(0, 0, 0, MainActivity.paddingBot);
             return view;
         }
 
@@ -82,6 +83,8 @@ namespace MusicApp.Resources.Portable_Class
 
             if (adapter == null || adapter.Count == 0)
             {
+                if (isEmpty)
+                    return;
                 isEmpty = true;
                 Activity.AddContentView(emptyView, View.LayoutParameters);
             }

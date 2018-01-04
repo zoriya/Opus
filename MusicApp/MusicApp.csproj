@@ -254,9 +254,11 @@
     <Compile Include="Resources\Portable Class\YtPlaylists.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Resources\values\DownloadFile.cs" />
     <Compile Include="Resources\values\Folder.cs" />
     <Compile Include="Resources\values\FolderHolder.cs" />
     <Compile Include="Resources\values\Holder.cs" />
+    <Compile Include="Resources\values\PaddingChange.cs" />
     <Compile Include="Resources\values\Song.cs" />
     <Compile Include="Resources\values\TwoLineHolder.cs" />
   </ItemGroup>
@@ -458,6 +460,17 @@
     <AndroidResource Include="Resources\layout\EmptyLoadingLayout.xml">
       <SubType>Designer</SubType>
     </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\QuickPlayLayout.xml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\PlayToCross.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\CrossToPlay.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\NETStandard.Library.2.0.1\build\netstandard2.0\NETStandard.Library.targets" Condition="Exists('..\packages\NETStandard.Library.2.0.1\build\netstandard2.0\NETStandard.Library.targets')" />
