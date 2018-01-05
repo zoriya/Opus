@@ -50,6 +50,8 @@ namespace MusicApp
         private bool canSwitch = true;
         private string tab;
         private bool QuickPlayOpenned = false;
+        private Drawable playToCross;
+        private Drawable crossToPlay;
 
         private const int RequestCode = 8539;
 
@@ -86,6 +88,9 @@ namespace MusicApp
 
             pagerRefresh = FindViewById<SwipeRefreshLayout>(Resource.Id.pagerRefresh);
             contentRefresh = FindViewById<SwipeRefreshLayout>(Resource.Id.contentRefresh);
+
+            playToCross = GetDrawable(Resource.Drawable.PlayToCross);
+            crossToPlay = GetDrawable(Resource.Drawable.CrossToPlay);
 
             if (MusicPlayer.queue.Count > 0)
                 ReCreateSmallPlayer();
@@ -835,9 +840,7 @@ namespace MusicApp
         {
             if(quickPlayLayout != null)
             {
-                quickPlayLayout.Visibility = ViewStates.Visible;
-                FloatingActionButton fab = quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.quickPlay);
-                fab.Animate().Alpha(1);
+                quickPlayLayout.FindViewById<LinearLayout>(Resource.Id.quickPlayLinear).Animate().Alpha(1);
                 return;
             }
             quickPlayLayout = LayoutInflater.Inflate(Resource.Layout.QuickPlayLayout, null);
@@ -845,22 +848,20 @@ namespace MusicApp
             AddContentView(quickPlayLayout, rootView.LayoutParameters);
             Console.WriteLine("&Starting padding bot: " + paddingBot);
             quickPlayLayout.SetPadding(0, 0, 0, paddingBot + PxToDp(6));
-            FloatingActionButton QuickPlayFAB = quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.quickPlay);
-            QuickPlayFAB.Click += QuickPlay;
+            quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.quickPlay).Click += QuickPlay;
+            quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.localPlay).Click += LocalPlay;
+            quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.ytPlay).Click += ytPlay;
             OnPaddingChanged += QuickPlayChangePosition;
         }
 
         public void HideQuickPlay()
         {
-            FloatingActionButton QuickPlayFAB = quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.quickPlay);
-            QuickPlayFAB.Animate().Alpha(0);
+            quickPlayLayout.FindViewById<LinearLayout>(Resource.Id.quickPlayLinear).Animate().Alpha(0);
         }
 
         private void QuickPlayChangePosition(object sender, PaddingChange e)
         {
-            Console.WriteLine("&Padding bot: " + paddingBot);
-            FloatingActionButton QuickPlayFab = quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.quickPlay);
-            QuickPlayFab.Animate().TranslationYBy(-(paddingBot - e.oldPadding));
+            quickPlayLayout.FindViewById<LinearLayout>(Resource.Id.quickPlayLinear).Animate().TranslationYBy(-(paddingBot - e.oldPadding));
         }
 
         public async void QuickPlay(object sender, EventArgs e)
@@ -868,20 +869,43 @@ namespace MusicApp
             FloatingActionButton quickPlay = FindViewById<FloatingActionButton>(Resource.Id.quickPlay);
             if (QuickPlayOpenned)
             {
-                Drawable icon = quickPlay.Drawable;
-                ((AnimatedVectorDrawable)icon).Start();
+                AnimatedVectorDrawable drawable = (AnimatedVectorDrawable)crossToPlay;
+                quickPlay.SetImageDrawable(drawable);
+                drawable.Start();
                 QuickPlayOpenned = false;
-                await Task.Delay(200);
-                quickPlay.SetImageResource(Resource.Drawable.PlayToCross);
+                await Task.Delay(10);
+                quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.ytPlay).Animate().Alpha(0);
+                await Task.Delay(10);
+                quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.localPlay).Visibility = ViewStates.Gone;
+                quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.ytPlay).Animate().Alpha(0);
+                await Task.Delay(10);
+                quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.ytPlay).Visibility = ViewStates.Gone;
             }
             else
             {
-                Drawable icon = quickPlay.Drawable;
-                ((AnimatedVectorDrawable)icon).Start();
+                AnimatedVectorDrawable drawable = (AnimatedVectorDrawable)playToCross;
+                quickPlay.SetImageDrawable(drawable);
+                drawable.Start();
                 QuickPlayOpenned = true;
-                await Task.Delay(200);
-                quickPlay.SetImageResource(Resource.Drawable.CrossToPlay);
+                await Task.Delay(10);
+                quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.ytPlay).Alpha = 0;
+                quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.ytPlay).Visibility = ViewStates.Visible;
+                quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.ytPlay).Animate().Alpha(1);
+                await Task.Delay(10);
+                quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.localPlay).Alpha = 0;
+                quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.localPlay).Visibility = ViewStates.Visible;
+                quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.localPlay).Animate().Alpha(1);
             }
+        }
+
+        private void LocalPlay(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void ytPlay(object sender, EventArgs e)
+        {
+
         }
 
         int PxToDp(int px)
