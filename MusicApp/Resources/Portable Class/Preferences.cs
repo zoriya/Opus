@@ -1,5 +1,6 @@
 ﻿using Android.App;
 using Android.Content;
+using Android.Database;
 using Android.OS;
 using Android.Preferences;
 using Android.Views;
@@ -8,6 +9,7 @@ using Java.IO;
 using MusicApp.Resources.values;
 using System;
 using System.Collections.Generic;
+using static Android.Provider.MediaStore.Audio;
 using AlertDialog = Android.Support.V7.App.AlertDialog;
 using Toolbar = Android.Support.V7.Widget.Toolbar;
 
@@ -20,6 +22,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             base.OnCreate(savedInstanceState);
             FragmentManager.BeginTransaction().Replace(Android.Resource.Id.Content, new PreferencesFragment()).Commit();
+            MainActivity.instance.GetStoragePermission();
         }
 
         protected override void OnPostCreate(Bundle savedInstanceState)
@@ -36,22 +39,34 @@ namespace MusicApp.Resources.Portable_Class
     public class PreferencesFragment : PreferenceFragment
     {
         public static PreferencesFragment instance;
+
+        //DownloadPath
         private List<Folder> folders;
         private FolderAdapter adapter;
         private ListView folderList;
         private string path;
         private AlertDialog dialog;
 
+        //Local Shortcut
+        private int LSposition;
+
         public override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             instance = this;
             AddPreferencesFromResource(Resource.Layout.Preferences);
-            Preference pref = PreferenceScreen.FindPreference("downloadPath");
-            pref.PreferenceClick += Pref_PreferenceClick;
+            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
 
-            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Android.App.Application.Context);
-            pref.Summary = prefManager.GetString("downloadPath", "not set");
+            //Download Path
+            Preference downloadPref = PreferenceScreen.FindPreference("downloadPath");
+            downloadPref.PreferenceClick += DownloadClick;
+            downloadPref.Summary = prefManager.GetString("downloadPath", "not set");
+
+            //Local play shortcut
+            Preference localShortcutPreference = PreferenceScreen.FindPreference("localPlay");
+            localShortcutPreference.PreferenceClick += LocalShortcut;
+            localShortcutPreference.Summary = prefManager.GetString("localPlay", "Shuffle All Audio Files");
+
         }
 
         public override void OnDestroy()
@@ -67,10 +82,11 @@ namespace MusicApp.Resources.Portable_Class
             return view;
         }
 
-        private void Pref_PreferenceClick(object sender, Preference.PreferenceClickEventArgs e)
+        #region Download location
+        private void DownloadClick(object sender, Preference.PreferenceClickEventArgs e)
         {
             folders = ListFolders();
-            adapter = new FolderAdapter(Android.App.Application.Context, Resource.Layout.folderList, folders);
+            adapter = new FolderAdapter(Application.Context, Resource.Layout.folderList, folders);
 
             AlertDialog.Builder builder = new AlertDialog.Builder(Activity, Resource.Style.AppCompatAlertDialogStyle);
             builder.SetTitle("Choose download location:");
@@ -175,7 +191,7 @@ namespace MusicApp.Resources.Portable_Class
 
             if(file == null)
             {
-                System.Console.WriteLine("file is null");
+                System.Console.WriteLine("&file is null");
                 return new List<Folder>();
             }
 
@@ -237,5 +253,74 @@ namespace MusicApp.Resources.Portable_Class
             }
             return folders;
         }
+        #endregion
+
+        #region LocalShortcut
+        private void LocalShortcut(object sender, Preference.PreferenceClickEventArgs e)
+        {
+            string[] items = new string[] { "Shuffle All Audio Files", "Shuffle a playlist" };
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, Resource.Style.AppCompatAlertDialogStyle);
+            builder.SetTitle("Set the local storage shortcut:");
+            builder.SetItems(items, (s, args) => { if (args.Which == 0) LCShuffleAll(); else LCSufflePlaylist(); });
+            builder.Show();
+        }
+
+        void LCShuffleAll()
+        {
+            ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
+            ISharedPreferencesEditor editor = pref.Edit();
+            editor.PutString("localPlay", "Shuffle All Audio Files");
+            editor.Apply();
+
+            Preference prefButton = FindPreference("localPlay");
+            prefButton.Summary = path;
+        }
+
+        void LCSufflePlaylist()
+        {
+            List<string> playList = new List<string>();
+            List<long> playlistId = new List<long>();
+
+            Android.Net.Uri uri = Playlists.ExternalContentUri;
+            CursorLoader loader = new CursorLoader(Application.Context, uri, null, null, null, null);
+            ICursor cursor = (ICursor)loader.LoadInBackground();
+
+            if (cursor != null && cursor.MoveToFirst())
+            {
+                int nameID = cursor.GetColumnIndex(Playlists.InterfaceConsts.Name);
+                int listID = cursor.GetColumnIndex(Playlists.InterfaceConsts.Id);
+                do
+                {
+                    string name = cursor.GetString(nameID);
+                    long id = cursor.GetLong(listID);
+                    playList.Add(name);
+                    playlistId.Add(id);
+
+                }
+                while (cursor.MoveToNext());
+                cursor.Close();
+            }
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, Resource.Style.AppCompatAlertDialogStyle);
+            builder.SetTitle("Set the local storage shortcut:");
+            builder.SetSingleChoiceItems(playList.ToArray(), -1, (s, args) => { LSposition = args.Which; });
+            builder.SetPositiveButton("Ok", (s, args) => { LCSufflePlaylist(playList[LSposition], playlistId[LSposition]); });
+            builder.SetNegativeButton("Cancel", (s, args) => { return; });
+            builder.Show();
+        }
+
+        void LCSufflePlaylist(string playlist, long playlistID)
+        {
+            ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
+            ISharedPreferencesEditor editor = pref.Edit();
+            editor.PutString("localPlay", "Shuffle " + playlist);
+            editor.PutLong("localPlaylistID", playlistID);
+            editor.Apply();
+
+            Preference prefButton = FindPreference("localPlay");
+            prefButton.Summary = path;
+        }
+        #endregion
     }
 }

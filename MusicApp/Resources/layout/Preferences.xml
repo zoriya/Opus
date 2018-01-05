@@ -5,5 +5,11 @@
       android:key="downloadPath"
       android:title="Download directory"
       android:summary="test"/>
-    </PreferenceCategory>
+  </PreferenceCategory>
+  <PreferenceCategory android:title="QuickPlay Shortcut">
+    <Preference
+      android:key="localPlay"
+      android:title="Local Play Action"
+      android:summary="Shuffle All Audio Files" />
+  </PreferenceCategory>
 </PreferenceScreen>

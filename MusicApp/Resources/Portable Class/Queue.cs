@@ -24,13 +24,21 @@ namespace MusicApp.Resources.Portable_Class
             ListView.EmptyView = emptyView;
             ListView.Scroll += MainActivity.instance.Scroll;
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
+            MainActivity.instance.OnPaddingChanged += PaddingChanged;
 
             PopulateView();
+        }
+
+        private void PaddingChanged(object sender, PaddingChange e)
+        {
+            view.SetPadding(0, 0, 0, MainActivity.paddingBot);
+            //view.Invalidate();
         }
 
         public override void OnDestroy()
         {
             MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
+            MainActivity.instance.OnPaddingChanged -= PaddingChanged;
             if (isEmpty)
             {
                 ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);

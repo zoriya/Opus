@@ -2,8 +2,10 @@
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
+using Android.Database;
 using Android.Graphics.Drawables;
 using Android.OS;
+using Android.Provider;
 using Android.Runtime;
 using Android.Support.Design.Widget;
 using Android.Support.V4.View;
@@ -23,6 +25,7 @@ using MusicApp.Resources.Portable_Class;
 using MusicApp.Resources.values;
 using Square.Picasso;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xamarin.Auth;
@@ -781,6 +784,8 @@ namespace MusicApp
         {
             Browse.instance?.PopulateList();
             Playlist.instance?.PopulateView();
+            if (Browse.instance == null && Playlist.instance == null && PreferencesFragment.instance == null)
+                LocalPlay(this, new EventArgs());
         }
 
         public void Transition(int Resource, Android.Support.V4.App.Fragment fragment, bool backStack)
@@ -850,7 +855,7 @@ namespace MusicApp
             quickPlayLayout.SetPadding(0, 0, 0, paddingBot + PxToDp(6));
             quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.quickPlay).Click += QuickPlay;
             quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.localPlay).Click += LocalPlay;
-            quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.ytPlay).Click += ytPlay;
+            quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.ytPlay).Click += YtPlay;
             OnPaddingChanged += QuickPlayChangePosition;
         }
 
@@ -900,12 +905,66 @@ namespace MusicApp
 
         private void LocalPlay(object sender, EventArgs e)
         {
-            
+            QuickPlay(this, e);
+            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(this);
+            string shortcut = prefManager.GetString("localPlay", "Shuffle All Audio Files");
+            if (shortcut == "Shuffle All Audio Files")
+            {
+                if (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(this, Manifest.Permission.ReadExternalStorage) != (int)Permission.Granted)
+                {
+                    GetStoragePermission();
+                    return;
+                }
+
+                List<string> paths = new List<string>();
+                Android.Net.Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
+
+                CursorLoader cursorLoader = new CursorLoader(this, musicUri, null, null, null, null);
+                ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
+
+                if (musicCursor != null && musicCursor.MoveToFirst())
+                {
+                    int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
+                    do
+                    {
+                        paths.Add(musicCursor.GetString(pathID));
+                    }
+                    while (musicCursor.MoveToNext());
+                    musicCursor.Close();
+                }
+                
+                if(paths.Count == 0)
+                {
+                    //MAKE HERE ERROR MESSAGE FOR NO FILES ON THE DEVICE
+                    return;
+                }
+
+                Intent intent = new Intent(this, typeof(MusicPlayer));
+                intent.PutStringArrayListExtra("files", paths);
+                intent.SetAction("RandomPlay");
+                StartService(intent);
+                HideTabs();
+                HideSearch();
+                SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).Commit();
+            }
+            else
+            {
+                long playlistID = prefManager.GetLong("localPlaylistID", -1);
+                if (playlistID != -1)
+                {
+                    Playlist.RandomPlay(playlistID, this);
+                    HideTabs();
+                    HideSearch();
+                    SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).Commit();
+                }
+                //else
+                //MAKE ERROR MESSAGE WHEN PLAYLIST ID IS NULL
+            }
         }
 
-        private void ytPlay(object sender, EventArgs e)
+        private void YtPlay(object sender, EventArgs e)
         {
-
+            QuickPlay(this, e);
         }
 
         int PxToDp(int px)

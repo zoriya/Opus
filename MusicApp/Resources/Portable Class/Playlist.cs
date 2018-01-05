@@ -153,7 +153,7 @@ namespace MusicApp.Resources.Portable_Class
                 switch (args.Which)
                 {
                     case 0:
-                        RandomPlay(playlistId[e.Position]);
+                        RandomPlay(playlistId[e.Position], Activity);
                         break;
                     case 1:
                         Rename(e.Position, playlistId[e.Position]);
@@ -168,23 +168,20 @@ namespace MusicApp.Resources.Portable_Class
             builder.Show();
         }
 
-        void RandomPlay(long playlistID)
+        public static void RandomPlay(long playlistID, Context context)
         {
             List<string> tracksPath = new List<string>();
-            Uri musicUri = MediaStore.Audio.Playlists.Members.GetContentUri("external", playlistID);
+            Uri musicUri = Playlists.Members.GetContentUri("external", playlistID);
 
             CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
             ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
 
-
             if (musicCursor != null && musicCursor.MoveToFirst())
             {
-                int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
+                int pathID = musicCursor.GetColumnIndex(Media.InterfaceConsts.Data);
                 do
                 {
-                    string path = musicCursor.GetString(pathID);
-
-                    tracksPath.Add(path);
+                    tracksPath.Add(musicCursor.GetString(pathID));
                 }
                 while (musicCursor.MoveToNext());
                 musicCursor.Close();
@@ -193,7 +190,7 @@ namespace MusicApp.Resources.Portable_Class
             Intent intent = new Intent(Android.App.Application.Context, typeof(MusicPlayer));
             intent.PutStringArrayListExtra("files", tracksPath);
             intent.SetAction("RandomPlay");
-            Activity.StartService(intent);
+            context.StartService(intent);
         }
 
         void Rename(int position, long playlistID)
