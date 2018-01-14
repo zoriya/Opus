@@ -76,7 +76,8 @@ namespace MusicApp.Resources.Portable_Class
 
                 case "RandomPlay":
                     List<string> files = intent.GetStringArrayListExtra("files").ToList();
-                    RandomPlay(files);
+                    bool clearQueue = intent.GetBooleanExtra("clearQueue", true);
+                    RandomPlay(files, clearQueue);
                     break;
 
                 case "PlayNext":
@@ -84,8 +85,9 @@ namespace MusicApp.Resources.Portable_Class
                     if (title != null)
                     {
                         string artist = intent.GetStringExtra("artist");
+                        string youtubeID = intent.GetStringExtra("youtubeID");
                         string thumbnailURI = intent.GetStringExtra("thumbnailURI");
-                        AddToQueue(file, title, artist, thumbnailURI);
+                        AddToQueue(file, title, artist, youtubeID, thumbnailURI);
                         return StartCommandResult.Sticky;
                     }
                     AddToQueue(file);
@@ -96,8 +98,9 @@ namespace MusicApp.Resources.Portable_Class
                     if (title != null)
                     {
                         string artist = intent.GetStringExtra("artist");
+                        string youtubeID = intent.GetStringExtra("youtubeID");
                         string thumbnailURI = intent.GetStringExtra("thumbnailURI");
-                        PlayLastInQueue(file, title, artist, thumbnailURI);
+                        PlayLastInQueue(file, title, artist, youtubeID, thumbnailURI);
                         return StartCommandResult.Sticky;
                     }
                     PlayLastInQueue(file);
@@ -118,8 +121,9 @@ namespace MusicApp.Resources.Portable_Class
                 if(title != null)
                 {
                     string artist = intent.GetStringExtra("artist");
+                    string youtubeID = intent.GetStringExtra("youtubeID");
                     string thumbnailURI = intent.GetStringExtra("thumbnailURI");
-                    Play(file, title, artist, thumbnailURI);
+                    Play(file, title, artist, youtubeID, thumbnailURI);
                     return StartCommandResult.Sticky;
                 }
                 Play(file);
@@ -140,7 +144,7 @@ namespace MusicApp.Resources.Portable_Class
             player.AddListener(this);
         }
 
-        public void Play(string filePath, string title = null, string artist = null, string thumbnailURI = null, bool addToQueue = true)
+        public void Play(string filePath, string title = null, string artist = null, string youtubeID = null, string thumbnailURI = null, bool addToQueue = true)
         {
             isRunning = true;
             if (player == null)
@@ -172,7 +176,7 @@ namespace MusicApp.Resources.Portable_Class
                 GetTrackSong(filePath, out song);
             else
             {
-                song = new Song(title, artist, thumbnailURI, -1, -1, filePath, true);
+                song = new Song(title, artist, thumbnailURI, youtubeID, -1, -1, filePath, true);
             }
 
             if(song.queueSlot == -1)
@@ -223,14 +227,18 @@ namespace MusicApp.Resources.Portable_Class
                 AddToQueue(song);
         }
 
-        public async void RandomPlay(List<string> filePath)
+        public async void RandomPlay(List<string> filePath, bool clearQueue)
         {
+            currentID = -1;
+            if(clearQueue)
+                queue.Clear();
+
             Random r = new Random();
             filePath = filePath.OrderBy(x => r.Next()).ToList();
+            if(clearQueue)
+                Play(filePath[0]);
             await Task.Delay(1000);
-            Play(filePath[0]);
-            await Task.Delay(1000);
-            for (int i = 1; i < filePath.Count; i++)
+            for (int i = clearQueue ? 0 : 1; i < filePath.Count; i++)
             {
                 GetTrackSong(filePath[i], out Song song);
                 song.queueSlot = queue.Count;
@@ -239,13 +247,13 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
-        public void AddToQueue(string filePath, string title = null, string artist = null, string thumbnailURI = null)
+        public void AddToQueue(string filePath, string title = null, string artist = null, string youtubeID = null, string thumbnailURI = null)
         {
             Song song = null;
             if(title == null)
                 GetTrackSong(filePath, out song);
             else
-                song = new Song(title, artist, thumbnailURI, -1, -1, filePath, true);
+                song = new Song(title, artist, thumbnailURI, youtubeID, -1, -1, filePath, true);
 
             if (song.queueSlot == -1)
                 song.queueSlot = CurrentID() + 1;
@@ -269,9 +277,9 @@ namespace MusicApp.Resources.Portable_Class
             queue.Add(song);
         }
 
-        public void PlayLastInQueue(string filePath, string title, string artist, string thumbnailURI)
+        public void PlayLastInQueue(string filePath, string title, string artist, string youtubeID, string thumbnailURI)
         {
-            Song song = new Song(title, artist, thumbnailURI, -1, -1, filePath, true);
+            Song song = new Song(title, artist, thumbnailURI, youtubeID, -1, -1, filePath, true);
             song.queueSlot = CurrentID() + 1;
 
             queue.Add(song);
@@ -304,7 +312,8 @@ namespace MusicApp.Resources.Portable_Class
             {
                 YoutubeClient client = new YoutubeClient();
                 var videoInfo = await client.GetVideoAsync(song.GetPath());
-                AudioStreamInfo streamInfo = videoInfo.AudioStreamInfos.OrderBy(s => s.Bitrate).Last();
+                MediaStreamInfoSet mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(song.youtubeID);
+                AudioStreamInfo streamInfo = mediaStreamInfo.Audio.OrderBy(s => s.Bitrate).Last();
                 song.SetPath(streamInfo.Url);
                 song.isParsed = true;
             }
@@ -338,14 +347,6 @@ namespace MusicApp.Resources.Portable_Class
             if (queue.Count < currentID)
                 currentID = -1;
             return currentID;
-            //int id = 0;
-            //foreach (Song song in queue)
-            //{
-            //    if (song.GetName() == title)
-            //        return id;
-            //    id++;
-            //}
-            //return -1;
         }
 
         public static void SetSeekBar(SeekBar bar)
@@ -376,7 +377,8 @@ namespace MusicApp.Resources.Portable_Class
                 parsing = true;
                 YoutubeClient client = new YoutubeClient();
                 var videoInfo = await client.GetVideoAsync(song.GetPath());
-                AudioStreamInfo streamInfo = videoInfo.AudioStreamInfos.OrderBy(s => s.Bitrate).Last();
+                MediaStreamInfoSet mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(song.youtubeID);
+                AudioStreamInfo streamInfo = mediaStreamInfo.Audio.OrderBy(s => s.Bitrate).Last();
                 song.SetPath(streamInfo.Url);
                 song.isParsed = true;
                 parsing = false;
@@ -439,7 +441,7 @@ namespace MusicApp.Resources.Portable_Class
                 while (musicCursor.MoveToNext());
                 musicCursor.Close();
             }
-            song = new Song(Title, Artist, null, AlbumArt, id, filePath);
+            song = new Song(Title, Artist, null, null, AlbumArt, id, filePath);
         }
 
         async void CreateNotification(string title, string artist, long albumArt = 0, string imageURI = "")

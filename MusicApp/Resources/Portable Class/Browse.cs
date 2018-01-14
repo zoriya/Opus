@@ -101,7 +101,7 @@ namespace MusicApp.Resources.Portable_Class
                     if (Album == null)
                         Album = "Unknow Album";
 
-                    musicList.Add(new Song(Title, Artist, Album, AlbumArt, id, path));
+                    musicList.Add(new Song(Title, Artist, Album, null, AlbumArt, id, path));
                 }
                 while (musicCursor.MoveToNext());
                 musicCursor.Close();
@@ -160,7 +160,7 @@ namespace MusicApp.Resources.Portable_Class
                     if (Album == null)
                         Album = "Unknow Album";
 
-                    musicList.Add(new Song(Title, Artist, Album, AlbumArt, id, path));
+                    musicList.Add(new Song(Title, Artist, Album, null, AlbumArt, id, path));
                 }
                 while (musicCursor.MoveToNext());
                 musicCursor.Close();

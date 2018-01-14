@@ -102,7 +102,7 @@ namespace MusicApp.Resources.Portable_Class
                         if (Album == null)
                             Album = "Unknow Album";
 
-                        tracks.Add(new Song(Title, Artist, Album, AlbumArt, id, path));
+                        tracks.Add(new Song(Title, Artist, Album, null, AlbumArt, id, path));
                     }
                     while (musicCursor.MoveToNext());
                     musicCursor.Close();
@@ -135,7 +135,7 @@ namespace MusicApp.Resources.Portable_Class
 
                     foreach (var item in ytPlaylist.Items)
                     {
-                        Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.Default__.Url, -1, -1, item.ContentDetails.VideoId, true);
+                        Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true);
                         tracks.Add(song);
                         ytTracksIDs.Add(item.Id);
                     }
@@ -192,7 +192,7 @@ namespace MusicApp.Resources.Portable_Class
                         if (Album == null)
                             Album = "Unknow Album";
 
-                        tracks.Add(new Song(Title, Artist, Album, AlbumArt, id, path));
+                        tracks.Add(new Song(Title, Artist, Album, null, AlbumArt, id, path));
                     }
                     while (musicCursor.MoveToNext());
                     musicCursor.Close();
@@ -215,7 +215,7 @@ namespace MusicApp.Resources.Portable_Class
 
                     foreach (var item in ytPlaylist.Items)
                     {
-                        Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.Default__.Url, -1, -1, item.ContentDetails.VideoId, true);
+                        Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true);
                         tracks.Add(song);
                         ytTracksIDs.Add(item.Id);
                     }
@@ -263,7 +263,7 @@ namespace MusicApp.Resources.Portable_Class
                 Browse.Play(item);
             }
             else
-                YoutubeEngine.Play(item.GetPath());
+                YoutubeEngine.Play(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
         }
 
         private void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
@@ -299,21 +299,21 @@ namespace MusicApp.Resources.Portable_Class
                         if (!item.IsYt)
                             Browse.Play(item);
                         else
-                            YoutubeEngine.Play(item.GetPath());
+                            YoutubeEngine.Play(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
                         break;
 
                     case 1:
                         if (!item.IsYt)
                             Browse.PlayNext(item);
                         else
-                            YoutubeEngine.PlayNext(item.GetPath());
+                            YoutubeEngine.PlayNext(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
                         break;
 
                     case 2:
                         if (!item.IsYt)
                             Browse.PlayLast(item);
                         else
-                            YoutubeEngine.PlayLast(item.GetPath());
+                            YoutubeEngine.PlayLast(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
                         break;
 
                     case 3:

@@ -108,7 +108,7 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             SearchResource.ListRequest searchResult = youtubeService.Search.List("snippet");
-            searchResult.Fields = "items(id/videoId,snippet/title,snippet/thumbnails/default/url,snippet/channelTitle)";
+            searchResult.Fields = "items(id/videoId,snippet/title,snippet/thumbnails/high/url,snippet/channelTitle)";
             searchResult.Q = search;
             searchResult.Type = "video";
             searchResult.MaxResults = 20;
@@ -119,7 +119,8 @@ namespace MusicApp.Resources.Portable_Class
 
             foreach(var video in searchReponse.Items)
             {
-                Song videoInfo = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.Default__.Url, -1, -1, video.Id.VideoId, true);
+                System.Console.WriteLine("&" + video.Snippet.Title);
+                Song videoInfo = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.High.Url, video.Id.VideoId, -1, -1, video.Id.VideoId, true);
                 result.Add(videoInfo);
             }
 
@@ -136,7 +137,7 @@ namespace MusicApp.Resources.Portable_Class
         private async void OnRefresh(object sender, System.EventArgs e)
         {
             await Refresh();
-            MainActivity.instance.contentRefresh.Refreshing = false;
+            MainActivity.instance.contentRefresh.Refreshing = false;    
         }
 
         public async Task Refresh()
@@ -146,8 +147,7 @@ namespace MusicApp.Resources.Portable_Class
 
         private void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
         {
-            string videoID = result[e.Position].GetPath();
-            Play(videoID);
+            Play(result[e.Position].GetPath(), result[e.Position].GetName(), result[e.Position].GetArtist(), result[e.Position].GetAlbum());
         }
 
         private void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
@@ -165,13 +165,13 @@ namespace MusicApp.Resources.Portable_Class
                 switch (args.Which)
                 {
                     case 0:
-                        Play(item.GetPath());
+                        Play(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
                         break;
                     case 1:
-                        PlayNext(item.GetPath());
+                        PlayNext(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
                         break;
                     case 2:
-                        PlayLast(item.GetPath());
+                        PlayLast(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
                         break;
                     case 3:
                         GetPlaylists(item.GetPath(), Activity);
@@ -186,21 +186,22 @@ namespace MusicApp.Resources.Portable_Class
             builder.Show();
         }
 
-        public static async void Play(string videoID)
+        public static async void Play(string videoID, string title, string artist, string thumbnailURL)
         {
             ProgressBar parseProgress = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress);
             parseProgress.Visibility = ViewStates.Visible;
             parseProgress.ScaleY = 6;
 
             YoutubeClient client = new YoutubeClient();
-            var videoInfo = await client.GetVideoAsync(videoID);
-            AudioStreamInfo streamInfo = videoInfo.AudioStreamInfos.OrderBy(s => s.Bitrate).Last();
+            var mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(videoID);
+            AudioStreamInfo streamInfo = mediaStreamInfo.Audio.OrderBy(s => s.Bitrate).Last();
 
             Intent intent = new Intent(Android.App.Application.Context, typeof(MusicPlayer));
             intent.PutExtra("file", streamInfo.Url);
-            intent.PutExtra("title", videoInfo.Title);
-            intent.PutExtra("artist", videoInfo.Author.Title);
-            intent.PutExtra("thumbnailURI", videoInfo.Thumbnails.HighResUrl);
+            intent.PutExtra("title", title);
+            intent.PutExtra("artist", artist);
+            intent.PutExtra("youtubeID", videoID);
+            intent.PutExtra("thumbnailURI", thumbnailURL);
             Android.App.Application.Context.StartService(intent);
 
             parseProgress.Visibility = ViewStates.Gone;
@@ -214,7 +215,7 @@ namespace MusicApp.Resources.Portable_Class
             if (files.Length < 1)
                 return;
 
-            Play(files[0].GetPath());
+            Play(files[0].GetPath(), files[0].GetName(), files[0].GetArtist(), files[0].GetAlbum());
 
             if (files.Length < 2)
                 return;
@@ -228,42 +229,48 @@ namespace MusicApp.Resources.Portable_Class
         }
 
 
-        public static async void PlayNext(string videoID)
+        public static async void PlayNext(string videoID, string title, string artist, string thumbnailURL)
         {
             ProgressBar parseProgress = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress);
             parseProgress.Visibility = ViewStates.Visible;
             parseProgress.ScaleY = 6;
 
             YoutubeClient client = new YoutubeClient();
-            var videoInfo = await client.GetVideoAsync(videoID);
-            AudioStreamInfo streamInfo = videoInfo.AudioStreamInfos.OrderBy(s => s.Bitrate).Last();
+            var mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(videoID);
+            AudioStreamInfo streamInfo = mediaStreamInfo.Audio.OrderBy(s => s.Bitrate).Last();
 
             Intent intent = new Intent(Android.App.Application.Context, typeof(MusicPlayer));
             intent.SetAction("PlayNext");
             intent.PutExtra("file", streamInfo.Url);
-            intent.PutExtra("title", videoInfo.Title);
-            intent.PutExtra("artist", videoInfo.Author.Title);
-            intent.PutExtra("thumbnailURI", videoInfo.Thumbnails.HighResUrl);
+            intent.PutExtra("title", title);
+            intent.PutExtra("artist", artist);
+            intent.PutExtra("youtubeID", videoID);
+            intent.PutExtra("thumbnailURI", thumbnailURL);
+            Android.App.Application.Context.StartService(intent);
+
             Android.App.Application.Context.StartService(intent);
             parseProgress.Visibility = ViewStates.Gone;
         }
 
-        public static async void PlayLast(string videoID)
+        public static async void PlayLast(string videoID, string title, string artist, string thumbnailURL)
         {
             ProgressBar parseProgress = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress);
             parseProgress.Visibility = ViewStates.Visible;
             parseProgress.ScaleY = 6;
 
             YoutubeClient client = new YoutubeClient();
-            var videoInfo = await client.GetVideoAsync(videoID);
-            AudioStreamInfo streamInfo = videoInfo.AudioStreamInfos.OrderBy(s => s.Bitrate).Last();
+            var mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(videoID);
+            AudioStreamInfo streamInfo = mediaStreamInfo.Audio.OrderBy(s => s.Bitrate).Last();
 
             Intent intent = new Intent(Android.App.Application.Context, typeof(MusicPlayer));
             intent.SetAction("PlayLast");
             intent.PutExtra("file", streamInfo.Url);
-            intent.PutExtra("title", videoInfo.Title);
-            intent.PutExtra("artist", videoInfo.Author.Title);
-            intent.PutExtra("thumbnailURI", videoInfo.Thumbnails.HighResUrl);
+            intent.PutExtra("title", title);
+            intent.PutExtra("artist", artist);
+            intent.PutExtra("youtubeID", videoID);
+            intent.PutExtra("thumbnailURI", thumbnailURL);
+            Android.App.Application.Context.StartService(intent);
+
             Android.App.Application.Context.StartService(intent);
             parseProgress.Visibility = ViewStates.Gone;
         }
@@ -480,3 +487,4 @@ namespace MusicApp.Resources.Portable_Class
         }
     }
 }
+ 

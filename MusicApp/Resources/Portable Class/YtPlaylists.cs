@@ -129,7 +129,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 Google.Apis.YouTube.v3.Data.Playlist playlist = response.Items[i];
                 YtPlaylists.Add(playlist);
-                Song song = new Song(playlist.Snippet.Title, playlist.Snippet.ChannelTitle, playlist.Snippet.Thumbnails.Default__.Url, -1, -1, playlist.Id, true);
+                Song song = new Song(playlist.Snippet.Title, playlist.Snippet.ChannelTitle, playlist.Snippet.Thumbnails.Default__.Url, null, -1, -1, playlist.Id, true);
                 playlists.Add(song);
             }
 
@@ -209,7 +209,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 Google.Apis.YouTube.v3.Data.Playlist playlist = response.Items[i];
                 YtPlaylists.Add(playlist);
-                Song song = new Song(playlist.Snippet.Title, playlist.Snippet.ChannelTitle, playlist.Snippet.Thumbnails.Default__.Url, -1, -1, playlist.Id, true);
+                Song song = new Song(playlist.Snippet.Title, playlist.Snippet.ChannelTitle, playlist.Snippet.Thumbnails.Default__.Url, null, -1, -1, playlist.Id, true);
                 playlists.Add(song);
             }
 
@@ -285,7 +285,7 @@ namespace MusicApp.Resources.Portable_Class
 
                 foreach (var item in ytPlaylist.Items)
                 {
-                    Song song = new Song(item.Snippet.Title, "", item.Snippet.Thumbnails.Default__.Url, -1, -1, item.ContentDetails.VideoId, true, false);
+                    Song song = new Song(item.Snippet.Title, "", item.Snippet.Thumbnails.Default__.Url, null, -1, -1, item.ContentDetails.VideoId, true, false);
                     tracks.Add(song);
                 }
 

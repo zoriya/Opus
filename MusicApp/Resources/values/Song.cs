@@ -7,6 +7,7 @@
         private string Artist;
         private string Album;
         private long AlbumArt;
+        public string youtubeID;
         private long id;
         private string path;
         private bool isYT;
@@ -21,11 +22,12 @@
         public string GetPath() { return path; }
         public bool IsYt { get { return isYT; } }
 
-        public Song(string Name, string Artist, string Album, long AlbumArt, long id, string path, bool isYT = false, bool isParsed = true, int queueSlot = -1)
+        public Song(string Name, string Artist, string Album, string youtubeID, long AlbumArt, long id, string path, bool isYT = false, bool isParsed = true, int queueSlot = -1)
         {
             this.Name = Name;
             this.Artist = Artist;
             this.Album = Album;
+            this.youtubeID = youtubeID;
             this.AlbumArt = AlbumArt;
             this.id = id;
             this.path = path;

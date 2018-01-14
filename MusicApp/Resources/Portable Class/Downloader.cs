@@ -68,22 +68,23 @@ namespace MusicApp.Resources.Portable_Class
             currentStrike++;
             CreateNotification(file.name);
 
-            YoutubeClient client = new YoutubeClient();
-            Video videoInfo = await client.GetVideoAsync(file.videoID);
-            AudioStreamInfo streamInfo = videoInfo.AudioStreamInfos.OrderBy(s => s.Bitrate).Last();
+            //YoutubeClient client = new YoutubeClient();
+            //Video videoInfo = await client.GetVideoAsync(file.videoID);
+            //MediaStreamInfoSet mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(file.videoID); //videoInfo.AudioStreamInfos.OrderBy(s => s.Bitrate).Last();
+            //AudioStreamInfo streamInfo = mediaStreamInfo.Audio.OrderBy(s => s.Bitrate).Last();
 
-            string fileExtension = streamInfo.Container.GetFileExtension();
-            string fileName = $"{videoInfo.Title}.{fileExtension}";
+            //string fileExtension = streamInfo.Container.GetFileExtension();
+            //string fileName = $"{videoInfo.Title}.{fileExtension}";
 
-            string filePath = Path.Combine(path, fileName);
+            //string filePath = Path.Combine(path, fileName);
 
-            MediaStream input = await client.GetMediaStreamAsync(streamInfo);
+            //MediaStream input = await client.GetMediaStreamAsync(streamInfo);
 
-            FileStream output = File.Create(filePath);
-            await input.CopyToAsync(output);
-            output.Dispose();
-            SetMetaData(filePath, videoInfo.Title, videoInfo.Author.Name, videoInfo.Thumbnails.HighResUrl);
-            isDownloading = false;
+            //FileStream output = File.Create(filePath);
+            //await input.CopyToAsync(output);
+            //output.Dispose();
+            //SetMetaData(filePath, videoInfo.Title, videoInfo.Author, videoInfo.Thumbnails.HighResUrl);
+            //isDownloading = false;
 
             if (queue.Count != 0)
                 DownloadAudio(queue[0], path);
