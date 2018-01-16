@@ -1,5 +1,4 @@
 ﻿using Android.OS;
-using Android.Support.Design.Widget;
 using Android.Support.V4.App;
 using Android.Views;
 using Android.Widget;
@@ -32,7 +31,6 @@ namespace MusicApp.Resources.Portable_Class
         private void PaddingChanged(object sender, PaddingChange e)
         {
             view.SetPadding(0, 0, 0, MainActivity.paddingBot);
-            //view.Invalidate();
         }
 
         public override void OnDestroy()
@@ -98,9 +96,15 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
-        private void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
+        private async void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
         {
             Song item = MusicPlayer.queue[e.Position];
+
+            if (!item.isParsed)
+            {
+                //adapter.GetItem(e.Position)
+                //REFRESH ITEM VIEW, SHOULD CHANGE PARSE ICON TO YOUTUBE ICON
+            }
 
             MusicPlayer.instance.SwitchQueue(item);
         }

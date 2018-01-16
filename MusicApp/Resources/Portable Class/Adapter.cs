@@ -53,10 +53,6 @@ namespace MusicApp.Resources.Portable_Class
                 Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
             }
 
-            if (!songList[position].isParsed)
-            {
-            }
-
             if (!holder.more.HasOnClickListeners)
             {
                 holder.more.Click += (sender, e) =>
@@ -68,6 +64,24 @@ namespace MusicApp.Resources.Portable_Class
                     PlaylistTracks.instance?.More(songList[position], position);
                     FolderTracks.instance?.More(songList[position]);
                 };
+            }
+
+            if (Queue.instance != null)
+            {
+                if (!songList[position].isParsed && songList[position].IsYt)
+                {
+                    holder.youtubeIcon.SetImageResource(Resource.Drawable.needProcessing);
+                    holder.youtubeIcon.Visibility = ViewStates.Visible;
+                }
+                else if(songList[position].IsYt)
+                {
+                    holder.youtubeIcon.SetImageResource(Resource.Drawable.youtubeIcon);
+                    holder.youtubeIcon.Visibility = ViewStates.Visible;
+                }
+                else
+                {
+                    holder.youtubeIcon.Visibility = ViewStates.Gone;
+                }
             }
 
             return convertView;

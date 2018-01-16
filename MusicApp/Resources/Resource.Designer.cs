@@ -2360,35 +2360,35 @@ namespace MusicApp
 			// aapt resource value: 0x7f020053
 			public const int avd_hide_password = 2130837587;
 			
-			// aapt resource value: 0x7f020089
-			public const int avd_hide_password_1 = 2130837641;
-			
-			// aapt resource value: 0x7f02008a
-			public const int avd_hide_password_2 = 2130837642;
-			
 			// aapt resource value: 0x7f02008b
-			public const int avd_hide_password_3 = 2130837643;
+			public const int avd_hide_password_1 = 2130837643;
+			
+			// aapt resource value: 0x7f02008c
+			public const int avd_hide_password_2 = 2130837644;
+			
+			// aapt resource value: 0x7f02008d
+			public const int avd_hide_password_3 = 2130837645;
 			
 			// aapt resource value: 0x7f020054
 			public const int avd_show_password = 2130837588;
 			
-			// aapt resource value: 0x7f02008c
-			public const int avd_show_password_1 = 2130837644;
-			
-			// aapt resource value: 0x7f02008d
-			public const int avd_show_password_2 = 2130837645;
-			
 			// aapt resource value: 0x7f02008e
-			public const int avd_show_password_3 = 2130837646;
+			public const int avd_show_password_1 = 2130837646;
+			
+			// aapt resource value: 0x7f02008f
+			public const int avd_show_password_2 = 2130837647;
+			
+			// aapt resource value: 0x7f020090
+			public const int avd_show_password_3 = 2130837648;
 			
 			// aapt resource value: 0x7f020055
 			public const int CrossToPlay = 2130837589;
 			
-			// aapt resource value: 0x7f02008f
-			public const int crosstoplay_1 = 2130837647;
+			// aapt resource value: 0x7f020091
+			public const int crosstoplay_1 = 2130837649;
 			
-			// aapt resource value: 0x7f020090
-			public const int crosstoplay_2 = 2130837648;
+			// aapt resource value: 0x7f020092
+			public const int crosstoplay_2 = 2130837650;
 			
 			// aapt resource value: 0x7f020056
 			public const int design_bottom_navigation_item_background = 2130837590;
@@ -2487,67 +2487,73 @@ namespace MusicApp
 			public const int navigation_empty_icon = 2130837621;
 			
 			// aapt resource value: 0x7f020076
-			public const int noAlbum = 2130837622;
+			public const int needProcessing = 2130837622;
 			
 			// aapt resource value: 0x7f020077
-			public const int notification_action_background = 2130837623;
+			public const int noAlbum = 2130837623;
 			
 			// aapt resource value: 0x7f020078
-			public const int notification_bg = 2130837624;
+			public const int notification_action_background = 2130837624;
 			
 			// aapt resource value: 0x7f020079
-			public const int notification_bg_low = 2130837625;
+			public const int notification_bg = 2130837625;
 			
 			// aapt resource value: 0x7f02007a
-			public const int notification_bg_low_normal = 2130837626;
+			public const int notification_bg_low = 2130837626;
 			
 			// aapt resource value: 0x7f02007b
-			public const int notification_bg_low_pressed = 2130837627;
+			public const int notification_bg_low_normal = 2130837627;
 			
 			// aapt resource value: 0x7f02007c
-			public const int notification_bg_normal = 2130837628;
+			public const int notification_bg_low_pressed = 2130837628;
 			
 			// aapt resource value: 0x7f02007d
-			public const int notification_bg_normal_pressed = 2130837629;
+			public const int notification_bg_normal = 2130837629;
 			
 			// aapt resource value: 0x7f02007e
-			public const int notification_icon_background = 2130837630;
-			
-			// aapt resource value: 0x7f020087
-			public const int notification_template_icon_bg = 2130837639;
-			
-			// aapt resource value: 0x7f020088
-			public const int notification_template_icon_low_bg = 2130837640;
+			public const int notification_bg_normal_pressed = 2130837630;
 			
 			// aapt resource value: 0x7f02007f
-			public const int notification_tile_bg = 2130837631;
+			public const int notification_icon_background = 2130837631;
+			
+			// aapt resource value: 0x7f020089
+			public const int notification_template_icon_bg = 2130837641;
+			
+			// aapt resource value: 0x7f02008a
+			public const int notification_template_icon_low_bg = 2130837642;
 			
 			// aapt resource value: 0x7f020080
-			public const int notify_panel_notification_icon_bg = 2130837632;
+			public const int notification_tile_bg = 2130837632;
 			
 			// aapt resource value: 0x7f020081
-			public const int PlaylistPlay = 2130837633;
+			public const int notify_panel_notification_icon_bg = 2130837633;
 			
 			// aapt resource value: 0x7f020082
-			public const int PlaylistPlayIcon = 2130837634;
+			public const int PlaylistPlay = 2130837634;
 			
 			// aapt resource value: 0x7f020083
-			public const int PlayToCross = 2130837635;
-			
-			// aapt resource value: 0x7f020091
-			public const int playtocross_1 = 2130837649;
-			
-			// aapt resource value: 0x7f020092
-			public const int playtocross_2 = 2130837650;
+			public const int PlaylistPlayIcon = 2130837635;
 			
 			// aapt resource value: 0x7f020084
-			public const int search = 2130837636;
+			public const int PlayToCross = 2130837636;
+			
+			// aapt resource value: 0x7f020093
+			public const int playtocross_1 = 2130837651;
+			
+			// aapt resource value: 0x7f020094
+			public const int playtocross_2 = 2130837652;
 			
 			// aapt resource value: 0x7f020085
-			public const int settings = 2130837637;
+			public const int search = 2130837637;
 			
 			// aapt resource value: 0x7f020086
-			public const int YtPlay = 2130837638;
+			public const int settings = 2130837638;
+			
+			// aapt resource value: 0x7f020087
+			public const int youtubeIcon = 2130837639;
+			
+			// aapt resource value: 0x7f020088
+			public const int YtPlay = 2130837640;
 			
 			static Drawable()
 			{
@@ -2652,8 +2658,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f0800a8
 			public const int bottomView = 2131230888;
 			
-			// aapt resource value: 0x7f0800eb
-			public const int browseLayout = 2131230955;
+			// aapt resource value: 0x7f0800ec
+			public const int browseLayout = 2131230956;
 			
 			// aapt resource value: 0x7f08008b
 			public const int browseList = 2131230859;
@@ -2736,8 +2742,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f0800d0
 			public const int downFAB = 2131230928;
 			
-			// aapt resource value: 0x7f0800ec
-			public const int downloadLayout = 2131230956;
+			// aapt resource value: 0x7f0800ed
+			public const int downloadLayout = 2131230957;
 			
 			// aapt resource value: 0x7f08007d
 			public const int edit_query = 2131230845;
@@ -2892,8 +2898,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f0800bd
 			public const int line1 = 2131230909;
 			
-			// aapt resource value: 0x7f0800e7
-			public const int line2 = 2131230951;
+			// aapt resource value: 0x7f0800e8
+			public const int line2 = 2131230952;
 			
 			// aapt resource value: 0x7f0800bf
 			public const int line3 = 2131230911;
@@ -2910,8 +2916,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f0800d8
 			public const int localPlay = 2131230936;
 			
-			// aapt resource value: 0x7f0800e9
-			public const int masked = 2131230953;
+			// aapt resource value: 0x7f0800ea
+			public const int masked = 2131230954;
 			
 			// aapt resource value: 0x7f0800b1
 			public const int media_actions = 2131230897;
@@ -2922,14 +2928,14 @@ namespace MusicApp
 			// aapt resource value: 0x7f08004f
 			public const int mini = 2131230799;
 			
-			// aapt resource value: 0x7f0800e6
-			public const int moreButton = 2131230950;
+			// aapt resource value: 0x7f0800e7
+			public const int moreButton = 2131230951;
 			
 			// aapt resource value: 0x7f08002a
 			public const int multiply = 2131230762;
 			
-			// aapt resource value: 0x7f0800ea
-			public const int musicLayout = 2131230954;
+			// aapt resource value: 0x7f0800eb
+			public const int musicLayout = 2131230955;
 			
 			// aapt resource value: 0x7f080095
 			public const int navigation_header_container = 2131230869;
@@ -3006,8 +3012,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f0800c9
 			public const int playerTitle = 2131230921;
 			
-			// aapt resource value: 0x7f0800ed
-			public const int playlistLayout = 2131230957;
+			// aapt resource value: 0x7f0800ee
+			public const int playlistLayout = 2131230958;
 			
 			// aapt resource value: 0x7f08008c
 			public const int playlistName = 2131230860;
@@ -3096,8 +3102,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f080089
 			public const int select_dialog_listview = 2131230857;
 			
-			// aapt resource value: 0x7f0800ee
-			public const int settings = 2131230958;
+			// aapt resource value: 0x7f0800ef
+			public const int settings = 2131230959;
 			
 			// aapt resource value: 0x7f080073
 			public const int shortcut = 2131230835;
@@ -3261,8 +3267,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f08000e
 			public const int view_offset_helper = 2131230734;
 			
-			// aapt resource value: 0x7f0800e8
-			public const int visible = 2131230952;
+			// aapt resource value: 0x7f0800e9
+			public const int visible = 2131230953;
 			
 			// aapt resource value: 0x7f08008a
 			public const int webview = 2131230858;
@@ -3272,6 +3278,9 @@ namespace MusicApp
 			
 			// aapt resource value: 0x7f080030
 			public const int wrap_content = 2131230768;
+			
+			// aapt resource value: 0x7f0800e6
+			public const int youtubeIcon = 2131230950;
 			
 			// aapt resource value: 0x7f0800d9
 			public const int ytPlay = 2131230937;

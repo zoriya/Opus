@@ -9,6 +9,7 @@ namespace MusicApp.Resources.values
         public TextView Title;
         public TextView Artist;
         public ImageView AlbumArt;
+        public ImageView youtubeIcon;
         public ImageView more;
 
         public Holder(View v)
@@ -16,6 +17,7 @@ namespace MusicApp.Resources.values
             Title = v.FindViewById<TextView>(Resource.Id.title);
             Artist = v.FindViewById<TextView>(Resource.Id.artist);
             AlbumArt = v.FindViewById<ImageView>(Resource.Id.albumArt);
+            youtubeIcon = v.FindViewById<ImageView>(Resource.Id.youtubeIcon);
             more = v.FindViewById<ImageView>(Resource.Id.moreButton);
         }
     }

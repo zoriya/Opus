@@ -248,7 +248,6 @@ namespace MusicApp.Resources.Portable_Class
             intent.PutExtra("thumbnailURI", thumbnailURL);
             Android.App.Application.Context.StartService(intent);
 
-            Android.App.Application.Context.StartService(intent);
             parseProgress.Visibility = ViewStates.Gone;
         }
 
@@ -271,7 +270,6 @@ namespace MusicApp.Resources.Portable_Class
             intent.PutExtra("thumbnailURI", thumbnailURL);
             Android.App.Application.Context.StartService(intent);
 
-            Android.App.Application.Context.StartService(intent);
             parseProgress.Visibility = ViewStates.Gone;
         }
 
