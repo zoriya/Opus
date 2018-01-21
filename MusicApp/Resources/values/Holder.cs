@@ -6,6 +6,8 @@ namespace MusicApp.Resources.values
     [System.Serializable]
     public class Holder
     {
+        public ImageView reorder;
+        public LinearLayout textLayout;
         public TextView Title;
         public TextView Artist;
         public ImageView AlbumArt;
@@ -14,6 +16,8 @@ namespace MusicApp.Resources.values
 
         public Holder(View v)
         {
+            reorder = v.FindViewById<ImageView>(Resource.Id.reorder);
+            textLayout = v.FindViewById<LinearLayout>(Resource.Id.textLayout);
             Title = v.FindViewById<TextView>(Resource.Id.title);
             Artist = v.FindViewById<TextView>(Resource.Id.artist);
             AlbumArt = v.FindViewById<ImageView>(Resource.Id.albumArt);

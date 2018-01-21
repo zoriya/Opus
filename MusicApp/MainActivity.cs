@@ -13,7 +13,6 @@ using Android.Support.V4.Widget;
 using Android.Support.V7.App;
 using Android.Support.V7.Preferences;
 using Android.Views;
-using Android.Views.Animations;
 using Android.Widget;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2.Flows;

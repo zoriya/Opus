@@ -5,6 +5,8 @@ using Android.Widget;
 using MusicApp.Resources.values;
 using Android.App;
 using Square.Picasso;
+using Android.Content.Res;
+using Android.Util;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -68,6 +70,13 @@ namespace MusicApp.Resources.Portable_Class
 
             if (Queue.instance != null)
             {
+                float scale = MainActivity.instance.Resources.DisplayMetrics.Density;
+                int padding = 135;
+                padding = (int)(padding * scale + 0.5f);
+
+                holder.reorder.Visibility = ViewStates.Visible;
+                holder.textLayout.SetPadding(padding, 0, 0, 0);
+
                 if (songList[position].queueSlot == MusicPlayer.CurrentID())
                 {
                     //holder.Title.SetTextSize(Android.Util.ComplexUnitType.Dip, 18);
