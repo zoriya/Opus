@@ -3,6 +3,7 @@ using Android.Support.V4.App;
 using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
+using System.Threading.Tasks;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -14,6 +15,7 @@ namespace MusicApp.Resources.Portable_Class
 
         private View view;
         private bool isEmpty = false;
+        private string[] actions = new string[] { "Remove from queue" };
 
         public override void OnActivityCreated(Bundle savedInstanceState)
         {
@@ -100,13 +102,15 @@ namespace MusicApp.Resources.Portable_Class
         {
             Song item = MusicPlayer.queue[e.Position];
 
-            if (!item.isParsed)
-            {
-                //adapter.GetItem(e.Position)
-                //REFRESH ITEM VIEW, SHOULD CHANGE PARSE ICON TO YOUTUBE ICON
-            }
-
             MusicPlayer.instance.SwitchQueue(item);
+
+            if (item.IsYt && !item.isParsed)
+            {
+                while (MusicPlayer.queue[MusicPlayer.CurrentID()].GetName() != item.GetName())
+                    await Task.Delay(10);
+
+                ListView.GetChildAt(e.Position - ListView.FirstVisiblePosition).FindViewById<ImageView>(Resource.Id.youtubeIcon).SetImageResource(Resource.Drawable.youtubeIcon);
+            }
         }
 
         private void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
@@ -116,7 +120,31 @@ namespace MusicApp.Resources.Portable_Class
 
         public void More(Song item)
         {
-            Toast.MakeText(Android.App.Application.Context, "Comming Soon", ToastLength.Short).Show();
+            Android.App.AlertDialog.Builder builder = new Android.App.AlertDialog.Builder(Android.App.Application.Context, Resource.Style.AppCompatAlertDialogStyle);
+            builder.SetTitle("Pick an action");
+            builder.SetItems(actions, (senderAlert, args) =>
+            {
+                switch (args.Which)
+                {
+                    case 0:
+                        RemoveFromQueue(item);
+                        break;
+                    default:
+                        break;
+                }
+            });
+            builder.Show();
+        }
+
+        void RemoveFromQueue(Song item)
+        {
+            foreach(Song song in MusicPlayer.queue)
+            {
+                if (song.queueSlot > item.queueSlot)
+                    song.queueSlot--;
+            }
+
+            MusicPlayer.queue.Remove(item);
         }
     }
 }

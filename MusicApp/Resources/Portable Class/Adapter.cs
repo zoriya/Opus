@@ -68,6 +68,11 @@ namespace MusicApp.Resources.Portable_Class
 
             if (Queue.instance != null)
             {
+                if (songList[position].queueSlot == MusicPlayer.CurrentID())
+                {
+                    //holder.Title.SetTextSize(Android.Util.ComplexUnitType.Dip, 18);
+                }
+
                 if (!songList[position].isParsed && songList[position].IsYt)
                 {
                     holder.youtubeIcon.SetImageResource(Resource.Drawable.needProcessing);
