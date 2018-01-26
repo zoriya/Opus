@@ -7,6 +7,7 @@ using Android.App;
 using Square.Picasso;
 using Android.Content.Res;
 using Android.Util;
+using Android.Support.V7.Widget.Helper;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -66,36 +67,6 @@ namespace MusicApp.Resources.Portable_Class
                     PlaylistTracks.instance?.More(songList[position], position);
                     FolderTracks.instance?.More(songList[position]);
                 };
-            }
-
-            if (Queue.instance != null)
-            {
-                float scale = MainActivity.instance.Resources.DisplayMetrics.Density;
-                int padding = 135;
-                padding = (int)(padding * scale + 0.5f);
-
-                holder.reorder.Visibility = ViewStates.Visible;
-                holder.textLayout.SetPadding(padding, 0, 0, 0);
-
-                if (songList[position].queueSlot == MusicPlayer.CurrentID())
-                {
-                    //holder.Title.SetTextSize(Android.Util.ComplexUnitType.Dip, 18);
-                }
-
-                if (!songList[position].isParsed && songList[position].IsYt)
-                {
-                    holder.youtubeIcon.SetImageResource(Resource.Drawable.needProcessing);
-                    holder.youtubeIcon.Visibility = ViewStates.Visible;
-                }
-                else if(songList[position].IsYt)
-                {
-                    holder.youtubeIcon.SetImageResource(Resource.Drawable.youtubeIcon);
-                    holder.youtubeIcon.Visibility = ViewStates.Visible;
-                }
-                else
-                {
-                    holder.youtubeIcon.Visibility = ViewStates.Gone;
-                }
             }
 
             return convertView;

@@ -231,6 +231,11 @@ namespace MusicApp
                 contentRefresh.SetEnabled(e.FirstVisibleItem == 0);
         }
 
+        public void Scroll(object sender, View.ScrollChangeEventArgs e)
+        {
+            //contentRefresh.SetEnabled(e.FirstVisibleItem == 0);
+        }
+
         private async void ActionPlayer()
         {
             await Task.Delay(100);
@@ -291,7 +296,9 @@ namespace MusicApp
             }
             else if(item.ItemId == Resource.Id.search)
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 var searchItem = MenuItemCompat.GetActionView(item);
+#pragma warning restore CS0618 // Type or member is obsolete
                 var searchView = searchItem.JavaCast<SearchView>();
 
                 searchView.QueryTextChange += Search;
@@ -351,7 +358,9 @@ namespace MusicApp
                 return;
 
             var item = menu.FindItem(Resource.Id.search);
+#pragma warning disable CS0618 // Type or member is obsolete
             var searchItem = MenuItemCompat.GetActionView(item);
+#pragma warning restore CS0618 // Type or member is obsolete
             var searchView = searchItem.JavaCast<SearchView>();
 
             searchView.SetQuery("", false);
@@ -376,7 +385,9 @@ namespace MusicApp
             var item = menu.FindItem(Resource.Id.search);
             item.SetVisible(true);
             item.CollapseActionView();
+#pragma warning disable CS0618 // Type or member is obsolete
             var searchItem = MenuItemCompat.GetActionView(item);
+#pragma warning restore CS0618 // Type or member is obsolete
             var searchView = searchItem.JavaCast<SearchView>();
 
             searchView.SetQuery("", false);

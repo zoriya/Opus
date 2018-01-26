@@ -162,7 +162,9 @@ namespace MusicApp.Resources.Portable_Class
             IExtractorsFactory extractorFactory = new DefaultExtractorsFactory();
             Handler handler = new Handler();
             IMediaSource mediaSource = new ExtractorMediaSource(Uri.Parse(filePath), dataSourceFactory, extractorFactory, handler, null);
+#pragma warning disable CS0618 // Type or member is obsolete
             var audioFocus = audioManager.RequestAudioFocus(this, Stream.Music, AudioFocus.Gain);
+#pragma warning restore CS0618 // Type or member is obsolete
             if (audioFocus != AudioFocusRequest.Granted)
             {
                 Console.WriteLine("Can't Get Audio Focus");
@@ -208,7 +210,9 @@ namespace MusicApp.Resources.Portable_Class
             IExtractorsFactory extractorFactory = new DefaultExtractorsFactory();
             Handler handler = new Handler();
             IMediaSource mediaSource = new ExtractorMediaSource(Uri.Parse(song.GetPath()), dataSourceFactory, extractorFactory, handler, null);
+#pragma warning disable CS0618 // Type or member is obsolete
             var audioFocus = audioManager.RequestAudioFocus(this, Stream.Music, AudioFocus.Gain);
+#pragma warning restore CS0618 // Type or member is obsolete
             if (audioFocus != AudioFocusRequest.Granted)
             {
                 Console.WriteLine("Can't Get Audio Focus");
@@ -238,7 +242,7 @@ namespace MusicApp.Resources.Portable_Class
             if(clearQueue)
                 Play(filePath[0]);
             await Task.Delay(1000);
-            for (int i = clearQueue ? 0 : 1; i < filePath.Count; i++)
+            for (int i = clearQueue ? 1 : 0; i < filePath.Count; i++)
             {
                 GetTrackSong(filePath[i], out Song song);
                 song.queueSlot = queue.Count;
@@ -291,8 +295,10 @@ namespace MusicApp.Resources.Portable_Class
 
         public void PlayLastInQueue(string filePath, string title, string artist, string youtubeID, string thumbnailURI)
         {
-            Song song = new Song(title, artist, thumbnailURI, youtubeID, -1, -1, filePath, true);
-            song.queueSlot = CurrentID() + 1;
+            Song song = new Song(title, artist, thumbnailURI, youtubeID, -1, -1, filePath, true)
+            {
+                queueSlot = CurrentID() + 1
+            };
 
             queue.Add(song);
         }
@@ -517,6 +523,7 @@ namespace MusicApp.Resources.Portable_Class
             tmpDefaultIntent.SetAction("Player");
             PendingIntent defaultIntent = PendingIntent.GetActivity(Application.Context, 0, tmpDefaultIntent, PendingIntentFlags.UpdateCurrent);
 
+#pragma warning disable CS0618 // Type or member is obsolete
             notification = new NotificationCompat.Builder(Application.Context)
                 .SetVisibility(NotificationCompat.VisibilityPublic)
                 .SetSmallIcon(Resource.Drawable.MusicIcon)
@@ -534,6 +541,7 @@ namespace MusicApp.Resources.Portable_Class
                 .SetContentIntent(defaultIntent)
                 .Build();
             StartForeground(notificationID, notification);
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         public void Pause()
@@ -685,6 +693,21 @@ namespace MusicApp.Resources.Portable_Class
         public void OnTracksChanged(TrackGroupArray p0, TrackSelectionArray p1)
         {
 
+        }
+
+        public void OnPositionDiscontinuity(int p0)
+        {
+            
+        }
+
+        public void OnSeekProcessed()
+        {
+            
+        }
+
+        public void OnShuffleModeEnabledChanged(bool p0)
+        {
+            
         }
     }
 }
