@@ -1,4 +1,5 @@
-﻿using Android.Support.V7.Widget;
+﻿using Android.Graphics;
+using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using System;
@@ -17,6 +18,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public RecyclerHolder(View itemView, Action<int> listener, Action<int> longListener) : base(itemView)
         {
+            itemView.SetBackgroundColor(Color.White);
             reorder = itemView.FindViewById<ImageView>(Resource.Id.reorder);
             textLayout = itemView.FindViewById<LinearLayout>(Resource.Id.textLayout);
             Title = itemView.FindViewById<TextView>(Resource.Id.title);

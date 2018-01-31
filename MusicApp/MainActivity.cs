@@ -12,6 +12,7 @@ using Android.Support.V4.View;
 using Android.Support.V4.Widget;
 using Android.Support.V7.App;
 using Android.Support.V7.Preferences;
+using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Google.Apis.Auth.OAuth2;
@@ -233,7 +234,8 @@ namespace MusicApp
 
         public void Scroll(object sender, View.ScrollChangeEventArgs e)
         {
-            //contentRefresh.SetEnabled(e.FirstVisibleItem == 0);
+            if(!Queue.instance.adapter.RefreshDisabled())
+                contentRefresh.SetEnabled(((LinearLayoutManager)Queue.instance.ListView.GetLayoutManager()).FindFirstVisibleItemPosition() == 0);
         }
 
         private async void ActionPlayer()
@@ -862,7 +864,6 @@ namespace MusicApp
             quickPlayLayout = LayoutInflater.Inflate(Resource.Layout.QuickPlayLayout, null);
             ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
             AddContentView(quickPlayLayout, rootView.LayoutParameters);
-            Console.WriteLine("&Starting padding bot: " + paddingBot);
             quickPlayLayout.SetPadding(0, 0, 0, paddingBot + PxToDp(6));
             quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.quickPlay).Click += QuickPlay;
             quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.localPlay).Click += LocalPlay;

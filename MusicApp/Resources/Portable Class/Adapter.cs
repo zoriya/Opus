@@ -1,13 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using Android.App;
 using Android.Content;
 using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
-using Android.App;
 using Square.Picasso;
-using Android.Content.Res;
-using Android.Util;
-using Android.Support.V7.Widget.Helper;
+using System.Collections.Generic;
 
 namespace MusicApp.Resources.Portable_Class
 {

@@ -211,6 +211,7 @@
     <Compile Include="Resources\Portable Class\FolderAdapter.cs" />
     <Compile Include="Resources\Portable Class\FolderBrowse.cs" />
     <Compile Include="Resources\Portable Class\FolderTracks.cs" />
+    <Compile Include="Resources\Portable Class\ItemTouchCallback.cs" />
     <Compile Include="Resources\Portable Class\MusicPlayer.cs" />
     <Compile Include="Resources\Portable Class\OauthCallback.cs" />
     <Compile Include="Resources\Portable Class\Player.cs" />

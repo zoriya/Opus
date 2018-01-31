@@ -606,6 +606,18 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
+        public static void Swap(int fromPosition, int toPosition)
+        {
+            queue[fromPosition].queueSlot = fromPosition;
+            for(int i = 0; i < queue.Count; i++)
+            {
+                if (CurrentID() == queue[i].queueSlot)
+                    currentID = i;
+
+                queue[i].queueSlot = i;
+            }
+        }
+
         public void OnAudioFocusChange(AudioFocus focusChange)
         {
             switch (focusChange)

@@ -5,28 +5,35 @@ using Android.Views;
 using MusicApp.Resources.values;
 using Square.Picasso;
 using System;
+using System.Collections.Generic;
 
 namespace MusicApp.Resources.Portable_Class
 {
-    public class RecyclerAdapter : RecyclerView.Adapter
+    public class RecyclerAdapter : RecyclerView.Adapter, IItemTouchAdapter
     {
-        private Song[] songList;
+        private List<Song> songList;
+        private bool refreshDisabled = false;
         public event EventHandler<int> ItemClick;
         public event EventHandler<int> ItemLongCLick;
 
-        public RecyclerAdapter(Song[] songList)
+        public RecyclerAdapter(List<Song> songList)
         {
-            Console.WriteLine("&Recycler adapter created");
             this.songList = songList;
         }
 
-        public override int ItemCount => songList.Length;
+        public void UpdateList(List<Song> songList)
+        {
+            this.songList = songList;
+            NotifyDataSetChanged();
+        }
+
+        public override int ItemCount => songList.Count;
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position)
         {
             RecyclerHolder holder = (RecyclerHolder)viewHolder;
 
-            holder.Title.Text += songList[position].GetName();
+            holder.Title.Text = songList[position].GetName();
             holder.Artist.Text = songList[position].GetArtist();
 
             if (songList[position].GetAlbumArt() == -1 || songList[position].IsYt)
@@ -60,6 +67,16 @@ namespace MusicApp.Resources.Portable_Class
             padding = (int)(padding * scale + 0.5f);
 
             holder.reorder.Visibility = ViewStates.Visible;
+            //if (!holder.reorder.HasOnClickListeners)
+            //{
+            //    holder.reorder.Click += (sender, e) =>
+            //    {
+            //        Queue.instance.itemTouchHelper.StartDrag(viewHolder);
+            //        MainActivity.instance.contentRefresh.SetEnabled(false);
+            //        Queue.instance.adapter.DisableRefresh(true);
+            //    };
+            //}
+
             holder.textLayout.SetPadding(padding, 0, 0, 0);
 
             if (songList[position].queueSlot == MusicPlayer.CurrentID())
@@ -97,6 +114,56 @@ namespace MusicApp.Resources.Portable_Class
         void OnLongClick(int position)
         {
             ItemLongCLick?.Invoke(this, position);
+        }
+
+        public void ItemMoved(int fromPosition, int toPosition)
+        {
+            if(fromPosition < toPosition)
+            {
+                for(int i = fromPosition; i < toPosition; i++)
+                {
+                    songList = Swap(songList, i, i + 1);
+                }
+            }
+            else
+            {
+                for(int i = fromPosition; i > toPosition; i--)
+                {
+                    songList = Swap(songList, i, i - 1);
+                }
+            }
+
+            NotifyItemMoved(fromPosition, toPosition);
+        }
+
+        public void ItemMoveEnded(int fromPosition, int toPosition)
+        {
+            MusicPlayer.Swap(fromPosition, toPosition);
+        }
+
+        List<T> Swap<T>(List<T> list, int fromPosition, int toPosition)
+        {
+            T item = list[fromPosition];
+            list[fromPosition] = list[toPosition];
+            list[toPosition] = item;
+            return list;
+        }
+
+        public void ItemDismissed(int position)
+        {
+            Console.WriteLine("&Swiped");
+            Queue.instance.RemoveFromQueue(songList[position]);
+            NotifyItemRemoved(position);
+        }
+
+        public bool RefreshDisabled()
+        {
+            return refreshDisabled;
+        }
+
+        public void DisableRefresh(bool disable)
+        {
+            refreshDisabled = disable;
         }
     }
 }

@@ -2,7 +2,7 @@
 <RelativeLayout  
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="fill_parent"
-  android:layout_height="fill_parent"
+  android:layout_height="wrap_content"
   android:padding="8dp" >
   <LinearLayout
     android:orientation="horizontal"
@@ -67,7 +67,6 @@
       android:clickable="true"
       android:background="@null"
       android:src="@drawable/ic_more_vert_black_24dp"
-      android:layout_centerVertical="true"
-      android:layout_alignParentRight="true" />
+      android:layout_centerVertical="true" />
     </LinearLayout>
 </RelativeLayout >

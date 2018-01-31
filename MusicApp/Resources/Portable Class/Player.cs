@@ -234,7 +234,7 @@ namespace MusicApp.Resources.Portable_Class
 
         private void Fab_Click(object sender, EventArgs e)
         {
-            Activity.SupportFragmentManager.BeginTransaction()./*SetCustomAnimations(Resource.Animation.SlideInUp, Resource.Animation.SlideOutUp).*/Replace(Resource.Id.contentView, Queue.NewInstance()).Commit();
+            //Activity.SupportFragmentManager.BeginTransaction()./*SetCustomAnimations(Resource.Animation.SlideInUp, Resource.Animation.SlideOutUp).*/Replace(Resource.Id.contentView, Queue.NewInstance()).Commit();
             MainActivity.instance.FindViewById<BottomNavigationView>(Resource.Id.bottomView).SelectedItemId = Resource.Id.musicLayout;
         }
 

@@ -1,6 +1,7 @@
 ﻿using Android.OS;
 using Android.Support.V4.App;
 using Android.Support.V7.Widget;
+using Android.Support.V7.Widget.Helper;
 using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
@@ -16,26 +17,23 @@ namespace MusicApp.Resources.Portable_Class
         public RecyclerAdapter adapter;
         public View emptyView;
         public View recyclerFragment;
+        public ItemTouchHelper itemTouchHelper;
+        public View view;
 
         private bool isEmpty = false;
         private string[] actions = new string[] { "Remove from queue" };
 
         public override void OnActivityCreated(Bundle savedInstanceState)
         {
-            emptyView = LayoutInflater.Inflate(Resource.Layout.NoQueue, null);
             base.OnActivityCreated(savedInstanceState);
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
             MainActivity.instance.OnPaddingChanged += PaddingChanged;
-        }
-
-        private void ListView_ScrollChange(object sender, View.ScrollChangeEventArgs e)
-        {
-            
+            emptyView = LayoutInflater.Inflate(Resource.Layout.NoQueue, null);
         }
 
         private void PaddingChanged(object sender, PaddingChange e)
         {
-            //view.SetPadding(0, 0, 0, MainActivity.paddingBot); //zegizrgbnzeg
+            view.SetPadding(0, 0, 0, MainActivity.paddingBot);
         }
 
         public override void OnDestroy()
@@ -53,30 +51,40 @@ namespace MusicApp.Resources.Portable_Class
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            View v = inflater.Inflate(Resource.Layout.RecyclerFragment, container, false);
-            ListView = v.FindViewById<RecyclerView>(Resource.Id.recycler);
-            System.Console.WriteLine("&ListView initated");
-            //v.SetPadding(0, 0, 0, MainActivity.paddingBot);
+            view = inflater.Inflate(Resource.Layout.RecyclerFragment, container, false);
+            ListView = view.FindViewById<RecyclerView>(Resource.Id.recycler);
+            view.SetPadding(0, 0, 0, MainActivity.paddingBot);
             ListView.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
 
             if (MusicPlayer.queue != null)
-                adapter = new RecyclerAdapter(MusicPlayer.queue.ToArray());
+                adapter = new RecyclerAdapter(MusicPlayer.queue);
             else
-                adapter = new RecyclerAdapter(new List<Song>().ToArray());
+                adapter = new RecyclerAdapter(new List<Song>());
             ListView.SetAdapter(adapter);
             adapter.ItemClick += ListView_ItemClick;
-            adapter.ItemLongCLick += ListView_ItemLongClick;
+            adapter.ItemLongCLick += ListView_ItemLongCLick;
             ListView.SetItemAnimator(new DefaultItemAnimator());
-            ListView.ScrollChange += MainActivity.instance.Scroll; //egohzogjbezgkezbjgjbezogzebglzjgbezljbg
+            ListView.ScrollChange += MainActivity.instance.Scroll;
+
+            ItemTouchHelper.Callback callback = new ItemTouchCallback(adapter);
+            itemTouchHelper = new ItemTouchHelper(callback);
+            itemTouchHelper.AttachToRecyclerView(ListView);
+
 
             if (adapter == null || adapter.ItemCount == 0)
             {
                 if (isEmpty)
-                    return v;
+                    return view;
                 isEmpty = true;
-                Activity.AddContentView(emptyView, View.LayoutParameters);
+                AddEmptyView();
             }
-            return v;
+            return view;
+        }
+
+        public async void AddEmptyView()
+        {
+            await Task.Delay(500);
+            Activity.AddContentView(emptyView, View.LayoutParameters);
         }
 
         public static Fragment NewInstance()
@@ -93,16 +101,15 @@ namespace MusicApp.Resources.Portable_Class
 
         public void Refresh()
         {
-            adapter = new RecyclerAdapter(MusicPlayer.queue.ToArray());
-            adapter.ItemClick += ListView_ItemClick;
-            adapter.ItemLongCLick += ListView_ItemLongClick;
-            ListView.SetAdapter(adapter);
+            adapter.UpdateList(MusicPlayer.queue);
 
             if (adapter == null || adapter.ItemCount == 0)
             {
                 if (isEmpty)
                     return;
                 isEmpty = true;
+                if(emptyView == null)
+                    emptyView = LayoutInflater.Inflate(Resource.Layout.NoQueue, null);
                 Activity.AddContentView(emptyView, View.LayoutParameters);
             }
         }
@@ -122,9 +129,10 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
-        private void ListView_ItemLongClick(object sender, int Position)
+        private void ListView_ItemLongCLick(object sender, int e)
         {
-            More(MusicPlayer.queue[Position]);
+            MainActivity.instance.contentRefresh.SetEnabled(false);
+            adapter.DisableRefresh(true);
         }
 
         public void More(Song item)
@@ -145,7 +153,7 @@ namespace MusicApp.Resources.Portable_Class
             builder.Show();
         }
 
-        void RemoveFromQueue(Song item)
+        public void RemoveFromQueue(Song item)
         {
             foreach(Song song in MusicPlayer.queue)
             {
