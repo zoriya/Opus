@@ -1,5 +1,6 @@
 ﻿using Android.App;
 using Android.Content;
+using Android.Graphics;
 using Android.Support.V7.Widget;
 using Android.Views;
 using MusicApp.Resources.values;
@@ -11,7 +12,7 @@ namespace MusicApp.Resources.Portable_Class
 {
     public class RecyclerAdapter : RecyclerView.Adapter, IItemTouchAdapter
     {
-        private List<Song> songList;
+        public List<Song> songList;
         private bool refreshDisabled = false;
         public event EventHandler<int> ItemClick;
         public event EventHandler<int> ItemLongCLick;
@@ -25,6 +26,13 @@ namespace MusicApp.Resources.Portable_Class
         {
             this.songList = songList;
             NotifyDataSetChanged();
+        }
+
+        public void AddToList(List<Song> songList)
+        {
+            int positionStart = this.songList.Count;
+            this.songList.AddRange(songList);
+            NotifyItemRangeInserted(positionStart, songList.Count);
         }
 
         public override int ItemCount => songList.Count;
@@ -98,6 +106,11 @@ namespace MusicApp.Resources.Portable_Class
             {
                 holder.youtubeIcon.Visibility = ViewStates.Gone;
             }
+
+            if (position == MusicPlayer.CurrentID())
+                holder.ItemView.SetBackgroundColor(Color.DimGray);
+            else
+                holder.ItemView.SetBackgroundColor(Color.White);
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)

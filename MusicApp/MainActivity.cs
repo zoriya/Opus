@@ -236,6 +236,11 @@ namespace MusicApp
         {
             if(!Queue.instance.adapter.RefreshDisabled())
                 contentRefresh.SetEnabled(((LinearLayoutManager)Queue.instance.ListView.GetLayoutManager()).FindFirstVisibleItemPosition() == 0);
+
+            if(((LinearLayoutManager)Queue.instance.ListView.GetLayoutManager()).FindLastCompletelyVisibleItemPosition() == Queue.instance.adapter.songList.Count)
+            {
+                Queue.instance.LoadMore();
+            }
         }
 
         private async void ActionPlayer()

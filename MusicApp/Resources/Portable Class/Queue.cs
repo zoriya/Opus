@@ -6,6 +6,7 @@ using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace MusicApp.Resources.Portable_Class
@@ -114,6 +115,11 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
+        public void LoadMore()
+        {
+            List<Song> songList = MusicPlayer.queue.Except(adapter.songList).ToList();
+        }
+
         private async void ListView_ItemClick(object sender, int Position)
         {
             Song item = MusicPlayer.queue[Position];
@@ -155,6 +161,12 @@ namespace MusicApp.Resources.Portable_Class
 
         public void RemoveFromQueue(Song item)
         {
+            if(item == MusicPlayer.queue[MusicPlayer.CurrentID()])
+            {
+                //Make snackbar
+                return;
+            }
+
             foreach(Song song in MusicPlayer.queue)
             {
                 if (song.queueSlot > item.queueSlot)

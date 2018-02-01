@@ -26,6 +26,10 @@ namespace MusicApp.Resources.Portable_Class
         {
             int dragFlag = ItemTouchHelper.Up | ItemTouchHelper.Down;
             int swipeFlag = ItemTouchHelper.Left | ItemTouchHelper.Right;
+
+            if (MusicPlayer.queue[MusicPlayer.CurrentID()].GetName() == viewHolder.ItemView.FindViewById<TextView>(Resource.Id.title).Text)
+                return MakeMovementFlags(dragFlag, 0);
+
             return MakeMovementFlags(dragFlag, swipeFlag);
         }
 
@@ -47,7 +51,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public override void OnChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, bool isCurrentlyActive)
         {
-            if (actionState == ItemTouchHelper.ActionStateSwipe && MusicPlayer.queue[MusicPlayer.CurrentID()].GetName() != viewHolder.ItemView.FindViewById<TextView>(Resource.Id.title).Text)
+            if (actionState == ItemTouchHelper.ActionStateSwipe)
             {
                 viewHolder.ItemView.Alpha = 1 - Math.Abs(dX) / viewHolder.ItemView.Width;
                 viewHolder.ItemView.TranslationX = dX;
