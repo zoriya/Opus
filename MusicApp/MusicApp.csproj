@@ -208,6 +208,7 @@
     <Compile Include="Resources\Portable Class\Adapter.cs" />
     <Compile Include="Resources\Portable Class\Browse.cs" />
     <Compile Include="Resources\Portable Class\Downloader.cs" />
+    <Compile Include="Resources\Portable Class\EditMetaData.cs" />
     <Compile Include="Resources\Portable Class\FolderAdapter.cs" />
     <Compile Include="Resources\Portable Class\FolderBrowse.cs" />
     <Compile Include="Resources\Portable Class\FolderTracks.cs" />
@@ -471,6 +472,9 @@
     <AndroidResource Include="Resources\layout\RecyclerFragment.xml">
       <SubType>Designer</SubType>
     </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\EditMetaData.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

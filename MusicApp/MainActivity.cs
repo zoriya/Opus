@@ -33,7 +33,7 @@ using SearchView = Android.Support.V7.Widget.SearchView;
 
 namespace MusicApp
 {
-    [Activity(Label = "MusicApp", MainLauncher = true, Icon = "@drawable/MusicIcon", Theme = "@style/Theme")]
+    [Activity(Label = "MusicApp", MainLauncher = true, Icon = "@drawable/MusicIcon", Theme = "@style/Theme", ScreenOrientation = ScreenOrientation.Portrait)]
     public class MainActivity : AppCompatActivity, ViewPager.IOnPageChangeListener
     {
         public static MainActivity instance;
@@ -769,7 +769,7 @@ namespace MusicApp
         {
             HideTabs();
             HideSearch();
-            SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).Commit(); 
+            SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).AddToBackStack(null).Commit(); 
         }
 
         public void GetStoragePermission()

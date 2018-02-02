@@ -25,7 +25,7 @@ namespace MusicApp.Resources.Portable_Class
         public bool focused = true;
 
         private View view;
-        private string[] actions = new string[] { "Play", "Play Next", "Play Last", "Add To Playlist" };
+        private string[] actions = new string[] { "Play", "Play Next", "Play Last", "Add To Playlist", "Edit Metadata" };
         private bool isEmpty = false;
 
 
@@ -227,6 +227,9 @@ namespace MusicApp.Resources.Portable_Class
                     case 3:
                         GetPlaylist(item);
                         break;
+                    case 4:
+                        EditMetaData();
+                        break;
                     default:
                         break;
                 }
@@ -359,6 +362,11 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             AddToPlaylist(item, playList, playlistID);
+        }
+
+        public void EditMetaData()
+        {
+
         }
     }
 }
