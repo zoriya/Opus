@@ -3,13 +3,92 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   android:orientation="vertical"
-  android:layout_width="wrap_content"
+  android:layout_width="fill_parent"
   android:layout_height="wrap_content" >
-  <ImageView
-    android:id="@+id/metadataArt"
-    android:layout_width="fill_parent"
-    android:background="@null"
+  <android.support.design.widget.AppBarLayout
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:scaleType="fitCenter"
-    android:adjustViewBounds="true" />
+    android:background="@drawable/TranslucentBackground" >
+    <android.support.v7.widget.Toolbar
+      android:id="@+id/backToolbar"
+      android:layout_width="match_parent"
+      android:layout_height="?attr/actionBarSize"
+      android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+      app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+  </android.support.design.widget.AppBarLayout>
+  <LinearLayout
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content">
+    <ImageView
+      android:id="@+id/metadataArt"
+      android:layout_width="fill_parent"
+      android:background="@null"
+      android:layout_height="wrap_content"
+      android:scaleType="fitCenter"
+      android:adjustViewBounds="true" />
+    <android.support.v7.widget.CardView
+      android:layout_gravity="center"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_margin="8dp" >
+      <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" >
+        <android.support.design.widget.TextInputLayout
+          android:layout_margin="8dp"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content">
+          <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:hint="Title"
+            android:id="@+id/metadataTitle" />
+        </android.support.design.widget.TextInputLayout>
+        <android.support.design.widget.TextInputLayout
+          android:layout_margin="8dp"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content">
+          <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:hint="Artist"
+            android:id="@+id/metadataArtist" />
+        </android.support.design.widget.TextInputLayout>
+        <android.support.design.widget.TextInputLayout
+          android:layout_margin="8dp"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content">
+          <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:hint="Album"
+            android:id="@+id/metadataAlbum" />
+        </android.support.design.widget.TextInputLayout>
+        <android.support.design.widget.TextInputLayout
+          android:layout_margin="8dp"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content">
+          <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:hint="Youtube ID"
+            android:id="@+id/metadataYID" />
+        </android.support.design.widget.TextInputLayout>
+      </LinearLayout>
+    </android.support.v7.widget.CardView>
+  </LinearLayout>
+  <android.support.design.widget.FloatingActionButton
+    android:id="@+id/metadataFAB"
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
+    android:layout_marginRight="15dp"
+    android:src="@drawable/ic_done_black_24dp"
+    app:layout_anchor="@id/metadataArt"
+    app:layout_anchorGravity="bottom|end" />
 </android.support.design.widget.CoordinatorLayout>

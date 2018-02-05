@@ -40,6 +40,7 @@ namespace MusicApp
         public static int paddingBot = 0;
 
         public Android.Support.V7.Widget.Toolbar ToolBar;
+        public bool NoToolbarMenu = false;
         public IMenu menu;
         public SwipeRefreshLayout contentRefresh;
         public SwipeRefreshLayout pagerRefresh;
@@ -80,7 +81,7 @@ namespace MusicApp
             base.OnCreate(savedInstanceState);
 
             SetContentView(Resource.Layout.Main);
-
+            Song song = (Song) Intent.GetStringExtra("Song");
             instance = this;
 
             var bottomNavigation = FindViewById<BottomNavigationView>(Resource.Id.bottomView);
@@ -261,6 +262,12 @@ namespace MusicApp
 
         public override bool OnCreateOptionsMenu(IMenu menu)
         {
+            if (NoToolbarMenu)
+            {
+                menu = null;
+                return base.OnCreateOptionsMenu(menu);
+            }
+
             MenuInflater.Inflate(Resource.Menu.toolbar_menu, menu);
             this.menu = menu;
             var item = menu.FindItem(Resource.Id.search);
@@ -299,6 +306,10 @@ namespace MusicApp
                     SupportActionBar.Title = "MusicApp";
                     FolderTracks.instance = null;
                     SetBrowseTabs(1);
+                }
+                if(EditMetaData.instance != null)
+                {
+
                 }
             }
             else if(item.ItemId == Resource.Id.search)

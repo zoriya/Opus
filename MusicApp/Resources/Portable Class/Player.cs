@@ -65,8 +65,6 @@ namespace MusicApp.Resources.Portable_Class
             while (MusicPlayer.CurrentID() == -1)
                 await Task.Delay(100);
 
-            Console.WriteLine("&" + MusicPlayer.CurrentID());
-
             MainActivity.instance.ShowQuickPlay();
             MainActivity.instance.ToolBar.Visibility = ViewStates.Gone;
             MainActivity.instance.FindViewById<BottomNavigationView>(Resource.Id.bottomView).Visibility = ViewStates.Gone;

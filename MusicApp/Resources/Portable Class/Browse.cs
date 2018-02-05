@@ -228,7 +228,7 @@ namespace MusicApp.Resources.Portable_Class
                         GetPlaylist(item);
                         break;
                     case 4:
-                        EditMetaData();
+                        EditMetadata(item);
                         break;
                     default:
                         break;
@@ -364,9 +364,13 @@ namespace MusicApp.Resources.Portable_Class
             AddToPlaylist(item, playList, playlistID);
         }
 
-        public void EditMetaData()
+        public void EditMetadata(Song item)
         {
-
+            MainActivity.instance.HideTabs();
+            Intent intent = new Intent(Android.App.Application.Context, typeof(EditMetaData));
+            intent.PutExtra("Song", item.ToString());
+            MainActivity.instance.StartActivity(intent);
+            //MainActivity.instance.Transition(Resource.Id.contentView, EditMetaData.NewInstance(item), true);
         }
     }
 }

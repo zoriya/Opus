@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-using Android.Support.V4.App;
+﻿using Android.App;
 using Android.Content;
 using Android.OS;
-using Android.Runtime;
+using Android.Support.Design.Widget;
+using Android.Support.V7.App;
 using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
@@ -14,51 +10,67 @@ using Square.Picasso;
 
 namespace MusicApp.Resources.Portable_Class
 {
-    public class EditMetaData : Fragment
+    [Activity(Label = "EditMetaData", Theme = "@style/Theme")]
+    public class EditMetaData : AppCompatActivity
     {
         public static EditMetaData instance;
         public Song song;
 
-        private View view;
-
-
-        public override void OnActivityCreated(Bundle savedInstanceState)
+        protected override void OnCreate(Bundle savedInstanceState)
         {
-            base.OnActivityCreated(savedInstanceState);
-        }
+            base.OnCreate(savedInstanceState);
 
-        public override void OnDestroy()
-        {
-            base.OnDestroy();
-        }
+            SetContentView(Resource.Layout.EditMetaData);
+            instance = this;
+            song = (Song) Intent.GetStringExtra("Song");
 
-        public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-        {
-            view = inflater.Inflate(Resource.Layout.EditMetaData, container);
-            ImageView albumArt = view.FindViewById<ImageView>(Resource.Id.metadataArt);
+            Android.Support.V7.Widget.Toolbar toolbar = FindViewById<Android.Support.V7.Widget.Toolbar>(Resource.Id.backToolbar);
+            SetSupportActionBar(toolbar);
+            SupportActionBar.SetDisplayShowTitleEnabled(false);
+            SupportActionBar.SetDisplayHomeAsUpEnabled(true);
 
+            TextView title = FindViewById<TextView>(Resource.Id.metadataTitle);
+            TextView artist = FindViewById<TextView>(Resource.Id.metadataArtist);
+            TextView album = FindViewById<TextView>(Resource.Id.metadataAlbum);
+            TextView youtubeID = FindViewById<TextView>(Resource.Id.metadataYID);
+            ImageView albumArt = FindViewById<ImageView>(Resource.Id.metadataArt);
+            FloatingActionButton fab = FindViewById<FloatingActionButton>(Resource.Id.metadataFAB);
+            fab.Click += (sender, e) => { ValidateChanges(); };
+
+            title.Text = song.GetName();
+            artist.Text = song.GetArtist();
+            album.Text = song.GetAlbum();
+            youtubeID.Text = song.youtubeID;
 
             if (song.GetAlbumArt() == -1 || song.IsYt)
             {
                 var songAlbumArtUri = Android.Net.Uri.Parse(song.GetAlbum());
-                Picasso.With(Android.App.Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(albumArt);
+                Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(albumArt);
             }
             else
             {
                 var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
                 var songAlbumArtUri = ContentUris.WithAppendedId(songCover, song.GetAlbumArt());
 
-                Picasso.With(Android.App.Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(albumArt);
+                Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(albumArt);
             }
-
-            return view;
         }
 
-        public static Fragment NewInstance(Song item)
+        public override bool OnOptionsItemSelected(IMenuItem item)
         {
-            instance = new EditMetaData { Arguments = new Bundle() };
-            instance.song = item;
-            return instance;
-        }        
+            if (item.ItemId == Android.Resource.Id.Home)
+            {
+                ValidateChanges();
+                Intent intent = new Intent(this, typeof(MainActivity));
+                StartActivity(intent);
+                return true;
+            }
+            return false;
+        }
+
+        void ValidateChanges()
+        {
+
+        }
     }
 }

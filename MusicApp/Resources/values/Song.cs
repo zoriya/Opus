@@ -1,6 +1,8 @@
-﻿namespace MusicApp.Resources.values
+﻿using System;
+
+namespace MusicApp.Resources.values
 {
-    [System.Serializable]
+    [Serializable]
     public class Song
     {
         private string Name;
@@ -38,5 +40,30 @@
 
         public void SetName(string Name) { this.Name = Name; }
         public void SetPath(string path) { this.path = path; }
+
+        public override string ToString()
+        {
+            return Name + " Artist: " + Artist + " Album: " + Album + " youtubeID: " + youtubeID + " AlbumArt: " + AlbumArt + " Id: " + id + " Path: " + path + " isYT: " + isYT + " isParsed: " + isParsed + " queueSlot: " + queueSlot;
+        }
+
+        public static explicit operator Song(string v)
+        {
+            if (v == null)
+                return null;
+
+            string Name = v.Substring(0, v.IndexOf(" Artist: "));
+            string Artist = v.Substring(v.IndexOf(" Artist: ") + 9, v.IndexOf(" Album: ") - Name.Length - 8);
+            string Album = v.Substring(v.IndexOf(" Album: ") + 8, v.IndexOf(" youtubeID: ") - v.IndexOf(" Album: ") - 8);
+            string youtubeID = v.Substring(v.IndexOf(" youtubeID: ") + 12, v.IndexOf(" AlbumArt: ") - v.IndexOf(" youtubeID: ") - 12);
+            long AlbumArt = long.Parse(v.Substring(v.IndexOf(" AlbumArt: ") + 11, v.IndexOf(" Id: ") - v.IndexOf(" AlbumArt: ") - 11));
+            long id = long.Parse(v.Substring(v.IndexOf(" Id: ") + 5, v.IndexOf(" Path: ") - v.IndexOf(" Id: ") - 5));
+            string path = v.Substring(v.IndexOf(" Path: ") + 7, v.IndexOf(" isYT: ") - v.IndexOf(" Path: ") - 7);
+            bool isYT = bool.Parse(v.Substring(v.IndexOf(" isYT: ") + 7, v.IndexOf(" isParsed: ") - v.IndexOf(" isYT: ") - 7));
+            bool isParsed = bool.Parse(v.Substring(v.IndexOf(" isParsed: ") + 11, v.IndexOf(" queueSlot: ") - v.IndexOf(" isParsed: ") - 11));
+            int queueSlot = int.Parse(v.Substring(v.IndexOf(" queueSlot: ") + 12, v.Length - v.IndexOf(" queueSlot: ") - 12));
+
+            Song song = new Song(Name, Artist, Album, youtubeID, AlbumArt, id, path, isYT, isParsed, queueSlot);
+            return song;
+        }
     }
 }
