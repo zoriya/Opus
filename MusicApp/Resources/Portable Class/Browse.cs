@@ -10,6 +10,7 @@ using Android.Widget;
 using Java.Lang;
 using MusicApp.Resources.values;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -107,6 +108,8 @@ namespace MusicApp.Resources.Portable_Class
                 musicCursor.Close();
             }
 
+            List<Song> songList = musicList.OrderBy(x => x.GetName()).ToList();
+            musicList = songList;
             adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, musicList);
             ListAdapter = adapter;
             ListView.TextFilterEnabled = true;
@@ -166,6 +169,8 @@ namespace MusicApp.Resources.Portable_Class
                 musicCursor.Close();
             }
 
+            List<Song> songList = musicList.OrderBy(x => x.GetName()).ToList();
+            musicList = songList;
             adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, musicList);
             ListAdapter = adapter;
 
