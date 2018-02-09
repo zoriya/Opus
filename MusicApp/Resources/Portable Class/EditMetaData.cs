@@ -6,6 +6,8 @@ using Android.OS;
 using Android.Provider;
 using Android.Support.Design.Widget;
 using Android.Support.V7.App;
+using Android.Support.V7.Widget;
+using Android.Util;
 using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
@@ -22,6 +24,7 @@ namespace MusicApp.Resources.Portable_Class
         public Song song;
 
         private TextView title, artist, album, youtubeID;
+        private ImageView albumArt;
         private bool hasPermission = false;
         private const int RequestCode = 8539;
 
@@ -34,16 +37,19 @@ namespace MusicApp.Resources.Portable_Class
             song = (Song) Intent.GetStringExtra("Song");
 
             Android.Support.V7.Widget.Toolbar toolbar = FindViewById<Android.Support.V7.Widget.Toolbar>(Resource.Id.backToolbar);
+            DisplayMetrics metrics = new DisplayMetrics();
+            WindowManager.DefaultDisplay.GetMetrics(metrics);
+            ((View)toolbar.Parent.Parent).LayoutParameters.Height = metrics.WidthPixels;
+            toolbar.Parent.RequestLayout();
             SetSupportActionBar(toolbar);
             SupportActionBar.SetDisplayShowTitleEnabled(false);
             SupportActionBar.SetDisplayHomeAsUpEnabled(true);
-            SupportActionBar.Elevation = 0;
 
             title = FindViewById<TextView>(Resource.Id.metadataTitle);
             artist = FindViewById<TextView>(Resource.Id.metadataArtist);
             album = FindViewById<TextView>(Resource.Id.metadataAlbum);
             youtubeID = FindViewById<TextView>(Resource.Id.metadataYID);
-            ImageView albumArt = FindViewById<ImageView>(Resource.Id.metadataArt);
+            albumArt = FindViewById<ImageView>(Resource.Id.metadataArt);
             FloatingActionButton fab = FindViewById<FloatingActionButton>(Resource.Id.metadataFAB);
             fab.Click += async (sender, e) => { await ValidateChanges(); };
 
@@ -64,7 +70,19 @@ namespace MusicApp.Resources.Portable_Class
 
                 Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(albumArt);
             }
+
+            //SetPadding();
         }
+
+        //async void SetPadding()
+        //{
+        //    await Task.Delay(10);
+        //    Console.WriteLine("&Height : " + albumArt.Height);
+        //    FindViewById<TextView>(Resource.Id.metadataPadding).LayoutParameters.Height = albumArt.Height;
+        //    FindViewById<TextView>(Resource.Id.metadataPadding).RequestLayout();
+        //    FindViewById<TextView>(Resource.Id.metadataPaddingDown).LayoutParameters.Height = albumArt.Height / 3;
+        //    FindViewById<TextView>(Resource.Id.metadataPaddingDown).RequestLayout();
+        //}
 
         public override bool OnOptionsItemSelected(IMenuItem item)
         {
