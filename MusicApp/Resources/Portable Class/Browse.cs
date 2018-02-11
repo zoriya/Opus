@@ -85,12 +85,14 @@ namespace MusicApp.Resources.Portable_Class
                 int artistID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Artist);
                 int albumID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Album);
                 int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
+                int youtubeID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Composer);
                 int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
                 do
                 {
                     string Artist = musicCursor.GetString(artistID);
                     string Title = musicCursor.GetString(titleID);
                     string Album = musicCursor.GetString(albumID);
+                    string ytID = musicCursor.GetString(youtubeID);
                     long AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
                     long id = musicCursor.GetLong(thisID);
                     string path = musicCursor.GetString(pathID);
@@ -102,7 +104,7 @@ namespace MusicApp.Resources.Portable_Class
                     if (Album == null)
                         Album = "Unknow Album";
 
-                    musicList.Add(new Song(Title, Artist, Album, null, AlbumArt, id, path));
+                    musicList.Add(new Song(Title, Artist, Album, ytID, AlbumArt, id, path));
                 }
                 while (musicCursor.MoveToNext());
                 musicCursor.Close();
@@ -145,6 +147,7 @@ namespace MusicApp.Resources.Portable_Class
                 int titleID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Title);
                 int artistID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Artist);
                 int albumID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Album);
+                int youtubeID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Composer);
                 int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
                 int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
                 do
@@ -152,6 +155,7 @@ namespace MusicApp.Resources.Portable_Class
                     string Artist = musicCursor.GetString(artistID);
                     string Title = musicCursor.GetString(titleID);
                     string Album = musicCursor.GetString(albumID);
+                    string ytID = musicCursor.GetString(youtubeID);
                     long AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
                     long id = musicCursor.GetLong(thisID);
                     string path = musicCursor.GetString(pathID);
@@ -163,7 +167,7 @@ namespace MusicApp.Resources.Portable_Class
                     if (Album == null)
                         Album = "Unknow Album";
 
-                    musicList.Add(new Song(Title, Artist, Album, null, AlbumArt, id, path));
+                    musicList.Add(new Song(Title, Artist, Album, ytID, AlbumArt, id, path));
                 }
                 while (musicCursor.MoveToNext());
                 musicCursor.Close();
@@ -371,6 +375,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public void EditMetadata(Song item)
         {
+            System.Console.WriteLine("&Yt ID : " + item.youtubeID);
             MainActivity.instance.HideTabs();
             Intent intent = new Intent(Android.App.Application.Context, typeof(EditMetaData));
             intent.PutExtra("Song", item.ToString());

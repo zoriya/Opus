@@ -11,6 +11,7 @@
     <android.support.design.widget.CollapsingToolbarLayout
       android:layout_width="match_parent"
       android:layout_height="match_parent"
+      android:id="@+id/collapsingToolbar"
       app:layout_scrollFlags="scroll|exitUntilCollapsed"
       android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" >
       <ImageView
@@ -90,19 +91,12 @@
       </LinearLayout>
     </android.support.v7.widget.CardView>
   </android.support.v4.widget.NestedScrollView>
-    <!--<TextView
-          android:layout_width="match_parent"
-          android:id="@+id/metadataPaddingDown"
-          android:layout_height="1000dp" />
-      </LinearLayout>
-    </ScrollView>  
-  </RelativeLayout>-->
   <android.support.design.widget.FloatingActionButton
     android:id="@+id/metadataFAB"
     android:layout_height="wrap_content"
     android:layout_width="wrap_content"
     android:layout_marginRight="15dp"
     android:src="@drawable/ic_done_black_24dp"
-    app:layout_anchor="@id/metadataArt"
+    app:layout_anchor="@id/collapsingToolbar"
     app:layout_anchorGravity="bottom|end" />
 </android.support.design.widget.CoordinatorLayout>

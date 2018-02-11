@@ -5,8 +5,9 @@ using Android.Graphics;
 using Android.Media;
 using Android.OS;
 using Android.Provider;
+using Android.Support.V4.App;
+using Android.Support.V4.Content;
 using Android.Support.V4.Media.Session;
-using Android.Support.V7.App;
 using Android.Widget;
 using Com.Google.Android.Exoplayer2;
 using Com.Google.Android.Exoplayer2.Extractor;
@@ -21,6 +22,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using YoutubeExplode;
 using YoutubeExplode.Models.MediaStreams;
+using static Android.Support.V4.Media.App.NotificationCompat;
 using Uri = Android.Net.Uri;
 
 namespace MusicApp.Resources.Portable_Class
@@ -162,9 +164,17 @@ namespace MusicApp.Resources.Portable_Class
             IExtractorsFactory extractorFactory = new DefaultExtractorsFactory();
             Handler handler = new Handler();
             IMediaSource mediaSource = new ExtractorMediaSource(Uri.Parse(filePath), dataSourceFactory, extractorFactory, handler, null);
-#pragma warning disable CS0618 // Type or member is obsolete
-            var audioFocus = audioManager.RequestAudioFocus(this, Stream.Music, AudioFocus.Gain);
-#pragma warning restore CS0618 // Type or member is obsolete
+            AudioAttributes attributes = new AudioAttributes.Builder()
+                .SetUsage(AudioUsageKind.Media)
+                .SetContentType(AudioContentType.Music)
+                .Build();
+            AudioFocusRequestClass focusRequest = new AudioFocusRequestClass.Builder(AudioFocus.Gain)
+                .SetAudioAttributes(attributes)
+                .SetAcceptsDelayedFocusGain(true)
+                .SetOnAudioFocusChangeListener(this)
+                .Build();
+            var audioFocus = audioManager.RequestAudioFocus(focusRequest);
+            
             if (audioFocus != AudioFocusRequest.Granted)
             {
                 Console.WriteLine("Can't Get Audio Focus");
@@ -210,9 +220,16 @@ namespace MusicApp.Resources.Portable_Class
             IExtractorsFactory extractorFactory = new DefaultExtractorsFactory();
             Handler handler = new Handler();
             IMediaSource mediaSource = new ExtractorMediaSource(Uri.Parse(song.GetPath()), dataSourceFactory, extractorFactory, handler, null);
-#pragma warning disable CS0618 // Type or member is obsolete
-            var audioFocus = audioManager.RequestAudioFocus(this, Stream.Music, AudioFocus.Gain);
-#pragma warning restore CS0618 // Type or member is obsolete
+            AudioAttributes attributes = new AudioAttributes.Builder()
+                .SetUsage(AudioUsageKind.Media)
+                .SetContentType(AudioContentType.Music)
+                .Build();
+            AudioFocusRequestClass focusRequest = new AudioFocusRequestClass.Builder(AudioFocus.Gain)
+                .SetAudioAttributes(attributes)
+                .SetAcceptsDelayedFocusGain(true)
+                .SetOnAudioFocusChangeListener(this)
+                .Build();
+            var audioFocus = audioManager.RequestAudioFocus(focusRequest);
             if (audioFocus != AudioFocusRequest.Granted)
             {
                 Console.WriteLine("Can't Get Audio Focus");
@@ -427,7 +444,7 @@ namespace MusicApp.Resources.Portable_Class
 
             Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
 
-            CursorLoader cursorLoader = new CursorLoader(Application.Context, musicUri, null, null, null, null);
+            Android.Content.CursorLoader cursorLoader = new Android.Content.CursorLoader(Application.Context, musicUri, null, null, null, null);
             ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
 
             if (musicCursor != null && musicCursor.MoveToFirst())
@@ -523,8 +540,11 @@ namespace MusicApp.Resources.Portable_Class
             tmpDefaultIntent.SetAction("Player");
             PendingIntent defaultIntent = PendingIntent.GetActivity(Application.Context, 0, tmpDefaultIntent, PendingIntentFlags.UpdateCurrent);
 
-#pragma warning disable CS0618 // Type or member is obsolete
-            notification = new NotificationCompat.Builder(Application.Context)
+            Intent tmpCancelIntent = new Intent(Application.Context, typeof(MainActivity));
+            tmpCancelIntent.SetAction("Stop");
+            PendingIntent cancelIntent = PendingIntent.GetActivity(Application.Context, 0, tmpCancelIntent, PendingIntentFlags.UpdateCurrent);
+
+            notification = new NotificationCompat.Builder(Application.Context, "MusicApp.Channel")
                 .SetVisibility(NotificationCompat.VisibilityPublic)
                 .SetSmallIcon(Resource.Drawable.MusicIcon)
 
@@ -532,16 +552,20 @@ namespace MusicApp.Resources.Portable_Class
                 .AddAction(Resource.Drawable.ic_pause_black_24dp, "Pause", pauseIntent)
                 .AddAction(Resource.Drawable.ic_skip_next_black_24dp, "Next", nextIntent)
 
-                .SetStyle(new NotificationCompat.MediaStyle()
+                .SetStyle(new MediaStyle()
                     .SetShowActionsInCompactView(1)
+                    .SetShowCancelButton(true)
+                    .SetCancelButtonIntent(cancelIntent)
                     .SetMediaSession(mediaSession.SessionToken))
+                .SetColor(ContextCompat.GetColor(Application.Context, Resource.Color.notification_icon_bg_color))
                 .SetContentTitle(title)
                 .SetContentText(artist)
                 .SetLargeIcon(icon)
                 .SetContentIntent(defaultIntent)
+                .SetDeleteIntent(cancelIntent)
                 .Build();
+            ContextCompat.StartForegroundService(Application.Context, new Intent(Application.Context, typeof(MusicPlayer)));
             StartForeground(notificationID, notification);
-#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         public void Pause()
@@ -676,15 +700,13 @@ namespace MusicApp.Resources.Portable_Class
             Console.WriteLine("Error in playback resetting: " + args.Cause);
         }
 
-#pragma warning disable CS0618 // Type or member is obsolete
         public void OnPlayerStateChanged(bool playWhenReady, int state)
         {
-            if (state == ExoPlayer.StateEnded)
+            if (state == Com.Google.Android.Exoplayer2.Player.StateEnded)
             {
                 PlayNext();
             }
         }
-#pragma warning restore CS0618 // Type or member is obsolete
 
 
         public void OnPositionDiscontinuity()

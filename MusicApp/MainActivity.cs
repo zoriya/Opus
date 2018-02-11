@@ -97,6 +97,18 @@ namespace MusicApp
             playToCross = GetDrawable(Resource.Drawable.PlayToCross);
             crossToPlay = GetDrawable(Resource.Drawable.CrossToPlay);
 
+
+            NotificationManager notificationManager = (NotificationManager)GetSystemService(NotificationService);
+            NotificationChannel channel = new NotificationChannel("MusicApp.Channel", "Default Channel", NotificationImportance.Low)
+            {
+                Description = "Channel used for download progress and music control notification.",
+                LockscreenVisibility = NotificationVisibility.Public
+            };
+            channel.EnableVibration(false);
+            channel.EnableLights(false);
+            notificationManager.CreateNotificationChannel(channel);
+
+
             if (MusicPlayer.queue.Count > 0)
                 ReCreateSmallPlayer();
             else

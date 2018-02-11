@@ -4,20 +4,20 @@ using Android.Content;
 using Android.Content.PM;
 using Android.OS;
 using Android.Provider;
+using Android.Runtime;
 using Android.Support.Design.Widget;
 using Android.Support.V7.App;
-using Android.Support.V7.Widget;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
+using System.IO;
 using MusicApp.Resources.values;
 using Square.Picasso;
-using System;
 using System.Threading.Tasks;
 
 namespace MusicApp.Resources.Portable_Class
 {
-    [Activity(Label = "EditMetaData", Theme = "@style/Theme")]
+    [Activity(Label = "EditMetaData", Theme = "@style/Theme", WindowSoftInputMode = SoftInput.AdjustResize|SoftInput.StateHidden)]
     public class EditMetaData : AppCompatActivity
     {
         public static EditMetaData instance;
@@ -25,8 +25,11 @@ namespace MusicApp.Resources.Portable_Class
 
         private TextView title, artist, album, youtubeID;
         private ImageView albumArt;
+        private Android.Net.Uri artURI;
         private bool hasPermission = false;
         private const int RequestCode = 8539;
+        private const int PickerRequestCode = 9852;
+        private string[] actions = new string[] { "Pick an album art from storage", "Search for an album art on google" };
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -41,6 +44,8 @@ namespace MusicApp.Resources.Portable_Class
             WindowManager.DefaultDisplay.GetMetrics(metrics);
             ((View)toolbar.Parent.Parent).LayoutParameters.Height = metrics.WidthPixels;
             toolbar.Parent.RequestLayout();
+            toolbar.LayoutParameters.Height = metrics.WidthPixels / 3;
+            toolbar.RequestLayout();
             SetSupportActionBar(toolbar);
             SupportActionBar.SetDisplayShowTitleEnabled(false);
             SupportActionBar.SetDisplayHomeAsUpEnabled(true);
@@ -50,6 +55,7 @@ namespace MusicApp.Resources.Portable_Class
             album = FindViewById<TextView>(Resource.Id.metadataAlbum);
             youtubeID = FindViewById<TextView>(Resource.Id.metadataYID);
             albumArt = FindViewById<ImageView>(Resource.Id.metadataArt);
+
             FloatingActionButton fab = FindViewById<FloatingActionButton>(Resource.Id.metadataFAB);
             fab.Click += async (sender, e) => { await ValidateChanges(); };
 
@@ -57,6 +63,7 @@ namespace MusicApp.Resources.Portable_Class
             artist.Text = song.GetArtist();
             album.Text = song.GetAlbum();
             youtubeID.Text = song.youtubeID;
+            albumArt.Click += AlbumArt_Click;
 
             if (song.GetAlbumArt() == -1 || song.IsYt)
             {
@@ -70,19 +77,49 @@ namespace MusicApp.Resources.Portable_Class
 
                 Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(albumArt);
             }
-
-            //SetPadding();
         }
 
-        //async void SetPadding()
-        //{
-        //    await Task.Delay(10);
-        //    Console.WriteLine("&Height : " + albumArt.Height);
-        //    FindViewById<TextView>(Resource.Id.metadataPadding).LayoutParameters.Height = albumArt.Height;
-        //    FindViewById<TextView>(Resource.Id.metadataPadding).RequestLayout();
-        //    FindViewById<TextView>(Resource.Id.metadataPaddingDown).LayoutParameters.Height = albumArt.Height / 3;
-        //    FindViewById<TextView>(Resource.Id.metadataPaddingDown).RequestLayout();
-        //}
+        private void AlbumArt_Click(object sender, System.EventArgs e)
+        {
+            new Android.Support.V7.App.AlertDialog.Builder(this)
+                .SetTitle("Change Album Art")
+                .SetItems(actions, (senderAlert, args) =>  
+                {
+                    switch(args.Which)
+                    {
+                        case 0:
+                            PickAnAlbumArtLocally();
+                            break;
+                        case 1:
+                            //Pick from google
+                            break;
+                        default:
+                            break;
+                    }
+                    
+                }).Show();
+        }
+
+        void PickAnAlbumArtLocally()
+        {
+            Intent intent = new Intent(Intent.ActionPick, MediaStore.Images.Media.ExternalContentUri);
+            StartActivityForResult(intent, PickerRequestCode);
+        }
+
+        protected override void OnActivityResult(int requestCode, [GeneratedEnum] Result resultCode, Intent data)
+        {
+            base.OnActivityResult(requestCode, resultCode, data);
+
+            if(requestCode == PickerRequestCode)
+            {
+                if(resultCode == Result.Ok)
+                {
+                    Android.Net.Uri uri = data.Data;
+                    Picasso.With(Application.Context).Load(uri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(albumArt);
+                    artURI = uri;
+                }
+            }
+        }
 
         public override bool OnOptionsItemSelected(IMenuItem item)
         {
@@ -103,7 +140,7 @@ namespace MusicApp.Resources.Portable_Class
 
         async Task ValidateChanges()
         {
-            if (song.GetName() == title.Text && song.GetArtist() == artist.Text && song.youtubeID == youtubeID.Text && song.GetAlbum() == album.Text)
+            if (song.GetName() == title.Text && song.GetArtist() == artist.Text && song.youtubeID == youtubeID.Text && song.GetAlbum() == album.Text && artURI == null)
                 return;
 
             const string permission = Manifest.Permission.WriteExternalStorage;
@@ -117,18 +154,92 @@ namespace MusicApp.Resources.Portable_Class
                     await Task.Delay(1000);
             }
 
-            Android.Net.Uri itemURI = ContentUris.WithAppendedId(MediaStore.Audio.Media.ExternalContentUri, song.GetID());
-            ContentResolver.Delete(itemURI, null, null);
-            await Task.Delay(10);
-            ContentValues value = new ContentValues();
-            value.Put(MediaStore.Audio.Media.InterfaceConsts.Title, title.Text);
-            value.Put(MediaStore.Audio.Media.InterfaceConsts.Artist, artist.Text);
-            value.Put(MediaStore.Audio.Media.InterfaceConsts.Album, album.Text);
-            value.Put(MediaStore.Audio.Media.InterfaceConsts.Data, song.GetPath());
-            //value.Put(MediaStore.Audio.Media.InterfaceConsts.AlbumArt, song.GetAlbumArt());
-            value.Put(MediaStore.Audio.Media.InterfaceConsts.IsMusic, true);
-            Android.Net.Uri uri = ContentResolver.Insert(MediaStore.Audio.Media.ExternalContentUri, value);
-            SendBroadcast(new Intent(Intent.ActionMediaScannerScanFile, Android.Net.Uri.Parse("file://" + uri)));
+            //Android.Net.Uri itemURI = ContentUris.WithAppendedId(MediaStore.Audio.Media.ExternalContentUri, song.GetID());
+            //ContentResolver.Delete(itemURI, null, null);
+            //await Task.Delay(10);
+            //if(song.GetName() != title.Text || song.GetArtist() != artist.Text || song.youtubeID != youtubeID.Text || song.GetAlbum() != album.Text)
+            //{
+            //    ContentValues value = new ContentValues();
+            //    value.Put(MediaStore.Audio.Media.InterfaceConsts.Title, title.Text);
+            //    value.Put(MediaStore.Audio.Media.InterfaceConsts.Artist, artist.Text);
+            //    value.Put(MediaStore.Audio.Media.InterfaceConsts.Album, album.Text);
+            //    value.Put(MediaStore.Audio.Media.InterfaceConsts.Data, song.GetPath());
+            //    value.Put(MediaStore.Audio.Media.InterfaceConsts.Composer, song.youtubeID);
+            //    value.Put(MediaStore.Audio.Media.InterfaceConsts.IsMusic, true);
+            //    Android.Net.Uri uri = ContentResolver.Insert(MediaStore.Audio.Media.ExternalContentUri, value);
+            //    SendBroadcast(new Intent(Intent.ActionMediaScannerScanFile, Android.Net.Uri.Parse("file://" + uri)));
+            //}
+            //if(artURI != null)
+            //{
+            //    Android.Net.Uri path = ContentUris.WithAppendedId(Android.Net.Uri.Parse("content://media/external/audio/albumart"), song.GetAlbumArt());
+            //    System.Console.WriteLine("&Path : " + path);
+            //    bool albumArtExist = true;
+            //    try
+            //    {
+            //        var inStream = ContentResolver.OpenInputStream(path); 
+            //    }
+            //    catch(FileNotFoundException e)
+            //    {
+            //        System.Console.WriteLine("&" + e.Message);
+            //        albumArtExist = false;
+            //    }
+
+            //    if(albumArtExist)
+            //        ContentResolver.Delete(path, null, null);
+
+            //    await Task.Delay(10);
+            //    ContentValues value = new ContentValues();
+            //    value.Put(MediaStore.Audio.Media.InterfaceConsts.AlbumId, song.GetAlbumArt());
+            //    value.Put(MediaStore.Audio.Media.InterfaceConsts.Data, artURI.ToString());
+            //    Android.Net.Uri uri = ContentResolver.Insert(Android.Net.Uri.Parse("content://media/external/audio/albumart"), value);
+            //    if(uri == null)
+            //    {
+            //        System.Console.WriteLine("&Uri == null");
+            //        return;
+            //    }
+            //    System.Console.WriteLine("&Art uri : " + artURI.ToString() + " Result URI : " + uri.ToString());
+            //    SendBroadcast(new Intent(Intent.ActionMediaScannerScanFile, Android.Net.Uri.Parse("file://" + uri)));
+            //    artURI = null;
+            //    Picasso.With(Application.Context).Load(uri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(albumArt);
+            //}
+
+
+            Stream stream = new FileStream(song.GetPath(), FileMode.Open, FileAccess.ReadWrite);
+            //System.Console.WriteLine("&Read Stream created");
+            //Stream writeStream = File.OpenWrite(song.GetPath());
+            //System.Console.WriteLine("&Write Stream created");
+            var meta = TagLib.File.Create(new TagLib.StreamFileAbstraction(song.GetPath(), stream, stream));
+            System.Console.WriteLine("&File created");
+
+            meta.Tag.Title = title.Text;
+            meta.Tag.Performers = new string[] { artist.Text };
+            meta.Tag.Album = album.Text;
+            meta.Tag.AmazonId = youtubeID.Text;
+
+            if (artURI != null)
+            {
+                TagLib.Picture art = new TagLib.Picture(artURI.ToString());
+                meta.Tag.Pictures = new TagLib.IPicture[] { art };
+            }
+
+            meta.Save();
+            stream.Dispose();
+            Android.Media.MediaScannerConnection.ScanFile(this, new string[] { song.GetPath() }, null, null);
+
+            /*TagLib.File file = TagLib.File.Create();
+            *TagLib.Picture pic = new TagLib.Picture();
+            *pic.Type = TagLib.PictureType.FrontCover;
+            *pic.Description = "Cover";
+            *pic.MimeType = System.Net.Mime.MediaTypeNames.Image.Jpeg;
+            *MemoryStream ms = new MemoryStream();
+            *.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
+            *ms.Position = 0;
+            *pic.Data = TagLib.ByteVector.FromStream(ms);
+            *file.Tag.Pictures = new TagLib.IPicture[] { pic };
+            *file.Save();
+            *ms.Close(); */
+
+
             Toast.MakeText(this, "Changes saved.", ToastLength.Short).Show();
         }
 

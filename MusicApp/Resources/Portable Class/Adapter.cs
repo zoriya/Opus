@@ -4,6 +4,7 @@ using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
 using Square.Picasso;
+using System;
 using System.Collections.Generic;
 
 namespace MusicApp.Resources.Portable_Class
@@ -26,6 +27,9 @@ namespace MusicApp.Resources.Portable_Class
         {
             if (position > songList.Count || position < 0)
                 return convertView;
+
+            if (convertView != null)
+                convertView.FindViewById<ImageView>(Resource.Id.moreButton).Click -= MoreClick;
 
             if (inflater == null)
             {
@@ -55,18 +59,22 @@ namespace MusicApp.Resources.Portable_Class
 
             if (!holder.more.HasOnClickListeners)
             {
-                holder.more.Click += (sender, e) =>
-                {
-                    Queue.instance?.More(songList[position]);
-                    Browse.instance?.More(songList[position]);
-                    YoutubeEngine.instance?.More(songList[position]);
-                    YtPlaylist.instance?.More(position);
-                    PlaylistTracks.instance?.More(songList[position], position);
-                    FolderTracks.instance?.More(songList[position]);
-                };
+                holder.more.Tag = position;
+                holder.more.Click += MoreClick;
             }
 
             return convertView;
+        }
+
+        private void MoreClick(object sender, EventArgs e)
+        {
+            int position = (int)((ImageView)sender).Tag;
+            Queue.instance?.More(songList[position]);
+            Browse.instance?.More(songList[position]);
+            YoutubeEngine.instance?.More(songList[position]);
+            YtPlaylist.instance?.More(position);
+            PlaylistTracks.instance?.More(songList[position], position);
+            FolderTracks.instance?.More(songList[position]);
         }
     }
 }
