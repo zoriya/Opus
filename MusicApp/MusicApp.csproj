@@ -229,6 +229,7 @@
     <Compile Include="Resources\Portable Class\RecyclerAdapter.cs" />
     <Compile Include="Resources\Portable Class\RecyclerHolder.cs" />
     <Compile Include="Resources\Portable Class\SleepManager.cs" />
+    <Compile Include="Resources\Portable Class\SnackbarCallback.cs" />
     <Compile Include="Resources\Portable Class\TwoLineAdapter.cs" />
     <Compile Include="Resources\Portable Class\ViewPagerAdapter.cs" />
     <Compile Include="Resources\Portable Class\YoutubeEngine.cs" />

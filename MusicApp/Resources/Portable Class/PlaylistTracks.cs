@@ -281,6 +281,7 @@ namespace MusicApp.Resources.Portable_Class
 
             if (!item.IsYt)
             {
+                action.Add("Edit Metadata");
                 Browse.act = Activity;
                 Browse.inflater = LayoutInflater;
             }
@@ -335,7 +336,10 @@ namespace MusicApp.Resources.Portable_Class
                         break;
 
                     case 5:
-                        YoutubeEngine.Download(item.GetName(), item.GetPath());
+                        if (item.IsYt)
+                            YoutubeEngine.Download(item.GetName(), item.GetPath());
+                        else
+                            Browse.EditMetadata(item);
                         break;
 
                     default:

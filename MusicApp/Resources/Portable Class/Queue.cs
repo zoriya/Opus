@@ -22,7 +22,7 @@ namespace MusicApp.Resources.Portable_Class
         public View view;
 
         private bool isEmpty = false;
-        private string[] actions = new string[] { "Remove from queue" };
+        private string[] actions = new string[] { "Remove from queue", "Edit Metadata" };
 
         public override void OnActivityCreated(Bundle savedInstanceState)
         {
@@ -151,6 +151,10 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     case 0:
                         RemoveFromQueue(item);
+                        break;
+                    case 1:
+                        if (!item.IsYt)
+                            Browse.EditMetadata(item);
                         break;
                     default:
                         break;

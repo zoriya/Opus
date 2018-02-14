@@ -373,14 +373,12 @@ namespace MusicApp.Resources.Portable_Class
             AddToPlaylist(item, playList, playlistID);
         }
 
-        public void EditMetadata(Song item)
+        public static void EditMetadata(Song item)
         {
-            System.Console.WriteLine("&Yt ID : " + item.youtubeID);
             MainActivity.instance.HideTabs();
             Intent intent = new Intent(Android.App.Application.Context, typeof(EditMetaData));
             intent.PutExtra("Song", item.ToString());
             MainActivity.instance.StartActivity(intent);
-            //MainActivity.instance.Transition(Resource.Id.contentView, EditMetaData.NewInstance(item), true);
         }
     }
 }

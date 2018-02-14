@@ -70,10 +70,15 @@
         android:background="@android:color/white"
         android:elevation="12dp"
         android:layout_alignParentBottom="true">
+        <android.support.design.widget.CoordinatorLayout
+          android:id="@+id/snackBar"
+          android:layout_height="wrap_content"
+          android:layout_width="match_parent" />
         <android.support.design.widget.BottomNavigationView
           android:id="@+id/bottomView"
           android:layout_width="match_parent"
           android:layout_height="56dp"
+          android:layout_below="@id/snackBar"
           app:menu="@menu/bottom_items" />
         <FrameLayout
           android:layout_height="70dp"

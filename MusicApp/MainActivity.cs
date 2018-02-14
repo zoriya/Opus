@@ -73,6 +73,8 @@ namespace MusicApp
                 ? FindViewById<BottomNavigationView>(Resource.Id.bottomView).Height 
                 : FindViewById<BottomNavigationView>(Resource.Id.bottomView).Height + ((FrameLayout)instance.FindViewById(Resource.Id.smallPlayer).Parent).Height;
 
+            paddingBot += e.paddingChange;
+
             OnPaddingChanged?.Invoke(this, e);
         }
 
@@ -816,7 +818,12 @@ namespace MusicApp
                     if (grantResults[0] == Permission.Granted)
                         PremissionAuthorized();
                     else
-                        Snackbar.Make(FindViewById<View>(Resource.Id.contentView), "Permission denied, can't list musics.", Snackbar.LengthShort).Show();
+                    {
+                        ((Snackbar)Snackbar.Make(FindViewById<View>(Resource.Id.snackBar), "Permission denied, can't list musics.", Snackbar.LengthLong)
+                            .SetAction("Ask Again", (v) => { GetStoragePermission(); })
+                            .AddCallback(new SnackbarCallback())
+                            ).Show();
+                    }
                 }
             }
         }

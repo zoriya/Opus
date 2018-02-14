@@ -14,6 +14,7 @@ using System.IO;
 using MusicApp.Resources.values;
 using Square.Picasso;
 using System.Threading.Tasks;
+using TagLib;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -154,91 +155,33 @@ namespace MusicApp.Resources.Portable_Class
                     await Task.Delay(1000);
             }
 
-            //Android.Net.Uri itemURI = ContentUris.WithAppendedId(MediaStore.Audio.Media.ExternalContentUri, song.GetID());
-            //ContentResolver.Delete(itemURI, null, null);
-            //await Task.Delay(10);
-            //if(song.GetName() != title.Text || song.GetArtist() != artist.Text || song.youtubeID != youtubeID.Text || song.GetAlbum() != album.Text)
-            //{
-            //    ContentValues value = new ContentValues();
-            //    value.Put(MediaStore.Audio.Media.InterfaceConsts.Title, title.Text);
-            //    value.Put(MediaStore.Audio.Media.InterfaceConsts.Artist, artist.Text);
-            //    value.Put(MediaStore.Audio.Media.InterfaceConsts.Album, album.Text);
-            //    value.Put(MediaStore.Audio.Media.InterfaceConsts.Data, song.GetPath());
-            //    value.Put(MediaStore.Audio.Media.InterfaceConsts.Composer, song.youtubeID);
-            //    value.Put(MediaStore.Audio.Media.InterfaceConsts.IsMusic, true);
-            //    Android.Net.Uri uri = ContentResolver.Insert(MediaStore.Audio.Media.ExternalContentUri, value);
-            //    SendBroadcast(new Intent(Intent.ActionMediaScannerScanFile, Android.Net.Uri.Parse("file://" + uri)));
-            //}
-            //if(artURI != null)
-            //{
-            //    Android.Net.Uri path = ContentUris.WithAppendedId(Android.Net.Uri.Parse("content://media/external/audio/albumart"), song.GetAlbumArt());
-            //    System.Console.WriteLine("&Path : " + path);
-            //    bool albumArtExist = true;
-            //    try
-            //    {
-            //        var inStream = ContentResolver.OpenInputStream(path); 
-            //    }
-            //    catch(FileNotFoundException e)
-            //    {
-            //        System.Console.WriteLine("&" + e.Message);
-            //        albumArtExist = false;
-            //    }
-
-            //    if(albumArtExist)
-            //        ContentResolver.Delete(path, null, null);
-
-            //    await Task.Delay(10);
-            //    ContentValues value = new ContentValues();
-            //    value.Put(MediaStore.Audio.Media.InterfaceConsts.AlbumId, song.GetAlbumArt());
-            //    value.Put(MediaStore.Audio.Media.InterfaceConsts.Data, artURI.ToString());
-            //    Android.Net.Uri uri = ContentResolver.Insert(Android.Net.Uri.Parse("content://media/external/audio/albumart"), value);
-            //    if(uri == null)
-            //    {
-            //        System.Console.WriteLine("&Uri == null");
-            //        return;
-            //    }
-            //    System.Console.WriteLine("&Art uri : " + artURI.ToString() + " Result URI : " + uri.ToString());
-            //    SendBroadcast(new Intent(Intent.ActionMediaScannerScanFile, Android.Net.Uri.Parse("file://" + uri)));
-            //    artURI = null;
-            //    Picasso.With(Application.Context).Load(uri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(albumArt);
-            //}
-
-
             Stream stream = new FileStream(song.GetPath(), FileMode.Open, FileAccess.ReadWrite);
-            //System.Console.WriteLine("&Read Stream created");
-            //Stream writeStream = File.OpenWrite(song.GetPath());
-            //System.Console.WriteLine("&Write Stream created");
-            var meta = TagLib.File.Create(new TagLib.StreamFileAbstraction(song.GetPath(), stream, stream));
-            System.Console.WriteLine("&File created");
+            var meta = TagLib.File.Create(new StreamFileAbstraction(song.GetPath(), stream, stream));
 
             meta.Tag.Title = title.Text;
             meta.Tag.Performers = new string[] { artist.Text };
             meta.Tag.Album = album.Text;
-            meta.Tag.AmazonId = youtubeID.Text;
+            meta.Tag.Composers = new[] { youtubeID.Text };
 
             if (artURI != null)
             {
-                TagLib.Picture art = new TagLib.Picture(artURI.ToString());
-                meta.Tag.Pictures = new TagLib.IPicture[] { art };
+                IPicture[] pictures = new IPicture[1];
+
+                Android.Graphics.Bitmap bitmap = MediaStore.Images.Media.GetBitmap(ContentResolver, artURI);
+                MemoryStream memoryStream = new MemoryStream();
+                bitmap.Compress(Android.Graphics.Bitmap.CompressFormat.Jpeg, 100, memoryStream);
+                byte[] data = memoryStream.ToArray();
+
+                pictures[0] = new Picture(data);
+                meta.Tag.Pictures = pictures;
+                artURI = null;
+
+                ContentResolver.Delete(ContentUris.WithAppendedId(Android.Net.Uri.Parse("content://media/external/audio/albumart"), song.GetAlbumArt()), null, null);
             }
 
             meta.Save();
             stream.Dispose();
             Android.Media.MediaScannerConnection.ScanFile(this, new string[] { song.GetPath() }, null, null);
-
-            /*TagLib.File file = TagLib.File.Create();
-            *TagLib.Picture pic = new TagLib.Picture();
-            *pic.Type = TagLib.PictureType.FrontCover;
-            *pic.Description = "Cover";
-            *pic.MimeType = System.Net.Mime.MediaTypeNames.Image.Jpeg;
-            *MemoryStream ms = new MemoryStream();
-            *.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
-            *ms.Position = 0;
-            *pic.Data = TagLib.ByteVector.FromStream(ms);
-            *file.Tag.Pictures = new TagLib.IPicture[] { pic };
-            *file.Save();
-            *ms.Close(); */
-
 
             Toast.MakeText(this, "Changes saved.", ToastLength.Short).Show();
         }
