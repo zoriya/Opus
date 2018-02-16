@@ -245,7 +245,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public void More(int position)
         {
-            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, Resource.Style.AppCompatAlertDialogStyle);
+            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
             builder.SetTitle("Pick an action");
             builder.SetItems(actions, (senderAlert, args) =>
             {
@@ -296,7 +296,7 @@ namespace MusicApp.Resources.Portable_Class
 
         void Rename(int position, string playlistID)
         {
-            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, Resource.Style.AppCompatAlertDialogStyle);
+            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
             builder.SetTitle("Playlist name");
             View view = LayoutInflater.Inflate(Resource.Layout.CreatePlaylistDialog, null);
             builder.SetView(view);

@@ -146,7 +146,7 @@ namespace MusicApp.Resources.Portable_Class
 
         private void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
         {
-            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, Resource.Style.AppCompatAlertDialogStyle);
+            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
             builder.SetTitle("Pick an action");
             builder.SetItems(actions, (senderAlert, args) => 
             {
@@ -195,7 +195,7 @@ namespace MusicApp.Resources.Portable_Class
 
         void Rename(int position, long playlistID)
         {
-            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, Resource.Style.AppCompatAlertDialogStyle);
+            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
             builder.SetTitle("Playlist name");
             View view = LayoutInflater.Inflate(Resource.Layout.CreatePlaylistDialog, null);
             builder.SetView(view);

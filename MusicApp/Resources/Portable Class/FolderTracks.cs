@@ -205,7 +205,7 @@ namespace MusicApp.Resources.Portable_Class
             Browse.act = Activity;
             Browse.inflater = LayoutInflater;
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, Resource.Style.AppCompatAlertDialogStyle);
+            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
             builder.SetTitle("Pick an action");
             builder.SetItems(actions, (senderAlert, args) =>
             {

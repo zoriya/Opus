@@ -21,6 +21,10 @@ namespace MusicApp.Resources.Portable_Class
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
+
+            if(MainActivity.Theme == 1)
+                SetTheme(Resource.Style.DarkTheme);
+
             FragmentManager.BeginTransaction().Replace(Android.Resource.Id.Content, new PreferencesFragment()).Commit();
             MainActivity.instance.GetStoragePermission();
         }

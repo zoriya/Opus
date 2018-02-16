@@ -36,7 +36,11 @@ namespace MusicApp.Resources.Portable_Class
         {
             base.OnCreate(savedInstanceState);
 
+            if(MainActivity.Theme == 1)
+                SetTheme(Resource.Style.DarkTheme);
+
             SetContentView(Resource.Layout.EditMetaData);
+
             instance = this;
             song = (Song) Intent.GetStringExtra("Song");
 
@@ -82,7 +86,7 @@ namespace MusicApp.Resources.Portable_Class
 
         private void AlbumArt_Click(object sender, System.EventArgs e)
         {
-            new Android.Support.V7.App.AlertDialog.Builder(this)
+            new Android.Support.V7.App.AlertDialog.Builder(this, MainActivity.dialogTheme)
                 .SetTitle("Change Album Art")
                 .SetItems(actions, (senderAlert, args) =>  
                 {

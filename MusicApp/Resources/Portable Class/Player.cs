@@ -90,13 +90,6 @@ namespace MusicApp.Resources.Portable_Class
             artist.Selected = true;
             artist.SetMarqueeRepeatLimit(3);
 
-            if (MainActivity.Theme == 1)
-            {
-                title.SetTextColor(Color.White);
-                artist.SetTextColor(Color.White);
-                artist.Alpha = 0.7f;
-            }
-
             if (MusicPlayer.isRunning)
                 playerView.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
             else
@@ -118,12 +111,23 @@ namespace MusicApp.Resources.Portable_Class
             MusicPlayer.SetSeekBar(bar);
             handler.PostDelayed(UpdateSeekBar, 1000);
 
+
+            TextView NextTitle = playerView.FindViewById<TextView>(Resource.Id.nextTitle);
+            TextView NextAlbum = playerView.FindViewById<TextView>(Resource.Id.nextArtist);
+
+            if (MainActivity.Theme == 1)
+            {
+                NextTitle.SetTextColor(Color.White);
+                NextAlbum.SetTextColor(Color.White);
+                NextAlbum.Alpha = 0.7f;
+            }
+
             bool asNext = MusicPlayer.queue.Count > MusicPlayer.CurrentID() + 1;
             if (asNext)
             {
                 Song next = MusicPlayer.queue[MusicPlayer.CurrentID() + 1];
-                playerView.FindViewById<TextView>(Resource.Id.nextTitle).Text = "Next music:";
-                playerView.FindViewById<TextView>(Resource.Id.nextArtist).Text = next.GetName();
+                NextTitle.Text = "Next music:";
+                NextAlbum.Text = next.GetName();
                 ImageView nextArt = playerView.FindViewById<ImageView>(Resource.Id.nextArt);
 
                 if(next.GetAlbum() == null)
@@ -140,8 +144,8 @@ namespace MusicApp.Resources.Portable_Class
             }
             else
             {
-                playerView.FindViewById<TextView>(Resource.Id.nextTitle).Text = "Next music:";
-                playerView.FindViewById<TextView>(Resource.Id.nextArtist).Text = "Nothing.";
+                NextTitle.Text = "Next music:";
+                NextAlbum.Text = "Nothing.";
 
                 ImageView nextArt = playerView.FindViewById<ImageView>(Resource.Id.nextArt);
                 Picasso.With(Android.App.Application.Context).Load(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);

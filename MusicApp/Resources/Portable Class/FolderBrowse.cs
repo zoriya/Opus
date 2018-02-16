@@ -188,7 +188,7 @@ namespace MusicApp.Resources.Portable_Class
             string path = paths[position];
             string displayPath = pathDisplay[position];
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, Resource.Style.AppCompatAlertDialogStyle);
+            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
             builder.SetTitle("Pick an action");
             builder.SetItems(actions, (senderAlert, args) =>
             {
@@ -247,7 +247,7 @@ namespace MusicApp.Resources.Portable_Class
                 cursor.Close();
             }
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(act, Resource.Style.AppCompatAlertDialogStyle);
+            AlertDialog.Builder builder = new AlertDialog.Builder(act, MainActivity.dialogTheme);
             builder.SetTitle("Add to a playlist");
             builder.SetItems(playList.ToArray(), (senderAlert, args) =>
             {
@@ -291,7 +291,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public void CreatePlalistDialog(string path)
         {
-            AlertDialog.Builder builder = new AlertDialog.Builder(act, Resource.Style.AppCompatAlertDialogStyle);
+            AlertDialog.Builder builder = new AlertDialog.Builder(act, MainActivity.dialogTheme);
             builder.SetTitle("Playlist name");
             View view = inflater.Inflate(Resource.Layout.CreatePlaylistDialog, null);
             builder.SetView(view);

@@ -143,7 +143,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public void More(Song item)
         {
-            Android.Support.V7.App.AlertDialog.Builder builder = new Android.Support.V7.App.AlertDialog.Builder(Activity, Resource.Style.AppCompatAlertDialogStyle);
+            Android.Support.V7.App.AlertDialog.Builder builder = new Android.Support.V7.App.AlertDialog.Builder(Activity, MainActivity.dialogTheme);
             builder.SetTitle("Pick an action");
             builder.SetItems(actions, (senderAlert, args) =>
             {

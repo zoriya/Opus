@@ -755,9 +755,23 @@ namespace MusicApp
             Song current = MusicPlayer.queue[MusicPlayer.CurrentID()];
 
             RelativeLayout smallPlayer = FindViewById<RelativeLayout>(Resource.Id.smallPlayer);
-            smallPlayer.FindViewById<TextView>(Resource.Id.spTitle).Text = current.GetName();
-            smallPlayer.FindViewById<TextView>(Resource.Id.spArtist).Text = current.GetArtist();
+            TextView title = smallPlayer.FindViewById<TextView>(Resource.Id.spTitle);
+            TextView artist = smallPlayer.FindViewById<TextView>(Resource.Id.spArtist);
             ImageView art = smallPlayer.FindViewById<ImageView>(Resource.Id.spArt);
+
+            if (Theme == 1)
+            {
+                title.SetTextColor(Android.Graphics.Color.White);
+                artist.SetTextColor(Android.Graphics.Color.White);
+                artist.Alpha = 0.7f;
+
+                smallPlayer.FindViewById<ImageButton>(Resource.Id.spLast).SetColorFilter(Android.Graphics.Color.White);
+                smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).SetColorFilter(Android.Graphics.Color.White);
+                smallPlayer.FindViewById<ImageButton>(Resource.Id.spNext).SetColorFilter(Android.Graphics.Color.White);
+            }
+
+            title.Text = current.GetName();
+            artist.Text = current.GetArtist();
 
             if (current.IsYt)
             {

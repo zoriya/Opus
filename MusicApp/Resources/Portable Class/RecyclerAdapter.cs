@@ -107,10 +107,21 @@ namespace MusicApp.Resources.Portable_Class
                 holder.youtubeIcon.Visibility = ViewStates.Gone;
             }
 
+            if (MainActivity.Theme == 1)
+            {
+                holder.more.SetColorFilter(Color.White);
+                holder.reorder.SetColorFilter(Color.White);
+                holder.Title.SetTextColor(Color.White);
+                holder.Artist.SetTextColor(Color.White);
+                holder.Artist.Alpha = 0.7f;
+            }
+
             if (position == MusicPlayer.CurrentID())
                 holder.ItemView.SetBackgroundColor(Color.DimGray);
-            else
+            else if (MainActivity.Theme == 0)
                 holder.ItemView.SetBackgroundColor(Color.White);
+            else
+                holder.ItemView.SetBackgroundColor(Color.ParseColor("#424242"));
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
