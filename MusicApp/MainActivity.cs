@@ -38,6 +38,8 @@ namespace MusicApp
     {
         public static MainActivity instance;
         public static int paddingBot = 0;
+        public new static int Theme = 1;
+        public static int dialogTheme;
 
         public Android.Support.V7.Widget.Toolbar ToolBar;
         public bool NoToolbarMenu = false;
@@ -82,6 +84,8 @@ namespace MusicApp
         {
             base.OnCreate(savedInstanceState);
 
+            ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(this);
+            SwitchTheme(pref.GetInt("theme", 1));
             SetContentView(Resource.Layout.Main);
             Song song = (Song) Intent.GetStringExtra("Song");
             instance = this;
@@ -125,6 +129,22 @@ namespace MusicApp
             await Task.Delay(100);
             paddingBot = FindViewById<BottomNavigationView>(Resource.Id.bottomView).Height;
             Navigate(Resource.Id.musicLayout);
+        }
+
+        public void SwitchTheme(int themeID)
+        {
+            Theme = themeID;
+            if (themeID == 0)
+            {
+                dialogTheme = Resource.Style.AppCompatAlertDialogStyle;
+                SetTheme(Resource.Style.Theme);
+            }
+            else
+            {
+                SetTheme(Resource.Style.DarkTheme);
+                dialogTheme = Resource.Style.AppCompatDarkAlertDialogStyle;
+                //((RelativeLayout)FindViewById(Resource.Id.snackBar).Parent).SetBackgroundColor(new Android.Graphics.Color(Android.Support.V4.Content.ContextCompat.GetColor(this, Resource.Color.primary_material_dark)));
+            }
         }
 
         public void Login()
@@ -985,7 +1005,9 @@ namespace MusicApp
                 
                 if(paths.Count == 0)
                 {
-                    //MAKE HERE ERROR MESSAGE FOR NO FILES ON THE DEVICE
+                    ((Snackbar)Snackbar.Make(FindViewById<View>(Resource.Id.snackBar), "No music file found on this device. Can't create a mix.", Snackbar.LengthLong)
+                        .AddCallback(new SnackbarCallback())
+                        ).Show();
                     return;
                 }
 
@@ -1009,8 +1031,15 @@ namespace MusicApp
                     HideSearch();
                     SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).Commit();
                 }
-                //else
-                //MAKE ERROR MESSAGE WHEN PLAYLIST ID IS NULL
+                else
+                    ((Snackbar)Snackbar.Make(FindViewById<View>(Resource.Id.snackBar), "No playlist set on setting.", Snackbar.LengthLong)
+                        .SetAction("Set it now", (v) => 
+                        {
+                            Intent intent = new Intent(Application.Context, typeof(Preferences));
+                            StartActivity(intent);
+                        })
+                        .AddCallback(new SnackbarCallback())
+                        ).Show();
             }
         }
 

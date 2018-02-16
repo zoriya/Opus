@@ -35,8 +35,8 @@
       android:id="@+id/title"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:textColor="#000"
       android:textSize="16dip"
+      android:textColor="#000"
       android:textStyle="bold" />
     <TextView
       android:id="@+id/artist"

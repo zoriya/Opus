@@ -1,5 +1,6 @@
 ﻿using Android.App;
 using Android.Content;
+using Android.Graphics;
 using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
@@ -55,6 +56,13 @@ namespace MusicApp.Resources.Portable_Class
                 var songAlbumArtUri = ContentUris.WithAppendedId(songCover, songList[position].GetAlbumArt());
 
                 Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
+            }
+
+            if(MainActivity.Theme == 1)
+            {
+                holder.Title.SetTextColor(Color.White);
+                holder.Artist.SetTextColor(Color.White);
+                holder.Artist.Alpha = 0.7f;
             }
 
             if (!holder.more.HasOnClickListeners)

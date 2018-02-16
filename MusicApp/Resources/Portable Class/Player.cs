@@ -12,6 +12,7 @@ using Java.Util;
 
 using AlarmManager = Android.App.AlarmManager;
 using PendingIntent = Android.App.PendingIntent;
+using Android.Graphics;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -88,6 +89,13 @@ namespace MusicApp.Resources.Portable_Class
             title.SetMarqueeRepeatLimit(3);
             artist.Selected = true;
             artist.SetMarqueeRepeatLimit(3);
+
+            if (MainActivity.Theme == 1)
+            {
+                title.SetTextColor(Color.White);
+                artist.SetTextColor(Color.White);
+                artist.Alpha = 0.7f;
+            }
 
             if (MusicPlayer.isRunning)
                 playerView.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_pause_black_24dp);

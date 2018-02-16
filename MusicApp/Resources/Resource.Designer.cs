@@ -523,6 +523,9 @@ namespace MusicApp
 			// aapt resource value: 0x7f01005e
 			public const int customNavigationLayout = 2130772062;
 			
+			// aapt resource value: 0x7f0101bc
+			public const int defaultColor = 2130772412;
+			
 			// aapt resource value: 0x7f01011a
 			public const int defaultQueryHint = 2130772250;
 			
@@ -4211,8 +4214,11 @@ namespace MusicApp
 			// aapt resource value: 0x7f09017a
 			public const int Animation_Design_BottomSheetDialog = 2131296634;
 			
-			// aapt resource value: 0x7f0901a5
-			public const int AppCompatAlertDialogStyle = 2131296677;
+			// aapt resource value: 0x7f0901a6
+			public const int AppCompatAlertDialogStyle = 2131296678;
+			
+			// aapt resource value: 0x7f0901a7
+			public const int AppCompatDarkAlertDialogStyle = 2131296679;
 			
 			// aapt resource value: 0x7f0900b3
 			public const int Base_AlertDialog_AppCompat = 2131296435;
@@ -4714,6 +4720,9 @@ namespace MusicApp
 			
 			// aapt resource value: 0x7f090010
 			public const int CardView_Light = 2131296272;
+			
+			// aapt resource value: 0x7f0901a5
+			public const int DarkTheme = 2131296677;
 			
 			// aapt resource value: 0x7f09019b
 			public const int ExoMediaButton = 2131296667;

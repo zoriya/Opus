@@ -67,6 +67,15 @@ namespace MusicApp.Resources.Portable_Class
             localShortcutPreference.PreferenceClick += LocalShortcut;
             localShortcutPreference.Summary = prefManager.GetString("localPlay", "Shuffle All Audio Files");
 
+            //Theme
+            Preference themePreference = PreferenceScreen.FindPreference("theme");
+            themePreference.PreferenceClick += ChangeTheme;
+            themePreference.Summary = prefManager.GetInt("theme", 0) == 0 ? "White Theme" : "Dark Theme";
+
+            //SmallOnTop
+            Preference smallOnTopPreference = PreferenceScreen.FindPreference("smallOnTop");
+            smallOnTopPreference.PreferenceClick += SmallOnTop;
+            smallOnTopPreference.Summary = prefManager.GetBoolean("smallOnTop", false) ? "True" : "False";
         }
 
         public override void OnDestroy()
@@ -274,7 +283,7 @@ namespace MusicApp.Resources.Portable_Class
             editor.Apply();
 
             Preference prefButton = FindPreference("localPlay");
-            prefButton.Summary = path;
+            prefButton.Summary = "Shuffle All Audio Files";
         }
 
         void LCSufflePlaylist()
@@ -319,7 +328,47 @@ namespace MusicApp.Resources.Portable_Class
             editor.Apply();
 
             Preference prefButton = FindPreference("localPlay");
-            prefButton.Summary = path;
+            prefButton.Summary = "Shuffle " + playlist;
+        }
+        #endregion
+
+        #region Theme
+        private void ChangeTheme(object sender, Preference.PreferenceClickEventArgs e)
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, Resource.Style.AppCompatAlertDialogStyle);
+            builder.SetTitle("Choose a theme :");
+            builder.SetItems(new[] { "White Theme", "Dark Theme" }, (s, args) =>
+            {
+                ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
+                ISharedPreferencesEditor editor = pref.Edit();
+                editor.PutInt("theme", args.Which);
+                editor.Apply();
+
+                Preference prefButton = FindPreference("theme");
+                prefButton.Summary = args.Which == 0 ? "White Theme" : "Dark Theme";
+
+                //MainActivity.SwitchTheme(args.Which);
+            });
+            builder.Show();
+        }
+        #endregion
+
+        #region SmallOnTop
+        private void SmallOnTop(object sender, Preference.PreferenceClickEventArgs e)
+        {
+            new AlertDialog.Builder(Activity, Resource.Style.AppCompatAlertDialogStyle)
+                .SetTitle("Display the small player on top of the bottom navigation :")
+                .SetItems(new[] { "True", "False" }, (s, args) =>
+                {
+                    ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
+                    ISharedPreferencesEditor editor = pref.Edit();
+                    editor.PutBoolean("smallOnTop", args.Which == 0 ? true : false);
+                    editor.Apply();
+
+                    Preference prefButton = FindPreference("smallOnTop");
+                    prefButton.Summary = args.Which == 0 ? "True" : "False";
+                })
+                .Show();
         }
         #endregion
     }

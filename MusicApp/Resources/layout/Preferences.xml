@@ -1,15 +1,31 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-  <PreferenceCategory android:title="Download">
+  <PreferenceCategory android:title="Behavior">
     <Preference
       android:key="downloadPath"
       android:title="Download directory"
       android:summary="test"/>
-  </PreferenceCategory>
-  <PreferenceCategory android:title="QuickPlay Shortcut">
     <Preference
       android:key="localPlay"
-      android:title="Local Play Action"
+      android:title="Local Play Shortcut"
       android:summary="Shuffle All Audio Files" />
+  </PreferenceCategory>
+  <PreferenceCategory android:title="Appearances">
+    <Preference
+      android:key="theme"
+      android:title="Theme :"
+      android:summary="White Theme" />
+    <Preference
+      android:key="smallOnTop"
+      android:title="Display small player on top of the bottom bar :"
+      android:summary="False" />
+  </PreferenceCategory>
+  <PreferenceCategory android:title="Others">
+    <Preference
+      android:title="Update app :"
+      android:summary="Comming soon" />
+    <Preference
+      android:title="Version :"
+      android:summary="V. 1.1" />
   </PreferenceCategory>
 </PreferenceScreen>

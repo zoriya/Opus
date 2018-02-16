@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         app:tabTextColor="@android:color/white"
         app:tabSelectedTextColor="@android:color/white"
-        app:tabIndicatorColor="@android:color/white"
+        app:tabIndicatorColor="?colorAccent"
         app:tabGravity="fill"
         app:tabMode="fixed" />
     </android.support.design.widget.AppBarLayout>
@@ -67,7 +67,7 @@
       <RelativeLayout
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:background="@android:color/white"
+        android:background="?attr/defaultColor"
         android:elevation="12dp"
         android:layout_alignParentBottom="true">
         <android.support.design.widget.CoordinatorLayout
@@ -79,6 +79,8 @@
           android:layout_width="match_parent"
           android:layout_height="56dp"
           android:layout_below="@id/snackBar"
+          app:itemIconTint="?colorAccent"
+          app:itemTextColor="?colorAccent"
           app:menu="@menu/bottom_items" />
         <FrameLayout
           android:layout_height="70dp"

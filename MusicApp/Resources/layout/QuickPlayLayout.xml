@@ -20,7 +20,7 @@
       app:fabSize="mini"
       app:elevation="5dp"
       app:pressedTranslationZ="12dp"
-      app:backgroundTint="#15b7ed"
+      app:backgroundTint="?colorAccent"
       android:layout_marginBottom="15dp"
       android:src="@drawable/ic_playlist_play_black_24dp"
       android:id="@+id/localPlay"/>
