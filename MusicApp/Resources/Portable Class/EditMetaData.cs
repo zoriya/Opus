@@ -139,8 +139,7 @@ namespace MusicApp.Resources.Portable_Class
         async void LeaveAndValidate()
         {
             await ValidateChanges();
-            Intent intent = new Intent(this, typeof(MainActivity));
-            StartActivity(intent);
+            Finish();
         }
 
         async Task ValidateChanges()

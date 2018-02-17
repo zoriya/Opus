@@ -291,7 +291,7 @@ namespace MusicApp.Resources.Portable_Class
             }
             else
             {
-                Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.contentView), "Download Path Not Set.", Snackbar.LengthShort).SetAction("Set Path", (v) =>
+                Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), "Download Path Not Set.", Snackbar.LengthShort).SetAction("Set Path", (v) =>
                 {
                     Intent intent = new Intent(Android.App.Application.Context, typeof(Preferences));
                     MainActivity.instance.StartActivity(intent);

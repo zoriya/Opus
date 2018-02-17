@@ -9,6 +9,7 @@ using Java.IO;
 using MusicApp.Resources.values;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using static Android.Provider.MediaStore.Audio;
 using AlertDialog = Android.Support.V7.App.AlertDialog;
 using Toolbar = Android.Support.V7.Widget.Toolbar;
@@ -23,10 +24,9 @@ namespace MusicApp.Resources.Portable_Class
             base.OnCreate(savedInstanceState);
 
             if(MainActivity.Theme == 1)
-                SetTheme(Resource.Style.DarkTheme);
+                SetTheme(Resource.Style.DarkPreferences);
 
             FragmentManager.BeginTransaction().Replace(Android.Resource.Id.Content, new PreferencesFragment()).Commit();
-            MainActivity.instance.GetStoragePermission();
         }
 
         protected override void OnPostCreate(Bundle savedInstanceState)
@@ -57,6 +57,8 @@ namespace MusicApp.Resources.Portable_Class
         public override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
+            AskForPermission();
+
             instance = this;
             AddPreferencesFromResource(Resource.Layout.Preferences);
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
@@ -82,6 +84,12 @@ namespace MusicApp.Resources.Portable_Class
             smallOnTopPreference.Summary = prefManager.GetBoolean("smallOnTop", false) ? "True" : "False";
         }
 
+        private async void AskForPermission()
+        {
+            await Task.Delay(100);
+            MainActivity.instance.GetStoragePermission();
+        }
+
         public override void OnDestroy()
         {
             base.OnDestroy();
@@ -101,7 +109,7 @@ namespace MusicApp.Resources.Portable_Class
             folders = ListFolders();
             adapter = new FolderAdapter(Application.Context, Resource.Layout.folderList, folders);
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, Resource.Style.AppCompatAlertDialogStyle);
+            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
             builder.SetTitle("Choose download location:");
             builder.SetAdapter(adapter, (senderAlert, args) => {  });
             builder.SetPositiveButton("Ok", (senders, args) => { SetDownloadFolder(); });
@@ -142,7 +150,7 @@ namespace MusicApp.Resources.Portable_Class
                 adapter.Insert(childs[i], index + i);
             }
 
-            if (index -1 < adapter.selectedPosition)
+            if (index - 1 < adapter.selectedPosition)
                 adapter.selectedPosition += childs.Count;
             folders[index - 1].isExtended = true;
             folders[index - 1].childCount = childs.Count;
@@ -202,7 +210,7 @@ namespace MusicApp.Resources.Portable_Class
 
             File[] file = folderPath.ListFiles();
 
-            if(file == null)
+            if (file == null)
             {
                 System.Console.WriteLine("&file is null");
                 return new List<Folder>();
@@ -273,7 +281,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             string[] items = new string[] { "Shuffle All Audio Files", "Shuffle a playlist" };
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, Resource.Style.AppCompatAlertDialogStyle);
+            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
             builder.SetTitle("Set the local storage shortcut:");
             builder.SetItems(items, (s, args) => { if (args.Which == 0) LCShuffleAll(); else LCSufflePlaylist(); });
             builder.Show();
@@ -315,7 +323,7 @@ namespace MusicApp.Resources.Portable_Class
                 cursor.Close();
             }
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, Resource.Style.AppCompatAlertDialogStyle);
+            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
             builder.SetTitle("Set the local storage shortcut:");
             builder.SetSingleChoiceItems(playList.ToArray(), -1, (s, args) => { LSposition = args.Which; });
             builder.SetPositiveButton("Ok", (s, args) => { LCSufflePlaylist(playList[LSposition], playlistId[LSposition]); });
@@ -339,7 +347,7 @@ namespace MusicApp.Resources.Portable_Class
         #region Theme
         private void ChangeTheme(object sender, Preference.PreferenceClickEventArgs e)
         {
-            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, Resource.Style.AppCompatAlertDialogStyle);
+            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
             builder.SetTitle("Choose a theme :");
             builder.SetItems(new[] { "White Theme", "Dark Theme" }, (s, args) =>
             {
@@ -351,7 +359,9 @@ namespace MusicApp.Resources.Portable_Class
                 Preference prefButton = FindPreference("theme");
                 prefButton.Summary = args.Which == 0 ? "White Theme" : "Dark Theme";
 
-                //MainActivity.SwitchTheme(args.Which);
+                MainActivity.Theme = args.Which;
+                MainActivity.dialogTheme = args.Which == 0 ? Resource.Style.AppCompatAlertDialogStyle : Resource.Style.AppCompatDarkAlertDialogStyle;
+                Activity.Recreate();
             });
             builder.Show();
         }
@@ -360,7 +370,7 @@ namespace MusicApp.Resources.Portable_Class
         #region SmallOnTop
         private void SmallOnTop(object sender, Preference.PreferenceClickEventArgs e)
         {
-            new AlertDialog.Builder(Activity, Resource.Style.AppCompatAlertDialogStyle)
+            new AlertDialog.Builder(Activity, MainActivity.dialogTheme)
                 .SetTitle("Display the small player on top of the bottom navigation :")
                 .SetItems(new[] { "True", "False" }, (s, args) =>
                 {

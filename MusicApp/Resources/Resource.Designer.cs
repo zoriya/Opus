@@ -4721,6 +4721,9 @@ namespace MusicApp
 			// aapt resource value: 0x7f090010
 			public const int CardView_Light = 2131296272;
 			
+			// aapt resource value: 0x7f0901a8
+			public const int DarkPreferences = 2131296680;
+			
 			// aapt resource value: 0x7f0901a5
 			public const int DarkTheme = 2131296677;
 			

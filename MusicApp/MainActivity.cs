@@ -143,7 +143,6 @@ namespace MusicApp
             {
                 SetTheme(Resource.Style.DarkTheme);
                 dialogTheme = Resource.Style.AppCompatDarkAlertDialogStyle;
-                //((RelativeLayout)FindViewById(Resource.Id.snackBar).Parent).SetBackgroundColor(new Android.Graphics.Color(Android.Support.V4.Content.ContextCompat.GetColor(this, Resource.Color.primary_material_dark)));
             }
         }
 
@@ -341,16 +340,11 @@ namespace MusicApp
                     FolderTracks.instance = null;
                     SetBrowseTabs(1);
                 }
-                if(EditMetaData.instance != null)
-                {
-
-                }
             }
             else if(item.ItemId == Resource.Id.search)
             {
-#pragma warning disable CS0618 // Type or member is obsolete
-                var searchItem = MenuItemCompat.GetActionView(item);
-#pragma warning restore CS0618 // Type or member is obsolete
+
+                var searchItem = item.ActionView;
                 var searchView = searchItem.JavaCast<SearchView>();
 
                 searchView.QueryTextChange += Search;
@@ -410,9 +404,7 @@ namespace MusicApp
                 return;
 
             var item = menu.FindItem(Resource.Id.search);
-#pragma warning disable CS0618 // Type or member is obsolete
-            var searchItem = MenuItemCompat.GetActionView(item);
-#pragma warning restore CS0618 // Type or member is obsolete
+            var searchItem = item.ActionView;
             var searchView = searchItem.JavaCast<SearchView>();
 
             searchView.SetQuery("", false);
@@ -437,9 +429,7 @@ namespace MusicApp
             var item = menu.FindItem(Resource.Id.search);
             item.SetVisible(true);
             item.CollapseActionView();
-#pragma warning disable CS0618 // Type or member is obsolete
-            var searchItem = MenuItemCompat.GetActionView(item);
-#pragma warning restore CS0618 // Type or member is obsolete
+            var searchItem = item.ActionView;
             var searchView = searchItem.JavaCast<SearchView>();
 
             searchView.SetQuery("", false);
@@ -986,6 +976,8 @@ namespace MusicApp
 
         private void LocalPlay(object sender, EventArgs e)
         {
+            Console.WriteLine("&Local Play");
+
             if (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(this, Manifest.Permission.ReadExternalStorage) != (int)Permission.Granted)
             {
                 this.sender = sender;

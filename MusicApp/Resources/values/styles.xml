@@ -16,7 +16,7 @@
     <item name="windowNoTitle">true</item>
     <item name="windowActionBar">false</item>
     <item name="android:windowContentTransitions">true</item>
-    <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
+    <item name="preferenceTheme">@style/DarkPreferences</item>
     <item name="colorAccent">#3E50B4</item>
     <item name="android:textColor">#ffffff</item>
     <item name="defaultColor">#212121</item>
@@ -27,5 +27,14 @@
   </style>
   <style name="AppCompatDarkAlertDialogStyle" parent="Theme.AppCompat.Dialog.Alert">
     <item name="colorAccent">#3E50B4  </item>
+  </style>
+
+  <style name="DarkPreferences">
+    <item name="android:textColor">#FFFFFF</item>
+    <item name="android:textColorSecondary">#B3FFFFFF</item>
+    <item name="android:background">#303030</item>
+    <item name="windowNoTitle">true</item>
+    <item name="windowActionBar">false</item>
+    <item name="android:windowContentTransitions">true</item>
   </style>
 </resources>
