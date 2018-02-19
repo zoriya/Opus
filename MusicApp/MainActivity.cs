@@ -856,7 +856,7 @@ namespace MusicApp
         {
             Browse.instance?.PopulateList();
             Playlist.instance?.PopulateView();
-            if (Browse.instance == null && Playlist.instance == null && PreferencesFragment.instance == null)
+            if (Browse.instance == null && Playlist.instance == null && PreferencesFragment.instance == null && Preferences.instance == null)
                 LocalPlay(sender, new EventArgs());
         }
 

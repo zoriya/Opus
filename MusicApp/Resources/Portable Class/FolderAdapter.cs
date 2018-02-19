@@ -60,12 +60,17 @@ namespace MusicApp.Resources.Portable_Class
             convertView.FindViewById<RelativeLayout>(Resource.Id.folderList).SetPadding(folders[position].Padding, 0, 0, 0);
 
             holder.used.SetTag(Resource.Id.folderUsed, folders[position].uri);
-            holder.used.Click += PreferencesFragment.instance.Used_Click;
-
+            holder.used.Click += DownloadFragment.instance.Used_Click;
             holder.used.Checked = position == selectedPosition;
             holder.used.SetTag(Resource.Id.folderName, position);
 
-            convertView.SetBackgroundColor(Color.White);
+            if(MainActivity.Theme == 1)
+            {
+                holder.Name.SetTextColor(Color.White);
+                holder.expandChild.SetColorFilter(Color.White);
+                //holder.used.ButtonTInt
+            }
+
             return convertView;
         }
     }

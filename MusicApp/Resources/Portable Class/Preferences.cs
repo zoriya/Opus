@@ -5,9 +5,6 @@ using Android.OS;
 using Android.Preferences;
 using Android.Views;
 using Android.Widget;
-using Java.IO;
-using MusicApp.Resources.values;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using static Android.Provider.MediaStore.Audio;
@@ -19,6 +16,9 @@ namespace MusicApp.Resources.Portable_Class
     [Activity(Label = "Settings", Theme = "@style/Theme")]
     public class Preferences : PreferenceActivity
     {
+        public static Preferences instance;
+        public Toolbar toolbar;
+
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -26,30 +26,45 @@ namespace MusicApp.Resources.Portable_Class
             if(MainActivity.Theme == 1)
                 SetTheme(Resource.Style.DarkPreferences);
 
+            instance = this;
+
             FragmentManager.BeginTransaction().Replace(Android.Resource.Id.Content, new PreferencesFragment()).Commit();
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            instance = null;
         }
 
         protected override void OnPostCreate(Bundle savedInstanceState)
         {
             base.OnPostCreate(savedInstanceState);
-            LinearLayout root = (LinearLayout) FindViewById(Android.Resource.Id.List).Parent.Parent.Parent;
-            Toolbar toolbar = (Toolbar) LayoutInflater.From(this).Inflate(Resource.Layout.PreferenceToolbar, root, false);
+            LinearLayout root = (LinearLayout)FindViewById(Android.Resource.Id.List).Parent.Parent.Parent;
+            toolbar = (Toolbar)LayoutInflater.From(this).Inflate(Resource.Layout.PreferenceToolbar, root, false);
             root.AddView(toolbar, 0);
             toolbar.Title = "Settings";
-            toolbar.NavigationClick += (sender, e) => { Finish(); };
+            toolbar.NavigationClick += (sender, e) => 
+            {
+                if(DownloadFragment.instance == null)
+                    Finish();
+                else
+                {
+                    ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(this);
+                    ISharedPreferencesEditor editor = prefManager.Edit();
+                    editor.PutString("downloadPath", DownloadFragment.instance.path);
+                    editor.Apply();
+                    FragmentManager.BeginTransaction().Replace(Android.Resource.Id.ListContainer, new PreferencesFragment()).AddToBackStack(null).Commit();
+                    DownloadFragment.instance = null;
+                }
+            };
         }
     }
 
     public class PreferencesFragment : PreferenceFragment
     {
         public static PreferencesFragment instance;
-
-        //DownloadPath
-        private List<Folder> folders;
-        private FolderAdapter adapter;
-        private ListView folderList;
-        private string path;
-        private AlertDialog dialog;
+        private View view;
 
         //Local Shortcut
         private int LSposition;
@@ -98,7 +113,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            View view = base.OnCreateView(inflater, container, savedInstanceState);
+            view = base.OnCreateView(inflater, container, savedInstanceState);
             view.SetPadding(0, MainActivity.instance.SupportActionBar.Height, 0, 0);
             return view;
         }
@@ -106,173 +121,8 @@ namespace MusicApp.Resources.Portable_Class
         #region Download location
         private void DownloadClick(object sender, Preference.PreferenceClickEventArgs e)
         {
-            folders = ListFolders();
-            adapter = new FolderAdapter(Application.Context, Resource.Layout.folderList, folders);
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
-            builder.SetTitle("Choose download location:");
-            builder.SetAdapter(adapter, (senderAlert, args) => {  });
-            builder.SetPositiveButton("Ok", (senders, args) => { SetDownloadFolder(); });
-            builder.SetNegativeButton("Cancel", (s, args) => { return; });
-            dialog = builder.Create();
-
-            folderList = dialog.ListView;
-
-            dialog.ListView.FastScrollEnabled = true;
-            dialog.ListView.SmoothScrollbarEnabled = true;
-            dialog.ListView.ItemClick += ListView_ItemClick;
-            dialog.Show();
-        }
-
-        private void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
-        {
-            Folder folder = folders[e.Position];
-            if (folder.asChild)
-            {
-                if (!folder.isExtended)
-                    ExpandFolder(folder);
-                else
-                    UnexpandFolder(folder);
-            }
-            else
-                Select(folder);
-        }
-
-        void ExpandFolder(Folder folder)
-        {
-            int index = folders.IndexOf(folder) + 1;
-            List<Folder> childs = ListChilds(folder.uri);
-            for (int i = 0; i < childs.Count; i++)
-            {
-                childs[i].Padding = folders[index - 1].Padding;
-                childs[i].Padding += 30;
-                folders.Insert(index + i, childs[i]);
-                adapter.Insert(childs[i], index + i);
-            }
-
-            if (index - 1 < adapter.selectedPosition)
-                adapter.selectedPosition += childs.Count;
-            folders[index - 1].isExtended = true;
-            folders[index - 1].childCount = childs.Count;
-
-            adapter.NotifyDataSetChanged();
-        }
-
-        void UnexpandFolder(Folder folder)
-        {
-            int index = folders.IndexOf(folder);
-            int count = folders[index].childCount;
-            folders[index].isExtended = false;
-            for (int i = index + 1; i < index + count; i++)
-            {
-                adapter.Remove(folders[i]);
-            }
-
-            if (adapter.selectedPosition != index && adapter.selectedPosition > index - count && adapter.selectedPosition < index + count)
-                adapter.selectedPosition = -1;
-            else if (adapter.selectedPosition != index)
-                adapter.selectedPosition -= count;
-
-            folders.RemoveRange(index + 1, count);
-            adapter.NotifyDataSetChanged();
-
-            dialog.ListView.ScrollBarSize = 10;
-        }
-
-        void Select(Folder folder)
-        {
-            path = folder.uri;
-        }
-
-        public void Used_Click(object sender, EventArgs e)
-        {
-            RadioButton radio = (RadioButton) sender;
-            adapter.selectedPosition = (int)radio.GetTag(Resource.Id.folderName);
-            adapter.NotifyDataSetChanged();
-
-            path = (string)radio.GetTag(Resource.Id.folderUsed);
-        }
-
-        void SetDownloadFolder()
-        {
-            ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(Android.App.Application.Context);
-            ISharedPreferencesEditor editor = pref.Edit();
-            editor.PutString("downloadPath", path);
-            editor.Apply();
-
-            Preference prefButton = FindPreference("downloadPath");
-            prefButton.Summary = path;
-        }
-
-        List<Folder> ListFolders()
-        {
-            File folderPath = Android.OS.Environment.ExternalStorageDirectory;
-
-            File[] file = folderPath.ListFiles();
-
-            if (file == null)
-            {
-                System.Console.WriteLine("&file is null");
-                return new List<Folder>();
-            }
-
-            List<Folder> folders = new List<Folder>();
-            for (int i = 0; i < file.Length; i++)
-            {
-                if (file[i].IsDirectory)
-                {
-                    bool asChild = false;
-
-                    File[] childs = file[i].ListFiles();
-
-                    for (int j = 0; i < childs.Length; i++)
-                    {
-                        if (childs[j].IsDirectory)
-                        {
-                            asChild = true;
-                            break;
-                        }
-                    }
-
-                    Folder folder = new Folder(file[i].Name, file[i].Path, asChild);
-
-                    folders.Add(folder);
-                }
-            }
-            return folders;
-        }
-
-        List<Folder> ListChilds(string path)
-        {
-            File folderPath = new File(path);
-
-            File[] files = folderPath.ListFiles();
-
-            List<Folder> folders = new List<Folder>();
-
-            for (int i = 0; i < files.Length; i++)
-            {
-                if (files[i].IsDirectory)
-                {
-                    bool asChild = false;
-
-                    File[] childs = files[i].ListFiles();
-
-                    for (int j = 0; j < childs.Length; j++)
-                    {
-                        if (childs[j].IsDirectory)
-                        {
-                            asChild = true;
-                            continue;
-                        }
-                    }
-
-                    Folder folder = new Folder(files[i].Name, files[i].Path, asChild);
-
-                    folders.Add(folder);
-                }
-            }
-            return folders;
+            FragmentManager.BeginTransaction().Replace(Android.Resource.Id.ListContainer, DownloadFragment.NewInstance()).AddToBackStack(null).Commit();
+            instance = null;
         }
         #endregion
 
