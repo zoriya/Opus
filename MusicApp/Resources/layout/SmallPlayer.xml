@@ -13,6 +13,7 @@
     <ImageView
       android:id="@+id/spArt"
       android:layout_width="70dp"
+      android:transitionName="playerAlbumArt"
       android:clickable="false"
       android:layout_height="70dp"
       android:src="@drawable/noAlbum"

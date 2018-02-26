@@ -13,6 +13,8 @@ using Java.Util;
 using AlarmManager = Android.App.AlarmManager;
 using PendingIntent = Android.App.PendingIntent;
 using Android.Graphics;
+using System.Threading;
+using Android.Support.V4.Widget;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -20,9 +22,8 @@ namespace MusicApp.Resources.Portable_Class
     {
         public static Player instance;
         public View playerView;
-        public const int notificationID = 1001;
+        public Handler handler = new Handler();
 
-        private Handler handler = new Handler();
         private SeekBar bar;
         private ImageView imgView;
         private int[] timers = new int[] { 0, 1, 10, 30, 60, 120 };
@@ -39,6 +40,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             MainActivity.instance.ToolBar.Visibility = ViewStates.Visible;
             MainActivity.instance.FindViewById<BottomNavigationView>(Resource.Id.bottomView).Visibility = ViewStates.Visible;
+            MainActivity.instance.FindViewById<SwipeRefreshLayout>(Resource.Id.contentRefresh).SetEnabled(true);
             MainActivity.instance.ShowSmallPlayer();
             MainActivity.instance.PrepareSmallPlayer();
             base.OnDestroy();
@@ -69,6 +71,8 @@ namespace MusicApp.Resources.Portable_Class
             MainActivity.instance.ShowQuickPlay();
             MainActivity.instance.ToolBar.Visibility = ViewStates.Gone;
             MainActivity.instance.FindViewById<BottomNavigationView>(Resource.Id.bottomView).Visibility = ViewStates.Gone;
+            MainActivity.instance.FindViewById<SwipeRefreshLayout>(Resource.Id.contentRefresh).SetEnabled(false);
+
             TextView title = playerView.FindViewById<TextView>(Resource.Id.playerTitle);
             TextView artist = playerView.FindViewById<TextView>(Resource.Id.playerArtist);
             imgView = playerView.FindViewById<ImageView>(Resource.Id.playerAlbum);
@@ -220,7 +224,46 @@ namespace MusicApp.Resources.Portable_Class
             while (MusicPlayer.player.Duration < 1)
                 await Task.Delay(100);
 
+            bar.Progress = 0;
             bar.Max = (int)MusicPlayer.player.Duration;
+        }
+
+        public async void UpdateNext()
+        {
+            await Task.Delay(10);
+            bool asNext = MusicPlayer.queue.Count > MusicPlayer.CurrentID() + 1;
+            if (asNext)
+            {
+                Song next = MusicPlayer.queue[MusicPlayer.CurrentID() + 1];
+                playerView.FindViewById<TextView>(Resource.Id.nextTitle).Text = "Next music:";
+                playerView.FindViewById<TextView>(Resource.Id.nextArtist).Text = next.GetName();
+                ImageView nextArt = playerView.FindViewById<ImageView>(Resource.Id.nextArt);
+
+                if (next.GetAlbum() == null)
+                {
+                    var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
+                    var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, next.GetAlbumArt());
+
+                    Picasso.With(Android.App.Application.Context).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
+                }
+                else
+                {
+                    Picasso.With(Android.App.Application.Context).Load(next.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
+                }
+            }
+            else
+            {
+                playerView.FindViewById<TextView>(Resource.Id.nextTitle).Text = "Next music:";
+                playerView.FindViewById<TextView>(Resource.Id.nextArtist).Text = "Nothing.";
+
+                ImageView nextArt = playerView.FindViewById<ImageView>(Resource.Id.nextArt);
+                Picasso.With(Android.App.Application.Context).Load(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
+            }
+        }
+
+        public void Stoped()
+        {
+            MainActivity.instance.FindViewById<BottomNavigationView>(Resource.Id.bottomView).SelectedItemId = Resource.Id.musicLayout;
         }
 
         private void AddToPlaylist_Click(object sender, EventArgs e)
@@ -230,7 +273,7 @@ namespace MusicApp.Resources.Portable_Class
             Browse.GetPlaylist(MusicPlayer.queue[MusicPlayer.CurrentID()]);
         }
 
-        private void UpdateSeekBar()
+        public void UpdateSeekBar()
         {
             if (!MusicPlayer.isRunning)
             {
@@ -244,7 +287,7 @@ namespace MusicApp.Resources.Portable_Class
 
         private void Fab_Click(object sender, EventArgs e)
         {
-            //Activity.SupportFragmentManager.BeginTransaction()./*SetCustomAnimations(Resource.Animation.SlideInUp, Resource.Animation.SlideOutUp).*/Replace(Resource.Id.contentView, Queue.NewInstance()).Commit();
+            MainActivity.instance.SupportFragmentManager.PopBackStack();
             MainActivity.instance.FindViewById<BottomNavigationView>(Resource.Id.bottomView).SelectedItemId = Resource.Id.musicLayout;
         }
 
@@ -271,7 +314,7 @@ namespace MusicApp.Resources.Portable_Class
 
         private void SleepButton_Click(object sender, EventArgs e)
         {
-            Android.Support.V7.App.AlertDialog.Builder builder = new Android.Support.V7.App.AlertDialog.Builder(Activity, Resource.Style.AppCompatAlertDialogStyle);
+            Android.Support.V7.App.AlertDialog.Builder builder = new Android.Support.V7.App.AlertDialog.Builder(Activity, MainActivity.dialogTheme);
             builder.SetTitle("Sleep in :");
             builder.SetSingleChoiceItems(items, checkedItem, ((senders, eventargs) => { checkedItem = eventargs.Which; }));
             builder.SetPositiveButton("Ok", ((senders, args) => { Sleep(timers[checkedItem]); }));
@@ -279,32 +322,11 @@ namespace MusicApp.Resources.Portable_Class
             builder.Show();
         }
 
-        #pragma warning disable CS0618
         void Sleep(int time)
         {
-            Date date = new Date(Java.Lang.JavaSystem.CurrentTimeMillis());
-            date.Minutes += time;
-
-            Context.RegisterReceiver(new SleepManager(), new IntentFilter("SleepManager"));
-
-            Intent intent = new Intent("SleepManager");
-            PendingIntent pendingIntent = PendingIntent.GetBroadcast(Android.App.Application.Context, 0, intent, Android.App.PendingIntentFlags.CancelCurrent);
-
-            AlarmManager alarms = (AlarmManager)Context.GetSystemService(Context.AlarmService);
-            alarms.Set(Android.App.AlarmType.RtcWakeup, date.Time, pendingIntent);
-
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(Android.App.Application.Context)
-                .SetVisibility(NotificationCompat.VisibilityPublic)
-                .SetSmallIcon(Resource.Drawable.MusicIcon)
-                .SetContentTitle("Music will stop in:")
-                .SetContentText(time + " minutes")
-                .SetOngoing(true);
-
-            Android.App.Notification notification = builder.Build();
-
-            Android.App.NotificationManager notificationManager = (Android.App.NotificationManager)Context.GetSystemService(Context.NotificationService);
-            notificationManager.Notify(notificationID, notification);
+            Intent intent = new Intent(Activity, typeof(Sleeper));
+            intent.PutExtra("time", time);
+            Activity.StartService(intent);
         }
-        #pragma warning restore CS0618
     }
 }

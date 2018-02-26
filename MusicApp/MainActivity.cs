@@ -260,10 +260,8 @@ namespace MusicApp
 
         public void Scroll(object sender, AbsListView.ScrollEventArgs e)
         {
-            if (usePager)
-                pagerRefresh.SetEnabled(e.FirstVisibleItem == 0);
-            else
-                contentRefresh.SetEnabled(e.FirstVisibleItem == 0);
+            pagerRefresh.SetEnabled(e.FirstVisibleItem == 0);
+            contentRefresh.SetEnabled(e.FirstVisibleItem == 0);
         }
 
         public void Scroll(object sender, View.ScrollChangeEventArgs e)
@@ -486,7 +484,7 @@ namespace MusicApp
                     {
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                         YoutubeEngine.instance.Refresh();
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+#pragma warning restore CS4014
                         return;
                     }
 
@@ -818,7 +816,7 @@ namespace MusicApp
         {
             HideTabs();
             HideSearch();
-            SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).AddToBackStack(null).Commit(); 
+            SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).AddToBackStack(null).Commit();
         }
 
         public void GetStoragePermission()
@@ -976,8 +974,6 @@ namespace MusicApp
 
         private void LocalPlay(object sender, EventArgs e)
         {
-            Console.WriteLine("&Local Play");
-
             if (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(this, Manifest.Permission.ReadExternalStorage) != (int)Permission.Granted)
             {
                 this.sender = sender;
@@ -1025,7 +1021,17 @@ namespace MusicApp
                 StartService(intent);
                 HideTabs();
                 HideSearch();
-                SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).Commit();
+
+                if(Queue.instance != null)
+                {
+                    ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
+                    rootView.RemoveView(Queue.instance.recyclerFragment);
+
+                    if (Queue.instance.isEmpty)
+                        rootView.RemoveView(Queue.instance.emptyView);
+                }
+
+                SupportFragmentManager.BeginTransaction().AddToBackStack(null).Replace(Resource.Id.contentView, Player.NewInstance()).Commit();
             }
             else
             {

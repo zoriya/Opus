@@ -43,6 +43,9 @@ namespace MusicApp.Resources.Portable_Class
 
         private Notification notification;
         private const int notificationID = 1000;
+        private bool stoped = false;
+        private static long progress;
+
 
         public override IBinder OnBind(Intent intent)
         {
@@ -111,6 +114,9 @@ namespace MusicApp.Resources.Portable_Class
                 case "Stop":
                     if(isRunning)
                         Stop();
+                    break;
+                case "SleepPause":
+                    SleepPause();
                     break;
             }
 
@@ -202,7 +208,7 @@ namespace MusicApp.Resources.Portable_Class
                 AddToQueue(song);
         }
 
-        public void Play(Song song, bool addToQueue = true)
+        public void Play(Song song, bool addToQueue = true, long progress = -1)
         {
             isRunning = true;
             if (player == null)
@@ -246,6 +252,12 @@ namespace MusicApp.Resources.Portable_Class
 
             if (addToQueue)
                 AddToQueue(song);
+
+            if (progress != -1)
+            {
+                player.SeekTo(progress);
+                Player.instance.playerView.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
+            }
         }
 
         public async void RandomPlay(List<string> filePath, bool clearQueue)
@@ -259,6 +271,7 @@ namespace MusicApp.Resources.Portable_Class
             if(clearQueue)
                 Play(filePath[0]);
             await Task.Delay(1000);
+            Player.instance?.UpdateNext();
             for (int i = clearQueue ? 1 : 0; i < filePath.Count; i++)
             {
                 GetTrackSong(filePath[i], out Song song);
@@ -595,7 +608,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public void Resume()
         {
-            if(player != null && !isRunning)
+            if(player != null && !isRunning && !stoped)
             {
                 isRunning = true;
                 Intent tmpPauseIntent = new Intent(Application.Context, typeof(MusicPlayer));
@@ -613,7 +626,13 @@ namespace MusicApp.Resources.Portable_Class
                 if (Player.instance != null)
                 {
                     Player.instance.playerView.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
+                    Player.instance.handler.PostDelayed(Player.instance.UpdateSeekBar, 1000);
                 }
+            }
+            else
+            {
+                stoped = false;
+                Play(queue[CurrentID()], false, progress);
             }
         }
 
@@ -621,6 +640,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             isRunning = false;
             MainActivity.instance.HideSmallPlayer();
+            Player.instance?.Stoped();
             if (player != null)
             {
                 if (isRunning)
@@ -628,6 +648,14 @@ namespace MusicApp.Resources.Portable_Class
                 player.Release();
                 StopForeground(true);
             }
+        }
+
+        private void SleepPause()
+        {
+            Pause();
+            StopForeground(true);
+            stoped = true;
+            progress = player.CurrentPosition;
         }
 
         public static void Swap(int fromPosition, int toPosition)

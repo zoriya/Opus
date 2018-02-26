@@ -16,12 +16,12 @@ namespace MusicApp.Resources.Portable_Class
         public static Queue instance;
         public RecyclerView ListView;
         public RecyclerAdapter adapter;
+        public bool isEmpty = false;
         public View emptyView;
         public View recyclerFragment;
         public ItemTouchHelper itemTouchHelper;
         public View view;
 
-        private bool isEmpty = false;
         private string[] actions = new string[] { "Remove from queue", "Edit Metadata" };
 
         public override void OnActivityCreated(Bundle savedInstanceState)
@@ -43,6 +43,7 @@ namespace MusicApp.Resources.Portable_Class
             MainActivity.instance.OnPaddingChanged -= PaddingChanged;
             ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
             rootView.RemoveView(recyclerFragment);
+
             if (isEmpty)
                 rootView.RemoveView(emptyView);
 
@@ -61,6 +62,7 @@ namespace MusicApp.Resources.Portable_Class
                 adapter = new RecyclerAdapter(MusicPlayer.queue);
             else
                 adapter = new RecyclerAdapter(new List<Song>());
+
             ListView.SetAdapter(adapter);
             adapter.ItemClick += ListView_ItemClick;
             adapter.ItemLongCLick += ListView_ItemLongCLick;
@@ -76,6 +78,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 if (isEmpty)
                     return view;
+
                 isEmpty = true;
                 AddEmptyView();
             }
