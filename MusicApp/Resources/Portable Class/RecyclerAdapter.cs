@@ -176,7 +176,7 @@ namespace MusicApp.Resources.Portable_Class
         public void ItemDismissed(int position)
         {
             Console.WriteLine("&Swiped");
-            Queue.instance.RemoveFromQueue(songList[position]);
+            Queue.RemoveFromQueue(songList[position]);
             NotifyItemRemoved(position);
         }
 

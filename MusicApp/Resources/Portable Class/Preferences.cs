@@ -209,8 +209,10 @@ namespace MusicApp.Resources.Portable_Class
                 Preference prefButton = FindPreference("theme");
                 prefButton.Summary = args.Which == 0 ? "White Theme" : "Dark Theme";
 
-                MainActivity.Theme = args.Which;
-                MainActivity.dialogTheme = args.Which == 0 ? Resource.Style.AppCompatAlertDialogStyle : Resource.Style.AppCompatDarkAlertDialogStyle;
+                MainActivity.instance.SwitchTheme(args.Which);
+                MainActivity.instance.Recreate();
+                //MainActivity.Theme = args.Which;
+                //MainActivity.dialogTheme = args.Which == 0 ? Resource.Style.AppCompatAlertDialogStyle : Resource.Style.AppCompatDarkAlertDialogStyle;
                 Activity.Recreate();
             });
             builder.Show();

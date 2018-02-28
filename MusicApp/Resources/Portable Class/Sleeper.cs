@@ -13,6 +13,8 @@ namespace MusicApp.Resources.Portable_Class
         public static Sleeper instance;
         public int timer;
 
+        private bool stoped = false;
+
         public override IBinder OnBind(Intent intent)
         {
             return null;
@@ -29,7 +31,16 @@ namespace MusicApp.Resources.Portable_Class
             if (instance == null)
                 StartTimer(intent);
             else
-                timer = intent.GetIntExtra("time", timer);
+            {
+                int time = intent.GetIntExtra("time", timer);
+                if (time == 0)
+                {
+                    stoped = true;
+                    StopForeground(true);
+                }
+                else
+                    timer = time;
+            }
             return StartCommandResult.Sticky;
         }
 
@@ -54,6 +65,9 @@ namespace MusicApp.Resources.Portable_Class
 
                 await Task.Delay(60000); // One minute in ms
                 timer -= 1;
+
+                if (stoped)
+                    return;
             }
 
             Intent musicIntent = new Intent(Application.Context, typeof(MusicPlayer));

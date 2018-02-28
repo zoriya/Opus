@@ -87,13 +87,12 @@ namespace MusicApp
             ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(this);
             SwitchTheme(pref.GetInt("theme", 1));
             SetContentView(Resource.Layout.Main);
-            Song song = (Song) Intent.GetStringExtra("Song");
             instance = this;
 
             var bottomNavigation = FindViewById<BottomNavigationView>(Resource.Id.bottomView);
             bottomNavigation.NavigationItemSelected += PreNavigate;
 
-            ToolBar = (Android.Support.V7.Widget.Toolbar) FindViewById(Resource.Id.toolbar);
+            ToolBar = (Android.Support.V7.Widget.Toolbar)FindViewById(Resource.Id.toolbar);
             SetSupportActionBar(ToolBar);
             SupportActionBar.Title = "MusicApp";
 
@@ -267,7 +266,7 @@ namespace MusicApp
         public void Scroll(object sender, View.ScrollChangeEventArgs e)
         {
             if(!Queue.instance.adapter.RefreshDisabled())
-                contentRefresh.SetEnabled(((LinearLayoutManager)Queue.instance.ListView.GetLayoutManager()).FindFirstVisibleItemPosition() == 0);
+                contentRefresh.SetEnabled(((LinearLayoutManager)Queue.instance.ListView.GetLayoutManager()).FindFirstCompletelyVisibleItemPosition() == 0);
 
             if(((LinearLayoutManager)Queue.instance.ListView.GetLayoutManager()).FindLastCompletelyVisibleItemPosition() == Queue.instance.adapter.songList.Count)
             {
@@ -449,6 +448,7 @@ namespace MusicApp
 
         private void Navigate(int layout)
         {
+            Console.WriteLine("&Navigate");
             Android.Support.V4.App.Fragment fragment = null;
             switch (layout)
             {

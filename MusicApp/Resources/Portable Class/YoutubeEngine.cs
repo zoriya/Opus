@@ -1,6 +1,8 @@
 ﻿using Android.Content;
+using Android.Database;
 using Android.OS;
 using Android.Preferences;
+using Android.Provider;
 using Android.Support.Design.Widget;
 using Android.Support.V4.App;
 using Android.Support.V7.App;
@@ -186,8 +188,24 @@ namespace MusicApp.Resources.Portable_Class
             builder.Show();
         }
 
-        public static async void Play(string videoID, string title, string artist, string thumbnailURL)
+        public static async void Play(string videoID, string title, string artist, string thumbnailURL, bool skipExistVerification = false)
         {
+            if (!skipExistVerification && FileIsAlreadyDownloaded(videoID))
+            {
+                Context context = Android.App.Application.Context;
+                Intent mIntent = new Intent(context, typeof(MusicPlayer));
+                mIntent.PutExtra("file", GetLocalPathFromYTID(videoID));
+                mIntent.SetAction("Play");
+                context.StartService(mIntent);
+                int localID = MusicPlayer.queue.Count;
+
+                Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), title + " has been downloaded on your device. Playing the local file instead of the online one.", Snackbar.LengthShort).SetAction("Play the youtube file anyway.", (v) =>
+                {
+                    Queue.RemoveFromQueue(MusicPlayer.queue[localID]);
+                    Play(videoID, title, artist, thumbnailURL, true);
+                }).Show();
+            }
+
             ProgressBar parseProgress = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress);
             parseProgress.Visibility = ViewStates.Visible;
             parseProgress.ScaleY = 6;
@@ -210,12 +228,78 @@ namespace MusicApp.Resources.Portable_Class
             MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).Commit();
         }
 
-        public static async void PlayFiles(Song[] files)
+        public static async void PlayFiles(Song[] files, bool skipExistVerification = false)
         {
             if (files.Length < 1)
                 return;
 
-            Play(files[0].GetPath(), files[0].GetName(), files[0].GetArtist(), files[0].GetAlbum());
+            if (!skipExistVerification)
+            {
+                List<int> index = new List<int>();
+                List<Song> downloadedSong = new List<Song>();
+                for (int i = 0; i < files.Length; i++)
+                {
+                    if (FileIsAlreadyDownloaded(files[i].youtubeID))
+                    {
+                        index.Add(i);
+                        downloadedSong.Add(files[i]);
+                    }
+                }
+
+                if (downloadedSong.Count > 0)
+                {
+                    List<Song> filesList = files.ToList();
+
+                    for (int i = 0; i < index.Count; i++)
+                    {
+                        filesList.RemoveAt(index[i]);
+                    }
+
+                    files = filesList.ToArray();
+
+                    if (downloadedSong.Count == 1)
+                    {
+                        Context context = Android.App.Application.Context;
+                        Intent intent = new Intent(context, typeof(MusicPlayer));
+                        intent.PutExtra("file", GetLocalPathFromYTID(downloadedSong[0].youtubeID));
+                        intent.SetAction("PlayLast");
+                        context.StartService(intent);
+                        int localID = MusicPlayer.queue.Count;
+
+                        Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), downloadedSong[0].GetName() + " has been downloaded on your device. Playing the local file instead of the online one.", Snackbar.LengthShort).SetAction("Play the youtube file anyway.", (v) =>
+                        {
+                            Queue.RemoveFromQueue(MusicPlayer.queue[localID]);
+                            MusicPlayer.queue.Insert(MusicPlayer.queue.Count, downloadedSong[0]);
+                        }).Show();
+                    }
+                    else
+                    {
+                        List<string> localPaths = new List<string>();
+                        for(int i = 0; i < downloadedSong.Count; i++)
+                            localPaths.Add(GetLocalPathFromYTID(downloadedSong[i].youtubeID));
+
+                        Context context = Android.App.Application.Context;
+                        Intent intent = new Intent(context, typeof(MusicPlayer));
+                        intent.PutStringArrayListExtra("files", localPaths.ToArray());
+                        intent.PutExtra("clearQueue", false);
+                        intent.SetAction("RandomPlay");
+                        context.StartService(intent);
+                        int localID = MusicPlayer.queue.Count;
+
+                        Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), downloadedSong.Count + " files are on your device. Playing locals files instead of the online version.", Snackbar.LengthShort).SetAction("Play youtube files anyway", (v) =>
+                        {
+                            for (int i = 0; i < downloadedSong.Count; i++)
+                            {
+                                Queue.RemoveFromQueue(MusicPlayer.queue[localID + i]);
+                                MusicPlayer.queue.Insert(MusicPlayer.CurrentID() + i, downloadedSong[i]);
+                            }
+
+                        }).Show();
+                    }
+                }
+            }
+
+            Play(files[0].GetPath(), files[0].GetName(), files[0].GetArtist(), files[0].GetAlbum(), true);
 
             if (files.Length < 2)
                 return;
@@ -229,8 +313,24 @@ namespace MusicApp.Resources.Portable_Class
         }
 
 
-        public static async void PlayNext(string videoID, string title, string artist, string thumbnailURL)
+        public static async void PlayNext(string videoID, string title, string artist, string thumbnailURL, bool skipExistVerification = false)
         {
+            if (!skipExistVerification && FileIsAlreadyDownloaded(videoID))
+            {
+                Context context = Android.App.Application.Context;
+                Intent mIntent = new Intent(context, typeof(MusicPlayer));
+                mIntent.PutExtra("file", GetLocalPathFromYTID(videoID));
+                mIntent.SetAction("PlayNext");
+                context.StartService(mIntent);
+                int localID = MusicPlayer.queue.Count;
+
+                Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), title + " has been downloaded on your device. Playing the local file instead of the online one.", Snackbar.LengthShort).SetAction("Play the youtube file anyway.", (v) =>
+                {
+                    Queue.RemoveFromQueue(MusicPlayer.queue[localID]);
+                    PlayNext(videoID, title, artist, thumbnailURL, true);
+                }).Show();
+            }
+
             ProgressBar parseProgress = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress);
             parseProgress.Visibility = ViewStates.Visible;
             parseProgress.ScaleY = 6;
@@ -251,8 +351,25 @@ namespace MusicApp.Resources.Portable_Class
             parseProgress.Visibility = ViewStates.Gone;
         }
 
-        public static async void PlayLast(string videoID, string title, string artist, string thumbnailURL)
+        public static async void PlayLast(string videoID, string title, string artist, string thumbnailURL, bool skipExistVerification = false)
         {
+            if (!skipExistVerification && FileIsAlreadyDownloaded(videoID))
+            {
+                Context context = Android.App.Application.Context;
+                Intent mIntent = new Intent(context, typeof(MusicPlayer));
+                mIntent.PutExtra("file", GetLocalPathFromYTID(videoID));
+                mIntent.SetAction("PlayLast");
+                context.StartService(mIntent);
+                int localID = MusicPlayer.queue.Count;
+
+                Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), title + " has been downloaded on your device. Playing the local file instead of the online one.", Snackbar.LengthShort).SetAction("Play the youtube file anyway.", (v) =>
+                {
+                    Queue.RemoveFromQueue(MusicPlayer.queue[localID]);
+                    PlayLast(videoID, title, artist, thumbnailURL, true);
+                }).Show();
+            }
+
+
             ProgressBar parseProgress = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress);
             parseProgress.Visibility = ViewStates.Visible;
             parseProgress.ScaleY = 6;
@@ -273,11 +390,19 @@ namespace MusicApp.Resources.Portable_Class
             parseProgress.Visibility = ViewStates.Gone;
         }
 
-        public async static void Download(string name, string videoID)
+        public async static void Download(string name, string videoID, bool skipExistVerification = false)
         {
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Android.App.Application.Context);
             if (prefManager.GetString("downloadPath", null) != null)
             {
+                if (FileIsAlreadyDownloaded(videoID) && !skipExistVerification)
+                {
+                    Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), name + " is already on your device.", Snackbar.LengthShort).SetAction("Download Anyway", (v) =>
+                    {
+                        Download(name, videoID, true);
+                    }).Show();
+                }
+
                 Toast.MakeText(Android.App.Application.Context, "Downloading...", ToastLength.Short).Show();
                 Context context = Android.App.Application.Context;
                 Intent intent = new Intent(context, typeof(Downloader));
@@ -299,11 +424,57 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
-        public static async void DownloadFiles(string[] names, string[] videoIDs)
+        public static async void DownloadFiles(string[] names, string[] videoIDs, bool skipExistVerification = false)
         {
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Android.App.Application.Context);
             if (prefManager.GetString("downloadPath", null) != null)
             {
+                if (!skipExistVerification)
+                {
+                    List<string> downloadedName = new List<string>();
+                    List<string> downloadedID = new List<string>();
+                    for (int i = 0; i < names.Length; i++)
+                    {
+                        if (FileIsAlreadyDownloaded(videoIDs[i]))
+                        {
+                            downloadedName.Add(names[i]);
+                            downloadedID.Add(videoIDs[i]);
+                        }
+                    }
+
+                    if (downloadedName.Count > 0)
+                    {
+                        List<string> namesList = names.ToList();
+                        List<string> idList = videoIDs.ToList();
+
+                        for(int i = 0; i < downloadedName.Count; i++)
+                        {
+                            namesList.Remove(downloadedName[i]);
+                            idList.Remove(downloadedID[i]);
+                        }
+
+                        names = namesList.ToArray();
+                        videoIDs = idList.ToArray();
+
+                        if (downloadedName.Count == 1)
+                        {
+                            Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), downloadedName[0] + " is already on your device.", Snackbar.LengthShort).SetAction("Download this file anyway", (v) =>
+                            {
+                                Downloader.instance.Download(new DownloadFile(downloadedName[0], downloadedID[0]));
+                            }).Show();
+                        }
+                        else
+                        {
+                            Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), downloadedName.Count + " files are already on your device", Snackbar.LengthShort).SetAction("Download all this files anyway", (v) =>
+                            {
+                                for(int i = 0; i < downloadedName.Count; i++)
+                                    Downloader.instance.Download(new DownloadFile(downloadedName[i], downloadedID[i]));
+
+                            }).Show();
+                        }
+                    }
+                }
+
                 Toast.MakeText(Android.App.Application.Context, "Downloading...", ToastLength.Short).Show();
                 Context context = Android.App.Application.Context;
                 Intent intent = new Intent(context, typeof(Downloader));
@@ -325,6 +496,59 @@ namespace MusicApp.Resources.Portable_Class
                     MainActivity.instance.StartActivity(intent);
                 }).Show();
             }
+        }
+
+        public static bool FileIsAlreadyDownloaded(string youtubeID)
+        {
+            Android.Net.Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
+
+            CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
+            ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
+
+            if (musicCursor != null && musicCursor.MoveToFirst())
+            {
+                int youtubeKey = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Composer);
+                do
+                {
+                    string ytID = musicCursor.GetString(youtubeKey);
+                    if(ytID == youtubeID)
+                    {
+                        musicCursor.Close();
+                        return true;
+                    }
+                }
+                while (musicCursor.MoveToNext());
+                musicCursor.Close();
+            }
+
+            return false;
+        }
+
+        public static string GetLocalPathFromYTID(string videoID)
+        {
+            Android.Net.Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
+            CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
+            ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
+
+            if (musicCursor != null && musicCursor.MoveToFirst())
+            {
+                int youtubeKey = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Composer);
+                int pathKey = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
+                do
+                {
+                    string ytID = musicCursor.GetString(youtubeKey);
+                    string path = musicCursor.GetString(pathKey);
+                    if (ytID == videoID)
+                    {
+                        musicCursor.Close();
+                        return path;
+                    }
+                }
+                while (musicCursor.MoveToNext());
+                musicCursor.Close();
+            }
+
+            return null;
         }
 
         public static void RemoveFromPlaylist(string videoID)

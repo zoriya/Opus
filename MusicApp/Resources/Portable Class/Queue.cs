@@ -1,4 +1,5 @@
 ﻿using Android.OS;
+using Android.Support.Design.Widget;
 using Android.Support.V4.App;
 using Android.Support.V7.Widget;
 using Android.Support.V7.Widget.Helper;
@@ -80,7 +81,7 @@ namespace MusicApp.Resources.Portable_Class
                     return view;
 
                 isEmpty = true;
-                AddEmptyView();
+                return LayoutInflater.Inflate(Resource.Layout.NoQueue, container, false);
             }
             return view;
         }
@@ -166,11 +167,11 @@ namespace MusicApp.Resources.Portable_Class
             builder.Show();
         }
 
-        public void RemoveFromQueue(Song item)
+        public static void RemoveFromQueue(Song item)
         {
             if(item == MusicPlayer.queue[MusicPlayer.CurrentID()])
             {
-                //Make snackbar
+                Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), "You are trying to remove the current music from the queue.", Snackbar.LengthShort).Show();
                 return;
             }
 
