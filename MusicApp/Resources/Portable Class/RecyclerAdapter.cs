@@ -3,6 +3,7 @@ using Android.Content;
 using Android.Graphics;
 using Android.Support.V7.Widget;
 using Android.Views;
+using Android.Widget;
 using MusicApp.Resources.values;
 using Square.Picasso;
 using System;
@@ -57,16 +58,13 @@ namespace MusicApp.Resources.Portable_Class
                 Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
             }
 
+            holder.more.Tag = position;
             if (!holder.more.HasOnClickListeners)
             {
                 holder.more.Click += (sender, e) =>
                 {
-                    Queue.instance?.More(songList[position]);
-                    Browse.instance?.More(songList[position]);
-                    YoutubeEngine.instance?.More(songList[position]);
-                    YtPlaylist.instance?.More(position);
-                    PlaylistTracks.instance?.More(songList[position], position);
-                    FolderTracks.instance?.More(songList[position]);
+                    int tagPosition = (int)((ImageView)sender).Tag;
+                    Queue.instance.More(songList[tagPosition]);
                 };
             }
 

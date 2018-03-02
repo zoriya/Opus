@@ -77,6 +77,8 @@ namespace MusicApp.Resources.Portable_Class
 
         public void PopulateList()
         {
+            musicList = new List<Song>();
+
             Android.Net.Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
 
             CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);

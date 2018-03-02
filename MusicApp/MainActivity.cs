@@ -362,6 +362,9 @@ namespace MusicApp
             }
             else if(item.ItemId == Resource.Id.settings)
             {
+                //parcelableSender = sender;
+                //this.parcelable = parcelable;
+
                 Intent intent = new Intent(Application.Context, typeof(Preferences));
                 StartActivity(intent);
             }
@@ -1172,14 +1175,14 @@ namespace MusicApp
             base.OnResume();
             switch (parcelableSender)
             {
+                case "Queue":
+                    Navigate(Resource.Id.musicLayout);
+                    break;
                 case "Browse":
                     Navigate(Resource.Id.browseLayout);
                     break;
                 case "PlaylistTracks":
                     Transition(Resource.Id.contentView, PlaylistTracks.instance, true);
-                    break;
-                case "Queue":
-                    Navigate(Resource.Id.musicLayout);
                     break;
                 default:
                     break;
