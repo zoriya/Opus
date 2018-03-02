@@ -3,6 +3,7 @@ using Android.App;
 using Android.Content;
 using Android.Content.PM;
 using Android.OS;
+using Android.Preferences;
 using Android.Provider;
 using Android.Runtime;
 using Android.Support.Design.Widget;
@@ -10,11 +11,14 @@ using Android.Support.V7.App;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
-using System.IO;
 using MusicApp.Resources.values;
 using Square.Picasso;
+using System.IO;
+using System.Net;
 using System.Threading.Tasks;
 using TagLib;
+using YoutubeExplode;
+using YoutubeExplode.Models;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -27,10 +31,11 @@ namespace MusicApp.Resources.Portable_Class
         private TextView title, artist, album, youtubeID;
         private ImageView albumArt;
         private Android.Net.Uri artURI;
+        private bool tempFile = false;
         private bool hasPermission = false;
         private const int RequestCode = 8539;
         private const int PickerRequestCode = 9852;
-        private string[] actions = new string[] { "Pick an album art from storage", "Search for an album art on google" };
+        private string[] actions = new string[] { "Pick an album art from storage", "Download album art on youtube" };
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -51,6 +56,12 @@ namespace MusicApp.Resources.Portable_Class
             toolbar.Parent.RequestLayout();
             toolbar.LayoutParameters.Height = metrics.WidthPixels / 3;
             toolbar.RequestLayout();
+
+            if (MainActivity.Theme == 1)
+            {
+                toolbar.PopupTheme = Resource.Style.DarkPopup;
+            }
+
             SetSupportActionBar(toolbar);
             SupportActionBar.SetDisplayShowTitleEnabled(false);
             SupportActionBar.SetDisplayHomeAsUpEnabled(true);
@@ -96,7 +107,7 @@ namespace MusicApp.Resources.Portable_Class
                             PickAnAlbumArtLocally();
                             break;
                         case 1:
-                            //Pick from google
+                            DownloadAlbumArtOnYT();
                             break;
                         default:
                             break;
@@ -126,11 +137,27 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
+        public override bool OnCreateOptionsMenu(IMenu menu)
+        {
+            MenuInflater.Inflate(Resource.Menu.metaData_items, menu);
+            return base.OnCreateOptionsMenu(menu);
+        }
+
         public override bool OnOptionsItemSelected(IMenuItem item)
         {
             if (item.ItemId == Android.Resource.Id.Home)
             {
                 LeaveAndValidate();
+                return true;
+            }
+            if (item.ItemId == Resource.Id.downloadMDfromYT)
+            {
+                DownloadMetaDataFromYT();
+                return true;
+            }
+            if(item.ItemId == Resource.Id.undoChange)
+            {
+                UndoChange();
                 return true;
             }
             return false;
@@ -164,7 +191,7 @@ namespace MusicApp.Resources.Portable_Class
             meta.Tag.Title = title.Text;
             meta.Tag.Performers = new string[] { artist.Text };
             meta.Tag.Album = album.Text;
-            meta.Tag.Composers = new[] { youtubeID.Text };
+            meta.Tag.Comment = youtubeID.Text;
 
             if (artURI != null)
             {
@@ -186,6 +213,12 @@ namespace MusicApp.Resources.Portable_Class
             stream.Dispose();
             Android.Media.MediaScannerConnection.ScanFile(this, new string[] { song.GetPath() }, null, null);
 
+            if (tempFile)
+            {
+                tempFile = false;
+                System.IO.File.Delete(artURI.ToString());
+            }
+
             Toast.MakeText(this, "Changes saved.", ToastLength.Short).Show();
         }
 
@@ -201,6 +234,107 @@ namespace MusicApp.Resources.Portable_Class
                         Snackbar.Make(FindViewById<View>(Resource.Id.contentView), "Permission denied, can't edit metadata.", Snackbar.LengthShort).Show();
                 }
             }
+        }
+
+        async void DownloadMetaDataFromYT()
+        {
+            if (song.youtubeID == "")
+            {
+                Toast.MakeText(this, "Can't get meta data on youtube, youtubeID isn't set.", ToastLength.Short).Show();
+                return;
+            }
+
+            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(this);
+            if (prefManager.GetString("downloadPath", null) == null)
+            {
+                Toast.MakeText(this, "Download path isn't set, can't download informations.", ToastLength.Short).Show();
+                return;
+            }
+
+            YoutubeClient client = new YoutubeClient();
+            Video video = await client.GetVideoAsync(youtubeID.Text);
+            title.Text = video.Title;
+            artist.Text = video.Author;
+
+            if (tempFile)
+            {
+                tempFile = false;
+                System.IO.File.Delete(artURI.ToString());
+            }
+
+            string tempArt = prefManager.GetString("downloadPath", "") + "/albumArt" + Path.GetExtension(video.Thumbnails.HighResUrl);
+            System.Console.WriteLine("&Temp path: " + tempArt);
+
+            WebClient webClient = new WebClient();
+            await webClient.DownloadFileTaskAsync(new System.Uri(video.Thumbnails.HighResUrl), tempArt);
+
+            await Task.Delay(150);
+            Android.Net.Uri uri = Android.Net.Uri.Parse(tempArt);
+            Picasso.With(Application.Context).Load(uri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(albumArt);
+            artURI = uri;
+            tempFile = true;
+        }
+
+        async void DownloadAlbumArtOnYT()
+        {
+            if (song.youtubeID == "")
+            {
+                Toast.MakeText(this, "Can't get meta data on youtube, youtubeID isn't set.", ToastLength.Short).Show();
+                return;
+            }
+
+            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(this);
+            if (prefManager.GetString("downloadPath", null) == null)
+            {
+                Toast.MakeText(this, "Download path isn't set, can't download informations.", ToastLength.Short).Show();
+                return;
+            }
+
+            YoutubeClient client = new YoutubeClient();
+            Video video = await client.GetVideoAsync(song.youtubeID);
+
+            if (tempFile)
+            {
+                tempFile = false;
+                System.IO.File.Delete(artURI.ToString());
+            }
+
+            string tempArt = prefManager.GetString("downloadPath", "") + "/albumArt" + Path.GetExtension(video.Thumbnails.HighResUrl);
+            System.Console.WriteLine("&Temp path: " + tempArt);
+
+            WebClient webClient = new WebClient();
+            await webClient.DownloadFileTaskAsync(new System.Uri(video.Thumbnails.HighResUrl), tempArt);
+
+            await Task.Delay(150);
+            Android.Net.Uri uri = Android.Net.Uri.Parse(tempArt);
+            Picasso.With(Application.Context).Load(uri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(albumArt);
+            artURI = uri;
+            tempFile = true;
+        }
+
+        void UndoChange()
+        {
+            title.Text = song.GetName();
+            artist.Text = song.GetArtist();
+            album.Text = song.GetAlbum();
+            youtubeID.Text = song.youtubeID;
+            albumArt.Click += AlbumArt_Click;
+
+            if (song.GetAlbumArt() == -1 || song.IsYt)
+            {
+                var songAlbumArtUri = Android.Net.Uri.Parse(song.GetAlbum());
+                Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(albumArt);
+            }
+            else
+            {
+                var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
+                var songAlbumArtUri = ContentUris.WithAppendedId(songCover, song.GetAlbumArt());
+
+                Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(albumArt);
+            }
+
+            albumArt = null;
+            tempFile = false;
         }
     }
 }

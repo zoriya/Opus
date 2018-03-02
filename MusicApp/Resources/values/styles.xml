@@ -21,6 +21,10 @@
     <item name="android:textColor">#ffffff</item>
     <item name="defaultColor">#212121</item>
   </style>
+
+  <style name="DarkPopup" parent="ThemeOverlay.AppCompat.Light">
+    <item name="android:colorBackground">#424242</item>
+  </style>
   
   <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
     <item name="colorAccent">#3E50B4  </item>

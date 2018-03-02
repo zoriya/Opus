@@ -124,7 +124,7 @@ namespace MusicApp.Resources.Portable_Class
             meta.Tag.Title = title;
             meta.Tag.Performers = new string[] { artist };
             meta.Tag.Album = album;
-            meta.Tag.Composers = new[] { youtubeID };
+            meta.Tag.Comment = youtubeID;
 
             if (artURI != null)
             {

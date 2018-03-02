@@ -362,9 +362,6 @@ namespace MusicApp
             }
             else if(item.ItemId == Resource.Id.settings)
             {
-                //parcelableSender = sender;
-                //this.parcelable = parcelable;
-
                 Intent intent = new Intent(Application.Context, typeof(Preferences));
                 StartActivity(intent);
             }

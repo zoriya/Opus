@@ -5,15 +5,15 @@ using Android.Database;
 using Android.OS;
 using Android.Provider;
 using Android.Support.V4.App;
-using Android.Support.V4.Widget;
 using Android.Support.V7.App;
 using Android.Views;
 using Android.Widget;
-using Java.Lang;
 using MusicApp.Resources.values;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using TagLib;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -90,14 +90,12 @@ namespace MusicApp.Resources.Portable_Class
                 int artistID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Artist);
                 int albumID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Album);
                 int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
-                int youtubeID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Composer);
                 int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
                 do
                 {
                     string Artist = musicCursor.GetString(artistID);
                     string Title = musicCursor.GetString(titleID);
                     string Album = musicCursor.GetString(albumID);
-                    string ytID = musicCursor.GetString(youtubeID);
                     long AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
                     long id = musicCursor.GetLong(thisID);
                     string path = musicCursor.GetString(pathID);
@@ -109,7 +107,7 @@ namespace MusicApp.Resources.Portable_Class
                     if (Album == null)
                         Album = "Unknow Album";
 
-                    musicList.Add(new Song(Title, Artist, Album, ytID, AlbumArt, id, path));
+                    musicList.Add(new Song(Title, Artist, Album, null, AlbumArt, id, path));
                 }
                 while (musicCursor.MoveToNext());
                 musicCursor.Close();
@@ -152,7 +150,6 @@ namespace MusicApp.Resources.Portable_Class
                 int titleID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Title);
                 int artistID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Artist);
                 int albumID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Album);
-                int youtubeID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Composer);
                 int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
                 int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
                 do
@@ -160,7 +157,6 @@ namespace MusicApp.Resources.Portable_Class
                     string Artist = musicCursor.GetString(artistID);
                     string Title = musicCursor.GetString(titleID);
                     string Album = musicCursor.GetString(albumID);
-                    string ytID = musicCursor.GetString(youtubeID);
                     long AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
                     long id = musicCursor.GetLong(thisID);
                     string path = musicCursor.GetString(pathID);
@@ -172,7 +168,7 @@ namespace MusicApp.Resources.Portable_Class
                     if (Album == null)
                         Album = "Unknow Album";
 
-                    musicList.Add(new Song(Title, Artist, Album, ytID, AlbumArt, id, path));
+                    musicList.Add(new Song(Title, Artist, Album, null, AlbumArt, id, path));
                 }
                 while (musicCursor.MoveToNext());
                 musicCursor.Close();
@@ -209,6 +205,8 @@ namespace MusicApp.Resources.Portable_Class
             if (result != null)
                 item = result[e.Position];
 
+            item = CompleteItem(item);
+
             Play(item);
         }
 
@@ -223,6 +221,8 @@ namespace MusicApp.Resources.Portable_Class
 
         public void More(Song item)
         {
+            item = CompleteItem(item);
+
             AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
             builder.SetTitle("Pick an action");
             builder.SetItems(actions, (senderAlert, args) =>
@@ -249,6 +249,17 @@ namespace MusicApp.Resources.Portable_Class
                 }
             });
             builder.Show();
+        }
+
+        public Song CompleteItem(Song item)
+        {
+            Stream stream = new FileStream(item.GetPath(), FileMode.Open, FileAccess.Read);
+
+            var meta = TagLib.File.Create(new StreamFileAbstraction(item.GetPath(), stream, stream));
+            string ytID = meta.Tag.Comment;
+            stream.Dispose();
+
+            return new Song(item.GetName(), item.GetArtist(), item.GetAlbum(), ytID, item.GetAlbumArt(), item.GetID(), item.GetPath(), item.IsYt, item.isParsed, item.queueSlot);
         }
 
         public static void Play(Song item)

@@ -3014,6 +3014,9 @@ namespace MusicApp
 			// aapt resource value: 0x7f080111
 			public const int downloadLayout = 2131230993;
 			
+			// aapt resource value: 0x7f080113
+			public const int downloadMDfromYT = 2131230995;
+			
 			// aapt resource value: 0x7f080095
 			public const int edit_query = 2131230869;
 			
@@ -3428,8 +3431,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f0800a1
 			public const int select_dialog_listview = 2131230881;
 			
-			// aapt resource value: 0x7f080113
-			public const int settings = 2131230995;
+			// aapt resource value: 0x7f080115
+			public const int settings = 2131230997;
 			
 			// aapt resource value: 0x7f08008b
 			public const int shortcut = 2131230859;
@@ -3598,6 +3601,9 @@ namespace MusicApp
 			
 			// aapt resource value: 0x7f080013
 			public const int transition_transform = 2131230739;
+			
+			// aapt resource value: 0x7f080114
+			public const int undoChange = 2131230996;
 			
 			// aapt resource value: 0x7f08003e
 			public const int uniform = 2131230782;
@@ -4008,7 +4014,10 @@ namespace MusicApp
 			public const int bottom_items = 2131558400;
 			
 			// aapt resource value: 0x7f0d0001
-			public const int toolbar_menu = 2131558401;
+			public const int metaData_items = 2131558401;
+			
+			// aapt resource value: 0x7f0d0002
+			public const int toolbar_menu = 2131558402;
 			
 			static Menu()
 			{
@@ -4225,11 +4234,11 @@ namespace MusicApp
 			// aapt resource value: 0x7f09017a
 			public const int Animation_Design_BottomSheetDialog = 2131296634;
 			
-			// aapt resource value: 0x7f0901a6
-			public const int AppCompatAlertDialogStyle = 2131296678;
-			
 			// aapt resource value: 0x7f0901a7
-			public const int AppCompatDarkAlertDialogStyle = 2131296679;
+			public const int AppCompatAlertDialogStyle = 2131296679;
+			
+			// aapt resource value: 0x7f0901a8
+			public const int AppCompatDarkAlertDialogStyle = 2131296680;
 			
 			// aapt resource value: 0x7f0900b3
 			public const int Base_AlertDialog_AppCompat = 2131296435;
@@ -4732,8 +4741,11 @@ namespace MusicApp
 			// aapt resource value: 0x7f090010
 			public const int CardView_Light = 2131296272;
 			
-			// aapt resource value: 0x7f0901a8
-			public const int DarkPreferences = 2131296680;
+			// aapt resource value: 0x7f0901a6
+			public const int DarkPopup = 2131296678;
+			
+			// aapt resource value: 0x7f0901a9
+			public const int DarkPreferences = 2131296681;
 			
 			// aapt resource value: 0x7f0901a5
 			public const int DarkTheme = 2131296677;

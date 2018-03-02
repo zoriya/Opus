@@ -13,8 +13,10 @@ using Google.Apis.YouTube.v3.Data;
 using Java.Util;
 using MusicApp.Resources.values;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using TagLib;
 using YoutubeExplode;
 using YoutubeExplode.Models.MediaStreams;
 
@@ -507,11 +509,17 @@ namespace MusicApp.Resources.Portable_Class
 
             if (musicCursor != null && musicCursor.MoveToFirst())
             {
-                int youtubeKey = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Composer);
+                int pathKey = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
                 do
                 {
-                    string ytID = musicCursor.GetString(youtubeKey);
-                    if(ytID == youtubeID)
+                    string path = musicCursor.GetString(pathKey);
+
+                    Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
+                    var meta = TagLib.File.Create(new StreamFileAbstraction(path, stream, stream));
+                    string ytID = meta.Tag.Comment;
+                    stream.Dispose();
+
+                    if (ytID == youtubeID)
                     {
                         musicCursor.Close();
                         return true;
@@ -532,12 +540,16 @@ namespace MusicApp.Resources.Portable_Class
 
             if (musicCursor != null && musicCursor.MoveToFirst())
             {
-                int youtubeKey = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Composer);
                 int pathKey = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
                 do
                 {
-                    string ytID = musicCursor.GetString(youtubeKey);
                     string path = musicCursor.GetString(pathKey);
+
+                    Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
+                    var meta = TagLib.File.Create(new StreamFileAbstraction(path, stream, stream));
+                    string ytID = meta.Tag.Comment;
+                    stream.Dispose();
+
                     if (ytID == videoID)
                     {
                         musicCursor.Close();
