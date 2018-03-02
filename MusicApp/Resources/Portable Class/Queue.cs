@@ -158,7 +158,7 @@ namespace MusicApp.Resources.Portable_Class
                         break;
                     case 1:
                         if (!item.IsYt)
-                            Browse.EditMetadata(item);
+                            Browse.EditMetadata(item, "Queue", ListView.GetLayoutManager().OnSaveInstanceState());
                         break;
                     default:
                         break;
@@ -182,6 +182,17 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             MusicPlayer.queue.Remove(item);
+        }
+
+        public override void OnResume()
+        {
+            base.OnResume();
+            if (MainActivity.parcelable != null)
+            {
+                ListView.GetLayoutManager().OnRestoreInstanceState(MainActivity.parcelable);
+                MainActivity.parcelable = null;
+                MainActivity.parcelableSender = null;
+            }
         }
     }
 }

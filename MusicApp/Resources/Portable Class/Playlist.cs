@@ -15,7 +15,7 @@ namespace MusicApp.Resources.Portable_Class
     public class Playlist : ListFragment
     {
         public static Playlist instance;
-        public Adapter adapter;
+        public TwoLineAdapter adapter;
         public View emptyView;
         public bool isEmpty = false;
         public bool focused = true;
@@ -63,7 +63,6 @@ namespace MusicApp.Resources.Portable_Class
                 ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
                 rootView.RemoveView(emptyView);
             }
-            System.Console.WriteLine("Playlist destroyed");
             base.OnDestroy();
             instance = null;
         }
@@ -93,23 +92,27 @@ namespace MusicApp.Resources.Portable_Class
             if (cursor != null && cursor.MoveToFirst())
             {
                 int nameID = cursor.GetColumnIndex(Playlists.InterfaceConsts.Name);
-                //int countID = cursor.GetColumnIndex(MediaStore.Audio.Playlists.InterfaceConsts.Count);
                 int listID = cursor.GetColumnIndex(Playlists.InterfaceConsts.Id);
                 do
                 {
                     string name = cursor.GetString(nameID);
-                    //int count = cursor.GetInt(countID);
                     long id = cursor.GetLong(listID);
                     playList.Add(name);
-                    //playListCount.Add(count);
                     playlistId.Add(id);
+
+                    Uri musicUri = Playlists.Members.GetContentUri("external", id);
+                    CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
+                    ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
+
+                    playListCount.Add(musicCursor.Count);
+
 
                 }
                 while (cursor.MoveToNext());
                 cursor.Close();
             }
-            //ListAdapter = new TwoLineAdapter(Android.App.Application.Context, Resource.Layout.TwoLineLayout, playList, playListCount);
-            ListAdapter = new ArrayAdapter(Android.App.Application.Context, Resource.Layout.PlaylistList, playList);
+            adapter = new TwoLineAdapter(Android.App.Application.Context, Resource.Layout.TwoLineLayout, playList, playListCount);
+            ListAdapter = adapter;
 
             if (adapter == null || adapter.Count == 0)
             {
@@ -229,10 +232,15 @@ namespace MusicApp.Resources.Portable_Class
             Uri uri = Playlists.ExternalContentUri;
             resolver.Delete(Playlists.ExternalContentUri, Playlists.InterfaceConsts.Id + "=?", new string[] { playlistID.ToString() });
             playList.RemoveAt(position);
+            playListCount.RemoveAt(position);
             playlistId.RemoveAt(position);
-            ListAdapter = new ArrayAdapter(Android.App.Application.Context, Resource.Layout.PlaylistList, playList);
-            if(ListAdapter.Count == 0)
+            adapter = new TwoLineAdapter(Android.App.Application.Context, Resource.Layout.TwoLineLayout, playList, playListCount);
+            ListAdapter = adapter;
+
+            if (adapter == null || adapter.Count == 0)
             {
+                if (isEmpty)
+                    return;
                 isEmpty = true;
                 Activity.AddContentView(emptyView, View.LayoutParameters);
             }

@@ -221,7 +221,7 @@ namespace MusicApp.Resources.Portable_Class
             MainActivity.instance.Transition(Resource.Id.contentView, FolderTracks.NewInstance(path), true);
         }
 
-        public void GetPlaylist(string item)
+        public void GetPlaylist(string path)
         {
             List<string> playList = new List<string>();
             List<long> playListId = new List<long>();
@@ -251,41 +251,51 @@ namespace MusicApp.Resources.Portable_Class
             builder.SetTitle("Add to a playlist");
             builder.SetItems(playList.ToArray(), (senderAlert, args) =>
             {
-                AddToPlaylist(item, playList[args.Which], playListId[args.Which]);
+                AddToPlaylist(path, playList[args.Which], playListId[args.Which]);
             });
             builder.Show();
         }
 
-        public void AddToPlaylist(string path, string playList, long playlistID)
+        public async void AddToPlaylist(string path, string playList, long playlistID)
         {
             if (playList == "Create a playlist")
                 CreatePlalistDialog(path);
 
             else
             {
+                await Browse.CheckWritePermission();
+
+                List<ContentValues> values = new List<ContentValues>();
                 ContentResolver resolver = act.ContentResolver;
 
                 Uri musicUri = MediaStore.Audio.Media.GetContentUriForPath(path);
-
                 CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
                 ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
+
+                System.Console.WriteLine("&Path: " + path + " URI: " + musicUri.ToString());
 
                 if (musicCursor != null && musicCursor.MoveToFirst())
                 {
                     int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
+                    int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
                     do
                     {
+                        string songPath = musicCursor.GetString(pathID);
+
+                        if (!songPath.Contains(path))
+                            continue;
+
                         long id = musicCursor.GetLong(thisID);
 
                         ContentValues value = new ContentValues();
                         value.Put(MediaStore.Audio.Playlists.Members.AudioId, id);
-                        value.Put(MediaStore.Audio.Playlists.InterfaceConsts.Id, playlistID);
                         value.Put(MediaStore.Audio.Playlists.Members.PlayOrder, 0);
-                        resolver.Insert(MediaStore.Audio.Playlists.Members.GetContentUri("external", playlistID), value);
+                        values.Add(value);
                     }
                     while (musicCursor.MoveToNext());
                     musicCursor.Close();
                 }
+                resolver.BulkInsert(MediaStore.Audio.Playlists.Members.GetContentUri("external", playlistID), values.ToArray());
             }
         }
 
@@ -303,8 +313,10 @@ namespace MusicApp.Resources.Portable_Class
             builder.Show();
         }
 
-        public void CreatePlaylist(string name, string path)
+        public async void CreatePlaylist(string name, string path)
         {
+            await Browse.CheckWritePermission();
+
             ContentResolver resolver = act.ContentResolver;
             Uri uri = MediaStore.Audio.Playlists.ExternalContentUri;
             ContentValues value = new ContentValues();
@@ -363,6 +375,9 @@ namespace MusicApp.Resources.Portable_Class
             intent.PutStringArrayListExtra("files", trackPaths.ToArray());
             intent.SetAction("RandomPlay");
             Activity.StartService(intent);
+            MainActivity.instance.HideTabs();
+            MainActivity.instance.HideSearch();
+            MainActivity.instance.SupportFragmentManager.BeginTransaction().AddToBackStack(null).Replace(Resource.Id.contentView, Player.NewInstance()).Commit();
         }
     }
 }

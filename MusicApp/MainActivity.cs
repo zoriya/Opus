@@ -40,6 +40,8 @@ namespace MusicApp
         public static int paddingBot = 0;
         public new static int Theme = 1;
         public static int dialogTheme;
+        public static IParcelable parcelable;
+        public static string parcelableSender;
 
         public Android.Support.V7.Widget.Toolbar ToolBar;
         public bool NoToolbarMenu = false;
@@ -448,7 +450,6 @@ namespace MusicApp
 
         private void Navigate(int layout)
         {
-            Console.WriteLine("&Navigate");
             Android.Support.V4.App.Fragment fragment = null;
             switch (layout)
             {
@@ -848,6 +849,10 @@ namespace MusicApp
                     }
                 }
             }
+            else if(requestCode == 2659)
+            {
+                Console.WriteLine("&Write permission authorized");
+            }
         }
 
         void PremissionAuthorized()
@@ -1160,6 +1165,25 @@ namespace MusicApp
         {
             float scale = Resources.DisplayMetrics.Density;
             return (int) (px * scale + 0.5f);
+        }
+
+        protected override void OnResume()
+        {
+            base.OnResume();
+            switch (parcelableSender)
+            {
+                case "Browse":
+                    Navigate(Resource.Id.browseLayout);
+                    break;
+                case "PlaylistTracks":
+                    Transition(Resource.Id.contentView, PlaylistTracks.instance, true);
+                    break;
+                case "Queue":
+                    Navigate(Resource.Id.musicLayout);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

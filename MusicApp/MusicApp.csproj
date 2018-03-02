@@ -202,6 +202,9 @@
     <Reference Include="Xamarin.Auth, Version=1.5.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Xamarin.Auth.1.5.0.3\lib\MonoAndroid10\Xamarin.Auth.dll</HintPath>
     </Reference>
+    <Reference Include="Xamarin.FFmpeg, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xamarin.FFmpeg.1.0.4\lib\Xamarin.FFmpeg.dll</HintPath>
+    </Reference>
     <Reference Include="YoutubeExplode, Version=4.1.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\YoutubeExplode.4.1.1\lib\netstandard2.0\YoutubeExplode.dll</HintPath>
     </Reference>

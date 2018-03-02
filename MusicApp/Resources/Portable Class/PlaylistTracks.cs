@@ -10,6 +10,7 @@ using Android.Widget;
 using MusicApp.Resources.values;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -36,9 +37,8 @@ namespace MusicApp.Resources.Portable_Class
             ListView.EmptyView = emptyView;
             ListView.Scroll += MainActivity.instance.Scroll;
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
-
-            PopulateList();
             MainActivity.instance.DisplaySearch(1);
+            PopulateList();
         }
 
         public override void OnDestroy()
@@ -71,7 +71,10 @@ namespace MusicApp.Resources.Portable_Class
 
         async void PopulateList()
         {
-            if(playlistId != 0)
+            if (playlistId == 0 && ytID == "")
+                return;
+
+            if (playlistId != 0)
             {
                 Uri musicUri = MediaStore.Audio.Playlists.Members.GetContentUri("external", playlistId);
 
@@ -121,10 +124,10 @@ namespace MusicApp.Resources.Portable_Class
                     Activity.AddContentView(emptyView, View.LayoutParameters);
                 }
             }
-            else if(ytID != null)
+            else if (ytID != null)
             {
                 string nextPageToken = "";
-                while(nextPageToken != null)
+                while (nextPageToken != null)
                 {
                     var ytPlaylistRequest = YoutubeEngine.youtubeService.PlaylistItems.List("snippet, contentDetails");
                     ytPlaylistRequest.PlaylistId = ytID;
@@ -339,7 +342,7 @@ namespace MusicApp.Resources.Portable_Class
                         if (item.IsYt)
                             YoutubeEngine.Download(item.GetName(), item.GetPath());
                         else
-                            Browse.EditMetadata(item);
+                            Browse.EditMetadata(item, "PlaylistTracks", ListView.OnSaveInstanceState());
                         break;
 
                     default:
@@ -371,6 +374,17 @@ namespace MusicApp.Resources.Portable_Class
             {
                 isEmpty = true;
                 Activity.AddContentView(emptyView, View.LayoutParameters);
+            }
+        }
+
+        public override void OnResume()
+        {
+            base.OnResume();
+            if (MainActivity.parcelable != null)
+            {
+                ListView.OnRestoreInstanceState(MainActivity.parcelable);
+                MainActivity.parcelable = null;
+                MainActivity.parcelableSender = null;
             }
         }
     }

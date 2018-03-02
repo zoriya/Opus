@@ -1,4 +1,6 @@
-﻿using Android.Content;
+﻿using Android;
+using Android.Content;
+using Android.Content.PM;
 using Android.Database;
 using Android.OS;
 using Android.Provider;
@@ -11,6 +13,7 @@ using Java.Lang;
 using MusicApp.Resources.values;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -237,7 +240,7 @@ namespace MusicApp.Resources.Portable_Class
                         GetPlaylist(item);
                         break;
                     case 4:
-                        EditMetadata(item);
+                        EditMetadata(item, "Browse", ListView.OnSaveInstanceState());
                         break;
                     default:
                         break;
@@ -310,17 +313,33 @@ namespace MusicApp.Resources.Portable_Class
             builder.Show();
         }
 
-        public static void AddToPlaylist(Song item, string playList, long playlistID)
+        public async static Task CheckWritePermission()
+        {
+            const string permission = Manifest.Permission.WriteExternalStorage;
+            if (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(act, permission) != (int)Permission.Granted)
+            {
+                string[] permissions = new string[] { permission };
+                MainActivity.instance.RequestPermissions(permissions, 2659);
+
+                await Task.Delay(1000);
+                while (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(act, permission) != (int)Permission.Granted)
+                    await Task.Delay(500);
+            }
+            return;
+        }
+
+        public async static void AddToPlaylist(Song item, string playList, long playlistID)
         {
             if (playList == "Create a playlist")
                 CreatePlalistDialog(item);
 
             else
             {
+                await CheckWritePermission();
+
                 ContentResolver resolver = act.ContentResolver;
                 ContentValues value = new ContentValues();
                 value.Put(MediaStore.Audio.Playlists.Members.AudioId, item.GetID());
-                value.Put(MediaStore.Audio.Playlists.InterfaceConsts.Id, playlistID);
                 value.Put(MediaStore.Audio.Playlists.Members.PlayOrder, 0);
                 resolver.Insert(MediaStore.Audio.Playlists.Members.GetContentUri("external", playlistID), value);
             }
@@ -340,8 +359,10 @@ namespace MusicApp.Resources.Portable_Class
             builder.Show();
         }
 
-        public static void CreatePlaylist(string name, Song item)
+        public async static void CreatePlaylist(string name, Song item)
         {
+            await CheckWritePermission();
+
             ContentResolver resolver = act.ContentResolver;
             Android.Net.Uri uri = MediaStore.Audio.Playlists.ExternalContentUri;
             ContentValues value = new ContentValues();
@@ -373,12 +394,25 @@ namespace MusicApp.Resources.Portable_Class
             AddToPlaylist(item, playList, playlistID);
         }
 
-        public static void EditMetadata(Song item)
+        public static void EditMetadata(Song item, string sender, IParcelable parcelable)
         {
             MainActivity.instance.HideTabs();
+            MainActivity.parcelableSender = sender;
+            MainActivity.parcelable = parcelable;
             Intent intent = new Intent(Android.App.Application.Context, typeof(EditMetaData));
             intent.PutExtra("Song", item.ToString());
             MainActivity.instance.StartActivity(intent);
+        }
+
+        public override void OnResume()
+        {
+            base.OnResume();
+            if(MainActivity.parcelable != null)
+            {
+                ListView.OnRestoreInstanceState(MainActivity.parcelable);
+                MainActivity.parcelable = null;
+                MainActivity.parcelableSender = null;
+            }
         }
     }
 }

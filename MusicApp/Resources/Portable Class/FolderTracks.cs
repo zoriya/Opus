@@ -65,6 +65,7 @@ namespace MusicApp.Resources.Portable_Class
             CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
             ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
 
+            System.Console.WriteLine("&Path: " + path + " URI: " + musicUri.ToString());
 
             if (musicCursor != null && musicCursor.MoveToFirst())
             {
@@ -93,7 +94,6 @@ namespace MusicApp.Resources.Portable_Class
                     if (Album == null)
                         Album = "Unknow Album";
 
-                    System.Console.WriteLine(Title);
                     tracks.Add(new Song(Title, Artist, Album, null, AlbumArt, id, path));
                 }
                 while (musicCursor.MoveToNext());
