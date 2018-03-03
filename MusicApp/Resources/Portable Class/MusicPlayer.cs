@@ -174,18 +174,38 @@ namespace MusicApp.Resources.Portable_Class
                 .SetUsage(AudioUsageKind.Media)
                 .SetContentType(AudioContentType.Music)
                 .Build();
-            AudioFocusRequestClass focusRequest = new AudioFocusRequestClass.Builder(AudioFocus.Gain)
+
+            if(Build.VERSION.SdkInt >= BuildVersionCodes.O)
+            {
+                AudioFocusRequestClass focusRequest = new AudioFocusRequestClass.Builder(AudioFocus.Gain)
                 .SetAudioAttributes(attributes)
                 .SetAcceptsDelayedFocusGain(true)
                 .SetOnAudioFocusChangeListener(this)
                 .Build();
-            var audioFocus = audioManager.RequestAudioFocus(focusRequest);
-            
-            if (audioFocus != AudioFocusRequest.Granted)
-            {
-                Console.WriteLine("Can't Get Audio Focus");
-                return;
+                AudioFocusRequest audioFocus = audioManager.RequestAudioFocus(focusRequest);
+
+                if (audioFocus != AudioFocusRequest.Granted)
+                {
+                    Console.WriteLine("Can't Get Audio Focus");
+                    return;
+                }
             }
+            else
+            {
+#pragma warning disable CS0618 // Type or member is obsolete
+
+                AudioManager am = (AudioManager)MainActivity.instance.GetSystemService(AudioService);
+
+                AudioFocusRequest audioFocus = am.RequestAudioFocus(this, Stream.Music, AudioFocus.Gain);
+
+                if (audioFocus != AudioFocusRequest.Granted)
+                {
+                    Console.WriteLine("Can't Get Audio Focus");
+                    return;
+                }
+#pragma warning restore CS0618
+            }
+
             player.PlayWhenReady = true;
             player.Prepare(mediaSource, true, true);
 
@@ -230,17 +250,38 @@ namespace MusicApp.Resources.Portable_Class
                 .SetUsage(AudioUsageKind.Media)
                 .SetContentType(AudioContentType.Music)
                 .Build();
-            AudioFocusRequestClass focusRequest = new AudioFocusRequestClass.Builder(AudioFocus.Gain)
+
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
+            {
+                AudioFocusRequestClass focusRequest = new AudioFocusRequestClass.Builder(AudioFocus.Gain)
                 .SetAudioAttributes(attributes)
                 .SetAcceptsDelayedFocusGain(true)
                 .SetOnAudioFocusChangeListener(this)
                 .Build();
-            var audioFocus = audioManager.RequestAudioFocus(focusRequest);
-            if (audioFocus != AudioFocusRequest.Granted)
-            {
-                Console.WriteLine("Can't Get Audio Focus");
-                return;
+                AudioFocusRequest audioFocus = audioManager.RequestAudioFocus(focusRequest);
+
+                if (audioFocus != AudioFocusRequest.Granted)
+                {
+                    Console.WriteLine("Can't Get Audio Focus");
+                    return;
+                }
             }
+            else
+            {
+#pragma warning disable CS0618 // Type or member is obsolete
+
+                AudioManager am = (AudioManager)MainActivity.instance.GetSystemService(AudioService);
+
+                AudioFocusRequest audioFocus = am.RequestAudioFocus(this, Stream.Music, AudioFocus.Gain);
+
+                if (audioFocus != AudioFocusRequest.Granted)
+                {
+                    Console.WriteLine("Can't Get Audio Focus");
+                    return;
+                }
+#pragma warning restore CS0618
+            }
+
             player.PlayWhenReady = true;
             player.Prepare(mediaSource, true, true);
             CreateNotification(song.GetName(), song.GetArtist(), song.GetAlbumArt(), song.GetAlbum());
@@ -773,3 +814,4 @@ namespace MusicApp.Resources.Portable_Class
         }
     }
 }
+ 

@@ -26,8 +26,10 @@ using MusicApp.Resources.values;
 using Square.Picasso;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using TagLib;
 using Xamarin.Auth;
 using SearchView = Android.Support.V7.Widget.SearchView;
 
@@ -87,7 +89,7 @@ namespace MusicApp
             base.OnCreate(savedInstanceState);
 
             ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(this);
-            SwitchTheme(pref.GetInt("theme", 1));
+            SwitchTheme(pref.GetInt("theme", 0));
             SetContentView(Resource.Layout.Main);
             instance = this;
 
@@ -105,16 +107,18 @@ namespace MusicApp
             crossToPlay = GetDrawable(Resource.Drawable.CrossToPlay);
 
 
-            NotificationManager notificationManager = (NotificationManager)GetSystemService(NotificationService);
-            NotificationChannel channel = new NotificationChannel("MusicApp.Channel", "Default Channel", NotificationImportance.Low)
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
             {
-                Description = "Channel used for download progress and music control notification.",
-                LockscreenVisibility = NotificationVisibility.Public
-            };
-            channel.EnableVibration(false);
-            channel.EnableLights(false);
-            notificationManager.CreateNotificationChannel(channel);
-
+                NotificationManager notificationManager = (NotificationManager)GetSystemService(NotificationService);
+                NotificationChannel channel = new NotificationChannel("MusicApp.Channel", "Default Channel", NotificationImportance.Low)
+                {
+                    Description = "Channel used for download progress and music control notification.",
+                    LockscreenVisibility = NotificationVisibility.Public
+                };
+                channel.EnableVibration(false);
+                channel.EnableLights(false);
+                notificationManager.CreateNotificationChannel(channel);
+            }
 
             if (MusicPlayer.queue.Count > 0)
                 ReCreateSmallPlayer();
@@ -1062,12 +1066,27 @@ namespace MusicApp
 
         private async void YtPlay(object sender, EventArgs e)
         {
-            if (MusicPlayer.CurrentID() == -1 || !MusicPlayer.queue[MusicPlayer.CurrentID()].IsYt)
+            if (MusicPlayer.CurrentID() == -1 || MusicPlayer.queue[MusicPlayer.CurrentID()].youtubeID == null || MusicPlayer.queue[MusicPlayer.CurrentID()].youtubeID == "")
             {
+                if (MusicPlayer.CurrentID() != -1)
+                {
+                    Stream stream = new FileStream(MusicPlayer.queue[MusicPlayer.CurrentID()].GetPath(), FileMode.Open, FileAccess.Read);
+
+                    var meta = TagLib.File.Create(new StreamFileAbstraction(MusicPlayer.queue[MusicPlayer.CurrentID()].GetPath(), stream, stream));
+                    string ytID = meta.Tag.Comment;
+                    stream.Dispose();
+
+                    MusicPlayer.queue[MusicPlayer.CurrentID()].youtubeID = ytID;
+                    if (ytID != null && ytID != "")
+                        goto YtMix;
+                }
+
                 QuickPlay(this, e);
                 Toast.MakeText(this, "This button create a playlist based on the youtube file your actually watching, it won't work if your not playing a youtube audio", ToastLength.Long).Show();
                 return;
             }
+
+        YtMix:
 
             ProgressBar parseProgress = FindViewById<ProgressBar>(Resource.Id.ytProgress);
             parseProgress.Visibility = ViewStates.Visible;
@@ -1086,77 +1105,27 @@ namespace MusicApp
             SearchResource.ListRequest searchResult = YoutubeEngine.youtubeService.Search.List("snippet");
             searchResult.Fields = "items(id/videoId,snippet/title,snippet/thumbnails/default/url,snippet/channelTitle)";
             searchResult.Type = "video";
-            searchResult.MaxResults = 2;
+            searchResult.MaxResults = 20;
             searchResult.RelatedToVideoId = MusicPlayer.queue[MusicPlayer.CurrentID()].youtubeID;
 
             var searchReponse = await searchResult.ExecuteAsync();
 
             List<Song> result = new List<Song>();
-            List<string> titles = new List<string>
-            {
-                MusicPlayer.queue[MusicPlayer.CurrentID()].GetName()
-            };
 
             foreach (var video in searchReponse.Items)
             {
                 Song videoInfo = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.Default__.Url, video.Id.VideoId, -1, -1, video.Id.VideoId, true, false);
                 result.Add(videoInfo);
-                titles.Add(video.Snippet.Title);
             }
 
-            bool useLocalPlay = false;
-            int retryCount = 0;
-            for (int i = 0; i < 26; i += 2)
-            {
-                if (i < 0)
-                {
-                    retryCount++;
-                    Random random = new Random();
-                    i = random.Next(0, result.Count);
-                }
-
-                int errorCount = 0;
-                searchResult.RelatedToVideoId = result[i].youtubeID;
-                searchReponse = await searchResult.ExecuteAsync();
-                foreach (var video in searchReponse.Items)
-                {
-                    if (titles.Contains(video.Snippet.Title))
-                    {
-                        errorCount++;
-                        i--;
-                        if(errorCount == 2)
-                        {
-                            retryCount++;
-                            Random random = new Random();
-                            i = random.Next(0, result.Count - 1);
-
-                            if (retryCount > 3)
-                            {
-                                //Should check parameters and play a commonly played video on yt or play local files
-                                useLocalPlay = true;
-                                goto End;
-                            }
-                        }
-                        continue;
-                    }
-
-                    Song videoInfo = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.Default__.Url, video.Id.VideoId, -1, -1, video.Id.VideoId, true, false);
-                    result.Add(videoInfo);
-                    titles.Add(video.Snippet.Title);
-                }
-            }
-
-        End:
             Random r = new Random();
             result = result.OrderBy(x => r.Next()).ToList();
-            foreach(Song song in result)
+            Player.instance?.UpdateNext();
+            foreach (Song song in result)
             {
                 MusicPlayer.instance.AddToQueue(song);
                 await Task.Delay(5);
             }
-
-            if(useLocalPlay)
-                LocalPlay(null, new EventArgs());
 
             parseProgress.Visibility = ViewStates.Gone;
         }

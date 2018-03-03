@@ -204,20 +204,25 @@ namespace MusicApp.Resources.Portable_Class
 
                 pictures[0] = new Picture(data);
                 meta.Tag.Pictures = pictures;
-                artURI = null;
+
+                if(!tempFile)
+                    artURI = null;
 
                 ContentResolver.Delete(ContentUris.WithAppendedId(Android.Net.Uri.Parse("content://media/external/audio/albumart"), song.GetAlbumArt()), null, null);
             }
 
             meta.Save();
             stream.Dispose();
-            Android.Media.MediaScannerConnection.ScanFile(this, new string[] { song.GetPath() }, null, null);
 
             if (tempFile)
             {
                 tempFile = false;
-                System.IO.File.Delete(artURI.ToString());
+                System.IO.File.Delete(artURI.Path);
+                artURI = null;
             }
+
+            await Task.Delay(10);
+            Android.Media.MediaScannerConnection.ScanFile(this, new string[] { song.GetPath() }, null, null);
 
             Toast.MakeText(this, "Changes saved.", ToastLength.Short).Show();
         }
@@ -251,6 +256,17 @@ namespace MusicApp.Resources.Portable_Class
                 return;
             }
 
+            const string permission = Manifest.Permission.WriteExternalStorage;
+            if (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(this, permission) != (int)Permission.Granted)
+            {
+                string[] permissions = new string[] { permission };
+                RequestPermissions(permissions, 2659);
+
+                await Task.Delay(1000);
+                while (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(this, permission) != (int)Permission.Granted)
+                    await Task.Delay(500);
+            }
+
             YoutubeClient client = new YoutubeClient();
             Video video = await client.GetVideoAsync(youtubeID.Text);
             title.Text = video.Title;
@@ -262,17 +278,19 @@ namespace MusicApp.Resources.Portable_Class
                 System.IO.File.Delete(artURI.ToString());
             }
 
-            string tempArt = prefManager.GetString("downloadPath", "") + "/albumArt" + Path.GetExtension(video.Thumbnails.HighResUrl);
-            System.Console.WriteLine("&Temp path: " + tempArt);
-
             WebClient webClient = new WebClient();
-            await webClient.DownloadFileTaskAsync(new System.Uri(video.Thumbnails.HighResUrl), tempArt);
+            webClient.DownloadDataCompleted += (sender, e) =>
+            {
+                string tempArt = Path.Combine(prefManager.GetString("downloadPath", ""), "albumArt" + Path.GetExtension(video.Thumbnails.HighResUrl));
+                System.Console.WriteLine("&Temp path: " + tempArt + "Url: " + video.Thumbnails.HighResUrl);
+                System.IO.File.WriteAllBytes(tempArt, e.Result);
 
-            await Task.Delay(150);
-            Android.Net.Uri uri = Android.Net.Uri.Parse(tempArt);
-            Picasso.With(Application.Context).Load(uri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(albumArt);
-            artURI = uri;
-            tempFile = true;
+                Android.Net.Uri uri = Android.Net.Uri.FromFile(new Java.IO.File(tempArt));
+                Picasso.With(this).Load(uri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(albumArt);
+                artURI = uri;
+                tempFile = true;
+            };
+            webClient.DownloadDataAsync(new System.Uri(video.Thumbnails.HighResUrl));
         }
 
         async void DownloadAlbumArtOnYT()
@@ -290,8 +308,19 @@ namespace MusicApp.Resources.Portable_Class
                 return;
             }
 
+            const string permission = Manifest.Permission.WriteExternalStorage;
+            if (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(this, permission) != (int)Permission.Granted)
+            {
+                string[] permissions = new string[] { permission };
+                RequestPermissions(permissions, 2659);
+
+                await Task.Delay(1000);
+                while (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(this, permission) != (int)Permission.Granted)
+                    await Task.Delay(500);
+            }
+
             YoutubeClient client = new YoutubeClient();
-            Video video = await client.GetVideoAsync(song.youtubeID);
+            Video video = await client.GetVideoAsync(youtubeID.Text);
 
             if (tempFile)
             {
@@ -299,17 +328,19 @@ namespace MusicApp.Resources.Portable_Class
                 System.IO.File.Delete(artURI.ToString());
             }
 
-            string tempArt = prefManager.GetString("downloadPath", "") + "/albumArt" + Path.GetExtension(video.Thumbnails.HighResUrl);
-            System.Console.WriteLine("&Temp path: " + tempArt);
-
             WebClient webClient = new WebClient();
-            await webClient.DownloadFileTaskAsync(new System.Uri(video.Thumbnails.HighResUrl), tempArt);
+            webClient.DownloadDataCompleted += (sender, e) =>
+            {
+                string tempArt = Path.Combine(prefManager.GetString("downloadPath", ""), "albumArt" + Path.GetExtension(video.Thumbnails.HighResUrl));
+                System.Console.WriteLine("&Temp path: " + tempArt + "Url: " + video.Thumbnails.HighResUrl);
+                System.IO.File.WriteAllBytes(tempArt, e.Result);
 
-            await Task.Delay(150);
-            Android.Net.Uri uri = Android.Net.Uri.Parse(tempArt);
-            Picasso.With(Application.Context).Load(uri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(albumArt);
-            artURI = uri;
-            tempFile = true;
+                Android.Net.Uri uri = Android.Net.Uri.FromFile(new Java.IO.File(tempArt));
+                Picasso.With(this).Load(uri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(albumArt);
+                artURI = uri;
+                tempFile = true;
+            };
+            webClient.DownloadDataAsync(new System.Uri(video.Thumbnails.HighResUrl));
         }
 
         void UndoChange()

@@ -96,7 +96,7 @@ namespace MusicApp.Resources.Portable_Class
             //SmallOnTop
             Preference smallOnTopPreference = PreferenceScreen.FindPreference("smallOnTop");
             smallOnTopPreference.PreferenceClick += SmallOnTop;
-            smallOnTopPreference.Summary = prefManager.GetBoolean("smallOnTop", false) ? "True" : "False";
+            smallOnTopPreference.Summary = prefManager.GetBoolean("smallOnTop", false) ? "Comming soon" : "Comming Soon"/*"True" : "False"*/;
         }
 
         private async void AskForPermission()

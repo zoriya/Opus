@@ -181,6 +181,9 @@ namespace MusicApp.Resources.Portable_Class
 
             if (adapter == null || adapter.Count == 0)
             {
+                if (isEmpty)
+                    return;
+
                 isEmpty = true;
                 Activity.AddContentView(emptyView, View.LayoutParameters);
             }
