@@ -514,15 +514,22 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     string path = musicCursor.GetString(pathKey);
 
-                    Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
-                    var meta = TagLib.File.Create(new StreamFileAbstraction(path, stream, stream));
-                    string ytID = meta.Tag.Comment;
-                    stream.Dispose();
-
-                    if (ytID == youtubeID)
+                    try
                     {
-                        musicCursor.Close();
-                        return true;
+                        Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
+                        var meta = TagLib.File.Create(new StreamFileAbstraction(path, stream, stream));
+                        string ytID = meta.Tag.Comment;
+                        stream.Dispose();
+
+                        if (ytID == youtubeID)
+                        {
+                            musicCursor.Close();
+                            return true;
+                        }
+                    }
+                    catch (CorruptFileException)
+                    {
+                        continue;
                     }
                 }
                 while (musicCursor.MoveToNext());
@@ -545,15 +552,22 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     string path = musicCursor.GetString(pathKey);
 
-                    Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
-                    var meta = TagLib.File.Create(new StreamFileAbstraction(path, stream, stream));
-                    string ytID = meta.Tag.Comment;
-                    stream.Dispose();
-
-                    if (ytID == videoID)
+                    try
                     {
-                        musicCursor.Close();
-                        return path;
+                        Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
+                        var meta = TagLib.File.Create(new StreamFileAbstraction(path, stream, stream));
+                        string ytID = meta.Tag.Comment;
+                        stream.Dispose();
+
+                        if (ytID == videoID)
+                        {
+                            musicCursor.Close();
+                            return path;
+                        }
+                    }
+                    catch (CorruptFileException)
+                    {
+                        continue;
                     }
                 }
                 while (musicCursor.MoveToNext());
