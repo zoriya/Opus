@@ -35,7 +35,7 @@ using SearchView = Android.Support.V7.Widget.SearchView;
 
 namespace MusicApp
 {
-    [Activity(Label = "MusicApp", MainLauncher = true, Icon = "@drawable/MusicIcon", Theme = "@style/Theme", ScreenOrientation = ScreenOrientation.Portrait)]
+    [Activity(Label = "MusicApp", MainLauncher = true, Icon = "@drawable/launcher_icon", Theme = "@style/Theme", ScreenOrientation = ScreenOrientation.Portrait)]
     public class MainActivity : AppCompatActivity, ViewPager.IOnPageChangeListener
     {
         public static MainActivity instance;

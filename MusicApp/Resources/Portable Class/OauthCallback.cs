@@ -12,8 +12,8 @@ namespace MusicApp.Resources.Portable_Class
         actions: new[] { Intent.ActionView },
         Categories = new[]
         {
-                Intent.CategoryDefault,
-                Intent.CategoryBrowsable
+            Intent.CategoryDefault,
+            Intent.CategoryBrowsable
         },
         DataSchemes = new[]
         {

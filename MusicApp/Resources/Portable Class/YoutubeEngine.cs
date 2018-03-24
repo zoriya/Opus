@@ -123,7 +123,6 @@ namespace MusicApp.Resources.Portable_Class
 
             foreach(var video in searchReponse.Items)
             {
-                System.Console.WriteLine("&" + video.Snippet.Title);
                 Song videoInfo = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.High.Url, video.Id.VideoId, -1, -1, video.Id.VideoId, true);
                 result.Add(videoInfo);
             }
