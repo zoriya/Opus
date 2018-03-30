@@ -271,12 +271,25 @@ namespace MusicApp
 
         public void Scroll(object sender, View.ScrollChangeEventArgs e)
         {
-            if(!Queue.instance.adapter.RefreshDisabled())
-                contentRefresh.SetEnabled(((LinearLayoutManager)Queue.instance.ListView.GetLayoutManager()).FindFirstCompletelyVisibleItemPosition() == 0);
-
-            if(((LinearLayoutManager)Queue.instance.ListView.GetLayoutManager()).FindLastCompletelyVisibleItemPosition() == Queue.instance.adapter.songList.Count)
+            if(Home.instance != null)
             {
-                Queue.instance.LoadMore();
+                if (!Home.instance.adapter.RefreshDisabled())
+                    contentRefresh.SetEnabled(((LinearLayoutManager)Home.instance.ListView.GetLayoutManager()).FindFirstCompletelyVisibleItemPosition() == 0);
+
+                if (((LinearLayoutManager)Home.instance.ListView.GetLayoutManager()).FindLastCompletelyVisibleItemPosition() == Home.instance.adapter.songList.Count)
+                {
+                    Home.instance.LoadMore();
+                }
+            }
+            if(Queue.instance != null)
+            {
+                if (!Queue.instance.adapter.RefreshDisabled())
+                    contentRefresh.SetEnabled(((LinearLayoutManager)Queue.instance.ListView.GetLayoutManager()).FindFirstCompletelyVisibleItemPosition() == 0);
+
+                if (((LinearLayoutManager)Queue.instance.ListView.GetLayoutManager()).FindLastCompletelyVisibleItemPosition() == Queue.instance.adapter.songList.Count)
+                {
+                    Queue.instance.LoadMore();
+                }
             }
         }
 
@@ -458,17 +471,17 @@ namespace MusicApp
             switch (layout)
             {
                 case Resource.Id.musicLayout:
-                    if (Queue.instance != null)
+                    if (Home.instance != null)
                     {
-                        Queue.instance.Refresh();
+                        Home.instance.Refresh();
                         return;
                     }
 
-                    tab = "Queue";
+                    tab = "Home";
                     HideTabs();
                     HideSearch();
                     ShowQuickPlay();
-                    fragment = Queue.NewInstance();
+                    fragment = Home.NewInstance();
                     break;
 
                 case Resource.Id.browseLayout:

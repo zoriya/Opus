@@ -10,7 +10,6 @@ using Android.Views;
 using Android.Widget;
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
-using Java.Util;
 using MusicApp.Resources.values;
 using System.Collections.Generic;
 using System.IO;
@@ -598,36 +597,9 @@ namespace MusicApp.Resources.Portable_Class
             playListId.Add("newPlaylist");
 
 
-            HashMap parameters = new HashMap();
-            parameters.Put("part", "snippet,contentDetails");
-            parameters.Put("mine", "true");
-            parameters.Put("maxResults", "25");
-            parameters.Put("onBehalfOfContentOwner", "");
-            parameters.Put("onBehalfOfContentOwnerChannel", "");
-
-            PlaylistsResource.ListRequest ytPlaylists = youtubeService.Playlists.List(parameters.Get("part").ToString());
-
-            if (parameters.ContainsKey("mine") && parameters.Get("mine").ToString() != "")
-            {
-                bool mine = (parameters.Get("mine").ToString() == "true") ? true : false;
-                ytPlaylists.Mine = mine;
-            }
-
-            if (parameters.ContainsKey("maxResults"))
-            {
-                ytPlaylists.MaxResults = long.Parse(parameters.Get("maxResults").ToString());
-            }
-
-            if (parameters.ContainsKey("onBehalfOfContentOwner") && parameters.Get("onBehalfOfContentOwner").ToString() != "")
-            {
-                ytPlaylists.OnBehalfOfContentOwner = parameters.Get("onBehalfOfContentOwner").ToString();
-            }
-
-            if (parameters.ContainsKey("onBehalfOfContentOwnerChannel") && parameters.Get("onBehalfOfContentOwnerChannel").ToString() != "")
-            {
-                ytPlaylists.OnBehalfOfContentOwnerChannel = parameters.Get("onBehalfOfContentOwnerChannel").ToString();
-            }
-
+            PlaylistsResource.ListRequest ytPlaylists = youtubeService.Playlists.List("snippet,contentDetails");
+            ytPlaylists.Mine = true;
+            ytPlaylists.MaxResults = 25;
             PlaylistListResponse response = await ytPlaylists.ExecuteAsync();
 
             for (int i = 0; i < response.Items.Count; i++)
@@ -663,37 +635,26 @@ namespace MusicApp.Resources.Portable_Class
             }
             else
             {
-                HashMap parameters = new HashMap();
-                parameters.Put("part", "snippet");
-                parameters.Put("onBehalfOfContentOwner", "");
-
                 PlaylistItem playlistItem = new PlaylistItem();
-                PlaylistItemSnippet snippet = new PlaylistItemSnippet();
-                snippet.PlaylistId = playlistID;
-                ResourceId resourceId = new ResourceId();
-                resourceId.Kind = "youtube#video";
-                resourceId.VideoId = videoID;
+                PlaylistItemSnippet snippet = new PlaylistItemSnippet
+                {
+                    PlaylistId = playlistID
+                };
+                ResourceId resourceId = new ResourceId
+                {
+                    Kind = "youtube#video",
+                    VideoId = videoID
+                };
                 snippet.ResourceId = resourceId;
                 playlistItem.Snippet = snippet;
 
-                var insertRequest = youtubeService.PlaylistItems.Insert(playlistItem, parameters.Get("part").ToString());
-
-                if (parameters.ContainsKey("onBehalfOfContentOwner") && parameters.Get("onBehalfOfContentOwner").ToString() != "")
-                {
-                    insertRequest.OnBehalfOfContentOwner = parameters.Get("onBehalfOfContentOwner").ToString();
-                }
-
+                var insertRequest = youtubeService.PlaylistItems.Insert(playlistItem, "snippet");
                 insertRequest.Execute();
             }
         }
 
         public static void NewPlaylist(string playlistName, string videoID)
         {
-            HashMap parameters = new HashMap();
-            parameters.Put("part", "snippet,status");
-            parameters.Put("onBehalfOfContentOwner", "");
-
-
             Google.Apis.YouTube.v3.Data.Playlist playlist = new Google.Apis.YouTube.v3.Data.Playlist();
             PlaylistSnippet snippet = new PlaylistSnippet();
             PlaylistStatus status = new PlaylistStatus();
@@ -701,35 +662,24 @@ namespace MusicApp.Resources.Portable_Class
             playlist.Snippet = snippet;
             playlist.Status = status;
 
-            var createRequest = youtubeService.Playlists.Insert(playlist, parameters.Get("part").ToString());
-
-            if (parameters.ContainsKey("onBehalfOfContentOwner") && parameters.Get("onBehalfOfContentOwner").ToString() != "")
-            {
-                createRequest.OnBehalfOfContentOwner = parameters.Get("onBehalfOfContentOwner").ToString();
-            }
-
+            var createRequest = youtubeService.Playlists.Insert(playlist, "snippet, status");
             Google.Apis.YouTube.v3.Data.Playlist response = createRequest.Execute();
 
-            parameters = new HashMap();
-            parameters.Put("part", "snippet");
-            parameters.Put("onBehalfOfContentOwner", "");
 
             PlaylistItem playlistItem = new PlaylistItem();
-            PlaylistItemSnippet snippetItem = new PlaylistItemSnippet();
-            snippetItem.PlaylistId = response.Id;
-            ResourceId resourceId = new ResourceId();
-            resourceId.Kind = "youtube#video";
-            resourceId.VideoId = videoID;
+            PlaylistItemSnippet snippetItem = new PlaylistItemSnippet
+            {
+                PlaylistId = response.Id
+            };
+            ResourceId resourceId = new ResourceId
+            {
+                Kind = "youtube#video",
+                VideoId = videoID
+            };
             snippetItem.ResourceId = resourceId;
             playlistItem.Snippet = snippetItem;
 
-            var insertRequest = youtubeService.PlaylistItems.Insert(playlistItem, parameters.Get("part").ToString());
-
-            if (parameters.ContainsKey("onBehalfOfContentOwner") && parameters.Get("onBehalfOfContentOwner").ToString() != "")
-            {
-                insertRequest.OnBehalfOfContentOwner = parameters.Get("onBehalfOfContentOwner").ToString();
-            }
-
+            var insertRequest = youtubeService.PlaylistItems.Insert(playlistItem, "snippet");
             insertRequest.Execute();
         }
     }

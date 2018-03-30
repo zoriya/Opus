@@ -86,38 +86,11 @@ namespace MusicApp.Resources.Portable_Class
                     await Task.Delay(500);
             }
 
-            HashMap parameters = new HashMap();
-            parameters.Put("part", "snippet,contentDetails");
-            parameters.Put("mine", "true");
-            parameters.Put("maxResults", "25");
-            parameters.Put("onBehalfOfContentOwner", "");
-            parameters.Put("onBehalfOfContentOwnerChannel", "");
-
             YouTubeService youtube = YoutubeEngine.youtubeService;
 
-            PlaylistsResource.ListRequest ytPlaylists = youtube.Playlists.List(parameters.Get("part").ToString());
-
-            if (parameters.ContainsKey("mine") && parameters.Get("mine").ToString() != "")
-            {
-                bool mine = (parameters.Get("mine").ToString() == "true") ? true : false;
-                ytPlaylists.Mine = mine;
-            }
-
-            if (parameters.ContainsKey("maxResults"))
-            {
-                ytPlaylists.MaxResults = long.Parse(parameters.Get("maxResults").ToString());
-            }
-
-            if (parameters.ContainsKey("onBehalfOfContentOwner") && parameters.Get("onBehalfOfContentOwner").ToString() != "")
-            {
-                ytPlaylists.OnBehalfOfContentOwner = parameters.Get("onBehalfOfContentOwner").ToString();
-            }
-
-            if (parameters.ContainsKey("onBehalfOfContentOwnerChannel") && parameters.Get("onBehalfOfContentOwnerChannel").ToString() != "")
-            {
-                ytPlaylists.OnBehalfOfContentOwnerChannel = parameters.Get("onBehalfOfContentOwnerChannel").ToString();
-            }
-
+            PlaylistsResource.ListRequest ytPlaylists = youtube.Playlists.List("snippet,contentDetails");
+            ytPlaylists.Mine = true;
+            ytPlaylists.MaxResults = 25;
             PlaylistListResponse response = await ytPlaylists.ExecuteAsync();
 
             if (instance == null)
@@ -165,38 +138,10 @@ namespace MusicApp.Resources.Portable_Class
                     await Task.Delay(500);
             }
 
-            HashMap parameters = new HashMap();
-            parameters.Put("part", "snippet,contentDetails");
-            parameters.Put("mine", "true");
-            parameters.Put("maxResults", "25");
-            parameters.Put("onBehalfOfContentOwner", "");
-            parameters.Put("onBehalfOfContentOwnerChannel", "");
-
             YouTubeService youtube = YoutubeEngine.youtubeService;
-
-            PlaylistsResource.ListRequest ytPlaylists = youtube.Playlists.List(parameters.Get("part").ToString());
-
-            if (parameters.ContainsKey("mine") && parameters.Get("mine").ToString() != "")
-            {
-                bool mine = (parameters.Get("mine").ToString() == "true") ? true : false;
-                ytPlaylists.Mine = mine;
-            }
-
-            if (parameters.ContainsKey("maxResults"))
-            {
-                ytPlaylists.MaxResults = long.Parse(parameters.Get("maxResults").ToString());
-            }
-
-            if (parameters.ContainsKey("onBehalfOfContentOwner") && parameters.Get("onBehalfOfContentOwner").ToString() != "")
-            {
-                ytPlaylists.OnBehalfOfContentOwner = parameters.Get("onBehalfOfContentOwner").ToString();
-            }
-
-            if (parameters.ContainsKey("onBehalfOfContentOwnerChannel") && parameters.Get("onBehalfOfContentOwnerChannel").ToString() != "")
-            {
-                ytPlaylists.OnBehalfOfContentOwnerChannel = parameters.Get("onBehalfOfContentOwnerChannel").ToString();
-            }
-
+            PlaylistsResource.ListRequest ytPlaylists = youtube.Playlists.List("snippet,contentDetails");
+            ytPlaylists.Mine = true;
+            ytPlaylists.MaxResults = 25;
             PlaylistListResponse response = await ytPlaylists.ExecuteAsync();
 
             if (instance == null)
@@ -223,8 +168,6 @@ namespace MusicApp.Resources.Portable_Class
                 isEmpty = true;
                 Activity.AddContentView(emptyView, View.LayoutParameters);
             }
-
-            System.Console.WriteLine("Refreshing done");
         }
 
         private void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
@@ -329,16 +272,7 @@ namespace MusicApp.Resources.Portable_Class
 
         void RemovePlaylist(int position, string playlistID)
         {
-            HashMap parameters = new HashMap();
-            parameters.Put("id", playlistID);
-            parameters.Put("onBehalfOfContentOwner", "");
-
             PlaylistsResource.DeleteRequest deleteRequest = YoutubeEngine.youtubeService.Playlists.Delete(playlistID);
-            if (parameters.ContainsKey("onBehalfOfContentOwner") && parameters.Get("onBehalfOfContentOwner").ToString() != "")
-            {
-                deleteRequest.OnBehalfOfContentOwner = parameters.Get("onBehalfOfContentOwner").ToString();
-            }
-
             deleteRequest.Execute();
 
             playlists.RemoveAt(position);
