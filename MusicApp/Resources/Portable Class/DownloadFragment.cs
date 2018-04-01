@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Android.App;
-using Android.Content;
+﻿using Android.App;
 using Android.OS;
-using Android.Preferences;
-using Android.Runtime;
-using Android.Support.V7.Widget;
-using Android.Support.V7.Widget.Helper;
 using Android.Views;
 using Android.Widget;
 using Java.IO;
 using MusicApp.Resources.values;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -49,12 +42,6 @@ namespace MusicApp.Resources.Portable_Class
         {
             base.OnDestroy();
             instance = null;
-        }
-
-        public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-        {
-            View view = base.OnCreateView(inflater, container, savedInstanceState);
-            return view;
         }
 
         private void BackNavigation(object sender, Android.Support.V7.Widget.Toolbar.NavigationClickEventArgs e)
@@ -158,12 +145,9 @@ namespace MusicApp.Resources.Portable_Class
 
             for (int i = 0; i < count + 1; i++)
             {
-                System.Console.WriteLine("&File name : " + folders[index + i].name);
-
                 if(folders[index + i].isExtended)
                     count += folders[index + i].childCount;
 
-                System.Console.WriteLine("&Count : " + count);
 
                 adapter.Remove(folders[index + i]);
             }

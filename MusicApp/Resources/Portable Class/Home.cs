@@ -1,13 +1,12 @@
-﻿using Android.OS;
+﻿using Android.Content;
+using Android.OS;
 using Android.Support.V4.App;
+using Android.Support.V7.Preferences;
 using Android.Support.V7.Widget;
 using Android.Support.V7.Widget.Helper;
 using Android.Views;
-using Google.Apis.YouTube.v3;
-using Google.Apis.YouTube.v3.Data;
 using MusicApp.Resources.values;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace MusicApp.Resources.Portable_Class
@@ -66,23 +65,25 @@ namespace MusicApp.Resources.Portable_Class
                     await Task.Delay(500);
             }
 
-            YouTubeService youtube = YoutubeEngine.youtubeService;
-            ActivitiesResource.ListRequest request = youtube.Activities.List("snippet, contentDetails");
-            request.MaxResults = 25;
-            request.Home = true;
-            request.OauthToken = YoutubeEngine.youtubeService.ApiKey;
+            ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(Activity);
+            //if(pref.)
 
-            ChannelListResponse foo;
 
-            //System.Console.WriteLine("&" + request.Items[0].BrandingSettings.Channel.FeaturedChannelsUrls[0]);
+            //YouTubeService youtube = YoutubeEngine.youtubeService;
+            //ActivitiesResource.ListRequest request = youtube.Activities.List("snippet, contentDetails");
+            //request.MaxResults = 25;
+            //request.Home = true;
+            //request.OauthToken = YoutubeEngine.youtubeService.ApiKey;
 
-            ActivityListResponse response = await request.ExecuteAsync();
+            //ChannelListResponse foo;
 
-            foreach (var video in response.Items)
-            {
-                Song videoInfo = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.High.Url, video.Id, -1, -1, video.Id, true);
-                songs.Add(videoInfo);
-            }
+            //ActivityListResponse response = await request.ExecuteAsync();
+
+            //foreach (var video in response.Items)
+            //{
+            //    Song videoInfo = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.High.Url, video.Id, -1, -1, video.Id, true);
+            //    songs.Add(videoInfo);
+            //}
 
             adapter = new RecyclerAdapter(songs);
 

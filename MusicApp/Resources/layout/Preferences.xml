@@ -1,7 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-                  android:id="@+id/PreferenceScreen">
+<PreferenceScreen
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:id="@+id/PreferenceScreen">
   <PreferenceCategory android:title="Behavior">
+    <Preference 
+      android:key="topics"
+      android:title="Music genres your interesed in"
+      android:summary="Actualy nothing"/>
     <Preference
       android:key="downloadPath"
       android:title="Download directory"

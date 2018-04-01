@@ -68,7 +68,10 @@ namespace MusicApp.Resources.Portable_Class
             {
                 holder.Name.SetTextColor(Color.White);
                 holder.expandChild.SetColorFilter(Color.White);
-                //holder.used.ButtonTInt
+            }
+            else
+            {
+                convertView.SetBackgroundColor(Color.White);
             }
 
             return convertView;

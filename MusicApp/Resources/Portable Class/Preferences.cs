@@ -78,6 +78,11 @@ namespace MusicApp.Resources.Portable_Class
             AddPreferencesFromResource(Resource.Layout.Preferences);
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
 
+            //Music Genres
+            Preference topicPreference = PreferenceScreen.FindPreference("topics");
+            topicPreference.PreferenceClick += TopicPreference;
+            //topicPreference.Summary;//prefManager.GetString("downloadPath", "not set");
+
             //Download Path
             Preference downloadPref = PreferenceScreen.FindPreference("downloadPath");
             downloadPref.PreferenceClick += DownloadClick;
@@ -118,11 +123,21 @@ namespace MusicApp.Resources.Portable_Class
             return view;
         }
 
+        #region Topic Preference
+        private void TopicPreference(object sender, Preference.PreferenceClickEventArgs e)
+        {
+            FragmentManager.BeginTransaction().Replace(Android.Resource.Id.ListContainer, TopicSelector.NewInstance()).AddToBackStack(null).Commit();
+            instance = null;
+            Preferences.instance.toolbar.Title = "Music Genres";
+        }
+        #endregion
+
         #region Download location
         private void DownloadClick(object sender, Preference.PreferenceClickEventArgs e)
         {
             FragmentManager.BeginTransaction().Replace(Android.Resource.Id.ListContainer, DownloadFragment.NewInstance()).AddToBackStack(null).Commit();
             instance = null;
+            Preferences.instance.toolbar.Title = "Download Location";
         }
         #endregion
 
