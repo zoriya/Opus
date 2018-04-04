@@ -153,6 +153,8 @@ namespace MusicApp
 
         public void Login()
         {
+            Console.WriteLine("&Logging in");
+
             AccountStore accountStore = AccountStore.Create();
             Account account = accountStore.FindAccountsForService("Google").FirstOrDefault();
             if (account != null)
@@ -207,6 +209,7 @@ namespace MusicApp
                         });
 
                         AccountStore.Create().Save(e.Account, "Google");
+                        Console.WriteLine("&Logged in");
                     }
                     else
                     {
@@ -273,13 +276,13 @@ namespace MusicApp
         {
             if(Home.instance != null)
             {
-                if (!Home.instance.adapter.RefreshDisabled())
-                    contentRefresh.SetEnabled(((LinearLayoutManager)Home.instance.ListView.GetLayoutManager()).FindFirstCompletelyVisibleItemPosition() == 0);
+                //if (!Home.instance.adapter.RefreshDisabled())
+                //    contentRefresh.SetEnabled(((LinearLayoutManager)Home.instance.ListView.GetLayoutManager()).FindFirstCompletelyVisibleItemPosition() == 0);
 
-                if (((LinearLayoutManager)Home.instance.ListView.GetLayoutManager()).FindLastCompletelyVisibleItemPosition() == Home.instance.adapter.songList.Count)
-                {
-                    Home.instance.LoadMore();
-                }
+                //if (((LinearLayoutManager)Home.instance.ListView.GetLayoutManager()).FindLastCompletelyVisibleItemPosition() == Home.instance.adapter.songList.Count)
+                //{
+                //    Home.instance.LoadMore();
+                //}
             }
             if(Queue.instance != null)
             {

@@ -6,6 +6,7 @@ using Android.Preferences;
 using Android.Views;
 using Android.Widget;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using static Android.Provider.MediaStore.Audio;
 using AlertDialog = Android.Support.V7.App.AlertDialog;
@@ -46,16 +47,31 @@ namespace MusicApp.Resources.Portable_Class
             toolbar.Title = "Settings";
             toolbar.NavigationClick += (sender, e) => 
             {
-                if(DownloadFragment.instance == null)
+                if(DownloadFragment.instance == null && TopicSelector.instance == null)
                     Finish();
                 else
                 {
-                    ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(this);
-                    ISharedPreferencesEditor editor = prefManager.Edit();
-                    editor.PutString("downloadPath", DownloadFragment.instance.path);
-                    editor.Apply();
-                    FragmentManager.BeginTransaction().Replace(Android.Resource.Id.ListContainer, new PreferencesFragment()).AddToBackStack(null).Commit();
-                    DownloadFragment.instance = null;
+                    if(DownloadFragment.instance != null)
+                    {
+                        ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(this);
+                        ISharedPreferencesEditor editor = prefManager.Edit();
+                        editor.PutString("downloadPath", DownloadFragment.instance.path);
+                        editor.Apply();
+                        //FragmentManager.BeginTransaction().Replace(Android.Resource.Id.ListContainer, new PreferencesFragment()).AddToBackStack(null).Commit();
+                        DownloadFragment.instance = null;
+                        Recreate();
+                    }
+                    else if(TopicSelector.instance != null)
+                    {
+                        ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(this);
+                        ISharedPreferencesEditor editor = prefManager.Edit();
+                        editor.PutStringSet("selectedTopics", TopicSelector.instance.selectedTopics);
+                        editor.PutStringSet("selectedTopicsID", TopicSelector.instance.selectedTopicsID);
+                        editor.Apply();
+                        //FragmentManager.BeginTransaction().Replace(Android.Resource.Id.ListContainer, new PreferencesFragment()).AddToBackStack(null).Commit();
+                        TopicSelector.instance = null;
+                        Recreate();
+                    }
                 }
             };
         }
@@ -81,7 +97,18 @@ namespace MusicApp.Resources.Portable_Class
             //Music Genres
             Preference topicPreference = PreferenceScreen.FindPreference("topics");
             topicPreference.PreferenceClick += TopicPreference;
-            //topicPreference.Summary;//prefManager.GetString("downloadPath", "not set");
+            string[] topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToArray();
+
+            if (topics.Length == 0)
+                topicPreference.Summary = "Actualy nothing";
+            else if (topics.Length == 1)
+                topicPreference.Summary = topics[0];
+            else if (topics.Length == 2)
+                topicPreference.Summary = topics[0] + " and " + topics[1];
+            else if(topics.Length == 3)
+                topicPreference.Summary = topics[0] + ", " + topics[1] + " and " + topics[2];
+            else if(topics.Length > 3)
+                topicPreference.Summary = topics[0] + ", " + topics[1] + ", " + topics[2] + " and more.";
 
             //Download Path
             Preference downloadPref = PreferenceScreen.FindPreference("downloadPath");

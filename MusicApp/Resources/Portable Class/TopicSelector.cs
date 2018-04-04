@@ -1,6 +1,7 @@
 ﻿using Android.App;
+using Android.Content;
 using Android.OS;
-using Android.Views;
+using Android.Support.V7.Preferences;
 using Android.Widget;
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
@@ -16,7 +17,7 @@ namespace MusicApp.Resources.Portable_Class
         public static TopicSelector instance;
         public string path;
         public List<string> selectedTopics = new List<string>();
-        private List<string> selectedTopicsID = new List<string>();
+        public List<string> selectedTopicsID = new List<string>();
         private List<Song> channels = new List<Song>();
         private ChannelAdapter adapter;
 
@@ -24,6 +25,9 @@ namespace MusicApp.Resources.Portable_Class
         public async override void OnActivityCreated(Bundle savedInstanceState)
         {
             base.OnActivityCreated(savedInstanceState);
+
+            if (YoutubeEngine.youtubeService == null)
+                MainActivity.instance.Login();
 
             if (MainActivity.instance.TokenHasExpire())
             {
@@ -34,6 +38,11 @@ namespace MusicApp.Resources.Portable_Class
                     await Task.Delay(500);
             }
 
+            List<Song> channelLits = new List<Song>();
+
+            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
+            selectedTopics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
+            selectedTopicsID = prefManager.GetStringSet("selectedTopicsID", new string[] { }).ToList();
 
             string nextPageToken = "";
             while(nextPageToken != null)
@@ -48,16 +57,16 @@ namespace MusicApp.Resources.Portable_Class
 
                 foreach (var item in response.Items)
                 {
-                    Song channel = new Song(item.Snippet.Title, item.Snippet.Description, item.Snippet.Thumbnails.Default__.Url, item.Snippet.ResourceId.ChannelId, -1, -1, null, true);
-                    channels.Add(channel);
+                    Song channel = new Song(item.Snippet.Title.Substring(0, item.Snippet.Title.IndexOf(" - Topic")), item.Snippet.Description, item.Snippet.Thumbnails.Default__.Url, item.Snippet.ResourceId.ChannelId, -1, -1, null, true);
+                    channelLits.Add(channel);
                 }
 
                 nextPageToken = response.NextPageToken;
             }
 
-            List<Song> channelList = channels.OrderBy(x => x.GetName()).ToList();
+            channels = channelLits.OrderBy(x => x.GetName()).ToList();
 
-            adapter = new ChannelAdapter(Application.Context, Resource.Layout.ChannelList, channelList);
+            adapter = new ChannelAdapter(Application.Context, Resource.Layout.ChannelList, channels);
             ListAdapter = adapter;
             ListView.TextFilterEnabled = true;
             ListView.ItemClick += ListView_ItemClick;
@@ -77,13 +86,11 @@ namespace MusicApp.Resources.Portable_Class
 
         private void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
         {
-            System.Console.WriteLine("&Item clicked");
             Song channel = channels[e.Position];
             bool Checked = selectedTopics.Contains(channel.GetName());
-            System.Console.WriteLine("&" + Checked);
-            e.View.FindViewById<CheckBox>(Resource.Id.checkBox).Checked = Checked;
+            e.View.FindViewById<CheckBox>(Resource.Id.checkBox).Checked = !Checked;
 
-            if (Checked)
+            if (!Checked)
             {
                 selectedTopics.Add(channel.GetName());
                 selectedTopicsID.Add(channel.youtubeID);

@@ -5,8 +5,11 @@ using Android.Support.V7.Preferences;
 using Android.Support.V7.Widget;
 using Android.Support.V7.Widget.Helper;
 using Android.Views;
+using Google.Apis.YouTube.v3;
+using Google.Apis.YouTube.v3.Data;
 using MusicApp.Resources.values;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace MusicApp.Resources.Portable_Class
@@ -15,9 +18,9 @@ namespace MusicApp.Resources.Portable_Class
     {
         public static Home instance;
         public RecyclerView ListView;
-        public RecyclerAdapter adapter;
+        public HomeAdapter adapter;
         public ItemTouchHelper itemTouchHelper;
-        public List<Song> songs = new List<Song>();
+        public List<HomeItem> Items = new List<HomeItem>();
         public View view;
 
         private string[] actions = new string[] { "Play", "Play Next", "Play Last", "Add To Playlist", "Edit Metadata" };
@@ -56,6 +59,9 @@ namespace MusicApp.Resources.Portable_Class
 
         private async void PopulateSongs()
         {
+            if (YoutubeEngine.youtubeService == null)
+                MainActivity.instance.Login();
+
             if (MainActivity.instance.TokenHasExpire())
             {
                 YoutubeEngine.youtubeService = null;
@@ -65,37 +71,91 @@ namespace MusicApp.Resources.Portable_Class
                     await Task.Delay(500);
             }
 
-            ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(Activity);
-            //if(pref.)
+            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Activity);
+            string[] selectedTopicsID = prefManager.GetStringSet("selectedTopicsID", new string[] { }).ToArray();
 
 
-            //YouTubeService youtube = YoutubeEngine.youtubeService;
-            //ActivitiesResource.ListRequest request = youtube.Activities.List("snippet, contentDetails");
-            //request.MaxResults = 25;
-            //request.Home = true;
-            //request.OauthToken = YoutubeEngine.youtubeService.ApiKey;
+            foreach(string topic in selectedTopicsID)
+            {
+                YouTubeService youtube = YoutubeEngine.youtubeService;
 
-            //ChannelListResponse foo;
+                ChannelSectionsResource.ListRequest request = youtube.ChannelSections.List("snippet, contentDetails");
+                request.ChannelId = topic;
 
-            //ActivityListResponse response = await request.ExecuteAsync();
+                ChannelSectionListResponse response = await request.ExecuteAsync();
 
-            //foreach (var video in response.Items)
-            //{
-            //    Song videoInfo = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.High.Url, video.Id, -1, -1, video.Id, true);
-            //    songs.Add(videoInfo);
-            //}
+                foreach (var section in response.Items)
+                {
+                    if (section.Snippet.Type == "channelsectionTypeUndefined")
+                        continue;
 
-            adapter = new RecyclerAdapter(songs);
+                    List<string> contentValue = null;
+                    switch (section.Snippet.Title)
+                    {
+                        case "multipleChannels":
+                            contentValue = section.ContentDetails.Channels.ToList();
+                            break;
+                        case "multiplePlaylists":
+                        case "singlePlaylist":
+                            contentValue = section.ContentDetails.Playlists.ToList();
+                            break;
+                        default:
+                            contentValue = new List<string>();
+                            break;
+                    }
+
+                    HomeItem item = new HomeItem(section.Snippet.Title, section.Snippet.Type, contentValue);
+                    Items.Add(item);
+                }
+            }
+
+            List<string> sections = new List<string>();
+            List<HomeItem> homeSections = new List<HomeItem>();
+            foreach(HomeItem item in Items)
+            {
+                if (!sections.Contains(item.SectionTitle))
+                {
+                    sections.Add(item.SectionTitle);
+                    homeSections.Add(item);
+                    System.Console.WriteLine("&" + item.SectionTitle);
+                }
+                else
+                {
+                    for(int i = 0; i < homeSections.Count; i++)
+                    {
+                        if (homeSections[i].SectionTitle != item.SectionTitle)
+                            continue;
+
+                        homeSections[i].AddContent(item);
+                        break;
+                    }
+                }
+            }
+
+            //Get youtube data from all section but with random value inside, refresh playlist every item found
+            //Some Content Type may be unsuported
+            foreach(HomeItem item in homeSections)
+            {
+                switch (item.contentType)
+                {
+                    case "multipleChannels":
+                        break;
+                    case "multiplePlaylists":
+                    case "singlePlaylist":
+                        break;
+                    default:
+                        break;
+                }
+                //HomeSection section = new HomeSection(item.SectionTitle, SectionType.)
+            }
+
+            adapter = new HomeAdapter(homeSections);
 
             ListView.SetAdapter(adapter);
             adapter.ItemClick += ListView_ItemClick;
             adapter.ItemLongCLick += ListView_ItemLongCLick;
             ListView.SetItemAnimator(new DefaultItemAnimator());
             ListView.ScrollChange += MainActivity.instance.Scroll;
-
-            ItemTouchHelper.Callback callback = new ItemTouchCallback(adapter);
-            itemTouchHelper = new ItemTouchHelper(callback);
-            itemTouchHelper.AttachToRecyclerView(ListView);
         }
 
         public static Fragment NewInstance()
@@ -122,21 +182,16 @@ namespace MusicApp.Resources.Portable_Class
 
         private void ListView_ItemClick(object sender, int Position)
         {
-            Song item = songs[Position];
-
-            if (item.IsYt)
-                YoutubeEngine.Play(item.youtubeID, item.GetName(), item.GetArtist(), item.GetAlbum());
-            else
-                Browse.Play(item);
+            HomeItem item = Items[Position];
         }
 
         private void ListView_ItemLongCLick(object sender, int e)
         {
-            Song item = songs[e];
+            HomeItem item = Items[e];
             More(item);
         }
 
-        public void More(Song item)
+        public void More(HomeItem item)
         {
             Android.Support.V7.App.AlertDialog.Builder builder = new Android.Support.V7.App.AlertDialog.Builder(Activity, MainActivity.dialogTheme);
             builder.SetTitle("Pick an action");

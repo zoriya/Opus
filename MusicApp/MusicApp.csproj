@@ -272,6 +272,8 @@
     <Compile Include="Resources\Portable Class\FolderBrowse.cs" />
     <Compile Include="Resources\Portable Class\FolderTracks.cs" />
     <Compile Include="Resources\Portable Class\Home.cs" />
+    <Compile Include="Resources\Portable Class\HomeAdapter.cs" />
+    <Compile Include="Resources\Portable Class\HomeHolder.cs" />
     <Compile Include="Resources\Portable Class\ItemTouchCallback.cs" />
     <Compile Include="Resources\Portable Class\MusicPlayer.cs" />
     <Compile Include="Resources\Portable Class\OauthCallback.cs" />
@@ -298,6 +300,8 @@
     <Compile Include="Resources\values\Folder.cs" />
     <Compile Include="Resources\values\FolderHolder.cs" />
     <Compile Include="Resources\values\Holder.cs" />
+    <Compile Include="Resources\values\HomeItem.cs" />
+    <Compile Include="Resources\values\HomeSection.cs" />
     <Compile Include="Resources\values\PaddingChange.cs" />
     <Compile Include="Resources\values\Song.cs" />
     <Compile Include="Resources\values\TwoLineHolder.cs" />

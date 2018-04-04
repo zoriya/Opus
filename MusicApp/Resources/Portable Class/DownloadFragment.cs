@@ -44,11 +44,6 @@ namespace MusicApp.Resources.Portable_Class
             instance = null;
         }
 
-        private void BackNavigation(object sender, Android.Support.V7.Widget.Toolbar.NavigationClickEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
         List<Folder> ListFolders()
         {
             File folderPath = Android.OS.Environment.ExternalStorageDirectory;
