@@ -38,6 +38,9 @@ namespace MusicApp.Resources.Portable_Class
                     await Task.Delay(500);
             }
 
+            if (instance == null)
+                return;
+
             List<Song> channelLits = new List<Song>();
 
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
@@ -101,6 +104,9 @@ namespace MusicApp.Resources.Portable_Class
                 selectedTopics.RemoveAt(index);
                 selectedTopicsID.RemoveAt(index);
             }
+
+            foreach (string topic in selectedTopics)
+                System.Console.WriteLine("&TopicName : " + topic);
         }
     }
 }

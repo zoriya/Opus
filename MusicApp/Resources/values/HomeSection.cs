@@ -9,7 +9,7 @@ namespace MusicApp.Resources.values
         public SectionType contentType;
         public List<Song> contentValue;
 
-        public HomeSection(string sectionTitle, string contentType, List<Song> contentValue)
+        public HomeSection(string sectionTitle, SectionType contentType, List<Song> contentValue)
         {
             SectionTitle = sectionTitle;
             this.contentType = contentType;
@@ -19,6 +19,7 @@ namespace MusicApp.Resources.values
 
     public enum SectionType
     {
+        None,
         ChannelList,
         PlaylistList
     };

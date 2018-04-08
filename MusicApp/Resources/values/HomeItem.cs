@@ -6,10 +6,10 @@ namespace MusicApp.Resources.values
     public class HomeItem
     {
         public string SectionTitle;
-        public string contentType;
+        public SectionType contentType;
         public List<string> contentValue;
 
-        public HomeItem(string sectionTitle, string contentType, List<string> contentValue)
+        public HomeItem(string sectionTitle, SectionType contentType, List<string> contentValue)
         {
             SectionTitle = sectionTitle;
             this.contentType = contentType;

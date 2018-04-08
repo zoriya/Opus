@@ -1,6 +1,7 @@
 ﻿using Android.Content;
 using Android.OS;
 using Android.Support.V4.App;
+using Android.Support.V7.App;
 using Android.Support.V7.Preferences;
 using Android.Support.V7.Widget;
 using Android.Support.V7.Widget.Helper;
@@ -20,7 +21,7 @@ namespace MusicApp.Resources.Portable_Class
         public RecyclerView ListView;
         public HomeAdapter adapter;
         public ItemTouchHelper itemTouchHelper;
-        public List<HomeItem> Items = new List<HomeItem>();
+        public List<HomeSection> adapterItems = new List<HomeSection>();
         public View view;
 
         private string[] actions = new string[] { "Play", "Play Next", "Play Last", "Add To Playlist", "Edit Metadata" };
@@ -59,6 +60,12 @@ namespace MusicApp.Resources.Portable_Class
 
         private async void PopulateSongs()
         {
+            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Activity);
+            string[] selectedTopicsID = prefManager.GetStringSet("selectedTopicsID", new string[] { }).ToArray();
+
+            if (selectedTopicsID.Length < 1)
+                return;
+
             if (YoutubeEngine.youtubeService == null)
                 MainActivity.instance.Login();
 
@@ -71,11 +78,9 @@ namespace MusicApp.Resources.Portable_Class
                     await Task.Delay(500);
             }
 
-            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Activity);
-            string[] selectedTopicsID = prefManager.GetStringSet("selectedTopicsID", new string[] { }).ToArray();
+            List<HomeItem> Items = new List<HomeItem>();
 
-
-            foreach(string topic in selectedTopicsID)
+            foreach (string topic in selectedTopicsID)
             {
                 YouTubeService youtube = YoutubeEngine.youtubeService;
 
@@ -89,14 +94,17 @@ namespace MusicApp.Resources.Portable_Class
                     if (section.Snippet.Type == "channelsectionTypeUndefined")
                         continue;
 
+                    SectionType type = SectionType.None;
                     List<string> contentValue = null;
-                    switch (section.Snippet.Title)
+                    switch (section.Snippet.Type)
                     {
                         case "multipleChannels":
+                            type = SectionType.ChannelList;
                             contentValue = section.ContentDetails.Channels.ToList();
                             break;
                         case "multiplePlaylists":
                         case "singlePlaylist":
+                            type = SectionType.PlaylistList;
                             contentValue = section.ContentDetails.Playlists.ToList();
                             break;
                         default:
@@ -104,56 +112,85 @@ namespace MusicApp.Resources.Portable_Class
                             break;
                     }
 
-                    HomeItem item = new HomeItem(section.Snippet.Title, section.Snippet.Type, contentValue);
+                    HomeItem item = new HomeItem(section.Snippet.Title, type, contentValue);
                     Items.Add(item);
                 }
             }
 
-            List<string> sections = new List<string>();
-            List<HomeItem> homeSections = new List<HomeItem>();
             foreach(HomeItem item in Items)
             {
-                if (!sections.Contains(item.SectionTitle))
+                List<Song> contentValue = new List<Song>
                 {
-                    sections.Add(item.SectionTitle);
-                    homeSections.Add(item);
-                    System.Console.WriteLine("&" + item.SectionTitle);
-                }
-                else
-                {
-                    for(int i = 0; i < homeSections.Count; i++)
-                    {
-                        if (homeSections[i].SectionTitle != item.SectionTitle)
-                            continue;
+                    new Song("HeaderSlot", null, null, null, -1, -1, null)
+                };
 
-                        homeSections[i].AddContent(item);
-                        break;
-                    }
-                }
-            }
-
-            //Get youtube data from all section but with random value inside, refresh playlist every item found
-            //Some Content Type may be unsuported
-            foreach(HomeItem item in homeSections)
-            {
                 switch (item.contentType)
                 {
-                    case "multipleChannels":
+                    case SectionType.ChannelList:
+                        //foreach(string channelID in item.contentValue)
+                        //{
+                        //    YouTubeService youtube = YoutubeEngine.youtubeService;
+
+                        //    ChannelsResource.ListRequest request = youtube.Channels.List("snippet,contentDetails,statistics");
+                        //    request.Id = channelID;
+
+                        //    ChannelListResponse response = await request.ExecuteAsync();
+
+                        //    response.Items[0].
+                        //}
                         break;
-                    case "multiplePlaylists":
-                    case "singlePlaylist":
-                        break;
+                    case SectionType.PlaylistList:
+                        if (adapterItems.Where(x => x.SectionTitle == item.SectionTitle).Count() == 0)
+                        {
+                            foreach (string playlistID in item.contentValue)
+                            {
+                                YouTubeService youtube = YoutubeEngine.youtubeService;
+
+                                PlaylistsResource.ListRequest request = youtube.Playlists.List("snippet, contentDetails");
+                                request.Id = playlistID;
+
+                                PlaylistListResponse response = await request.ExecuteAsync();
+
+
+                                foreach (var playlist in response.Items)
+                                {
+                                    Song song = new Song(playlist.Snippet.Title, playlist.Snippet.ChannelTitle, playlist.Snippet.Thumbnails.Default__.Url, playlist.Id, -1, -1, playlist.Id, true);
+                                    contentValue.Add(song);
+
+                                    if (instance == null)
+                                        return;
+                                }
+                            }
+
+                            HomeSection section = new HomeSection(item.SectionTitle, item.contentType, contentValue);
+                            if (adapter == null)
+                            {
+                                System.Console.WriteLine("&Adapter doesn't exist for now");
+                                adapterItems.Add(section);
+                                adapter = new HomeAdapter(adapterItems);
+                                ListView.SetAdapter(adapter);
+                            }
+                            else
+                            {
+                                System.Console.WriteLine("&Adding content to the adapter");
+                                adapterItems.Add(section);
+                                adapter.AddToList(new List<HomeSection>() { section });
+                            }
+                    }
+                    //else
+                    //{
+
+                    //}
+                    break;
                     default:
                         break;
                 }
-                //HomeSection section = new HomeSection(item.SectionTitle, SectionType.)
             }
 
-            adapter = new HomeAdapter(homeSections);
+            if (instance == null)
+                return;
 
-            ListView.SetAdapter(adapter);
             adapter.ItemClick += ListView_ItemClick;
-            adapter.ItemLongCLick += ListView_ItemLongCLick;
             ListView.SetItemAnimator(new DefaultItemAnimator());
             ListView.ScrollChange += MainActivity.instance.Scroll;
         }
@@ -182,18 +219,34 @@ namespace MusicApp.Resources.Portable_Class
 
         private void ListView_ItemClick(object sender, int Position)
         {
-            HomeItem item = Items[Position];
+            int pos = adapter.GetItemPosition(Position, out int ContainerID);
+            HomeSection section = adapterItems[ContainerID];
+            Song item = section.contentValue[pos];
+            if (section.contentType == SectionType.PlaylistList)
+            {
+                MainActivity.parcelableSender = "Home";
+                MainActivity.parcelable = ListView.GetLayoutManager().OnSaveInstanceState();
+
+                AppCompatActivity act = (AppCompatActivity)Activity;
+                act.SupportActionBar.SetHomeButtonEnabled(true);
+                act.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
+                act.SupportActionBar.Title = section.SectionTitle;
+
+                MainActivity.instance.HideTabs();
+                MainActivity.instance.HomeDetails = true;
+                MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(item.youtubeID), true);
+            }
         }
 
         private void ListView_ItemLongCLick(object sender, int e)
         {
-            HomeItem item = Items[e];
-            More(item);
+            HomeSection item = adapterItems[e];
+            //More(item);
         }
 
         public void More(HomeItem item)
         {
-            Android.Support.V7.App.AlertDialog.Builder builder = new Android.Support.V7.App.AlertDialog.Builder(Activity, MainActivity.dialogTheme);
+            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
             builder.SetTitle("Pick an action");
             builder.SetItems(actions, (senderAlert, args) =>
             {

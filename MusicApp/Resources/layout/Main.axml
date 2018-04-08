@@ -65,6 +65,19 @@
       </android.support.v4.widget.SwipeRefreshLayout>
       <RelativeLayout
         android:layout_height="wrap_content"
+        android:visibility="visible"
+        android:layout_alignParentBottom="true"
+        android:gravity="center_horizontal|bottom"
+        android:paddingBottom="70dp"
+        android:paddingRight="20dp"
+        android:paddingLeft="20dp"
+        android:layout_width="wrap_content">
+        <include
+          layout="@layout/SmallPlayer"
+          android:id="@+id/smallPlayer" />
+      </RelativeLayout>
+      <RelativeLayout
+        android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:background="?attr/defaultColor"
         android:elevation="12dp"
@@ -81,15 +94,6 @@
           app:itemIconTint="?colorAccent"
           app:itemTextColor="?colorAccent"
           app:menu="@menu/bottom_items" />
-        <FrameLayout
-          android:layout_height="70dp"
-          android:visibility="gone"
-          android:layout_below="@id/bottomView"
-          android:layout_width="match_parent">
-          <include
-            layout="@layout/SmallPlayer"
-            android:id="@+id/smallPlayer" />
-        </FrameLayout>
       </RelativeLayout>
     </RelativeLayout>
   </android.support.design.widget.CoordinatorLayout>

@@ -124,11 +124,6 @@ namespace MusicApp.Resources.Portable_Class
             Preference themePreference = PreferenceScreen.FindPreference("theme");
             themePreference.PreferenceClick += ChangeTheme;
             themePreference.Summary = prefManager.GetInt("theme", 0) == 0 ? "White Theme" : "Dark Theme";
-
-            //SmallOnTop
-            Preference smallOnTopPreference = PreferenceScreen.FindPreference("smallOnTop");
-            smallOnTopPreference.PreferenceClick += SmallOnTop;
-            smallOnTopPreference.Summary = prefManager.GetBoolean("smallOnTop", false) ? "Comming soon" : "Comming Soon"/*"True" : "False"*/;
         }
 
         private async void AskForPermission()
@@ -258,25 +253,6 @@ namespace MusicApp.Resources.Portable_Class
                 Activity.Recreate();
             });
             builder.Show();
-        }
-        #endregion
-
-        #region SmallOnTop
-        private void SmallOnTop(object sender, Preference.PreferenceClickEventArgs e)
-        {
-            new AlertDialog.Builder(Activity, MainActivity.dialogTheme)
-                .SetTitle("Display the small player on top of the bottom navigation :")
-                .SetItems(new[] { "True", "False" }, (s, args) =>
-                {
-                    ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
-                    ISharedPreferencesEditor editor = pref.Edit();
-                    editor.PutBoolean("smallOnTop", args.Which == 0 ? true : false);
-                    editor.Apply();
-
-                    Preference prefButton = FindPreference("smallOnTop");
-                    prefButton.Summary = args.Which == 0 ? "True" : "False";
-                })
-                .Show();
         }
         #endregion
     }

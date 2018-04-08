@@ -1,9 +1,7 @@
 ﻿using Android.App;
-using Android.Content;
 using Android.Graphics;
 using Android.Support.V7.Widget;
 using Android.Views;
-using Android.Widget;
 using MusicApp.Resources.values;
 using Square.Picasso;
 using System;
@@ -13,23 +11,24 @@ namespace MusicApp.Resources.Portable_Class
 {
     public class HomeAdapter : RecyclerView.Adapter
     {
-        public List<HomeItem> items;
+        public List<HomeSection> items;
         private bool refreshDisabled = false;
         public event EventHandler<int> ItemClick;
-        public event EventHandler<int> ItemLongCLick;
 
-        public HomeAdapter(List<HomeItem> items)
+        public HomeAdapter(List<HomeSection> items)
         {
             this.items = items;
+            if(items.Count > 0)
+                Console.WriteLine("&First section content count : " + items[0].contentValue.Count);
         }
 
-        public void UpdateList(List<HomeItem> items)
+        public void UpdateList(List<HomeSection> items)
         {
             this.items = items;
             NotifyDataSetChanged();
         }
 
-        public void AddToList(List<HomeItem> items)
+        public void AddToList(List<HomeSection> items)
         {
             int positionStart = this.items.Count;
             this.items.AddRange(items);
@@ -38,51 +37,90 @@ namespace MusicApp.Resources.Portable_Class
 
         public override int ItemCount => items.Count;
 
-        public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position)
+        public int GetItemPosition(int position, out int containerID)
         {
-            HomeHolder holder = (HomeHolder)viewHolder;
-
-            //holder.Title.Text = items[position].GetName();
-            //holder.Artist.Text = items[position].GetArtist();
-
-            //var songAlbumArtUri = Android.Net.Uri.Parse(items[position].GetAlbum());
-            //Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
-
-            //holder.more.Tag = position;
-            //if (!holder.more.HasOnClickListeners)
-            //{
-            //    holder.more.Click += (sender, e) =>
-            //    {
-            //        int tagPosition = (int)((ImageView)sender).Tag;
-            //        Queue.instance.More(items[tagPosition]);
-            //    };
-            //}
-
-            float scale = MainActivity.instance.Resources.DisplayMetrics.Density;
-            int padding = 135;
-            padding = (int)(padding * scale + 0.5f);
-
-            holder.textLayout.SetPadding(padding, 0, 0, 0);
-
-            if (MainActivity.Theme == 1)
+            int pos = 0;
+            containerID = 0;
+            for(pos = position; pos - items[containerID].contentValue.Count >= 0; pos -= items[containerID - 1].contentValue.Count)
             {
-                holder.more.SetColorFilter(Color.White);
-                holder.reorder.SetColorFilter(Color.White);
-                holder.Title.SetTextColor(Color.White);
-                holder.Artist.SetTextColor(Color.White);
-                holder.Artist.Alpha = 0.7f;
+                if (containerID + 1 < items.Count)
+                {
+                    containerID++;
+                    //Console.WriteLine("&Switching to the next container, containerID = " + containerID + " pos = " + pos + " Container value count : " + items[containerID]?.contentValue.Count);
+                }
             }
 
-            if (MainActivity.Theme == 0)
-                holder.ItemView.SetBackgroundColor(Color.White);
-            else
-                holder.ItemView.SetBackgroundColor(Color.ParseColor("#424242"));
+            //Console.WriteLine("&Container ID : " + containerID + " Item Position : " + pos);
+            return pos;
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
-            View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.SongList, parent, false);
-            return new RecyclerHolder(itemView, OnClick, null);
+            if(viewType == (int)HomeRow.Header)
+            {
+                View itemView = LayoutInflater.From(parent.Context).Inflate(Android.Resource.Layout.PreferenceCategory, parent, false);
+                return new HeaderHolder(itemView);
+            }
+            if (viewType == (int)HomeRow.SongHolder)
+            {
+                View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.SongList, parent, false);
+                return new HomeHolder(itemView, OnClick);
+            }
+            return null;
+        }
+
+        public override int GetItemViewType(int position)
+        {
+            int pos = GetItemPosition(position, out int containerID);
+            if (pos == 0)
+                return (int) HomeRow.Header;
+            else
+                return (int) HomeRow.SongHolder;
+        }
+
+        public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position)
+        {
+            position = GetItemPosition(position, out int containerID);
+
+            if(position == 0)
+            {
+                HeaderHolder holder = (HeaderHolder)viewHolder;
+
+                holder.headerText.Text = items[containerID].SectionTitle;
+            }
+            else
+            {
+                HomeHolder holder = (HomeHolder)viewHolder;
+
+                holder.Title.Text = items[containerID].contentValue[position].GetName();
+                holder.Artist.Text = items[containerID].contentValue[position].GetArtist();
+
+                Picasso.With(Application.Context).Load(items[containerID].contentValue[position].GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
+
+                //holder.more.Tag = position;
+                //if (!holder.more.HasOnClickListeners)
+                //{
+                //    holder.more.Click += (sender, e) =>
+                //    {
+                //        int tagPosition = (int)((ImageView)sender).Tag;
+                //        Queue.instance.More(items[tagPosition]);
+                //    };
+                //}
+
+                if (MainActivity.Theme == 1)
+                {
+                    holder.more.SetColorFilter(Color.White);
+                    holder.reorder.SetColorFilter(Color.White);
+                    holder.Title.SetTextColor(Color.White);
+                    holder.Artist.SetTextColor(Color.White);
+                    holder.Artist.Alpha = 0.7f;
+                }
+
+                if (MainActivity.Theme == 0)
+                    holder.ItemView.SetBackgroundColor(Color.White);
+                else
+                    holder.ItemView.SetBackgroundColor(Color.ParseColor("#424242"));
+            }
         }
 
         void OnClick(int position)
@@ -99,5 +137,12 @@ namespace MusicApp.Resources.Portable_Class
         {
             refreshDisabled = disable;
         }
+    }
+
+
+    public enum HomeRow
+    {
+        Header = 0,
+        SongHolder = 1
     }
 }

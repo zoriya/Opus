@@ -1,11 +1,20 @@
-﻿using Android.Graphics;
-using Android.Support.V7.Widget;
+﻿using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using System;
 
 namespace MusicApp.Resources.Portable_Class
 {
+    public class HeaderHolder : RecyclerView.ViewHolder
+    {
+        public TextView headerText;
+
+        public HeaderHolder(View itemView) : base(itemView)
+        {
+            headerText = itemView.FindViewById<TextView>(Android.Resource.Id.Title);
+        }
+    }
+
     public class HomeHolder : RecyclerView.ViewHolder
     {
         public ImageView reorder;
@@ -16,7 +25,7 @@ namespace MusicApp.Resources.Portable_Class
         public ImageView youtubeIcon;
         public ImageView more;
 
-        public HomeHolder(View itemView, Action<int> listener, Action<int> longListener) : base(itemView)
+        public HomeHolder(View itemView, Action<int> listener) : base(itemView)
         {
             reorder = itemView.FindViewById<ImageView>(Resource.Id.reorder);
             textLayout = itemView.FindViewById<LinearLayout>(Resource.Id.textLayout);
@@ -27,7 +36,6 @@ namespace MusicApp.Resources.Portable_Class
             more = itemView.FindViewById<ImageView>(Resource.Id.moreButton);
 
             itemView.Click += (sender, e) => listener(AdapterPosition);
-            itemView.LongClick += (sender, e) => longListener(AdapterPosition);
         }
     }
 }

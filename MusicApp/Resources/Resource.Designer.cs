@@ -3042,8 +3042,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f08004f
 			public const int bottom = 2131230799;
 			
-			// aapt resource value: 0x7f0800cf
-			public const int bottomView = 2131230927;
+			// aapt resource value: 0x7f0800d0
+			public const int bottomView = 2131230928;
 			
 			// aapt resource value: 0x7f080112
 			public const int browseLayout = 2131230994;
@@ -3573,11 +3573,11 @@ namespace MusicApp
 			// aapt resource value: 0x7f0800aa
 			public const int smallLabel = 2131230890;
 			
-			// aapt resource value: 0x7f0800d0
-			public const int smallPlayer = 2131230928;
-			
 			// aapt resource value: 0x7f0800ce
-			public const int snackBar = 2131230926;
+			public const int smallPlayer = 2131230926;
+			
+			// aapt resource value: 0x7f0800cf
+			public const int snackBar = 2131230927;
 			
 			// aapt resource value: 0x7f0800b1
 			public const int snackbar_action = 2131230897;

@@ -20,9 +20,11 @@ namespace MusicApp.Resources.Portable_Class
         public bool isEmpty = false;
         public bool focused = false;
 
+        private bool useMixes = false;
         private List<Song> playlists = new List<Song>();
         private List<Google.Apis.YouTube.v3.Data.Playlist> YtPlaylists = new List<Google.Apis.YouTube.v3.Data.Playlist>();
         private string[] actions = new string[] { "Random play", "Rename", "Delete", "Download" };
+        private string[] mixActions = new string[] { "Random play", "Download" };
 
 
         public override void OnActivityCreated(Bundle savedInstanceState)
@@ -36,7 +38,8 @@ namespace MusicApp.Resources.Portable_Class
             if (YoutubeEngine.youtubeService == null)
                 MainActivity.instance.Login();
 
-            GetYoutubePlaylists();
+            if(playlists == null)
+                GetYoutubePlaylists();
         }
 
         public void AddEmptyView()
@@ -72,6 +75,14 @@ namespace MusicApp.Resources.Portable_Class
         public static Fragment NewInstance()
         {
             instance = new YtPlaylist { Arguments = new Bundle() };
+            return instance;
+        }
+
+        public static Fragment NewInstance(List<Song> playlists)
+        {
+            instance = new YtPlaylist { Arguments = new Bundle() };
+            instance.playlists = playlists;
+            instance.useMixes = true;
             return instance;
         }
 
@@ -190,26 +201,46 @@ namespace MusicApp.Resources.Portable_Class
         {
             AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
             builder.SetTitle("Pick an action");
-            builder.SetItems(actions, (senderAlert, args) =>
+            if (useMixes)
             {
-                switch (args.Which)
+                builder.SetItems(mixActions, (senderAlert, args) =>
                 {
-                    case 0:
-                        RandomPlay(playlists[position].GetPath());
-                        break;
-                    case 1:
-                        Rename(position, playlists[position].GetPath());
-                        break;
-                    case 2:
-                        RemovePlaylist(position, playlists[position].GetPath());
-                        break;
-                    case 3:
-                        DownloadPlaylist(playlists[position].GetPath());
-                        break;
-                    default:
-                        break;
-                }
-            });
+                    switch (args.Which)
+                    {
+                        case 0:
+                            RandomPlay(playlists[position].GetPath());
+                            break;
+                        case 3:
+                            DownloadPlaylist(playlists[position].GetPath());
+                            break;
+                        default:
+                            break;
+                    }
+                });
+            }
+            else
+            {
+                builder.SetItems(actions, (senderAlert, args) =>
+                {
+                    switch (args.Which)
+                    {
+                        case 0:
+                            RandomPlay(playlists[position].GetPath());
+                            break;
+                        case 1:
+                            Rename(position, playlists[position].GetPath());
+                            break;
+                        case 2:
+                            RemovePlaylist(position, playlists[position].GetPath());
+                            break;
+                        case 3:
+                            DownloadPlaylist(playlists[position].GetPath());
+                            break;
+                        default:
+                            break;
+                    }
+                });
+            }
             builder.Show();
         }
 

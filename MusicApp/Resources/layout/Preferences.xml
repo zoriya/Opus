@@ -21,10 +21,6 @@
       android:key="theme"
       android:title="Theme :"
       android:summary="White Theme" />
-    <Preference
-      android:key="smallOnTop"
-      android:title="Display small player on top of the bottom bar :"
-      android:summary="False" />
   </PreferenceCategory>
   <PreferenceCategory android:title="Others">
     <Preference

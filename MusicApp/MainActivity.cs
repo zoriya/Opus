@@ -52,6 +52,7 @@ namespace MusicApp
         public SwipeRefreshLayout pagerRefresh;
         public bool usePager;
         public View quickPlayLayout;
+        public bool HomeDetails = false;
 
         private Handler handler = new Handler();
         private ProgressBar bar;
@@ -75,9 +76,9 @@ namespace MusicApp
 
         public virtual void PaddingHasChanged(PaddingChange e)
         {
-            paddingBot = (((FrameLayout)instance.FindViewById(Resource.Id.smallPlayer).Parent).Visibility == ViewStates.Gone) 
-                ? FindViewById<BottomNavigationView>(Resource.Id.bottomView).Height 
-                : FindViewById<BottomNavigationView>(Resource.Id.bottomView).Height + ((FrameLayout)instance.FindViewById(Resource.Id.smallPlayer).Parent).Height;
+            paddingBot = /*(((FrameLayout)instance.FindViewById(Resource.Id.smallPlayer).Parent).Visibility == ViewStates.Gone) */
+                /*?*/ FindViewById<BottomNavigationView>(Resource.Id.bottomView).Height 
+                /*: FindViewById<BottomNavigationView>(Resource.Id.bottomView).Height + ((FrameLayout)instance.FindViewById(Resource.Id.smallPlayer).Parent).Height*/;
 
             paddingBot += e.paddingChange;
 
@@ -342,8 +343,17 @@ namespace MusicApp
                     SupportActionBar.SetHomeButtonEnabled(false);
                     SupportActionBar.SetDisplayHomeAsUpEnabled(false);
                     SupportActionBar.Title = "MusicApp";
-                    SetYtTabs(PlaylistTracks.instance.ytID == "" ? 0 : 1);
                     PlaylistTracks.instance = null;
+                    if (HomeDetails)
+                    {
+                        Home.instance = null;
+                        Navigate(Resource.Id.musicLayout);
+                        HomeDetails = false;
+                    }
+                    else
+                    {
+                        SetYtTabs(PlaylistTracks.instance.ytID == "" ? 0 : 1);
+                    }
                 }
                 if (FolderTracks.instance != null)
                 {
@@ -358,6 +368,21 @@ namespace MusicApp
                     SupportActionBar.Title = "MusicApp";
                     FolderTracks.instance = null;
                     SetBrowseTabs(1);
+                }
+                if(YtPlaylist.instance != null)
+                {
+                    Console.WriteLine("&YtPlaylist back");
+                    HideSearch();
+                    if (YtPlaylist.instance.isEmpty)
+                    {
+                        ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
+                        rootView.RemoveView(PlaylistTracks.instance.emptyView);
+                    }
+                    SupportActionBar.SetHomeButtonEnabled(false);
+                    SupportActionBar.SetDisplayHomeAsUpEnabled(false);
+                    SupportActionBar.Title = "MusicApp";
+                    YtPlaylist.instance = null;
+                    Navigate(Resource.Id.musicLayout);
                 }
             }
             else if(item.ItemId == Resource.Id.search)
@@ -914,7 +939,7 @@ namespace MusicApp
         public async void HideSmallPlayer()
         {
             RelativeLayout smallPlayer = FindViewById<RelativeLayout>(Resource.Id.smallPlayer);
-            FrameLayout parent = (FrameLayout)smallPlayer.Parent;
+            RelativeLayout parent = (RelativeLayout)smallPlayer.Parent;
             bool hasChanged = parent.Visibility != ViewStates.Gone;
             parent.Visibility = ViewStates.Gone;
 
@@ -926,7 +951,7 @@ namespace MusicApp
         public async void ShowSmallPlayer()
         {
             RelativeLayout smallPlayer = FindViewById<RelativeLayout>(Resource.Id.smallPlayer);
-            FrameLayout parent = (FrameLayout)smallPlayer.Parent;
+            RelativeLayout parent = (RelativeLayout)smallPlayer.Parent;
             bool hasChanged = parent.Visibility == ViewStates.Gone;
             parent.Visibility = ViewStates.Visible;
             smallPlayer.Visibility = ViewStates.Visible;
