@@ -29,19 +29,17 @@ namespace MusicApp.Resources.Portable_Class
         {
             base.OnActivityCreated(savedInstanceState);
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
-            MainActivity.instance.OnPaddingChanged += PaddingChanged;
             emptyView = LayoutInflater.Inflate(Resource.Layout.NoQueue, null);
         }
 
         private void PaddingChanged(object sender, PaddingChange e)
         {
-            view.SetPadding(0, 0, 0, MainActivity.paddingBot);
+            view.SetPadding(0, 0, 0, MainActivity.defaultPaddingBot);
         }
 
         public override void OnDestroy()
         {
             MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
-            MainActivity.instance.OnPaddingChanged -= PaddingChanged;
             ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
             rootView.RemoveView(recyclerFragment);
 
@@ -56,7 +54,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             view = inflater.Inflate(Resource.Layout.RecyclerFragment, container, false);
             ListView = view.FindViewById<RecyclerView>(Resource.Id.recycler);
-            view.SetPadding(0, 0, 0, MainActivity.paddingBot);
+            view.SetPadding(0, 0, 0, MainActivity.defaultPaddingBot);
             ListView.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
 
             if (MusicPlayer.queue != null)

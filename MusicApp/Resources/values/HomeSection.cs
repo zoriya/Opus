@@ -21,6 +21,7 @@ namespace MusicApp.Resources.values
     {
         None,
         ChannelList,
-        PlaylistList
+        PlaylistList,
+        SinglePlaylist
     };
 }

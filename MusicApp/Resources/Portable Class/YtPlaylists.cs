@@ -5,7 +5,6 @@ using Android.Views;
 using Android.Widget;
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
-using Java.Util;
 using MusicApp.Resources.values;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -38,7 +37,7 @@ namespace MusicApp.Resources.Portable_Class
             if (YoutubeEngine.youtubeService == null)
                 MainActivity.instance.Login();
 
-            if(playlists == null)
+            if(playlists.Count == 0)
                 GetYoutubePlaylists();
         }
 
@@ -68,7 +67,7 @@ namespace MusicApp.Resources.Portable_Class
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             View view = base.OnCreateView(inflater, container, savedInstanceState);
-            view.SetPadding(0, 0, 0, MainActivity.paddingBot);
+            view.SetPadding(0, 0, 0, MainActivity.defaultPaddingBot);
             return view;
         }
 
@@ -140,6 +139,9 @@ namespace MusicApp.Resources.Portable_Class
 
         private async Task Refresh()
         {
+            if (useMixes)
+                return;
+
             if (MainActivity.instance.TokenHasExpire())
             {
                 YoutubeEngine.youtubeService = null;

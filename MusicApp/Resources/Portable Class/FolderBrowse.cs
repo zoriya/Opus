@@ -63,7 +63,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             View view = base.OnCreateView(inflater, container, savedInstanceState);
             this.view = view;
-            view.SetPadding(0, 0, 0, MainActivity.paddingBot);
+            view.SetPadding(0, 0, 0, MainActivity.defaultPaddingBot);
             return view;
         }
 

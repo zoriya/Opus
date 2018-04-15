@@ -5,27 +5,15 @@ using System;
 
 namespace MusicApp.Resources.Portable_Class
 {
-    public class HeaderHolder : RecyclerView.ViewHolder
+    public class HomeMultipleSong : RecyclerView.ViewHolder
     {
-        public TextView headerText;
-
-        public HeaderHolder(View itemView) : base(itemView)
-        {
-            headerText = itemView.FindViewById<TextView>(Android.Resource.Id.Title);
-        }
-    }
-
-    public class HomeHolder : RecyclerView.ViewHolder
-    {
-        public LinearLayout textLayout;
         public TextView Title;
         public TextView Artist;
         public ImageView AlbumArt;
         public ImageView more;
 
-        public HomeHolder(View itemView, Action<int> listener) : base(itemView)
+        public HomeMultipleSong(View itemView, Action<int> listener) : base(itemView)
         {
-            textLayout = itemView.FindViewById<LinearLayout>(Resource.Id.textLayout);
             Title = itemView.FindViewById<TextView>(Resource.Id.title);
             Artist = itemView.FindViewById<TextView>(Resource.Id.artist);
             AlbumArt = itemView.FindViewById<ImageView>(Resource.Id.albumArt);

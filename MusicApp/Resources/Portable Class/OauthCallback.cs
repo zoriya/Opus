@@ -35,6 +35,7 @@ namespace MusicApp.Resources.Portable_Class
             Uri uri = new Uri(IntentUri.ToString());
 
             MainActivity.auth?.OnPageLoading(uri);
+            Console.WriteLine("&Oauth callback " + IntentUri.ToString());
             Finish();
         }
     }

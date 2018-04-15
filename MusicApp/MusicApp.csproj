@@ -274,6 +274,7 @@
     <Compile Include="Resources\Portable Class\Home.cs" />
     <Compile Include="Resources\Portable Class\HomeAdapter.cs" />
     <Compile Include="Resources\Portable Class\HomeHolder.cs" />
+    <Compile Include="Resources\Portable Class\HomeMultipleSong.cs" />
     <Compile Include="Resources\Portable Class\ItemTouchCallback.cs" />
     <Compile Include="Resources\Portable Class\MusicPlayer.cs" />
     <Compile Include="Resources\Portable Class\OauthCallback.cs" />
@@ -563,6 +564,11 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\layout\ChannelList.xml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\HomeMultipleSong.xml">
       <SubType>Designer</SubType>
     </AndroidResource>
   </ItemGroup>

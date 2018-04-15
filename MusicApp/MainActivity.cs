@@ -40,6 +40,7 @@ namespace MusicApp
     {
         public static MainActivity instance;
         public static int paddingBot = 0;
+        public static int defaultPaddingBot = 0;
         public new static int Theme = 1;
         public static int dialogTheme;
         public static IParcelable parcelable;
@@ -76,9 +77,9 @@ namespace MusicApp
 
         public virtual void PaddingHasChanged(PaddingChange e)
         {
-            paddingBot = /*(((FrameLayout)instance.FindViewById(Resource.Id.smallPlayer).Parent).Visibility == ViewStates.Gone) */
-                /*?*/ FindViewById<BottomNavigationView>(Resource.Id.bottomView).Height 
-                /*: FindViewById<BottomNavigationView>(Resource.Id.bottomView).Height + ((FrameLayout)instance.FindViewById(Resource.Id.smallPlayer).Parent).Height*/;
+            paddingBot = (((RelativeLayout)instance.FindViewById(Resource.Id.smallPlayer).Parent).Visibility == ViewStates.Gone)
+                ? FindViewById<BottomNavigationView>(Resource.Id.bottomView).Height
+                : ((RelativeLayout)instance.FindViewById(Resource.Id.smallPlayer).Parent).Height + ((RelativeLayout)instance.FindViewById(Resource.Id.smallPlayer).Parent).PaddingBottom;
 
             paddingBot += e.paddingChange;
 
@@ -971,7 +972,7 @@ namespace MusicApp
             quickPlayLayout = LayoutInflater.Inflate(Resource.Layout.QuickPlayLayout, null);
             ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
             AddContentView(quickPlayLayout, rootView.LayoutParameters);
-            quickPlayLayout.SetPadding(0, 0, 0, paddingBot + PxToDp(6));
+            quickPlayLayout.SetPadding(0, 0, 0, paddingBot + PxToDp(20));
             quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.quickPlay).Click += QuickPlay;
             quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.localPlay).Click += LocalPlay;
             quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.ytPlay).Click += YtPlay;
