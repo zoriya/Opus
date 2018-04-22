@@ -71,6 +71,11 @@ namespace MusicApp.Resources.Portable_Class
                 View itemView = LayoutInflater.From(parent.Context).Inflate(Android.Resource.Layout.PreferenceCategory, parent, false);
                 return new HeaderHolder(itemView, OnClick, OnLongClick);
             }
+            if(viewType == (int)HomeRow.ChannelHolder)
+            {
+                View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.ChannelList, parent, false);
+                return new HomeChannelHolder(itemView, OnClick, OnLongClick);
+            }
             if (viewType == (int)HomeRow.SongHolder)
             {
                 View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.SongList, parent, false);
@@ -105,6 +110,23 @@ namespace MusicApp.Resources.Portable_Class
             {
                 HeaderHolder holder = (HeaderHolder)viewHolder;
                 holder.headerText.Text = items[containerID].SectionTitle;
+            }
+            else if(items[containerID].contentType == SectionType.ChannelList)
+            {
+                HomeChannelHolder holder = (HomeChannelHolder)viewHolder;
+
+                holder.Title.Text = items[containerID].contentValue[position].GetName();
+                holder.Artist.Text = items[containerID].contentValue[position].GetArtist();
+                holder.CheckBox.Visibility = ViewStates.Gone;
+
+                Picasso.With(Application.Context).Load(items[containerID].contentValue[position].GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Transform(new CircleTransformation()).Into(holder.AlbumArt);
+
+                if (MainActivity.Theme == 1)
+                {
+                    holder.Title.SetTextColor(Color.White);
+                    holder.Artist.SetTextColor(Color.White);
+                    holder.Artist.Alpha = 0.7f;
+                }
             }
             else if(items[containerID].contentType == SectionType.SinglePlaylist)
             {

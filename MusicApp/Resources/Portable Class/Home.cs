@@ -145,7 +145,7 @@ namespace MusicApp.Resources.Portable_Class
 
                                 ChannelListResponse response = await request.ExecuteAsync();
 
-                                foreach(var ytItem in response.Items)
+                                foreach (var ytItem in response.Items)
                                 {
                                     Song channel = new Song(ytItem.Snippet.Title, "", ytItem.Snippet.Thumbnails.Default__.Url, ytItem.Id, -1, -1, null, true);
                                     contentValue.Add(channel);
@@ -154,23 +154,24 @@ namespace MusicApp.Resources.Portable_Class
                                         return;
                                 }
 
-                                HomeSection section = new HomeSection(item.SectionTitle, item.contentType, contentValue);
+                            }
 
-                                if (adapter == null)
-                                {
-                                    adapterItems.Add(section);
-                                    adapter = new HomeAdapter(adapterItems);
-                                    ListView.SetAdapter(adapter);
-                                    adapter.ItemClick += ListView_ItemClick;
-                                    adapter.ItemLongClick += ListView_ItemLongCLick;
-                                    ListView.SetItemAnimator(new DefaultItemAnimator());
-                                    ListView.ScrollChange += MainActivity.instance.Scroll;
-                                }
-                                else
-                                {
-                                    adapterItems.Add(section);
-                                    adapter.AddToList(new List<HomeSection>() { section });
-                                }
+                            HomeSection section = new HomeSection(item.SectionTitle, item.contentType, contentValue);
+
+                            if (adapter == null)
+                            {
+                                adapterItems.Add(section);
+                                adapter = new HomeAdapter(adapterItems);
+                                ListView.SetAdapter(adapter);
+                                adapter.ItemClick += ListView_ItemClick;
+                                adapter.ItemLongClick += ListView_ItemLongCLick;
+                                ListView.SetItemAnimator(new DefaultItemAnimator());
+                                ListView.ScrollChange += MainActivity.instance.Scroll;
+                            }
+                            else
+                            {
+                                adapterItems.Add(section);
+                                adapter.AddToList(new List<HomeSection>() { section });
                             }
                         }
                         break;

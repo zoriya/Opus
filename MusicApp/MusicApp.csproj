@@ -301,6 +301,7 @@
     <Compile Include="Resources\values\Folder.cs" />
     <Compile Include="Resources\values\FolderHolder.cs" />
     <Compile Include="Resources\values\Holder.cs" />
+    <Compile Include="Resources\values\HomeChannelHolder.cs" />
     <Compile Include="Resources\values\HomeItem.cs" />
     <Compile Include="Resources\values\HomeSection.cs" />
     <Compile Include="Resources\values\PaddingChange.cs" />

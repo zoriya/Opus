@@ -9,7 +9,7 @@ namespace MusicApp.Resources.Portable_Class
     {
         public TextView headerText;
 
-        public HeaderHolder(View itemView, Action itemClick, Action<int> listener, Action<int> longListener) : base(itemView)
+        public HeaderHolder(View itemView, Action<int> listener, Action<int> longListener) : base(itemView)
         {
             headerText = itemView.FindViewById<TextView>(Android.Resource.Id.Title);
             itemView.Click += (sender, e) => listener(AdapterPosition);
