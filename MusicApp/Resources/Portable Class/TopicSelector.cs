@@ -104,9 +104,6 @@ namespace MusicApp.Resources.Portable_Class
                 selectedTopics.RemoveAt(index);
                 selectedTopicsID.RemoveAt(index);
             }
-
-            foreach (string topic in selectedTopics)
-                System.Console.WriteLine("&TopicName : " + topic);
         }
     }
 }

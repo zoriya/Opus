@@ -12,7 +12,7 @@ namespace MusicApp.Resources.Portable_Class
         public ImageView AlbumArt;
         public ImageView more;
 
-        public HomeMultipleSong(View itemView, Action<int> listener) : base(itemView)
+        public HomeMultipleSong(View itemView, Action<int> listener, Action<int> longListener) : base(itemView)
         {
             Title = itemView.FindViewById<TextView>(Resource.Id.title);
             Artist = itemView.FindViewById<TextView>(Resource.Id.artist);
@@ -20,6 +20,7 @@ namespace MusicApp.Resources.Portable_Class
             more = itemView.FindViewById<ImageView>(Resource.Id.moreButton);
 
             itemView.Click += (sender, e) => listener(AdapterPosition);
+            itemView.LongClick += (sender, e) => longListener(AdapterPosition);
         }
     }
 }

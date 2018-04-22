@@ -14,13 +14,14 @@ namespace MusicApp.Resources.Portable_Class
     {
         public List<HomeSection> items;
         private bool refreshDisabled = false;
+
         public event EventHandler<int> ItemClick;
+        public event EventHandler<int> ItemLongClick;
+
 
         public HomeAdapter(List<HomeSection> items)
         {
             this.items = items;
-            if(items.Count > 0)
-                Console.WriteLine("&First section content count : " + items[0].contentValue.Count);
         }
 
         public void UpdateList(List<HomeSection> items)
@@ -36,13 +37,21 @@ namespace MusicApp.Resources.Portable_Class
             NotifyItemRangeInserted(positionStart, items.Count);
         }
 
-        public override int ItemCount => items.Count;
+        public override int ItemCount
+        {
+            get
+            {
+                int count = 0;
+                for(int i = 0; i < items.Count; i++) { count += items[i].contentValue.Count; }
+                return count;
+            }
+        }
 
         public int GetItemPosition(int position, out int containerID)
         {
             int pos = 0;
             containerID = 0;
-            for(pos = position; pos - items[containerID].contentValue.Count >= 0; pos -= items[containerID - 1].contentValue.Count)
+            for(pos = position; pos - /*(items[containerID].contentType == SectionType.SinglePlaylist ? 2 :*/ items[containerID].contentValue.Count/*)*/ >= 0; pos -= /*(items[containerID - 1].contentType == SectionType.SinglePlaylist ? 2 : */items[containerID - 1].contentValue.Count/*)*/)
             {
                 if (containerID + 1 < items.Count)
                 {
@@ -60,17 +69,17 @@ namespace MusicApp.Resources.Portable_Class
             if(viewType == (int)HomeRow.Header)
             {
                 View itemView = LayoutInflater.From(parent.Context).Inflate(Android.Resource.Layout.PreferenceCategory, parent, false);
-                return new HeaderHolder(itemView);
+                return new HeaderHolder(itemView, OnClick, OnLongClick);
             }
             if (viewType == (int)HomeRow.SongHolder)
             {
                 View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.SongList, parent, false);
-                return new HomeHolder(itemView, OnClick);
+                return new HomeHolder(itemView, OnClick, OnLongClick);
             }
             if(viewType == (int)HomeRow.MultipleSong)
             {
-                View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.HomeMultipleSong, parent, false);
-                return new HomeMultipleSong(itemView, OnClick);
+                View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.SquareSong, parent, false);
+                return new HomeMultipleSong(itemView, OnClick, OnLongClick);
             }
             return null;
         }
@@ -104,23 +113,26 @@ namespace MusicApp.Resources.Portable_Class
                 holder.Title.Text = items[containerID].contentValue[position].GetName();
                 holder.Artist.Text = items[containerID].contentValue[position].GetArtist();
 
-                Picasso.With(Application.Context).Load(items[containerID].contentValue[position].GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
+                int width = MainActivity.instance.Resources.DisplayMetrics.WidthPixels - (int)((20 - 0.5f) / MainActivity.instance.Resources.DisplayMetrics.Density);
+                int height = width / 16 * 9;
+                Picasso.With(Application.Context).Load(items[containerID].contentValue[position].GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Resize(width, height).CenterCrop().Into(holder.AlbumArt);
 
-                //holder.more.Tag = position;
-                //if (!holder.more.HasOnClickListeners)
-                //{
-                //    holder.more.Click += (sender, e) =>
-                //    {
-                //        int tagPosition = (int)((ImageView)sender).Tag;
-                //        Home.instance.More(items[tagPosition]);
-                //    };
-                //}
+                holder.more.Tag = position;
+                if (!holder.more.HasOnClickListeners)
+                {
+                    holder.more.Click += (sender, e) =>
+                    {
+                        int tagPosition = (int)((ImageView)sender).Tag;
+                        //Home.instance.More(items[tagPosition]);
+                    };
+                }
 
                 if (MainActivity.Theme == 1)
                 {
                     holder.Title.SetTextColor(Color.White);
                     holder.Artist.SetTextColor(Color.White);
                     holder.Artist.Alpha = 0.7f;
+                    holder.more.SetColorFilter(Color.White);
                 }
 
                 if (MainActivity.Theme == 0)
@@ -165,6 +177,11 @@ namespace MusicApp.Resources.Portable_Class
         void OnClick(int position)
         {
             ItemClick?.Invoke(this, position);
+        }
+
+        void OnLongClick(int position)
+        {
+            ItemLongClick?.Invoke(this, position);
         }
 
         public bool RefreshDisabled()

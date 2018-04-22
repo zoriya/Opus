@@ -568,7 +568,7 @@
     </AndroidResource>
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\layout\HomeMultipleSong.xml">
+    <AndroidResource Include="Resources\layout\SquareSong.xml">
       <SubType>Designer</SubType>
     </AndroidResource>
   </ItemGroup>

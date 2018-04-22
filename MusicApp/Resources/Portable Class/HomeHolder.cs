@@ -9,9 +9,11 @@ namespace MusicApp.Resources.Portable_Class
     {
         public TextView headerText;
 
-        public HeaderHolder(View itemView) : base(itemView)
+        public HeaderHolder(View itemView, Action itemClick, Action<int> listener, Action<int> longListener) : base(itemView)
         {
             headerText = itemView.FindViewById<TextView>(Android.Resource.Id.Title);
+            itemView.Click += (sender, e) => listener(AdapterPosition);
+            itemView.LongClick += (sender, e) => longListener(AdapterPosition);
         }
     }
 
@@ -23,7 +25,7 @@ namespace MusicApp.Resources.Portable_Class
         public ImageView AlbumArt;
         public ImageView more;
 
-        public HomeHolder(View itemView, Action<int> listener) : base(itemView)
+        public HomeHolder(View itemView, Action<int> listener, Action<int> longListener) : base(itemView)
         {
             textLayout = itemView.FindViewById<LinearLayout>(Resource.Id.textLayout);
             Title = itemView.FindViewById<TextView>(Resource.Id.title);
@@ -32,6 +34,7 @@ namespace MusicApp.Resources.Portable_Class
             more = itemView.FindViewById<ImageView>(Resource.Id.moreButton);
 
             itemView.Click += (sender, e) => listener(AdapterPosition);
+            itemView.LongClick += (sender, e) => longListener(AdapterPosition);
         }
     }
 }

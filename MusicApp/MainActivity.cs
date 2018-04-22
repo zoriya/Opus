@@ -135,6 +135,7 @@ namespace MusicApp
         {
             await Task.Delay(100);
             paddingBot = FindViewById<BottomNavigationView>(Resource.Id.bottomView).Height;
+            defaultPaddingBot = FindViewById<BottomNavigationView>(Resource.Id.bottomView).Height;
             Navigate(Resource.Id.musicLayout);
         }
 

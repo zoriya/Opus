@@ -106,12 +106,12 @@ namespace MusicApp.Resources.Portable_Class
                             contentValue = section.ContentDetails.Channels.ToList();
                             break;
                         case "multiplePlaylists":
+                            contentValue = section.ContentDetails.Playlists.ToList();
+                            type = SectionType.PlaylistList;
+                            break;
                         case "singlePlaylist":
                             contentValue = section.ContentDetails.Playlists.ToList();
-                            if (contentValue.Count == 1)
-                                type = SectionType.SinglePlaylist;
-                            else
-                                type = SectionType.PlaylistList;
+                            type = SectionType.SinglePlaylist;
                             break;
                         default:
                             contentValue = new List<string>();
@@ -124,80 +124,99 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             List<HomeItem> itemsSave = Items;
-            foreach(HomeItem foo in Items)
+            foreach(HomeItem item in Items)
             {
-                HomeItem item = foo;
-
-                //if (!itemsSave.Contains(item))
-                //    continue;
-
                 List<Song> contentValue = new List<Song>
                 {
                     new Song("HeaderSlot", null, null, null, -1, -1, null)
                 };
 
-                //HomeItem[] sameTypeItems = Items.Where(x => x.SectionTitle == item.SectionTitle).ToArray();
-
-                //foreach (HomeItem toBeRemoved in sameTypeItems)
-                //    itemsSave.Remove(toBeRemoved);
-
-                //if(sameTypeItems.Length > 1)
-                //{
-                //    item = sameTypeItems[new Random().Next(0, sameTypeItems.Length)];
-                //}
-
                 switch (item.contentType)
                 {
                     case SectionType.ChannelList:
-                        //foreach(string channelID in item.contentValue)
-                        //{
-                        //    YouTubeService youtube = YoutubeEngine.youtubeService;
+                        if(adapterItems.Where(x => x.SectionTitle == item.SectionTitle).Count() == 0)
+                        {
+                            foreach (string channelID in item.contentValue)
+                            {
+                                YouTubeService youtube = YoutubeEngine.youtubeService;
 
-                        //    ChannelsResource.ListRequest request = youtube.Channels.List("snippet,contentDetails,statistics");
-                        //    request.Id = channelID;
+                                ChannelsResource.ListRequest request = youtube.Channels.List("snippet");
+                                request.Id = channelID;
 
-                        //    ChannelListResponse response = await request.ExecuteAsync();
+                                ChannelListResponse response = await request.ExecuteAsync();
 
-                        //    response.Items[0].
-                        //}
+                                foreach(var ytItem in response.Items)
+                                {
+                                    Song channel = new Song(ytItem.Snippet.Title, "", ytItem.Snippet.Thumbnails.Default__.Url, ytItem.Id, -1, -1, null, true);
+                                    contentValue.Add(channel);
+
+                                    if (instance == null)
+                                        return;
+                                }
+
+                                HomeSection section = new HomeSection(item.SectionTitle, item.contentType, contentValue);
+
+                                if (adapter == null)
+                                {
+                                    adapterItems.Add(section);
+                                    adapter = new HomeAdapter(adapterItems);
+                                    ListView.SetAdapter(adapter);
+                                    adapter.ItemClick += ListView_ItemClick;
+                                    adapter.ItemLongClick += ListView_ItemLongCLick;
+                                    ListView.SetItemAnimator(new DefaultItemAnimator());
+                                    ListView.ScrollChange += MainActivity.instance.Scroll;
+                                }
+                                else
+                                {
+                                    adapterItems.Add(section);
+                                    adapter.AddToList(new List<HomeSection>() { section });
+                                }
+                            }
+                        }
                         break;
                     case SectionType.SinglePlaylist:
-                        if (true/*adapterItems.Where(x => x.SectionTitle == item.SectionTitle).Count() == 0*/)
+                        if (adapterItems.Where(x => x.SectionTitle == item.SectionTitle).Count() == 0)
                         {
                             YouTubeService youtube = YoutubeEngine.youtubeService;
 
                             PlaylistItemsResource.ListRequest request = youtube.PlaylistItems.List("snippet, contentDetails");
                             request.PlaylistId = item.contentValue[0];
-                            request.MaxResults = 50;
+                            request.MaxResults = 10;
                             request.PageToken = "";
-                            Console.WriteLine("&" + item.contentValue[0]);
 
                             PlaylistItemListResponse response = await request.ExecuteAsync();
 
                             foreach (var ytItem in response.Items)
                             {
-                                Song song = new Song(ytItem.Snippet.Title, ytItem.Snippet.ChannelTitle, ytItem.Snippet.Thumbnails.Default__.Url, ytItem.ContentDetails.VideoId, -1, -1, ytItem.ContentDetails.VideoId, true);
+                                Song song = new Song(ytItem.Snippet.Title, ytItem.Snippet.ChannelTitle, ytItem.Snippet.Thumbnails.High.Url, ytItem.ContentDetails.VideoId, -1, -1, ytItem.ContentDetails.VideoId, true);
                                 contentValue.Add(song);
-                                Console.WriteLine("&" + song.GetName());
 
                                 if (instance == null)
                                     return;
                             }
 
-                            HomeSection section = new HomeSection(item.SectionTitle, item.contentType, contentValue);
+                            HomeSection section = new HomeSection(item.SectionTitle, item.contentType, contentValue)
+                            {
+                                data = item.contentValue[0]
+                            };
+
                             if (adapter == null)
                             {
                                 adapterItems.Add(section);
                                 adapter = new HomeAdapter(adapterItems);
                                 ListView.SetAdapter(adapter);
+                                adapter.ItemClick += ListView_ItemClick;
+                                adapter.ItemLongClick += ListView_ItemLongCLick;
+                                ListView.SetItemAnimator(new DefaultItemAnimator());
+                                ListView.ScrollChange += MainActivity.instance.Scroll;
                             }
                             else
                             {
                                 adapterItems.Add(section);
                                 adapter.AddToList(new List<HomeSection>() { section });
                             }
-                }
-                break;
+                        }
+                        break;
                     case SectionType.PlaylistList:
                         if (adapterItems.Where(x => x.SectionTitle == item.SectionTitle).Count() == 0)
                         {
@@ -213,6 +232,7 @@ namespace MusicApp.Resources.Portable_Class
 
                                 foreach (var playlist in response.Items)
                                 {
+                                    Console.WriteLine("&" + playlist.Snippet.Title);
                                     Song song = new Song(playlist.Snippet.Title, playlist.Snippet.ChannelTitle, playlist.Snippet.Thumbnails.Default__.Url, playlist.Id, -1, -1, playlist.Id, true);
                                     contentValue.Add(song);
 
@@ -227,6 +247,10 @@ namespace MusicApp.Resources.Portable_Class
                                 adapterItems.Add(section);
                                 adapter = new HomeAdapter(adapterItems);
                                 ListView.SetAdapter(adapter);
+                                adapter.ItemClick += ListView_ItemClick;
+                                adapter.ItemLongClick += ListView_ItemLongCLick;
+                                ListView.SetItemAnimator(new DefaultItemAnimator());
+                                ListView.ScrollChange += MainActivity.instance.Scroll;
                             }
                             else
                             {
@@ -242,10 +266,6 @@ namespace MusicApp.Resources.Portable_Class
 
             if (instance == null)
                 return;
-
-            adapter.ItemClick += ListView_ItemClick;
-            ListView.SetItemAnimator(new DefaultItemAnimator());
-            ListView.ScrollChange += MainActivity.instance.Scroll;
         }
 
         public static Fragment NewInstance()
@@ -270,24 +290,49 @@ namespace MusicApp.Resources.Portable_Class
             //List<Song> songList = MusicPlayer.queue.Except(adapter.songList).ToList(); //Load more
         }
 
-        private void ListView_ItemClick(object sender, int Position)
+        private void ListView_ItemClick(object sender, int position)
         {
-            int pos = adapter.GetItemPosition(Position, out int ContainerID);
+            int pos = adapter.GetItemPosition(position, out int ContainerID);
             HomeSection section = adapterItems[ContainerID];
             Song item = section.contentValue[pos];
-            if (section.contentType == SectionType.PlaylistList)
+
+            if(pos == 0)
             {
-                MainActivity.parcelableSender = "Home";
-                MainActivity.parcelable = ListView.GetLayoutManager().OnSaveInstanceState();
+                if (section.contentType == SectionType.SinglePlaylist)
+                {
+                    MainActivity.parcelableSender = "Home";
+                    MainActivity.parcelable = ListView.GetLayoutManager().OnSaveInstanceState();
 
-                AppCompatActivity act = (AppCompatActivity)Activity;
-                act.SupportActionBar.SetHomeButtonEnabled(true);
-                act.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
-                act.SupportActionBar.Title = section.SectionTitle;
+                    AppCompatActivity act = (AppCompatActivity)Activity;
+                    act.SupportActionBar.SetHomeButtonEnabled(true);
+                    act.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
+                    act.SupportActionBar.Title = section.SectionTitle;
 
-                MainActivity.instance.HideTabs();
-                MainActivity.instance.HomeDetails = true;
-                MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(item.youtubeID), true);
+                    MainActivity.instance.HideTabs();
+                    MainActivity.instance.HomeDetails = true;
+                    MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(section.data), true);
+                }
+            }
+            else
+            {
+                if (section.contentType == SectionType.SinglePlaylist)
+                {
+                    YoutubeEngine.Play(item.youtubeID, item.GetName(), item.GetArtist(), item.GetAlbum());
+                }
+                else if (section.contentType == SectionType.PlaylistList)
+                {
+                    MainActivity.parcelableSender = "Home";
+                    MainActivity.parcelable = ListView.GetLayoutManager().OnSaveInstanceState();
+
+                    AppCompatActivity act = (AppCompatActivity)Activity;
+                    act.SupportActionBar.SetHomeButtonEnabled(true);
+                    act.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
+                    act.SupportActionBar.Title = section.SectionTitle;
+
+                    MainActivity.instance.HideTabs();
+                    MainActivity.instance.HomeDetails = true;
+                    MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(item.youtubeID), true);
+                }
             }
         }
 

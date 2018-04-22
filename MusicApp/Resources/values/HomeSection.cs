@@ -8,6 +8,7 @@ namespace MusicApp.Resources.values
         public string SectionTitle;
         public SectionType contentType;
         public List<Song> contentValue;
+        public string data;
 
         public HomeSection(string sectionTitle, SectionType contentType, List<Song> contentValue)
         {
