@@ -1,12 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<android.support.design.widget.CoordinatorLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="fill_parent"
   android:layout_height="70dp"
+  android:elevation="6dp"
   android:background="?attr/defaultColor"
   android:id="@+id/smallPlayer" >
   <android.support.v7.widget.CardView
     android:layout_width="fill_parent"
+    android:id="@+id/cardPlayer"
     android:elevation="6dp"
     android:layout_height="fill_parent" >
     <LinearLayout
@@ -91,4 +93,4 @@
       android:layout_alignParentTop="true"
       android:progress="25"/>
   </android.support.v7.widget.CardView>
-</RelativeLayout >
+</android.support.design.widget.CoordinatorLayout>

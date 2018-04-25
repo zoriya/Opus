@@ -36,7 +36,7 @@ using SearchView = Android.Support.V7.Widget.SearchView;
 namespace MusicApp
 {
     [Activity(Label = "MusicApp", MainLauncher = true, Icon = "@drawable/launcher_icon", Theme = "@style/Theme", ScreenOrientation = ScreenOrientation.Portrait)]
-    public class MainActivity : AppCompatActivity, ViewPager.IOnPageChangeListener
+    public class MainActivity : AppCompatActivity, ViewPager.IOnPageChangeListener, SwipeDismissBehavior.IOnDismissListener
     {
         public static MainActivity instance;
         public static int paddingBot = 0;
@@ -325,7 +325,7 @@ namespace MusicApp
 
             MenuInflater.Inflate(Resource.Menu.toolbar_menu, menu);
             this.menu = menu;
-            var item = menu.FindItem(Resource.Id.search);
+            var item = menu.FindItem(Resource.Id.filter);
             item.SetVisible(false);
             return base.OnCreateOptionsMenu(menu);
         }
@@ -389,22 +389,26 @@ namespace MusicApp
             }
             else if(item.ItemId == Resource.Id.search)
             {
+                var searchItem = item.ActionView;
+                var searchView = searchItem.JavaCast<SearchView>();
 
+                searchView.QueryTextSubmit += (s, e) =>
+                {
+                    SaveInstance();
+
+                    Intent intent = new Intent(this, typeof(YoutubeEngine));
+                    intent.PutExtra("search", e.Query);
+                    StartActivity(intent);
+
+                    e.Handled = true;
+                };
+            }
+            else if(item.ItemId == Resource.Id.filter)
+            {
                 var searchItem = item.ActionView;
                 var searchView = searchItem.JavaCast<SearchView>();
 
                 searchView.QueryTextChange += Search;
-
-                searchView.QueryTextSubmit += (s, e) =>
-                {
-                    if (YoutubeEngine.instance != null)
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                        YoutubeEngine.instance.Search(e.Query);
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-
-                    e.Handled = true;
-                };
-
                 searchView.Close += SearchClose;
             }
             else if(item.ItemId == Resource.Id.settings)
@@ -421,8 +425,6 @@ namespace MusicApp
                 Browse.instance.Search(e.NewText);
             if (PlaylistTracks.instance != null)
                 PlaylistTracks.instance.Search(e.NewText);
-            if (PlaylistTracks.instance != null)
-                PlaylistTracks.instance.Search(e.NewText);
             if (FolderTracks.instance != null)
                 FolderTracks.instance.Search(e.NewText);
         }
@@ -435,8 +437,21 @@ namespace MusicApp
                 PlaylistTracks.instance.result = null;
             if (FolderTracks.instance != null)
                 FolderTracks.instance.result = null;
-            //if (YoutubeEngine.instance != null)
-            //    YoutubeEngine.result = null;
+        }
+
+        void SaveInstance()
+        {
+            if(Browse.instance != null)
+            {
+                HideTabs();
+                parcelableSender = "Browse";
+                parcelable = Browse.instance.ListView.OnSaveInstanceState();
+            }
+            else if(PlaylistTracks.instance != null)
+            {
+                parcelableSender = "PlaylistTracks";
+                parcelable = PlaylistTracks.instance.ListView.OnSaveInstanceState();
+            }
         }
 
         public void HideSearch()
@@ -449,7 +464,7 @@ namespace MusicApp
             if (menu == null)
                 return;
 
-            var item = menu.FindItem(Resource.Id.search);
+            var item = menu.FindItem(Resource.Id.filter);
             var searchItem = item.ActionView;
             var searchView = searchItem.JavaCast<SearchView>();
 
@@ -472,7 +487,7 @@ namespace MusicApp
 
             searchDisplayed = true;
 
-            var item = menu.FindItem(Resource.Id.search);
+            var item = menu.FindItem(Resource.Id.filter);
             item.SetVisible(true);
             item.CollapseActionView();
             var searchItem = item.ActionView;
@@ -525,22 +540,6 @@ namespace MusicApp
                     SetBrowseTabs();
                     DisplaySearch();
                     HideQuickPlay();
-                    break;
-
-                case Resource.Id.downloadLayout:
-                    if (YoutubeEngine.instance != null)
-                    {
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                        YoutubeEngine.instance.Refresh();
-#pragma warning restore CS4014
-                        return;
-                    }
-
-                    tab = "Youtube";
-                    HideTabs();
-                    DisplaySearch();
-                    HideQuickPlay();
-                    fragment = YoutubeEngine.NewInstance();
                     break;
 
                 case Resource.Id.playlistLayout:
@@ -790,7 +789,7 @@ namespace MusicApp
         {
             Song current = MusicPlayer.queue[MusicPlayer.CurrentID()];
 
-            RelativeLayout smallPlayer = FindViewById<RelativeLayout>(Resource.Id.smallPlayer);
+            CoordinatorLayout smallPlayer = FindViewById<CoordinatorLayout>(Resource.Id.smallPlayer);
             TextView title = smallPlayer.FindViewById<TextView>(Resource.Id.spTitle);
             TextView artist = smallPlayer.FindViewById<TextView>(Resource.Id.spArtist);
             ImageView art = smallPlayer.FindViewById<ImageView>(Resource.Id.spArt);
@@ -836,8 +835,27 @@ namespace MusicApp
 
                 smallPlayer.FindViewById<LinearLayout>(Resource.Id.spContainer).Click += Container_Click;
                 prepared = true;
+
+                SwipeDismissBehavior behavior = new SwipeDismissBehavior();
+                behavior.SetSwipeDirection(SwipeDismissBehavior.SwipeDirectionAny);
+                behavior.SetListener(this);
+
+                CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) smallPlayer.FindViewById<CardView>(Resource.Id.cardPlayer).LayoutParameters;
+                layoutParams.Behavior = behavior;
+                smallPlayer.FindViewById<CardView>(Resource.Id.cardPlayer).LayoutParameters = layoutParams;
             }
         }
+
+        public void OnDismiss(View view)
+        {
+            HideSmallPlayer();
+
+            Intent intent = new Intent(this, typeof(MusicPlayer));
+            intent.SetAction("Stop");
+            StartService(intent);
+        }
+
+        public void OnDragStateChanged(int state) { }
 
         private void Last_Click(object sender, EventArgs e)
         {
@@ -940,7 +958,7 @@ namespace MusicApp
 
         public async void HideSmallPlayer()
         {
-            RelativeLayout smallPlayer = FindViewById<RelativeLayout>(Resource.Id.smallPlayer);
+            CoordinatorLayout smallPlayer = FindViewById<CoordinatorLayout>(Resource.Id.smallPlayer);
             RelativeLayout parent = (RelativeLayout)smallPlayer.Parent;
             bool hasChanged = parent.Visibility != ViewStates.Gone;
             parent.Visibility = ViewStates.Gone;
@@ -952,7 +970,7 @@ namespace MusicApp
 
         public async void ShowSmallPlayer()
         {
-            RelativeLayout smallPlayer = FindViewById<RelativeLayout>(Resource.Id.smallPlayer);
+            CoordinatorLayout smallPlayer = FindViewById<CoordinatorLayout>(Resource.Id.smallPlayer);
             RelativeLayout parent = (RelativeLayout)smallPlayer.Parent;
             bool hasChanged = parent.Visibility == ViewStates.Gone;
             parent.Visibility = ViewStates.Visible;
@@ -1182,6 +1200,14 @@ namespace MusicApp
         protected override void OnResume()
         {
             base.OnResume();
+
+            if(parcelableSender != null)
+            {
+                var searchItem = menu.FindItem(Resource.Id.search);
+                var searchView = searchItem.JavaCast<SearchView>();
+                searchView.ClearFocus();
+            }
+
             switch (parcelableSender)
             {
                 case "Queue":

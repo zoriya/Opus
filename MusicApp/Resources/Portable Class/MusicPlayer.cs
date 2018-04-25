@@ -5,6 +5,7 @@ using Android.Graphics;
 using Android.Media;
 using Android.OS;
 using Android.Provider;
+using Android.Support.Design.Widget;
 using Android.Support.V4.App;
 using Android.Support.V4.Content;
 using Android.Support.V4.Media.Session;
@@ -411,7 +412,7 @@ namespace MusicApp.Resources.Portable_Class
             if (Player.instance != null)
                 Player.instance.RefreshPlayer();
 
-            RelativeLayout smallPlayer = MainActivity.instance.FindViewById<RelativeLayout>(Resource.Id.smallPlayer);
+            CoordinatorLayout smallPlayer = MainActivity.instance.FindViewById<CoordinatorLayout>(Resource.Id.smallPlayer);
             smallPlayer.FindViewById<TextView>(Resource.Id.spTitle).Text = song.GetName();
             smallPlayer.FindViewById<TextView>(Resource.Id.spArtist).Text = song.GetArtist();
             smallPlayer.FindViewById<ImageView>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
@@ -637,7 +638,7 @@ namespace MusicApp.Resources.Portable_Class
                 player.PlayWhenReady = false;
                 StopForeground(false);
 
-                RelativeLayout smallPlayer = MainActivity.instance.FindViewById<RelativeLayout>(Resource.Id.smallPlayer);
+                CoordinatorLayout smallPlayer = MainActivity.instance.FindViewById<CoordinatorLayout>(Resource.Id.smallPlayer);
                 smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
 
                 if (Player.instance != null)
@@ -661,7 +662,7 @@ namespace MusicApp.Resources.Portable_Class
                 player.PlayWhenReady = true;
                 StartForeground(notificationID, notification);
 
-                RelativeLayout smallPlayer = MainActivity.instance.FindViewById<RelativeLayout>(Resource.Id.smallPlayer);
+                CoordinatorLayout smallPlayer = MainActivity.instance.FindViewById<CoordinatorLayout>(Resource.Id.smallPlayer);
                 smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
 
                 if (Player.instance != null)

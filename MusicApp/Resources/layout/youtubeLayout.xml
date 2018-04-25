@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<LinearLayout
+ xmlns:android="http://schemas.android.com/apk/res/android"
+ xmlns:app="http://schemas.android.com/apk/res-auto"
+ xmlns:tools="http://schemas.android.com/tools"
+ android:layout_width="match_parent"
+ android:layout_height="match_parent"
+ android:orientation="vertical"
+ android:fitsSystemWindows="true" >
+  <android.support.design.widget.AppBarLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <android.support.v7.widget.Toolbar
+      android:id="@+id/toolbar"
+      android:layout_width="match_parent"
+      android:layout_height="?attr/actionBarSize"
+      android:background="?attr/colorPrimary"
+      android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+      app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+  </android.support.design.widget.AppBarLayout>
+  <ProgressBar
+    android:layout_height="4dp"
+    android:layout_width="match_parent"
+    android:id="@+id/ytProgress"
+    android:indeterminate="true"
+    style="?android:attr/progressBarStyleHorizontal"
+    android:visibility="gone" />
+  <ListView 
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:id="@+id/ytSearchList"/>
+  <!--<RelativeLayout
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:elevation="12dp" >
+    <android.support.design.widget.CoordinatorLayout
+      android:id="@+id/snackBar"
+      android:layout_alignParentBottom="true"
+      android:layout_height="wrap_content"
+      android:layout_width="match_parent" />
+  </RelativeLayout>-->
+</LinearLayout>
