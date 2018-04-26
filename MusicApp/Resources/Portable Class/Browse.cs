@@ -75,6 +75,11 @@ namespace MusicApp.Resources.Portable_Class
             return instance;
         }
 
+        public ListView GetListView()
+        {
+            return ListView;
+        }
+
         public void PopulateList()
         {
             musicList = new List<Song>();

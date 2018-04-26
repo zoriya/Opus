@@ -15,6 +15,7 @@ using PendingIntent = Android.App.PendingIntent;
 using Android.Graphics;
 using System.Threading;
 using Android.Support.V4.Widget;
+using Android.Graphics.Drawables;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -118,12 +119,22 @@ namespace MusicApp.Resources.Portable_Class
 
             TextView NextTitle = playerView.FindViewById<TextView>(Resource.Id.nextTitle);
             TextView NextAlbum = playerView.FindViewById<TextView>(Resource.Id.nextArtist);
+            Button ShowQueue = playerView.FindViewById<Button>(Resource.Id.showQueue);
+
+            ShowQueue.Click += ShowQueue_Click;
 
             if (MainActivity.Theme == 1)
             {
                 NextTitle.SetTextColor(Color.White);
                 NextAlbum.SetTextColor(Color.White);
                 NextAlbum.Alpha = 0.7f;
+                ((GradientDrawable)ShowQueue.Background).SetStroke(5, Android.Content.Res.ColorStateList.ValueOf(Color.Argb(255, 62, 80, 180)));
+                ShowQueue.SetTextColor(Color.Argb(255, 62, 80, 180));
+            }
+            else
+            {
+                ((GradientDrawable)ShowQueue.Background).SetStroke(5, Android.Content.Res.ColorStateList.ValueOf(Color.Argb(255, 21, 183, 237)));
+                ShowQueue.SetTextColor(Color.Argb(255, 21, 183, 237));
             }
 
             bool asNext = MusicPlayer.queue.Count > MusicPlayer.CurrentID() + 1;
@@ -289,6 +300,12 @@ namespace MusicApp.Resources.Portable_Class
         {
             MainActivity.instance.SupportFragmentManager.PopBackStack();
             MainActivity.instance.FindViewById<BottomNavigationView>(Resource.Id.bottomView).SelectedItemId = Resource.Id.musicLayout;
+        }
+
+        private void ShowQueue_Click(object sender, EventArgs e)
+        {
+            MainActivity.instance.SupportFragmentManager.PopBackStack();
+            MainActivity.instance.Transition(Resource.Id.contentView, Queue.NewInstance(), false);
         }
 
         private void Last_Click(object sender, EventArgs e)

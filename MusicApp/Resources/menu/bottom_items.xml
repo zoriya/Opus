@@ -14,15 +14,15 @@
     android:icon="@drawable/folderIcon"
     app:showAsAction="ifRoom" />
   <item
-    android:id="@+id/downloadLayout"
-    android:enabled="true"
-    android:title="Download"
-    android:icon="@drawable/DownloadIcon"
-    app:showAsAction="ifRoom" />
-  <item
     android:id="@+id/playlistLayout"
     android:enabled="true"
     android:title="Playlist"
     android:icon="@drawable/PlaylistPlayIcon"
+    app:showAsAction="ifRoom" />
+  <item
+    android:id="@+id/playlistLayout"
+    android:enabled="true"
+    android:title="Artists"
+    android:icon="@drawable/ic_account_circle_black_24dp"
     app:showAsAction="ifRoom" />
 </menu>

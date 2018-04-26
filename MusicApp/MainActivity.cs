@@ -325,8 +325,26 @@ namespace MusicApp
 
             MenuInflater.Inflate(Resource.Menu.toolbar_menu, menu);
             this.menu = menu;
+
+
             var item = menu.FindItem(Resource.Id.filter);
             item.SetVisible(false);
+
+            var filterView = item.ActionView.JavaCast<SearchView>();
+            filterView.QueryTextChange += Search;
+            filterView.Close += SearchClose;
+
+            var searchView = menu.FindItem(Resource.Id.search).ActionView.JavaCast<SearchView>();
+            searchView.QueryTextSubmit += (s, e) =>
+            {
+                SaveInstance();
+
+                Intent intent = new Intent(this, typeof(YoutubeEngine));
+                intent.PutExtra("search", e.Query);
+                StartActivity(intent);
+
+                e.Handled = true;
+            };
             return base.OnCreateOptionsMenu(menu);
         }
 
@@ -373,7 +391,6 @@ namespace MusicApp
                 }
                 if(YtPlaylist.instance != null)
                 {
-                    Console.WriteLine("&YtPlaylist back");
                     HideSearch();
                     if (YtPlaylist.instance.isEmpty)
                     {
@@ -386,30 +403,6 @@ namespace MusicApp
                     YtPlaylist.instance = null;
                     Navigate(Resource.Id.musicLayout);
                 }
-            }
-            else if(item.ItemId == Resource.Id.search)
-            {
-                var searchItem = item.ActionView;
-                var searchView = searchItem.JavaCast<SearchView>();
-
-                searchView.QueryTextSubmit += (s, e) =>
-                {
-                    SaveInstance();
-
-                    Intent intent = new Intent(this, typeof(YoutubeEngine));
-                    intent.PutExtra("search", e.Query);
-                    StartActivity(intent);
-
-                    e.Handled = true;
-                };
-            }
-            else if(item.ItemId == Resource.Id.filter)
-            {
-                var searchItem = item.ActionView;
-                var searchView = searchItem.JavaCast<SearchView>();
-
-                searchView.QueryTextChange += Search;
-                searchView.Close += SearchClose;
             }
             else if(item.ItemId == Resource.Id.settings)
             {
@@ -441,11 +434,16 @@ namespace MusicApp
 
         void SaveInstance()
         {
-            if(Browse.instance != null)
+            if(Home.instance != null)
+            {
+                parcelableSender = "Home";
+                parcelable = Home.instance.ListView.GetLayoutManager().OnSaveInstanceState();
+            }
+            else if(Browse.instance != null)
             {
                 HideTabs();
                 parcelableSender = "Browse";
-                parcelable = Browse.instance.ListView.OnSaveInstanceState();
+                parcelable = Browse.instance.GetListView().OnSaveInstanceState();
             }
             else if(PlaylistTracks.instance != null)
             {
@@ -1203,15 +1201,20 @@ namespace MusicApp
 
             if(parcelableSender != null)
             {
-                var searchItem = menu.FindItem(Resource.Id.search);
-                var searchView = searchItem.JavaCast<SearchView>();
+                var searchView = menu.FindItem(Resource.Id.search).ActionView.JavaCast<SearchView>();
+                menu.FindItem(Resource.Id.search).CollapseActionView();
                 searchView.ClearFocus();
+                searchView.Iconified = true;
+                searchView.SetQuery("", false);
             }
 
             switch (parcelableSender)
             {
-                case "Queue":
+                case "Home":
                     Navigate(Resource.Id.musicLayout);
+                    break;
+                case "Queue":
+                    //SHOULD MAKE SOMETHING HERE
                     break;
                 case "Browse":
                     Navigate(Resource.Id.browseLayout);

@@ -5,7 +5,7 @@
   <item
     android:id="@+id/search"
     android:icon="@drawable/search"
-    android:title="Search"
+    android:title="Search On Youtube"
     app:showAsAction="ifRoom|collapseActionView"
     app:actionViewClass="android.support.v7.widget.SearchView" />
   <item

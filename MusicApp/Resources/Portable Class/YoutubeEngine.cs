@@ -68,13 +68,14 @@ namespace MusicApp.Resources.Portable_Class
         public override bool OnCreateOptionsMenu(IMenu menu)
         {
             MenuInflater.Inflate(Resource.Menu.ytSearch, menu);
-            var searchItem = menu.FindItem(Resource.Id.search);
-            var searchView = searchItem.JavaCast<Android.Support.V7.Widget.SearchView>();
-            /*Unhandled Exception:
-             *System.InvalidCastException: Unable to convert instance of type 'Android.Support.V7.View.Menu.MenuItemImpl' to type 'Android.Support.V7.Widget.SearchView'.
-             */
-            searchView.RequestFocus();
+            var searchView = menu.FindItem(Resource.Id.search).ActionView.JavaCast<Android.Support.V7.Widget.SearchView>();
+            searchView.Iconified = false;
             searchView.SetQuery(Intent.GetStringExtra("search"), false);
+            searchView.QueryTextSubmit += (s, e) =>
+            {
+                Search(e.Query);
+                e.Handled = true;
+            };
             return base.OnCreateOptionsMenu(menu);
         }
 
@@ -82,20 +83,21 @@ namespace MusicApp.Resources.Portable_Class
         {
             if (item.ItemId == Android.Resource.Id.Home)
             {
+                System.Console.WriteLine("&Home clicked");
                 Finish();
             }
-            else if (item.ItemId == Resource.Id.search)
-            {
-                var searchItem = item.ActionView;
-                var searchView = searchItem.JavaCast<Android.Support.V7.Widget.SearchView>();
+            //else if (item.ItemId == Resource.Id.search)
+            //{
+            //    var searchItem = item.ActionView;
+            //    var searchView = searchItem.JavaCast<Android.Support.V7.Widget.SearchView>();
 
-                searchView.QueryTextSubmit += (s, e) =>
-                {
-                    Search(e.Query);
+            //    searchView.QueryTextSubmit += (s, e) =>
+            //    {
+            //        Search(e.Query);
 
-                    e.Handled = true;
-                };
-            }
+            //        e.Handled = true;
+            //    };
+            //}
             return base.OnOptionsItemSelected(item);
         }
 
