@@ -64,15 +64,12 @@ namespace MusicApp.Resources.Portable_Class
                 holder.more.Click += (sender, e) =>
                 {
                     int tagPosition = (int)((ImageView)sender).Tag;
-                    Queue.instance.More(songList[tagPosition]);
+
+                    if(Queue.instance != null)
+                        Queue.instance.More(songList[tagPosition]);
                 };
             }
 
-            float scale = MainActivity.instance.Resources.DisplayMetrics.Density;
-            int padding = 135;
-            padding = (int)(padding * scale + 0.5f);
-
-            holder.reorder.Visibility = ViewStates.Visible;
             //if (!holder.reorder.HasOnClickListeners)
             //{
             //    holder.reorder.Click += (sender, e) =>
@@ -83,26 +80,39 @@ namespace MusicApp.Resources.Portable_Class
             //    };
             //}
 
-            holder.textLayout.SetPadding(padding, 0, 0, 0);
 
             if (songList[position].queueSlot == MusicPlayer.CurrentID())
             {
                 holder.Title.SetTextSize(Android.Util.ComplexUnitType.Dip, 18);
             }
 
-            if (!songList[position].isParsed && songList[position].IsYt)
+            if(Queue.instance != null)
             {
-                holder.youtubeIcon.SetImageResource(Resource.Drawable.needProcessing);
-                holder.youtubeIcon.Visibility = ViewStates.Visible;
-            }
-            else if (songList[position].IsYt)
-            {
-                holder.youtubeIcon.SetImageResource(Resource.Drawable.youtubeIcon);
-                holder.youtubeIcon.Visibility = ViewStates.Visible;
+                holder.reorder.Visibility = ViewStates.Visible;
+
+                float scale = MainActivity.instance.Resources.DisplayMetrics.Density;
+                int padding = 135;
+                padding = (int)(padding * scale + 0.5f);
+                holder.textLayout.SetPadding(padding, 0, 0, 0);
+
+                if (!songList[position].isParsed && songList[position].IsYt)
+                {
+                    holder.youtubeIcon.SetImageResource(Resource.Drawable.needProcessing);
+                    holder.youtubeIcon.Visibility = ViewStates.Visible;
+                }
+                else if (songList[position].IsYt)
+                {
+                    holder.youtubeIcon.SetImageResource(Resource.Drawable.youtubeIcon);
+                    holder.youtubeIcon.Visibility = ViewStates.Visible;
+                }
+                else
+                {
+                    holder.youtubeIcon.Visibility = ViewStates.Gone;
+                }
             }
             else
             {
-                holder.youtubeIcon.Visibility = ViewStates.Gone;
+                holder.reorder.Visibility = ViewStates.Gone;
             }
 
             if (MainActivity.Theme == 1)

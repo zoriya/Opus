@@ -372,7 +372,7 @@ namespace MusicApp
                     }
                     else
                     {
-                        SetYtTabs(PlaylistTracks.instance.ytID == "" ? 0 : 1);
+                        Navigate(Resource.Id.playlistLayout);
                     }
                 }
                 if (FolderTracks.instance != null)
@@ -389,20 +389,20 @@ namespace MusicApp
                     FolderTracks.instance = null;
                     SetBrowseTabs(1);
                 }
-                if(YtPlaylist.instance != null)
-                {
-                    HideSearch();
-                    if (YtPlaylist.instance.isEmpty)
-                    {
-                        ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
-                        rootView.RemoveView(PlaylistTracks.instance.emptyView);
-                    }
-                    SupportActionBar.SetHomeButtonEnabled(false);
-                    SupportActionBar.SetDisplayHomeAsUpEnabled(false);
-                    SupportActionBar.Title = "MusicApp";
-                    YtPlaylist.instance = null;
-                    Navigate(Resource.Id.musicLayout);
-                }
+                //if(YtPlaylist.instance != null)
+                //{
+                //    HideSearch();
+                //    if (YtPlaylist.instance.isEmpty)
+                //    {
+                //        ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
+                //        rootView.RemoveView(PlaylistTracks.instance.emptyView);
+                //    }
+                //    SupportActionBar.SetHomeButtonEnabled(false);
+                //    SupportActionBar.SetDisplayHomeAsUpEnabled(false);
+                //    SupportActionBar.Title = "MusicApp";
+                //    YtPlaylist.instance = null;
+                //    Navigate(Resource.Id.musicLayout);
+                //}
             }
             else if(item.ItemId == Resource.Id.settings)
             {
@@ -543,14 +543,17 @@ namespace MusicApp
                 case Resource.Id.playlistLayout:
                     if (Playlist.instance != null)
                     {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                         Playlist.instance.Refresh();
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                         return;
                     }
 
                     tab = "Playlist";
-                    SetYtTabs();
+                    HideTabs();
                     HideSearch();
                     HideQuickPlay();
+                    fragment = Playlist.NewInstance();
                     break;
             }
 
@@ -577,24 +580,24 @@ namespace MusicApp
             TabLayout tabs = FindViewById<TabLayout>(Resource.Id.tabs);
             ViewPager pager = FindViewById<ViewPager>(Resource.Id.pager);
 
-            if (Playlist.instance != null)
-            {
-                ViewPagerAdapter oldAdapter = (ViewPagerAdapter)pager.Adapter;
-                SupportFragmentManager.BeginTransaction().Remove(oldAdapter.GetItem(0)).Commit();
-                SupportFragmentManager.BeginTransaction().Remove(oldAdapter.GetItem(1)).Commit();
+            //if (Playlist.instance != null)
+            //{
+            //    ViewPagerAdapter oldAdapter = (ViewPagerAdapter)pager.Adapter;
+            //    SupportFragmentManager.BeginTransaction().Remove(oldAdapter.GetItem(0)).Commit();
+            //    SupportFragmentManager.BeginTransaction().Remove(oldAdapter.GetItem(1)).Commit();
 
-                oldAdapter.Clear();
+            //    oldAdapter.Clear();
 
-                tabs.AddTab(tabs.NewTab().SetText("Songs"));
-                tabs.AddTab(tabs.NewTab().SetText("Folders"));
+            //    tabs.AddTab(tabs.NewTab().SetText("Songs"));
+            //    tabs.AddTab(tabs.NewTab().SetText("Folders"));
 
-                oldAdapter.AddFragment(Browse.NewInstance(), "Songs");
-                oldAdapter.AddFragment(FolderBrowse.NewInstance(), "Folders");
+            //    oldAdapter.AddFragment(Browse.NewInstance(), "Songs");
+            //    oldAdapter.AddFragment(FolderBrowse.NewInstance(), "Folders");
 
-                pager.Adapter = oldAdapter;
-            }
-            else
-            {
+            //    pager.Adapter = oldAdapter;
+            //}
+            //else
+            //{
                 contentRefresh.Visibility = ViewStates.Gone;
                 pagerRefresh.Visibility = ViewStates.Visible;
                 tabs.Visibility = ViewStates.Visible;
@@ -611,7 +614,7 @@ namespace MusicApp
 
                 tabs.SetupWithViewPager(pager);
                 tabs.TabReselected += OnTabReselected;
-            }
+            //}
 
             pager.CurrentItem = selectedTab;
             tabs.SetScrollPosition(selectedTab, 0f, true);
@@ -619,63 +622,63 @@ namespace MusicApp
             CanSwitchDelay();
         }
 
-        async void SetYtTabs(int selectedTab = 0)
+        /*async*/ void SetYtTabs(int selectedTab = 0)
         {
-            if (Playlist.instance != null)
-                return;
+            //if (Playlist.instance != null)
+            //    return;
 
-            while (!canSwitch)
-                await Task.Delay(10);
+            //while (!canSwitch)
+            //    await Task.Delay(10);
 
-            if (tab != "Playlist" || Playlist.instance != null)
-                return;
+            //if (tab != "Playlist" || Playlist.instance != null)
+            //    return;
 
-            Console.WriteLine("Switching: " + canSwitch);
-            canSwitch = false;
-            usePager = true;
+            //Console.WriteLine("Switching: " + canSwitch);
+            //canSwitch = false;
+            //usePager = true;
 
-            TabLayout tabs = FindViewById<TabLayout>(Resource.Id.tabs);
-            ViewPager pager = FindViewById<ViewPager>(Resource.Id.pager);
+            //TabLayout tabs = FindViewById<TabLayout>(Resource.Id.tabs);
+            //ViewPager pager = FindViewById<ViewPager>(Resource.Id.pager);
 
-            if (Browse.instance != null)
-            {
-                ViewPagerAdapter oldAdapter = (ViewPagerAdapter)pager.Adapter;
-                SupportFragmentManager.BeginTransaction().Remove(oldAdapter.GetItem(0)).Commit();
-                SupportFragmentManager.BeginTransaction().Remove(oldAdapter.GetItem(1)).Commit();
+            //if (Browse.instance != null)
+            //{
+            //    ViewPagerAdapter oldAdapter = (ViewPagerAdapter)pager.Adapter;
+            //    SupportFragmentManager.BeginTransaction().Remove(oldAdapter.GetItem(0)).Commit();
+            //    SupportFragmentManager.BeginTransaction().Remove(oldAdapter.GetItem(1)).Commit();
 
-                oldAdapter.Clear();
+            //    oldAdapter.Clear();
 
-                tabs.AddTab(tabs.NewTab().SetText("Songs"));
-                tabs.AddTab(tabs.NewTab().SetText("Folders"));
+            //    tabs.AddTab(tabs.NewTab().SetText("Songs"));
+            //    tabs.AddTab(tabs.NewTab().SetText("Folders"));
 
-                oldAdapter.AddFragment(Playlist.NewInstance(), "Playlists");
-                oldAdapter.AddFragment(YtPlaylist.NewInstance(), "Youtube playlists");
+            //    oldAdapter.AddFragment(Playlist.NewInstance(), "Playlists");
+            //    oldAdapter.AddFragment(YtPlaylist.NewInstance(), "Youtube playlists");
 
-                pager.Adapter = oldAdapter;
-            }
-            else
-            {
-                contentRefresh.Visibility = ViewStates.Gone;
-                pagerRefresh.Visibility = ViewStates.Visible;
-                tabs.Visibility = ViewStates.Visible;
-                tabs.AddTab(tabs.NewTab().SetText("Playlists"));
-                tabs.AddTab(tabs.NewTab().SetText("Youtube playlists"));
+            //    pager.Adapter = oldAdapter;
+            //}
+            //else
+            //{
+            //    contentRefresh.Visibility = ViewStates.Gone;
+            //    pagerRefresh.Visibility = ViewStates.Visible;
+            //    tabs.Visibility = ViewStates.Visible;
+            //    tabs.AddTab(tabs.NewTab().SetText("Playlists"));
+            //    tabs.AddTab(tabs.NewTab().SetText("Youtube playlists"));
 
-                ViewPagerAdapter adapter = new ViewPagerAdapter(SupportFragmentManager);
-                adapter.AddFragment(Playlist.NewInstance(), "Playlists");
-                adapter.AddFragment(YtPlaylist.NewInstance(), "Youtube playlists");
+            //    ViewPagerAdapter adapter = new ViewPagerAdapter(SupportFragmentManager);
+            //    adapter.AddFragment(Playlist.NewInstance(), "Playlists");
+            //    adapter.AddFragment(YtPlaylist.NewInstance(), "Youtube playlists");
 
-                pager.Adapter = adapter;
-                pager.AddOnPageChangeListener(this);
-                pager.AddOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
-                tabs.SetupWithViewPager(pager);
-                tabs.TabReselected += OnTabReselected;
-            }
+            //    pager.Adapter = adapter;
+            //    pager.AddOnPageChangeListener(this);
+            //    pager.AddOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
+            //    tabs.SetupWithViewPager(pager);
+            //    tabs.TabReselected += OnTabReselected;
+            //}
 
-            pager.CurrentItem = selectedTab;
-            tabs.SetScrollPosition(selectedTab, 0f, true);
+            //pager.CurrentItem = selectedTab;
+            //tabs.SetScrollPosition(selectedTab, 0f, true);
 
-            CanSwitchDelay();
+            //CanSwitchDelay();
         }
 
         private void OnTabReselected(object sender, TabLayout.TabReselectedEventArgs e)
@@ -687,13 +690,13 @@ namespace MusicApp
                 else
                     FolderBrowse.instance.ListView.SmoothScrollToPosition(0);
             }
-            else if (Playlist.instance != null)
-            {
-                if (Playlist.instance.focused)
-                    Playlist.instance.ListView.SmoothScrollToPosition(0);
-                else
-                    YtPlaylist.instance.ListView.SmoothScrollToPosition(0);
-            }
+            //else if (Playlist.instance != null)
+            //{
+            //    if (Playlist.instance.focused)
+            //        Playlist.instance.ListView.SmoothScrollToPosition(0);
+            //    else
+            //        YtPlaylist.instance.ListView.SmoothScrollToPosition(0);
+            //}
         }
 
         async void CanSwitchDelay()
@@ -711,33 +714,33 @@ namespace MusicApp
 
         public void OnPageSelected(int position)
         {
-            if (Playlist.instance != null)
-            {
-                if (position == 0)
-                {
-                    if (Playlist.instance.isEmpty)
-                        Playlist.instance.AddEmptyView();
-                    if (YtPlaylist.instance.isEmpty)
-                        YtPlaylist.instance.RemoveEmptyView();
+            //if (Playlist.instance != null)
+            //{
+            //    if (position == 0)
+            //    {
+            //        if (Playlist.instance.isEmpty)
+            //            Playlist.instance.AddEmptyView();
+            //        if (YtPlaylist.instance.isEmpty)
+            //            YtPlaylist.instance.RemoveEmptyView();
 
-                    Playlist.instance.focused = true;
-                    YtPlaylist.instance.focused = false;
+            //        Playlist.instance.focused = true;
+            //        YtPlaylist.instance.focused = false;
 
-                    Playlist.instance.ListView.SmoothScrollToPosition(0);
-                }
-                if (position == 1)
-                {
-                    if (Playlist.instance.isEmpty)
-                        Playlist.instance.RemoveEmptyView();
-                    if (YtPlaylist.instance.isEmpty)
-                        YtPlaylist.instance.AddEmptyView();
+            //        Playlist.instance.ListView.SmoothScrollToPosition(0);
+            //    }
+            //    if (position == 1)
+            //    {
+            //        if (Playlist.instance.isEmpty)
+            //            Playlist.instance.RemoveEmptyView();
+            //        if (YtPlaylist.instance.isEmpty)
+            //            YtPlaylist.instance.AddEmptyView();
 
-                    Playlist.instance.focused = false;
-                    YtPlaylist.instance.focused = true;
+            //        Playlist.instance.focused = false;
+            //        YtPlaylist.instance.focused = true;
 
-                    YtPlaylist.instance.ListView.SmoothScrollToPosition(0);
-                }
-            }
+            //        YtPlaylist.instance.ListView.SmoothScrollToPosition(0);
+            //    }
+            //}
 
             if (Browse.instance != null)
             {

@@ -1,44 +1,44 @@
 ﻿using Android.Content;
 using Android.Database;
-using Android.Net;
 using Android.OS;
 using Android.Provider;
 using Android.Support.V4.App;
 using Android.Support.V7.App;
+using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
+using Google.Apis.YouTube.v3;
+using Google.Apis.YouTube.v3.Data;
+using MusicApp.Resources.values;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using static Android.Provider.MediaStore.Audio;
 
 namespace MusicApp.Resources.Portable_Class
 {
-    public class Playlist : ListFragment
+    public class Playlist : Fragment
     {
         public static Playlist instance;
-        public TwoLineAdapter adapter;
-        public View emptyView;
-        public bool isEmpty = false;
-        public bool focused = true;
+        public RecyclerView ListView;
 
+        //Local playlists
         private List<string> playList = new List<string>();
         private List<int> playListCount = new List<int>();
         private List<long> playlistId = new List<long>();
-        private string[] actions = new string[] { "Random play", "Rename", "Delete" };
 
+        //Yt Playlists
+        private List<Song> ytPlaylists = new List<Song>();
+        private List<Google.Apis.YouTube.v3.Data.Playlist> YtPlaylists = new List<Google.Apis.YouTube.v3.Data.Playlist>();
+
+        private PlaylistAdapter adapter;
+        private bool isEmpty = false;
+        private View emptyView;
 
         public override void OnActivityCreated(Bundle savedInstanceState)
         {
             base.OnActivityCreated(savedInstanceState);
+            MainActivity.instance.contentRefresh.Refresh += OnRefresh;
             emptyView = LayoutInflater.Inflate(Resource.Layout.NoPlaylist, null);
-            ListView.EmptyView = emptyView;
-            ListView.TextFilterEnabled = true;
-            ListView.ItemClick += ListView_ItemClick;
-            ListView.ItemLongClick += ListView_ItemLongClick;
-            ListView.Scroll += MainActivity.instance.Scroll;
-            MainActivity.instance.pagerRefresh.Refresh += OnRefresh;
-
-            if (ListView.Adapter == null)
-                MainActivity.instance.GetStoragePermission();
         }
 
         public void AddEmptyView()
@@ -57,35 +57,37 @@ namespace MusicApp.Resources.Portable_Class
 
         public override void OnDestroy()
         {
-            MainActivity.instance.pagerRefresh.Refresh -= OnRefresh;
+            MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
             if (isEmpty)
-            {
-                ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
-                rootView.RemoveView(emptyView);
-            }
+                RemoveEmptyView();
+
             base.OnDestroy();
             instance = null;
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            View view = base.OnCreateView(inflater, container, savedInstanceState);
+            View view = inflater.Inflate(Resource.Layout.RecyclerFragment, container, false);
             view.SetPadding(0, 0, 0, MainActivity.defaultPaddingBot);
+            ListView = view.FindViewById<RecyclerView>(Resource.Id.recycler);
+            ListView.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
+
+#pragma warning disable CS4014
+            PopulateView();
             return view;
         }
 
-        public static Fragment NewInstance()
+        public async Task PopulateView()
         {
-            instance = new Playlist { Arguments = new Bundle() };
-            return instance;
-        }
-
-        public void PopulateView()
-        {
+            //Local playlists
             playList.Clear();
             playlistId.Clear();
 
-            Uri uri = Playlists.ExternalContentUri;
+            playList.Add("Header");
+            playlistId.Add(-1);
+            playListCount.Add(-1);
+
+            Android.Net.Uri uri = Playlists.ExternalContentUri;
             CursorLoader loader = new CursorLoader(Android.App.Application.Context, uri, null, null, null, null);
             ICursor cursor = (ICursor)loader.LoadInBackground();
 
@@ -100,81 +102,174 @@ namespace MusicApp.Resources.Portable_Class
                     playList.Add(name);
                     playlistId.Add(id);
 
-                    Uri musicUri = Playlists.Members.GetContentUri("external", id);
+                    Android.Net.Uri musicUri = Playlists.Members.GetContentUri("external", id);
                     CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
                     ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
 
                     playListCount.Add(musicCursor.Count);
-
-
                 }
                 while (cursor.MoveToNext());
                 cursor.Close();
             }
-            adapter = new TwoLineAdapter(Android.App.Application.Context, Resource.Layout.TwoLineLayout, playList, playListCount);
-            ListAdapter = adapter;
 
-            if (adapter == null || adapter.Count == 0)
+            adapter = new PlaylistAdapter(playList, playListCount, new List<Song>());
+            ListView.SetAdapter(adapter);
+            adapter.ItemClick += ListView_ItemClick;
+            adapter.ItemLongCLick += ListView_ItemLongClick;
+            ListView.SetItemAnimator(new DefaultItemAnimator());
+            ListView.ScrollChange += MainActivity.instance.Scroll;
+
+            if (adapter.ItemCount == 1 && !isEmpty)
             {
-                if (isEmpty)
-                    return;
                 isEmpty = true;
-                Activity.AddContentView(emptyView, View.LayoutParameters);
+                AddEmptyView();
+            }
+
+            //Youtube playlists
+            if (YoutubeEngine.youtubeService == null)
+                MainActivity.instance.Login();
+
+            if (MainActivity.instance.TokenHasExpire())
+            {
+                YoutubeEngine.youtubeService = null;
+                MainActivity.instance.Login();
+            }
+
+            while (YoutubeEngine.youtubeService == null)
+                await Task.Delay(500);
+
+            YouTubeService youtube = YoutubeEngine.youtubeService;
+
+            PlaylistsResource.ListRequest request = youtube.Playlists.List("snippet,contentDetails");
+            request.Mine = true;
+            request.MaxResults = 25;
+            PlaylistListResponse response = await request.ExecuteAsync();
+
+            if (instance == null)
+                return;
+
+            ytPlaylists = new List<Song>
+            {
+                new Song("Header", null, null, null, -1, -1, null)
+            };
+
+            for (int i = 0; i < response.Items.Count; i++)
+            {
+                Google.Apis.YouTube.v3.Data.Playlist playlist = response.Items[i];
+                YtPlaylists.Add(playlist);
+                Song song = new Song(playlist.Snippet.Title, playlist.Snippet.ChannelTitle, playlist.Snippet.Thumbnails.Default__.Url, playlist.Id, -1, -1, playlist.Id, true);
+                ytPlaylists.Add(song);
+            }
+
+            adapter.SetYtPlaylists(ytPlaylists);
+            if (isEmpty && ytPlaylists.Count > 1)
+            {
+                isEmpty = false;
+                RemoveEmptyView();
             }
         }
 
-        private void OnRefresh(object sender, System.EventArgs e)
+        public static Fragment NewInstance()
         {
-            if (!focused)
-                return;
-            Refresh();
-            MainActivity.instance.pagerRefresh.Refreshing = false;
+            instance = new Playlist { Arguments = new Bundle() };
+            return instance;
         }
 
-        public void Refresh()
+        private async void OnRefresh(object sender, System.EventArgs e)
         {
-            PopulateView();
+            await Refresh();
+            MainActivity.instance.contentRefresh.Refreshing = false;
         }
 
-        private void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
+        public async Task Refresh()
         {
+            await PopulateView();
+        }
+
+        private void ListView_ItemClick(object sender, int Position)
+        {
+            bool local = Position <= playList.Count;
+            Song playlist = local ?
+                new Song(playList[Position], null, null, null, -1, playlistId[Position], null) :
+                ytPlaylists[Position - playList.Count];
+
             AppCompatActivity act = (AppCompatActivity)Activity;
             act.SupportActionBar.SetHomeButtonEnabled(true);
             act.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
-            act.SupportActionBar.Title = playList[e.Position];
-
+            act.SupportActionBar.Title = playlist.GetName();
             MainActivity.instance.HideTabs();
-            MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(playlistId[e.Position]), true);
+            instance = null;
+            MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
+            if (isEmpty)
+                RemoveEmptyView();
+
+            if (local)
+                MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.GetID()), true);
+            else
+                MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.youtubeID), true);
         }
 
-        private void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
+        private void ListView_ItemLongClick(object sender, int position)
         {
+            More(position);
+        }
+
+        public void More(int Position)
+        {
+            bool local = Position <= playList.Count;
+            Song playlist = local ?
+                new Song(playList[Position], null, playListCount[Position].ToString(), null, -1, playlistId[Position], null) :
+                ytPlaylists[Position - playList.Count];
+
+            //Local
             AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
             builder.SetTitle("Pick an action");
-            builder.SetItems(actions, (senderAlert, args) => 
-            {
-                switch (args.Which)
+            if (local)
+                builder.SetItems(new string[] { "Random play", "Rename", "Delete" }, (senderAlert, args) =>
                 {
-                    case 0:
-                        RandomPlay(playlistId[e.Position], Activity);
-                        break;
-                    case 1:
-                        Rename(e.Position, playlistId[e.Position]);
-                        break;
-                    case 2:
-                        RemovePlaylist(e.Position, playlistId[e.Position]);
-                        break;
-                    default:
-                        break;
-                }
-            });
+                    switch (args.Which)
+                    {
+                        case 0:
+                            RandomPlay(playlist.GetID(), Activity);
+                            break;
+                        case 1:
+                            Rename(Position, playlist);
+                            break;
+                        case 2:
+                            RemovePlaylist(Position, playlist.GetID());
+                            break;
+                        default:
+                            break;
+                    }
+                });
+            else
+                builder.SetItems(new string[] { "Random play", "Rename", "Delete", "Download" }, (senderAlert, args) =>
+                {
+                    switch (args.Which)
+                    {
+                        case 0:
+                            YoutubeEngine.RandomPlay(playlist.GetPath());
+                            break;
+                        case 1:
+                            RenameYoutubePlaylist(Position, playlist.GetPath());
+                            break;
+                        case 2:
+                            RemoveYoutubePlaylist(Position, playlist.GetPath());
+                            break;
+                        case 3:
+                            YoutubeEngine.DownloadPlaylist(playlist.GetPath());
+                            break;
+                        default:
+                            break;
+                    }
+                });
             builder.Show();
         }
 
         public static void RandomPlay(long playlistID, Context context)
         {
             List<string> tracksPath = new List<string>();
-            Uri musicUri = Playlists.Members.GetContentUri("external", playlistID);
+            Android.Net.Uri musicUri = Playlists.Members.GetContentUri("external", playlistID);
 
             CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
             ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
@@ -196,7 +291,7 @@ namespace MusicApp.Resources.Portable_Class
             context.StartService(intent);
         }
 
-        void Rename(int position, long playlistID)
+        void Rename(int position, Song playlist)
         {
             AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
             builder.SetTitle("Playlist name");
@@ -205,42 +300,75 @@ namespace MusicApp.Resources.Portable_Class
             builder.SetNegativeButton("Cancel", (senderAlert, args) => { });
             builder.SetPositiveButton("Rename", (senderAlert, args) =>
             {
-                RenamePlaylist(position, view.FindViewById<EditText>(Resource.Id.playlistName).Text, playlistID);
+                playlist.SetName(view.FindViewById<EditText>(Resource.Id.playlistName).Text);
+                RenamePlaylist(position, playlist);
             });
             builder.Show();
         }
 
-        void RenamePlaylist(int position, string name, long playlistID)
+        void RenamePlaylist(int position, Song playlist)
         {
             ContentResolver resolver = Activity.ContentResolver;
-            Uri uri = MediaStore.Audio.Playlists.ExternalContentUri;
+            Android.Net.Uri uri = Playlists.ExternalContentUri;
             ContentValues value = new ContentValues();
-            value.Put(MediaStore.Audio.Playlists.InterfaceConsts.Name, name);
-            resolver.Update(MediaStore.Audio.Playlists.ExternalContentUri, value, MediaStore.Audio.Playlists.InterfaceConsts.Id + "=?", new string[] { playlistID.ToString() });
-            playList[position] = name;
-            ListAdapter = new ArrayAdapter(Android.App.Application.Context, Resource.Layout.PlaylistList, playList);
-            if (ListAdapter.Count == 0)
-            {
-                isEmpty = true;
-                Activity.AddContentView(emptyView, View.LayoutParameters);
-            }
+            value.Put(Playlists.InterfaceConsts.Name, playlist.GetName());
+            resolver.Update(Playlists.ExternalContentUri, value, Playlists.InterfaceConsts.Id + "=?", new string[] { playlist.GetID().ToString() });
+            playList[position] = playlist.GetName();
+
+            adapter.UpdateElement(position, playlist);
         }
 
         void RemovePlaylist(int position, long playlistID)
         {
             ContentResolver resolver = Activity.ContentResolver;
-            Uri uri = Playlists.ExternalContentUri;
+            Android.Net.Uri uri = Playlists.ExternalContentUri;
             resolver.Delete(Playlists.ExternalContentUri, Playlists.InterfaceConsts.Id + "=?", new string[] { playlistID.ToString() });
             playList.RemoveAt(position);
             playListCount.RemoveAt(position);
             playlistId.RemoveAt(position);
-            adapter = new TwoLineAdapter(Android.App.Application.Context, Resource.Layout.TwoLineLayout, playList, playListCount);
-            ListAdapter = adapter;
+            adapter.Remove(position);
+        }
 
-            if (adapter == null || adapter.Count == 0)
+        public void RenameYoutubePlaylist(int position, string playlistID)
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
+            builder.SetTitle("Playlist name");
+            View view = LayoutInflater.Inflate(Resource.Layout.CreatePlaylistDialog, null);
+            builder.SetView(view);
+            builder.SetNegativeButton("Cancel", (senderAlert, args) => { });
+            builder.SetPositiveButton("Rename", (senderAlert, args) =>
             {
-                if (isEmpty)
-                    return;
+                RenameYT(position, view.FindViewById<EditText>(Resource.Id.playlistName).Text, playlistID);
+            });
+            builder.Show();
+        }
+
+        void RenameYT(int position, string name, string playlistID)
+        {
+            Google.Apis.YouTube.v3.Data.Playlist playlist = new Google.Apis.YouTube.v3.Data.Playlist
+            {
+                Snippet = YtPlaylists[position].Snippet
+            };
+            playlist.Snippet.Title = name;
+            playlist.Id = playlistID;
+
+            YtPlaylists[position].Snippet.Title = name;
+            YoutubeEngine.youtubeService.Playlists.Update(playlist, "snippet").Execute();
+
+            ytPlaylists[position].SetName(name);
+            adapter.UpdateElement(position, ytPlaylists[position]);
+        }
+
+        void RemoveYoutubePlaylist(int position, string playlistID)
+        {
+            PlaylistsResource.DeleteRequest deleteRequest = YoutubeEngine.youtubeService.Playlists.Delete(playlistID);
+            deleteRequest.Execute();
+
+            ytPlaylists.RemoveAt(position);
+            YtPlaylists.RemoveAt(position);
+            adapter.Remove(position);
+            if (adapter.ItemCount == 0)
+            {
                 isEmpty = true;
                 Activity.AddContentView(emptyView, View.LayoutParameters);
             }

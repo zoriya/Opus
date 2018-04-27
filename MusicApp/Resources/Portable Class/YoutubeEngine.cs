@@ -712,6 +712,55 @@ namespace MusicApp.Resources.Portable_Class
             var insertRequest = youtubeService.PlaylistItems.Insert(playlistItem, "snippet");
             insertRequest.Execute();
         }
+
+        public static async void RandomPlay(string playlistID)
+        {
+            List<Song> tracks = new List<Song>();
+            string nextPageToken = "";
+            while (nextPageToken != null)
+            {
+                var ytPlaylistRequest = youtubeService.PlaylistItems.List("snippet, contentDetails");
+                ytPlaylistRequest.PlaylistId = playlistID;
+                ytPlaylistRequest.MaxResults = 50;
+                ytPlaylistRequest.PageToken = nextPageToken;
+
+                var ytPlaylist = await ytPlaylistRequest.ExecuteAsync();
+
+                foreach (var item in ytPlaylist.Items)
+                {
+                    Song song = new Song(item.Snippet.Title, "", item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
+                    tracks.Add(song);
+                }
+
+                nextPageToken = ytPlaylist.NextPageToken;
+            }
+            PlayFiles(tracks.ToArray());
+        }
+
+        public static async void DownloadPlaylist(string playlistID)
+        {
+            List<string> names = new List<string>();
+            List<string> videoIDs = new List<string>();
+            string nextPageToken = "";
+            while (nextPageToken != null)
+            {
+                var ytPlaylistRequest = YoutubeEngine.youtubeService.PlaylistItems.List("snippet, contentDetails");
+                ytPlaylistRequest.PlaylistId = playlistID;
+                ytPlaylistRequest.MaxResults = 50;
+                ytPlaylistRequest.PageToken = nextPageToken;
+
+                var ytPlaylist = await ytPlaylistRequest.ExecuteAsync();
+
+                foreach (var item in ytPlaylist.Items)
+                {
+                    names.Add(item.Snippet.Title);
+                    videoIDs.Add(item.ContentDetails.VideoId);
+                }
+
+                nextPageToken = ytPlaylist.NextPageToken;
+            }
+            DownloadFiles(names.ToArray(), videoIDs.ToArray());
+        }
     }
 }
  

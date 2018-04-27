@@ -81,7 +81,6 @@ namespace MusicApp.Resources.Portable_Class
             Queue.instance?.More(songList[position]);
             Browse.instance?.More(songList[position]);
             YoutubeEngine.instance?.More(songList[position]);
-            YtPlaylist.instance?.More(position);
             PlaylistTracks.instance?.More(songList[position], position);
             FolderTracks.instance?.More(songList[position]);
         }

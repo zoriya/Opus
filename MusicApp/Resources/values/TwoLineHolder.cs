@@ -1,18 +1,27 @@
-﻿using Android.Views;
+﻿using Android.Support.V7.Widget;
+using Android.Views;
 using Android.Widget;
+using System;
 
 namespace MusicApp.Resources.values
 {
-    [System.Serializable]
-    public class TwoLineHolder
+    public class TwoLineHolder : RecyclerView.ViewHolder
     {
         public TextView Line1;
         public TextView Line2;
+        public ImageView more;
 
-        public TwoLineHolder(View v)
+        public TwoLineHolder(View itemView, Action<int> listener, Action<int> longListener) : base(itemView)
         {
-            Line1 = v.FindViewById<TextView>(Resource.Id.line1);
-            Line2 = v.FindViewById<TextView>(Resource.Id.line2);
+            Line1 = itemView.FindViewById<TextView>(Resource.Id.line1);
+            Line2 = itemView.FindViewById<TextView>(Resource.Id.line2);
+            more = itemView.FindViewById<ImageView>(Resource.Id.moreButton);
+
+            if(listener != null)
+            {
+                itemView.Click += (sender, e) => listener(AdapterPosition);
+                itemView.LongClick += (sender, e) => longListener(AdapterPosition);
+            }
         }
     }
 }

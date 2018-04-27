@@ -12,8 +12,11 @@ namespace MusicApp.Resources.Portable_Class
         public HeaderHolder(View itemView, Action<int> listener, Action<int> longListener) : base(itemView)
         {
             headerText = itemView.FindViewById<TextView>(Android.Resource.Id.Title);
-            itemView.Click += (sender, e) => listener(AdapterPosition);
-            itemView.LongClick += (sender, e) => longListener(AdapterPosition);
+            if(listener != null)
+            {
+                itemView.Click += (sender, e) => listener(AdapterPosition);
+                itemView.LongClick += (sender, e) => longListener(AdapterPosition);
+            }
         }
     }
 

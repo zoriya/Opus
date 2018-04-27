@@ -279,7 +279,9 @@
     <Compile Include="Resources\Portable Class\MusicPlayer.cs" />
     <Compile Include="Resources\Portable Class\OauthCallback.cs" />
     <Compile Include="Resources\Portable Class\Player.cs" />
+    <None Include="Resources\Old\OldPlaylist.cs" />
     <Compile Include="Resources\Portable Class\Playlist.cs" />
+    <Compile Include="Resources\Portable Class\PlaylistAdapter.cs" />
     <Compile Include="Resources\Portable Class\PlaylistTracks.cs" />
     <Compile Include="Resources\Portable Class\Preferences.cs" />
     <Compile Include="Resources\Portable Class\Queue.cs" />
@@ -293,7 +295,7 @@
     <Compile Include="Resources\Portable Class\YoutubeEngine.cs" />
     <Compile Include="Resources\Portable Class\YtAdapter.cs" />
     <Compile Include="Resources\Portable Class\YtFile.cs" />
-    <Compile Include="Resources\Portable Class\YtPlaylists.cs" />
+    <None Include="Resources\Old\YtPlaylists.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\values\ChannelHolder.cs" />

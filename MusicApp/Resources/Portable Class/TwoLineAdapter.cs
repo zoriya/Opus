@@ -1,15 +1,9 @@
-﻿using System.Collections.Generic;
-
-using Android.Content;
+﻿using Android.Content;
+using Android.Graphics;
 using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
-using Android.Graphics;
-using Android.Util;
-using System.IO;
-using Android.OS;
-using Android.App;
-using Square.Picasso;
+using System.Collections.Generic;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -39,13 +33,14 @@ namespace MusicApp.Resources.Portable_Class
             {
                 convertView = inflater.Inflate(resource, parent, false);
             }
-            TwoLineHolder holder = new TwoLineHolder(convertView)
+            TwoLineHolder holder = new TwoLineHolder(convertView, null, null)
             {
                 Line1 = { Text = line1[position] },
                 Line2 = { Text = line2[position].ToString() + ((line2[position] > 1) ? " elements" : " element") },
             };
-            if(MainActivity.Theme == 1)
+            if (MainActivity.Theme == 1)
             {
+                holder.more.SetColorFilter(Color.White);
                 holder.Line1.SetTextColor(Color.White);
                 holder.Line2.SetTextColor(Color.White);
                 holder.Line2.Alpha = 0.7f;
