@@ -181,7 +181,7 @@ namespace MusicApp
                 auth = new OAuth2Authenticator(
                    clientID,
                    string.Empty,
-                   YouTubeService.Scope.Youtube,
+                   YouTubeService.Scope.Youtube + " profile",
                    new Uri("https://accounts.google.com/o/oauth2/v2/auth"),
                    new Uri("com.musicapp.android:/oauth2redirect"),
                    new Uri("https://www.googleapis.com/oauth2/v4/token"),
@@ -430,26 +430,6 @@ namespace MusicApp
                 PlaylistTracks.instance.result = null;
             if (FolderTracks.instance != null)
                 FolderTracks.instance.result = null;
-        }
-
-        void SaveInstance()
-        {
-            if(Home.instance != null)
-            {
-                parcelableSender = "Home";
-                parcelable = Home.instance.ListView.GetLayoutManager().OnSaveInstanceState();
-            }
-            else if(Browse.instance != null)
-            {
-                HideTabs();
-                parcelableSender = "Browse";
-                parcelable = Browse.instance.GetListView().OnSaveInstanceState();
-            }
-            else if(PlaylistTracks.instance != null)
-            {
-                parcelableSender = "PlaylistTracks";
-                parcelable = PlaylistTracks.instance.ListView.OnSaveInstanceState();
-            }
         }
 
         public void HideSearch()
@@ -929,12 +909,20 @@ namespace MusicApp
                 LocalPlay(sender, new EventArgs());
         }
 
-        public void Transition(int Resource, Android.Support.V4.App.Fragment fragment, bool backStack)
+        public void Transition(int Layout, Android.Support.V4.App.Fragment fragment, bool backStack, bool manageTabs = false)
         {
+            if (manageTabs)
+            {
+                if (Layout == Resource.Id.contentView)
+                    HideTabs();
+                else if (Layout == Resource.Id.pager)
+                    SetBrowseTabs();
+            }
+
             if (backStack)
-                SupportFragmentManager.BeginTransaction().Replace(Resource, fragment).AddToBackStack(null).Commit();
+                SupportFragmentManager.BeginTransaction().Replace(Layout, fragment).AddToBackStack(null).Commit();
             else
-                SupportFragmentManager.BeginTransaction().Replace(Resource, fragment).Commit();
+                SupportFragmentManager.BeginTransaction().Replace(Layout, fragment).Commit();
         }
 
         void SetSmallPlayerProgressBar()
@@ -1209,21 +1197,82 @@ namespace MusicApp
                 searchView.ClearFocus();
                 searchView.Iconified = true;
                 searchView.SetQuery("", false);
+                ResumeInstance();
             }
+        }
 
+        void SaveInstance()
+        {
+            if (Home.instance != null)
+            {
+                parcelableSender = "Home";
+                parcelable = Home.instance.ListView.GetLayoutManager().OnSaveInstanceState();
+            }
+            else if (Queue.instance != null)
+            {
+                parcelableSender = "Queue";
+                parcelable = Queue.instance.ListView.GetLayoutManager().OnSaveInstanceState();
+            }
+            else if (Browse.instance != null && Browse.instance.focused)
+            {
+                parcelableSender = "Browse";
+                Console.WriteLine("&Browse instance: " + Browse.instance);
+                parcelable = Browse.instance.ListView.OnSaveInstanceState();
+                HideTabs();
+                //Unhandled Exception:
+
+                //Java.Lang.IllegalStateException: Content view not yet created
+            }
+            else if (FolderBrowse.instance != null && FolderBrowse.instance.focused)
+            {
+                parcelableSender = "FolderBrowse";
+                parcelable = FolderBrowse.instance.ListView.OnSaveInstanceState();
+                HideTabs();
+            }
+            else if (Playlist.instance != null)
+            {
+                parcelableSender = "Playlist";
+                parcelable = Playlist.instance.ListView.GetLayoutManager().OnSaveInstanceState();
+            }
+            //Artist instance
+            else if (PlaylistTracks.instance != null)
+            {
+                parcelableSender = "PlaylistTracks";
+                parcelable = PlaylistTracks.instance.ListView.OnSaveInstanceState();
+            }
+            else if(FolderTracks.instance != null)
+            {
+                parcelableSender = "FolderTracks";
+                parcelable = FolderTracks.instance.ListView.OnSaveInstanceState();
+            }
+        }
+
+        void ResumeInstance()
+        {
             switch (parcelableSender)
             {
                 case "Home":
                     Navigate(Resource.Id.musicLayout);
                     break;
                 case "Queue":
-                    //SHOULD MAKE SOMETHING HERE
+                    Transition(Resource.Id.contentView, Queue.instance, false, true);
                     break;
                 case "Browse":
                     Navigate(Resource.Id.browseLayout);
                     break;
+                case "FolderBrowse":
+                    Navigate(Resource.Id.browseLayout);
+                    FindViewById<ViewPager>(Resource.Id.pager).CurrentItem = 1;
+                    FindViewById<TabLayout>(Resource.Id.tabs).SetScrollPosition(1, 0f, true);
+                    break;
+                case "Playlist":
+                    Navigate(Resource.Id.playlistLayout);
+                    break;
                 case "PlaylistTracks":
-                    Transition(Resource.Id.contentView, PlaylistTracks.instance, true);
+                    Transition(Resource.Id.contentView, PlaylistTracks.instance, false, true);
+                    break;
+                case "FolderTracks":
+                    Transition(Resource.Id.contentView, FolderTracks.instance, false, true);
                     break;
                 default:
                     break;

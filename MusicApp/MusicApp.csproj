@@ -261,6 +261,7 @@
     <Compile Include="MainActivity.cs" />
     <Compile Include="Resources\Fragments\DownloadFragment.cs" />
     <Compile Include="Resources\Fragments\EmptyFragment.cs" />
+    <Compile Include="Resources\Portable Class\AccountPreference.cs" />
     <Compile Include="Resources\Portable Class\Adapter.cs" />
     <Compile Include="Resources\Portable Class\Browse.cs" />
     <Compile Include="Resources\Portable Class\ChannelAdapter.cs" />
@@ -591,6 +592,9 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\ic_account_circle_black_24dp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\LogOutButton.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

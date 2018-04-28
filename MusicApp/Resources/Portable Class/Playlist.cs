@@ -373,5 +373,16 @@ namespace MusicApp.Resources.Portable_Class
                 Activity.AddContentView(emptyView, View.LayoutParameters);
             }
         }
+
+        public override void OnResume()
+        {
+            base.OnResume();
+            if (MainActivity.parcelable != null)
+            {
+                ListView.GetLayoutManager().OnRestoreInstanceState(MainActivity.parcelable);
+                MainActivity.parcelable = null;
+                MainActivity.parcelableSender = null;
+            }
+        }
     }
 }

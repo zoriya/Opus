@@ -57,7 +57,6 @@ namespace MusicApp.Resources.Portable_Class
                         ISharedPreferencesEditor editor = prefManager.Edit();
                         editor.PutString("downloadPath", DownloadFragment.instance.path);
                         editor.Apply();
-                        //FragmentManager.BeginTransaction().Replace(Android.Resource.Id.ListContainer, new PreferencesFragment()).AddToBackStack(null).Commit();
                         DownloadFragment.instance = null;
                         Recreate();
                     }
@@ -68,7 +67,6 @@ namespace MusicApp.Resources.Portable_Class
                         editor.PutStringSet("selectedTopics", TopicSelector.instance.selectedTopics);
                         editor.PutStringSet("selectedTopicsID", TopicSelector.instance.selectedTopicsID);
                         editor.Apply();
-                        //FragmentManager.BeginTransaction().Replace(Android.Resource.Id.ListContainer, new PreferencesFragment()).AddToBackStack(null).Commit();
                         TopicSelector.instance = null;
                         Recreate();
                     }
@@ -124,6 +122,20 @@ namespace MusicApp.Resources.Portable_Class
             Preference themePreference = PreferenceScreen.FindPreference("theme");
             themePreference.PreferenceClick += ChangeTheme;
             themePreference.Summary = prefManager.GetInt("theme", 0) == 0 ? "White Theme" : "Dark Theme";
+
+            //Account
+            Preference accountPreference = PreferenceScreen.FindPreference("account");
+            Button log = Activity.FindViewById<Button>(accountPreference.WidgetLayoutResource);
+
+            if (MainActivity.refreshToken == null || MainActivity.refreshToken == "")
+            {
+
+            }
+            else
+            {
+                accountPreference.Title = "Logged in as:";
+                //accountPreference.Summary = username;
+            }
         }
 
         private async void AskForPermission()

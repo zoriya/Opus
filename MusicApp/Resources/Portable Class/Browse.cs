@@ -56,6 +56,7 @@ namespace MusicApp.Resources.Portable_Class
                 rootView.RemoveView(emptyView);
             }
             base.OnDestroy();
+            System.Console.WriteLine("&Browse destroyed");
             instance = null;
             act = null;
             inflater = null;
@@ -73,11 +74,6 @@ namespace MusicApp.Resources.Portable_Class
         {
             instance = new Browse { Arguments = new Bundle() };
             return instance;
-        }
-
-        public ListView GetListView()
-        {
-            return ListView;
         }
 
         public void PopulateList()

@@ -38,6 +38,19 @@ namespace MusicApp.Resources.Portable_Class
                 Line1 = { Text = line1[position] },
                 Line2 = { Text = line2[position].ToString() + ((line2[position] > 1) ? " elements" : " element") },
             };
+
+            if (!holder.more.HasOnClickListeners)
+            {
+                holder.more.Tag = position;
+                holder.more.Click += (sender, e) => 
+                {
+                    int pos = (int)((ImageView)sender).Tag;
+
+                    if(FolderBrowse.instance != null)
+                        FolderBrowse.instance.More(pos);
+                };
+            }
+
             if (MainActivity.Theme == 1)
             {
                 holder.more.SetColorFilter(Color.White);

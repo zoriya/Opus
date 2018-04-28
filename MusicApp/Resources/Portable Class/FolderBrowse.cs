@@ -379,5 +379,16 @@ namespace MusicApp.Resources.Portable_Class
             MainActivity.instance.HideSearch();
             MainActivity.instance.SupportFragmentManager.BeginTransaction().AddToBackStack(null).Replace(Resource.Id.contentView, Player.NewInstance()).Commit();
         }
+
+        public override void OnResume()
+        {
+            base.OnResume();
+            if (MainActivity.parcelable != null)
+            {
+                ListView.OnRestoreInstanceState(MainActivity.parcelable);
+                MainActivity.parcelable = null;
+                MainActivity.parcelableSender = null;
+            }
+        }
     }
 }
