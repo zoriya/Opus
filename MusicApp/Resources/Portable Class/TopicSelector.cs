@@ -26,17 +26,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             base.OnActivityCreated(savedInstanceState);
 
-            if (YoutubeEngine.youtubeService == null)
-                MainActivity.instance.Login();
-
-            if (MainActivity.instance.TokenHasExpire())
-            {
-                YoutubeEngine.youtubeService = null;
-                MainActivity.instance.Login();
-
-                while (YoutubeEngine.youtubeService == null)
-                    await Task.Delay(500);
-            }
+            await MainActivity.instance.WaitForYoutube();
 
             if (instance == null)
                 return;

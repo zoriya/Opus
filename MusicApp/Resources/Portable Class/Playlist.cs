@@ -126,14 +126,7 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             //Youtube playlists
-            if (YoutubeEngine.youtubeService == null)
-                MainActivity.instance.Login();
-
-            if (MainActivity.instance.TokenHasExpire())
-            {
-                YoutubeEngine.youtubeService = null;
-                MainActivity.instance.Login();
-            }
+            await MainActivity.instance.WaitForYoutube();
 
             while (YoutubeEngine.youtubeService == null)
                 await Task.Delay(500);

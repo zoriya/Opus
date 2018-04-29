@@ -15,6 +15,7 @@ using Com.Google.Android.Exoplayer2.Extractor;
 using Com.Google.Android.Exoplayer2.Source;
 using Com.Google.Android.Exoplayer2.Trackselection;
 using Com.Google.Android.Exoplayer2.Upstream;
+using Java.Lang;
 using MusicApp.Resources.values;
 using Square.Picasso;
 using System;
@@ -550,7 +551,7 @@ namespace MusicApp.Resources.Portable_Class
                         {
                             icon = Picasso.With(Application.Context).Load(iconURI).Error(Resource.Drawable.MusicIcon).Placeholder(Resource.Drawable.MusicIcon).NetworkPolicy(NetworkPolicy.Offline).Resize(400, 400).CenterCrop().Get();
                         }
-                        catch (Exception)
+                        catch (System.Exception) //Can be Java.Lang.Exception
                         {
                             icon = Picasso.With(Application.Context).Load(Resource.Drawable.MusicIcon).Get();
                         }
@@ -572,7 +573,7 @@ namespace MusicApp.Resources.Portable_Class
                     {
                         icon = Picasso.With(Application.Context).Load(imageURI).Error(Resource.Drawable.MusicIcon).Placeholder(Resource.Drawable.MusicIcon).NetworkPolicy(NetworkPolicy.Offline).Resize(400, 400).CenterCrop().Get();
                     }
-                    catch (Exception)
+                    catch (System.Exception) //Can be Java.Lang.Exception
                     {
                         icon = Picasso.With(Application.Context).Load(Resource.Drawable.MusicIcon).Get();
                     }
@@ -789,11 +790,6 @@ namespace MusicApp.Resources.Portable_Class
 
         }
 
-        public void OnTimelineChanged(Timeline p0, Java.Lang.Object p1)
-        {
-
-        }
-
         public void OnTracksChanged(TrackGroupArray p0, TrackSelectionArray p1)
         {
 
@@ -812,6 +808,11 @@ namespace MusicApp.Resources.Portable_Class
         public void OnShuffleModeEnabledChanged(bool p0)
         {
             
+        }
+
+        public void OnTimelineChanged(Timeline p0, Java.Lang.Object p1, int p2)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -72,14 +72,7 @@ namespace MusicApp.Resources.Portable_Class
             if (YoutubeEngine.youtubeService == null)
                 MainActivity.instance.Login();
 
-            if (MainActivity.instance.TokenHasExpire())
-            {
-                YoutubeEngine.youtubeService = null;
-                MainActivity.instance.Login();
-
-                while (YoutubeEngine.youtubeService == null)
-                    await Task.Delay(500);
-            }
+            await MainActivity.instance.WaitForYoutube();
 
             List<HomeItem> Items = new List<HomeItem>();
 

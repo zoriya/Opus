@@ -56,7 +56,6 @@ namespace MusicApp.Resources.Portable_Class
                 rootView.RemoveView(emptyView);
             }
             base.OnDestroy();
-            System.Console.WriteLine("&Browse destroyed");
             instance = null;
             act = null;
             inflater = null;

@@ -5,6 +5,7 @@ using Android.OS;
 using Android.Preferences;
 using Android.Views;
 using Android.Widget;
+using Square.Picasso;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -125,16 +126,15 @@ namespace MusicApp.Resources.Portable_Class
 
             //Account
             Preference accountPreference = PreferenceScreen.FindPreference("account");
-            Button log = Activity.FindViewById<Button>(accountPreference.WidgetLayoutResource);
 
-            if (MainActivity.refreshToken == null || MainActivity.refreshToken == "")
+            if (MainActivity.account == null)
             {
 
             }
             else
             {
                 accountPreference.Title = "Logged in as:";
-                //accountPreference.Summary = username;
+                accountPreference.Summary = MainActivity.account.DisplayName;
             }
         }
 
@@ -155,6 +155,14 @@ namespace MusicApp.Resources.Portable_Class
             view = base.OnCreateView(inflater, container, savedInstanceState);
             view.SetPadding(0, MainActivity.instance.SupportActionBar.Height, 0, 0);
             return view;
+        }
+
+        public void SignedIn()
+        {
+            AccountPreference accountPreference = (AccountPreference)PreferenceScreen.FindPreference("account");
+            accountPreference.Title = "Logged in as:";
+            accountPreference.Summary = MainActivity.account.DisplayName;
+            accountPreference.OnSignedIn();
         }
 
         #region Topic Preference

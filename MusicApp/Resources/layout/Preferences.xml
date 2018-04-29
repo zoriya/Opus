@@ -32,6 +32,7 @@
     <AccountPreference
       android:key="account"
       android:icon="@drawable/ic_account_circle_black_24dp"
+      android:id="@+id/accountPreference"
       android:widgetLayout="@layout/LogOutButton"
       android:title="Not logged in" />
   </PreferenceCategory>

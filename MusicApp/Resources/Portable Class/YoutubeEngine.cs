@@ -119,14 +119,7 @@ namespace MusicApp.Resources.Portable_Class
                 AddContentView(empty, ListView.LayoutParameters);
             }
 
-            if (MainActivity.instance.TokenHasExpire())
-            {
-                youtubeService = null;
-                MainActivity.instance.Login();
-
-                while (youtubeService == null)
-                    await Task.Delay(500);
-            }
+            await MainActivity.instance.WaitForYoutube();
 
             SearchResource.ListRequest searchResult = youtubeService.Search.List("snippet");
             searchResult.Fields = "items(id/videoId,snippet/title,snippet/thumbnails/high/url,snippet/channelTitle)";
@@ -612,14 +605,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public static async void GetPlaylists(string videoID, Context context)
         {
-            if (MainActivity.instance.TokenHasExpire())
-            {
-                youtubeService = null;
-                MainActivity.instance.Login();
-
-                while (youtubeService == null)
-                    await Task.Delay(500);
-            }
+            await MainActivity.instance.WaitForYoutube();
 
             List<string> playList = new List<string>();
             List<string> playListId = new List<string>();
@@ -744,7 +730,7 @@ namespace MusicApp.Resources.Portable_Class
             string nextPageToken = "";
             while (nextPageToken != null)
             {
-                var ytPlaylistRequest = YoutubeEngine.youtubeService.PlaylistItems.List("snippet, contentDetails");
+                var ytPlaylistRequest = youtubeService.PlaylistItems.List("snippet, contentDetails");
                 ytPlaylistRequest.PlaylistId = playlistID;
                 ytPlaylistRequest.MaxResults = 50;
                 ytPlaylistRequest.PageToken = nextPageToken;
