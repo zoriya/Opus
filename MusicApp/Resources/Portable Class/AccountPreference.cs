@@ -1,18 +1,24 @@
 ﻿using Android.Content;
 using Android.Gms.Auth.Api;
+using Android.Gms.Auth.Api.SignIn;
 using Android.Gms.Common.Apis;
 using Android.Preferences;
 using Android.Runtime;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
+using Google.Apis.YouTube.v3;
 using MusicApp;
+using MusicApp.Resources.Portable_Class;
 using Square.Picasso;
 using System;
+using System.Threading.Tasks;
 
 public class AccountPreference : Preference, IResultCallback
 {
     private View view;
+    private EventHandler logIn;
+    private EventHandler logOut;
 
     public AccountPreference(Context context) : base(context) { }
 
@@ -30,29 +36,33 @@ public class AccountPreference : Preference, IResultCallback
         this.view = view;
         Button log = (Button)view.FindViewById(Resource.Id.logButton);
 
+        logIn = (s, e) => { LogIn(); };
+        logOut = (s, e) => { LogOut(); };
+
         if (MainActivity.account == null)
         {
             log.SetTextColor(Android.Graphics.Color.DarkBlue);
             log.Text = "Log In";
-            log.Click += (s, e) => { LogIn(); };
+            log.Click += logIn;
         }
         else
         {
             log.Text = "Log Out";
             Picasso.With(Android.App.Application.Context).Load(MainActivity.account.PhotoUrl).Into(view.FindViewById<ImageView>(Android.Resource.Id.Icon));
             log.SetTextColor(Android.Graphics.Color.Red);
-            log.Click += (s, e) => { LogOut(); };
+            log.Click += logOut;
         }
     }
 
-    public void OnSignedIn()
+    public /*async*/ void OnSignedIn()
     {
         Button log = (Button)view.FindViewById(Resource.Id.logButton);
         log.Text = "Log Out";
         Picasso.With(Android.App.Application.Context).Load(MainActivity.account.PhotoUrl).Into(view.FindViewById<ImageView>(Android.Resource.Id.Icon));
         log.SetTextColor(Android.Graphics.Color.Red);
-        log.Click -= (s, e) => { LogIn(); };
-        log.Click += (s, e) => { LogOut(); };
+        log.Click -= logIn;
+        //await Task.Delay(1000);
+        //log.Click += logOut;
     }
 
     public void OnResult(Java.Lang.Object result)
@@ -60,19 +70,38 @@ public class AccountPreference : Preference, IResultCallback
         Button log = (Button)view.FindViewById(Resource.Id.logButton);
         log.SetTextColor(Android.Graphics.Color.DarkBlue);
         log.Text = "Log In";
+        Summary = "";
         Picasso.With(Android.App.Application.Context).Load(Resource.Drawable.ic_account_circle_black_24dp).Into(view.FindViewById<ImageView>(Android.Resource.Id.Icon));
-        log.Click -= (s, e) => { LogOut(); };
-        log.Click += (s, e) => { LogIn(); };
+        log.Click -= logOut;
+        //log.Click += (s, e) => { LogIn(); };
     }
 
     void LogIn()
     {
-        MainActivity.instance.Login(true);
+        if (MainActivity.instance.googleClient == null)
+        {
+            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DefaultSignIn)
+                    .RequestIdToken("112086459272-59scolco82ho7d6hcieq8kmdjai2i2qd.apps.googleusercontent.com")
+                    .RequestServerAuthCode("112086459272-59scolco82ho7d6hcieq8kmdjai2i2qd.apps.googleusercontent.com")
+                    .RequestEmail()
+                    .RequestScopes(new Scope(YouTubeService.Scope.Youtube))
+                    .Build();
+
+            MainActivity.instance.googleClient = new GoogleApiClient.Builder(Preferences.instance)
+                    //.EnableAutoManage(MainActivity.instance, MainActivity.instance)
+                    .AddApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                    .Build();
+
+            MainActivity.instance.googleClient.Connect();
+        }
+
+        Preferences.instance.StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(MainActivity.instance.googleClient), 5981);
     }
 
     void LogOut()
     {
         MainActivity.account = null;
+        YoutubeEngine.youtubeService = null;
         Auth.GoogleSignInApi.SignOut(MainActivity.instance.googleClient).SetResultCallback(this);
     }
 }

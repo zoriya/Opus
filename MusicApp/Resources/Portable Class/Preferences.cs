@@ -1,11 +1,13 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.Database;
+using Android.Gms.Auth.Api;
+using Android.Gms.Auth.Api.SignIn;
 using Android.OS;
 using Android.Preferences;
+using Android.Runtime;
 using Android.Views;
 using Android.Widget;
-using Square.Picasso;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -74,6 +76,20 @@ namespace MusicApp.Resources.Portable_Class
                 }
             };
         }
+
+        protected override void OnActivityResult(int requestCode, [GeneratedEnum] Result resultCode, Intent data)
+        {
+            base.OnActivityResult(requestCode, resultCode, data);
+            if (requestCode == 5981)
+            {
+                GoogleSignInResult result = Auth.GoogleSignInApi.GetSignInResultFromIntent(data);
+                if (result.IsSuccess)
+                {
+                    MainActivity.account = result.SignInAccount;
+                    PreferencesFragment.instance?.SignedIn();
+                }
+            }
+        }
     }
 
     public class PreferencesFragment : PreferenceFragment
@@ -127,11 +143,7 @@ namespace MusicApp.Resources.Portable_Class
             //Account
             Preference accountPreference = PreferenceScreen.FindPreference("account");
 
-            if (MainActivity.account == null)
-            {
-
-            }
-            else
+            if (MainActivity.account != null)
             {
                 accountPreference.Title = "Logged in as:";
                 accountPreference.Summary = MainActivity.account.DisplayName;
@@ -159,6 +171,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public void SignedIn()
         {
+            System.Console.WriteLine("&Preference sign in callback");
             AccountPreference accountPreference = (AccountPreference)PreferenceScreen.FindPreference("account");
             accountPreference.Title = "Logged in as:";
             accountPreference.Summary = MainActivity.account.DisplayName;

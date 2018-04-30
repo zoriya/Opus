@@ -22,17 +22,14 @@ using Android.Widget;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
-using Java.IO;
 using MusicApp.Resources.Fragments;
 using MusicApp.Resources.Portable_Class;
 using MusicApp.Resources.values;
-using Newtonsoft.Json;
 using Square.OkHttp;
 using Square.Picasso;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Json;
 using System.Linq;
 using System.Threading.Tasks;
 using TagLib;
@@ -41,7 +38,7 @@ using SearchView = Android.Support.V7.Widget.SearchView;
 namespace MusicApp
 {
     [Activity(Label = "MusicApp", MainLauncher = true, Icon = "@drawable/launcher_icon", Theme = "@style/Theme", ScreenOrientation = ScreenOrientation.Portrait)]
-    public class MainActivity : AppCompatActivity, ViewPager.IOnPageChangeListener, SwipeDismissBehavior.IOnDismissListener, GoogleApiClient.IOnConnectionFailedListener, Square.OkHttp.ICallback
+    public class MainActivity : AppCompatActivity, ViewPager.IOnPageChangeListener, SwipeDismissBehavior.IOnDismissListener, GoogleApiClient.IOnConnectionFailedListener, Square.OkHttp.ICallback, IResultCallback
     {
         public static MainActivity instance;
         public static int paddingBot = 0;
@@ -76,7 +73,7 @@ namespace MusicApp
         public static YouTubeService youtubeService;
         public static GoogleSignInAccount account;
         public GoogleApiClient googleClient;
-        public static string refreshToken;
+        private bool canAsk;
 
         public event EventHandler<PaddingChange> OnPaddingChanged;
 
@@ -161,7 +158,7 @@ namespace MusicApp
         }
 
 
-        public void Login(bool canAsk = true)
+        public void Login(bool canAsk = true, bool skipSilentLog = false)
         {
             if(account != null)
             {
@@ -169,7 +166,7 @@ namespace MusicApp
                 return;
             }
 
-            System.Console.WriteLine("&Loggin");
+            Console.WriteLine("&Loggin");
 
             if(googleClient == null)
             {
@@ -181,22 +178,36 @@ namespace MusicApp
                         .Build();
 
                 googleClient = new GoogleApiClient.Builder(this)
-                        .EnableAutoManage(this, this)
+                        //.EnableAutoManage(this, this)
                         .AddApi(Auth.GOOGLE_SIGN_IN_API, gso)
                         .Build();
+
+                googleClient.Connect();
             }
 
-            OptionalPendingResult silentLog = Auth.GoogleSignInApi.SilentSignIn(googleClient);
-            if (silentLog.IsDone)
+            if (!skipSilentLog)
             {
-                GoogleSignInResult result = (GoogleSignInResult)silentLog.Get();
-                if (result.IsSuccess)
+                OptionalPendingResult silentLog = Auth.GoogleSignInApi.SilentSignIn(googleClient);
+                if (silentLog.IsDone)
                 {
-                    account = result.SignInAccount;
-                    CreateYoutube();
+                    GoogleSignInResult result = (GoogleSignInResult)silentLog.Get();
+                    if (result.IsSuccess)
+                    {
+                        account = result.SignInAccount;
+                        CreateYoutube();
+                    }
                 }
+                else if (silentLog != null)
+                {
+                    this.canAsk = canAsk;
+                    silentLog.SetResultCallback(this);
+                }
+                else if (canAsk)
+                    StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);
+
+                return;
             }
-            else if (canAsk)
+            if(canAsk)
                 StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);
         }
 
@@ -206,13 +217,24 @@ namespace MusicApp
             if(requestCode == 1598)
             {
                 GoogleSignInResult result = Auth.GoogleSignInApi.GetSignInResultFromIntent(data);
-                System.Console.WriteLine("&Result: " + result.Status);
                 if (result.IsSuccess)
                 {
                     account = result.SignInAccount;
                     CreateYoutube();
-                    PreferencesFragment.instance?.SignedIn();
                 }
+            }
+        }
+
+        public void OnResult(Java.Lang.Object result) //Silent log result
+        {
+            account = ((GoogleSignInResult)result).SignInAccount;
+            if(account != null)
+            {
+                CreateYoutube();
+            }
+            else if(canAsk)
+            {
+                StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);
             }
         }
 
@@ -239,10 +261,10 @@ namespace MusicApp
             string jsonFile = response.Body().String();
             string access = jsonFile.Substring(jsonFile.IndexOf("\"access_token\": ", 0), jsonFile.IndexOf("\"token_type\": ", 0) - jsonFile.IndexOf("\"access_token\": ", 0));
             string AccessToken = access.Substring(17, access.Length - 21);
-            System.Console.WriteLine(AccessToken);
+            Console.WriteLine(AccessToken);
 
             GoogleCredential credential = GoogleCredential.FromAccessToken(AccessToken);
-            System.Console.WriteLine("&Credential: " + credential);
+            Console.WriteLine("&Credential: " + credential);
             YoutubeEngine.youtubeService = new YouTubeService(new BaseClientService.Initializer()
             {
                 HttpClientInitializer = credential,
@@ -252,25 +274,22 @@ namespace MusicApp
 
         public void OnFailure(Square.OkHttp.Request request, Java.IO.IOException iOException)
         {
-            System.Console.WriteLine("&Failure");
+            Console.WriteLine("&Failure");
         }
 
         public void OnConnectionFailed(ConnectionResult result)
         {
-            System.Console.WriteLine("&Connection Failed: " + result.ErrorMessage);
+            Console.WriteLine("&Connection Failed: " + result.ErrorMessage);
         }
 
         public async Task WaitForYoutube()
         {
             if(YoutubeEngine.youtubeService == null)
             {
-                System.Console.WriteLine("&Waiting for youtube");
                 Login(true);
 
                 while (YoutubeEngine.youtubeService == null)
                     await Task.Delay(10);
-
-                System.Console.WriteLine("&Youtube created");
             }
         }
 
