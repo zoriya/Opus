@@ -6,17 +6,17 @@
     android:id="@+id/search"
     android:icon="@drawable/search"
     android:title="Search On Youtube"
-    app:showAsAction="ifRoom|collapseActionView"
+    app:showAsAction="always|collapseActionView"
     app:actionViewClass="android.support.v7.widget.SearchView" />
   <item
     android:id="@+id/filter"
     android:icon="@drawable/ic_filter_list_white_24dp"
     android:title="Filter"
-    app:showAsAction="ifRoom|collapseActionView"
+    app:showAsAction="always|collapseActionView"
     app:actionViewClass="android.support.v7.widget.SearchView" />
   <item
     android:id="@+id/settings"
     android:icon="@drawable/settings"
-    app:showAsAction="ifRoom"
+    app:showAsAction="always"
     android:title="Settings" />
 </menu>

@@ -258,7 +258,12 @@ namespace MusicApp
         public void OnResponse(Square.OkHttp.Response response)
         {
             string jsonFile = response.Body().String();
+            Console.WriteLine(jsonFile);
+            if (jsonFile.Contains("error"))
+                return;
+
             string access = jsonFile.Substring(jsonFile.IndexOf("\"access_token\": ", 0), jsonFile.IndexOf("\"token_type\": ", 0) - jsonFile.IndexOf("\"access_token\": ", 0));
+            Console.WriteLine(access);
             string AccessToken = access.Substring(17, access.Length - 21);
             Console.WriteLine(AccessToken);
 
@@ -511,7 +516,7 @@ namespace MusicApp
             Navigate(e.Item.ItemId);
         }
 
-        private void Navigate(int layout)
+        public void Navigate(int layout)
         {
             Android.Support.V4.App.Fragment fragment = null;
             switch (layout)

@@ -25,18 +25,55 @@
     android:indeterminate="true"
     style="?android:attr/progressBarStyleHorizontal"
     android:visibility="gone" />
-  <ListView 
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:id="@+id/ytSearchList"/>
-  <!--<RelativeLayout
-    android:layout_width="fill_parent"
+  <android.support.design.widget.CoordinatorLayout
     android:layout_height="wrap_content"
-    android:elevation="12dp" >
-    <android.support.design.widget.CoordinatorLayout
-      android:id="@+id/snackBar"
-      android:layout_alignParentBottom="true"
-      android:layout_height="wrap_content"
-      android:layout_width="match_parent" />
-  </RelativeLayout>-->
+    android:layout_width="fill_parent">
+    <android.support.v4.widget.SwipeRefreshLayout
+      android:id="@+id/pagerRefresh"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content">
+      <ListView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/ytSearchList"/>
+    </android.support.v4.widget.SwipeRefreshLayout>
+    <RelativeLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content">
+      <RelativeLayout
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_alignParentBottom="true"
+        android:gravity="center_horizontal|bottom"
+        android:paddingBottom="70dp"
+        android:paddingRight="20dp"
+        android:paddingLeft="20dp"
+        android:elevation="6dp"
+        android:layout_width="wrap_content">
+        <include
+          layout="@layout/SmallPlayer"
+          android:id="@+id/smallPlayer" />
+      </RelativeLayout>
+      <RelativeLayout
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:background="?attr/defaultColor"
+        android:elevation="12dp"
+        android:layout_alignParentBottom="true" >
+        <android.support.design.widget.CoordinatorLayout
+          android:id="@+id/snackBar"
+          android:layout_alignParentTop="true"
+          android:layout_height="wrap_content"
+          android:layout_width="match_parent" />
+        <android.support.design.widget.BottomNavigationView
+          android:id="@+id/bottomView"
+          android:layout_width="match_parent"
+          android:layout_height="56dp"
+          android:layout_below="@id/snackBar"
+          app:itemIconTint="?colorAccent"
+          app:itemTextColor="?colorAccent"
+          app:menu="@menu/bottom_items" />
+      </RelativeLayout>
+    </RelativeLayout>
+  </android.support.design.widget.CoordinatorLayout>
 </LinearLayout>

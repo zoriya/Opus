@@ -45,8 +45,27 @@ namespace MusicApp.Resources.Portable_Class
             {
                 playlistsName.RemoveAt(position);
                 playlistCount.RemoveAt(position);
-                NotifyItemRemoved(position);
+                //NotifyItemRangeInserted(position, 1);
+
+                if (playlistsName.Count == 1)
+                {
+                    playlistsName.Add("EMPTY - You don't have any playlist on your device.");
+                    playlistCount.Add(-1);
+                    //NotifyItemRangeInserted(2, 1);
+                }
             }
+            else
+            {
+                ytPlaylists.RemoveAt(position - playlistsName.Count);
+                //NotifyItemRangeInserted(position - playlistsName.Count, 1);
+
+                if (ytPlaylists.Count == 1)
+                {
+                    ytPlaylists.Add(new Song("EMPTY", "You don't have any youtube playlist on your account. \nWarning: Only playlist from your google account are displayed", null, null, -1, -1, null));
+                    //NotifyItemRangeInserted(playlistsName.Count + 2, 1);
+                }
+            }
+            NotifyDataSetChanged();
         }
 
         public void SetYtPlaylists(List<Song> ytPlaylists)
@@ -72,6 +91,16 @@ namespace MusicApp.Resources.Portable_Class
             {
                 HeaderHolder holder = (HeaderHolder)viewHolder;
                 holder.headerText.Text = "Youtube Playlists";
+            }
+            else if(position == 1 && playlistsName[1].StartsWith("EMPTY - "))
+            {
+                EmptyCategoryHolder holder = (EmptyCategoryHolder)viewHolder;
+                holder.text.Text = playlistsName[1].Substring(8);
+            }
+            else if(position - playlistsName.Count == 1 && ytPlaylists[1].GetName() == "EMPTY")
+            {
+                EmptyCategoryHolder holder = (EmptyCategoryHolder)viewHolder;
+                holder.text.Text = ytPlaylists[1].GetArtist();
             }
             else if (playlistsName.Count >= position)
             {
@@ -156,10 +185,15 @@ namespace MusicApp.Resources.Portable_Class
                 View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.TwoLineLayout, parent, false);
                 return new TwoLineHolder(itemView, OnClick, OnLongClick);
             }
-            else
+            else if(viewType == 2)
             {
                 View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.SongList, parent, false);
                 return new RecyclerHolder(itemView, OnClick, OnLongClick);
+            }
+            else
+            {
+                View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.EmptyListCategory, parent, false);
+                return new EmptyCategoryHolder(itemView);
             }
         }
 
@@ -167,10 +201,12 @@ namespace MusicApp.Resources.Portable_Class
         {
             if (position == 0 || position - playlistsName.Count == 0)
                 return 0;
-            else if (playlistsName.Count >= position)
+            else if (playlistsName.Count >= position && (playlistsName.Count > 2 || !playlistsName[1].StartsWith("EMPTY - ")))
                 return 1;
-            else
+            else if(ytPlaylists.Count > 1 && (ytPlaylists.Count > 2 || ytPlaylists[1].GetName() != "EMPTY")) 
                 return 2;
+            else
+                return 3;
         }
 
         void OnClick(int position)

@@ -122,6 +122,13 @@ namespace MusicApp.Resources.Portable_Class
                 cursor.Close();
             }
 
+            if(playList.Count == 1)
+            {
+                playList.Add("EMPTY - You don't have any playlist on your device.");
+                playlistId.Add(-1);
+                playListCount.Add(-1);
+            }
+
             adapter = new PlaylistAdapter(playList, playListCount, new List<Song>())
             {
                 listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot
@@ -132,11 +139,6 @@ namespace MusicApp.Resources.Portable_Class
             ListView.SetItemAnimator(new DefaultItemAnimator());
             ListView.ScrollChange += MainActivity.instance.Scroll;
 
-            if (adapter.ItemCount == 1 && !isEmpty)
-            {
-                isEmpty = true;
-                AddEmptyView();
-            }
 
             //Youtube playlists
             await MainActivity.instance.WaitForYoutube();
@@ -167,12 +169,12 @@ namespace MusicApp.Resources.Portable_Class
                 ytPlaylists.Add(song);
             }
 
-            adapter.SetYtPlaylists(ytPlaylists);
-            if (isEmpty && ytPlaylists.Count > 1)
+            if(ytPlaylists.Count == 1)
             {
-                isEmpty = false;
-                RemoveEmptyView();
+                ytPlaylists.Add(new Song("EMPTY", "You don't have any youtube playlist on your account. \nWarning: Only playlist from your google account are displayed", null, null, -1, -1, null));
             }
+
+            adapter.SetYtPlaylists(ytPlaylists);
         }
 
         public static Fragment NewInstance()
@@ -333,6 +335,13 @@ namespace MusicApp.Resources.Portable_Class
             playListCount.RemoveAt(position);
             playlistId.RemoveAt(position);
             adapter.Remove(position);
+
+            if (playList.Count == 1)
+            {
+                playList.Add("EMPTY - You don't have any playlist on your device.");
+                playlistId.Add(-1);
+                playListCount.Add(-1);
+            }
         }
 
         public void RenameYoutubePlaylist(int position, string playlistID)
@@ -373,10 +382,10 @@ namespace MusicApp.Resources.Portable_Class
             ytPlaylists.RemoveAt(position);
             YtPlaylists.RemoveAt(position);
             adapter.Remove(position);
-            if (adapter.ItemCount == 0)
+
+            if (ytPlaylists.Count == 1)
             {
-                isEmpty = true;
-                Activity.AddContentView(emptyView, View.LayoutParameters);
+                ytPlaylists.Add(new Song("EMPTY", "You don't have any youtube playlist on your account. \nWarning: Only playlist from your google account are displayed", null, null, -1, -1, null));
             }
         }
 

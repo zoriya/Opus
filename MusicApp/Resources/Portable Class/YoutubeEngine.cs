@@ -61,8 +61,18 @@ namespace MusicApp.Resources.Portable_Class
             SetSupportActionBar(toolbar);
             SupportActionBar.SetDisplayHomeAsUpEnabled(true);
 
+            var bottomNavigation = FindViewById<BottomNavigationView>(Resource.Id.bottomView);
+            bottomNavigation.NavigationItemSelected += PreNavigate;
+
 #pragma warning disable CS4014 
             Search(Intent.GetStringExtra("search"));
+        }
+
+        private void PreNavigate(object sender, BottomNavigationView.NavigationItemSelectedEventArgs e)
+        {
+            //Calling SupportTransition of Navigate before returning to the MainActivity, maybe use Intent with Action
+            //Finish();
+            //MainActivity.instance.Navigate(e.Item.ItemId);
         }
 
         public override bool OnCreateOptionsMenu(IMenu menu)
@@ -83,21 +93,8 @@ namespace MusicApp.Resources.Portable_Class
         {
             if (item.ItemId == Android.Resource.Id.Home)
             {
-                System.Console.WriteLine("&Home clicked");
                 Finish();
             }
-            //else if (item.ItemId == Resource.Id.search)
-            //{
-            //    var searchItem = item.ActionView;
-            //    var searchView = searchItem.JavaCast<Android.Support.V7.Widget.SearchView>();
-
-            //    searchView.QueryTextSubmit += (s, e) =>
-            //    {
-            //        Search(e.Query);
-
-            //        e.Handled = true;
-            //    };
-            //}
             return base.OnOptionsItemSelected(item);
         }
 
@@ -210,7 +207,7 @@ namespace MusicApp.Resources.Portable_Class
                 context.StartService(mIntent);
                 int localID = MusicPlayer.queue.Count;
 
-                Snackbar.Make((instance == null) ? MainActivity.instance.FindViewById(Resource.Id.snackBar) : instance.FindViewById(Android.Resource.Id.Content), title + " has been downloaded on your device. Playing the local file instead of the online one.", Snackbar.LengthShort).SetAction("Play the youtube file anyway.", (v) =>
+                Snackbar.Make((instance == null) ? MainActivity.instance.FindViewById(Resource.Id.snackBar) : instance.FindViewById(Resource.Id.snackBar), title + " has been downloaded on your device. Playing the local file instead of the online one.", Snackbar.LengthShort).SetAction("Play the youtube file anyway.", (v) =>
                 {
                     Queue.RemoveFromQueue(MusicPlayer.queue[localID]);
                     Play(videoID, title, artist, thumbnailURL, true);
@@ -289,7 +286,7 @@ namespace MusicApp.Resources.Portable_Class
                         context.StartService(intent);
                         int localID = MusicPlayer.queue.Count;
 
-                        Snackbar.Make((instance == null) ? MainActivity.instance.FindViewById(Resource.Id.snackBar) : instance.FindViewById(Android.Resource.Id.Content), downloadedSong[0].GetName() + " has been downloaded on your device. Playing the local file instead of the online one.", Snackbar.LengthShort).SetAction("Play the youtube file anyway.", (v) =>
+                        Snackbar.Make((instance == null) ? MainActivity.instance.FindViewById(Resource.Id.snackBar) : instance.FindViewById(Resource.Id.snackBar), downloadedSong[0].GetName() + " has been downloaded on your device. Playing the local file instead of the online one.", Snackbar.LengthShort).SetAction("Play the youtube file anyway.", (v) =>
                         {
                             Queue.RemoveFromQueue(MusicPlayer.queue[localID]);
                             MusicPlayer.queue.Insert(MusicPlayer.queue.Count, downloadedSong[0]);
@@ -309,7 +306,7 @@ namespace MusicApp.Resources.Portable_Class
                         context.StartService(intent);
                         int localID = MusicPlayer.queue.Count;
 
-                        Snackbar.Make((instance == null) ? MainActivity.instance.FindViewById(Resource.Id.snackBar) : instance.FindViewById(Android.Resource.Id.Content), downloadedSong.Count + " files are on your device. Playing locals files instead of the online version.", Snackbar.LengthShort).SetAction("Play youtube files anyway", (v) =>
+                        Snackbar.Make((instance == null) ? MainActivity.instance.FindViewById(Resource.Id.snackBar) : instance.FindViewById(Resource.Id.snackBar), downloadedSong.Count + " files are on your device. Playing locals files instead of the online version.", Snackbar.LengthShort).SetAction("Play youtube files anyway", (v) =>
                         {
                             for (int i = 0; i < downloadedSong.Count; i++)
                             {
@@ -347,7 +344,7 @@ namespace MusicApp.Resources.Portable_Class
                 context.StartService(mIntent);
                 int localID = MusicPlayer.queue.Count;
 
-                Snackbar.Make((instance == null) ? MainActivity.instance.FindViewById(Resource.Id.snackBar) : instance.FindViewById(Android.Resource.Id.Content), title + " has been downloaded on your device. Playing the local file instead of the online one.", Snackbar.LengthShort).SetAction("Play the youtube file anyway.", (v) =>
+                Snackbar.Make((instance == null) ? MainActivity.instance.FindViewById(Resource.Id.snackBar) : instance.FindViewById(Resource.Id.snackBar), title + " has been downloaded on your device. Playing the local file instead of the online one.", Snackbar.LengthShort).SetAction("Play the youtube file anyway.", (v) =>
                 {
                     Queue.RemoveFromQueue(MusicPlayer.queue[localID]);
                     PlayNext(videoID, title, artist, thumbnailURL, true);
@@ -385,7 +382,7 @@ namespace MusicApp.Resources.Portable_Class
                 context.StartService(mIntent);
                 int localID = MusicPlayer.queue.Count;
 
-                Snackbar.Make((instance == null) ? MainActivity.instance.FindViewById(Resource.Id.snackBar) : instance.FindViewById(Android.Resource.Id.Content), title + " has been downloaded on your device. Playing the local file instead of the online one.", Snackbar.LengthShort).SetAction("Play the youtube file anyway.", (v) =>
+                Snackbar.Make((instance == null) ? MainActivity.instance.FindViewById(Resource.Id.snackBar) : instance.FindViewById(Resource.Id.snackBar), title + " has been downloaded on your device. Playing the local file instead of the online one.", Snackbar.LengthShort).SetAction("Play the youtube file anyway.", (v) =>
                 {
                     Queue.RemoveFromQueue(MusicPlayer.queue[localID]);
                     PlayLast(videoID, title, artist, thumbnailURL, true);
@@ -420,7 +417,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 if (FileIsAlreadyDownloaded(videoID) && !skipExistVerification)
                 {
-                    Snackbar.Make((instance == null) ? MainActivity.instance.FindViewById(Resource.Id.snackBar) : instance.FindViewById(Android.Resource.Id.Content), name + " is already on your device.", Snackbar.LengthShort).SetAction("Download Anyway", (v) =>
+                    Snackbar.Make((instance == null) ? MainActivity.instance.FindViewById(Resource.Id.snackBar) : instance.FindViewById(Resource.Id.snackBar), name + " is already on your device.", Snackbar.LengthShort).SetAction("Download Anyway", (v) =>
                     {
                         Download(name, videoID, true);
                     }).Show();
@@ -439,7 +436,7 @@ namespace MusicApp.Resources.Portable_Class
             }
             else
             {
-                Snackbar.Make((instance == null) ? MainActivity.instance.FindViewById(Resource.Id.snackBar) : instance.FindViewById(Android.Resource.Id.Content), "Download Path Not Set.", Snackbar.LengthShort).SetAction("Set Path", (v) =>
+                Snackbar.Make((instance == null) ? MainActivity.instance.FindViewById(Resource.Id.snackBar) : instance.FindViewById(Resource.Id.snackBar), "Download Path Not Set.", Snackbar.LengthShort).SetAction("Set Path", (v) =>
                 {
                     Intent intent = new Intent(Application.Context, typeof(Preferences));
                     MainActivity.instance.StartActivity(intent);
@@ -481,14 +478,14 @@ namespace MusicApp.Resources.Portable_Class
 
                         if (downloadedName.Count == 1)
                         {
-                            Snackbar.Make((instance == null) ? MainActivity.instance.FindViewById(Resource.Id.snackBar) : instance.FindViewById(Android.Resource.Id.Content), downloadedName[0] + " is already on your device.", Snackbar.LengthShort).SetAction("Download this file anyway", (v) =>
+                            Snackbar.Make((instance == null) ? MainActivity.instance.FindViewById(Resource.Id.snackBar) : instance.FindViewById(Resource.Id.snackBar), downloadedName[0] + " is already on your device.", Snackbar.LengthShort).SetAction("Download this file anyway", (v) =>
                             {
                                 Downloader.instance.Download(new DownloadFile(downloadedName[0], downloadedID[0]));
                             }).Show();
                         }
                         else
                         {
-                            Snackbar.Make((instance == null) ? MainActivity.instance.FindViewById(Resource.Id.snackBar) : instance.FindViewById(Android.Resource.Id.Content), downloadedName.Count + " files are already on your device", Snackbar.LengthShort).SetAction("Download all this files anyway", (v) =>
+                            Snackbar.Make((instance == null) ? MainActivity.instance.FindViewById(Resource.Id.snackBar) : instance.FindViewById(Resource.Id.snackBar), downloadedName.Count + " files are already on your device", Snackbar.LengthShort).SetAction("Download all this files anyway", (v) =>
                             {
                                 for(int i = 0; i < downloadedName.Count; i++)
                                     Downloader.instance.Download(new DownloadFile(downloadedName[i], downloadedID[i]));
@@ -513,7 +510,7 @@ namespace MusicApp.Resources.Portable_Class
             }
             else
             {
-                Snackbar.Make((instance == null) ? MainActivity.instance.FindViewById(Resource.Id.snackBar) : instance.FindViewById(Android.Resource.Id.Content), "Download Path Not Set.", Snackbar.LengthShort).SetAction("Set Path", (v) =>
+                Snackbar.Make((instance == null) ? MainActivity.instance.FindViewById(Resource.Id.snackBar) : instance.FindViewById(Resource.Id.snackBar), "Download Path Not Set.", Snackbar.LengthShort).SetAction("Set Path", (v) =>
                 {
                     Intent intent = new Intent(Application.Context, typeof(Preferences));
                     MainActivity.instance.StartActivity(intent);
