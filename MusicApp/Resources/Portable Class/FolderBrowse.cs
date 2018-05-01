@@ -9,6 +9,7 @@ using Android.Support.V4.App;
 using Android.Support.V7.App;
 using Android.Views;
 using Android.Widget;
+using MusicApp.Resources.values;
 using System.Collections.Generic;
 
 namespace MusicApp.Resources.Portable_Class
@@ -21,7 +22,7 @@ namespace MusicApp.Resources.Portable_Class
         public List<string> pathDisplay = new List<string>();
         public List<string> paths = new List<string>();
         public List<int> pathUse = new List<int>();
-        public ArrayAdapter adapter;
+        public TwoLineAdapter adapter;
         public View emptyView;
         public bool populated = false;
         public bool focused = false;
@@ -40,14 +41,24 @@ namespace MusicApp.Resources.Portable_Class
             ListView.EmptyView = emptyView;
             ListView.Scroll += MainActivity.instance.Scroll;
             MainActivity.instance.pagerRefresh.Refresh += OnRefresh;
+            MainActivity.instance.OnPaddingChanged += OnPaddingChanged;
 
             if (ListView.Adapter == null)
                 PopulateList();
         }
 
+        private void OnPaddingChanged(object sender, PaddingChange e)
+        {
+            if (MainActivity.paddingBot > e.oldPadding)
+                adapter.listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot;
+            else
+                adapter.listPadding = (int)(8 * MainActivity.instance.Resources.DisplayMetrics.Density + 0.5f);
+        }
+
         public override void OnDestroy()
         {
             MainActivity.instance.pagerRefresh.Refresh -= OnRefresh;
+            MainActivity.instance.OnPaddingChanged -= OnPaddingChanged;
             if (isEmpty)
             {
                 ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
@@ -108,7 +119,10 @@ namespace MusicApp.Resources.Portable_Class
                 musicCursor.Close();
             }
 
-            adapter = new TwoLineAdapter(Android.App.Application.Context, Resource.Layout.TwoLineLayout, pathDisplay, pathUse);
+            adapter = new TwoLineAdapter(Android.App.Application.Context, Resource.Layout.TwoLineLayout, pathDisplay, pathUse)
+            {
+                listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot
+            };
             ListAdapter = adapter;
             ListView.TextFilterEnabled = true;
             ListView.ItemClick += ListView_ItemClick;
@@ -163,7 +177,10 @@ namespace MusicApp.Resources.Portable_Class
                 musicCursor.Close();
             }
 
-            adapter = new TwoLineAdapter(Android.App.Application.Context, Resource.Layout.TwoLineLayout, pathDisplay, pathUse);
+            adapter = new TwoLineAdapter(Android.App.Application.Context, Resource.Layout.TwoLineLayout, pathDisplay, pathUse)
+            {
+                listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot
+            };
             ListAdapter = adapter;
 
             if (adapter == null || adapter.Count == 0)

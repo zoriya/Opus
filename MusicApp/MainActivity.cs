@@ -81,7 +81,7 @@ namespace MusicApp
         {
             paddingBot = (((RelativeLayout)instance.FindViewById(Resource.Id.smallPlayer).Parent).Visibility == ViewStates.Gone)
                 ? FindViewById<BottomNavigationView>(Resource.Id.bottomView).Height
-                : ((RelativeLayout)instance.FindViewById(Resource.Id.smallPlayer).Parent).Height + ((RelativeLayout)instance.FindViewById(Resource.Id.smallPlayer).Parent).PaddingBottom;
+                : instance.FindViewById(Resource.Id.smallPlayer).Height + ((RelativeLayout)instance.FindViewById(Resource.Id.smallPlayer).Parent).PaddingBottom;
 
             paddingBot += e.paddingChange;
 
@@ -178,7 +178,6 @@ namespace MusicApp
                         .Build();
 
                 googleClient = new GoogleApiClient.Builder(this)
-                        //.EnableAutoManage(this, this)
                         .AddApi(Auth.GOOGLE_SIGN_IN_API, gso)
                         .Build();
 

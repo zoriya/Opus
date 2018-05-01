@@ -42,14 +42,24 @@ namespace MusicApp.Resources.Portable_Class
             ListView.EmptyView = emptyView;
             MainActivity.instance.pagerRefresh.Refresh += OnRefresh;
             ListView.Scroll += MainActivity.instance.Scroll;
+            MainActivity.instance.OnPaddingChanged += OnPaddingChanged;
 
             if (ListView.Adapter == null)
                 MainActivity.instance.GetStoragePermission();
         }
 
+        private void OnPaddingChanged(object sender, PaddingChange e)
+        {
+            if(MainActivity.paddingBot > e.oldPadding)
+                adapter.listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot;
+            else
+                adapter.listPadding = (int)(8 * MainActivity.instance.Resources.DisplayMetrics.Density + 0.5f);
+        }
+
         public override void OnDestroy()
         {
             MainActivity.instance.pagerRefresh.Refresh -= OnRefresh;
+            MainActivity.instance.OnPaddingChanged -= OnPaddingChanged;
             if (isEmpty)
             {
                 ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
@@ -115,7 +125,13 @@ namespace MusicApp.Resources.Portable_Class
 
             List<Song> songList = musicList.OrderBy(x => x.GetName()).ToList();
             musicList = songList;
-            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, musicList);
+            int listPadding = 0;
+            if (adapter != null)
+                listPadding = adapter.listPadding;
+            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, musicList)
+            {
+                listPadding = listPadding
+            };
             ListAdapter = adapter;
             ListView.TextFilterEnabled = true;
             ListView.ItemClick += ListView_ItemClick;
@@ -126,6 +142,9 @@ namespace MusicApp.Resources.Portable_Class
                 isEmpty = true;
                 Activity.AddContentView(emptyView, View.LayoutParameters);
             }
+
+            if (MainActivity.paddingBot > MainActivity.defaultPaddingBot && adapter.listPadding == 0)
+                adapter.listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot;
         }
 
         private void OnRefresh(object sender, System.EventArgs e)
@@ -176,7 +195,13 @@ namespace MusicApp.Resources.Portable_Class
 
             List<Song> songList = musicList.OrderBy(x => x.GetName()).ToList();
             musicList = songList;
-            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, musicList);
+            int listPadding = 0;
+            if (adapter != null)
+                listPadding = adapter.listPadding;
+            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, musicList)
+            {
+                listPadding = listPadding
+            };
             ListAdapter = adapter;
 
             if (adapter == null || adapter.Count == 0)
@@ -199,7 +224,14 @@ namespace MusicApp.Resources.Portable_Class
                     result.Add(item);
                 }
             }
-            ListAdapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, result);
+            int listPadding = 0;
+            if (adapter != null)
+                listPadding = adapter.listPadding;
+            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, musicList)
+            {
+                listPadding = listPadding
+            };
+            ListAdapter = adapter;
         }
 
         public void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)

@@ -17,6 +17,7 @@ namespace MusicApp.Resources.Portable_Class
         private bool refreshDisabled = false;
         public event EventHandler<int> ItemClick;
         public event EventHandler<int> ItemLongCLick;
+        public int listPadding;
 
         public RecyclerAdapter(List<Song> songList)
         {
@@ -86,11 +87,11 @@ namespace MusicApp.Resources.Portable_Class
                 holder.Title.SetTextSize(Android.Util.ComplexUnitType.Dip, 18);
             }
 
-            if(Queue.instance != null)
+            float scale = MainActivity.instance.Resources.DisplayMetrics.Density;
+            if (Queue.instance != null)
             {
                 holder.reorder.Visibility = ViewStates.Visible;
 
-                float scale = MainActivity.instance.Resources.DisplayMetrics.Density;
                 int padding = 135;
                 padding = (int)(padding * scale + 0.5f);
                 holder.textLayout.SetPadding(padding, 0, 0, 0);
@@ -130,6 +131,21 @@ namespace MusicApp.Resources.Portable_Class
                 holder.ItemView.SetBackgroundColor(Color.White);
             else
                 holder.ItemView.SetBackgroundColor(Color.ParseColor("#424242"));
+
+            if (position + 1 == songList.Count)
+            {
+                holder.ItemView.SetPadding((int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f), listPadding);
+                LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams)holder.more.LayoutParameters;
+                layoutParams.SetMargins(0, 0, 0, listPadding);
+                holder.more.LayoutParameters = layoutParams;
+            }
+            else
+            {
+                holder.ItemView.SetPadding((int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f));
+                LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams)holder.more.LayoutParameters;
+                layoutParams.SetMargins(0, 0, 0, 0);
+                holder.more.LayoutParameters = layoutParams;
+            }
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)

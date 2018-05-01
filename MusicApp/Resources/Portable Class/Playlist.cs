@@ -39,6 +39,7 @@ namespace MusicApp.Resources.Portable_Class
             base.OnActivityCreated(savedInstanceState);
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
             emptyView = LayoutInflater.Inflate(Resource.Layout.NoPlaylist, null);
+            MainActivity.instance.OnPaddingChanged += OnPaddingChanged;
         }
 
         public void AddEmptyView()
@@ -55,9 +56,18 @@ namespace MusicApp.Resources.Portable_Class
             rootView.RemoveView(emptyView);
         }
 
+        private void OnPaddingChanged(object sender, PaddingChange e)
+        {
+            if (MainActivity.paddingBot > e.oldPadding)
+                adapter.listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot;
+            else
+                adapter.listPadding = (int)(8 * MainActivity.instance.Resources.DisplayMetrics.Density + 0.5f);
+        }
+
         public override void OnDestroy()
         {
             MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
+            MainActivity.instance.OnPaddingChanged -= OnPaddingChanged;
             if (isEmpty)
                 RemoveEmptyView();
 
@@ -112,7 +122,10 @@ namespace MusicApp.Resources.Portable_Class
                 cursor.Close();
             }
 
-            adapter = new PlaylistAdapter(playList, playListCount, new List<Song>());
+            adapter = new PlaylistAdapter(playList, playListCount, new List<Song>())
+            {
+                listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot
+            };
             ListView.SetAdapter(adapter);
             adapter.ItemClick += ListView_ItemClick;
             adapter.ItemLongCLick += ListView_ItemLongClick;

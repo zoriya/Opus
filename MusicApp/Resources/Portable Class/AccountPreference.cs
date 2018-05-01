@@ -54,15 +54,13 @@ public class AccountPreference : Preference, IResultCallback
         }
     }
 
-    public /*async*/ void OnSignedIn()
+    public void OnSignedIn()
     {
         Button log = (Button)view.FindViewById(Resource.Id.logButton);
         log.Text = "Log Out";
         Picasso.With(Android.App.Application.Context).Load(MainActivity.account.PhotoUrl).Into(view.FindViewById<ImageView>(Android.Resource.Id.Icon));
         log.SetTextColor(Android.Graphics.Color.Red);
         log.Click -= logIn;
-        //await Task.Delay(1000);
-        //log.Click += logOut;
     }
 
     public void OnResult(Java.Lang.Object result)
@@ -73,7 +71,6 @@ public class AccountPreference : Preference, IResultCallback
         Summary = "";
         Picasso.With(Android.App.Application.Context).Load(Resource.Drawable.ic_account_circle_black_24dp).Into(view.FindViewById<ImageView>(Android.Resource.Id.Icon));
         log.Click -= logOut;
-        //log.Click += (s, e) => { LogIn(); };
     }
 
     void LogIn()
@@ -88,7 +85,6 @@ public class AccountPreference : Preference, IResultCallback
                     .Build();
 
             MainActivity.instance.googleClient = new GoogleApiClient.Builder(Preferences.instance)
-                    //.EnableAutoManage(MainActivity.instance, MainActivity.instance)
                     .AddApi(Auth.GOOGLE_SIGN_IN_API, gso)
                     .Build();
 

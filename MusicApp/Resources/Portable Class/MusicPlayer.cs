@@ -812,7 +812,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public void OnTimelineChanged(Timeline p0, Java.Lang.Object p1, int p2)
         {
-            throw new NotImplementedException();
+
         }
     }
 }

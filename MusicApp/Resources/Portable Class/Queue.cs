@@ -30,16 +30,21 @@ namespace MusicApp.Resources.Portable_Class
             base.OnActivityCreated(savedInstanceState);
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
             emptyView = LayoutInflater.Inflate(Resource.Layout.NoQueue, null);
+            MainActivity.instance.OnPaddingChanged += OnPaddingChanged;
         }
 
-        private void PaddingChanged(object sender, PaddingChange e)
+        private void OnPaddingChanged(object sender, PaddingChange e)
         {
-            view.SetPadding(0, 0, 0, MainActivity.defaultPaddingBot);
+            if (MainActivity.paddingBot > e.oldPadding)
+                adapter.listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot;
+            else
+                adapter.listPadding = (int)(8 * MainActivity.instance.Resources.DisplayMetrics.Density + 0.5f);
         }
 
         public override void OnDestroy()
         {
             MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
+            MainActivity.instance.OnPaddingChanged -= OnPaddingChanged;
             ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
             rootView.RemoveView(recyclerFragment);
 
@@ -62,6 +67,7 @@ namespace MusicApp.Resources.Portable_Class
             else
                 adapter = new RecyclerAdapter(new List<Song>());
 
+            adapter.listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot;
             ListView.SetAdapter(adapter);
             adapter.ItemClick += ListView_ItemClick;
             adapter.ItemLongCLick += ListView_ItemLongCLick;

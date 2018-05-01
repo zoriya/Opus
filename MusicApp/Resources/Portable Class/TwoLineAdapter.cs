@@ -9,6 +9,7 @@ namespace MusicApp.Resources.Portable_Class
 {
     public class TwoLineAdapter : ArrayAdapter
     {
+        public int listPadding;
         private Context context;
         private List<string> line1;
         private List<int> line2;
@@ -57,6 +58,22 @@ namespace MusicApp.Resources.Portable_Class
                 holder.Line1.SetTextColor(Color.White);
                 holder.Line2.SetTextColor(Color.White);
                 holder.Line2.Alpha = 0.7f;
+            }
+
+            float scale = MainActivity.instance.Resources.DisplayMetrics.Density;
+            if (position + 1 == line1.Count)
+            {
+                convertView.SetPadding(0, 0, 0, listPadding);
+                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)holder.more.LayoutParameters;
+                layoutParams.SetMargins(0, 0, 0, listPadding);
+                holder.more.LayoutParameters = layoutParams;
+            }
+            else
+            {
+                convertView.SetPadding(0, 0, 0, 0);
+                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)holder.more.LayoutParameters;
+                layoutParams.SetMargins(0, 0, 0, 0);
+                holder.more.LayoutParameters = layoutParams;
             }
             return convertView;
         }

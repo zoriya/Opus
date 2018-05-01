@@ -15,6 +15,7 @@ namespace MusicApp.Resources.Portable_Class
         private List<string> playlistsName;
         private List<int> playlistCount;
         private List<Song> ytPlaylists;
+        public int listPadding;
         public event EventHandler<int> ItemClick;
         public event EventHandler<int> ItemLongCLick;
 
@@ -94,6 +95,22 @@ namespace MusicApp.Resources.Portable_Class
                     holder.Line1.SetTextColor(Color.White);
                     holder.Line2.SetTextColor(Color.White);
                     holder.Line2.Alpha = 0.7f;
+                }
+
+                float scale = MainActivity.instance.Resources.DisplayMetrics.Density;
+                if (position + 1 == playlistsName.Count)
+                {
+                    holder.ItemView.SetPadding(0, 0, 0, listPadding);
+                    RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)holder.more.LayoutParameters;
+                    layoutParams.SetMargins(0, 0, 0, listPadding);
+                    holder.more.LayoutParameters = layoutParams;
+                }
+                else
+                {
+                    holder.ItemView.SetPadding(0, 0, 0, 0);
+                    RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)holder.more.LayoutParameters;
+                    layoutParams.SetMargins(0, 0, 0, 0);
+                    holder.more.LayoutParameters = layoutParams;
                 }
             }
             else

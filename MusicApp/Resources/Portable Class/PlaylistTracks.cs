@@ -36,13 +36,23 @@ namespace MusicApp.Resources.Portable_Class
             ListView.EmptyView = emptyView;
             ListView.Scroll += MainActivity.instance.Scroll;
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
+            MainActivity.instance.OnPaddingChanged += OnPaddingChanged;
             MainActivity.instance.DisplaySearch(1);
             PopulateList();
+        }
+
+        private void OnPaddingChanged(object sender, PaddingChange e)
+        {
+            if (MainActivity.paddingBot > e.oldPadding)
+                adapter.listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot;
+            else
+                adapter.listPadding = (int)(8 * MainActivity.instance.Resources.DisplayMetrics.Density + 0.5f);
         }
 
         public override void OnDestroy()
         {
             MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
+            MainActivity.instance.OnPaddingChanged -= OnPaddingChanged;
             base.OnDestroy();
             instance = null;
         }
@@ -110,7 +120,10 @@ namespace MusicApp.Resources.Portable_Class
                     musicCursor.Close();
                 }
 
-                adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, tracks);
+                adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, tracks)
+                {
+                    listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot
+                };
                 ListAdapter = adapter;
                 ListView.Adapter = adapter;
                 ListView.TextFilterEnabled = true;
@@ -145,7 +158,10 @@ namespace MusicApp.Resources.Portable_Class
                     nextPageToken = ytPlaylist.NextPageToken;
                 }
 
-                adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, tracks);
+                adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, tracks)
+                {
+                    listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot
+                };
                 ListAdapter = adapter;
                 ListView.Adapter = adapter;
                 ListView.TextFilterEnabled = true;
@@ -200,7 +216,10 @@ namespace MusicApp.Resources.Portable_Class
                     musicCursor.Close();
                 }
 
-                adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, tracks);
+                adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, tracks)
+                {
+                    listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot
+                };
                 ListAdapter = adapter;
             }
             else if (ytID != null)
@@ -226,7 +245,10 @@ namespace MusicApp.Resources.Portable_Class
                 }
             }
 
-            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, tracks);
+            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, tracks)
+            {
+                listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot
+            };
             ListAdapter = adapter;
 
             if (adapter == null || adapter.Count == 0)
@@ -250,7 +272,11 @@ namespace MusicApp.Resources.Portable_Class
                         ytTracksIdsResult.Add(ytTracksIDs[i]);
                 }
             }
-            ListAdapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, result);
+            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, result)
+            {
+                listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot
+            };
+            ListAdapter = adapter;
         }
 
         private void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
@@ -354,11 +380,14 @@ namespace MusicApp.Resources.Portable_Class
         private void RemoveFromYtPlaylist(Song item, string ytTrackID)
         {
             tracks.Remove(item);
-            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, tracks);
-            ListAdapter = adapter;
-            ListView.Adapter = adapter;
             ytTracksIDs.Remove(ytTrackID);
             ytTracksIdsResult?.Remove(ytTrackID);
+            adapter.Remove(item);
+            if (adapter == null || adapter.Count == 0)
+            {
+                isEmpty = true;
+                Activity.AddContentView(emptyView, View.LayoutParameters);
+            }
         }
 
         void RemoveFromPlaylist(Song item)
@@ -367,8 +396,7 @@ namespace MusicApp.Resources.Portable_Class
             Uri uri = MediaStore.Audio.Playlists.Members.GetContentUri("external", playlistId);
             resolver.Delete(uri, MediaStore.Audio.Playlists.Members.Id + "=?", new string[] { item.GetID().ToString() });
             tracks.Remove(item);
-            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, tracks);
-            ListAdapter = adapter;
+            adapter.Remove(item);
             if (adapter == null || adapter.Count == 0)
             {
                 isEmpty = true;

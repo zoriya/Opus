@@ -12,6 +12,7 @@ namespace MusicApp.Resources.Portable_Class
 {
     public class Adapter : ArrayAdapter
     {
+        public int listPadding = 0;
         private Context context;
         private List<Song> songList;
         private LayoutInflater inflater;
@@ -22,6 +23,12 @@ namespace MusicApp.Resources.Portable_Class
             this.context = context;
             this.resource = resource;
             this.songList = songList;
+        }
+
+        public void Remove(Song item)
+        {
+            songList.Remove(item);
+            NotifyDataSetChanged();
         }
 
         public override View GetView(int position, View convertView, ViewGroup parent)
@@ -70,6 +77,22 @@ namespace MusicApp.Resources.Portable_Class
             {
                 holder.more.Tag = position;
                 holder.more.Click += MoreClick;
+            }
+
+            float scale = MainActivity.instance.Resources.DisplayMetrics.Density;
+            if (position + 1 == songList.Count)
+            {
+                convertView.SetPadding((int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f), listPadding);
+                LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams)holder.more.LayoutParameters;
+                layoutParams.SetMargins(0, 0, 0, listPadding);
+                holder.more.LayoutParameters = layoutParams;
+            }
+            else
+            {
+                convertView.SetPadding((int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f));
+                LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams)holder.more.LayoutParameters;
+                layoutParams.SetMargins(0, 0, 0, 0);
+                holder.more.LayoutParameters = layoutParams;
             }
 
             return convertView;
