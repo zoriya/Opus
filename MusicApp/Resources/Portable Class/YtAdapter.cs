@@ -45,7 +45,7 @@ namespace MusicApp.Resources.Portable_Class
                     holder.more.Click += (sender, e) =>
                     {
                         int tagPosition = (int)((ImageView)sender).Tag;
-                        YoutubeEngine.instance.More(items[tagPosition].item);
+                        YoutubeEngine.instances[0].More(items[tagPosition].item);
                     };
                 }
 

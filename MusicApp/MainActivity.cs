@@ -370,9 +370,18 @@ namespace MusicApp
             var searchView = menu.FindItem(Resource.Id.search).ActionView.JavaCast<SearchView>();
             searchView.QueryTextSubmit += (s, e) =>
             {
-                SaveInstance();
-                SetYtTabs(e.Query, 0);
-
+                if(YoutubeEngine.instances != null)
+                {
+                    YoutubeEngine.searchKeyWorld = e.Query;
+#pragma warning disable CS4014
+                    foreach(YoutubeEngine instance in YoutubeEngine.instances)
+                        instance.Search(e.Query, instance.querryType, true);
+                }
+                else
+                {
+                    SaveInstance();
+                    SetYtTabs(e.Query, 0);
+                }
                 e.Handled = true;
             };
             return base.OnCreateOptionsMenu(menu);
@@ -419,13 +428,15 @@ namespace MusicApp
                     FolderTracks.instance = null;
                     SetBrowseTabs(1);
                 }
-                else if(YoutubeEngine.instance != null)
+                else if(YoutubeEngine.instances != null)
                 {
-                    contentRefresh.Refresh -= YoutubeEngine.instance.OnRefresh;
-                    OnPaddingChanged -= YoutubeEngine.instance.OnPaddingChanged;
                     ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
+                    foreach(YoutubeEngine instance in YoutubeEngine.instances)
+                    {
+                        OnPaddingChanged -= instance.OnPaddingChanged;
+                        rootView.RemoveView(instance.emptyView);
+                    }
                     rootView.RemoveView(YoutubeEngine.loadingView);
-                    rootView.RemoveView(YoutubeEngine.instance.emptyView);
 
                     var searchView = menu.FindItem(Resource.Id.search).ActionView.JavaCast<Android.Support.V7.Widget.SearchView>();
                     menu.FindItem(Resource.Id.search).CollapseActionView();
@@ -433,7 +444,7 @@ namespace MusicApp
                     searchView.Iconified = true;
                     searchView.SetQuery("", false);
                     SupportActionBar.SetDisplayHomeAsUpEnabled(false);
-                    YoutubeEngine.instance = null;
+                    YoutubeEngine.instances = null;
                     ResumeInstance();
 
                 }
@@ -524,13 +535,15 @@ namespace MusicApp
 
         public void Navigate(int layout)
         {
-            if(YoutubeEngine.instance != null)
+            if(YoutubeEngine.instances != null)
             {
-                contentRefresh.Refresh -= YoutubeEngine.instance.OnRefresh;
-                OnPaddingChanged -= YoutubeEngine.instance.OnPaddingChanged;
                 ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
+                foreach (YoutubeEngine instance in YoutubeEngine.instances)
+                {
+                    OnPaddingChanged -= instance.OnPaddingChanged;
+                    rootView.RemoveView(instance.emptyView);
+                }
                 rootView.RemoveView(YoutubeEngine.loadingView);
-                rootView.RemoveView(YoutubeEngine.instance.emptyView);
 
                 var searchView = menu.FindItem(Resource.Id.search).ActionView.JavaCast<Android.Support.V7.Widget.SearchView>();
                 menu.FindItem(Resource.Id.search).CollapseActionView();
@@ -538,14 +551,15 @@ namespace MusicApp
                 searchView.Iconified = true;
                 searchView.SetQuery("", false);
                 SupportActionBar.SetDisplayHomeAsUpEnabled(false);
-                YoutubeEngine.instance = null;
+                YoutubeEngine.instances = null;
+                ResumeInstance();
             }
 
             Android.Support.V4.App.Fragment fragment = null;
             switch (layout)
             {
                 case Resource.Id.musicLayout:
-                    if (Home.instance != null && YoutubeEngine.instance == null)
+                    if (Home.instance != null && YoutubeEngine.instances != null)
                     {
                         Home.instance.Refresh();
                         return;
@@ -559,7 +573,7 @@ namespace MusicApp
                     break;
 
                 case Resource.Id.browseLayout:
-                    if (Browse.instance != null && YoutubeEngine.instance == null)
+                    if (Browse.instance != null && YoutubeEngine.instances != null)
                     {
                         Browse.instance.Refresh();
                         return;
@@ -572,7 +586,7 @@ namespace MusicApp
                     break;
 
                 case Resource.Id.playlistLayout:
-                    if (Playlist.instance != null && YoutubeEngine.instance == null)
+                    if (Playlist.instance != null && YoutubeEngine.instances != null)
                     {
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                         Playlist.instance.Refresh();
@@ -610,7 +624,7 @@ namespace MusicApp
             TabLayout tabs = FindViewById<TabLayout>(Resource.Id.tabs);
             ViewPager pager = FindViewById<ViewPager>(Resource.Id.pager);
 
-            if (YoutubeEngine.instance != null)
+            if (YoutubeEngine.instances != null)
             {
                 ViewPagerAdapter oldAdapter = (ViewPagerAdapter)pager.Adapter;
                 for(int i = 0; i < oldAdapter.Count; i++)
@@ -679,10 +693,11 @@ namespace MusicApp
                 tabs.AddTab(tabs.NewTab().SetText("Playlists"));
                 tabs.AddTab(tabs.NewTab().SetText("Channels"));
 
-                oldAdapter.AddFragment(YoutubeEngine.NewInstance(querry, "All"), "All");
-                oldAdapter.AddFragment(YoutubeEngine.NewInstance(querry, "Tracks"), "Tracks");
-                oldAdapter.AddFragment(YoutubeEngine.NewInstance(querry, "Playlists"), "Playlists");
-                oldAdapter.AddFragment(YoutubeEngine.NewInstance(querry, "Channels"), "Channels");
+                Android.Support.V4.App.Fragment[] fragment = YoutubeEngine.NewInstances(querry);
+                oldAdapter.AddFragment(fragment[0], "All");
+                oldAdapter.AddFragment(fragment[1], "Tracks");
+                oldAdapter.AddFragment(fragment[2], "Playlists");
+                oldAdapter.AddFragment(fragment[3], "Channels");
 
                 pager.Adapter = oldAdapter;
             }
@@ -698,10 +713,11 @@ namespace MusicApp
                 tabs.AddTab(tabs.NewTab().SetText("Channels"));
 
                 ViewPagerAdapter adapter = new ViewPagerAdapter(SupportFragmentManager);
-                adapter.AddFragment(YoutubeEngine.NewInstance(querry, "All"), "All");
-                adapter.AddFragment(YoutubeEngine.NewInstance(querry, "Tracks"), "Tracks");
-                adapter.AddFragment(YoutubeEngine.NewInstance(querry, "Playlists"), "Playlists");
-                adapter.AddFragment(YoutubeEngine.NewInstance(querry, "Channels"), "Channels");
+                Android.Support.V4.App.Fragment[] fragment = YoutubeEngine.NewInstances(querry);
+                adapter.AddFragment(fragment[0], "All");
+                adapter.AddFragment(fragment[1], "Tracks");
+                adapter.AddFragment(fragment[2], "Playlists");
+                adapter.AddFragment(fragment[3], "Channels");
 
                 pager.Adapter = adapter;
                 pager.AddOnPageChangeListener(this);

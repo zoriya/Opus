@@ -25,8 +25,10 @@ namespace MusicApp.Resources.Portable_Class
 {
     public class YoutubeEngine : Fragment
     {
-        public static YoutubeEngine instance;
+        public static YoutubeEngine[] instances;
         public static YouTubeService youtubeService;
+        public static string searchKeyWorld;
+        public string querryType;
         public List<YtFile> result;
 
         private RecyclerView ListView;
@@ -34,15 +36,11 @@ namespace MusicApp.Resources.Portable_Class
         public View emptyView;
         public static View loadingView;
         private string[] actions = new string[] { "Play", "Play Next", "Play Last", "Add To Playlist", "Download" };
-        private string searchKeyWorld;
-        private string querryType;
 
         public override void OnActivityCreated(Bundle savedInstanceState)
         {
             base.OnActivityCreated(savedInstanceState);
-            instance = this;
             ListView.ScrollChange += MainActivity.instance.Scroll;
-            MainActivity.instance.contentRefresh.Refresh += OnRefresh;
             MainActivity.instance.OnPaddingChanged += OnPaddingChanged;
             MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
         }
@@ -55,12 +53,21 @@ namespace MusicApp.Resources.Portable_Class
                 adapter.listPadding = (int)(8 * MainActivity.instance.Resources.DisplayMetrics.Density + 0.5f);
         }
 
-        public static Fragment NewInstance(string searchQuery, string querryType)
+        public static Fragment[] NewInstances(string searchQuery)
         {
-            instance = new YoutubeEngine { Arguments = new Bundle() };
-            instance.searchKeyWorld = searchQuery;
-            instance.querryType = querryType;
-            return instance;
+            searchKeyWorld = searchQuery;
+            instances = new YoutubeEngine[]
+            {
+                new YoutubeEngine { Arguments = new Bundle() },
+                new YoutubeEngine { Arguments = new Bundle() },
+                new YoutubeEngine { Arguments = new Bundle() },
+                new YoutubeEngine { Arguments = new Bundle() },
+            };
+            instances[0].querryType = "All";
+            instances[1].querryType = "Tracks";
+            instances[2].querryType = "Playlists";
+            instances[3].querryType = "Channels";
+            return instances;
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -157,6 +164,8 @@ namespace MusicApp.Resources.Portable_Class
             {
                 listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot
             };
+            adapter.ItemClick += ListView_ItemClick;
+            adapter.ItemLongCLick += ListView_ItemLongClick;
             ListView.SetAdapter(adapter);
 
             if(adapter == null || adapter.ItemCount == 0)
@@ -185,26 +194,51 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
-        public async void OnRefresh(object sender, System.EventArgs e)
+        private void ListView_ItemClick(object sender, int position)
         {
-            await Refresh();
-            MainActivity.instance.contentRefresh.Refreshing = false;
+            Song item = result[position].item;
+            switch (result[position].Kind)
+            {
+                case YtKind.Video:
+                    Play(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
+                    break;
+                case YtKind.Playlist:
+                    ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
+                    rootView.RemoveView(loadingView);
+                    foreach(YoutubeEngine instance in instances)
+                    {
+                        rootView.RemoveView(instance.emptyView);
+                        MainActivity.instance.OnPaddingChanged -= instance.OnPaddingChanged;
+                    }
+
+                    var searchView = MainActivity.instance.menu.FindItem(Resource.Id.search).ActionView.JavaCast<Android.Support.V7.Widget.SearchView>();
+                    MainActivity.instance.menu.FindItem(Resource.Id.search).CollapseActionView();
+                    searchView.ClearFocus();
+                    searchView.Iconified = true;
+                    searchView.SetQuery("", false);
+                    AppCompatActivity act = (AppCompatActivity)Activity;
+                    act.SupportActionBar.SetHomeButtonEnabled(true);
+                    act.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
+                    act.SupportActionBar.Title = item.GetName();
+                    MainActivity.instance.HideTabs();
+                    instances = null;
+                    MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(item.youtubeID), true);
+                    break;
+                case YtKind.Channel:
+                    Toast.MakeText(Activity, "Action comming soon", ToastLength.Short).Show();
+                    break;
+                default:
+                    break;
+            }
         }
 
-        public async Task Refresh()
+        private void ListView_ItemLongClick(object sender, int position)
         {
-            await Search(searchKeyWorld, querryType, false);
-        }
-
-        private void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
-        {
-            Play(result[e.Position].item.GetPath(), result[e.Position].item.GetName(), result[e.Position].item.GetArtist(), result[e.Position].item.GetAlbum());
-        }
-
-        private void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
-        {
-            Song item = result[e.Position].item;
-            More(item);
+            if(result[position].Kind == YtKind.Video)
+            {
+                Song item = result[position].item;
+                More(item);
+            }
         }
 
         public void More(Song item)
@@ -272,21 +306,9 @@ namespace MusicApp.Resources.Portable_Class
             Android.App.Application.Context.StartService(intent);
 
             parseProgress.Visibility = ViewStates.Gone;
-
-            if(instance == null)
-            {
-                MainActivity.instance.HideTabs();
-                MainActivity.instance.HideSearch();
-                MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).Commit();
-            }
-            else
-            {
-                await Task.Delay(100);
-                intent = new Intent(Android.App.Application.Context, typeof(MainActivity));
-                intent.SetAction("Player");
-                instance.StartActivity(intent);
-                instance = null;
-            }
+            MainActivity.instance.HideTabs();
+            MainActivity.instance.HideSearch();
+            MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).Commit();
         }
 
         public static async void PlayFiles(Song[] files, bool skipExistVerification = false)
