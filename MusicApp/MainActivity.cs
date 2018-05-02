@@ -74,6 +74,7 @@ namespace MusicApp
         public static GoogleSignInAccount account;
         public GoogleApiClient googleClient;
         private bool canAsk;
+        private bool waitingForYoutube;
 
         public event EventHandler<PaddingChange> OnPaddingChanged;
 
@@ -290,11 +291,15 @@ namespace MusicApp
         {
             if(YoutubeEngine.youtubeService == null)
             {
-                Login(true);
+                if(!waitingForYoutube)
+                    Login(true);
+
+                waitingForYoutube = true;
 
                 while (YoutubeEngine.youtubeService == null)
                     await Task.Delay(10);
             }
+            waitingForYoutube = false;
         }
 
         public void Scroll(object sender, AbsListView.ScrollEventArgs e)
@@ -366,10 +371,7 @@ namespace MusicApp
             searchView.QueryTextSubmit += (s, e) =>
             {
                 SaveInstance();
-
-                Intent intent = new Intent(this, typeof(YoutubeEngine));
-                intent.PutExtra("search", e.Query);
-                StartActivity(intent);
+                SetYtTabs(e.Query, 0);
 
                 e.Handled = true;
             };
@@ -403,7 +405,7 @@ namespace MusicApp
                         Navigate(Resource.Id.playlistLayout);
                     }
                 }
-                if (FolderTracks.instance != null)
+                else if (FolderTracks.instance != null)
                 {
                     HideSearch();
                     if (FolderTracks.instance.isEmpty)
@@ -417,20 +419,24 @@ namespace MusicApp
                     FolderTracks.instance = null;
                     SetBrowseTabs(1);
                 }
-                //if(YtPlaylist.instance != null)
-                //{
-                //    HideSearch();
-                //    if (YtPlaylist.instance.isEmpty)
-                //    {
-                //        ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
-                //        rootView.RemoveView(PlaylistTracks.instance.emptyView);
-                //    }
-                //    SupportActionBar.SetHomeButtonEnabled(false);
-                //    SupportActionBar.SetDisplayHomeAsUpEnabled(false);
-                //    SupportActionBar.Title = "MusicApp";
-                //    YtPlaylist.instance = null;
-                //    Navigate(Resource.Id.musicLayout);
-                //}
+                else if(YoutubeEngine.instance != null)
+                {
+                    contentRefresh.Refresh -= YoutubeEngine.instance.OnRefresh;
+                    OnPaddingChanged -= YoutubeEngine.instance.OnPaddingChanged;
+                    ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
+                    rootView.RemoveView(YoutubeEngine.loadingView);
+                    rootView.RemoveView(YoutubeEngine.instance.emptyView);
+
+                    var searchView = menu.FindItem(Resource.Id.search).ActionView.JavaCast<Android.Support.V7.Widget.SearchView>();
+                    menu.FindItem(Resource.Id.search).CollapseActionView();
+                    searchView.ClearFocus();
+                    searchView.Iconified = true;
+                    searchView.SetQuery("", false);
+                    SupportActionBar.SetDisplayHomeAsUpEnabled(false);
+                    YoutubeEngine.instance = null;
+                    ResumeInstance();
+
+                }
             }
             else if(item.ItemId == Resource.Id.settings)
             {
@@ -518,11 +524,28 @@ namespace MusicApp
 
         public void Navigate(int layout)
         {
+            if(YoutubeEngine.instance != null)
+            {
+                contentRefresh.Refresh -= YoutubeEngine.instance.OnRefresh;
+                OnPaddingChanged -= YoutubeEngine.instance.OnPaddingChanged;
+                ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
+                rootView.RemoveView(YoutubeEngine.loadingView);
+                rootView.RemoveView(YoutubeEngine.instance.emptyView);
+
+                var searchView = menu.FindItem(Resource.Id.search).ActionView.JavaCast<Android.Support.V7.Widget.SearchView>();
+                menu.FindItem(Resource.Id.search).CollapseActionView();
+                searchView.ClearFocus();
+                searchView.Iconified = true;
+                searchView.SetQuery("", false);
+                SupportActionBar.SetDisplayHomeAsUpEnabled(false);
+                YoutubeEngine.instance = null;
+            }
+
             Android.Support.V4.App.Fragment fragment = null;
             switch (layout)
             {
                 case Resource.Id.musicLayout:
-                    if (Home.instance != null)
+                    if (Home.instance != null && YoutubeEngine.instance == null)
                     {
                         Home.instance.Refresh();
                         return;
@@ -536,7 +559,7 @@ namespace MusicApp
                     break;
 
                 case Resource.Id.browseLayout:
-                    if (Browse.instance != null)
+                    if (Browse.instance != null && YoutubeEngine.instance == null)
                     {
                         Browse.instance.Refresh();
                         return;
@@ -549,7 +572,7 @@ namespace MusicApp
                     break;
 
                 case Resource.Id.playlistLayout:
-                    if (Playlist.instance != null)
+                    if (Playlist.instance != null && YoutubeEngine.instance == null)
                     {
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                         Playlist.instance.Refresh();
@@ -587,24 +610,26 @@ namespace MusicApp
             TabLayout tabs = FindViewById<TabLayout>(Resource.Id.tabs);
             ViewPager pager = FindViewById<ViewPager>(Resource.Id.pager);
 
-            //if (Playlist.instance != null)
-            //{
-            //    ViewPagerAdapter oldAdapter = (ViewPagerAdapter)pager.Adapter;
-            //    SupportFragmentManager.BeginTransaction().Remove(oldAdapter.GetItem(0)).Commit();
-            //    SupportFragmentManager.BeginTransaction().Remove(oldAdapter.GetItem(1)).Commit();
+            if (YoutubeEngine.instance != null)
+            {
+                ViewPagerAdapter oldAdapter = (ViewPagerAdapter)pager.Adapter;
+                for(int i = 0; i < oldAdapter.Count; i++)
+                {
+                    SupportFragmentManager.BeginTransaction().Remove(oldAdapter.GetItem(i)).Commit();
+                }
 
-            //    oldAdapter.Clear();
+                oldAdapter.Clear();
 
-            //    tabs.AddTab(tabs.NewTab().SetText("Songs"));
-            //    tabs.AddTab(tabs.NewTab().SetText("Folders"));
+                tabs.AddTab(tabs.NewTab().SetText("Songs"));
+                tabs.AddTab(tabs.NewTab().SetText("Folders"));
 
-            //    oldAdapter.AddFragment(Browse.NewInstance(), "Songs");
-            //    oldAdapter.AddFragment(FolderBrowse.NewInstance(), "Folders");
+                oldAdapter.AddFragment(Browse.NewInstance(), "Songs");
+                oldAdapter.AddFragment(FolderBrowse.NewInstance(), "Folders");
 
-            //    pager.Adapter = oldAdapter;
-            //}
-            //else
-            //{
+                pager.Adapter = oldAdapter;
+            }
+            else
+            {
                 contentRefresh.Visibility = ViewStates.Gone;
                 pagerRefresh.Visibility = ViewStates.Visible;
                 tabs.Visibility = ViewStates.Visible;
@@ -621,71 +646,75 @@ namespace MusicApp
 
                 tabs.SetupWithViewPager(pager);
                 tabs.TabReselected += OnTabReselected;
-            //}
+            }
 
             pager.CurrentItem = selectedTab;
+            tabs.TabMode = TabLayout.ModeFixed;
             tabs.SetScrollPosition(selectedTab, 0f, true);
 
             CanSwitchDelay();
         }
 
-        /*async*/ void SetYtTabs(int selectedTab = 0)
+        async void SetYtTabs(string querry, int selectedTab = 0)
         {
-            //if (Playlist.instance != null)
-            //    return;
+            while (!canSwitch)
+                await Task.Delay(10);
 
-            //while (!canSwitch)
-            //    await Task.Delay(10);
+            canSwitch = false;
+            usePager = true;
 
-            //if (tab != "Playlist" || Playlist.instance != null)
-            //    return;
+            TabLayout tabs = FindViewById<TabLayout>(Resource.Id.tabs);
+            ViewPager pager = FindViewById<ViewPager>(Resource.Id.pager);
 
-            //Console.WriteLine("Switching: " + canSwitch);
-            //canSwitch = false;
-            //usePager = true;
+            if (Browse.instance != null)
+            {
+                ViewPagerAdapter oldAdapter = (ViewPagerAdapter)pager.Adapter;
+                SupportFragmentManager.BeginTransaction().Remove(oldAdapter.GetItem(0)).Commit();
+                SupportFragmentManager.BeginTransaction().Remove(oldAdapter.GetItem(1)).Commit();
 
-            //TabLayout tabs = FindViewById<TabLayout>(Resource.Id.tabs);
-            //ViewPager pager = FindViewById<ViewPager>(Resource.Id.pager);
+                oldAdapter.Clear();
 
-            //if (Browse.instance != null)
-            //{
-            //    ViewPagerAdapter oldAdapter = (ViewPagerAdapter)pager.Adapter;
-            //    SupportFragmentManager.BeginTransaction().Remove(oldAdapter.GetItem(0)).Commit();
-            //    SupportFragmentManager.BeginTransaction().Remove(oldAdapter.GetItem(1)).Commit();
+                tabs.AddTab(tabs.NewTab().SetText("All"));
+                tabs.AddTab(tabs.NewTab().SetText("Tracks"));
+                tabs.AddTab(tabs.NewTab().SetText("Playlists"));
+                tabs.AddTab(tabs.NewTab().SetText("Channels"));
 
-            //    oldAdapter.Clear();
+                oldAdapter.AddFragment(YoutubeEngine.NewInstance(querry, "All"), "All");
+                oldAdapter.AddFragment(YoutubeEngine.NewInstance(querry, "Tracks"), "Tracks");
+                oldAdapter.AddFragment(YoutubeEngine.NewInstance(querry, "Playlists"), "Playlists");
+                oldAdapter.AddFragment(YoutubeEngine.NewInstance(querry, "Channels"), "Channels");
 
-            //    tabs.AddTab(tabs.NewTab().SetText("Songs"));
-            //    tabs.AddTab(tabs.NewTab().SetText("Folders"));
+                pager.Adapter = oldAdapter;
+            }
+            else
+            {
+                contentRefresh.Visibility = ViewStates.Gone;
+                pagerRefresh.Visibility = ViewStates.Visible;
+                tabs.Visibility = ViewStates.Visible;
+                
+                tabs.AddTab(tabs.NewTab().SetText("All"));
+                tabs.AddTab(tabs.NewTab().SetText("Tracks"));
+                tabs.AddTab(tabs.NewTab().SetText("Playlists"));
+                tabs.AddTab(tabs.NewTab().SetText("Channels"));
 
-            //    oldAdapter.AddFragment(Playlist.NewInstance(), "Playlists");
-            //    oldAdapter.AddFragment(YtPlaylist.NewInstance(), "Youtube playlists");
+                ViewPagerAdapter adapter = new ViewPagerAdapter(SupportFragmentManager);
+                adapter.AddFragment(YoutubeEngine.NewInstance(querry, "All"), "All");
+                adapter.AddFragment(YoutubeEngine.NewInstance(querry, "Tracks"), "Tracks");
+                adapter.AddFragment(YoutubeEngine.NewInstance(querry, "Playlists"), "Playlists");
+                adapter.AddFragment(YoutubeEngine.NewInstance(querry, "Channels"), "Channels");
 
-            //    pager.Adapter = oldAdapter;
-            //}
-            //else
-            //{
-            //    contentRefresh.Visibility = ViewStates.Gone;
-            //    pagerRefresh.Visibility = ViewStates.Visible;
-            //    tabs.Visibility = ViewStates.Visible;
-            //    tabs.AddTab(tabs.NewTab().SetText("Playlists"));
-            //    tabs.AddTab(tabs.NewTab().SetText("Youtube playlists"));
+                pager.Adapter = adapter;
+                pager.AddOnPageChangeListener(this);
+                pager.AddOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
+                tabs.SetupWithViewPager(pager);
+                tabs.TabReselected += OnTabReselected;
+            }
 
-            //    ViewPagerAdapter adapter = new ViewPagerAdapter(SupportFragmentManager);
-            //    adapter.AddFragment(Playlist.NewInstance(), "Playlists");
-            //    adapter.AddFragment(YtPlaylist.NewInstance(), "Youtube playlists");
+            pager.CurrentItem = selectedTab;
+            tabs.TabMode = TabLayout.ModeScrollable;
+            tabs.SetScrollPosition(selectedTab, 0f, true);
 
-            //    pager.Adapter = adapter;
-            //    pager.AddOnPageChangeListener(this);
-            //    pager.AddOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
-            //    tabs.SetupWithViewPager(pager);
-            //    tabs.TabReselected += OnTabReselected;
-            //}
-
-            //pager.CurrentItem = selectedTab;
-            //tabs.SetScrollPosition(selectedTab, 0f, true);
-
-            //CanSwitchDelay();
+            CanSwitchDelay();
         }
 
         private void OnTabReselected(object sender, TabLayout.TabReselectedEventArgs e)
@@ -721,7 +750,7 @@ namespace MusicApp
 
         public void OnPageSelected(int position)
         {
-            //if (Playlist.instance != null)
+            //if (YoutubeEngine.instance != null)
             //{
             //    if (position == 0)
             //    {
@@ -779,10 +808,10 @@ namespace MusicApp
             tabs.Visibility = ViewStates.Gone;
             ViewPager pager = FindViewById<ViewPager>(Resource.Id.pager);
 
-            ViewPagerAdapter adapter = (ViewPagerAdapter) pager.Adapter;
+            ViewPagerAdapter adapter = (ViewPagerAdapter)pager.Adapter;
             if (adapter != null)
             {
-                for(int i = 0; i < adapter.Count; i++)
+                for (int i = 0; i < adapter.Count; i++)
                     SupportFragmentManager.BeginTransaction().Remove(adapter.GetItem(i)).Commit();
 
                 adapter.Dispose();

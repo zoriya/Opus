@@ -455,7 +455,7 @@ namespace MusicApp.Resources.Portable_Class
         public override void OnResume()
         {
             base.OnResume();
-            if(MainActivity.parcelable != null)
+            if(MainActivity.parcelable != null && MainActivity.parcelableSender == "Browse")
             {
                 ListView.OnRestoreInstanceState(MainActivity.parcelable);
                 MainActivity.parcelable = null;

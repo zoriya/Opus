@@ -1,19 +1,19 @@
-﻿namespace MusicApp.Resources.Portable_Class
+﻿using MusicApp.Resources.values;
+
+namespace MusicApp.Resources.Portable_Class
 {
     [System.Serializable]
     public class YtFile
     {
-        public string Title;
-        public string channelTitle;
-        public string Id;
-        public string thumbnailUrl;
+        public Song item;
+        public YtKind Kind;
 
-        public YtFile(string title, string channelTitle, string id, string thumbnailUrl)
+        public YtFile(Song item, YtKind kind)
         {
-            Title = title;
-            this.channelTitle = channelTitle;
-            Id = id;
-            this.thumbnailUrl = thumbnailUrl;
+            this.item = item;
+            Kind = kind;
         }
     }
+
+    public enum YtKind { Null, Video, Playlist, Channel }
 }

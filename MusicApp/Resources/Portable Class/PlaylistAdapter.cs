@@ -170,6 +170,22 @@ namespace MusicApp.Resources.Portable_Class
                     holder.Artist.SetTextColor(Color.White);
                     holder.Artist.Alpha = 0.7f;
                 }
+
+                float scale = MainActivity.instance.Resources.DisplayMetrics.Density;
+                if (position + 1 == ytPlaylists.Count + playlistsName.Count)
+                {
+                    holder.ItemView.SetPadding((int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f), listPadding);
+                    LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams)holder.more.LayoutParameters;
+                    layoutParams.SetMargins(0, 0, 0, listPadding);
+                    holder.more.LayoutParameters = layoutParams;
+                }
+                else
+                {
+                    holder.ItemView.SetPadding((int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f));
+                    LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams)holder.more.LayoutParameters;
+                    layoutParams.SetMargins(0, 0, 0, 0);
+                    holder.more.LayoutParameters = layoutParams;
+                }
             }
         }
 

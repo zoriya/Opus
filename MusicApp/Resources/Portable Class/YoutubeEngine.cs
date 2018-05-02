@@ -1,12 +1,13 @@
-﻿using Android.App;
-using Android.Content;
+﻿using Android.Content;
 using Android.Database;
 using Android.OS;
 using Android.Preferences;
 using Android.Provider;
 using Android.Runtime;
 using Android.Support.Design.Widget;
+using Android.Support.V4.App;
 using Android.Support.V7.App;
+using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Google.Apis.YouTube.v3;
@@ -22,129 +23,169 @@ using YoutubeExplode.Models.MediaStreams;
 
 namespace MusicApp.Resources.Portable_Class
 {
-    [Activity(Label = "YoutubeSearch", Theme = "@style/Theme", WindowSoftInputMode = SoftInput.AdjustResize | SoftInput.StateHidden)]
-    public class YoutubeEngine : AppCompatActivity
+    public class YoutubeEngine : Fragment
     {
         public static YoutubeEngine instance;
         public static YouTubeService youtubeService;
-        public List<Song> result;
+        public List<YtFile> result;
 
-        private ListView ListView;
-        private View emptyView;
+        private RecyclerView ListView;
+        private YtAdapter adapter;
+        public View emptyView;
+        public static View loadingView;
         private string[] actions = new string[] { "Play", "Play Next", "Play Last", "Add To Playlist", "Download" };
         private string searchKeyWorld;
+        private string querryType;
 
-        protected override void OnCreate(Bundle savedInstanceState)
+        public override void OnActivityCreated(Bundle savedInstanceState)
         {
-            base.OnCreate(savedInstanceState);
-
-            if (MainActivity.Theme == 1)
-                SetTheme(Resource.Style.DarkTheme);
-
-            SetContentView(Resource.Layout.youtubeLayout);
+            base.OnActivityCreated(savedInstanceState);
             instance = this;
-
-            ListView = FindViewById<ListView>(Resource.Id.ytSearchList);
-            ListView.ItemClick += ListView_ItemClick;
-            ListView.ItemLongClick += ListView_ItemLongClick;
-            ListView.Scroll += MainActivity.instance.Scroll;
-
-            emptyView = LayoutInflater.Inflate(Resource.Layout.DownloadLayout, null);
-            ListView.EmptyView = emptyView;
-
-            if (youtubeService == null)
-                MainActivity.instance.Login();
-
+            ListView.ScrollChange += MainActivity.instance.Scroll;
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
-
-            Android.Support.V7.Widget.Toolbar toolbar = FindViewById<Android.Support.V7.Widget.Toolbar>(Resource.Id.toolbar);
-            SetSupportActionBar(toolbar);
-            SupportActionBar.SetDisplayHomeAsUpEnabled(true);
-
-            var bottomNavigation = FindViewById<BottomNavigationView>(Resource.Id.bottomView);
-            bottomNavigation.NavigationItemSelected += PreNavigate;
-
-#pragma warning disable CS4014 
-            Search(Intent.GetStringExtra("search"));
+            MainActivity.instance.OnPaddingChanged += OnPaddingChanged;
+            MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
         }
 
-        private void PreNavigate(object sender, BottomNavigationView.NavigationItemSelectedEventArgs e)
+        public void OnPaddingChanged(object sender, PaddingChange e)
         {
-            //Calling SupportTransition of Navigate before returning to the MainActivity, maybe use Intent with Action
-            //Finish();
-            //MainActivity.instance.Navigate(e.Item.ItemId);
+            if (MainActivity.paddingBot > e.oldPadding)
+                adapter.listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot;
+            else
+                adapter.listPadding = (int)(8 * MainActivity.instance.Resources.DisplayMetrics.Density + 0.5f);
         }
 
-        public override bool OnCreateOptionsMenu(IMenu menu)
+        public static Fragment NewInstance(string searchQuery, string querryType)
         {
-            MenuInflater.Inflate(Resource.Menu.ytSearch, menu);
-            var searchView = menu.FindItem(Resource.Id.search).ActionView.JavaCast<Android.Support.V7.Widget.SearchView>();
-            searchView.Iconified = false;
-            searchView.SetQuery(Intent.GetStringExtra("search"), false);
-            searchView.QueryTextSubmit += (s, e) =>
-            {
-                Search(e.Query);
-                e.Handled = true;
-            };
-            return base.OnCreateOptionsMenu(menu);
+            instance = new YoutubeEngine { Arguments = new Bundle() };
+            instance.searchKeyWorld = searchQuery;
+            instance.querryType = querryType;
+            return instance;
         }
 
-        public override bool OnOptionsItemSelected(IMenuItem item)
+        public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            if (item.ItemId == Android.Resource.Id.Home)
-            {
-                Finish();
-            }
-            return base.OnOptionsItemSelected(item);
+            View view = inflater.Inflate(Resource.Layout.RecyclerFragment, container, false);
+            ListView = view.FindViewById<RecyclerView>(Resource.Id.recycler);
+            view.SetPadding(0, 0, 0, MainActivity.defaultPaddingBot);
+            ListView.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
+            ListView.SetItemAnimator(new DefaultItemAnimator());
+            ListView.ScrollChange += MainActivity.instance.Scroll;
+
+#pragma warning disable CS4014
+            Search(searchKeyWorld, querryType, true);
+            return view;
         }
 
-        public async Task Search(string search, bool loadingBar = true)
+        public async Task Search(string search, string querryType, bool loadingBar)
         {
             if (search == null || search == "")
                 return;
 
             searchKeyWorld = search;
 
-            View empty = null;
             if (loadingBar)
             {
-                ListView.Adapter = null;
-                ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
-                rootView.RemoveView(emptyView);
-                empty = LayoutInflater.Inflate(Resource.Layout.EmptyLoadingLayout, null);
-                ListView.EmptyView = empty;
-                AddContentView(empty, ListView.LayoutParameters);
+                adapter = null;
+                ListView.SetAdapter(null);
+                ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
+                rootView.RemoveView(loadingView);
+                loadingView = LayoutInflater.Inflate(Resource.Layout.EmptyLoadingLayout, null);
+                Activity.AddContentView(loadingView, ListView.LayoutParameters);
             }
 
             await MainActivity.instance.WaitForYoutube();
 
             SearchResource.ListRequest searchResult = youtubeService.Search.List("snippet");
-            searchResult.Fields = "items(id/videoId,snippet/title,snippet/thumbnails/high/url,snippet/channelTitle)";
+            searchResult.Fields = "items(id/videoId,id/kind,snippet/title,snippet/thumbnails/default/url,snippet/channelTitle)";
             searchResult.Q = search;
             searchResult.Type = "video";
+            switch (querryType)
+            {
+                case "All":
+                    searchResult.Type = "video,channel,playlist";
+                    break;
+                case "Tracks":
+                    searchResult.Type = "video";
+                    break;
+                case "Playlists":
+                    searchResult.Type = "playlist";
+                    break;
+                case "Channels":
+                    searchResult.Type = "channel";
+                    break;
+                default:
+                    searchResult.Type = "video";
+                    break;
+            }
             searchResult.MaxResults = 20;
 
             var searchReponse = await searchResult.ExecuteAsync();
 
-            result = new List<Song>();
+            result = new List<YtFile>();
 
             foreach(var video in searchReponse.Items)
             {
-                Song videoInfo = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.High.Url, video.Id.VideoId, -1, -1, video.Id.VideoId, true);
-                result.Add(videoInfo);
+                Song videoInfo = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.Default__.Url, video.Id.VideoId, -1, -1, video.Id.VideoId, true);
+                YtKind kind = YtKind.Null;
+
+                switch (video.Id.Kind)
+                {
+                    case "youtube#video":
+                        kind = YtKind.Video;
+                        break;
+                    case "youtube#playlist":
+                        kind = YtKind.Playlist;
+                        break;
+                    case "youtube#channel":
+                        kind = YtKind.Channel;
+                        break;
+                    default:
+                        System.Console.WriteLine("&Kind = " + video.Id.Kind);
+                        break;
+                }
+                result.Add(new YtFile(videoInfo, kind));
             }
 
             if (loadingBar)
             {
-                ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
-                rootView.RemoveView(empty);
-                ListView.EmptyView = emptyView;
+                ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
+                rootView.RemoveView(loadingView);
             }
 
-            ListView.Adapter = new Adapter(this, Resource.Layout.SongList, result);
+            adapter = new YtAdapter(result)
+            {
+                listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot
+            };
+            ListView.SetAdapter(adapter);
+
+            if(adapter == null || adapter.ItemCount == 0)
+            {
+                emptyView = LayoutInflater.Inflate(Resource.Layout.EmptyYoutubeSearch, null);
+
+                switch (querryType)
+                {
+                    case "All":
+                        ((TextView)emptyView).Text = "No result for " + search;
+                        break;
+                    case "Tracks":
+                        ((TextView)emptyView).Text = "No tracks for " + search;
+                        break;
+                    case "Playlists":
+                        ((TextView)emptyView).Text = "No Playlist for " + search;
+                        break;
+                    case "Channels":
+                        ((TextView)emptyView).Text = "No channel for " + search;
+                        break;
+                    default:
+                        break;
+                }
+
+                Activity.AddContentView(loadingView, ListView.LayoutParameters);
+            }
         }
 
-        private async void OnRefresh(object sender, System.EventArgs e)
+        public async void OnRefresh(object sender, System.EventArgs e)
         {
             await Refresh();
             MainActivity.instance.contentRefresh.Refreshing = false;
@@ -152,23 +193,23 @@ namespace MusicApp.Resources.Portable_Class
 
         public async Task Refresh()
         {
-            await Search(searchKeyWorld, false);
+            await Search(searchKeyWorld, querryType, false);
         }
 
         private void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
         {
-            Play(result[e.Position].GetPath(), result[e.Position].GetName(), result[e.Position].GetArtist(), result[e.Position].GetAlbum());
+            Play(result[e.Position].item.GetPath(), result[e.Position].item.GetName(), result[e.Position].item.GetArtist(), result[e.Position].item.GetAlbum());
         }
 
         private void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
         {
-            Song item = result[e.Position];
+            Song item = result[e.Position].item;
             More(item);
         }
 
         public void More(Song item)
         {
-            Android.Support.V7.App.AlertDialog.Builder builder = new Android.Support.V7.App.AlertDialog.Builder(this, MainActivity.dialogTheme);
+            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
             builder.SetTitle("Pick an action");
             builder.SetItems(actions, (senderAlert, args) =>
             {
@@ -184,7 +225,7 @@ namespace MusicApp.Resources.Portable_Class
                         PlayLast(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
                         break;
                     case 3:
-                        GetPlaylists(item.GetPath(), this);
+                        GetPlaylists(item.GetPath(), Activity);
                         break;
                     case 4:
                         Download(item.GetName(), item.GetPath());
@@ -200,21 +241,21 @@ namespace MusicApp.Resources.Portable_Class
         {
             if (!skipExistVerification && FileIsAlreadyDownloaded(videoID))
             {
-                Context context = Application.Context;
+                Context context = Android.App.Application.Context;
                 Intent mIntent = new Intent(context, typeof(MusicPlayer));
                 mIntent.PutExtra("file", GetLocalPathFromYTID(videoID));
                 mIntent.SetAction("Play");
                 context.StartService(mIntent);
                 int localID = MusicPlayer.queue.Count;
 
-                Snackbar.Make((instance == null) ? MainActivity.instance.FindViewById(Resource.Id.snackBar) : instance.FindViewById(Resource.Id.snackBar), title + " has been downloaded on your device. Playing the local file instead of the online one.", Snackbar.LengthShort).SetAction("Play the youtube file anyway.", (v) =>
+                Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), title + " has been downloaded on your device. Playing the local file instead of the online one.", Snackbar.LengthShort).SetAction("Play the youtube file anyway.", (v) =>
                 {
                     Queue.RemoveFromQueue(MusicPlayer.queue[localID]);
                     Play(videoID, title, artist, thumbnailURL, true);
                 }).Show();
             }
 
-            ProgressBar parseProgress = (instance == null) ? MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress) : instance.FindViewById<ProgressBar>(Resource.Id.ytProgress);
+            ProgressBar parseProgress = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress);
             parseProgress.Visibility = ViewStates.Visible;
             parseProgress.ScaleY = 6;
 
@@ -222,13 +263,13 @@ namespace MusicApp.Resources.Portable_Class
             var mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(videoID);
             AudioStreamInfo streamInfo = mediaStreamInfo.Audio.OrderBy(s => s.Bitrate).Last();
 
-            Intent intent = new Intent(Application.Context, typeof(MusicPlayer));
+            Intent intent = new Intent(Android.App.Application.Context, typeof(MusicPlayer));
             intent.PutExtra("file", streamInfo.Url);
             intent.PutExtra("title", title);
             intent.PutExtra("artist", artist);
             intent.PutExtra("youtubeID", videoID);
             intent.PutExtra("thumbnailURI", thumbnailURL);
-            Application.Context.StartService(intent);
+            Android.App.Application.Context.StartService(intent);
 
             parseProgress.Visibility = ViewStates.Gone;
 
@@ -241,7 +282,7 @@ namespace MusicApp.Resources.Portable_Class
             else
             {
                 await Task.Delay(100);
-                intent = new Intent(Application.Context, typeof(MainActivity));
+                intent = new Intent(Android.App.Application.Context, typeof(MainActivity));
                 intent.SetAction("Player");
                 instance.StartActivity(intent);
                 instance = null;
@@ -279,14 +320,14 @@ namespace MusicApp.Resources.Portable_Class
 
                     if (downloadedSong.Count == 1)
                     {
-                        Context context = Application.Context;
+                        Context context = Android.App.Application.Context;
                         Intent intent = new Intent(context, typeof(MusicPlayer));
                         intent.PutExtra("file", GetLocalPathFromYTID(downloadedSong[0].youtubeID));
                         intent.SetAction("PlayLast");
                         context.StartService(intent);
                         int localID = MusicPlayer.queue.Count;
 
-                        Snackbar.Make((instance == null) ? MainActivity.instance.FindViewById(Resource.Id.snackBar) : instance.FindViewById(Resource.Id.snackBar), downloadedSong[0].GetName() + " has been downloaded on your device. Playing the local file instead of the online one.", Snackbar.LengthShort).SetAction("Play the youtube file anyway.", (v) =>
+                        Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), downloadedSong[0].GetName() + " has been downloaded on your device. Playing the local file instead of the online one.", Snackbar.LengthShort).SetAction("Play the youtube file anyway.", (v) =>
                         {
                             Queue.RemoveFromQueue(MusicPlayer.queue[localID]);
                             MusicPlayer.queue.Insert(MusicPlayer.queue.Count, downloadedSong[0]);
@@ -298,7 +339,7 @@ namespace MusicApp.Resources.Portable_Class
                         for(int i = 0; i < downloadedSong.Count; i++)
                             localPaths.Add(GetLocalPathFromYTID(downloadedSong[i].youtubeID));
 
-                        Context context = Application.Context;
+                        Context context = Android.App.Application.Context;
                         Intent intent = new Intent(context, typeof(MusicPlayer));
                         intent.PutStringArrayListExtra("files", localPaths.ToArray());
                         intent.PutExtra("clearQueue", false);
@@ -306,7 +347,7 @@ namespace MusicApp.Resources.Portable_Class
                         context.StartService(intent);
                         int localID = MusicPlayer.queue.Count;
 
-                        Snackbar.Make((instance == null) ? MainActivity.instance.FindViewById(Resource.Id.snackBar) : instance.FindViewById(Resource.Id.snackBar), downloadedSong.Count + " files are on your device. Playing locals files instead of the online version.", Snackbar.LengthShort).SetAction("Play youtube files anyway", (v) =>
+                        Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), downloadedSong.Count + " files are on your device. Playing locals files instead of the online version.", Snackbar.LengthShort).SetAction("Play youtube files anyway", (v) =>
                         {
                             for (int i = 0; i < downloadedSong.Count; i++)
                             {
@@ -337,21 +378,21 @@ namespace MusicApp.Resources.Portable_Class
         {
             if (!skipExistVerification && FileIsAlreadyDownloaded(videoID))
             {
-                Context context = Application.Context;
+                Context context = Android.App.Application.Context;
                 Intent mIntent = new Intent(context, typeof(MusicPlayer));
                 mIntent.PutExtra("file", GetLocalPathFromYTID(videoID));
                 mIntent.SetAction("PlayNext");
                 context.StartService(mIntent);
                 int localID = MusicPlayer.queue.Count;
 
-                Snackbar.Make((instance == null) ? MainActivity.instance.FindViewById(Resource.Id.snackBar) : instance.FindViewById(Resource.Id.snackBar), title + " has been downloaded on your device. Playing the local file instead of the online one.", Snackbar.LengthShort).SetAction("Play the youtube file anyway.", (v) =>
+                Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), title + " has been downloaded on your device. Playing the local file instead of the online one.", Snackbar.LengthShort).SetAction("Play the youtube file anyway.", (v) =>
                 {
                     Queue.RemoveFromQueue(MusicPlayer.queue[localID]);
                     PlayNext(videoID, title, artist, thumbnailURL, true);
                 }).Show();
             }
 
-            ProgressBar parseProgress = (instance == null) ? MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress) : instance.FindViewById<ProgressBar>(Resource.Id.ytProgress);
+            ProgressBar parseProgress = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress);
             parseProgress.Visibility = ViewStates.Visible;
             parseProgress.ScaleY = 6;
 
@@ -366,7 +407,7 @@ namespace MusicApp.Resources.Portable_Class
             intent.PutExtra("artist", artist);
             intent.PutExtra("youtubeID", videoID);
             intent.PutExtra("thumbnailURI", thumbnailURL);
-            Application.Context.StartService(intent);
+            Android.App.Application.Context.StartService(intent);
 
             parseProgress.Visibility = ViewStates.Gone;
         }
@@ -375,14 +416,14 @@ namespace MusicApp.Resources.Portable_Class
         {
             if (!skipExistVerification && FileIsAlreadyDownloaded(videoID))
             {
-                Context context = Application.Context;
+                Context context = Android.App.Application.Context;
                 Intent mIntent = new Intent(context, typeof(MusicPlayer));
                 mIntent.PutExtra("file", GetLocalPathFromYTID(videoID));
                 mIntent.SetAction("PlayLast");
                 context.StartService(mIntent);
                 int localID = MusicPlayer.queue.Count;
 
-                Snackbar.Make((instance == null) ? MainActivity.instance.FindViewById(Resource.Id.snackBar) : instance.FindViewById(Resource.Id.snackBar), title + " has been downloaded on your device. Playing the local file instead of the online one.", Snackbar.LengthShort).SetAction("Play the youtube file anyway.", (v) =>
+                Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), title + " has been downloaded on your device. Playing the local file instead of the online one.", Snackbar.LengthShort).SetAction("Play the youtube file anyway.", (v) =>
                 {
                     Queue.RemoveFromQueue(MusicPlayer.queue[localID]);
                     PlayLast(videoID, title, artist, thumbnailURL, true);
@@ -390,7 +431,7 @@ namespace MusicApp.Resources.Portable_Class
             }
 
 
-            ProgressBar parseProgress = (instance == null) ? MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress) : instance.FindViewById<ProgressBar>(Resource.Id.ytProgress);
+            ProgressBar parseProgress = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress);
             parseProgress.Visibility = ViewStates.Visible;
             parseProgress.ScaleY = 6;
 
@@ -398,14 +439,14 @@ namespace MusicApp.Resources.Portable_Class
             var mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(videoID);
             AudioStreamInfo streamInfo = mediaStreamInfo.Audio.OrderBy(s => s.Bitrate).Last();
 
-            Intent intent = new Intent(Application.Context, typeof(MusicPlayer));
+            Intent intent = new Intent(Android.App.Application.Context, typeof(MusicPlayer));
             intent.SetAction("PlayLast");
             intent.PutExtra("file", streamInfo.Url);
             intent.PutExtra("title", title);
             intent.PutExtra("artist", artist);
             intent.PutExtra("youtubeID", videoID);
             intent.PutExtra("thumbnailURI", thumbnailURL);
-            Application.Context.StartService(intent);
+            Android.App.Application.Context.StartService(intent);
 
             parseProgress.Visibility = ViewStates.Gone;
         }
@@ -417,14 +458,14 @@ namespace MusicApp.Resources.Portable_Class
             {
                 if (FileIsAlreadyDownloaded(videoID) && !skipExistVerification)
                 {
-                    Snackbar.Make((instance == null) ? MainActivity.instance.FindViewById(Resource.Id.snackBar) : instance.FindViewById(Resource.Id.snackBar), name + " is already on your device.", Snackbar.LengthShort).SetAction("Download Anyway", (v) =>
+                    Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), name + " is already on your device.", Snackbar.LengthShort).SetAction("Download Anyway", (v) =>
                     {
                         Download(name, videoID, true);
                     }).Show();
                 }
 
-                Toast.MakeText(Application.Context, "Downloading...", ToastLength.Short).Show();
-                Context context = Application.Context;
+                Toast.MakeText(Android.App.Application.Context, "Downloading...", ToastLength.Short).Show();
+                Context context = Android.App.Application.Context;
                 Intent intent = new Intent(context, typeof(Downloader));
                 context.StartService(intent);
 
@@ -436,9 +477,9 @@ namespace MusicApp.Resources.Portable_Class
             }
             else
             {
-                Snackbar.Make((instance == null) ? MainActivity.instance.FindViewById(Resource.Id.snackBar) : instance.FindViewById(Resource.Id.snackBar), "Download Path Not Set.", Snackbar.LengthShort).SetAction("Set Path", (v) =>
+                Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), "Download Path Not Set.", Snackbar.LengthShort).SetAction("Set Path", (v) =>
                 {
-                    Intent intent = new Intent(Application.Context, typeof(Preferences));
+                    Intent intent = new Intent(Android.App.Application.Context, typeof(Preferences));
                     MainActivity.instance.StartActivity(intent);
                 }).Show();
             }
@@ -446,7 +487,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public static async void DownloadFiles(string[] names, string[] videoIDs, bool skipExistVerification = false)
         {
-            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
+            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Android.App.Application.Context);
             if (prefManager.GetString("downloadPath", null) != null)
             {
                 if (!skipExistVerification)
@@ -478,14 +519,14 @@ namespace MusicApp.Resources.Portable_Class
 
                         if (downloadedName.Count == 1)
                         {
-                            Snackbar.Make((instance == null) ? MainActivity.instance.FindViewById(Resource.Id.snackBar) : instance.FindViewById(Resource.Id.snackBar), downloadedName[0] + " is already on your device.", Snackbar.LengthShort).SetAction("Download this file anyway", (v) =>
+                            Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), downloadedName[0] + " is already on your device.", Snackbar.LengthShort).SetAction("Download this file anyway", (v) =>
                             {
                                 Downloader.instance.Download(new DownloadFile(downloadedName[0], downloadedID[0]));
                             }).Show();
                         }
                         else
                         {
-                            Snackbar.Make((instance == null) ? MainActivity.instance.FindViewById(Resource.Id.snackBar) : instance.FindViewById(Resource.Id.snackBar), downloadedName.Count + " files are already on your device", Snackbar.LengthShort).SetAction("Download all this files anyway", (v) =>
+                            Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), downloadedName.Count + " files are already on your device", Snackbar.LengthShort).SetAction("Download all this files anyway", (v) =>
                             {
                                 for(int i = 0; i < downloadedName.Count; i++)
                                     Downloader.instance.Download(new DownloadFile(downloadedName[i], downloadedID[i]));
@@ -495,8 +536,8 @@ namespace MusicApp.Resources.Portable_Class
                     }
                 }
 
-                Toast.MakeText(Application.Context, "Downloading...", ToastLength.Short).Show();
-                Context context = Application.Context;
+                Toast.MakeText(Android.App.Application.Context, "Downloading...", ToastLength.Short).Show();
+                Context context = Android.App.Application.Context;
                 Intent intent = new Intent(context, typeof(Downloader));
                 context.StartService(intent);
 
@@ -510,9 +551,9 @@ namespace MusicApp.Resources.Portable_Class
             }
             else
             {
-                Snackbar.Make((instance == null) ? MainActivity.instance.FindViewById(Resource.Id.snackBar) : instance.FindViewById(Resource.Id.snackBar), "Download Path Not Set.", Snackbar.LengthShort).SetAction("Set Path", (v) =>
+                Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), "Download Path Not Set.", Snackbar.LengthShort).SetAction("Set Path", (v) =>
                 {
-                    Intent intent = new Intent(Application.Context, typeof(Preferences));
+                    Intent intent = new Intent(Android.App.Application.Context, typeof(Preferences));
                     MainActivity.instance.StartActivity(intent);
                 }).Show();
             }
@@ -522,7 +563,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             Android.Net.Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
 
-            CursorLoader cursorLoader = new CursorLoader(Application.Context, musicUri, null, null, null, null);
+            CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
             ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
 
             if (musicCursor != null && musicCursor.MoveToFirst())
@@ -560,7 +601,7 @@ namespace MusicApp.Resources.Portable_Class
         public static string GetLocalPathFromYTID(string videoID)
         {
             Android.Net.Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
-            CursorLoader cursorLoader = new CursorLoader(Application.Context, musicUri, null, null, null, null);
+            CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
             ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
 
             if (musicCursor != null && musicCursor.MoveToFirst())

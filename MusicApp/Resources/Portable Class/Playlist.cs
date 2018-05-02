@@ -229,7 +229,6 @@ namespace MusicApp.Resources.Portable_Class
                 new Song(playList[Position], null, playListCount[Position].ToString(), null, -1, playlistId[Position], null) :
                 ytPlaylists[Position - playList.Count];
 
-            //Local
             AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
             builder.SetTitle("Pick an action");
             if (local)
