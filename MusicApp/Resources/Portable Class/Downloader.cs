@@ -14,7 +14,6 @@ using TagLib;
 using YoutubeExplode;
 using YoutubeExplode.Models;
 using YoutubeExplode.Models.MediaStreams;
-using FFMpeg.Xamarin;
 using File = System.IO.File;
 
 namespace MusicApp.Resources.Portable_Class
@@ -87,7 +86,10 @@ namespace MusicApp.Resources.Portable_Class
             YoutubeClient client = new YoutubeClient();
             Video videoInfo = await client.GetVideoAsync(file.videoID);
             MediaStreamInfoSet mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(file.videoID);
-            AudioStreamInfo streamInfo = mediaStreamInfo.Audio.OrderBy(s => s.Bitrate).Last();
+            AudioStreamInfo streamInfo = mediaStreamInfo.Audio.Where(x => x.Container == Container.M4A).OrderBy(s => s.Bitrate).Last();
+
+            System.Console.WriteLine("&" + streamInfo.Url);
+            //With Where container == Container.M4A, output file should be a m4a file, so ffmpeg is usless
 
             string fileExtension = streamInfo.Container.GetFileExtension();
             string fileName = $"{videoInfo.Title}.{fileExtension}";
@@ -104,12 +106,7 @@ namespace MusicApp.Resources.Portable_Class
 
             System.Console.WriteLine("&Webm Output created");
 
-            string outputPath = Path.Combine(path, videoInfo.Title + ".mp3");
-            await FFmpegLibrary.Run(Application.Context, "-y -i " + filePath + " -vn -ar 44100 -ac 2 -b:a 256k -f mp3 " + outputPath);
-
-            System.Console.WriteLine("&Mp3 output created");
-
-            SetMetaData(outputPath, videoInfo.Title, videoInfo.Author, videoInfo.Thumbnails.HighResUrl, file.videoID, null);
+            SetMetaData(filePath, videoInfo.Title, videoInfo.Author, videoInfo.Thumbnails.HighResUrl, file.videoID, null);
             isDownloading = false;
 
             if (queue.Count != 0)

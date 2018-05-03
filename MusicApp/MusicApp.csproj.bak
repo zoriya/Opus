@@ -18,7 +18,7 @@
     <AndroidResgenClass>Resource</AndroidResgenClass>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <AndroidUseLatestPlatformSdk>true</AndroidUseLatestPlatformSdk>
-    <TargetFrameworkVersion>v7.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v8.1</TargetFrameworkVersion>
     <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
     <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
     <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
@@ -40,8 +40,8 @@
     <EnableLLVM>false</EnableLLVM>
     <BundleAssemblies>false</BundleAssemblies>
     <Debugger>Xamarin</Debugger>
-    <AndroidSupportedAbis />
-    <AndroidEnableMultiDex>true</AndroidEnableMultiDex>
+    <AndroidSupportedAbis>armeabi;armeabi-v7a;x86;x86_64;arm64-v8a</AndroidSupportedAbis>
+    <AndroidEnableMultiDex>false</AndroidEnableMultiDex>
     <JavaMaximumHeapSize>1G</JavaMaximumHeapSize>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -96,8 +96,8 @@
     <Reference Include="Google.Apis.Core, Version=1.33.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
       <HintPath>..\packages\Google.Apis.Core.1.33.0\lib\netstandard1.3\Google.Apis.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Google.Apis.YouTube.v3, Version=1.33.0.1202, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
-      <HintPath>..\packages\Google.Apis.YouTube.v3.1.33.0.1202\lib\netstandard1.3\Google.Apis.YouTube.v3.dll</HintPath>
+    <Reference Include="Google.Apis.YouTube.v3, Version=1.33.0.1215, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Apis.YouTube.v3.1.33.0.1215\lib\netstandard1.3\Google.Apis.YouTube.v3.dll</HintPath>
     </Reference>
     <Reference Include="Java.Interop" />
     <Reference Include="Microsoft.CSharp" />
@@ -199,9 +199,6 @@
     <Reference Include="Xamarin.Android.Support.Vector.Drawable, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Xamarin.Android.Support.Vector.Drawable.27.0.2\lib\MonoAndroid81\Xamarin.Android.Support.Vector.Drawable.dll</HintPath>
     </Reference>
-    <Reference Include="Xamarin.FFmpeg, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Xamarin.FFmpeg.1.0.4\lib\Xamarin.FFmpeg.dll</HintPath>
-    </Reference>
     <Reference Include="Xamarin.GooglePlayServices.Auth, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Xamarin.GooglePlayServices.Auth.60.1142.1\lib\MonoAndroid80\Xamarin.GooglePlayServices.Auth.dll</HintPath>
     </Reference>
@@ -227,7 +224,6 @@
   <ItemGroup>
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="MainActivity.cs" />
-    <Compile Include="Resources\Fragments\DownloadFragment.cs" />
     <Compile Include="Resources\Fragments\EmptyFragment.cs" />
     <Compile Include="Resources\Portable Class\AccountPreference.cs" />
     <Compile Include="Resources\Portable Class\Adapter.cs" />
@@ -267,6 +263,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\values\ChannelHolder.cs" />
     <Compile Include="Resources\values\DownloadFile.cs" />
+    <Compile Include="Resources\values\EmptyCategoryHolder.cs" />
     <Compile Include="Resources\values\Folder.cs" />
     <Compile Include="Resources\values\FolderHolder.cs" />
     <Compile Include="Resources\values\Holder.cs" />
@@ -290,9 +287,6 @@
       <SubType>Designer</SubType>
     </AndroidResource>
     <AndroidResource Include="Resources\layout\BrowseLayout.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
-    <AndroidResource Include="Resources\layout\DownloadLayout.axml">
       <SubType>Designer</SubType>
     </AndroidResource>
   </ItemGroup>
@@ -537,14 +531,6 @@
     <AndroidResource Include="Resources\drawable\ic_filter_list_white_24dp.png" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\layout\youtubeLayout.xml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\menu\ytSearch.xml" />
-  </ItemGroup>
-  <ItemGroup>
     <AndroidResource Include="Resources\drawable\FlatButtonBorder.xml" />
   </ItemGroup>
   <ItemGroup>
@@ -552,6 +538,12 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\layout\LogOutButton.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\EmptyListCategory.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\EmptyYoutubeSearch.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

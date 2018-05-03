@@ -92,15 +92,10 @@ namespace MusicApp.Resources.Portable_Class
                 HeaderHolder holder = (HeaderHolder)viewHolder;
                 holder.headerText.Text = "Youtube Playlists";
             }
-            else if(position == 1 && playlistsName[1].StartsWith("EMPTY - "))
+            else if (position == 1 && playlistsName[1].StartsWith("EMPTY - "))
             {
                 EmptyCategoryHolder holder = (EmptyCategoryHolder)viewHolder;
                 holder.text.Text = playlistsName[1].Substring(8);
-            }
-            else if(position - playlistsName.Count == 1 && ytPlaylists[1].GetName() == "EMPTY")
-            {
-                EmptyCategoryHolder holder = (EmptyCategoryHolder)viewHolder;
-                holder.text.Text = ytPlaylists[1].GetArtist();
             }
             else if (playlistsName.Count >= position)
             {
@@ -142,7 +137,7 @@ namespace MusicApp.Resources.Portable_Class
                     holder.more.LayoutParameters = layoutParams;
                 }
             }
-            else
+            else if(position > playlistsName.Count)
             {
                 RecyclerHolder holder = (RecyclerHolder)viewHolder;
                 Song song = ytPlaylists[position - playlistsName.Count];
@@ -219,7 +214,7 @@ namespace MusicApp.Resources.Portable_Class
                 return 0;
             else if (playlistsName.Count >= position && (playlistsName.Count > 2 || !playlistsName[1].StartsWith("EMPTY - ")))
                 return 1;
-            else if(ytPlaylists.Count > 1 && (ytPlaylists.Count > 2 || ytPlaylists[1].GetName() != "EMPTY")) 
+            else if(position > playlistsName.Count && (ytPlaylists.Count > 2 || ytPlaylists[1].GetName() != "EMPTY")) 
                 return 2;
             else
                 return 3;

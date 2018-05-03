@@ -227,7 +227,7 @@ namespace MusicApp.Resources.Portable_Class
             int listPadding = 0;
             if (adapter != null)
                 listPadding = adapter.listPadding;
-            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, musicList)
+            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, result)
             {
                 listPadding = listPadding
             };

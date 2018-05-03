@@ -29,12 +29,14 @@ namespace MusicApp.Resources.Portable_Class
         public static YouTubeService youtubeService;
         public static string searchKeyWorld;
         public string querryType;
+        public bool focused = false;
+        public RecyclerView ListView;
         public List<YtFile> result;
 
-        private RecyclerView ListView;
         private YtAdapter adapter;
         public View emptyView;
         public static View loadingView;
+        private bool searching;
         private string[] actions = new string[] { "Play", "Play Next", "Play Last", "Add To Playlist", "Download" };
 
         public override void OnActivityCreated(Bundle savedInstanceState)
@@ -51,6 +53,28 @@ namespace MusicApp.Resources.Portable_Class
                 adapter.listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot;
             else
                 adapter.listPadding = (int)(8 * MainActivity.instance.Resources.DisplayMetrics.Density + 0.5f);
+        }
+
+        public void OnFocus()
+        {
+            if (searching)
+            {
+                adapter = null;
+                ListView.SetAdapter(null);
+                ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
+                rootView.RemoveView(loadingView);
+                loadingView = LayoutInflater.Inflate(Resource.Layout.EmptyLoadingLayout, null);
+                Activity.AddContentView(loadingView, ListView.LayoutParameters);
+            }
+        }
+
+        public void OnUnfocus()
+        {
+            if (searching)
+            {
+                ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
+                rootView.RemoveView(loadingView);
+            }
         }
 
         public static Fragment[] NewInstances(string searchQuery)
@@ -89,9 +113,10 @@ namespace MusicApp.Resources.Portable_Class
             if (search == null || search == "")
                 return;
 
+            searching = true;
             searchKeyWorld = search;
 
-            if (loadingBar)
+            if (loadingBar && focused)
             {
                 adapter = null;
                 ListView.SetAdapter(null);
@@ -105,7 +130,7 @@ namespace MusicApp.Resources.Portable_Class
 
             SearchResource.ListRequest searchResult = youtubeService.Search.List("snippet");
             searchResult.Fields = "items(id/videoId,id/kind,snippet/title,snippet/thumbnails/default/url,snippet/channelTitle)";
-            searchResult.Q = search;
+            searchResult.Q = search.Replace(" ", "+-");
             searchResult.Type = "video";
             switch (querryType)
             {
@@ -154,7 +179,7 @@ namespace MusicApp.Resources.Portable_Class
                 result.Add(new YtFile(videoInfo, kind));
             }
 
-            if (loadingBar)
+            if (loadingBar && focused)
             {
                 ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
                 rootView.RemoveView(loadingView);
@@ -167,8 +192,9 @@ namespace MusicApp.Resources.Portable_Class
             adapter.ItemClick += ListView_ItemClick;
             adapter.ItemLongCLick += ListView_ItemLongClick;
             ListView.SetAdapter(adapter);
+            searching = false;
 
-            if(adapter == null || adapter.ItemCount == 0)
+            if (adapter == null || adapter.ItemCount == 0)
             {
                 emptyView = LayoutInflater.Inflate(Resource.Layout.EmptyYoutubeSearch, null);
 

@@ -48,7 +48,7 @@ public class AccountPreference : Preference, IResultCallback
         else
         {
             log.Text = "Log Out";
-            Picasso.With(Android.App.Application.Context).Load(MainActivity.account.PhotoUrl).Into(view.FindViewById<ImageView>(Android.Resource.Id.Icon));
+            Picasso.With(Android.App.Application.Context).Load(MainActivity.account.PhotoUrl).Transform(new CircleTransformation()).Into(view.FindViewById<ImageView>(Android.Resource.Id.Icon));
             log.SetTextColor(Android.Graphics.Color.Red);
             log.Click += logOut;
         }
@@ -58,7 +58,7 @@ public class AccountPreference : Preference, IResultCallback
     {
         Button log = (Button)view.FindViewById(Resource.Id.logButton);
         log.Text = "Log Out";
-        Picasso.With(Android.App.Application.Context).Load(MainActivity.account.PhotoUrl).Into(view.FindViewById<ImageView>(Android.Resource.Id.Icon));
+        Picasso.With(Android.App.Application.Context).Load(MainActivity.account.PhotoUrl).Transform(new CircleTransformation()).Into(view.FindViewById<ImageView>(Android.Resource.Id.Icon));
         log.SetTextColor(Android.Graphics.Color.Red);
         log.Click -= logIn;
     }

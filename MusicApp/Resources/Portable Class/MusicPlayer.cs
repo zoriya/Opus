@@ -15,7 +15,6 @@ using Com.Google.Android.Exoplayer2.Extractor;
 using Com.Google.Android.Exoplayer2.Source;
 using Com.Google.Android.Exoplayer2.Trackselection;
 using Com.Google.Android.Exoplayer2.Upstream;
-using Java.Lang;
 using MusicApp.Resources.values;
 using Square.Picasso;
 using System;
@@ -689,6 +688,7 @@ namespace MusicApp.Resources.Portable_Class
                 if (isRunning)
                     player.Stop();
                 player.Release();
+                player = null;
                 StopForeground(true);
             }
         }

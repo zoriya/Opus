@@ -75,6 +75,7 @@ namespace MusicApp
         public GoogleApiClient googleClient;
         private bool canAsk;
         private bool waitingForYoutube;
+        private bool ResumeKiller;
 
         public event EventHandler<PaddingChange> OnPaddingChanged;
 
@@ -203,12 +204,18 @@ namespace MusicApp
                     silentLog.SetResultCallback(this);
                 }
                 else if (canAsk)
+                {
+                    ResumeKiller = true;
                     StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);
+                }
 
                 return;
             }
-            if(canAsk)
+            if (canAsk)
+            {
+                ResumeKiller = true;
                 StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);
+            }
         }
 
         protected override void OnActivityResult(int requestCode, [GeneratedEnum] Result resultCode, Intent data)
@@ -234,6 +241,7 @@ namespace MusicApp
             }
             else if(canAsk)
             {
+                ResumeKiller = true;
                 StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);
             }
         }
@@ -381,6 +389,7 @@ namespace MusicApp
                 {
                     SaveInstance();
                     SetYtTabs(e.Query, 0);
+                    YoutubeEngine.instances[0].focused = true;
                 }
                 e.Handled = true;
             };
@@ -742,13 +751,13 @@ namespace MusicApp
                 else
                     FolderBrowse.instance.ListView.SmoothScrollToPosition(0);
             }
-            //else if (Playlist.instance != null)
-            //{
-            //    if (Playlist.instance.focused)
-            //        Playlist.instance.ListView.SmoothScrollToPosition(0);
-            //    else
-            //        YtPlaylist.instance.ListView.SmoothScrollToPosition(0);
-            //}
+            foreach(YoutubeEngine instance in YoutubeEngine.instances)
+            {
+                if (instance.focused)
+                {
+                    instance.ListView.SmoothScrollToPosition(0);
+                }
+            }
         }
 
         async void CanSwitchDelay()
@@ -766,34 +775,6 @@ namespace MusicApp
 
         public void OnPageSelected(int position)
         {
-            //if (YoutubeEngine.instance != null)
-            //{
-            //    if (position == 0)
-            //    {
-            //        if (Playlist.instance.isEmpty)
-            //            Playlist.instance.AddEmptyView();
-            //        if (YtPlaylist.instance.isEmpty)
-            //            YtPlaylist.instance.RemoveEmptyView();
-
-            //        Playlist.instance.focused = true;
-            //        YtPlaylist.instance.focused = false;
-
-            //        Playlist.instance.ListView.SmoothScrollToPosition(0);
-            //    }
-            //    if (position == 1)
-            //    {
-            //        if (Playlist.instance.isEmpty)
-            //            Playlist.instance.RemoveEmptyView();
-            //        if (YtPlaylist.instance.isEmpty)
-            //            YtPlaylist.instance.AddEmptyView();
-
-            //        Playlist.instance.focused = false;
-            //        YtPlaylist.instance.focused = true;
-
-            //        YtPlaylist.instance.ListView.SmoothScrollToPosition(0);
-            //    }
-            //}
-
             if (Browse.instance != null)
             {
                 if(!FolderBrowse.instance.populated)
@@ -813,6 +794,17 @@ namespace MusicApp
                     HideSearch();
                     Browse.instance.ListView.SmoothScrollToPosition(0);
                 }
+            }
+            else if (YoutubeEngine.instances != null)
+            {
+                foreach(YoutubeEngine instance in YoutubeEngine.instances)
+                {
+                    if (instance.focused)
+                        instance.OnUnfocus();
+                    instance.focused = false;
+                }
+                YoutubeEngine.instances[position].focused = true;
+                YoutubeEngine.instances[position].OnFocus();
             }
         }
 
@@ -890,7 +882,7 @@ namespace MusicApp
                 prepared = true;
 
                 SwipeDismissBehavior behavior = new SwipeDismissBehavior();
-                behavior.SetSwipeDirection(SwipeDismissBehavior.SwipeDirectionAny);
+                behavior.SetSwipeDirection(SwipeDismissBehavior.SwipeDirectionStartToEnd);
                 behavior.SetListener(this);
 
                 CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) smallPlayer.FindViewById<CardView>(Resource.Id.cardPlayer).LayoutParameters;
@@ -901,11 +893,10 @@ namespace MusicApp
 
         public void OnDismiss(View view)
         {
-            HideSmallPlayer();
-
             Intent intent = new Intent(this, typeof(MusicPlayer));
             intent.SetAction("Stop");
             StartService(intent);
+            view.Alpha = 1;
         }
 
         public void OnDragStateChanged(int state) { }
@@ -969,7 +960,7 @@ namespace MusicApp
             }
             else if(requestCode == 2659)
             {
-                System.Console.WriteLine("&Write permission authorized");
+                Console.WriteLine("&Write permission authorized");
             }
         }
 
@@ -1255,7 +1246,7 @@ namespace MusicApp
         {
             base.OnResume();
 
-            if(parcelableSender != null)
+            if(parcelableSender != null && !ResumeKiller)
             {
                 var searchView = menu.FindItem(Resource.Id.search).ActionView.JavaCast<SearchView>();
                 menu.FindItem(Resource.Id.search).CollapseActionView();
@@ -1264,6 +1255,9 @@ namespace MusicApp
                 searchView.SetQuery("", false);
                 ResumeInstance();
             }
+
+            if (ResumeKiller)
+                ResumeKiller = false;
         }
 
         void SaveInstance()
