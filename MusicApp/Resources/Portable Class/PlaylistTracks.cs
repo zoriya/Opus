@@ -282,7 +282,7 @@ namespace MusicApp.Resources.Portable_Class
         private void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
         {
             Song item = tracks[e.Position];
-            if (result != null)
+            if (result != null && result.Count - 1 >= e.Position)
                 item = result[e.Position];
 
             if (!item.IsYt)

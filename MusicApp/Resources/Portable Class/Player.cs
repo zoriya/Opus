@@ -112,11 +112,6 @@ namespace MusicApp.Resources.Portable_Class
                 Picasso.With(Android.App.Application.Context).Load(current.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(imgView);
             }
 
-            bar = playerView.FindViewById<SeekBar>(Resource.Id.songTimer);
-            MusicPlayer.SetSeekBar(bar);
-            handler.PostDelayed(UpdateSeekBar, 1000);
-
-
             TextView NextTitle = playerView.FindViewById<TextView>(Resource.Id.nextTitle);
             TextView NextAlbum = playerView.FindViewById<TextView>(Resource.Id.nextArtist);
             Button ShowQueue = playerView.FindViewById<Button>(Resource.Id.showQueue);
@@ -145,7 +140,7 @@ namespace MusicApp.Resources.Portable_Class
                 NextAlbum.Text = next.GetName();
                 ImageView nextArt = playerView.FindViewById<ImageView>(Resource.Id.nextArt);
 
-                if(next.GetAlbum() == null)
+                if (next.GetAlbum() == null)
                 {
                     var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
                     var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, next.GetAlbumArt());
@@ -166,10 +161,12 @@ namespace MusicApp.Resources.Portable_Class
                 Picasso.With(Android.App.Application.Context).Load(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
             }
 
-            while (MusicPlayer.player.Duration < 1)
+            while (MusicPlayer.player == null)
                 await Task.Delay(100);
 
-            bar.Max = (int)MusicPlayer.player.Duration;
+            bar = playerView.FindViewById<SeekBar>(Resource.Id.songTimer);
+            MusicPlayer.SetSeekBar(bar);
+            handler.PostDelayed(UpdateSeekBar, 1000);
         }
 
         public async void RefreshPlayer()
@@ -299,7 +296,9 @@ namespace MusicApp.Resources.Portable_Class
         private void Fab_Click(object sender, EventArgs e)
         {
             MainActivity.instance.SupportFragmentManager.PopBackStack();
-            MainActivity.instance.FindViewById<BottomNavigationView>(Resource.Id.bottomView).SelectedItemId = Resource.Id.musicLayout;
+            MainActivity.instance.ResumeInstance();
+            //OnDestroy();
+            //MainActivity.instance.FindViewById<BottomNavigationView>(Resource.Id.bottomView).SelectedItemId = Resource.Id.musicLayout;
         }
 
         private void ShowQueue_Click(object sender, EventArgs e)

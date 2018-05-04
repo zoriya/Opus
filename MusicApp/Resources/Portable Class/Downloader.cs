@@ -5,10 +5,13 @@ using Android.Content.PM;
 using Android.OS;
 using Android.Provider;
 using Android.Support.V4.App;
+using Java.IO;
+using Java.Net;
 using MusicApp.Resources.values;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using TagLib;
 using YoutubeExplode;
@@ -106,14 +109,14 @@ namespace MusicApp.Resources.Portable_Class
 
             System.Console.WriteLine("&Webm Output created");
 
-            SetMetaData(filePath, videoInfo.Title, videoInfo.Author, videoInfo.Thumbnails.HighResUrl, file.videoID, null);
+            SetMetaData(filePath, videoInfo.Title, videoInfo.Author, videoInfo.Thumbnails.HighResUrl, file.videoID);
             isDownloading = false;
 
             if (queue.Count != 0)
                 DownloadAudio(queue[0], path);
         }
 
-        private void SetMetaData(string filePath, string title, string artist, string album, string youtubeID, Android.Net.Uri artURI)
+        private void SetMetaData(string filePath, string title, string artist, string album, string youtubeID)
         {
             Stream stream = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite);
             var meta = TagLib.File.Create(new StreamFileAbstraction(filePath, stream, stream));
@@ -123,19 +126,11 @@ namespace MusicApp.Resources.Portable_Class
             meta.Tag.Album = album;
             meta.Tag.Comment = youtubeID;
 
-            if (artURI != null)
-            {
-                IPicture[] pictures = new IPicture[1];
-
-                Android.Graphics.Bitmap bitmap = MediaStore.Images.Media.GetBitmap(ContentResolver, artURI);
-                MemoryStream memoryStream = new MemoryStream();
-                bitmap.Compress(Android.Graphics.Bitmap.CompressFormat.Jpeg, 100, memoryStream);
-                byte[] data = memoryStream.ToArray();
-
-                pictures[0] = new Picture(data);
-                meta.Tag.Pictures = pictures;
-            }
-
+            IPicture[] pictures = new IPicture[1];
+            WebClient client = new WebClient();
+            byte[] data = client.DownloadData(album);
+            pictures[0] = new Picture(data);
+            meta.Tag.Pictures = pictures;
             meta.Save();
             stream.Dispose();
             Android.Media.MediaScannerConnection.ScanFile(this, new string[] { filePath }, null, null);

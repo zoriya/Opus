@@ -386,7 +386,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public void PlayNext()
         {
-            if (CurrentID() + 1 > queue.Count - 1)
+            if (CurrentID() + 1 > queue.Count - 1 || CurrentID() == -1)
             {
                 Pause();
                 return;
@@ -454,7 +454,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public static async void ParseNextSong()
         {
-            if (CurrentID() + 1 > queue.Count)
+            if (CurrentID() + 1 > queue.Count - 1 || CurrentID() == -1)
                 return;
 
             Song song = queue[CurrentID() + 1];
@@ -466,7 +466,7 @@ namespace MusicApp.Resources.Portable_Class
                 parsing = true;
                 YoutubeClient client = new YoutubeClient();
                 MediaStreamInfoSet mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(song.youtubeID);
-                AudioStreamInfo streamInfo = mediaStreamInfo.Audio.OrderBy(s => s.Bitrate).Last();
+                AudioStreamInfo streamInfo = mediaStreamInfo.Audio.Where(x => x.Container == Container.M4A).OrderBy(s => s.Bitrate).Last();
                 song.SetPath(streamInfo.Url);
                 song.isParsed = true;
                 parsing = false;
@@ -485,7 +485,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             get
             {
-                return (int) player.CurrentPosition;
+                return player == null ? 0 : (int)player.CurrentPosition;
             }
         }
 
@@ -550,7 +550,7 @@ namespace MusicApp.Resources.Portable_Class
                         {
                             icon = Picasso.With(Application.Context).Load(iconURI).Error(Resource.Drawable.MusicIcon).Placeholder(Resource.Drawable.MusicIcon).NetworkPolicy(NetworkPolicy.Offline).Resize(400, 400).CenterCrop().Get();
                         }
-                        catch (System.Exception) //Can be Java.Lang.Exception
+                        catch (Exception)
                         {
                             icon = Picasso.With(Application.Context).Load(Resource.Drawable.MusicIcon).Get();
                         }
@@ -572,7 +572,7 @@ namespace MusicApp.Resources.Portable_Class
                     {
                         icon = Picasso.With(Application.Context).Load(imageURI).Error(Resource.Drawable.MusicIcon).Placeholder(Resource.Drawable.MusicIcon).NetworkPolicy(NetworkPolicy.Offline).Resize(400, 400).CenterCrop().Get();
                     }
-                    catch (System.Exception) //Can be Java.Lang.Exception
+                    catch (Exception)
                     {
                         icon = Picasso.With(Application.Context).Load(Resource.Drawable.MusicIcon).Get();
                     }
@@ -748,23 +748,13 @@ namespace MusicApp.Resources.Portable_Class
         public override void OnDestroy()
         {
             base.OnDestroy();
-
-            isRunning = false;
+            Stop();
             instance = null;
-
-            if (player != null)
-                player.Release();
         }
 
-        public void OnLoadingChanged(bool p0)
-        {
+        public void OnLoadingChanged(bool p0) { }
 
-        }
-
-        public void OnPlaybackParametersChanged(PlaybackParameters p0)
-        {
-
-        }
+        public void OnPlaybackParametersChanged(PlaybackParameters p0) { }
 
         public void OnPlayerError(ExoPlaybackException args)
         {
@@ -780,40 +770,19 @@ namespace MusicApp.Resources.Portable_Class
         }
 
 
-        public void OnPositionDiscontinuity()
-        {
+        public void OnPositionDiscontinuity() { }
 
-        }
+        public void OnRepeatModeChanged(int p0) { }
 
-        public void OnRepeatModeChanged(int p0)
-        {
+        public void OnTracksChanged(TrackGroupArray p0, TrackSelectionArray p1) { }
 
-        }
+        public void OnPositionDiscontinuity(int p0) { }
 
-        public void OnTracksChanged(TrackGroupArray p0, TrackSelectionArray p1)
-        {
+        public void OnSeekProcessed() { }
 
-        }
+        public void OnShuffleModeEnabledChanged(bool p0) { }
 
-        public void OnPositionDiscontinuity(int p0)
-        {
-            
-        }
-
-        public void OnSeekProcessed()
-        {
-            
-        }
-
-        public void OnShuffleModeEnabledChanged(bool p0)
-        {
-            
-        }
-
-        public void OnTimelineChanged(Timeline p0, Java.Lang.Object p1, int p2)
-        {
-
-        }
+        public void OnTimelineChanged(Timeline p0, Java.Lang.Object p1, int p2) { }
     }
 }
  

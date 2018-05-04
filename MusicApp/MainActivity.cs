@@ -112,7 +112,6 @@ namespace MusicApp
             playToCross = GetDrawable(Resource.Drawable.PlayToCross);
             crossToPlay = GetDrawable(Resource.Drawable.CrossToPlay);
 
-
             if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
             {
                 NotificationManager notificationManager = (NotificationManager)GetSystemService(NotificationService);
@@ -345,6 +344,7 @@ namespace MusicApp
             await Task.Delay(100);
             HideTabs();
             HideSearch();
+            SaveInstance();
             SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).Commit();
         }
 
@@ -390,6 +390,7 @@ namespace MusicApp
                     SaveInstance();
                     SetYtTabs(e.Query, 0);
                     YoutubeEngine.instances[0].focused = true;
+                    YoutubeEngine.instances[0].OnFocus();
                 }
                 e.Handled = true;
             };
@@ -542,7 +543,7 @@ namespace MusicApp
             Navigate(e.Item.ItemId);
         }
 
-        public void Navigate(int layout)
+        public void Navigate(int layout, bool resuming = false)
         {
             if(YoutubeEngine.instances != null)
             {
@@ -568,7 +569,7 @@ namespace MusicApp
             switch (layout)
             {
                 case Resource.Id.musicLayout:
-                    if (Home.instance != null && YoutubeEngine.instances != null)
+                    if (Home.instance != null && YoutubeEngine.instances != null && !resuming)
                     {
                         Home.instance.Refresh();
                         return;
@@ -582,7 +583,8 @@ namespace MusicApp
                     break;
 
                 case Resource.Id.browseLayout:
-                    if (Browse.instance != null && YoutubeEngine.instances != null)
+                    Console.WriteLine("&Switching to browse");
+                    if (Browse.instance != null && YoutubeEngine.instances != null && !resuming)
                     {
                         Browse.instance.Refresh();
                         return;
@@ -595,7 +597,7 @@ namespace MusicApp
                     break;
 
                 case Resource.Id.playlistLayout:
-                    if (Playlist.instance != null && YoutubeEngine.instances != null)
+                    if (Playlist.instance != null && YoutubeEngine.instances != null && !resuming)
                     {
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                         Playlist.instance.Refresh();
@@ -619,12 +621,10 @@ namespace MusicApp
 
         async void SetBrowseTabs(int selectedTab = 0)
         {
-            if (Browse.instance != null)
-                return;
             while (!canSwitch)
                 await Task.Delay(10);
 
-            if (tab != "Browse" || Browse.instance != null)
+            if (tab != "Browse")
                 return;
 
             canSwitch = false;
@@ -650,6 +650,12 @@ namespace MusicApp
                 oldAdapter.AddFragment(FolderBrowse.NewInstance(), "Folders");
 
                 pager.Adapter = oldAdapter;
+            }
+            else if(Browse.instance != null)
+            {
+                contentRefresh.Visibility = ViewStates.Gone;
+                pagerRefresh.Visibility = ViewStates.Visible;
+                tabs.Visibility = ViewStates.Visible;
             }
             else
             {
@@ -709,6 +715,12 @@ namespace MusicApp
                 oldAdapter.AddFragment(fragment[3], "Channels");
 
                 pager.Adapter = oldAdapter;
+            }
+            else if(YoutubeEngine.instances != null)
+            {
+                contentRefresh.Visibility = ViewStates.Gone;
+                pagerRefresh.Visibility = ViewStates.Visible;
+                tabs.Visibility = ViewStates.Visible;
             }
             else
             {
@@ -926,6 +938,7 @@ namespace MusicApp
         {
             HideTabs();
             HideSearch();
+            SaveInstance();
             SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).AddToBackStack(null).Commit();
         }
 
@@ -1153,6 +1166,7 @@ namespace MusicApp
                         rootView.RemoveView(Queue.instance.emptyView);
                 }
 
+                SaveInstance();
                 SupportFragmentManager.BeginTransaction().AddToBackStack(null).Replace(Resource.Id.contentView, Player.NewInstance()).Commit();
             }
             else
@@ -1163,6 +1177,7 @@ namespace MusicApp
                     Playlist.RandomPlay(playlistID, this);
                     HideTabs();
                     HideSearch();
+                    SaveInstance();
                     SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).Commit();
                 }
                 else
@@ -1260,7 +1275,7 @@ namespace MusicApp
                 ResumeKiller = false;
         }
 
-        void SaveInstance()
+        public void SaveInstance()
         {
             if (Home.instance != null)
             {
@@ -1274,6 +1289,7 @@ namespace MusicApp
             }
             else if (Browse.instance != null && Browse.instance.focused)
             {
+                Console.WriteLine("&Browse saved");
                 parcelableSender = "Browse";
                 parcelable = Browse.instance.ListView.OnSaveInstanceState();
                 HideTabs();
@@ -1302,26 +1318,46 @@ namespace MusicApp
             }
         }
 
-        void ResumeInstance()
+        public void ResumeInstance()
         {
             switch (parcelableSender)
             {
                 case "Home":
-                    Navigate(Resource.Id.musicLayout);
+                    Navigate(Resource.Id.musicLayout, true);
                     break;
                 case "Queue":
                     Transition(Resource.Id.contentView, Queue.instance, false, true);
                     break;
                 case "Browse":
-                    Navigate(Resource.Id.browseLayout);
+                    Navigate(Resource.Id.browseLayout, true);
                     break;
                 case "FolderBrowse":
-                    Navigate(Resource.Id.browseLayout);
+                    Navigate(Resource.Id.browseLayout, true);
                     FindViewById<ViewPager>(Resource.Id.pager).CurrentItem = 1;
                     FindViewById<TabLayout>(Resource.Id.tabs).SetScrollPosition(1, 0f, true);
                     break;
                 case "Playlist":
-                    Navigate(Resource.Id.playlistLayout);
+                    Navigate(Resource.Id.playlistLayout, true);
+                    break;
+                case "YoutubeEngine-All":
+                    SetYtTabs(YoutubeEngine.searchKeyWorld, 0);
+                    YoutubeEngine.instances[0].focused = true;
+                    YoutubeEngine.instances[0].OnFocus();
+                    break;
+                case "YoutubeEngine-Tracks":
+                    SetYtTabs(YoutubeEngine.searchKeyWorld, 1);
+                    YoutubeEngine.instances[1].focused = true;
+                    YoutubeEngine.instances[1].OnFocus();
+                    break;
+                case "YoutubeEngine-Playlists":
+                    SetYtTabs(YoutubeEngine.searchKeyWorld, 2);
+                    YoutubeEngine.instances[2].focused = true;
+                    YoutubeEngine.instances[2].OnFocus();
+                    break;
+                case "YoutubeEngine-Channels":
+                    SetYtTabs(YoutubeEngine.searchKeyWorld, 3);
+                    YoutubeEngine.instances[3].focused = true;
+                    YoutubeEngine.instances[3].OnFocus();
                     break;
                 case "PlaylistTracks":
                     Transition(Resource.Id.contentView, PlaylistTracks.instance, false, true);

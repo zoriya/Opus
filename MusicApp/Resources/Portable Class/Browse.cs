@@ -299,6 +299,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public static void Play(Song item)
         {
+            MainActivity.instance.SaveInstance();
             Context context = Android.App.Application.Context;
             Intent intent = new Intent(context, typeof(MusicPlayer));
             intent.PutExtra("file", item.GetPath());

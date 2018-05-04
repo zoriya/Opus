@@ -226,7 +226,7 @@ namespace MusicApp.Resources.Portable_Class
             switch (result[position].Kind)
             {
                 case YtKind.Video:
-                    Play(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
+                    Play(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum(), false, this);
                     break;
                 case YtKind.Playlist:
                     ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
@@ -276,7 +276,7 @@ namespace MusicApp.Resources.Portable_Class
                 switch (args.Which)
                 {
                     case 0:
-                        Play(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
+                        Play(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum(), false, this);
                         break;
                     case 1:
                         PlayNext(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
@@ -297,7 +297,7 @@ namespace MusicApp.Resources.Portable_Class
             builder.Show();
         }
 
-        public static async void Play(string videoID, string title, string artist, string thumbnailURL, bool skipExistVerification = false)
+        public static async void Play(string videoID, string title, string artist, string thumbnailURL, bool skipExistVerification = false, YoutubeEngine instance = null)
         {
             if (!skipExistVerification && FileIsAlreadyDownloaded(videoID))
             {
@@ -332,9 +332,14 @@ namespace MusicApp.Resources.Portable_Class
             Android.App.Application.Context.StartService(intent);
 
             parseProgress.Visibility = ViewStates.Gone;
+            if(instance != null)
+            {
+                MainActivity.parcelable = instance.ListView.GetLayoutManager().OnSaveInstanceState();
+                MainActivity.parcelableSender = "YoutubeEngine" + "-" + instance.querryType;
+            }
             MainActivity.instance.HideTabs();
             MainActivity.instance.HideSearch();
-            MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).Commit();
+            MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).AddToBackStack(null).Commit();
         }
 
         public static async void PlayFiles(Song[] files, bool skipExistVerification = false)

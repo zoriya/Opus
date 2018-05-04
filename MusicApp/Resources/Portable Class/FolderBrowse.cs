@@ -394,6 +394,7 @@ namespace MusicApp.Resources.Portable_Class
             Activity.StartService(intent);
             MainActivity.instance.HideTabs();
             MainActivity.instance.HideSearch();
+            MainActivity.instance.SaveInstance();
             MainActivity.instance.SupportFragmentManager.BeginTransaction().AddToBackStack(null).Replace(Resource.Id.contentView, Player.NewInstance()).Commit();
         }
 
