@@ -38,7 +38,7 @@ using SearchView = Android.Support.V7.Widget.SearchView;
 namespace MusicApp
 {
     [Activity(Label = "MusicApp", MainLauncher = true, Icon = "@drawable/launcher_icon", Theme = "@style/Theme", ScreenOrientation = ScreenOrientation.Portrait)]
-    public class MainActivity : AppCompatActivity, ViewPager.IOnPageChangeListener, SwipeDismissBehavior.IOnDismissListener, GoogleApiClient.IOnConnectionFailedListener, Square.OkHttp.ICallback, IResultCallback
+    public class MainActivity : AppCompatActivity, ViewPager.IOnPageChangeListener, SwipeDismissBehavior.IOnDismissListener, GoogleApiClient.IOnConnectionFailedListener, Square.OkHttp.ICallback, IResultCallback, IMenuItemOnActionExpandListener
     {
         public static MainActivity instance;
         public static int paddingBot = 0;
@@ -373,8 +373,6 @@ namespace MusicApp
 
             var filterView = item.ActionView.JavaCast<SearchView>();
             filterView.QueryTextChange += Search;
-            filterView.Close += SearchClose;
-
             var searchView = menu.FindItem(Resource.Id.search).ActionView.JavaCast<SearchView>();
             searchView.QueryTextSubmit += (s, e) =>
             {
@@ -394,6 +392,8 @@ namespace MusicApp
                 }
                 e.Handled = true;
             };
+
+            menu.FindItem(Resource.Id.search).SetOnActionExpandListener(this);
             return base.OnCreateOptionsMenu(menu);
         }
 
@@ -438,26 +438,6 @@ namespace MusicApp
                     FolderTracks.instance = null;
                     SetBrowseTabs(1);
                 }
-                else if(YoutubeEngine.instances != null)
-                {
-                    ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
-                    foreach(YoutubeEngine instance in YoutubeEngine.instances)
-                    {
-                        OnPaddingChanged -= instance.OnPaddingChanged;
-                        rootView.RemoveView(instance.emptyView);
-                    }
-                    rootView.RemoveView(YoutubeEngine.loadingView);
-
-                    var searchView = menu.FindItem(Resource.Id.search).ActionView.JavaCast<Android.Support.V7.Widget.SearchView>();
-                    menu.FindItem(Resource.Id.search).CollapseActionView();
-                    searchView.ClearFocus();
-                    searchView.Iconified = true;
-                    searchView.SetQuery("", false);
-                    SupportActionBar.SetDisplayHomeAsUpEnabled(false);
-                    YoutubeEngine.instances = null;
-                    ResumeInstance();
-
-                }
             }
             else if(item.ItemId == Resource.Id.settings)
             {
@@ -465,6 +445,25 @@ namespace MusicApp
                 StartActivity(intent);
             }
             return base.OnOptionsItemSelected(item);
+        }
+
+        public bool OnMenuItemActionCollapse(IMenuItem item) //Youtube search collapse
+        {
+            ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
+            foreach (YoutubeEngine instance in YoutubeEngine.instances)
+            {
+                OnPaddingChanged -= instance.OnPaddingChanged;
+                rootView.RemoveView(instance.emptyView);
+            }
+            rootView.RemoveView(YoutubeEngine.loadingView);
+            YoutubeEngine.instances = null;
+            ResumeInstance();
+            return true;
+        }
+
+        public bool OnMenuItemActionExpand(IMenuItem item)
+        {
+            return true;
         }
 
         void Search(object sender, SearchView.QueryTextChangeEventArgs e)
@@ -475,16 +474,6 @@ namespace MusicApp
                 PlaylistTracks.instance.Search(e.NewText);
             if (FolderTracks.instance != null)
                 FolderTracks.instance.Search(e.NewText);
-        }
-
-        void SearchClose(object sender, SearchView.CloseEventArgs e)
-        {
-            if (Browse.instance != null)
-                Browse.instance.result = null;
-            if (PlaylistTracks.instance != null)
-                PlaylistTracks.instance.result = null;
-            if (FolderTracks.instance != null)
-                FolderTracks.instance.result = null;
         }
 
         public void HideSearch()
@@ -562,7 +551,6 @@ namespace MusicApp
                 searchView.SetQuery("", false);
                 SupportActionBar.SetDisplayHomeAsUpEnabled(false);
                 YoutubeEngine.instances = null;
-                ResumeInstance();
             }
 
             Android.Support.V4.App.Fragment fragment = null;
@@ -583,7 +571,6 @@ namespace MusicApp
                     break;
 
                 case Resource.Id.browseLayout:
-                    Console.WriteLine("&Switching to browse");
                     if (Browse.instance != null && YoutubeEngine.instances != null && !resuming)
                     {
                         Browse.instance.Refresh();
@@ -936,9 +923,9 @@ namespace MusicApp
 
         private void Container_Click(object sender, EventArgs e)
         {
+            SaveInstance();
             HideTabs();
             HideSearch();
-            SaveInstance();
             SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).AddToBackStack(null).Commit();
         }
 
@@ -1289,7 +1276,6 @@ namespace MusicApp
             }
             else if (Browse.instance != null && Browse.instance.focused)
             {
-                Console.WriteLine("&Browse saved");
                 parcelableSender = "Browse";
                 parcelable = Browse.instance.ListView.OnSaveInstanceState();
                 HideTabs();
@@ -1302,6 +1288,7 @@ namespace MusicApp
             }
             else if (Playlist.instance != null)
             {
+                Console.WriteLine("&Playlist saved");
                 parcelableSender = "Playlist";
                 parcelable = Playlist.instance.ListView.GetLayoutManager().OnSaveInstanceState();
             }
@@ -1320,6 +1307,7 @@ namespace MusicApp
 
         public void ResumeInstance()
         {
+            Console.WriteLine("&Resuming " + parcelableSender);
             switch (parcelableSender)
             {
                 case "Home":
@@ -1361,9 +1349,15 @@ namespace MusicApp
                     break;
                 case "PlaylistTracks":
                     Transition(Resource.Id.contentView, PlaylistTracks.instance, false, true);
+                    SupportActionBar.SetHomeButtonEnabled(true);
+                    SupportActionBar.SetDisplayHomeAsUpEnabled(true);
+                    SupportActionBar.Title = PlaylistTracks.instance.playlistName;
                     break;
                 case "FolderTracks":
                     Transition(Resource.Id.contentView, FolderTracks.instance, false, true);
+                    SupportActionBar.SetHomeButtonEnabled(true);
+                    SupportActionBar.SetDisplayHomeAsUpEnabled(true);
+                    SupportActionBar.Title = FolderTracks.instance.folderName;
                     break;
                 default:
                     break;

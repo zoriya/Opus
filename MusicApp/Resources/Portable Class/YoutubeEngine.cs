@@ -44,7 +44,6 @@ namespace MusicApp.Resources.Portable_Class
             base.OnActivityCreated(savedInstanceState);
             ListView.ScrollChange += MainActivity.instance.Scroll;
             MainActivity.instance.OnPaddingChanged += OnPaddingChanged;
-            MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
         }
 
         public void OnPaddingChanged(object sender, PaddingChange e)
@@ -248,7 +247,7 @@ namespace MusicApp.Resources.Portable_Class
                     act.SupportActionBar.Title = item.GetName();
                     MainActivity.instance.HideTabs();
                     instances = null;
-                    MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(item.youtubeID), true);
+                    MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(item.youtubeID, item.GetName()), true);
                     break;
                 case YtKind.Channel:
                     Toast.MakeText(Activity, "Action comming soon", ToastLength.Short).Show();
@@ -332,11 +331,12 @@ namespace MusicApp.Resources.Portable_Class
             Android.App.Application.Context.StartService(intent);
 
             parseProgress.Visibility = ViewStates.Gone;
-            if(instance != null)
-            {
-                MainActivity.parcelable = instance.ListView.GetLayoutManager().OnSaveInstanceState();
-                MainActivity.parcelableSender = "YoutubeEngine" + "-" + instance.querryType;
-            }
+            //if(instance != null)
+            //{
+            //    MainActivity.parcelable = instance.ListView.GetLayoutManager().OnSaveInstanceState();
+            //    MainActivity.parcelableSender = "YoutubeEngine" + "-" + instance.querryType;
+            //}
+            MainActivity.instance.SaveInstance();
             MainActivity.instance.HideTabs();
             MainActivity.instance.HideSearch();
             MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).AddToBackStack(null).Commit();

@@ -15,6 +15,7 @@ namespace MusicApp.Resources.Portable_Class
     public class FolderTracks : ListFragment
     {
         public static FolderTracks instance;
+        public string folderName;
         public Adapter adapter;
         public View emptyView;
         public List<Song> result;
@@ -61,10 +62,11 @@ namespace MusicApp.Resources.Portable_Class
             return view;
         }
 
-        public static Fragment NewInstance(string path)
+        public static Fragment NewInstance(string path, string folderName)
         {
             instance = new FolderTracks { Arguments = new Bundle() };
             instance.path = path;
+            instance.folderName = folderName;
             return instance;
         }
 
@@ -75,7 +77,7 @@ namespace MusicApp.Resources.Portable_Class
             CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
             ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
 
-            System.Console.WriteLine("&Path: " + path + " URI: " + musicUri.ToString());
+            tracks = new List<Song>();
 
             if (musicCursor != null && musicCursor.MoveToFirst())
             {

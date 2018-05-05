@@ -16,6 +16,7 @@ namespace MusicApp.Resources.Portable_Class
     public class PlaylistTracks : ListFragment
     {
         public static PlaylistTracks instance;
+        public string playlistName;
         public Adapter adapter;
         public View emptyView;
         public List<Song> result;
@@ -64,17 +65,19 @@ namespace MusicApp.Resources.Portable_Class
             return view;
         }
 
-        public static Fragment NewInstance(long playlistId)
+        public static Fragment NewInstance(long playlistId, string playlistName)
         {
             instance = new PlaylistTracks { Arguments = new Bundle() };
             instance.playlistId = playlistId;
+            instance.playlistName = playlistName;
             return instance;
         }
 
-        public static Fragment NewInstance(string ytID)
+        public static Fragment NewInstance(string ytID, string playlistName)
         {
             instance = new PlaylistTracks { Arguments = new Bundle() };
             instance.ytID = ytID;
+            instance.playlistName = playlistName;
             return instance;
         }
 
@@ -90,6 +93,7 @@ namespace MusicApp.Resources.Portable_Class
                 CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
                 ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
 
+                tracks = new List<Song>();
 
                 if (musicCursor != null && musicCursor.MoveToFirst())
                 {
@@ -138,6 +142,7 @@ namespace MusicApp.Resources.Portable_Class
             }
             else if (ytID != null)
             {
+                tracks = new List<Song>();
                 string nextPageToken = "";
                 while (nextPageToken != null)
                 {

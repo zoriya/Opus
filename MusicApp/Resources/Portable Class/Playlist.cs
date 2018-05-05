@@ -139,12 +139,8 @@ namespace MusicApp.Resources.Portable_Class
             ListView.SetItemAnimator(new DefaultItemAnimator());
             ListView.ScrollChange += MainActivity.instance.Scroll;
 
-
             //Youtube playlists
             await MainActivity.instance.WaitForYoutube();
-
-            while (YoutubeEngine.youtubeService == null)
-                await Task.Delay(500);
 
             YouTubeService youtube = YoutubeEngine.youtubeService;
 
@@ -173,6 +169,8 @@ namespace MusicApp.Resources.Portable_Class
             {
                 ytPlaylists.Add(new Song("EMPTY", "You don't have any youtube playlist on your account. \nWarning: Only playlist from your google account are displayed", null, null, -1, -1, null));
             }
+
+            System.Console.WriteLine("&Youtube data retrieved");
 
             adapter.SetYtPlaylists(ytPlaylists);
         }
@@ -212,9 +210,9 @@ namespace MusicApp.Resources.Portable_Class
                 RemoveEmptyView();
 
             if (local)
-                MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.GetID()), true);
+                MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.GetID(), playlist.GetName()), true);
             else
-                MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.youtubeID), true);
+                MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.youtubeID, playlist.GetName()), true);
         }
 
         private void ListView_ItemLongClick(object sender, int position)
@@ -397,6 +395,8 @@ namespace MusicApp.Resources.Portable_Class
                 MainActivity.parcelable = null;
                 MainActivity.parcelableSender = null;
             }
+            if (instance == null)
+                instance = this;
         }
     }
 }
