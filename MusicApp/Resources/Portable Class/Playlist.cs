@@ -203,7 +203,6 @@ namespace MusicApp.Resources.Portable_Class
             act.SupportActionBar.SetHomeButtonEnabled(true);
             act.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
             act.SupportActionBar.Title = playlist.GetName();
-            MainActivity.instance.HideTabs();
             instance = null;
             MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
             if (isEmpty)
@@ -230,17 +229,20 @@ namespace MusicApp.Resources.Portable_Class
             AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
             builder.SetTitle("Pick an action");
             if (local)
-                builder.SetItems(new string[] { "Random play", "Rename", "Delete" }, (senderAlert, args) =>
+                builder.SetItems(new string[] { "Play in order", "Random play", "Rename", "Delete" }, (senderAlert, args) =>
                 {
                     switch (args.Which)
                     {
                         case 0:
-                            RandomPlay(playlist.GetID(), Activity);
+                            PlayInOrder(playlist.GetID());
                             break;
                         case 1:
-                            Rename(Position, playlist);
+                            RandomPlay(playlist.GetID(), Activity);
                             break;
                         case 2:
+                            Rename(Position, playlist);
+                            break;
+                        case 3:
                             RemovePlaylist(Position, playlist.GetID());
                             break;
                         default:
@@ -248,20 +250,23 @@ namespace MusicApp.Resources.Portable_Class
                     }
                 });
             else
-                builder.SetItems(new string[] { "Random play", "Rename", "Delete", "Download" }, (senderAlert, args) =>
+                builder.SetItems(new string[] { "Play in order", "Random play", "Rename", "Delete", "Download" }, (senderAlert, args) =>
                 {
                     switch (args.Which)
                     {
                         case 0:
-                            YoutubeEngine.RandomPlay(playlist.GetPath());
+                            PlayInOrder(playlist.GetPath());
                             break;
                         case 1:
-                            RenameYoutubePlaylist(Position, playlist.GetPath());
+                            YoutubeEngine.RandomPlay(playlist.GetPath());
                             break;
                         case 2:
-                            RemoveYoutubePlaylist(Position, playlist.GetPath());
+                            RenameYoutubePlaylist(Position, playlist.GetPath());
                             break;
                         case 3:
+                            RemoveYoutubePlaylist(Position, playlist.GetPath());
+                            break;
+                        case 4:
                             YoutubeEngine.DownloadPlaylist(playlist.GetPath());
                             break;
                         default:
@@ -269,6 +274,89 @@ namespace MusicApp.Resources.Portable_Class
                     }
                 });
             builder.Show();
+        }
+
+        public async void PlayInOrder(long playlistID)
+        {
+            Android.Net.Uri musicUri = Playlists.Members.GetContentUri("external", playlistID);
+            List<Song> songs = new List<Song>();
+            CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
+            ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
+
+            if (musicCursor != null && musicCursor.MoveToFirst())
+            {
+                int titleID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Title);
+                int artistID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Artist);
+                int albumID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Album);
+                int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
+                int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
+                do
+                {
+                    string Artist = musicCursor.GetString(artistID);
+                    string Title = musicCursor.GetString(titleID);
+                    string Album = musicCursor.GetString(albumID);
+                    long AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
+                    long id = musicCursor.GetLong(thisID);
+                    string path = musicCursor.GetString(pathID);
+
+                    if (Title == null)
+                        Title = "Unknown Title";
+                    if (Artist == null)
+                        Artist = "Unknow Artist";
+                    if (Album == null)
+                        Album = "Unknow Album";
+
+                    songs.Add(new Song(Title, Artist, Album, null, AlbumArt, id, path));
+                }
+                while (musicCursor.MoveToNext());
+                musicCursor.Close();
+
+                songs.Reverse();
+                Browse.act = Activity;
+                Browse.Play(songs[0]);
+
+                while (MusicPlayer.instance == null)
+                    await Task.Delay(10);
+
+                foreach(Song song in songs)
+                {
+                    MusicPlayer.instance.AddToQueue(song);
+                }
+            }
+        }
+
+        public async void PlayInOrder(string playlistID)
+        {
+            List<Song> songs = new List<Song>();
+            await MainActivity.instance.WaitForYoutube();
+            string nextPageToken = "";
+            while (nextPageToken != null)
+            {
+                var ytPlaylistRequest = YoutubeEngine.youtubeService.PlaylistItems.List("snippet, contentDetails");
+                ytPlaylistRequest.PlaylistId = playlistID;
+                ytPlaylistRequest.MaxResults = 50;
+                ytPlaylistRequest.PageToken = nextPageToken;
+
+                var ytPlaylist = await ytPlaylistRequest.ExecuteAsync();
+
+                foreach (var item in ytPlaylist.Items)
+                {
+                    Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true);
+                    songs.Add(song);
+                }
+
+                nextPageToken = ytPlaylist.NextPageToken;
+            }
+            songs.Reverse();
+            YoutubeEngine.Play(songs[0].youtubeID, songs[0].GetName(), songs[0].GetArtist(), songs[0].GetAlbum());
+
+            while (MusicPlayer.instance == null)
+                await Task.Delay(10);
+
+            foreach (Song song in songs)
+            {
+                MusicPlayer.instance.AddToQueue(song);
+            }
         }
 
         public static void RandomPlay(long playlistID, Context context)

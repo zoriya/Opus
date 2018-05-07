@@ -9,6 +9,7 @@ using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -202,15 +203,28 @@ namespace MusicApp.Resources.Portable_Class
             ListAdapter = adapter;
         }
 
-        private void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
+        private async void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
         {
             Browse.act = Activity;
 
             Song item = tracks[e.Position];
+            List<Song> queue = tracks.GetRange(e.Position + 1, tracks.Count - e.Position - 1);
             if (result != null)
+            {
                 item = result[e.Position];
+                queue = result.GetRange(e.Position + 1, result.Count - e.Position - 1);
+            }
+            queue.Reverse();
 
             Browse.Play(item);
+
+            while(MusicPlayer.instance == null)
+                await Task.Delay(10);
+
+            foreach(Song song in queue)
+            {
+                MusicPlayer.instance.AddToQueue(song);
+            }
         }
 
         private void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)

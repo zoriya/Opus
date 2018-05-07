@@ -122,7 +122,7 @@ namespace MusicApp.Resources.Portable_Class
                 }
 
                 float scale = MainActivity.instance.Resources.DisplayMetrics.Density;
-                if (position + 1 == playlistsName.Count)
+                if (position + 1 == playlistsName.Count && ytPlaylists.Count == 2 && ytPlaylists[1]?.GetName() == "EMPTY")
                 {
                     holder.ItemView.SetPadding(0, 0, 0, listPadding);
                     RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)holder.more.LayoutParameters;

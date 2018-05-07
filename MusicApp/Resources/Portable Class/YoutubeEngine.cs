@@ -128,7 +128,7 @@ namespace MusicApp.Resources.Portable_Class
             await MainActivity.instance.WaitForYoutube();
 
             SearchResource.ListRequest searchResult = youtubeService.Search.List("snippet");
-            searchResult.Fields = "items(id/videoId,id/kind,snippet/title,snippet/thumbnails/default/url,snippet/channelTitle)";
+            searchResult.Fields = "items(id/videoId,id/playlistId,id/kind,snippet/title,snippet/thumbnails/default/url,snippet/channelTitle)";
             searchResult.Q = search.Replace(" ", "+-");
             searchResult.Type = "video";
             switch (querryType)
@@ -157,7 +157,7 @@ namespace MusicApp.Resources.Portable_Class
 
             foreach(var video in searchReponse.Items)
             {
-                Song videoInfo = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.Default__.Url, video.Id.VideoId, -1, -1, video.Id.VideoId, true);
+                Song videoInfo = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.Default__.Url, video.Id.VideoId ?? video.Id.PlaylistId, -1, -1, video.Id.VideoId ?? video.Id.PlaylistId, true);
                 YtKind kind = YtKind.Null;
 
                 switch (video.Id.Kind)
@@ -241,12 +241,12 @@ namespace MusicApp.Resources.Portable_Class
                     searchView.ClearFocus();
                     searchView.Iconified = true;
                     searchView.SetQuery("", false);
-                    AppCompatActivity act = (AppCompatActivity)Activity;
-                    act.SupportActionBar.SetHomeButtonEnabled(true);
-                    act.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
-                    act.SupportActionBar.Title = item.GetName();
+                    MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
+                    MainActivity.instance.SupportActionBar.Title = item.GetName();
                     MainActivity.instance.HideTabs();
                     instances = null;
+                    //MainActivity.instance.youtubeParcel = ListView.GetLayoutManager().OnSaveInstanceState();
+                    MainActivity.instance.youtubeInstanceSave = "YoutubeEngine" + "-" + querryType;
                     MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(item.youtubeID, item.GetName()), true);
                     break;
                 case YtKind.Channel:
@@ -329,14 +329,25 @@ namespace MusicApp.Resources.Portable_Class
             intent.PutExtra("youtubeID", videoID);
             intent.PutExtra("thumbnailURI", thumbnailURL);
             Android.App.Application.Context.StartService(intent);
-
             parseProgress.Visibility = ViewStates.Gone;
-            //if(instance != null)
-            //{
-            //    MainActivity.parcelable = instance.ListView.GetLayoutManager().OnSaveInstanceState();
-            //    MainActivity.parcelableSender = "YoutubeEngine" + "-" + instance.querryType;
-            //}
-            MainActivity.instance.SaveInstance();
+
+            if (instance != null)
+            {
+                MainActivity.instance.youtubeParcel = instance.ListView.GetLayoutManager().OnSaveInstanceState();
+                MainActivity.instance.youtubeInstanceSave = "YoutubeEngine" + "-" + instance.querryType;
+
+                ViewGroup rootView = instance.Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
+                foreach (YoutubeEngine inst in instances)
+                {
+                    MainActivity.instance.OnPaddingChanged -= inst.OnPaddingChanged;
+                    rootView.RemoveView(inst.emptyView);
+                }
+                rootView.RemoveView(loadingView);
+                instances = null;
+            }
+            else
+                MainActivity.instance.SaveInstance();
+
             MainActivity.instance.HideTabs();
             MainActivity.instance.HideSearch();
             MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).AddToBackStack(null).Commit();

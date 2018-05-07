@@ -47,6 +47,8 @@ namespace MusicApp
         public static int dialogTheme;
         public static IParcelable parcelable;
         public static string parcelableSender;
+        public IParcelable youtubeParcel;
+        public string youtubeInstanceSave;
 
         public Android.Support.V7.Widget.Toolbar ToolBar;
         public bool NoToolbarMenu = false;
@@ -75,7 +77,7 @@ namespace MusicApp
         public GoogleApiClient googleClient;
         private bool canAsk;
         private bool waitingForYoutube;
-        private bool ResumeKiller;
+        public bool ResumeKiller;
 
         public event EventHandler<PaddingChange> OnPaddingChanged;
 
@@ -419,6 +421,33 @@ namespace MusicApp
                         Navigate(Resource.Id.musicLayout);
                         HomeDetails = false;
                     }
+                    else if(youtubeInstanceSave != null)
+                    {
+                        int selectedTab = 0;
+                        switch (youtubeInstanceSave)
+                        {
+                            case "YoutubeEngine-All":
+                                selectedTab = 0;
+                                break;
+                            case "YoutubeEngine-Tracks":
+                                selectedTab = 1;
+                                break;
+                            case "YoutubeEngine-Playlists":
+                                selectedTab = 2;
+                                break;
+                            case "YoutubeEngine-Channels":
+                                selectedTab = 3;
+                                break;
+                            default:
+                                break;
+                        }
+                        SetYtTabs(YoutubeEngine.searchKeyWorld, selectedTab);
+                        YoutubeEngine.instances[selectedTab].focused = true;
+                        YoutubeEngine.instances[selectedTab].OnFocus();
+                        //YoutubeEngine.instances[selectedTab].ListView.GetLayoutManager().OnRestoreInstanceState(youtubeParcel);
+                        youtubeInstanceSave = null;
+                        youtubeParcel = null;
+                    }
                     else
                     {
                         Navigate(Resource.Id.playlistLayout);
@@ -449,6 +478,9 @@ namespace MusicApp
 
         public bool OnMenuItemActionCollapse(IMenuItem item) //Youtube search collapse
         {
+            if (YoutubeEngine.instances == null)
+                return true;
+
             ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
             foreach (YoutubeEngine instance in YoutubeEngine.instances)
             {
@@ -671,7 +703,7 @@ namespace MusicApp
             CanSwitchDelay();
         }
 
-        async void SetYtTabs(string querry, int selectedTab = 0)
+        public async void SetYtTabs(string querry, int selectedTab = 0)
         {
             while (!canSwitch)
                 await Task.Delay(10);
@@ -702,12 +734,6 @@ namespace MusicApp
                 oldAdapter.AddFragment(fragment[3], "Channels");
 
                 pager.Adapter = oldAdapter;
-            }
-            else if(YoutubeEngine.instances != null)
-            {
-                contentRefresh.Visibility = ViewStates.Gone;
-                pagerRefresh.Visibility = ViewStates.Visible;
-                tabs.Visibility = ViewStates.Visible;
             }
             else
             {
@@ -923,7 +949,28 @@ namespace MusicApp
 
         private void Container_Click(object sender, EventArgs e)
         {
-            SaveInstance();
+            if (YoutubeEngine.instances != null)
+            {
+                YoutubeEngine instance = null;
+                foreach (YoutubeEngine inst in YoutubeEngine.instances)
+                    if (instance.focused)
+                        instance = inst;
+
+                youtubeParcel = instance.ListView.GetLayoutManager().OnSaveInstanceState();
+                MainActivity.instance.youtubeInstanceSave = "YoutubeEngine" + "-" + instance.querryType;
+
+                ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
+                foreach (YoutubeEngine inst in YoutubeEngine.instances)
+                {
+                    MainActivity.instance.OnPaddingChanged -= inst.OnPaddingChanged;
+                    rootView.RemoveView(inst.emptyView);
+                }
+                rootView.RemoveView(YoutubeEngine.loadingView);
+                YoutubeEngine.instances = null;
+            }
+            else
+                MainActivity.instance.SaveInstance();
+
             HideTabs();
             HideSearch();
             SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).AddToBackStack(null).Commit();
@@ -1244,23 +1291,23 @@ namespace MusicApp
             return (int) (px * scale + 0.5f);
         }
 
-        protected override void OnResume()
-        {
-            base.OnResume();
+        //protected override void OnResume()
+        //{
+        //    base.OnResume();
 
-            if(parcelableSender != null && !ResumeKiller)
-            {
-                var searchView = menu.FindItem(Resource.Id.search).ActionView.JavaCast<SearchView>();
-                menu.FindItem(Resource.Id.search).CollapseActionView();
-                searchView.ClearFocus();
-                searchView.Iconified = true;
-                searchView.SetQuery("", false);
-                ResumeInstance();
-            }
+        //    if(parcelableSender != null && !ResumeKiller)
+        //    {
+        //        var searchView = menu.FindItem(Resource.Id.search).ActionView.JavaCast<SearchView>();
+        //        menu.FindItem(Resource.Id.search).CollapseActionView();
+        //        searchView.ClearFocus();
+        //        searchView.Iconified = true;
+        //        searchView.SetQuery("", false);
+        //        ResumeInstance();
+        //    }
 
-            if (ResumeKiller)
-                ResumeKiller = false;
-        }
+        //    if (ResumeKiller)
+        //        ResumeKiller = false;
+        //}
 
         public void SaveInstance()
         {
@@ -1307,7 +1354,6 @@ namespace MusicApp
 
         public void ResumeInstance()
         {
-            Console.WriteLine("&Resuming " + parcelableSender);
             switch (parcelableSender)
             {
                 case "Home":

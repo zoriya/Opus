@@ -11,6 +11,7 @@ using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -28,7 +29,7 @@ namespace MusicApp.Resources.Portable_Class
         public bool focused = false;
 
         private View view;
-        private string[] actions = new string[] { "List songs", "Add To Playlist", "Random Play" };
+        private string[] actions = new string[] { "List songs", "Play in order", "Add To Playlist", "Random Play" };
         private bool isEmpty = false;
 
 
@@ -215,9 +216,12 @@ namespace MusicApp.Resources.Portable_Class
                         ListSongs(displayPath, path);
                         break;
                     case 1:
-                        GetPlaylist(path);
+                        PlayInOrder(path);
                         break;
                     case 2:
+                        GetPlaylist(path);
+                        break;
+                    case 3:
                         RandomPlay(path);
                         break;
                     default:
@@ -236,6 +240,59 @@ namespace MusicApp.Resources.Portable_Class
 
             MainActivity.instance.HideTabs();
             MainActivity.instance.Transition(Resource.Id.contentView, FolderTracks.NewInstance(path, displayPath), true);
+        }
+
+        async void PlayInOrder(string folderPath)
+        {
+            List<Song> songs = new List<Song>();
+            Uri musicUri = MediaStore.Audio.Media.GetContentUriForPath(folderPath);
+            CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
+            ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
+
+            if (musicCursor != null && musicCursor.MoveToFirst())
+            {
+                int titleID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Title);
+                int artistID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Artist);
+                int albumID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Album);
+                int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
+                int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
+                do
+                {
+                    string path = musicCursor.GetString(pathID);
+
+                    if (!path.Contains(folderPath))
+                        continue;
+
+                    string Artist = musicCursor.GetString(artistID);
+                    string Title = musicCursor.GetString(titleID);
+                    string Album = musicCursor.GetString(albumID);
+                    long AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
+                    long id = musicCursor.GetLong(thisID);
+
+                    if (Title == null)
+                        Title = "Unknown Title";
+                    if (Artist == null)
+                        Artist = "Unknow Artist";
+                    if (Album == null)
+                        Album = "Unknow Album";
+
+                    songs.Add(new Song(Title, Artist, Album, null, AlbumArt, id, path));
+                }
+                while (musicCursor.MoveToNext());
+                musicCursor.Close();
+
+                songs.Reverse();
+                Browse.act = Activity;
+                Browse.Play(songs[0]);
+
+                while (MusicPlayer.instance == null)
+                    await Task.Delay(10);
+
+                foreach (Song song in songs)
+                {
+                    MusicPlayer.instance.AddToQueue(song);
+                }
+            }
         }
 
         public void GetPlaylist(string path)

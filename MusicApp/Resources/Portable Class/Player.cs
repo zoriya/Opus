@@ -39,9 +39,12 @@ namespace MusicApp.Resources.Portable_Class
 
         public override void OnDestroy()
         {
+            if(MainActivity.instance.youtubeInstanceSave == null)
+            {
+                MainActivity.instance.FindViewById<SwipeRefreshLayout>(Resource.Id.contentRefresh).SetEnabled(true);
+            }
             MainActivity.instance.ToolBar.Visibility = ViewStates.Visible;
             MainActivity.instance.FindViewById<BottomNavigationView>(Resource.Id.bottomView).Visibility = ViewStates.Visible;
-            MainActivity.instance.FindViewById<SwipeRefreshLayout>(Resource.Id.contentRefresh).SetEnabled(true);
             MainActivity.instance.ShowSmallPlayer();
             MainActivity.instance.PrepareSmallPlayer();
             base.OnDestroy();
@@ -296,9 +299,35 @@ namespace MusicApp.Resources.Portable_Class
         private void Fab_Click(object sender, EventArgs e)
         {
             MainActivity.instance.SupportFragmentManager.PopBackStack();
-            MainActivity.instance.ResumeInstance();
-            //OnDestroy();
-            //MainActivity.instance.FindViewById<BottomNavigationView>(Resource.Id.bottomView).SelectedItemId = Resource.Id.musicLayout;
+            if (MainActivity.instance.youtubeInstanceSave != null)
+            {
+                int selectedTab = 0;
+                switch (MainActivity.instance.youtubeInstanceSave)
+                {
+                    case "YoutubeEngine-All":
+                        selectedTab = 0;
+                        break;
+                    case "YoutubeEngine-Tracks":
+                        selectedTab = 1;
+                        break;
+                    case "YoutubeEngine-Playlists":
+                        selectedTab = 2;
+                        break;
+                    case "YoutubeEngine-Channels":
+                        selectedTab = 3;
+                        break;
+                    default:
+                        break;
+                }
+                MainActivity.instance.SetYtTabs(YoutubeEngine.searchKeyWorld, selectedTab);
+                YoutubeEngine.instances[selectedTab].focused = true;
+                YoutubeEngine.instances[selectedTab].OnFocus();
+                YoutubeEngine.instances[selectedTab].ListView.GetLayoutManager().OnRestoreInstanceState(MainActivity.instance.youtubeParcel);
+            }
+            else
+            {
+                MainActivity.instance.ResumeInstance();
+            }
         }
 
         private void ShowQueue_Click(object sender, EventArgs e)

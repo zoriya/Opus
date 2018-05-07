@@ -145,6 +145,17 @@ namespace MusicApp.Resources.Portable_Class
 
             if (MainActivity.paddingBot > MainActivity.defaultPaddingBot && adapter.listPadding == 0)
                 adapter.listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot;
+
+            if(result != null)
+            {
+                if (adapter != null)
+                    listPadding = adapter.listPadding;
+                adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, result)
+                {
+                    listPadding = listPadding
+                };
+                ListAdapter = adapter;
+            }
         }
 
         private void OnRefresh(object sender, System.EventArgs e)
