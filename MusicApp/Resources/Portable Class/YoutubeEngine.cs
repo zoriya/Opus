@@ -37,7 +37,7 @@ namespace MusicApp.Resources.Portable_Class
         public View emptyView;
         public static View loadingView;
         private bool searching;
-        private string[] actions = new string[] { "Play", "Play Next", "Play Last", "Add To Playlist", "Download" };
+        private readonly string[] actions = new string[] { "Play", "Play Next", "Play Last", "Add To Playlist", "Download" };
 
         public override void OnActivityCreated(Bundle savedInstanceState)
         {
@@ -74,6 +74,16 @@ namespace MusicApp.Resources.Portable_Class
                 ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
                 rootView.RemoveView(loadingView);
             }
+        }
+
+        public async void ResumeListView()
+        {
+            while (ListView == null || ListView.GetLayoutManager() == null)
+                await Task.Delay(10);
+
+            ListView.GetLayoutManager().OnRestoreInstanceState(MainActivity.instance.youtubeParcel);
+            MainActivity.instance.youtubeInstanceSave = null;
+            MainActivity.instance.youtubeParcel = null;
         }
 
         public static Fragment[] NewInstances(string searchQuery)
@@ -151,11 +161,13 @@ namespace MusicApp.Resources.Portable_Class
             }
             searchResult.MaxResults = 20;
 
+            System.Console.WriteLine("&Search created");
             var searchReponse = await searchResult.ExecuteAsync();
+            System.Console.WriteLine("&Search waited");
 
             result = new List<YtFile>();
 
-            foreach(var video in searchReponse.Items)
+            foreach (var video in searchReponse.Items)
             {
                 Song videoInfo = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.Default__.Url, video.Id.VideoId ?? video.Id.PlaylistId, -1, -1, video.Id.VideoId ?? video.Id.PlaylistId, true);
                 YtKind kind = YtKind.Null;
@@ -245,7 +257,7 @@ namespace MusicApp.Resources.Portable_Class
                     MainActivity.instance.SupportActionBar.Title = item.GetName();
                     MainActivity.instance.HideTabs();
                     instances = null;
-                    //MainActivity.instance.youtubeParcel = ListView.GetLayoutManager().OnSaveInstanceState();
+                    MainActivity.instance.youtubeParcel = ListView.GetLayoutManager().OnSaveInstanceState();
                     MainActivity.instance.youtubeInstanceSave = "YoutubeEngine" + "-" + querryType;
                     MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(item.youtubeID, item.GetName()), true);
                     break;

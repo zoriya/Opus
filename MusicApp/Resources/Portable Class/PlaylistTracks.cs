@@ -84,7 +84,6 @@ namespace MusicApp.Resources.Portable_Class
 
         async void PopulateList()
         {
-            System.Console.WriteLine("&Populating playlist tracks with ydID = " + ytID);
             if (playlistId == 0 && ytID == "")
                 return;
 
@@ -308,12 +307,13 @@ namespace MusicApp.Resources.Portable_Class
             {
                 MusicPlayer.instance.AddToQueue(song);
             }
+            Player.instance.UpdateNext();
         }
 
         private void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
         {
             Song item = tracks[e.Position];
-            if (result != null)
+            if (result != null && result.Count > e.Position)
                 item = result[e.Position];
 
             More(item, e.Position);
@@ -336,15 +336,38 @@ namespace MusicApp.Resources.Portable_Class
 
             AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
             builder.SetTitle("Pick an action");
-            builder.SetItems(action.ToArray(), (senderAlert, args) =>
+            builder.SetItems(action.ToArray(), async (senderAlert, args) =>
             {
                 switch (args.Which)
                 {
                     case 0:
+                        int Position = tracks.IndexOf(item);
+                        List<Song> queue = tracks.GetRange(Position + 1, tracks.Count - Position - 1);
+                        if (result != null && result.Count - 1 >= Position)
+                        {
+                            item = result[Position];
+                            queue = result.GetRange(Position + 1, result.Count - Position - 1);
+                        }
+                        queue.Reverse();
+
                         if (!item.IsYt)
+                        {
+                            Browse.act = Activity;
                             Browse.Play(item);
+                        }
                         else
-                            YoutubeEngine.Play(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
+                        {
+                            YoutubeEngine.Play(item.youtubeID, item.GetName(), item.GetArtist(), item.GetAlbum());
+                        }
+
+                        while (MusicPlayer.instance == null)
+                            await Task.Delay(10);
+
+                        foreach (Song song in queue)
+                        {
+                            MusicPlayer.instance.AddToQueue(song);
+                        }
+                        Player.instance.UpdateNext();
                         break;
 
                     case 1:

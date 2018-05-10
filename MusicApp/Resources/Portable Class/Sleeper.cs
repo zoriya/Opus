@@ -23,7 +23,6 @@ namespace MusicApp.Resources.Portable_Class
         public override void OnCreate()
         {
             base.OnCreate();
-            instance = this;
         }
 
         public override StartCommandResult OnStartCommand(Intent intent, StartCommandFlags flags, int startId)
@@ -74,6 +73,7 @@ namespace MusicApp.Resources.Portable_Class
             musicIntent.SetAction("SleepPause");
             MainActivity.instance.StartService(musicIntent);
             notificationManager.Cancel(1001);
+            instance = null;
         }
     }
 }

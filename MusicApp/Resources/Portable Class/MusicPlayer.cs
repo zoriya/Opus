@@ -76,6 +76,11 @@ namespace MusicApp.Resources.Portable_Class
                         Resume();
                     break;
 
+                case "ForcePause":
+                    if (isRunning)
+                        Pause();
+                    break;
+
                 case "Next":
                     PlayNext();
                     break;
@@ -165,6 +170,7 @@ namespace MusicApp.Resources.Portable_Class
                 mediaSession.SetFlags(MediaSessionCompat.FlagHandlesMediaButtons | MediaSessionCompat.FlagHandlesTransportControls);
                 PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder().SetActions(PlaybackStateCompat.ActionPlay | PlaybackStateCompat.ActionPause);
                 mediaSession.SetPlaybackState(builder.Build());
+                mediaSession.SetCallback(new HeadphonesActions());
             }
 
             DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(Application.Context, "MusicApp");
@@ -241,6 +247,7 @@ namespace MusicApp.Resources.Portable_Class
                 mediaSession.SetFlags(MediaSessionCompat.FlagHandlesMediaButtons | MediaSessionCompat.FlagHandlesTransportControls);
                 PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder().SetActions(PlaybackStateCompat.ActionPlay | PlaybackStateCompat.ActionPause);
                 mediaSession.SetPlaybackState(builder.Build());
+                mediaSession.SetCallback(new HeadphonesActions());
             }
 
             DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(Application.Context, "MusicApp");
@@ -595,9 +602,9 @@ namespace MusicApp.Resources.Portable_Class
             tmpDefaultIntent.SetAction("Player");
             PendingIntent defaultIntent = PendingIntent.GetActivity(Application.Context, 0, tmpDefaultIntent, PendingIntentFlags.UpdateCurrent);
 
-            Intent tmpCancelIntent = new Intent(Application.Context, typeof(MainActivity));
-            tmpCancelIntent.SetAction("Stop");
-            PendingIntent cancelIntent = PendingIntent.GetActivity(Application.Context, 0, tmpCancelIntent, PendingIntentFlags.UpdateCurrent);
+            //Intent tmpCancelIntent = new Intent(Application.Context, typeof(MainActivity));
+            //tmpCancelIntent.SetAction("Stop");
+            //PendingIntent cancelIntent = PendingIntent.GetActivity(Application.Context, 0, tmpCancelIntent, PendingIntentFlags.UpdateCurrent);
 
             notification = new NotificationCompat.Builder(Application.Context, "MusicApp.Channel")
                 .SetVisibility(NotificationCompat.VisibilityPublic)
@@ -610,14 +617,14 @@ namespace MusicApp.Resources.Portable_Class
                 .SetStyle(new MediaStyle()
                     .SetShowActionsInCompactView(1)
                     .SetShowCancelButton(true)
-                    .SetCancelButtonIntent(cancelIntent)
+                    //.SetCancelButtonIntent(cancelIntent)
                     .SetMediaSession(mediaSession.SessionToken))
                 .SetColor(ContextCompat.GetColor(Application.Context, Resource.Color.notification_icon_bg_color))
                 .SetContentTitle(title)
                 .SetContentText(artist)
                 .SetLargeIcon(icon)
                 .SetContentIntent(defaultIntent)
-                .SetDeleteIntent(cancelIntent)
+                //.SetDeleteIntent(cancelIntent)
                 .Build();
             ContextCompat.StartForegroundService(Application.Context, new Intent(Application.Context, typeof(MusicPlayer)));
             StartForeground(notificationID, notification);

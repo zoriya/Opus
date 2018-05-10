@@ -1,21 +1,16 @@
 ﻿using Android.Content;
+using Android.Graphics;
+using Android.Graphics.Drawables;
 using Android.OS;
+using Android.Support.Design.Widget;
+using Android.Support.V4.App;
+using Android.Support.V4.Widget;
 using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
-using System;
 using Square.Picasso;
-using Android.Support.Design.Widget;
+using System;
 using System.Threading.Tasks;
-using Android.Support.V4.App;
-using Java.Util;
-
-using AlarmManager = Android.App.AlarmManager;
-using PendingIntent = Android.App.PendingIntent;
-using Android.Graphics;
-using System.Threading;
-using Android.Support.V4.Widget;
-using Android.Graphics.Drawables;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -27,8 +22,8 @@ namespace MusicApp.Resources.Portable_Class
 
         private SeekBar bar;
         private ImageView imgView;
-        private int[] timers = new int[] { 0, 1, 10, 30, 60, 120 };
-        private string[] items = new string[] { "Off", "1 minute", "10 minutes", "30 minutes", "1 hour", "2 hours" };
+        private readonly int[] timers = new int[] { 0, 1, 10, 30, 60, 120 };
+        private readonly string[] items = new string[] { "Off", "1 minute", "10 minutes", "30 minutes", "1 hour", "2 hours" };
         private int checkedItem = 0;
 
 
@@ -164,12 +159,15 @@ namespace MusicApp.Resources.Portable_Class
                 Picasso.With(Android.App.Application.Context).Load(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
             }
 
-            while (MusicPlayer.player == null)
+            while (MusicPlayer.player == null || MusicPlayer.player.Duration == 0)
                 await Task.Delay(100);
 
             bar = playerView.FindViewById<SeekBar>(Resource.Id.songTimer);
             MusicPlayer.SetSeekBar(bar);
             handler.PostDelayed(UpdateSeekBar, 1000);
+
+            await Task.Delay(1000);
+            MusicPlayer.SetSeekBar(bar);
         }
 
         public async void RefreshPlayer()
@@ -296,7 +294,7 @@ namespace MusicApp.Resources.Portable_Class
             handler.PostDelayed(UpdateSeekBar, 1000);
         }
 
-        private void Fab_Click(object sender, EventArgs e)
+        private async void Fab_Click(object sender, EventArgs e)
         {
             MainActivity.instance.SupportFragmentManager.PopBackStack();
             if (MainActivity.instance.youtubeInstanceSave != null)
@@ -319,10 +317,11 @@ namespace MusicApp.Resources.Portable_Class
                     default:
                         break;
                 }
+                await Task.Delay(750);
                 MainActivity.instance.SetYtTabs(YoutubeEngine.searchKeyWorld, selectedTab);
                 YoutubeEngine.instances[selectedTab].focused = true;
                 YoutubeEngine.instances[selectedTab].OnFocus();
-                YoutubeEngine.instances[selectedTab].ListView.GetLayoutManager().OnRestoreInstanceState(MainActivity.instance.youtubeParcel);
+                YoutubeEngine.instances[selectedTab].ResumeListView();
             }
             else
             {
@@ -369,6 +368,7 @@ namespace MusicApp.Resources.Portable_Class
 
         void Sleep(int time)
         {
+            Console.WriteLine("&Going to sleep in " + time + ", slected item is the " + checkedItem + " one.");
             Intent intent = new Intent(Activity, typeof(Sleeper));
             intent.PutExtra("time", time);
             Activity.StartService(intent);

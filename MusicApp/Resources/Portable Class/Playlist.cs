@@ -322,6 +322,7 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     MusicPlayer.instance.AddToQueue(song);
                 }
+                Player.instance.UpdateNext();
             }
         }
 
@@ -357,6 +358,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 MusicPlayer.instance.AddToQueue(song);
             }
+            Player.instance.UpdateNext();
         }
 
         public static void RandomPlay(long playlistID, Context context)

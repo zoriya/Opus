@@ -346,7 +346,6 @@ namespace MusicApp
             await Task.Delay(100);
             HideTabs();
             HideSearch();
-            SaveInstance();
             SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).Commit();
         }
 
@@ -444,9 +443,7 @@ namespace MusicApp
                         SetYtTabs(YoutubeEngine.searchKeyWorld, selectedTab);
                         YoutubeEngine.instances[selectedTab].focused = true;
                         YoutubeEngine.instances[selectedTab].OnFocus();
-                        //YoutubeEngine.instances[selectedTab].ListView.GetLayoutManager().OnRestoreInstanceState(youtubeParcel);
-                        youtubeInstanceSave = null;
-                        youtubeParcel = null;
+                        YoutubeEngine.instances[selectedTab].ResumeListView();
                     }
                     else
                     {
@@ -953,8 +950,11 @@ namespace MusicApp
             {
                 YoutubeEngine instance = null;
                 foreach (YoutubeEngine inst in YoutubeEngine.instances)
-                    if (instance.focused)
+                {
+                    Console.WriteLine(inst);
+                    if (inst.focused)
                         instance = inst;
+                }
 
                 youtubeParcel = instance.ListView.GetLayoutManager().OnSaveInstanceState();
                 MainActivity.instance.youtubeInstanceSave = "YoutubeEngine" + "-" + instance.querryType;
@@ -1316,11 +1316,11 @@ namespace MusicApp
                 parcelableSender = "Home";
                 parcelable = Home.instance.ListView.GetLayoutManager().OnSaveInstanceState();
             }
-            else if (Queue.instance != null)
-            {
-                parcelableSender = "Queue";
-                parcelable = Queue.instance.ListView.GetLayoutManager().OnSaveInstanceState();
-            }
+            //else if (Queue.instance != null)
+            //{
+            //    parcelableSender = "Queue";
+            //    parcelable = Queue.instance.ListView.GetLayoutManager().OnSaveInstanceState();
+            //}
             else if (Browse.instance != null && Browse.instance.focused)
             {
                 parcelableSender = "Browse";
@@ -1357,21 +1357,25 @@ namespace MusicApp
             switch (parcelableSender)
             {
                 case "Home":
-                    Navigate(Resource.Id.musicLayout, true);
+                    //Navigate(Resource.Id.musicLayout, true);
+                    FindViewById<BottomNavigationView>(Resource.Id.bottomView).SelectedItemId = Resource.Id.musicLayout;
                     break;
-                case "Queue":
-                    Transition(Resource.Id.contentView, Queue.instance, false, true);
-                    break;
+                //case "Queue":
+                //    Transition(Resource.Id.contentView, Queue.instance, false, true);
+                //    break;
                 case "Browse":
-                    Navigate(Resource.Id.browseLayout, true);
+                    //Navigate(Resource.Id.browseLayout, true);
+                    FindViewById<BottomNavigationView>(Resource.Id.bottomView).SelectedItemId = Resource.Id.browseLayout;
                     break;
                 case "FolderBrowse":
-                    Navigate(Resource.Id.browseLayout, true);
+                    //Navigate(Resource.Id.browseLayout, true);
+                    FindViewById<BottomNavigationView>(Resource.Id.bottomView).SelectedItemId = Resource.Id.browseLayout;
                     FindViewById<ViewPager>(Resource.Id.pager).CurrentItem = 1;
                     FindViewById<TabLayout>(Resource.Id.tabs).SetScrollPosition(1, 0f, true);
                     break;
                 case "Playlist":
-                    Navigate(Resource.Id.playlistLayout, true);
+                    //Navigate(Resource.Id.playlistLayout, true);
+                    FindViewById<BottomNavigationView>(Resource.Id.bottomView).SelectedItemId = Resource.Id.playlistLayout;
                     break;
                 case "YoutubeEngine-All":
                     SetYtTabs(YoutubeEngine.searchKeyWorld, 0);

@@ -225,6 +225,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 MusicPlayer.instance.AddToQueue(song);
             }
+            Player.instance.UpdateNext();
         }
 
         private void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
@@ -243,12 +244,31 @@ namespace MusicApp.Resources.Portable_Class
 
             AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
             builder.SetTitle("Pick an action");
-            builder.SetItems(actions, (senderAlert, args) =>
+            builder.SetItems(actions, async (senderAlert, args) =>
             {
                 switch (args.Which)
                 {
                     case 0:
+                        Browse.act = Activity;
+                        int Position = tracks.IndexOf(item);
+
+                        List<Song> queue = tracks.GetRange(Position + 1, tracks.Count - Position - 1);
+                        if (result != null)
+                        {
+                            queue = result.GetRange(Position + 1, result.Count - Position - 1);
+                        }
+                        queue.Reverse();
+
                         Browse.Play(item);
+
+                        while (MusicPlayer.instance == null)
+                            await Task.Delay(10);
+
+                        foreach (Song song in queue)
+                        {
+                            MusicPlayer.instance.AddToQueue(song);
+                        }
+                        Player.instance.UpdateNext();
                         break;
                     case 1:
                         Browse.PlayNext(item);
