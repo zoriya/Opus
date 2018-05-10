@@ -72,6 +72,7 @@ namespace MusicApp
 
         private const int RequestCode = 8539;
 
+        private const string clientID = "112086459272-8m4do6aehtdg4a7nffd0a84jk94c64e8.apps.googleusercontent.com";
         public static YouTubeService youtubeService;
         public static GoogleSignInAccount account;
         public GoogleApiClient googleClient;

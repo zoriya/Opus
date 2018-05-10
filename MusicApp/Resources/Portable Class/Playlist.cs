@@ -165,13 +165,13 @@ namespace MusicApp.Resources.Portable_Class
                 ytPlaylists.Add(song);
             }
 
+
+
+
             if(ytPlaylists.Count == 1)
             {
                 ytPlaylists.Add(new Song("EMPTY", "You don't have any youtube playlist on your account. \nWarning: Only playlist from your google account are displayed", null, null, -1, -1, null));
             }
-
-            System.Console.WriteLine("&Youtube data retrieved");
-
             adapter.SetYtPlaylists(ytPlaylists);
         }
 
