@@ -53,11 +53,19 @@
     android:layout_alignParentRight="true" >
     <ImageView
       android:id="@+id/youtubeIcon"
-      android:layout_width="50dp"
-      android:layout_height="50dp"
+      android:layout_width="30dp"
+      android:layout_height="30dp"
       android:padding="5dp"
       android:background="@null"
       android:src="@drawable/youtubeIcon"
+      android:visibility="gone" />
+    <ImageView
+      android:id="@+id/edit"
+      android:layout_width="30dp"
+      android:layout_height="30dp"
+      android:padding="5dp"
+      android:background="@null"
+      android:src="@drawable/Edit"
       android:visibility="gone" />
     <ImageView
       android:id="@+id/moreButton"

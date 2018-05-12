@@ -25,7 +25,7 @@ namespace MusicApp.Resources.Portable_Class
         public static List<HomeSection> adapterItems = new List<HomeSection>();
         public View view;
 
-        private string[] actions = new string[] { "Play", "Play Next", "Play Last", "Add To Playlist", "Edit Metadata" };
+        private readonly string[] actions = new string[] { "Play", "Play Next", "Play Last", "Add To Playlist", "Edit Metadata" };
 
         public override void OnActivityCreated(Bundle savedInstanceState)
         {

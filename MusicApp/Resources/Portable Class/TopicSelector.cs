@@ -25,6 +25,8 @@ namespace MusicApp.Resources.Portable_Class
         public async override void OnActivityCreated(Bundle savedInstanceState)
         {
             base.OnActivityCreated(savedInstanceState);
+            if(MainActivity.Theme == 0)
+                ListView.SetBackgroundColor(Android.Graphics.Color.White);
 
             await MainActivity.instance.WaitForYoutube();
 

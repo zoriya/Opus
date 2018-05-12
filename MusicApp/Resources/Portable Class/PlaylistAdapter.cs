@@ -1,5 +1,6 @@
 ﻿using Android.App;
 using Android.Graphics;
+using Android.Graphics.Drawables;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
@@ -15,6 +16,7 @@ namespace MusicApp.Resources.Portable_Class
         private List<string> playlistsName;
         private List<int> playlistCount;
         private List<Song> ytPlaylists;
+        private bool? forkSaved = false;
         public int listPadding;
         public event EventHandler<int> ItemClick;
         public event EventHandler<int> ItemLongCLick;
@@ -45,32 +47,30 @@ namespace MusicApp.Resources.Portable_Class
             {
                 playlistsName.RemoveAt(position);
                 playlistCount.RemoveAt(position);
-                //NotifyItemRangeInserted(position, 1);
 
                 if (playlistsName.Count == 1)
                 {
                     playlistsName.Add("EMPTY - You don't have any playlist on your device.");
                     playlistCount.Add(-1);
-                    //NotifyItemRangeInserted(2, 1);
                 }
             }
             else
             {
                 ytPlaylists.RemoveAt(position - playlistsName.Count);
-                //NotifyItemRangeInserted(position - playlistsName.Count, 1);
 
                 if (ytPlaylists.Count == 1)
                 {
                     ytPlaylists.Add(new Song("EMPTY", "You don't have any youtube playlist on your account. \nWarning: Only playlist from your google account are displayed", null, null, -1, -1, null));
-                    //NotifyItemRangeInserted(playlistsName.Count + 2, 1);
                 }
             }
             NotifyDataSetChanged();
         }
 
-        public void SetYtPlaylists(List<Song> ytPlaylists)
+        public void SetYtPlaylists(List<Song> ytPlaylists, bool forkSaved)
         {
-            if(this.ytPlaylists.Count > 0)
+            this.forkSaved = forkSaved;
+
+            if (this.ytPlaylists.Count > 0)
                 NotifyItemRangeRemoved(playlistsName.Count + 1, this.ytPlaylists.Count);
 
             this.ytPlaylists = ytPlaylists;
@@ -78,7 +78,7 @@ namespace MusicApp.Resources.Portable_Class
                 NotifyItemRangeInserted(playlistsName.Count + 1, ytPlaylists.Count);
         }
 
-        public override int ItemCount => playlistsName.Count + ytPlaylists.Count;
+        public override int ItemCount => playlistsName.Count + ytPlaylists.Count + (forkSaved == true ? 1 : 0);
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position)
         {
@@ -96,6 +96,20 @@ namespace MusicApp.Resources.Portable_Class
             {
                 EmptyCategoryHolder holder = (EmptyCategoryHolder)viewHolder;
                 holder.text.Text = playlistsName[1].Substring(8);
+            }
+            else if (position == playlistsName.Count + ytPlaylists.Count)
+            {
+                ButtonHolder holder = (ButtonHolder)viewHolder;
+                if (MainActivity.Theme == 1)
+                {
+                    ((GradientDrawable)holder.ItemView.Background).SetStroke(5, Android.Content.Res.ColorStateList.ValueOf(Color.Argb(255, 62, 80, 180)));
+                    holder.Button.SetTextColor(Color.Argb(255, 62, 80, 180));
+                }
+                else
+                {
+                    ((GradientDrawable)holder.ItemView.Background).SetStroke(5, Android.Content.Res.ColorStateList.ValueOf(Color.Argb(255, 21, 183, 237)));
+                    holder.Button.SetTextColor(Color.Argb(255, 21, 183, 237));
+                }
             }
             else if (playlistsName.Count >= position)
             {
@@ -137,7 +151,7 @@ namespace MusicApp.Resources.Portable_Class
                     holder.more.LayoutParameters = layoutParams;
                 }
             }
-            else if(position > playlistsName.Count)
+            else if (position > playlistsName.Count && ytPlaylists.Count >= position - playlistsName.Count)
             {
                 RecyclerHolder holder = (RecyclerHolder)viewHolder;
                 Song song = ytPlaylists[position - playlistsName.Count];
@@ -147,6 +161,15 @@ namespace MusicApp.Resources.Portable_Class
 
                 var songAlbumArtUri = Android.Net.Uri.Parse(song.GetAlbum());
                 Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
+
+                if (song.isParsed)
+                {
+                    holder.edit.Visibility = ViewStates.Visible;
+                    if (MainActivity.Theme == 1)
+                        holder.edit.SetColorFilter(Color.White);
+                }
+                else
+                    holder.edit.Visibility = ViewStates.Gone;
 
                 holder.more.Tag = position;
                 if (!holder.more.HasOnClickListeners)
@@ -201,6 +224,11 @@ namespace MusicApp.Resources.Portable_Class
                 View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.SongList, parent, false);
                 return new RecyclerHolder(itemView, OnClick, OnLongClick);
             }
+            else if (viewType == 3)
+            {
+                View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.BorderlessButton, parent, false);
+                return new ButtonHolder(itemView, OnClick);
+            }
             else
             {
                 View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.EmptyListCategory, parent, false);
@@ -214,10 +242,12 @@ namespace MusicApp.Resources.Portable_Class
                 return 0;
             else if (playlistsName.Count >= position && (playlistsName.Count > 2 || !playlistsName[1].StartsWith("EMPTY - ")))
                 return 1;
-            else if(position > playlistsName.Count && (ytPlaylists.Count > 2 || ytPlaylists[1].GetName() != "EMPTY")) 
+            else if(position > playlistsName.Count && position < playlistsName.Count + ytPlaylists.Count && (ytPlaylists.Count > 2 || ytPlaylists[1].GetName() != "EMPTY")) 
                 return 2;
-            else
+            else if (position == playlistsName.Count + ytPlaylists.Count)
                 return 3;
+            else 
+                return 4;
         }
 
         void OnClick(int position)

@@ -13,6 +13,7 @@ namespace MusicApp.Resources.Portable_Class
         public TextView Title;
         public TextView Artist;
         public ImageView AlbumArt;
+        public ImageView edit;
         public ImageView youtubeIcon;
         public ImageView more;
 
@@ -23,6 +24,7 @@ namespace MusicApp.Resources.Portable_Class
             Title = itemView.FindViewById<TextView>(Resource.Id.title);
             Artist = itemView.FindViewById<TextView>(Resource.Id.artist);
             AlbumArt = itemView.FindViewById<ImageView>(Resource.Id.albumArt);
+            edit = itemView.FindViewById<ImageView>(Resource.Id.edit);
             youtubeIcon = itemView.FindViewById<ImageView>(Resource.Id.youtubeIcon);
             more = itemView.FindViewById<ImageView>(Resource.Id.moreButton);
 

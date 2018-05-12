@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content">
+  <TextView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="16dp"
+    android:layout_marginLeft="8dp"
+    android:layout_marginRight="8dp"
+    android:layout_marginBottom="4dp"
+    android:text="You can add any youtube playlist by entering the playlist url in this field. You can find a playlist url by clicking the share button on the youtube app then click Copy Link. \nWarning: it will add a section  &quot;Saved Playlists&quot; on your youtube channel."/>
+  <EditText
+    android:id="@+id/playlistURL"
+    android:inputType="text"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="16dp"
+    android:layout_marginLeft="8dp"
+    android:layout_marginRight="8dp"
+    android:layout_marginBottom="4dp"
+    android:hint="Playlist URL" />
+</LinearLayout>
