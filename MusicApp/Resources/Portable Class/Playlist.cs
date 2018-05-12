@@ -242,7 +242,33 @@ namespace MusicApp.Resources.Portable_Class
                         string url = view.FindViewById<EditText>(Resource.Id.playlistURL).Text;
                         string playlistID = url.Substring(url.IndexOf('=') + 1);
                         await YoutubeEngine.ForkPlaylist(playlistID);
-                        Refresh();
+
+                        ChannelSectionsResource.ListRequest forkedRequest = YoutubeEngine.youtubeService.ChannelSections.List("snippet,contentDetails");
+                        forkedRequest.Mine = true;
+                        ChannelSectionListResponse forkedResponse = await forkedRequest.ExecuteAsync();
+                        if (instance == null)
+                            return;
+
+                        foreach (ChannelSection section in forkedResponse.Items)
+                        {
+                            if (section.Snippet.Title == "Saved Playlists")
+                            {
+                                PlaylistsResource.ListRequest plRequest = YoutubeEngine.youtubeService.Playlists.List("snippet, contentDetails");
+                                plRequest.Id = section.ContentDetails.Playlists[section.ContentDetails.Playlists.Count - 1];
+
+                                PlaylistListResponse plResponse = await plRequest.ExecuteAsync();
+
+                                if (instance == null)
+                                    return;
+
+                                Google.Apis.YouTube.v3.Data.Playlist ytPlaylist = plResponse.Items[0];
+                                ytPlaylist.Kind = "youtube#saved";
+                                YtPlaylists.Add(ytPlaylist);
+                                Song song = new Song(ytPlaylist.Snippet.Title, ytPlaylist.Snippet.ChannelTitle, ytPlaylist.Snippet.Thumbnails.Default__.Url, ytPlaylist.Id, -1, -1, ytPlaylist.Id, true, false);
+                                ytPlaylists.Add(song);
+                            }
+                        }
+                        adapter.NotifyItemInserted(playList.Count + ytPlaylists.Count);
                     })
                     .Show();
                 return;
@@ -532,8 +558,8 @@ namespace MusicApp.Resources.Portable_Class
             YtPlaylists[position - playList.Count].Snippet.Title = name;
             YoutubeEngine.youtubeService.Playlists.Update(playlist, "snippet").Execute();
 
-            ytPlaylists[position - playList.Count].SetName(name);
-            adapter.UpdateElement(position, ytPlaylists[position - playList.Count]);
+            ytPlaylists[position - playList.Count - 1].SetName(name);
+            adapter.UpdateElement(position, ytPlaylists[position - playList.Count - 1]);
         }
 
         void RemoveYoutubePlaylist(int position, string playlistID)
@@ -542,7 +568,7 @@ namespace MusicApp.Resources.Portable_Class
             deleteRequest.Execute();
 
             adapter.Remove(position);
-            YtPlaylists.RemoveAt(position - playList.Count);
+            YtPlaylists.RemoveAt(position - playList.Count - 1);
 
             if (ytPlaylists.Count == 1)
             {
@@ -566,7 +592,7 @@ namespace MusicApp.Resources.Portable_Class
                 }
             }
 
-            YtPlaylists.RemoveAt(position - playList.Count);
+            YtPlaylists.RemoveAt(position - playList.Count - 1);
             adapter.Remove(position);
 
             if (ytPlaylists.Count == 1)
