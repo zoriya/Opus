@@ -813,6 +813,48 @@ namespace MusicApp.Resources.Portable_Class
             insertRequest.Execute();
         }
 
+        public static async Task ForkPlaylist(string playlistID)
+        {
+            ChannelSectionsResource.ListRequest forkedRequest = youtubeService.ChannelSections.List("snippet,contentDetails");
+            forkedRequest.Mine = true;
+            ChannelSectionListResponse forkedResponse = await forkedRequest.ExecuteAsync();
+
+            foreach (ChannelSection section in forkedResponse.Items)
+            {
+                if (section.Snippet.Title == "Saved Playlists")
+                {
+                    //AddToSection
+                    if (section.ContentDetails.Playlists.Contains(playlistID))
+                    {
+                        Snackbar.Make(MainActivity.instance.FindViewById<View>(Resource.Id.snackBar), "You've already added this playlist.", 1).Show();
+                        return;
+                    }
+                    else
+                    {
+                        section.ContentDetails.Playlists.Add(playlistID);
+                        ChannelSectionsResource.UpdateRequest request = youtubeService.ChannelSections.Update(section, "snippet,contentDetails");
+                        ChannelSection response = await request.ExecuteAsync();
+                        return;
+                    }
+                }
+            }
+            //CreateSection and add to it
+            ChannelSection newSection = new ChannelSection();
+            ChannelSectionContentDetails details = new ChannelSectionContentDetails();
+            ChannelSectionSnippet snippet = new ChannelSectionSnippet();
+
+            details.Playlists = new List<string>() { playlistID };
+            snippet.Title = "Saved Playlists";
+            snippet.Type = "multiplePlaylists";
+            snippet.Style = "horizontalRow";
+
+            newSection.ContentDetails = details;
+            newSection.Snippet = snippet;
+
+            ChannelSectionsResource.InsertRequest insert = youtubeService.ChannelSections.Insert(newSection, "snippet,contentDetails");
+            ChannelSection insertResponse = await insert.ExecuteAsync();
+        }
+
         public static async void RandomPlay(string playlistID)
         {
             List<Song> tracks = new List<Song>();

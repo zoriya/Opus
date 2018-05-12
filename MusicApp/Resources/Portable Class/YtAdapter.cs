@@ -94,7 +94,7 @@ namespace MusicApp.Resources.Portable_Class
                         
                         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme);
                         builder.SetTitle("Pick an action");
-                        builder.SetItems(new string[] { "Random play", "Download" }, (senderAlert, args) =>
+                        builder.SetItems(new string[] { "Random play", "Save To Youtube", "Download" }, (senderAlert, args) =>
                         {
                             switch (args.Which)
                             {
@@ -102,6 +102,10 @@ namespace MusicApp.Resources.Portable_Class
                                     YoutubeEngine.RandomPlay(playlist.GetPath());
                                     break;
                                 case 1:
+                                #pragma warning disable CS4014
+                                    YoutubeEngine.ForkPlaylist(playlist.GetPath());
+                                    break;
+                                case 2:
                                     YoutubeEngine.DownloadPlaylist(playlist.GetPath());
                                     break;
                                 default:

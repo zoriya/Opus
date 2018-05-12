@@ -241,46 +241,7 @@ namespace MusicApp.Resources.Portable_Class
                     {
                         string url = view.FindViewById<EditText>(Resource.Id.playlistURL).Text;
                         string playlistID = url.Substring(url.IndexOf('=') + 1);
-
-                        ChannelSectionsResource.ListRequest forkedRequest = YoutubeEngine.youtubeService.ChannelSections.List("snippet,contentDetails");
-                        forkedRequest.Mine = true;
-                        ChannelSectionListResponse forkedResponse = await forkedRequest.ExecuteAsync();
-
-                        foreach (ChannelSection section in forkedResponse.Items)
-                        {
-                            if (section.Snippet.Title == "Saved Playlists")
-                            {
-                                //AddToSection
-                                if (section.ContentDetails.Playlists.Contains(playlistID))
-                                {
-                                    Snackbar.Make(Activity.FindViewById<View>(Resource.Id.snackBar), "You've already added this playlist.", 1).Show();
-                                    return;
-                                }
-                                else
-                                {
-                                    section.ContentDetails.Playlists.Add(playlistID);
-                                    ChannelSectionsResource.UpdateRequest request = YoutubeEngine.youtubeService.ChannelSections.Update(section, "snippet,contentDetails");
-                                    ChannelSection response = await request.ExecuteAsync();
-                                    Refresh();
-                                    return;
-                                }
-                            }
-                        }
-                        //CreateSection and add to it
-                        ChannelSection newSection = new ChannelSection();
-                        ChannelSectionContentDetails details = new ChannelSectionContentDetails();
-                        ChannelSectionSnippet snippet = new ChannelSectionSnippet();
-
-                        details.Playlists = new List<string>() { playlistID };
-                        snippet.Title = "Saved Playlists";
-                        snippet.Type = "multiplePlaylists";
-                        snippet.Style = "horizontalRow";
-
-                        newSection.ContentDetails = details;
-                        newSection.Snippet = snippet;
-
-                        ChannelSectionsResource.InsertRequest insert = YoutubeEngine.youtubeService.ChannelSections.Insert(newSection, "snippet,contentDetails");
-                        ChannelSection insertResponse = await insert.ExecuteAsync();
+                        await YoutubeEngine.ForkPlaylist(playlistID);
                         Refresh();
                     })
                     .Show();
