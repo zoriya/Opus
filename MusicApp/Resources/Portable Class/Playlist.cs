@@ -240,7 +240,12 @@ namespace MusicApp.Resources.Portable_Class
                     .SetPositiveButton("Go", async (s, eventArgs) => 
                     {
                         string url = view.FindViewById<EditText>(Resource.Id.playlistURL).Text;
-                        string playlistID = url.Substring(url.IndexOf('=') + 1);
+                        string shrinkedURL = url.Substring(url.IndexOf('=') + 1);
+                        string playlistID = shrinkedURL;
+                        if (shrinkedURL.Contains("&"))
+                        {
+                            playlistID = shrinkedURL.Substring(0, shrinkedURL.IndexOf("&"));
+                        }
                         await YoutubeEngine.ForkPlaylist(playlistID);
 
                         ChannelSectionsResource.ListRequest forkedRequest = YoutubeEngine.youtubeService.ChannelSections.List("snippet,contentDetails");
@@ -412,9 +417,12 @@ namespace MusicApp.Resources.Portable_Class
                 while (musicCursor.MoveToNext());
                 musicCursor.Close();
 
-                songs.Reverse();
+                MusicPlayer.queue.Clear();
                 Browse.act = Activity;
                 Browse.Play(songs[0]);
+                songs.RemoveAt(0);
+                songs.Reverse();
+                
 
                 while (MusicPlayer.instance == null)
                     await Task.Delay(10);
@@ -443,14 +451,16 @@ namespace MusicApp.Resources.Portable_Class
 
                 foreach (var item in ytPlaylist.Items)
                 {
-                    Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true);
+                    Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
                     songs.Add(song);
                 }
 
                 nextPageToken = ytPlaylist.NextPageToken;
             }
-            songs.Reverse();
+            MusicPlayer.queue.Clear();
             YoutubeEngine.Play(songs[0].youtubeID, songs[0].GetName(), songs[0].GetArtist(), songs[0].GetAlbum());
+            songs.RemoveAt(0);
+            songs.Reverse();
 
             while (MusicPlayer.instance == null)
                 await Task.Delay(10);
@@ -480,6 +490,10 @@ namespace MusicApp.Resources.Portable_Class
                 while (musicCursor.MoveToNext());
                 musicCursor.Close();
             }
+
+            MainActivity.instance.HideTabs();
+            MainActivity.instance.HideSearch();
+            MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).AddToBackStack(null).Commit();
 
             Intent intent = new Intent(Android.App.Application.Context, typeof(MusicPlayer));
             intent.PutStringArrayListExtra("files", tracksPath);

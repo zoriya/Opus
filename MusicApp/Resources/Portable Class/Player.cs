@@ -110,6 +110,19 @@ namespace MusicApp.Resources.Portable_Class
                 Picasso.With(Android.App.Application.Context).Load(current.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(imgView);
             }
 
+            if (current.IsYt)
+            {
+                ImageView download = playerView.FindViewById<ImageView>(Resource.Id.playerDownload);
+                download.Visibility = ViewStates.Visible;
+                download.Click += Download_Click;
+                playerView.FindViewById<ImageButton>(Resource.Id.playerPlaylistAdd).SetPadding(0, 0, 0, 0);
+            }
+            else
+            {
+                playerView.FindViewById<ImageView>(Resource.Id.playerDownload).Visibility = ViewStates.Gone;
+                playerView.FindViewById<ImageButton>(Resource.Id.playerPlaylistAdd).SetPadding((int) (50 * MainActivity.instance.Resources.DisplayMetrics.Density + 0.5f), 0, 0, 0);
+            }
+
             TextView NextTitle = playerView.FindViewById<TextView>(Resource.Id.nextTitle);
             TextView NextAlbum = playerView.FindViewById<TextView>(Resource.Id.nextArtist);
             Button ShowQueue = playerView.FindViewById<Button>(Resource.Id.showQueue);
@@ -170,6 +183,12 @@ namespace MusicApp.Resources.Portable_Class
             MusicPlayer.SetSeekBar(bar);
         }
 
+        private void Download_Click(object sender, EventArgs e)
+        {
+            Song song = MusicPlayer.queue[MusicPlayer.CurrentID()];
+            YoutubeEngine.Download(song.GetName(), song.youtubeID);
+        }
+
         public async void RefreshPlayer()
         {
             while (MusicPlayer.CurrentID() == -1)
@@ -199,6 +218,19 @@ namespace MusicApp.Resources.Portable_Class
             else
             {
                 Picasso.With(Android.App.Application.Context).Load(current.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(imgView);
+            }
+
+            ImageView download = playerView.FindViewById<ImageView>(Resource.Id.playerDownload);
+
+            if (current.IsYt)
+            {
+                download.Visibility = ViewStates.Visible;
+                playerView.FindViewById<ImageButton>(Resource.Id.playerPlaylistAdd).SetPadding(0, 0, 0, 0);
+            }
+            else
+            {
+                download.Visibility = ViewStates.Gone;
+                playerView.FindViewById<ImageButton>(Resource.Id.playerPlaylistAdd).SetPadding((int)(50 * MainActivity.instance.Resources.DisplayMetrics.Density + 0.5f), 0, 0, 0);
             }
 
             bool asNext = MusicPlayer.queue.Count > MusicPlayer.CurrentID() + 1;

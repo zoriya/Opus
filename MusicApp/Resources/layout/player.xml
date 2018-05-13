@@ -81,6 +81,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingLeft="50dp" />
+          <ImageButton
+            android:id="@+id/playerDownload"
+            android:src="@drawable/Download"
+            android:background="@null"
+            android:visibility="gone"
+            android:tint="#ffffff"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="50dp" />
         </LinearLayout>
       </LinearLayout>
     </FrameLayout>

@@ -1312,6 +1312,9 @@ namespace MusicApp
 
         public void SaveInstance()
         {
+            if (Queue.instance != null)
+                return;
+
             if (Home.instance != null)
             {
                 parcelableSender = "Home";

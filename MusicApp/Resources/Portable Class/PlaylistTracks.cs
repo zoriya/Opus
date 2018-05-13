@@ -40,6 +40,7 @@ namespace MusicApp.Resources.Portable_Class
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
             MainActivity.instance.OnPaddingChanged += OnPaddingChanged;
             MainActivity.instance.DisplaySearch(1);
+#pragma warning disable CS4014
             PopulateList();
         }
 
@@ -82,7 +83,7 @@ namespace MusicApp.Resources.Portable_Class
             return instance;
         }
 
-        async void PopulateList()
+        async Task PopulateList()
         {
             if (playlistId == 0 && ytID == "")
                 return;
@@ -156,7 +157,7 @@ namespace MusicApp.Resources.Portable_Class
 
                     foreach (var item in ytPlaylist.Items)
                     {
-                        Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true);
+                        Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
                         tracks.Add(song);
                         ytTracksIDs.Add(item.Id);
                     }
@@ -184,78 +185,8 @@ namespace MusicApp.Resources.Portable_Class
 
         private async void OnRefresh(object sender, System.EventArgs e)
         {
-            tracks.Clear();
-            if (playlistId != 0)
-            {
-                Uri musicUri = MediaStore.Audio.Playlists.Members.GetContentUri("external", playlistId);
-
-                CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
-                ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
-
-
-                if (musicCursor != null && musicCursor.MoveToFirst())
-                {
-                    int titleID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Title);
-                    int artistID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Artist);
-                    int albumID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Album);
-                    int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
-                    int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
-                    do
-                    {
-                        string Artist = musicCursor.GetString(artistID);
-                        string Title = musicCursor.GetString(titleID);
-                        string Album = musicCursor.GetString(albumID);
-                        long AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
-                        long id = musicCursor.GetLong(thisID);
-                        string path = musicCursor.GetString(pathID);
-
-                        if (Title == null)
-                            Title = "Unknown Title";
-                        if (Artist == null)
-                            Artist = "Unknow Artist";
-                        if (Album == null)
-                            Album = "Unknow Album";
-
-                        tracks.Add(new Song(Title, Artist, Album, null, AlbumArt, id, path));
-                    }
-                    while (musicCursor.MoveToNext());
-                    musicCursor.Close();
-                }
-            }
-            else if (ytID != null)
-            {
-                string nextPageToken = "";
-                while (nextPageToken != null)
-                {
-                    var ytPlaylistRequest = YoutubeEngine.youtubeService.PlaylistItems.List("snippet, contentDetails");
-                    ytPlaylistRequest.PlaylistId = ytID;
-                    ytPlaylistRequest.MaxResults = 50;
-                    ytPlaylistRequest.PageToken = nextPageToken;
-
-                    var ytPlaylist = await ytPlaylistRequest.ExecuteAsync();
-
-                    foreach (var item in ytPlaylist.Items)
-                    {
-                        Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true);
-                        tracks.Add(song);
-                        ytTracksIDs.Add(item.Id);
-                    }
-
-                    nextPageToken = ytPlaylist.NextPageToken;
-                }
-            }
-
-            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, tracks)
-            {
-                listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot
-            };
-            ListAdapter = adapter;
-
-            if (adapter == null || adapter.Count == 0)
-            {
-                isEmpty = true;
-                Activity.AddContentView(emptyView, View.LayoutParameters);
-            }
+            await PopulateList();
+            MainActivity.instance.contentRefresh.Refreshing = false;
         }
 
         public void Search(string search)

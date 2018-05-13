@@ -115,7 +115,7 @@ namespace MusicApp.Resources.Portable_Class
             string[] topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToArray();
 
             if (topics.Length == 0)
-                topicPreference.Summary = "Actualy nothing";
+                topicPreference.Summary = "Actually nothing";
             else if (topics.Length == 1)
                 topicPreference.Summary = topics[0];
             else if (topics.Length == 2)
@@ -129,6 +129,16 @@ namespace MusicApp.Resources.Portable_Class
             Preference downloadPref = PreferenceScreen.FindPreference("downloadPath");
             downloadPref.PreferenceClick += DownloadClick;
             downloadPref.Summary = prefManager.GetString("downloadPath", "not set");
+
+            //Skip Exist Verification
+            Preference skipExistVerification = PreferenceScreen.FindPreference("skipExistVerification");
+            skipExistVerification.PreferenceClick += SkipClick;
+            skipExistVerification.Summary = prefManager.GetBoolean("skipExistVerification", false) ? "True" : "False";
+
+            //Volume multiplier
+            Preference volumeMultiplier = PreferenceScreen.FindPreference("volumeMultiplier");
+            //volumeMultiplier.PreferenceClick += SkipClick;
+            //volumeMultiplier.Summary = prefManager.GetInt("volumeMultiplier", 1).ToString();
 
             //Local play shortcut
             Preference localShortcutPreference = PreferenceScreen.FindPreference("localPlay");
@@ -193,6 +203,25 @@ namespace MusicApp.Resources.Portable_Class
             FragmentManager.BeginTransaction().Replace(Android.Resource.Id.ListContainer, DownloadFragment.NewInstance()).AddToBackStack(null).Commit();
             instance = null;
             Preferences.instance.toolbar.Title = "Download Location";
+        }
+        #endregion
+
+        #region Skip Verification
+        private void SkipClick(object sender, Preference.PreferenceClickEventArgs e)
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
+            builder.SetTitle("Always play youtube file even if you have already downloaded the track:");
+            builder.SetItems(new[] { "True", "False" }, (s, args) =>
+            {
+                ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
+                ISharedPreferencesEditor editor = pref.Edit();
+                editor.PutBoolean("skipExistVerification", args.Which == 0);
+                editor.Apply();
+
+                Preference prefButton = FindPreference("skipExistVerification");
+                prefButton.Summary = args.Which == 0 ? "True" : "False";
+            });
+            builder.Show();
         }
         #endregion
 

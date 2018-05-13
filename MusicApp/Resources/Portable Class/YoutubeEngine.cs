@@ -13,6 +13,7 @@ using Android.Widget;
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
 using MusicApp.Resources.values;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -365,88 +366,24 @@ namespace MusicApp.Resources.Portable_Class
             MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).AddToBackStack(null).Commit();
         }
 
-        public static async void PlayFiles(Song[] files, bool skipExistVerification = false)
+        public static async void PlayFiles(Song[] files)
         {
             if (files.Length < 1)
                 return;
-
-            if (!skipExistVerification)
-            {
-                List<int> index = new List<int>();
-                List<Song> downloadedSong = new List<Song>();
-                for (int i = 0; i < files.Length; i++)
-                {
-                    if (FileIsAlreadyDownloaded(files[i].youtubeID))
-                    {
-                        index.Add(i);
-                        downloadedSong.Add(files[i]);
-                    }
-                }
-
-                if (downloadedSong.Count > 0)
-                {
-                    List<Song> filesList = files.ToList();
-
-                    for (int i = 0; i < index.Count; i++)
-                    {
-                        filesList.RemoveAt(index[i]);
-                    }
-
-                    files = filesList.ToArray();
-
-                    if (downloadedSong.Count == 1)
-                    {
-                        Context context = Android.App.Application.Context;
-                        Intent intent = new Intent(context, typeof(MusicPlayer));
-                        intent.PutExtra("file", GetLocalPathFromYTID(downloadedSong[0].youtubeID));
-                        intent.SetAction("PlayLast");
-                        context.StartService(intent);
-                        int localID = MusicPlayer.queue.Count;
-
-                        Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), downloadedSong[0].GetName() + " has been downloaded on your device. Playing the local file instead of the online one.", Snackbar.LengthShort).SetAction("Play the youtube file anyway.", (v) =>
-                        {
-                            Queue.RemoveFromQueue(MusicPlayer.queue[localID]);
-                            MusicPlayer.queue.Insert(MusicPlayer.queue.Count, downloadedSong[0]);
-                        }).Show();
-                    }
-                    else
-                    {
-                        List<string> localPaths = new List<string>();
-                        for(int i = 0; i < downloadedSong.Count; i++)
-                            localPaths.Add(GetLocalPathFromYTID(downloadedSong[i].youtubeID));
-
-                        Context context = Android.App.Application.Context;
-                        Intent intent = new Intent(context, typeof(MusicPlayer));
-                        intent.PutStringArrayListExtra("files", localPaths.ToArray());
-                        intent.PutExtra("clearQueue", false);
-                        intent.SetAction("RandomPlay");
-                        context.StartService(intent);
-                        int localID = MusicPlayer.queue.Count;
-
-                        Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), downloadedSong.Count + " files are on your device. Playing locals files instead of the online version.", Snackbar.LengthShort).SetAction("Play youtube files anyway", (v) =>
-                        {
-                            for (int i = 0; i < downloadedSong.Count; i++)
-                            {
-                                Queue.RemoveFromQueue(MusicPlayer.queue[localID + i]);
-                                MusicPlayer.queue.Insert(MusicPlayer.CurrentID() + i, downloadedSong[i]);
-                            }
-
-                        }).Show();
-                    }
-                }
-            }
 
             Play(files[0].GetPath(), files[0].GetName(), files[0].GetArtist(), files[0].GetAlbum(), true);
 
             if (files.Length < 2)
                 return;
 
-            await Task.Delay(5000);
+            while (MusicPlayer.instance == null)
+                await Task.Delay(10);
 
-            for(int i = 1; i < files.Length; i++)
+            foreach(Song song in files)
             {
-                MusicPlayer.queue.Insert(MusicPlayer.CurrentID() + i, files[i]);
+                MusicPlayer.instance.AddToQueue(song);
             }
+            Player.instance.UpdateNext();
         }
 
 
@@ -652,7 +589,7 @@ namespace MusicApp.Resources.Portable_Class
                     try
                     {
                         Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
-                        var meta = TagLib.File.Create(new StreamFileAbstraction(path, stream, stream));
+                        var meta = TagLib.File.Create(new StreamFileAbstraction(path, stream, stream)); //Make app crash if user has midi files ?
                         string ytID = meta.Tag.Comment;
                         stream.Dispose();
 
@@ -876,6 +813,9 @@ namespace MusicApp.Resources.Portable_Class
 
                 nextPageToken = ytPlaylist.NextPageToken;
             }
+            MusicPlayer.queue.Clear();
+            Random r = new Random();
+            tracks = tracks.OrderBy(x => r.Next()).ToList();
             PlayFiles(tracks.ToArray());
         }
 

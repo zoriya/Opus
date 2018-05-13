@@ -9,6 +9,7 @@ using Android.Support.Design.Widget;
 using Android.Support.V4.App;
 using Android.Support.V4.Content;
 using Android.Support.V4.Media.Session;
+using Android.Support.V7.Preferences;
 using Android.Widget;
 using Com.Google.Android.Exoplayer2;
 using Com.Google.Android.Exoplayer2.Extractor;
@@ -118,8 +119,7 @@ namespace MusicApp.Resources.Portable_Class
                     break;
 
                 case "Stop":
-                    if(isRunning)
-                        Stop();
+                    Stop();
                     break;
                 case "SleepPause":
                     SleepPause();
@@ -319,8 +319,11 @@ namespace MusicApp.Resources.Portable_Class
             filePath = filePath.OrderBy(x => r.Next()).ToList();
             if(clearQueue)
                 Play(filePath[0]);
-            await Task.Delay(1000);
-            Player.instance?.UpdateNext();
+            
+            while(instance == null)
+                await Task.Delay(10);
+
+            Player.instance?.RefreshPlayer();
             for (int i = clearQueue ? 1 : 0; i < filePath.Count; i++)
             {
                 GetTrackSong(filePath[i], out Song song);
@@ -409,9 +412,16 @@ namespace MusicApp.Resources.Portable_Class
             {
                 YoutubeClient client = new YoutubeClient();
                 MediaStreamInfoSet mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(song.youtubeID);
-                AudioStreamInfo streamInfo = mediaStreamInfo.Audio.OrderBy(s => s.Bitrate).Last();
+                AudioStreamInfo streamInfo = mediaStreamInfo.Audio.Where(x => x.Container == Container.M4A).OrderBy(s => s.Bitrate).Last();
                 song.SetPath(streamInfo.Url);
+                song.youtubeID = streamInfo.Url;
                 song.isParsed = true;
+            }
+
+            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
+            if (YoutubeEngine.FileIsAlreadyDownloaded(song.GetPath()) && !prefManager.GetBoolean("skipExistVerification", false))
+            {
+                GetTrackSong(YoutubeEngine.GetLocalPathFromYTID(song.GetPath()), out song);
             }
 
             Play(song, false);
