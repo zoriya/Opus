@@ -17,6 +17,7 @@ using Com.Google.Android.Exoplayer2.Source;
 using Com.Google.Android.Exoplayer2.Trackselection;
 using Com.Google.Android.Exoplayer2.Upstream;
 using MusicApp.Resources.values;
+using Org.Adw.Library.Widgets.Discreteseekbar;
 using Square.Picasso;
 using System;
 using System.Collections.Generic;
@@ -455,16 +456,19 @@ namespace MusicApp.Resources.Portable_Class
             return currentID;
         }
 
-        public static void SetSeekBar(SeekBar bar)
+        public static void SetSeekBar(DiscreteSeekBar bar)
         {
             bar.Max = (int) player.Duration;
             bar.Progress = (int) player.CurrentPosition;
             bar.ProgressChanged += (sender, e) =>
             {
-                if (player != null && e.FromUser)
-                    player.SeekTo(e.Progress);
+                bool FromUser = e.P2;
+                int Progress = e.P1;
 
-                if (player != null && player.Duration - e.Progress <= 1500 && player.Duration - e.Progress > 0)
+                if (player != null && FromUser)
+                    player.SeekTo(Progress);
+
+                if (player != null && player.Duration - Progress <= 1500 && player.Duration - Progress > 0)
                     ParseNextSong();
             };
         }

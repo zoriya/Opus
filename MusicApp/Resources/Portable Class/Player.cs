@@ -8,6 +8,7 @@ using Android.Support.V4.Widget;
 using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
+using Org.Adw.Library.Widgets.Discreteseekbar;
 using Square.Picasso;
 using System;
 using System.Threading.Tasks;
@@ -20,7 +21,7 @@ namespace MusicApp.Resources.Portable_Class
         public View playerView;
         public Handler handler = new Handler();
 
-        private SeekBar bar;
+        private DiscreteSeekBar bar;
         private ImageView imgView;
         private readonly int[] timers = new int[] { 0, 1, 10, 30, 60, 120 };
         private readonly string[] items = new string[] { "Off", "1 minute", "10 minutes", "30 minutes", "1 hour", "2 hours" };
@@ -175,7 +176,8 @@ namespace MusicApp.Resources.Portable_Class
             while (MusicPlayer.player == null || MusicPlayer.player.Duration == 0)
                 await Task.Delay(100);
 
-            bar = playerView.FindViewById<SeekBar>(Resource.Id.songTimer);
+            bar = playerView.FindViewById<DiscreteSeekBar>(Resource.Id.songTimer);
+            bar.SetNumericTransformer(new TimerTransformer());
             MusicPlayer.SetSeekBar(bar);
             handler.PostDelayed(UpdateSeekBar, 1000);
 

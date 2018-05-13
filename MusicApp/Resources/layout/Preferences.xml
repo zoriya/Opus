@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <PreferenceScreen
   xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android/com/apk/res-auto"
   android:id="@+id/PreferenceScreen">
   <PreferenceCategory android:title="Behavior">
     <Preference 
@@ -15,11 +16,6 @@
       android:key="localPlay"
       android:title="Local Play Shortcut"
       android:summary="Shuffle All Audio Files" />
-    <!--<SeekBarPreference
-      android:key="volumeMultiplier"
-      android:title="Volume"
-      android:max="200"
-      android:defaultValue="100" />-->
     <Preference
       android:key="skipExistVerification"
       android:title="Never play local file instead of youtube one"

@@ -518,8 +518,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f010064
 			public const int customNavigationLayout = 2130772068;
 			
-			// aapt resource value: 0x7f0101c3
-			public const int defaultColor = 2130772419;
+			// aapt resource value: 0x7f0101d5
+			public const int defaultColor = 2130772437;
 			
 			// aapt resource value: 0x7f010120
 			public const int defaultQueryHint = 2130772256;
@@ -557,6 +557,9 @@ namespace MusicApp
 			// aapt resource value: 0x7f010011
 			public const int disableDependentsState = 2130771985;
 			
+			// aapt resource value: 0x7f0101d4
+			public const int discreteSeekBarStyle = 2130772436;
+			
 			// aapt resource value: 0x7f01005a
 			public const int displayOptions = 2130772058;
 			
@@ -586,6 +589,57 @@ namespace MusicApp
 			
 			// aapt resource value: 0x7f01003a
 			public const int dropdownPreferenceStyle = 2130772026;
+			
+			// aapt resource value: 0x7f0101c7
+			public const int dsb_allowTrackClickToDrag = 2130772423;
+			
+			// aapt resource value: 0x7f0101cb
+			public const int dsb_indicatorColor = 2130772427;
+			
+			// aapt resource value: 0x7f0101cc
+			public const int dsb_indicatorElevation = 2130772428;
+			
+			// aapt resource value: 0x7f0101cd
+			public const int dsb_indicatorFormatter = 2130772429;
+			
+			// aapt resource value: 0x7f0101cf
+			public const int dsb_indicatorPopupEnabled = 2130772431;
+			
+			// aapt resource value: 0x7f0101d3
+			public const int dsb_indicatorSeparation = 2130772435;
+			
+			// aapt resource value: 0x7f0101ca
+			public const int dsb_indicatorTextAppearance = 2130772426;
+			
+			// aapt resource value: 0x7f0101c4
+			public const int dsb_max = 2130772420;
+			
+			// aapt resource value: 0x7f0101c3
+			public const int dsb_min = 2130772419;
+			
+			// aapt resource value: 0x7f0101c6
+			public const int dsb_mirrorForRtl = 2130772422;
+			
+			// aapt resource value: 0x7f0101c8
+			public const int dsb_progressColor = 2130772424;
+			
+			// aapt resource value: 0x7f0101ce
+			public const int dsb_rippleColor = 2130772430;
+			
+			// aapt resource value: 0x7f0101d1
+			public const int dsb_scrubberHeight = 2130772433;
+			
+			// aapt resource value: 0x7f0101d2
+			public const int dsb_thumbSize = 2130772434;
+			
+			// aapt resource value: 0x7f0101c9
+			public const int dsb_trackColor = 2130772425;
+			
+			// aapt resource value: 0x7f0101d0
+			public const int dsb_trackHeight = 2130772432;
+			
+			// aapt resource value: 0x7f0101c5
+			public const int dsb_value = 2130772421;
 			
 			// aapt resource value: 0x7f0100c7
 			public const int editTextBackground = 2130772167;
@@ -1513,44 +1567,44 @@ namespace MusicApp
 		public partial class Color
 		{
 			
-			// aapt resource value: 0x7f080054
-			public const int abc_background_cache_hint_selector_material_dark = 2131230804;
-			
-			// aapt resource value: 0x7f080055
-			public const int abc_background_cache_hint_selector_material_light = 2131230805;
-			
-			// aapt resource value: 0x7f080056
-			public const int abc_btn_colored_borderless_text_material = 2131230806;
-			
-			// aapt resource value: 0x7f080057
-			public const int abc_btn_colored_text_material = 2131230807;
-			
-			// aapt resource value: 0x7f080058
-			public const int abc_color_highlight_material = 2131230808;
-			
 			// aapt resource value: 0x7f080059
-			public const int abc_hint_foreground_material_dark = 2131230809;
+			public const int abc_background_cache_hint_selector_material_dark = 2131230809;
 			
 			// aapt resource value: 0x7f08005a
-			public const int abc_hint_foreground_material_light = 2131230810;
+			public const int abc_background_cache_hint_selector_material_light = 2131230810;
+			
+			// aapt resource value: 0x7f08005b
+			public const int abc_btn_colored_borderless_text_material = 2131230811;
+			
+			// aapt resource value: 0x7f08005c
+			public const int abc_btn_colored_text_material = 2131230812;
+			
+			// aapt resource value: 0x7f08005d
+			public const int abc_color_highlight_material = 2131230813;
+			
+			// aapt resource value: 0x7f08005e
+			public const int abc_hint_foreground_material_dark = 2131230814;
+			
+			// aapt resource value: 0x7f08005f
+			public const int abc_hint_foreground_material_light = 2131230815;
 			
 			// aapt resource value: 0x7f08000c
 			public const int abc_input_method_navigation_guard = 2131230732;
 			
-			// aapt resource value: 0x7f08005b
-			public const int abc_primary_text_disable_only_material_dark = 2131230811;
+			// aapt resource value: 0x7f080060
+			public const int abc_primary_text_disable_only_material_dark = 2131230816;
 			
-			// aapt resource value: 0x7f08005c
-			public const int abc_primary_text_disable_only_material_light = 2131230812;
+			// aapt resource value: 0x7f080061
+			public const int abc_primary_text_disable_only_material_light = 2131230817;
 			
-			// aapt resource value: 0x7f08005d
-			public const int abc_primary_text_material_dark = 2131230813;
+			// aapt resource value: 0x7f080062
+			public const int abc_primary_text_material_dark = 2131230818;
 			
-			// aapt resource value: 0x7f08005e
-			public const int abc_primary_text_material_light = 2131230814;
+			// aapt resource value: 0x7f080063
+			public const int abc_primary_text_material_light = 2131230819;
 			
-			// aapt resource value: 0x7f08005f
-			public const int abc_search_url_text = 2131230815;
+			// aapt resource value: 0x7f080064
+			public const int abc_search_url_text = 2131230820;
 			
 			// aapt resource value: 0x7f08000d
 			public const int abc_search_url_text_normal = 2131230733;
@@ -1561,29 +1615,29 @@ namespace MusicApp
 			// aapt resource value: 0x7f08000f
 			public const int abc_search_url_text_selected = 2131230735;
 			
-			// aapt resource value: 0x7f080060
-			public const int abc_secondary_text_material_dark = 2131230816;
-			
-			// aapt resource value: 0x7f080061
-			public const int abc_secondary_text_material_light = 2131230817;
-			
-			// aapt resource value: 0x7f080062
-			public const int abc_tint_btn_checkable = 2131230818;
-			
-			// aapt resource value: 0x7f080063
-			public const int abc_tint_default = 2131230819;
-			
-			// aapt resource value: 0x7f080064
-			public const int abc_tint_edittext = 2131230820;
-			
 			// aapt resource value: 0x7f080065
-			public const int abc_tint_seek_thumb = 2131230821;
+			public const int abc_secondary_text_material_dark = 2131230821;
 			
 			// aapt resource value: 0x7f080066
-			public const int abc_tint_spinner = 2131230822;
+			public const int abc_secondary_text_material_light = 2131230822;
 			
 			// aapt resource value: 0x7f080067
-			public const int abc_tint_switch_track = 2131230823;
+			public const int abc_tint_btn_checkable = 2131230823;
+			
+			// aapt resource value: 0x7f080068
+			public const int abc_tint_default = 2131230824;
+			
+			// aapt resource value: 0x7f080069
+			public const int abc_tint_edittext = 2131230825;
+			
+			// aapt resource value: 0x7f08006a
+			public const int abc_tint_seek_thumb = 2131230826;
+			
+			// aapt resource value: 0x7f08006b
+			public const int abc_tint_spinner = 2131230827;
+			
+			// aapt resource value: 0x7f08006c
+			public const int abc_tint_switch_track = 2131230828;
 			
 			// aapt resource value: 0x7f080010
 			public const int accent_material_dark = 2131230736;
@@ -1639,8 +1693,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f08000b
 			public const int cardview_shadow_start_color = 2131230731;
 			
-			// aapt resource value: 0x7f080068
-			public const int common_google_signin_btn_text_dark = 2131230824;
+			// aapt resource value: 0x7f08006d
+			public const int common_google_signin_btn_text_dark = 2131230829;
 			
 			// aapt resource value: 0x7f080000
 			public const int common_google_signin_btn_text_dark_default = 2131230720;
@@ -1654,8 +1708,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f080003
 			public const int common_google_signin_btn_text_dark_pressed = 2131230723;
 			
-			// aapt resource value: 0x7f080069
-			public const int common_google_signin_btn_text_light = 2131230825;
+			// aapt resource value: 0x7f08006e
+			public const int common_google_signin_btn_text_light = 2131230830;
 			
 			// aapt resource value: 0x7f080004
 			public const int common_google_signin_btn_text_light_default = 2131230724;
@@ -1669,14 +1723,14 @@ namespace MusicApp
 			// aapt resource value: 0x7f080007
 			public const int common_google_signin_btn_text_light_pressed = 2131230727;
 			
-			// aapt resource value: 0x7f08006a
-			public const int common_google_signin_btn_tint = 2131230826;
+			// aapt resource value: 0x7f08006f
+			public const int common_google_signin_btn_tint = 2131230831;
 			
 			// aapt resource value: 0x7f080048
 			public const int design_bottom_navigation_shadow_color = 2131230792;
 			
-			// aapt resource value: 0x7f08006b
-			public const int design_error = 2131230827;
+			// aapt resource value: 0x7f080070
+			public const int design_error = 2131230832;
 			
 			// aapt resource value: 0x7f080049
 			public const int design_fab_shadow_end_color = 2131230793;
@@ -1702,8 +1756,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f080050
 			public const int design_snackbar_background_color = 2131230800;
 			
-			// aapt resource value: 0x7f08006c
-			public const int design_tint_password_toggle = 2131230828;
+			// aapt resource value: 0x7f080071
+			public const int design_tint_password_toggle = 2131230833;
 			
 			// aapt resource value: 0x7f08001e
 			public const int dim_foreground_disabled_material_dark = 2131230750;
@@ -1716,6 +1770,30 @@ namespace MusicApp
 			
 			// aapt resource value: 0x7f080021
 			public const int dim_foreground_material_light = 2131230753;
+			
+			// aapt resource value: 0x7f080054
+			public const int dsb_disabled_color = 2131230804;
+			
+			// aapt resource value: 0x7f080055
+			public const int dsb_progress_color = 2131230805;
+			
+			// aapt resource value: 0x7f080072
+			public const int dsb_progress_color_list = 2131230834;
+			
+			// aapt resource value: 0x7f080056
+			public const int dsb_ripple_color_focused = 2131230806;
+			
+			// aapt resource value: 0x7f080073
+			public const int dsb_ripple_color_list = 2131230835;
+			
+			// aapt resource value: 0x7f080057
+			public const int dsb_ripple_color_pressed = 2131230807;
+			
+			// aapt resource value: 0x7f080058
+			public const int dsb_track_color = 2131230808;
+			
+			// aapt resource value: 0x7f080074
+			public const int dsb_track_color_list = 2131230836;
 			
 			// aapt resource value: 0x7f080022
 			public const int error_color_material = 2131230754;
@@ -1828,11 +1906,11 @@ namespace MusicApp
 			// aapt resource value: 0x7f080042
 			public const int switch_thumb_disabled_material_light = 2131230786;
 			
-			// aapt resource value: 0x7f08006d
-			public const int switch_thumb_material_dark = 2131230829;
+			// aapt resource value: 0x7f080075
+			public const int switch_thumb_material_dark = 2131230837;
 			
-			// aapt resource value: 0x7f08006e
-			public const int switch_thumb_material_light = 2131230830;
+			// aapt resource value: 0x7f080076
+			public const int switch_thumb_material_light = 2131230838;
 			
 			// aapt resource value: 0x7f080043
 			public const int switch_thumb_normal_material_dark = 2131230787;
@@ -4467,11 +4545,11 @@ namespace MusicApp
 			// aapt resource value: 0x7f0b0170
 			public const int Animation_Design_BottomSheetDialog = 2131427696;
 			
-			// aapt resource value: 0x7f0b019d
-			public const int AppCompatAlertDialogStyle = 2131427741;
+			// aapt resource value: 0x7f0b019f
+			public const int AppCompatAlertDialogStyle = 2131427743;
 			
-			// aapt resource value: 0x7f0b019e
-			public const int AppCompatDarkAlertDialogStyle = 2131427742;
+			// aapt resource value: 0x7f0b01a0
+			public const int AppCompatDarkAlertDialogStyle = 2131427744;
 			
 			// aapt resource value: 0x7f0b00ab
 			public const int Base_AlertDialog_AppCompat = 2131427499;
@@ -4974,14 +5052,14 @@ namespace MusicApp
 			// aapt resource value: 0x7f0b0010
 			public const int CardView_Light = 2131427344;
 			
-			// aapt resource value: 0x7f0b019c
-			public const int DarkPopup = 2131427740;
+			// aapt resource value: 0x7f0b019e
+			public const int DarkPopup = 2131427742;
 			
-			// aapt resource value: 0x7f0b019f
-			public const int DarkPreferences = 2131427743;
+			// aapt resource value: 0x7f0b01a1
+			public const int DarkPreferences = 2131427745;
 			
-			// aapt resource value: 0x7f0b019b
-			public const int DarkTheme = 2131427739;
+			// aapt resource value: 0x7f0b019d
+			public const int DarkTheme = 2131427741;
 			
 			// aapt resource value: 0x7f0b0191
 			public const int ExoMediaButton = 2131427729;
@@ -5334,8 +5412,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f0b0109
 			public const int TextAppearance_Widget_AppCompat_Toolbar_Title = 2131427593;
 			
-			// aapt resource value: 0x7f0b0199
-			public const int Theme = 2131427737;
+			// aapt resource value: 0x7f0b019b
+			public const int Theme = 2131427739;
 			
 			// aapt resource value: 0x7f0b010a
 			public const int Theme_AppCompat = 2131427594;
@@ -5400,8 +5478,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f0b0117
 			public const int Theme_AppCompat_NoActionBar = 2131427607;
 			
-			// aapt resource value: 0x7f0b019a
-			public const int Theme_Base = 2131427738;
+			// aapt resource value: 0x7f0b019c
+			public const int Theme_Base = 2131427740;
 			
 			// aapt resource value: 0x7f0b017a
 			public const int Theme_Design = 2131427706;
@@ -5696,6 +5774,12 @@ namespace MusicApp
 			
 			// aapt resource value: 0x7f0b0189
 			public const int Widget_Design_TextInputLayout = 2131427721;
+			
+			// aapt resource value: 0x7f0b0199
+			public const int Widget_DiscreteIndicatorTextAppearance = 2131427737;
+			
+			// aapt resource value: 0x7f0b019a
+			public const int Widget_DiscreteSeekBar = 2131427738;
 			
 			static Style()
 			{
@@ -6927,6 +7011,76 @@ namespace MusicApp
 			
 			// aapt resource value: 9
 			public const int DialogPreference_positiveButtonText = 9;
+			
+			public static int[] DiscreteSeekBar = new int[] {
+					2130772419,
+					2130772420,
+					2130772421,
+					2130772422,
+					2130772423,
+					2130772424,
+					2130772425,
+					2130772426,
+					2130772427,
+					2130772428,
+					2130772429,
+					2130772430,
+					2130772431,
+					2130772432,
+					2130772433,
+					2130772434,
+					2130772435};
+			
+			// aapt resource value: 4
+			public const int DiscreteSeekBar_dsb_allowTrackClickToDrag = 4;
+			
+			// aapt resource value: 8
+			public const int DiscreteSeekBar_dsb_indicatorColor = 8;
+			
+			// aapt resource value: 9
+			public const int DiscreteSeekBar_dsb_indicatorElevation = 9;
+			
+			// aapt resource value: 10
+			public const int DiscreteSeekBar_dsb_indicatorFormatter = 10;
+			
+			// aapt resource value: 12
+			public const int DiscreteSeekBar_dsb_indicatorPopupEnabled = 12;
+			
+			// aapt resource value: 16
+			public const int DiscreteSeekBar_dsb_indicatorSeparation = 16;
+			
+			// aapt resource value: 7
+			public const int DiscreteSeekBar_dsb_indicatorTextAppearance = 7;
+			
+			// aapt resource value: 1
+			public const int DiscreteSeekBar_dsb_max = 1;
+			
+			// aapt resource value: 0
+			public const int DiscreteSeekBar_dsb_min = 0;
+			
+			// aapt resource value: 3
+			public const int DiscreteSeekBar_dsb_mirrorForRtl = 3;
+			
+			// aapt resource value: 5
+			public const int DiscreteSeekBar_dsb_progressColor = 5;
+			
+			// aapt resource value: 11
+			public const int DiscreteSeekBar_dsb_rippleColor = 11;
+			
+			// aapt resource value: 14
+			public const int DiscreteSeekBar_dsb_scrubberHeight = 14;
+			
+			// aapt resource value: 15
+			public const int DiscreteSeekBar_dsb_thumbSize = 15;
+			
+			// aapt resource value: 6
+			public const int DiscreteSeekBar_dsb_trackColor = 6;
+			
+			// aapt resource value: 13
+			public const int DiscreteSeekBar_dsb_trackHeight = 13;
+			
+			// aapt resource value: 2
+			public const int DiscreteSeekBar_dsb_value = 2;
 			
 			public static int[] DrawerArrowToggle = new int[] {
 					2130772226,
@@ -8287,6 +8441,12 @@ namespace MusicApp
 			
 			// aapt resource value: 15
 			public const int TextInputLayout_passwordToggleTintMode = 15;
+			
+			public static int[] Theme = new int[] {
+					2130772436};
+			
+			// aapt resource value: 0
+			public const int Theme_discreteSeekBarStyle = 0;
 			
 			public static int[] Toolbar = new int[] {
 					16842927,
