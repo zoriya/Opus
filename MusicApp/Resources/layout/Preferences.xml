@@ -15,11 +15,11 @@
       android:key="localPlay"
       android:title="Local Play Shortcut"
       android:summary="Shuffle All Audio Files" />
-    <SeekBarPreference
+    <!--<SeekBarPreference
       android:key="volumeMultiplier"
       android:title="Volume"
       android:max="200"
-      android:defaultValue="100" />
+      android:defaultValue="100" />-->
     <Preference
       android:key="skipExistVerification"
       android:title="Never play local file instead of youtube one"

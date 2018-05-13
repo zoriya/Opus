@@ -136,7 +136,7 @@ namespace MusicApp.Resources.Portable_Class
             skipExistVerification.Summary = prefManager.GetBoolean("skipExistVerification", false) ? "True" : "False";
 
             //Volume multiplier
-            Preference volumeMultiplier = PreferenceScreen.FindPreference("volumeMultiplier");
+            //Preference volumeMultiplier = PreferenceScreen.FindPreference("volumeMultiplier");
             //volumeMultiplier.PreferenceClick += SkipClick;
             //volumeMultiplier.Summary = prefManager.GetInt("volumeMultiplier", 1).ToString();
 
