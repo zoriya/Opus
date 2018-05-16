@@ -242,6 +242,8 @@ namespace MusicApp.Resources.Portable_Class
 
             if(addToQueue)
                 AddToQueue(song);
+
+            ParseNextSong();
         }
 
         public void Play(Song song, bool addToQueue = true, long progress = -1)
@@ -316,6 +318,8 @@ namespace MusicApp.Resources.Portable_Class
                 player.SeekTo(progress);
                 Player.instance.playerView.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
             }
+
+            ParseNextSong();
         }
 
         public async void RandomPlay(List<string> filePath, bool clearQueue)
