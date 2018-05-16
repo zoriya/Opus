@@ -178,6 +178,7 @@ namespace MusicApp.Resources.Portable_Class
 
             bar = playerView.FindViewById<DiscreteSeekBar>(Resource.Id.songTimer);
             bar.SetNumericTransformer(new TimerTransformer());
+            bar.LayoutParameters.Width = (int)(MainActivity.instance.Resources.DisplayMetrics.WidthPixels * 1.1f);
             MusicPlayer.SetSeekBar(bar);
             handler.PostDelayed(UpdateSeekBar, 1000);
 

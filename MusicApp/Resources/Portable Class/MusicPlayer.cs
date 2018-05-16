@@ -151,12 +151,20 @@ namespace MusicApp.Resources.Portable_Class
         {
             audioManager = (AudioManager)Application.Context.GetSystemService(AudioService);
             notificationManager = (NotificationManager)Application.Context.GetSystemService(NotificationService);
+            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
             DefaultBandwidthMeter bandwithMeter = new DefaultBandwidthMeter();
             AdaptiveTrackSelection.Factory trackSelectionFactory = new AdaptiveTrackSelection.Factory(bandwithMeter);
             TrackSelector trackSelector = new DefaultTrackSelector(trackSelectionFactory);
             player = ExoPlayerFactory.NewSimpleInstance(Application.Context, trackSelector);
             player.PlayWhenReady = true;
+            player.Volume = prefManager.GetInt("volumeMultiplier", 100) / 100f;
             player.AddListener(this);
+        }
+
+        public void ChangeVolume(float volume)
+        {
+            if(player != null)
+                player.Volume = volume;
         }
 
         public void Play(string filePath, string title = null, string artist = null, string youtubeID = null, string thumbnailURI = null, bool addToQueue = true)
@@ -736,6 +744,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public void OnAudioFocusChange(AudioFocus focusChange)
         {
+            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
             switch (focusChange)
             {
                 case AudioFocus.Gain:
@@ -745,7 +754,7 @@ namespace MusicApp.Resources.Portable_Class
                     if (!isRunning)
                         player.PlayWhenReady = true;
 
-                    player.Volume = 1;
+                    player.Volume = prefManager.GetInt("volumeMultiplier", 100) / 100;
                     break;
 
                 case AudioFocus.Loss:
@@ -758,7 +767,7 @@ namespace MusicApp.Resources.Portable_Class
 
                 case AudioFocus.LossTransientCanDuck:
                     if (isRunning)
-                        player.Volume = 0.2f;
+                        player.Volume = prefManager.GetInt("volumeMultiplier", 100) / 100 * 0.2f;
                     break;
 
                 default:

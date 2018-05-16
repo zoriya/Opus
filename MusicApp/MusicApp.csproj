@@ -256,6 +256,7 @@
     <Compile Include="Resources\Portable Class\HomeMultipleSong.cs" />
     <Compile Include="Resources\Portable Class\ItemTouchCallback.cs" />
     <Compile Include="Resources\Portable Class\MusicPlayer.cs" />
+    <Compile Include="Resources\Portable Class\PercentTransform.cs" />
     <Compile Include="Resources\Portable Class\Player.cs" />
     <None Include="packages.config" />
     <Compile Include="Resources\Portable Class\Playlist.cs" />
@@ -265,6 +266,7 @@
     <Compile Include="Resources\Portable Class\Queue.cs" />
     <Compile Include="Resources\Portable Class\RecyclerAdapter.cs" />
     <Compile Include="Resources\Portable Class\RecyclerHolder.cs" />
+    <Compile Include="Resources\Portable Class\SeekbarPreference.cs" />
     <Compile Include="Resources\Portable Class\Sleeper.cs" />
     <Compile Include="Resources\Portable Class\SnackbarCallback.cs" />
     <Compile Include="Resources\Portable Class\TimerTransformer.cs" />
@@ -569,6 +571,9 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\Download.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\SeekbarPreference.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:padding="8dp"
+  android:paddingTop="20dp"
+  android:orientation="vertical" >
+  <TextView 
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
+    android:paddingLeft="10dp"
+    android:textSize="16sp"
+    android:text="Volume"/>
+  <RelativeLayout 
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp" >
+    <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentLeft="true"
+      android:layout_centerVertical="true"
+      android:gravity="right"
+      android:id="@+id/minValue"
+      android:text="0%"
+      android:textSize="14sp" />
+    <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentRight="true"
+      android:layout_centerVertical="true"
+      android:id="@+id/maxValue"
+      android:text="100%"
+      android:textSize="14sp" />
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_centerVertical="true"
+      android:layout_toLeftOf="@id/maxValue"
+      android:layout_toRightOf="@id/minValue"
+      android:orientation="horizontal"
+      android:layout_marginLeft="4dp"
+      android:layout_marginRight="4dp">
+      <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
+        android:id="@+id/seekbar"
+        app:dsb_min="0"
+        app:dsb_value="100"
+        app:dsb_max="100"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    </LinearLayout>
+  </RelativeLayout>
+</LinearLayout>

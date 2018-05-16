@@ -12,7 +12,6 @@ using MusicApp;
 using MusicApp.Resources.Portable_Class;
 using Square.Picasso;
 using System;
-using System.Threading.Tasks;
 
 public class AccountPreference : Preference, IResultCallback
 {

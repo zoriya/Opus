@@ -20,6 +20,9 @@
       android:key="skipExistVerification"
       android:title="Never play local file instead of youtube one"
       android:summary="Shuffle All Audio Files" />
+    <SeekbarPreference
+      android:title="Volume"
+      android:key="volumeMultipler" />
   </PreferenceCategory>
   <PreferenceCategory android:title="Appearances">
     <Preference

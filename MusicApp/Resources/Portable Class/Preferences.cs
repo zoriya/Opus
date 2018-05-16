@@ -135,11 +135,6 @@ namespace MusicApp.Resources.Portable_Class
             skipExistVerification.PreferenceClick += SkipClick;
             skipExistVerification.Summary = prefManager.GetBoolean("skipExistVerification", false) ? "True" : "False";
 
-            //Volume multiplier
-            //Preference volumeMultiplier = PreferenceScreen.FindPreference("volumeMultiplier");
-            //volumeMultiplier.PreferenceClick += SkipClick;
-            //volumeMultiplier.Summary = prefManager.GetInt("volumeMultiplier", 1).ToString();
-
             //Local play shortcut
             Preference localShortcutPreference = PreferenceScreen.FindPreference("localPlay");
             localShortcutPreference.PreferenceClick += LocalShortcut;
