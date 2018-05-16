@@ -1192,7 +1192,7 @@ namespace MusicApp
                 HideTabs();
                 HideSearch();
 
-                if(Queue.instance != null)
+                if (Queue.instance != null)
                 {
                     ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
                     rootView.RemoveView(Queue.instance.recyclerFragment);

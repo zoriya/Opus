@@ -813,7 +813,7 @@ namespace MusicApp.Resources.Portable_Class
 
                 nextPageToken = ytPlaylist.NextPageToken;
             }
-            MusicPlayer.queue.Clear();
+            //MusicPlayer.queue.Clear();
             Random r = new Random();
             tracks = tracks.OrderBy(x => r.Next()).ToList();
             PlayFiles(tracks.ToArray());

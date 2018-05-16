@@ -491,14 +491,14 @@ namespace MusicApp.Resources.Portable_Class
                 musicCursor.Close();
             }
 
-            MainActivity.instance.HideTabs();
-            MainActivity.instance.HideSearch();
-            MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).AddToBackStack(null).Commit();
-
             Intent intent = new Intent(Android.App.Application.Context, typeof(MusicPlayer));
             intent.PutStringArrayListExtra("files", tracksPath);
             intent.SetAction("RandomPlay");
             context.StartService(intent);
+
+            MainActivity.instance.HideTabs();
+            MainActivity.instance.HideSearch();
+            MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).AddToBackStack(null).Commit();
         }
 
         void Rename(int position, Song playlist)

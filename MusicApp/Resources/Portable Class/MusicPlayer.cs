@@ -332,7 +332,6 @@ namespace MusicApp.Resources.Portable_Class
             while(instance == null)
                 await Task.Delay(10);
 
-            Player.instance?.RefreshPlayer();
             for (int i = clearQueue ? 1 : 0; i < filePath.Count; i++)
             {
                 GetTrackSong(filePath[i], out Song song);
