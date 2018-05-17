@@ -457,7 +457,10 @@ namespace MusicApp.Resources.Portable_Class
 
                 nextPageToken = ytPlaylist.NextPageToken;
             }
-            MusicPlayer.queue.Clear();
+
+            if (MusicPlayer.isRunning)
+                MusicPlayer.queue.Clear();
+
             YoutubeEngine.Play(songs[0].youtubeID, songs[0].GetName(), songs[0].GetArtist(), songs[0].GetAlbum());
             songs.RemoveAt(0);
             songs.Reverse();
@@ -469,7 +472,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 MusicPlayer.instance.AddToQueue(song);
             }
-            Player.instance.UpdateNext();
+            Player.instance?.UpdateNext();
         }
 
         public static void RandomPlay(long playlistID, Context context)

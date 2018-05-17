@@ -238,7 +238,7 @@ namespace MusicApp.Resources.Portable_Class
             switch (result[position].Kind)
             {
                 case YtKind.Video:
-                    Play(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum(), false, this);
+                    Play(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum(), this);
                     break;
                 case YtKind.Playlist:
                     ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
@@ -288,7 +288,7 @@ namespace MusicApp.Resources.Portable_Class
                 switch (args.Which)
                 {
                     case 0:
-                        Play(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum(), false, this);
+                        Play(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum(), this);
                         break;
                     case 1:
                         PlayNext(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
@@ -309,24 +309,8 @@ namespace MusicApp.Resources.Portable_Class
             builder.Show();
         }
 
-        public static async void Play(string videoID, string title, string artist, string thumbnailURL, bool skipExistVerification = false, YoutubeEngine instance = null)
+        public static async void Play(string videoID, string title, string artist, string thumbnailURL, YoutubeEngine instance = null)
         {
-            if (!skipExistVerification && FileIsAlreadyDownloaded(videoID))
-            {
-                Context context = Android.App.Application.Context;
-                Intent mIntent = new Intent(context, typeof(MusicPlayer));
-                mIntent.PutExtra("file", GetLocalPathFromYTID(videoID));
-                mIntent.SetAction("Play");
-                context.StartService(mIntent);
-                int localID = MusicPlayer.queue.Count;
-
-                Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), title + " has been downloaded on your device. Playing the local file instead of the online one.", Snackbar.LengthShort).SetAction("Play the youtube file anyway.", (v) =>
-                {
-                    Queue.RemoveFromQueue(MusicPlayer.queue[localID]);
-                    Play(videoID, title, artist, thumbnailURL, true);
-                }).Show();
-            }
-
             ProgressBar parseProgress = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress);
             parseProgress.Visibility = ViewStates.Visible;
             parseProgress.ScaleY = 6;
@@ -371,7 +355,10 @@ namespace MusicApp.Resources.Portable_Class
             if (files.Length < 1)
                 return;
 
-            Play(files[0].GetPath(), files[0].GetName(), files[0].GetArtist(), files[0].GetAlbum(), true);
+            if (MusicPlayer.isRunning)
+                MusicPlayer.queue.Clear();
+
+            Play(files[0].GetPath(), files[0].GetName(), files[0].GetArtist(), files[0].GetAlbum());
 
             if (files.Length < 2)
                 return;
@@ -379,32 +366,15 @@ namespace MusicApp.Resources.Portable_Class
             while (MusicPlayer.instance == null)
                 await Task.Delay(10);
 
-            foreach(Song song in files)
+            foreach (Song song in files)
             {
                 MusicPlayer.instance.AddToQueue(song);
             }
-            Player.instance.UpdateNext();
         }
 
 
-        public static async void PlayNext(string videoID, string title, string artist, string thumbnailURL, bool skipExistVerification = false)
+        public static async void PlayNext(string videoID, string title, string artist, string thumbnailURL)
         {
-            if (!skipExistVerification && FileIsAlreadyDownloaded(videoID))
-            {
-                Context context = Android.App.Application.Context;
-                Intent mIntent = new Intent(context, typeof(MusicPlayer));
-                mIntent.PutExtra("file", GetLocalPathFromYTID(videoID));
-                mIntent.SetAction("PlayNext");
-                context.StartService(mIntent);
-                int localID = MusicPlayer.queue.Count;
-
-                Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), title + " has been downloaded on your device. Playing the local file instead of the online one.", Snackbar.LengthShort).SetAction("Play the youtube file anyway.", (v) =>
-                {
-                    Queue.RemoveFromQueue(MusicPlayer.queue[localID]);
-                    PlayNext(videoID, title, artist, thumbnailURL, true);
-                }).Show();
-            }
-
             ProgressBar parseProgress = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress);
             parseProgress.Visibility = ViewStates.Visible;
             parseProgress.ScaleY = 6;
@@ -425,25 +395,8 @@ namespace MusicApp.Resources.Portable_Class
             parseProgress.Visibility = ViewStates.Gone;
         }
 
-        public static async void PlayLast(string videoID, string title, string artist, string thumbnailURL, bool skipExistVerification = false)
+        public static async void PlayLast(string videoID, string title, string artist, string thumbnailURL)
         {
-            if (!skipExistVerification && FileIsAlreadyDownloaded(videoID))
-            {
-                Context context = Android.App.Application.Context;
-                Intent mIntent = new Intent(context, typeof(MusicPlayer));
-                mIntent.PutExtra("file", GetLocalPathFromYTID(videoID));
-                mIntent.SetAction("PlayLast");
-                context.StartService(mIntent);
-                int localID = MusicPlayer.queue.Count;
-
-                Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), title + " has been downloaded on your device. Playing the local file instead of the online one.", Snackbar.LengthShort).SetAction("Play the youtube file anyway.", (v) =>
-                {
-                    Queue.RemoveFromQueue(MusicPlayer.queue[localID]);
-                    PlayLast(videoID, title, artist, thumbnailURL, true);
-                }).Show();
-            }
-
-
             ProgressBar parseProgress = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress);
             parseProgress.Visibility = ViewStates.Visible;
             parseProgress.ScaleY = 6;
@@ -813,7 +766,7 @@ namespace MusicApp.Resources.Portable_Class
 
                 nextPageToken = ytPlaylist.NextPageToken;
             }
-            //MusicPlayer.queue.Clear();
+
             Random r = new Random();
             tracks = tracks.OrderBy(x => r.Next()).ToList();
             PlayFiles(tracks.ToArray());

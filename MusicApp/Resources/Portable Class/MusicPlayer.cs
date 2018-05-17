@@ -243,6 +243,8 @@ namespace MusicApp.Resources.Portable_Class
             if(addToQueue)
                 AddToQueue(song);
 
+            Player.instance?.UpdateNext();
+
             ParseNextSong();
         }
 
@@ -318,6 +320,8 @@ namespace MusicApp.Resources.Portable_Class
                 player.SeekTo(progress);
                 Player.instance.playerView.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
             }
+
+            Player.instance?.UpdateNext();
 
             ParseNextSong();
         }
@@ -462,7 +466,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public static int CurrentID()
         {
-            if (queue.Count < currentID)
+            if (queue.Count - 1 < currentID)
                 currentID = -1;
             return currentID;
         }
