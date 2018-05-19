@@ -11,5 +11,6 @@
     android:id="@+id/repeat"
     android:icon="@drawable/Loop"
     android:title="Repeat"
+    android:checkable="true"
     app:showAsAction="always" />
 </menu>

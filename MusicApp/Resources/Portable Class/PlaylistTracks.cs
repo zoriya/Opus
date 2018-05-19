@@ -212,33 +212,32 @@ namespace MusicApp.Resources.Portable_Class
 
         private async void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
         {
-            Song item = tracks[e.Position];
-            List<Song> queue = tracks.GetRange(e.Position + 1, tracks.Count - e.Position - 1);
+            List<Song> songs = tracks.GetRange(e.Position + 1, tracks.Count - e.Position - 1);
             if (result != null && result.Count - 1 >= e.Position)
-            {
-                item = result[e.Position];
-                queue = result.GetRange(e.Position + 1, result.Count - e.Position - 1);
-            }
-            queue.Reverse();
+                songs = result.GetRange(e.Position + 1, result.Count - e.Position - 1);
 
-            if (!item.IsYt)
+            if (MusicPlayer.isRunning)
+                MusicPlayer.queue.Clear();
+
+            if (!songs[0].IsYt)
             {
                 Browse.act = Activity;
-                Browse.Play(item);
+                Browse.Play(songs[0]);
             }
             else
-            {
-                YoutubeEngine.Play(item.youtubeID, item.GetName(), item.GetArtist(), item.GetAlbum());
-            }
+                YoutubeEngine.Play(songs[0].youtubeID, songs[0].GetName(), songs[0].GetArtist(), songs[0].GetAlbum());
+
+            songs.RemoveAt(0);
+            songs.Reverse();
 
             while (MusicPlayer.instance == null)
                 await Task.Delay(10);
 
-            foreach (Song song in queue)
+            foreach (Song song in songs)
             {
                 MusicPlayer.instance.AddToQueue(song);
             }
-            Player.instance.UpdateNext();
+            Player.instance?.UpdateNext();
         }
 
         private void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
@@ -273,32 +272,32 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     case 0:
                         int Position = tracks.IndexOf(item);
-                        List<Song> queue = tracks.GetRange(Position + 1, tracks.Count - Position - 1);
+                        List<Song> songs = tracks.GetRange(Position + 1, tracks.Count - Position - 1);
                         if (result != null && result.Count - 1 >= Position)
-                        {
-                            item = result[Position];
-                            queue = result.GetRange(Position + 1, result.Count - Position - 1);
-                        }
-                        queue.Reverse();
+                            songs = result.GetRange(Position + 1, result.Count - Position - 1);
 
-                        if (!item.IsYt)
+                        if (MusicPlayer.isRunning)
+                            MusicPlayer.queue.Clear();
+
+                        if (!songs[0].IsYt)
                         {
                             Browse.act = Activity;
-                            Browse.Play(item);
+                            Browse.Play(songs[0]);
                         }
                         else
-                        {
-                            YoutubeEngine.Play(item.youtubeID, item.GetName(), item.GetArtist(), item.GetAlbum());
-                        }
+                            YoutubeEngine.Play(songs[0].youtubeID, songs[0].GetName(), songs[0].GetArtist(), songs[0].GetAlbum());
+
+                        songs.RemoveAt(0);
+                        songs.Reverse();
 
                         while (MusicPlayer.instance == null)
                             await Task.Delay(10);
 
-                        foreach (Song song in queue)
+                        foreach (Song song in songs)
                         {
                             MusicPlayer.instance.AddToQueue(song);
                         }
-                        Player.instance.UpdateNext();
+                        Player.instance?.UpdateNext();
                         break;
 
                     case 1:

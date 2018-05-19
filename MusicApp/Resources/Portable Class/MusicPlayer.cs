@@ -10,6 +10,7 @@ using Android.Support.V4.App;
 using Android.Support.V4.Content;
 using Android.Support.V4.Media.Session;
 using Android.Support.V7.Preferences;
+using Android.Support.V7.Widget;
 using Android.Widget;
 using Com.Google.Android.Exoplayer2;
 using Com.Google.Android.Exoplayer2.Extractor;
@@ -467,6 +468,12 @@ namespace MusicApp.Resources.Portable_Class
                 song.SetPath(streamInfo.Url);
                 song.youtubeID = streamInfo.Url;
                 song.isParsed = true;
+                if (Queue.instance != null)
+                {
+                    ImageView youtubeIcon = Queue.instance.ListView.GetChildAt(queue.IndexOf(song) - ((LinearLayoutManager)Queue.instance.ListView.GetLayoutManager()).FindFirstVisibleItemPosition()).FindViewById<ImageView>(Resource.Id.youtubeIcon);
+                    youtubeIcon.SetImageResource(Resource.Drawable.youtubeIcon);
+                    youtubeIcon.ClearColorFilter();
+                }
             }
 
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
@@ -541,6 +548,12 @@ namespace MusicApp.Resources.Portable_Class
                 song.SetPath(streamInfo.Url);
                 song.isParsed = true;
                 parsing = false;
+                if (Queue.instance != null)
+                {
+                    ImageView youtubeIcon = Queue.instance.ListView.GetChildAt(queue.IndexOf(song) - ((LinearLayoutManager)Queue.instance.ListView.GetLayoutManager()).FindFirstVisibleItemPosition()).FindViewById<ImageView>(Resource.Id.youtubeIcon);
+                    youtubeIcon.SetImageResource(Resource.Drawable.youtubeIcon);
+                    youtubeIcon.ClearColorFilter();
+                }
             }
         }
 
@@ -706,10 +719,8 @@ namespace MusicApp.Resources.Portable_Class
                 CoordinatorLayout smallPlayer = MainActivity.instance.FindViewById<CoordinatorLayout>(Resource.Id.smallPlayer);
                 smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
 
-                if (Player.instance != null)
-                {
-                    Player.instance.playerView.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
-                }
+                Player.instance?.playerView.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
+                Queue.instance?.RefreshCurrent();
             }
         }
 
@@ -735,6 +746,8 @@ namespace MusicApp.Resources.Portable_Class
                     Player.instance.playerView.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
                     Player.instance.handler.PostDelayed(Player.instance.UpdateSeekBar, 1000);
                 }
+
+                Queue.instance?.RefreshCurrent();
             }
             else
             {

@@ -100,16 +100,31 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     holder.youtubeIcon.SetImageResource(Resource.Drawable.needProcessing);
                     holder.youtubeIcon.Visibility = ViewStates.Visible;
+
+                    if(MainActivity.Theme == 1)
+                        holder.youtubeIcon.SetColorFilter(Color.White);
                 }
                 else if (songList[position].IsYt)
                 {
                     holder.youtubeIcon.SetImageResource(Resource.Drawable.youtubeIcon);
                     holder.youtubeIcon.Visibility = ViewStates.Visible;
+
+                    if (MainActivity.Theme == 1)
+                        holder.youtubeIcon.ClearColorFilter();
                 }
                 else
                 {
                     holder.youtubeIcon.Visibility = ViewStates.Gone;
                 }
+
+                if (songList[position].queueSlot == MusicPlayer.CurrentID())
+                {
+                    holder.status.Visibility = ViewStates.Visible;
+                    holder.status.Text = MusicPlayer.isRunning ? "Playing" : "Paused";
+                    holder.status.SetTextColor(MusicPlayer.isRunning ? Color.Argb(255, 244, 81, 30) : Color.Argb(255, 66, 165, 245));
+                }
+                else
+                    holder.status.Visibility = ViewStates.Gone;
             }
             else
             {
@@ -118,7 +133,6 @@ namespace MusicApp.Resources.Portable_Class
 
             if (MainActivity.Theme == 1)
             {
-
                 holder.more.SetColorFilter(Color.White);
                 holder.reorder.SetColorFilter(Color.White);
                 holder.Title.SetTextColor(Color.White);
@@ -126,9 +140,7 @@ namespace MusicApp.Resources.Portable_Class
                 holder.Artist.Alpha = 0.7f;
             }
 
-            if (position == MusicPlayer.CurrentID())
-                holder.ItemView.SetBackgroundColor(Color.DimGray);
-            else if (MainActivity.Theme == 0)
+            if (MainActivity.Theme == 0)
                 holder.ItemView.SetBackgroundColor(Color.White);
             else
                 holder.ItemView.SetBackgroundColor(Color.ParseColor("#424242"));

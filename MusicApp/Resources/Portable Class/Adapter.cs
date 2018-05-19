@@ -101,7 +101,6 @@ namespace MusicApp.Resources.Portable_Class
         private void MoreClick(object sender, EventArgs e)
         {
             int position = (int)((ImageView)sender).Tag;
-            Queue.instance?.More(songList[position]);
             Browse.instance?.More(songList[position]);
             PlaylistTracks.instance?.More(songList[position], position);
             FolderTracks.instance?.More(songList[position]);

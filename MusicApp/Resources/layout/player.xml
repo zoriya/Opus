@@ -195,17 +195,6 @@
       android:layout_width="fill_parent"
       android:layout_height="wrap_content" />
   </AbsoluteLayout>
-  <!--<SeekBar
-    android:id="@+id/songTimer"
-    app:layout_anchor="@id/playerAlbum"
-    app:layout_anchorGravity="bottom|center"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:padding="0dp"
-    android:paddingEnd="0dp"
-    android:paddingStart="0dp"
-    app:elevation="6dp"
-    android:progress="0"/>-->
   <android.support.design.widget.FloatingActionButton
     android:id="@+id/downFAB"
     android:layout_width="wrap_content"

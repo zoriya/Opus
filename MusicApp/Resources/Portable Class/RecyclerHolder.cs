@@ -16,6 +16,7 @@ namespace MusicApp.Resources.Portable_Class
         public ImageView edit;
         public ImageView youtubeIcon;
         public ImageView more;
+        public TextView status;
 
         public RecyclerHolder(View itemView, Action<int> listener, Action<int> longListener) : base(itemView)
         {
@@ -27,6 +28,7 @@ namespace MusicApp.Resources.Portable_Class
             edit = itemView.FindViewById<ImageView>(Resource.Id.edit);
             youtubeIcon = itemView.FindViewById<ImageView>(Resource.Id.youtubeIcon);
             more = itemView.FindViewById<ImageView>(Resource.Id.moreButton);
+            status = itemView.FindViewById<TextView>(Resource.Id.status);
 
             itemView.Click += (sender, e) => listener(AdapterPosition);
             itemView.LongClick += (sender, e) => longListener(AdapterPosition);

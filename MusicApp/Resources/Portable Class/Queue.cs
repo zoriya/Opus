@@ -1,6 +1,7 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.Content.PM;
+using Android.Graphics;
 using Android.OS;
 using Android.Support.Design.Widget;
 using Android.Support.V7.App;
@@ -81,12 +82,28 @@ namespace MusicApp.Resources.Portable_Class
 
         public void RefreshCurrent()
         {
-
+            int first = ((LinearLayoutManager)ListView.GetLayoutManager()).FindFirstVisibleItemPosition();
+            int last = ((LinearLayoutManager)ListView.GetLayoutManager()).FindLastVisibleItemPosition();
+            for (int i = first; i <= last; i++)
+            {
+                Song song = MusicPlayer.queue[first + i];
+                RecyclerHolder holder = (RecyclerHolder)ListView.GetChildViewHolder(((LinearLayoutManager)ListView.GetLayoutManager()).FindViewByPosition(i));
+                if (song.queueSlot == MusicPlayer.CurrentID())
+                {
+                    holder.status.Text = MusicPlayer.isRunning ? "Playing" : "Paused";
+                    holder.status.SetTextColor(MusicPlayer.isRunning ? Color.Argb(255, 244, 81, 30) : Color.Argb(255, 66, 165, 245));
+                    holder.status.Visibility = ViewStates.Visible;
+                }
+                else
+                    holder.status.Visibility = ViewStates.Gone;
+            }
         }
 
         public override bool OnCreateOptionsMenu(IMenu menu)
         {
             MenuInflater.Inflate(Resource.Menu.QueueItems, menu);
+            if(MusicPlayer.repeat)
+                menu.FindItem(Resource.Id.repeat).Icon.SetColorFilter(Color.Argb(255, 62, 80, 180), PorterDuff.Mode.Multiply);
             return base.OnCreateOptionsMenu(menu);
         }
 
@@ -102,7 +119,7 @@ namespace MusicApp.Resources.Portable_Class
             }
             else if(item.ItemId == Resource.Id.repeat)
             {
-                Repeat();
+                Repeat(item);
             }
             return base.OnOptionsItemSelected(item);
         }
@@ -114,9 +131,14 @@ namespace MusicApp.Resources.Portable_Class
             StartService(intent);
         }
 
-        void Repeat()
+        void Repeat(IMenuItem item)
         {
-            MusicPlayer.repeat = true;
+            MusicPlayer.repeat = !MusicPlayer.repeat;
+
+            if (MusicPlayer.repeat)
+                item.Icon.SetColorFilter(Color.Argb(255, 62, 80, 180), PorterDuff.Mode.Multiply);
+            else
+                item.Icon.ClearColorFilter();
         }
 
         public void LoadMore()
@@ -124,19 +146,18 @@ namespace MusicApp.Resources.Portable_Class
             List<Song> songList = MusicPlayer.queue.Except(adapter.songList).ToList();
         }
 
-        private async void ListView_ItemClick(object sender, int Position)
+        private void ListView_ItemClick(object sender, int Position)
         {
             Song item = MusicPlayer.queue[Position];
 
-            MusicPlayer.instance.SwitchQueue(item);
-
-            if (item.IsYt && !item.isParsed)
+            if (item.queueSlot == MusicPlayer.CurrentID())
             {
-                while (MusicPlayer.queue[MusicPlayer.CurrentID()].GetName() != item.GetName())
-                    await Task.Delay(10);
-
-                ListView.GetChildAt(Position - ((LinearLayoutManager)ListView.GetLayoutManager()).FindFirstVisibleItemPosition()).FindViewById<ImageView>(Resource.Id.youtubeIcon).SetImageResource(Resource.Drawable.youtubeIcon);
+                Intent intent = new Intent(this, typeof(MusicPlayer));
+                intent.SetAction("Pause");
+                StartService(intent);
             }
+            else
+                MusicPlayer.instance.SwitchQueue(item);
         }
 
         private void ListView_ItemLongCLick(object sender, int e)
