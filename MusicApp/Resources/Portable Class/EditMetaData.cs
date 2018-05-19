@@ -35,7 +35,7 @@ namespace MusicApp.Resources.Portable_Class
         private bool hasPermission = false;
         private const int RequestCode = 8539;
         private const int PickerRequestCode = 9852;
-        private string[] actions = new string[] { "Pick an album art from storage", "Download album art on youtube" };
+        private readonly string[] actions = new string[] { "Pick an album art from storage", "Download album art on youtube" };
 
         protected override void OnCreate(Bundle savedInstanceState)
         {

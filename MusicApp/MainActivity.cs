@@ -330,16 +330,6 @@ namespace MusicApp
                 //    Home.instance.LoadMore();
                 //}
             }
-            if(Queue.instance != null)
-            {
-                if (!Queue.instance.adapter.RefreshDisabled())
-                    contentRefresh.SetEnabled(((LinearLayoutManager)Queue.instance.ListView.GetLayoutManager()).FindFirstCompletelyVisibleItemPosition() == 0);
-
-                if (((LinearLayoutManager)Queue.instance.ListView.GetLayoutManager()).FindLastCompletelyVisibleItemPosition() == Queue.instance.adapter.songList.Count)
-                {
-                    Queue.instance.LoadMore();
-                }
-            }
         }
 
         private async void ActionPlayer()
@@ -1191,16 +1181,6 @@ namespace MusicApp
                 StartService(intent);
                 HideTabs();
                 HideSearch();
-
-                if (Queue.instance != null)
-                {
-                    ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
-                    rootView.RemoveView(Queue.instance.recyclerFragment);
-
-                    if (Queue.instance.isEmpty)
-                        rootView.RemoveView(Queue.instance.emptyView);
-                }
-
                 SaveInstance();
                 SupportFragmentManager.BeginTransaction().AddToBackStack(null).Replace(Resource.Id.contentView, Player.NewInstance()).Commit();
             }

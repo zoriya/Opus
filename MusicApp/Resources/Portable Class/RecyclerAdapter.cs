@@ -14,7 +14,7 @@ namespace MusicApp.Resources.Portable_Class
     public class RecyclerAdapter : RecyclerView.Adapter, IItemTouchAdapter
     {
         public List<Song> songList;
-        private bool refreshDisabled = false;
+        private bool refreshDisabled = true;
         public event EventHandler<int> ItemClick;
         public event EventHandler<int> ItemLongCLick;
         public int listPadding;
@@ -118,6 +118,7 @@ namespace MusicApp.Resources.Portable_Class
 
             if (MainActivity.Theme == 1)
             {
+
                 holder.more.SetColorFilter(Color.White);
                 holder.reorder.SetColorFilter(Color.White);
                 holder.Title.SetTextColor(Color.White);
@@ -199,7 +200,6 @@ namespace MusicApp.Resources.Portable_Class
 
         public void ItemDismissed(int position)
         {
-            Console.WriteLine("&Swiped");
             Queue.RemoveFromQueue(songList[position]);
             NotifyItemRemoved(position);
         }

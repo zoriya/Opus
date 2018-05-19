@@ -43,6 +43,7 @@ namespace MusicApp.Resources.Portable_Class
         public static string title;
         private static bool parsing = false;
         public static int currentID = -1;
+        public static bool repeat = false;
 
         private Notification notification;
         private const int notificationID = 1000;
@@ -91,6 +92,10 @@ namespace MusicApp.Resources.Portable_Class
                     List<string> files = intent.GetStringArrayListExtra("files").ToList();
                     bool clearQueue = intent.GetBooleanExtra("clearQueue", true);
                     RandomPlay(files, clearQueue);
+                    break;
+
+                case "RandomizeQueue":
+                    RandomizeQueue();
                     break;
 
                 case "PlayNext":
@@ -275,10 +280,10 @@ namespace MusicApp.Resources.Portable_Class
             if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
             {
                 AudioFocusRequestClass focusRequest = new AudioFocusRequestClass.Builder(AudioFocus.Gain)
-                .SetAudioAttributes(attributes)
-                .SetAcceptsDelayedFocusGain(true)
-                .SetOnAudioFocusChangeListener(this)
-                .Build();
+                    .SetAudioAttributes(attributes)
+                    .SetAcceptsDelayedFocusGain(true)
+                    .SetOnAudioFocusChangeListener(this)
+                    .Build();
                 AudioFocusRequest audioFocus = audioManager.RequestAudioFocus(focusRequest);
 
                 if (audioFocus != AudioFocusRequest.Granted)
@@ -349,6 +354,27 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
+        private void RandomizeQueue()
+        {
+            Random r = new Random();
+            Song current = queue[CurrentID()];
+            List<Song> newQueue = queue.OrderBy(x => r.Next()).ToList();
+            queue.Clear();
+
+            newQueue.Remove(current);
+            current.queueSlot = 0;
+            queue.Add(current);
+
+            foreach(Song song in newQueue)
+            {
+                song.queueSlot = queue.Count;
+                queue.Add(song);
+            }
+
+            Player.instance?.UpdateNext();
+            Queue.instance?.Refresh();
+        }
+
         public void AddToQueue(string filePath, string title = null, string artist = null, string youtubeID = null, string thumbnailURI = null)
         {
             Song song = null;
@@ -414,8 +440,17 @@ namespace MusicApp.Resources.Portable_Class
         {
             if (CurrentID() + 1 > queue.Count - 1 || CurrentID() == -1)
             {
-                Pause();
-                return;
+                if (repeat)
+                {
+                    Song first = queue[0];
+                    SwitchQueue(first);
+                    return;
+                }
+                else
+                {
+                    Pause();
+                    return;
+                }
             }
 
             Song next = queue[CurrentID() + 1];
@@ -442,8 +477,8 @@ namespace MusicApp.Resources.Portable_Class
 
             Play(song, false);
 
-            if (Player.instance != null)
-                Player.instance.RefreshPlayer();
+            Player.instance?.RefreshPlayer();
+            Queue.instance?.RefreshCurrent();
 
             CoordinatorLayout smallPlayer = MainActivity.instance.FindViewById<CoordinatorLayout>(Resource.Id.smallPlayer);
             smallPlayer.FindViewById<TextView>(Resource.Id.spTitle).Text = song.GetName();
@@ -631,10 +666,6 @@ namespace MusicApp.Resources.Portable_Class
             tmpDefaultIntent.SetAction("Player");
             PendingIntent defaultIntent = PendingIntent.GetActivity(Application.Context, 0, tmpDefaultIntent, PendingIntentFlags.UpdateCurrent);
 
-            //Intent tmpCancelIntent = new Intent(Application.Context, typeof(MainActivity));
-            //tmpCancelIntent.SetAction("Stop");
-            //PendingIntent cancelIntent = PendingIntent.GetActivity(Application.Context, 0, tmpCancelIntent, PendingIntentFlags.UpdateCurrent);
-
             notification = new NotificationCompat.Builder(Application.Context, "MusicApp.Channel")
                 .SetVisibility(NotificationCompat.VisibilityPublic)
                 .SetSmallIcon(Resource.Drawable.MusicIcon)
@@ -646,14 +677,12 @@ namespace MusicApp.Resources.Portable_Class
                 .SetStyle(new MediaStyle()
                     .SetShowActionsInCompactView(1)
                     .SetShowCancelButton(true)
-                    //.SetCancelButtonIntent(cancelIntent)
                     .SetMediaSession(mediaSession.SessionToken))
                 .SetColor(ContextCompat.GetColor(Application.Context, Resource.Color.notification_icon_bg_color))
                 .SetContentTitle(title)
                 .SetContentText(artist)
                 .SetLargeIcon(icon)
                 .SetContentIntent(defaultIntent)
-                //.SetDeleteIntent(cancelIntent)
                 .Build();
             ContextCompat.StartForegroundService(Application.Context, new Intent(Application.Context, typeof(MusicPlayer)));
             StartForeground(notificationID, notification);
