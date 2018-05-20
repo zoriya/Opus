@@ -417,19 +417,11 @@ namespace MusicApp.Resources.Portable_Class
             parseProgress.Visibility = ViewStates.Gone;
         }
 
-        public async static void Download(string name, string videoID, bool skipExistVerification = false)
+        public async static void Download(string name, string videoID)
         {
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Android.App.Application.Context);
             if (prefManager.GetString("downloadPath", null) != null)
             {
-                if (FileIsAlreadyDownloaded(videoID) && !skipExistVerification)
-                {
-                    Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), name + " is already on your device.", Snackbar.LengthShort).SetAction("Download Anyway", (v) =>
-                    {
-                        Download(name, videoID, true);
-                    }).Show();
-                }
-
                 Toast.MakeText(Android.App.Application.Context, "Downloading...", ToastLength.Short).Show();
                 Context context = Android.App.Application.Context;
                 Intent intent = new Intent(context, typeof(Downloader));
@@ -439,7 +431,7 @@ namespace MusicApp.Resources.Portable_Class
                     await Task.Delay(10);
 
                 Downloader.instance.downloadPath = prefManager.GetString("downloadPath", null);
-                Downloader.instance.Download(new DownloadFile(name, videoID));
+                Downloader.instance.Download(new DownloadFile(name, videoID, null));
             }
             else
             {
@@ -451,56 +443,56 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
-        public static async void DownloadFiles(string[] names, string[] videoIDs, bool skipExistVerification = false)
+        public static async void DownloadFiles(string[] names, string[] videoIDs, string playlist)
         {
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Android.App.Application.Context);
             if (prefManager.GetString("downloadPath", null) != null)
             {
-                if (!skipExistVerification)
-                {
-                    List<string> downloadedName = new List<string>();
-                    List<string> downloadedID = new List<string>();
-                    for (int i = 0; i < names.Length; i++)
-                    {
-                        if (FileIsAlreadyDownloaded(videoIDs[i]))
-                        {
-                            downloadedName.Add(names[i]);
-                            downloadedID.Add(videoIDs[i]);
-                        }
-                    }
+                //if (!skipExistVerification)
+                //{
+                //    List<string> downloadedName = new List<string>();
+                //    List<string> downloadedID = new List<string>();
+                //    for (int i = 0; i < names.Length; i++)
+                //    {
+                //        if (FileIsAlreadyDownloaded(videoIDs[i]))
+                //        {
+                //            downloadedName.Add(names[i]);
+                //            downloadedID.Add(videoIDs[i]);
+                //        }
+                //    }
 
-                    if (downloadedName.Count > 0)
-                    {
-                        List<string> namesList = names.ToList();
-                        List<string> idList = videoIDs.ToList();
+                //    if (downloadedName.Count > 0)
+                //    {
+                //        List<string> namesList = names.ToList();
+                //        List<string> idList = videoIDs.ToList();
 
-                        for(int i = 0; i < downloadedName.Count; i++)
-                        {
-                            namesList.Remove(downloadedName[i]);
-                            idList.Remove(downloadedID[i]);
-                        }
+                //        for(int i = 0; i < downloadedName.Count; i++)
+                //        {
+                //            namesList.Remove(downloadedName[i]);
+                //            idList.Remove(downloadedID[i]);
+                //        }
 
-                        names = namesList.ToArray();
-                        videoIDs = idList.ToArray();
+                //        names = namesList.ToArray();
+                //        videoIDs = idList.ToArray();
 
-                        if (downloadedName.Count == 1)
-                        {
-                            Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), downloadedName[0] + " is already on your device.", Snackbar.LengthShort).SetAction("Download this file anyway", (v) =>
-                            {
-                                Downloader.instance.Download(new DownloadFile(downloadedName[0], downloadedID[0]));
-                            }).Show();
-                        }
-                        else
-                        {
-                            Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), downloadedName.Count + " files are already on your device", Snackbar.LengthShort).SetAction("Download all this files anyway", (v) =>
-                            {
-                                for(int i = 0; i < downloadedName.Count; i++)
-                                    Downloader.instance.Download(new DownloadFile(downloadedName[i], downloadedID[i]));
+                //        if (downloadedName.Count == 1)
+                //        {
+                //            Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), downloadedName[0] + " is already on your device.", Snackbar.LengthShort).SetAction("Download this file anyway", (v) =>
+                //            {
+                //                Downloader.instance.Download(new DownloadFile(downloadedName[0], downloadedID[0], playlist));
+                //            }).Show();
+                //        }
+                //        else
+                //        {
+                //            Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), downloadedName.Count + " files are already on your device", Snackbar.LengthShort).SetAction("Download all this files anyway", (v) =>
+                //            {
+                //                for(int i = 0; i < downloadedName.Count; i++)
+                //                    Downloader.instance.Download(new DownloadFile(downloadedName[i], downloadedID[i], playlist));
 
-                            }).Show();
-                        }
-                    }
-                }
+                //            }).Show();
+                //        }
+                //    }
+                //}
 
                 Toast.MakeText(Android.App.Application.Context, "Downloading...", ToastLength.Short).Show();
                 Context context = Android.App.Application.Context;
@@ -513,7 +505,7 @@ namespace MusicApp.Resources.Portable_Class
                 Downloader.instance.downloadPath = prefManager.GetString("downloadPath", null);
 
                 for(int i = 0; i < names.Length; i++)
-                    Downloader.instance.Download(new DownloadFile(names[i], videoIDs[i]));
+                    Downloader.instance.Download(new DownloadFile(names[i], videoIDs[i], playlist));
             }
             else
             {
@@ -772,7 +764,7 @@ namespace MusicApp.Resources.Portable_Class
             PlayFiles(tracks.ToArray());
         }
 
-        public static async void DownloadPlaylist(string playlistID)
+        public static async void DownloadPlaylist(string playlist, string playlistID)
         {
             List<string> names = new List<string>();
             List<string> videoIDs = new List<string>();
@@ -794,7 +786,7 @@ namespace MusicApp.Resources.Portable_Class
 
                 nextPageToken = ytPlaylist.NextPageToken;
             }
-            DownloadFiles(names.ToArray(), videoIDs.ToArray());
+            DownloadFiles(names.ToArray(), videoIDs.ToArray(), playlist);
         }
     }
 }

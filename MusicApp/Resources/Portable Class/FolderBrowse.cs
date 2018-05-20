@@ -348,8 +348,6 @@ namespace MusicApp.Resources.Portable_Class
                 CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
                 ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
 
-                System.Console.WriteLine("&Path: " + path + " URI: " + musicUri.ToString());
-
                 if (musicCursor != null && musicCursor.MoveToFirst())
                 {
                     int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);

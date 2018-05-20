@@ -373,6 +373,57 @@ namespace MusicApp.Resources.Portable_Class
             builder.Show();
         }
 
+        public static long GetPlaylistID(string playlistName)
+        {
+            Android.Net.Uri uri = MediaStore.Audio.Playlists.ExternalContentUri;
+            Looper.Prepare();
+            CursorLoader loader = new CursorLoader(Android.App.Application.Context, uri, null, null, null, null);
+            ICursor cursor = (ICursor)loader.LoadInBackground();
+
+            if (cursor != null && cursor.MoveToFirst())
+            {
+                int nameID = cursor.GetColumnIndex(MediaStore.Audio.Playlists.InterfaceConsts.Name);
+                int plID = cursor.GetColumnIndex(MediaStore.Audio.Playlists.InterfaceConsts.Id);
+                do
+                {
+                    string name = cursor.GetString(nameID);
+
+                    if (name != playlistName)
+                        continue;
+
+                    return cursor.GetLong(plID);
+                }
+                while (cursor.MoveToNext());
+                cursor.Close();
+            }
+
+            //Playlist do not exist, create it
+            ContentResolver resolver = act.ContentResolver;
+            ContentValues value = new ContentValues();
+            value.Put(MediaStore.Audio.Playlists.InterfaceConsts.Name, playlistName);
+            resolver.Insert(uri, value);
+
+            CursorLoader loaderBis = new CursorLoader(Android.App.Application.Context, uri, null, null, null, null);
+            ICursor cursorBis = (ICursor)loader.LoadInBackground();
+
+            if (cursorBis != null && cursorBis.MoveToFirst())
+            {
+                int nameID = cursorBis.GetColumnIndex(MediaStore.Audio.Playlists.InterfaceConsts.Name);
+                int getplaylistID = cursorBis.GetColumnIndex(MediaStore.Audio.Playlists.InterfaceConsts.Id);
+                do
+                {
+                    string name = cursorBis.GetString(nameID);
+                    long id = cursorBis.GetLong(getplaylistID);
+
+                    if (playlistName == name)
+                        return id;
+                }
+                while (cursorBis.MoveToNext());
+                cursorBis.Close();
+            }
+            return -1;
+        }
+
         public async static Task CheckWritePermission()
         {
             const string permission = Manifest.Permission.WriteExternalStorage;

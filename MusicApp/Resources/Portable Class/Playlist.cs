@@ -21,6 +21,7 @@ namespace MusicApp.Resources.Portable_Class
     {
         public static Playlist instance;
         public RecyclerView ListView;
+        private bool populated = false;
 
         //Local playlists
         private List<string> playList = new List<string>();
@@ -32,7 +33,6 @@ namespace MusicApp.Resources.Portable_Class
         private List<Google.Apis.YouTube.v3.Data.Playlist> YtPlaylists = new List<Google.Apis.YouTube.v3.Data.Playlist>();
 
         private PlaylistAdapter adapter;
-        private bool isEmpty = false;
         private View emptyView;
 
         public override void OnActivityCreated(Bundle savedInstanceState)
@@ -41,20 +41,6 @@ namespace MusicApp.Resources.Portable_Class
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
             emptyView = LayoutInflater.Inflate(Resource.Layout.NoPlaylist, null);
             MainActivity.instance.OnPaddingChanged += OnPaddingChanged;
-        }
-
-        public void AddEmptyView()
-        {
-            if (emptyView.Parent != null)
-                ((ViewGroup)emptyView.Parent).RemoveView(emptyView);
-
-            Activity.AddContentView(emptyView, View.LayoutParameters);
-        }
-
-        public void RemoveEmptyView()
-        {
-            ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
-            rootView.RemoveView(emptyView);
         }
 
         private void OnPaddingChanged(object sender, PaddingChange e)
@@ -69,8 +55,6 @@ namespace MusicApp.Resources.Portable_Class
         {
             MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
             MainActivity.instance.OnPaddingChanged -= OnPaddingChanged;
-            if (isEmpty)
-                RemoveEmptyView();
 
             base.OnDestroy();
             instance = null;
@@ -90,6 +74,8 @@ namespace MusicApp.Resources.Portable_Class
 
         public async Task PopulateView()
         {
+            populated = false;
+
             //Local playlists
             playList.Clear();
             playlistId.Clear();
@@ -145,6 +131,9 @@ namespace MusicApp.Resources.Portable_Class
 
             YouTubeService youtube = YoutubeEngine.youtubeService;
 
+            if (instance == null)
+                return;
+
             PlaylistsResource.ListRequest request = youtube.Playlists.List("snippet,contentDetails");
             request.Mine = true;
             request.MaxResults = 25;
@@ -185,6 +174,9 @@ namespace MusicApp.Resources.Portable_Class
                         PlaylistsResource.ListRequest plRequest = youtube.Playlists.List("snippet, contentDetails");
                         plRequest.Id = section.ContentDetails.Playlists[i];
 
+                        if (instance == null)
+                            return;
+
                         PlaylistListResponse plResponse = await plRequest.ExecuteAsync();
 
                         if (instance == null)
@@ -209,6 +201,8 @@ namespace MusicApp.Resources.Portable_Class
                 adapter.SetYtPlaylists(ytPlaylists, true);
             else
                 adapter.SetYtPlaylists(ytPlaylists, true);
+
+            populated = true;
         }
 
         public static Fragment NewInstance()
@@ -225,7 +219,8 @@ namespace MusicApp.Resources.Portable_Class
 
         public async Task Refresh()
         {
-            await PopulateView();
+            if(populated)
+                await PopulateView();
         }
 
         private void ListView_ItemClick(object sender, int Position)
@@ -290,8 +285,6 @@ namespace MusicApp.Resources.Portable_Class
             act.SupportActionBar.Title = playlist.GetName();
             instance = null;
             MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
-            if (isEmpty)
-                RemoveEmptyView();
 
             if (local)
                 MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.GetID(), playlist.GetName()), true);
@@ -352,7 +345,7 @@ namespace MusicApp.Resources.Portable_Class
                             RemoveYoutubePlaylist(Position, playlist.GetPath());
                             break;
                         case 4:
-                            YoutubeEngine.DownloadPlaylist(playlist.GetPath());
+                            YoutubeEngine.DownloadPlaylist(playlist.GetName(), playlist.GetPath());
                             break;
                         default:
                             break;
@@ -373,7 +366,7 @@ namespace MusicApp.Resources.Portable_Class
                             Unfork(Position, playlist.GetPath());
                             break;
                         case 3:
-                            YoutubeEngine.DownloadPlaylist(playlist.GetPath());
+                            YoutubeEngine.DownloadPlaylist(playlist.GetName(), playlist.GetPath());
                             break;
                         default:
                             break;

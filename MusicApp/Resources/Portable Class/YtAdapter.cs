@@ -106,7 +106,7 @@ namespace MusicApp.Resources.Portable_Class
                                     YoutubeEngine.ForkPlaylist(playlist.GetPath());
                                     break;
                                 case 2:
-                                    YoutubeEngine.DownloadPlaylist(playlist.GetPath());
+                                    YoutubeEngine.DownloadPlaylist(playlist.GetName(), playlist.GetPath());
                                     break;
                                 default:
                                     break;

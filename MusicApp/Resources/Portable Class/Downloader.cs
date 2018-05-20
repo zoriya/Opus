@@ -2,7 +2,12 @@
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
+using Android.Database;
+using Android.Media;
+using Android.Net;
 using Android.OS;
+using Android.Provider;
+using Android.Support.Design.Widget;
 using Android.Support.V4.App;
 using MusicApp.Resources.values;
 using System.Collections.Generic;
@@ -19,7 +24,7 @@ using File = System.IO.File;
 namespace MusicApp.Resources.Portable_Class
 {
     [Service]
-    public class Downloader : Service
+    public class Downloader : Service, MediaScannerConnection.IOnScanCompletedListener
     {
         public static Downloader instance;
         public string downloadPath;
@@ -28,8 +33,8 @@ namespace MusicApp.Resources.Portable_Class
         private int currentStrike = 0;
         private static bool isDownloading = false;
         private NotificationCompat.Builder notification;
-        private int notificationID = 1001;
-        private int RequestCode = 5465;
+        private const int notificationID = 1001;
+        private const int RequestCode = 5465;
 
 
         public override IBinder OnBind(Intent intent)
@@ -83,20 +88,31 @@ namespace MusicApp.Resources.Portable_Class
             currentStrike++;
             CreateNotification(file.name);
 
+            if (YoutubeEngine.FileIsAlreadyDownloaded(file.videoID) && !file.skipCheck)
+            {
+                Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), file.name + " is already on your device.", Snackbar.LengthShort).SetAction("Download Anyway", (v) =>
+                {
+                    file.skipCheck = true;
+                    Download(file);
+                }).Show();
+            }
+
             YoutubeClient client = new YoutubeClient();
             Video videoInfo = await client.GetVideoAsync(file.videoID);
             MediaStreamInfoSet mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(file.videoID);
             AudioStreamInfo streamInfo = mediaStreamInfo.Audio.Where(x => x.Container == Container.M4A).OrderBy(s => s.Bitrate).Last();
 
-            System.Console.WriteLine("&" + streamInfo.Url);
-            //With Where container == Container.M4A, output file should be a m4a file, so ffmpeg is usless
-
             string fileExtension = streamInfo.Container.GetFileExtension();
             string fileName = $"{videoInfo.Title}.{fileExtension}";
 
-            string filePath = Path.Combine(path, fileName);
+            string outpath = path;
+            if(file.playlist != null)
+            {
+                outpath = Path.Combine(path, file.playlist);
+                Directory.CreateDirectory(outpath);
+            }
 
-            System.Console.WriteLine("&Client and path created");
+            string filePath = Path.Combine(outpath, fileName);
 
             MediaStream input = await client.GetMediaStreamAsync(streamInfo);
 
@@ -104,18 +120,16 @@ namespace MusicApp.Resources.Portable_Class
             await input.CopyToAsync(output);
             output.Dispose();
 
-            System.Console.WriteLine("&Webm Output created");
-
-            SetMetaData(filePath, videoInfo.Title, videoInfo.Author, videoInfo.Thumbnails.HighResUrl, file.videoID);
+            SetMetaData(filePath, videoInfo.Title, videoInfo.Author, videoInfo.Thumbnails.HighResUrl, file.videoID, file.playlist);
             isDownloading = false;
 
             if (queue.Count != 0)
                 DownloadAudio(queue[0], path);
         }
 
-        private void SetMetaData(string filePath, string title, string artist, string album, string youtubeID)
+        private void SetMetaData(string filePath, string title, string artist, string album, string youtubeID, string playlist)
         {
-            Stream stream = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite);
+            System.IO.Stream stream = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite);
             var meta = TagLib.File.Create(new StreamFileAbstraction(filePath, stream, stream));
 
             meta.Tag.Title = title;
@@ -130,9 +144,24 @@ namespace MusicApp.Resources.Portable_Class
             meta.Tag.Pictures = pictures;
             meta.Save();
             stream.Dispose();
-            Android.Media.MediaScannerConnection.ScanFile(this, new string[] { filePath }, null, null);
+            MediaScannerConnection.ScanFile(this, new string[] { filePath }, null, this);
 
-            StopForeground(true);
+            if (queue.Count == 0)
+                StopForeground(true);
+        }
+
+        public void OnScanCompleted(string path, Uri uri)
+        {
+            long id = long.Parse(uri.ToString().Substring(uri.ToString().IndexOf("audio/media/") + 12, uri.ToString().Length - uri.ToString().IndexOf("audio/media/") - 12));
+            string playlist = path.Substring(downloadPath.Length + 1, path.IndexOf("/", downloadPath.Length) - downloadPath.Length + 1);
+
+            Browse.act = MainActivity.instance;
+            long playlistID = Browse.GetPlaylistID(playlist);
+
+            ContentValues value = new ContentValues();
+            value.Put(MediaStore.Audio.Playlists.Members.AudioId, id);
+            value.Put(MediaStore.Audio.Playlists.Members.PlayOrder, 0);
+            ContentResolver.Insert(MediaStore.Audio.Playlists.Members.GetContentUri("external", playlistID), value);
         }
 
         void CreateNotification(string title)
