@@ -364,6 +364,7 @@ namespace MusicApp.Resources.Portable_Class
 
             newQueue.Remove(current);
             current.queueSlot = 0;
+            currentID = 0;
             queue.Add(current);
 
             foreach(Song song in newQueue)
