@@ -471,9 +471,15 @@ namespace MusicApp.Resources.Portable_Class
                 song.isParsed = true;
                 if (Queue.instance != null)
                 {
-                    ImageView youtubeIcon = Queue.instance.ListView.GetChildAt(queue.IndexOf(song) - ((LinearLayoutManager)Queue.instance.ListView.GetLayoutManager()).FindFirstVisibleItemPosition()).FindViewById<ImageView>(Resource.Id.youtubeIcon);
-                    youtubeIcon.SetImageResource(Resource.Drawable.youtubeIcon);
-                    youtubeIcon.ClearColorFilter();
+                    int item = queue.IndexOf(song);
+                    int firstItem = ((LinearLayoutManager)Queue.instance.ListView.GetLayoutManager()).FindFirstVisibleItemPosition();
+                    int lastItem = ((LinearLayoutManager)Queue.instance.ListView.GetLayoutManager()).FindLastVisibleItemPosition();
+                    if (firstItem < item && item < lastItem)
+                    {
+                        ImageView youtubeIcon = Queue.instance.ListView.GetChildAt(item - firstItem).FindViewById<ImageView>(Resource.Id.youtubeIcon);
+                        youtubeIcon.SetImageResource(Resource.Drawable.youtubeIcon);
+                        youtubeIcon.ClearColorFilter();
+                    }
                 }
             }
 
@@ -551,9 +557,15 @@ namespace MusicApp.Resources.Portable_Class
                 parsing = false;
                 if (Queue.instance != null)
                 {
-                    ImageView youtubeIcon = Queue.instance.ListView.GetChildAt(queue.IndexOf(song) - ((LinearLayoutManager)Queue.instance.ListView.GetLayoutManager()).FindFirstVisibleItemPosition()).FindViewById<ImageView>(Resource.Id.youtubeIcon);
-                    youtubeIcon.SetImageResource(Resource.Drawable.youtubeIcon);
-                    youtubeIcon.ClearColorFilter();
+                    int item = queue.IndexOf(song);
+                    int firstItem = ((LinearLayoutManager)Queue.instance.ListView.GetLayoutManager()).FindFirstVisibleItemPosition();
+                    int lastItem = ((LinearLayoutManager)Queue.instance.ListView.GetLayoutManager()).FindLastVisibleItemPosition();
+                    if(firstItem < item && item < lastItem)
+                    {
+                        ImageView youtubeIcon = Queue.instance.ListView.GetChildAt(item - firstItem).FindViewById<ImageView>(Resource.Id.youtubeIcon);
+                        youtubeIcon.SetImageResource(Resource.Drawable.youtubeIcon);
+                        youtubeIcon.ClearColorFilter();
+                    }
                 }
             }
         }
