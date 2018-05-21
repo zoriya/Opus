@@ -23,6 +23,7 @@ namespace MusicApp.Resources.Portable_Class
         public List<Song> result;
         public long playlistId = 0;
         public string ytID = "";
+        private bool hasWriteAcess;
         public bool isEmpty = false;
 
         private List<Song> tracks = new List<Song>();
@@ -75,10 +76,11 @@ namespace MusicApp.Resources.Portable_Class
             return instance;
         }
 
-        public static Fragment NewInstance(string ytID, string playlistName)
+        public static Fragment NewInstance(string ytID, string playlistName, bool hasWriteAcess)
         {
             instance = new PlaylistTracks { Arguments = new Bundle() };
             instance.ytID = ytID;
+            instance.hasWriteAcess = hasWriteAcess;
             instance.playlistName = playlistName;
             return instance;
         }
@@ -266,83 +268,153 @@ namespace MusicApp.Resources.Portable_Class
 
             AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
             builder.SetTitle("Pick an action");
-            builder.SetItems(action.ToArray(), async (senderAlert, args) =>
+            if (hasWriteAcess && ytID != "")
             {
-                switch (args.Which)
+                builder.SetItems(action.ToArray(), async (senderAlert, args) =>
                 {
-                    case 0:
-                        int Position = tracks.IndexOf(item);
-                        List<Song> songs = tracks.GetRange(Position + 1, tracks.Count - Position - 1);
-                        if (result != null && result.Count - 1 >= Position)
-                            songs = result.GetRange(Position + 1, result.Count - Position - 1);
+                    switch (args.Which)
+                    {
+                        case 0:
+                            int Position = tracks.IndexOf(item);
+                            List<Song> songs = tracks.GetRange(Position + 1, tracks.Count - Position - 1);
+                            if (result != null && result.Count - 1 >= Position)
+                                songs = result.GetRange(Position + 1, result.Count - Position - 1);
 
-                        if (MusicPlayer.isRunning)
-                            MusicPlayer.queue.Clear();
+                            if (MusicPlayer.isRunning)
+                                MusicPlayer.queue.Clear();
 
-                        if (!songs[0].IsYt)
-                        {
-                            Browse.act = Activity;
-                            Browse.Play(songs[0]);
-                        }
-                        else
-                            YoutubeEngine.Play(songs[0].youtubeID, songs[0].GetName(), songs[0].GetArtist(), songs[0].GetAlbum());
+                            if (!songs[0].IsYt)
+                            {
+                                Browse.act = Activity;
+                                Browse.Play(songs[0]);
+                            }
+                            else
+                                YoutubeEngine.Play(songs[0].youtubeID, songs[0].GetName(), songs[0].GetArtist(), songs[0].GetAlbum());
 
-                        songs.RemoveAt(0);
-                        songs.Reverse();
+                            songs.RemoveAt(0);
+                            songs.Reverse();
 
-                        while (MusicPlayer.instance == null)
-                            await Task.Delay(10);
+                            while (MusicPlayer.instance == null)
+                                await Task.Delay(10);
 
-                        foreach (Song song in songs)
-                        {
-                            MusicPlayer.instance.AddToQueue(song);
-                        }
-                        Player.instance?.UpdateNext();
-                        break;
+                            foreach (Song song in songs)
+                            {
+                                MusicPlayer.instance.AddToQueue(song);
+                            }
+                            Player.instance?.UpdateNext();
+                            break;
 
-                    case 1:
-                        if (!item.IsYt)
-                            Browse.PlayNext(item);
-                        else
-                            YoutubeEngine.PlayNext(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
-                        break;
+                        case 1:
+                            if (!item.IsYt)
+                                Browse.PlayNext(item);
+                            else
+                                YoutubeEngine.PlayNext(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
+                            break;
 
-                    case 2:
-                        if (!item.IsYt)
-                            Browse.PlayLast(item);
-                        else
-                            YoutubeEngine.PlayLast(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
-                        break;
+                        case 2:
+                            if (!item.IsYt)
+                                Browse.PlayLast(item);
+                            else
+                                YoutubeEngine.PlayLast(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
+                            break;
 
-                    case 3:
-                        if (!item.IsYt)
-                            RemoveFromPlaylist(item);
-                        else
-                        {
-                            string ytTrackID = ytTracksIDs[position];
-                            if (ytTracksIdsResult != null)
-                                ytTrackID = ytTracksIdsResult[position];
+                        case 3:
+                            if (!item.IsYt)
+                                RemoveFromPlaylist(item);
+                            else
+                            {
+                                string ytTrackID = ytTracksIDs[position];
+                                if (ytTracksIdsResult != null)
+                                    ytTrackID = ytTracksIdsResult[position];
 
-                            YoutubeEngine.RemoveFromPlaylist(ytTrackID);
-                            RemoveFromYtPlaylist(item, ytTrackID);
-                        }
-                        break;
+                                YoutubeEngine.RemoveFromPlaylist(ytTrackID);
+                                RemoveFromYtPlaylist(item, ytTrackID);
+                            }
+                            break;
 
-                    case 4:
-                        YoutubeEngine.GetPlaylists(item.GetPath(), Activity);
-                        break;
+                        case 4:
+                            YoutubeEngine.GetPlaylists(item.GetPath(), Activity);
+                            break;
 
-                    case 5:
-                        if (item.IsYt)
-                            YoutubeEngine.Download(item.GetName(), item.GetPath());
-                        else
-                            Browse.EditMetadata(item, "PlaylistTracks", ListView.OnSaveInstanceState());
-                        break;
+                        case 5:
+                            if (item.IsYt)
+                                YoutubeEngine.Download(item.GetName(), item.GetPath());
+                            else
+                                Browse.EditMetadata(item, "PlaylistTracks", ListView.OnSaveInstanceState());
+                            break;
 
-                    default:
-                        break;
-                }
-            });
+                        default:
+                            break;
+                    }
+                });
+            }
+            else
+            {
+                action.Remove("Remove Track from playlist");
+                builder.SetItems(action.ToArray(), async (senderAlert, args) =>
+                {
+                    switch (args.Which)
+                    {
+                        case 0:
+                            int Position = tracks.IndexOf(item);
+                            List<Song> songs = tracks.GetRange(Position + 1, tracks.Count - Position - 1);
+                            if (result != null && result.Count - 1 >= Position)
+                                songs = result.GetRange(Position + 1, result.Count - Position - 1);
+
+                            if (MusicPlayer.isRunning)
+                                MusicPlayer.queue.Clear();
+
+                            if (!songs[0].IsYt)
+                            {
+                                Browse.act = Activity;
+                                Browse.Play(songs[0]);
+                            }
+                            else
+                                YoutubeEngine.Play(songs[0].youtubeID, songs[0].GetName(), songs[0].GetArtist(), songs[0].GetAlbum());
+
+                            songs.RemoveAt(0);
+                            songs.Reverse();
+
+                            while (MusicPlayer.instance == null)
+                                await Task.Delay(10);
+
+                            foreach (Song song in songs)
+                            {
+                                MusicPlayer.instance.AddToQueue(song);
+                            }
+                            Player.instance?.UpdateNext();
+                            break;
+
+                        case 1:
+                            if (!item.IsYt)
+                                Browse.PlayNext(item);
+                            else
+                                YoutubeEngine.PlayNext(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
+                            break;
+
+                        case 2:
+                            if (!item.IsYt)
+                                Browse.PlayLast(item);
+                            else
+                                YoutubeEngine.PlayLast(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
+                            break;
+
+                        case 3:
+                            YoutubeEngine.GetPlaylists(item.GetPath(), Activity);
+                            break;
+
+                        case 4:
+                            if (item.IsYt)
+                                YoutubeEngine.Download(item.GetName(), item.GetPath());
+                            else
+                                Browse.EditMetadata(item, "PlaylistTracks", ListView.OnSaveInstanceState());
+                            break;
+
+                        default:
+                            break;
+                    }
+                });
+            }
             builder.Show();
         }
 

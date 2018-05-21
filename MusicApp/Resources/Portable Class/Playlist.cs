@@ -289,7 +289,7 @@ namespace MusicApp.Resources.Portable_Class
             if (local)
                 MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.GetID(), playlist.GetName()), true);
             else
-                MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.youtubeID, playlist.GetName()), true);
+                MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.youtubeID, playlist.GetName(), playlist.isParsed), true);
         }
 
         private void ListView_ItemLongClick(object sender, int position)

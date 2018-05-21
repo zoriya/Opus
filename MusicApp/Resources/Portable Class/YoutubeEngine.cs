@@ -260,7 +260,7 @@ namespace MusicApp.Resources.Portable_Class
                     instances = null;
                     MainActivity.instance.youtubeParcel = ListView.GetLayoutManager().OnSaveInstanceState();
                     MainActivity.instance.youtubeInstanceSave = "YoutubeEngine" + "-" + querryType;
-                    MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(item.youtubeID, item.GetName()), true);
+                    MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(item.youtubeID, item.GetName(), false), true);
                     break;
                 case YtKind.Channel:
                     Toast.MakeText(Activity, "Action comming soon", ToastLength.Short).Show();
