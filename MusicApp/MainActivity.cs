@@ -404,6 +404,8 @@ namespace MusicApp
                     SupportActionBar.SetHomeButtonEnabled(false);
                     SupportActionBar.SetDisplayHomeAsUpEnabled(false);
                     SupportActionBar.Title = "MusicApp";
+                    contentRefresh.Refresh -= PlaylistTracks.instance.OnRefresh;
+                    OnPaddingChanged -= PlaylistTracks.instance.OnPaddingChanged;
                     PlaylistTracks.instance = null;
                     if (HomeDetails)
                     {

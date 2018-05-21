@@ -45,7 +45,7 @@ namespace MusicApp.Resources.Portable_Class
             PopulateList();
         }
 
-        private void OnPaddingChanged(object sender, PaddingChange e)
+        public void OnPaddingChanged(object sender, PaddingChange e)
         {
             if (MainActivity.paddingBot > e.oldPadding)
                 adapter.listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot;
@@ -185,7 +185,7 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
-        private async void OnRefresh(object sender, System.EventArgs e)
+        public async void OnRefresh(object sender, System.EventArgs e)
         {
             await PopulateList();
             MainActivity.instance.contentRefresh.Refreshing = false;

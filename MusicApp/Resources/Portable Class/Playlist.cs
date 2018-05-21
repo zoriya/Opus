@@ -21,7 +21,6 @@ namespace MusicApp.Resources.Portable_Class
     {
         public static Playlist instance;
         public RecyclerView ListView;
-        private bool populated = false;
 
         //Local playlists
         private List<string> playList = new List<string>();
@@ -74,8 +73,6 @@ namespace MusicApp.Resources.Portable_Class
 
         public async Task PopulateView()
         {
-            populated = false;
-
             //Local playlists
             playList.Clear();
             playlistId.Clear();
@@ -201,8 +198,6 @@ namespace MusicApp.Resources.Portable_Class
                 adapter.SetYtPlaylists(ytPlaylists, true);
             else
                 adapter.SetYtPlaylists(ytPlaylists, true);
-
-            populated = true;
         }
 
         public static Fragment NewInstance()
@@ -219,8 +214,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public async Task Refresh()
         {
-            if(populated)
-                await PopulateView();
+            await PopulateView();
         }
 
         private void ListView_ItemClick(object sender, int Position)
@@ -284,6 +278,8 @@ namespace MusicApp.Resources.Portable_Class
             act.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
             act.SupportActionBar.Title = playlist.GetName();
             instance = null;
+            MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
+            MainActivity.instance.OnPaddingChanged -= OnPaddingChanged;
             MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
 
             if (local)
