@@ -772,6 +772,10 @@ namespace MusicApp.Resources.Portable_Class
         public void Stop()
         {
             isRunning = false;
+            title = null;
+            parsing = false;
+            currentID = -1;
+            progress = 0;
             MainActivity.instance.HideSmallPlayer();
             Player.instance?.Stoped();
             if (player != null)

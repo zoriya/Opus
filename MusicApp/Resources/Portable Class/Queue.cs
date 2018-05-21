@@ -86,7 +86,7 @@ namespace MusicApp.Resources.Portable_Class
             int last = ((LinearLayoutManager)ListView.GetLayoutManager()).FindLastVisibleItemPosition();
             for (int i = first; i <= last; i++)
             {
-                Song song = MusicPlayer.queue[first + i];
+                Song song = MusicPlayer.queue[i];
                 RecyclerHolder holder = (RecyclerHolder)ListView.GetChildViewHolder(((LinearLayoutManager)ListView.GetLayoutManager()).FindViewByPosition(i));
                 if (song.queueSlot == MusicPlayer.CurrentID())
                 {
