@@ -183,7 +183,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 mediaSession = new MediaSessionCompat(Application.Context, "MusicApp");
                 mediaSession.SetFlags(MediaSessionCompat.FlagHandlesMediaButtons | MediaSessionCompat.FlagHandlesTransportControls);
-                PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder().SetActions(PlaybackStateCompat.ActionPlay | PlaybackStateCompat.ActionPause);
+                PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder().SetActions(PlaybackStateCompat.ActionPlay | PlaybackStateCompat.ActionPause | PlaybackStateCompat.ActionSkipToNext | PlaybackStateCompat.ActionSkipToPrevious);
                 mediaSession.SetPlaybackState(builder.Build());
                 mediaSession.SetCallback(new HeadphonesActions());
             }
@@ -264,7 +264,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 mediaSession = new MediaSessionCompat(Application.Context, "MusicApp");
                 mediaSession.SetFlags(MediaSessionCompat.FlagHandlesMediaButtons | MediaSessionCompat.FlagHandlesTransportControls);
-                PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder().SetActions(PlaybackStateCompat.ActionPlay | PlaybackStateCompat.ActionPause);
+                PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder().SetActions(PlaybackStateCompat.ActionPlay | PlaybackStateCompat.ActionPause | PlaybackStateCompat.ActionSkipToNext | PlaybackStateCompat.ActionSkipToPrevious);
                 mediaSession.SetPlaybackState(builder.Build());
                 mediaSession.SetCallback(new HeadphonesActions());
             }
@@ -824,7 +824,7 @@ namespace MusicApp.Resources.Portable_Class
                     break;
 
                 case AudioFocus.Loss:
-                    Stop();
+                    Pause();
                     break;
 
                 case AudioFocus.LossTransient:
