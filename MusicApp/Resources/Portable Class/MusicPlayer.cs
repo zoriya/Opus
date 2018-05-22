@@ -692,6 +692,10 @@ namespace MusicApp.Resources.Portable_Class
             tmpDefaultIntent.SetAction("Player");
             PendingIntent defaultIntent = PendingIntent.GetActivity(Application.Context, 0, tmpDefaultIntent, PendingIntentFlags.UpdateCurrent);
 
+            Intent tmpDeleteIntent = new Intent(Application.Context, typeof(MusicPlayer));
+            tmpDeleteIntent.SetAction("Stop");
+            PendingIntent deleteIntent = PendingIntent.GetActivity(Application.Context, 0, tmpDeleteIntent, PendingIntentFlags.UpdateCurrent);
+
             notification = new NotificationCompat.Builder(Application.Context, "MusicApp.Channel")
                 .SetVisibility(NotificationCompat.VisibilityPublic)
                 .SetSmallIcon(Resource.Drawable.MusicIcon)
@@ -705,6 +709,7 @@ namespace MusicApp.Resources.Portable_Class
                     .SetShowCancelButton(true)
                     .SetMediaSession(mediaSession.SessionToken))
                 .SetColor(ContextCompat.GetColor(Application.Context, Resource.Color.notification_icon_bg_color))
+                .SetDeleteIntent(deleteIntent)
                 .SetContentTitle(title)
                 .SetContentText(artist)
                 .SetLargeIcon(icon)
@@ -773,7 +778,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             isRunning = false;
             title = null;
-            queue.Clear();
+            //queue.Clear();
             parsing = false;
             currentID = -1;
             progress = 0;
@@ -787,6 +792,7 @@ namespace MusicApp.Resources.Portable_Class
                 player = null;
                 StopForeground(true);
             }
+            StopSelf();
         }
 
         private void SleepPause()

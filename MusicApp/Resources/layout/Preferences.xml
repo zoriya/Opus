@@ -36,7 +36,7 @@
       android:summary="Comming soon" />
     <Preference
       android:title="Version :"
-      android:summary="V. 1.5" />
+      android:summary="V. 1.6" />
     <AccountPreference
       android:key="account"
       android:icon="@drawable/ic_account_circle_black_24dp"

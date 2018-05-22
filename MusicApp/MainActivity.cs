@@ -1399,5 +1399,16 @@ namespace MusicApp
                     break;
             }
         }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            if(MusicPlayer.instance != null && !MusicPlayer.isRunning && Preferences.instance == null && Queue.instance == null && EditMetaData.instance == null)
+            {
+                Intent intent = new Intent(this, typeof(MusicPlayer));
+                intent.SetAction("Stop");
+                StartService(intent);
+            }
+        }
     }
 }
