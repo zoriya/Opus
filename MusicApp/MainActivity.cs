@@ -847,6 +847,7 @@ namespace MusicApp
 
         public void PrepareSmallPlayer()
         {
+            Console.WriteLine("&Index = " + MusicPlayer.CurrentID());
             Song current = MusicPlayer.queue[MusicPlayer.CurrentID()];
 
             CoordinatorLayout smallPlayer = FindViewById<CoordinatorLayout>(Resource.Id.smallPlayer);

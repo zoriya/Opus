@@ -48,7 +48,6 @@ namespace MusicApp.Resources.Portable_Class
 
         private Notification notification;
         private const int notificationID = 1000;
-        private bool stoped = false;
         private static long progress;
 
 
@@ -241,6 +240,8 @@ namespace MusicApp.Resources.Portable_Class
 
             if(song.queueSlot == -1)
                 song.queueSlot = CurrentID() + 1;
+
+            Console.WriteLine("&QueueSlot = " + song.queueSlot);
 
             currentID = song.queueSlot;
 
@@ -515,7 +516,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public static int CurrentID()
         {
-            if (queue.Count - 1 < currentID)
+            if (queue.Count < currentID)
                 currentID = -1;
             return currentID;
         }
@@ -744,7 +745,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public void Resume()
         {
-            if(player != null && !isRunning && !stoped)
+            if(player != null && !isRunning)
             {
                 isRunning = true;
                 Intent tmpPauseIntent = new Intent(Application.Context, typeof(MusicPlayer));
@@ -769,7 +770,6 @@ namespace MusicApp.Resources.Portable_Class
             }
             else
             {
-                stoped = false;
                 Play(queue[CurrentID()], false, progress);
             }
         }
@@ -798,9 +798,6 @@ namespace MusicApp.Resources.Portable_Class
         private void SleepPause()
         {
             Pause();
-            StopForeground(true);
-            stoped = true;
-            progress = player.CurrentPosition;
         }
 
         public static void Swap(int fromPosition, int toPosition)
