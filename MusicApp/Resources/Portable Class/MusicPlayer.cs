@@ -250,9 +250,26 @@ namespace MusicApp.Resources.Portable_Class
             if(addToQueue)
                 AddToQueue(song);
 
-            Player.instance?.UpdateNext();
-
+            Player.instance?.RefreshPlayer();
             ParseNextSong();
+
+            CoordinatorLayout smallPlayer = MainActivity.instance.FindViewById<CoordinatorLayout>(Resource.Id.smallPlayer);
+            smallPlayer.FindViewById<TextView>(Resource.Id.spTitle).Text = song.GetName();
+            smallPlayer.FindViewById<TextView>(Resource.Id.spArtist).Text = song.GetArtist();
+            smallPlayer.FindViewById<ImageView>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
+            ImageView art = smallPlayer.FindViewById<ImageView>(Resource.Id.spArt);
+
+            if (!song.IsYt)
+            {
+                var songCover = Uri.Parse("content://media/external/audio/albumart");
+                var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, song.GetAlbumArt());
+
+                Picasso.With(Application.Context).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(art);
+            }
+            else
+            {
+                Picasso.With(Application.Context).Load(song.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(art);
+            }
         }
 
         public void Play(Song song, bool addToQueue = true, long progress = -1)
@@ -328,9 +345,26 @@ namespace MusicApp.Resources.Portable_Class
                 Player.instance.playerView.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
             }
 
-            Player.instance?.UpdateNext();
-
+            Player.instance?.RefreshPlayer();
             ParseNextSong();
+
+            CoordinatorLayout smallPlayer = MainActivity.instance.FindViewById<CoordinatorLayout>(Resource.Id.smallPlayer);
+            smallPlayer.FindViewById<TextView>(Resource.Id.spTitle).Text = song.GetName();
+            smallPlayer.FindViewById<TextView>(Resource.Id.spArtist).Text = song.GetArtist();
+            smallPlayer.FindViewById<ImageView>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
+            ImageView art = smallPlayer.FindViewById<ImageView>(Resource.Id.spArt);
+
+            if (!song.IsYt)
+            {
+                var songCover = Uri.Parse("content://media/external/audio/albumart");
+                var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, song.GetAlbumArt());
+
+                Picasso.With(Application.Context).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(art);
+            }
+            else
+            {
+                Picasso.With(Application.Context).Load(song.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(art);
+            }
         }
 
         public async void RandomPlay(List<string> filePath, bool clearQueue)
@@ -797,7 +831,8 @@ namespace MusicApp.Resources.Portable_Class
 
         private void SleepPause()
         {
-            Pause();
+            //Pause();
+            Stop();
         }
 
         public static void Swap(int fromPosition, int toPosition)
@@ -805,6 +840,7 @@ namespace MusicApp.Resources.Portable_Class
             queue[fromPosition].queueSlot = fromPosition;
             for(int i = 0; i < queue.Count; i++)
             {
+                Console.WriteLine("&CurrentID = " + CurrentID() + " item id = " + queue[i].queueSlot + " i = " + i + "Item name = " + queue[i].GetName());
                 if (CurrentID() == queue[i].queueSlot)
                     currentID = i;
 

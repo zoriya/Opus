@@ -766,11 +766,14 @@ namespace MusicApp
                 else
                     FolderBrowse.instance.ListView.SmoothScrollToPosition(0);
             }
-            foreach(YoutubeEngine instance in YoutubeEngine.instances)
+            if(YoutubeEngine.instances != null)
             {
-                if (instance.focused)
+                foreach (YoutubeEngine instance in YoutubeEngine.instances)
                 {
-                    instance.ListView.SmoothScrollToPosition(0);
+                    if (instance.focused)
+                    {
+                        instance.ListView.SmoothScrollToPosition(0);
+                    }
                 }
             }
         }

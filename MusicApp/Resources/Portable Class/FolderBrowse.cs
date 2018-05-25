@@ -125,7 +125,6 @@ namespace MusicApp.Resources.Portable_Class
                 listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot
             };
             ListAdapter = adapter;
-            ListView.TextFilterEnabled = true;
             ListView.ItemClick += ListView_ItemClick;
             ListView.ItemLongClick += ListView_ItemLongClick;
 
@@ -458,7 +457,7 @@ namespace MusicApp.Resources.Portable_Class
         public override void OnResume()
         {
             base.OnResume();
-            if (MainActivity.parcelable != null)
+            if (MainActivity.parcelable != null && MainActivity.parcelableSender == "FolderBrowse")
             {
                 ListView.OnRestoreInstanceState(MainActivity.parcelable);
                 MainActivity.parcelable = null;

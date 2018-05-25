@@ -182,16 +182,12 @@ namespace MusicApp.Resources.Portable_Class
             if(fromPosition < toPosition)
             {
                 for(int i = fromPosition; i < toPosition; i++)
-                {
                     songList = Swap(songList, i, i + 1);
-                }
             }
             else
             {
                 for(int i = fromPosition; i > toPosition; i--)
-                {
                     songList = Swap(songList, i, i - 1);
-                }
             }
 
             NotifyItemMoved(fromPosition, toPosition);
