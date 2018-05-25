@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\Xamarin.Build.Download.0.4.10\build\Xamarin.Build.Download.props" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.10\build\Xamarin.Build.Download.props')" />
+  <Import Project="..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.props" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -95,20 +95,20 @@
     <Reference Include="ExoPlayer.UI, Version=2.7.3.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Xam.Plugins.Android.ExoPlayer.UI.2.7.3\lib\monoandroid81\ExoPlayer.UI.dll</HintPath>
     </Reference>
-    <Reference Include="Google.Apis, Version=1.33.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
-      <HintPath>..\packages\Google.Apis.1.33.0\lib\netstandard1.3\Google.Apis.dll</HintPath>
+    <Reference Include="Google.Apis, Version=1.33.1.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Apis.1.33.1\lib\netstandard1.3\Google.Apis.dll</HintPath>
     </Reference>
-    <Reference Include="Google.Apis.Auth, Version=1.33.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
-      <HintPath>..\packages\Google.Apis.Auth.1.33.0\lib\netstandard1.3\Google.Apis.Auth.dll</HintPath>
+    <Reference Include="Google.Apis.Auth, Version=1.33.1.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Apis.Auth.1.33.1\lib\netstandard1.3\Google.Apis.Auth.dll</HintPath>
     </Reference>
-    <Reference Include="Google.Apis.Auth.PlatformServices, Version=1.33.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
-      <HintPath>..\packages\Google.Apis.Auth.1.33.0\lib\netstandard1.3\Google.Apis.Auth.PlatformServices.dll</HintPath>
+    <Reference Include="Google.Apis.Auth.PlatformServices, Version=1.33.1.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Apis.Auth.1.33.1\lib\netstandard1.3\Google.Apis.Auth.PlatformServices.dll</HintPath>
     </Reference>
-    <Reference Include="Google.Apis.Core, Version=1.33.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
-      <HintPath>..\packages\Google.Apis.Core.1.33.0\lib\netstandard1.3\Google.Apis.Core.dll</HintPath>
+    <Reference Include="Google.Apis.Core, Version=1.33.1.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Apis.Core.1.33.1\lib\netstandard1.3\Google.Apis.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Google.Apis.YouTube.v3, Version=1.33.0.1215, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
-      <HintPath>..\packages\Google.Apis.YouTube.v3.1.33.0.1215\lib\netstandard1.3\Google.Apis.YouTube.v3.dll</HintPath>
+    <Reference Include="Google.Apis.YouTube.v3, Version=1.33.1.1226, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Apis.YouTube.v3.1.33.1.1226\lib\netstandard1.3\Google.Apis.YouTube.v3.dll</HintPath>
     </Reference>
     <Reference Include="Java.Interop" />
     <Reference Include="Microsoft.CSharp" />
@@ -119,16 +119,16 @@
       <HintPath>..\packages\PCLCrypto.2.0.147\lib\MonoAndroid23\PCLCrypto.dll</HintPath>
     </Reference>
     <Reference Include="PInvoke.BCrypt, Version=0.5.0.0, Culture=neutral, PublicKeyToken=9e300f9f87f04a7a, processorArchitecture=MSIL">
-      <HintPath>..\packages\PInvoke.BCrypt.0.5.134\lib\portable-net45+win8+wpa81\PInvoke.BCrypt.dll</HintPath>
+      <HintPath>..\packages\PInvoke.BCrypt.0.5.152\lib\portable-net45+win8+wpa81\PInvoke.BCrypt.dll</HintPath>
     </Reference>
     <Reference Include="PInvoke.Kernel32, Version=0.5.0.0, Culture=neutral, PublicKeyToken=9e300f9f87f04a7a, processorArchitecture=MSIL">
-      <HintPath>..\packages\PInvoke.Kernel32.0.5.134\lib\portable-net45+win8+wpa81\PInvoke.Kernel32.dll</HintPath>
+      <HintPath>..\packages\PInvoke.Kernel32.0.5.152\lib\portable-net45+win8+wpa81\PInvoke.Kernel32.dll</HintPath>
     </Reference>
     <Reference Include="PInvoke.NCrypt, Version=0.5.0.0, Culture=neutral, PublicKeyToken=9e300f9f87f04a7a, processorArchitecture=MSIL">
-      <HintPath>..\packages\PInvoke.NCrypt.0.5.134\lib\portable-net45+win8+wpa81\PInvoke.NCrypt.dll</HintPath>
+      <HintPath>..\packages\PInvoke.NCrypt.0.5.152\lib\portable-net45+win8+wpa81\PInvoke.NCrypt.dll</HintPath>
     </Reference>
     <Reference Include="PInvoke.Windows.Core, Version=0.5.0.0, Culture=neutral, PublicKeyToken=9e300f9f87f04a7a, processorArchitecture=MSIL">
-      <HintPath>..\packages\PInvoke.Windows.Core.0.5.134\lib\portable-net45+win8+wpa81\PInvoke.Windows.Core.dll</HintPath>
+      <HintPath>..\packages\PInvoke.Windows.Core.0.5.152\lib\portable-net45+win8+wpa81\PInvoke.Windows.Core.dll</HintPath>
     </Reference>
     <Reference Include="Square.OkHttp, Version=2.7.5.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Square.OkHttp.2.7.5.0\lib\MonoAndroid\Square.OkHttp.dll</HintPath>
@@ -228,8 +228,8 @@
     <Reference Include="Xamarin.GooglePlayServices.Tasks, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Xamarin.GooglePlayServices.Tasks.60.1142.1\lib\MonoAndroid80\Xamarin.GooglePlayServices.Tasks.dll</HintPath>
     </Reference>
-    <Reference Include="YoutubeExplode, Version=4.2.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\YoutubeExplode.4.2.3\lib\netstandard2.0\YoutubeExplode.dll</HintPath>
+    <Reference Include="YoutubeExplode, Version=4.2.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\YoutubeExplode.4.2.5\lib\netstandard2.0\YoutubeExplode.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -257,7 +257,6 @@
     <Compile Include="Resources\Portable Class\MusicPlayer.cs" />
     <Compile Include="Resources\Portable Class\PercentTransform.cs" />
     <Compile Include="Resources\Portable Class\Player.cs" />
-    <None Include="packages.config" />
     <Compile Include="Resources\Portable Class\Playlist.cs" />
     <Compile Include="Resources\Portable Class\PlaylistAdapter.cs" />
     <Compile Include="Resources\Portable Class\PlaylistTracks.cs" />
@@ -296,6 +295,9 @@
     <ProguardConfiguration Include="proguard.cfg">
       <SubType>Designer</SubType>
     </ProguardConfiguration>
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Properties\AndroidManifest.xml" />
     <AndroidResource Include="Resources\layout\MusicLayout.axml">
       <SubType>Designer</SubType>
@@ -590,12 +592,19 @@
     <AndroidResource Include="Resources\drawable\Close.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
+  <Import Project="..\packages\Xamarin.Android.Support.Animated.Vector.Drawable.25.4.0.2\build\MonoAndroid70\Xamarin.Android.Support.Animated.Vector.Drawable.targets" Condition="Exists('..\packages\Xamarin.Android.Support.Animated.Vector.Drawable.25.4.0.2\build\MonoAndroid70\Xamarin.Android.Support.Animated.Vector.Drawable.targets')" />
+  <Import Project="..\packages\Xamarin.Android.Support.v7.Preference.25.4.0.2\build\MonoAndroid70\Xamarin.Android.Support.v7.Preference.targets" Condition="Exists('..\packages\Xamarin.Android.Support.v7.Preference.25.4.0.2\build\MonoAndroid70\Xamarin.Android.Support.v7.Preference.targets')" />
+  <Import Project="..\packages\Xamarin.Android.Support.Design.25.4.0.2\build\MonoAndroid70\Xamarin.Android.Support.Design.targets" Condition="Exists('..\packages\Xamarin.Android.Support.Design.25.4.0.2\build\MonoAndroid70\Xamarin.Android.Support.Design.targets')" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <Import Project="..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets" Condition="Exists('..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Xamarin.GooglePlayServices.Auth.Api.Phone.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Auth.Api.Phone.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.GooglePlayServices.Auth.Api.Phone.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Auth.Api.Phone.targets'))" />
-    <Error Condition="!Exists('..\packages\NETStandard.Library.2.0.2\build\netstandard2.0\NETStandard.Library.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NETStandard.Library.2.0.2\build\netstandard2.0\NETStandard.Library.targets'))" />
+    <Error Condition="!Exists('..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets'))" />
     <Error Condition="!Exists('..\packages\Xamarin.Android.Support.Annotations.27.0.2\build\MonoAndroid81\Xamarin.Android.Support.Annotations.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Android.Support.Annotations.27.0.2\build\MonoAndroid81\Xamarin.Android.Support.Annotations.targets'))" />
     <Error Condition="!Exists('..\packages\Xamarin.Android.Arch.Core.Common.1.0.0\build\MonoAndroid80\Xamarin.Android.Arch.Core.Common.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Android.Arch.Core.Common.1.0.0\build\MonoAndroid80\Xamarin.Android.Arch.Core.Common.targets'))" />
     <Error Condition="!Exists('..\packages\Xamarin.Android.Arch.Lifecycle.Common.1.0.3\build\MonoAndroid80\Xamarin.Android.Arch.Lifecycle.Common.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Android.Arch.Lifecycle.Common.1.0.3\build\MonoAndroid80\Xamarin.Android.Arch.Lifecycle.Common.targets'))" />
@@ -614,22 +623,15 @@
     <Error Condition="!Exists('..\packages\Xamarin.Android.Support.v7.AppCompat.27.0.2\build\MonoAndroid81\Xamarin.Android.Support.v7.AppCompat.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Android.Support.v7.AppCompat.27.0.2\build\MonoAndroid81\Xamarin.Android.Support.v7.AppCompat.targets'))" />
     <Error Condition="!Exists('..\packages\Xamarin.Android.Support.Design.27.0.2\build\MonoAndroid81\Xamarin.Android.Support.Design.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Android.Support.Design.27.0.2\build\MonoAndroid81\Xamarin.Android.Support.Design.targets'))" />
     <Error Condition="!Exists('..\packages\Xamarin.Android.Support.v7.Preference.27.0.2\build\MonoAndroid81\Xamarin.Android.Support.v7.Preference.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Android.Support.v7.Preference.27.0.2\build\MonoAndroid81\Xamarin.Android.Support.v7.Preference.targets'))" />
+    <Error Condition="!Exists('..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.props'))" />
+    <Error Condition="!Exists('..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.targets'))" />
     <Error Condition="!Exists('..\packages\Xamarin.GooglePlayServices.Basement.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Basement.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.GooglePlayServices.Basement.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Basement.targets'))" />
     <Error Condition="!Exists('..\packages\Xamarin.GooglePlayServices.Tasks.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Tasks.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.GooglePlayServices.Tasks.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Tasks.targets'))" />
     <Error Condition="!Exists('..\packages\Xamarin.GooglePlayServices.Base.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Base.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.GooglePlayServices.Base.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Base.targets'))" />
+    <Error Condition="!Exists('..\packages\Xamarin.GooglePlayServices.Auth.Api.Phone.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Auth.Api.Phone.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.GooglePlayServices.Auth.Api.Phone.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Auth.Api.Phone.targets'))" />
     <Error Condition="!Exists('..\packages\Xamarin.GooglePlayServices.Auth.Base.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Auth.Base.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.GooglePlayServices.Auth.Base.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Auth.Base.targets'))" />
     <Error Condition="!Exists('..\packages\Xamarin.GooglePlayServices.Auth.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Auth.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.GooglePlayServices.Auth.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Auth.targets'))" />
-    <Error Condition="!Exists('..\packages\Xamarin.Build.Download.0.4.10\build\Xamarin.Build.Download.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Build.Download.0.4.10\build\Xamarin.Build.Download.props'))" />
-    <Error Condition="!Exists('..\packages\Xamarin.Build.Download.0.4.10\build\Xamarin.Build.Download.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Build.Download.0.4.10\build\Xamarin.Build.Download.targets'))" />
   </Target>
-  <Import Project="..\packages\Xamarin.Android.Support.Animated.Vector.Drawable.25.4.0.2\build\MonoAndroid70\Xamarin.Android.Support.Animated.Vector.Drawable.targets" Condition="Exists('..\packages\Xamarin.Android.Support.Animated.Vector.Drawable.25.4.0.2\build\MonoAndroid70\Xamarin.Android.Support.Animated.Vector.Drawable.targets')" />
-  <Import Project="..\packages\Xamarin.Android.Support.v7.Preference.25.4.0.2\build\MonoAndroid70\Xamarin.Android.Support.v7.Preference.targets" Condition="Exists('..\packages\Xamarin.Android.Support.v7.Preference.25.4.0.2\build\MonoAndroid70\Xamarin.Android.Support.v7.Preference.targets')" />
-  <Import Project="..\packages\Xamarin.Android.Support.Design.25.4.0.2\build\MonoAndroid70\Xamarin.Android.Support.Design.targets" Condition="Exists('..\packages\Xamarin.Android.Support.Design.25.4.0.2\build\MonoAndroid70\Xamarin.Android.Support.Design.targets')" />
-  <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
-  </PropertyGroup>
-  <Import Project="..\packages\Xamarin.GooglePlayServices.Auth.Api.Phone.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Auth.Api.Phone.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.Auth.Api.Phone.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Auth.Api.Phone.targets')" />
   <Import Project="..\packages\Xamarin.Android.Support.Annotations.27.0.2\build\MonoAndroid81\Xamarin.Android.Support.Annotations.targets" Condition="Exists('..\packages\Xamarin.Android.Support.Annotations.27.0.2\build\MonoAndroid81\Xamarin.Android.Support.Annotations.targets')" />
   <Import Project="..\packages\Xamarin.Android.Arch.Core.Common.1.0.0\build\MonoAndroid80\Xamarin.Android.Arch.Core.Common.targets" Condition="Exists('..\packages\Xamarin.Android.Arch.Core.Common.1.0.0\build\MonoAndroid80\Xamarin.Android.Arch.Core.Common.targets')" />
   <Import Project="..\packages\Xamarin.Android.Arch.Lifecycle.Common.1.0.3\build\MonoAndroid80\Xamarin.Android.Arch.Lifecycle.Common.targets" Condition="Exists('..\packages\Xamarin.Android.Arch.Lifecycle.Common.1.0.3\build\MonoAndroid80\Xamarin.Android.Arch.Lifecycle.Common.targets')" />
@@ -648,12 +650,13 @@
   <Import Project="..\packages\Xamarin.Android.Support.v7.AppCompat.27.0.2\build\MonoAndroid81\Xamarin.Android.Support.v7.AppCompat.targets" Condition="Exists('..\packages\Xamarin.Android.Support.v7.AppCompat.27.0.2\build\MonoAndroid81\Xamarin.Android.Support.v7.AppCompat.targets')" />
   <Import Project="..\packages\Xamarin.Android.Support.Design.27.0.2\build\MonoAndroid81\Xamarin.Android.Support.Design.targets" Condition="Exists('..\packages\Xamarin.Android.Support.Design.27.0.2\build\MonoAndroid81\Xamarin.Android.Support.Design.targets')" />
   <Import Project="..\packages\Xamarin.Android.Support.v7.Preference.27.0.2\build\MonoAndroid81\Xamarin.Android.Support.v7.Preference.targets" Condition="Exists('..\packages\Xamarin.Android.Support.v7.Preference.27.0.2\build\MonoAndroid81\Xamarin.Android.Support.v7.Preference.targets')" />
+  <Import Project="..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.targets')" />
   <Import Project="..\packages\Xamarin.GooglePlayServices.Basement.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Basement.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.Basement.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Basement.targets')" />
   <Import Project="..\packages\Xamarin.GooglePlayServices.Tasks.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Tasks.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.Tasks.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Tasks.targets')" />
   <Import Project="..\packages\Xamarin.GooglePlayServices.Base.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Base.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.Base.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Base.targets')" />
+  <Import Project="..\packages\Xamarin.GooglePlayServices.Auth.Api.Phone.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Auth.Api.Phone.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.Auth.Api.Phone.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Auth.Api.Phone.targets')" />
   <Import Project="..\packages\Xamarin.GooglePlayServices.Auth.Base.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Auth.Base.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.Auth.Base.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Auth.Base.targets')" />
   <Import Project="..\packages\Xamarin.GooglePlayServices.Auth.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Auth.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.Auth.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Auth.targets')" />
-  <Import Project="..\packages\Xamarin.Build.Download.0.4.10\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.10\build\Xamarin.Build.Download.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
 		Other similar extension points exist, see Microsoft.Common.targets.
 		<Target Name="BeforeBuild">
