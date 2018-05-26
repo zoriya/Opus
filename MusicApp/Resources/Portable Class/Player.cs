@@ -35,7 +35,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public override void OnDestroy()
         {
-            if(MainActivity.instance.youtubeInstanceSave == null)
+            if(MainActivity.youtubeInstanceSave == null)
             {
                 MainActivity.instance.FindViewById<SwipeRefreshLayout>(Resource.Id.contentRefresh).SetEnabled(true);
             }
@@ -389,10 +389,10 @@ namespace MusicApp.Resources.Portable_Class
         private async void Fab_Click(object sender, EventArgs e)
         {
             MainActivity.instance.SupportFragmentManager.PopBackStack();
-            if (MainActivity.instance.youtubeInstanceSave != null)
+            if (MainActivity.youtubeInstanceSave != null)
             {
                 int selectedTab = 0;
-                switch (MainActivity.instance.youtubeInstanceSave)
+                switch (MainActivity.youtubeInstanceSave)
                 {
                     case "YoutubeEngine-All":
                         selectedTab = 0;
@@ -467,6 +467,12 @@ namespace MusicApp.Resources.Portable_Class
             Intent intent = new Intent(Activity, typeof(Sleeper));
             intent.PutExtra("time", time);
             Activity.StartService(intent);
+        }
+
+        public override void OnResume()
+        {
+            base.OnResume();
+            instance = this;
         }
     }
 }

@@ -19,8 +19,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using TagLib;
-using YoutubeExplode;
-using YoutubeExplode.Models.MediaStreams;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -82,9 +80,9 @@ namespace MusicApp.Resources.Portable_Class
             while (ListView == null || ListView.GetLayoutManager() == null)
                 await Task.Delay(10);
 
-            ListView.GetLayoutManager().OnRestoreInstanceState(MainActivity.instance.youtubeParcel);
-            MainActivity.instance.youtubeInstanceSave = null;
-            MainActivity.instance.youtubeParcel = null;
+            ListView.GetLayoutManager().OnRestoreInstanceState(MainActivity.youtubeParcel);
+            MainActivity.youtubeInstanceSave = null;
+            MainActivity.youtubeParcel = null;
         }
 
         public static Fragment[] NewInstances(string searchQuery)
@@ -258,8 +256,8 @@ namespace MusicApp.Resources.Portable_Class
                     MainActivity.instance.SupportActionBar.Title = item.GetName();
                     MainActivity.instance.HideTabs();
                     instances = null;
-                    MainActivity.instance.youtubeParcel = ListView.GetLayoutManager().OnSaveInstanceState();
-                    MainActivity.instance.youtubeInstanceSave = "YoutubeEngine" + "-" + querryType;
+                    MainActivity.youtubeParcel = ListView.GetLayoutManager().OnSaveInstanceState();
+                    MainActivity.youtubeInstanceSave = "YoutubeEngine" + "-" + querryType;
                     MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(item.youtubeID, item.GetName(), false), true);
                     break;
                 case YtKind.Channel:
@@ -309,29 +307,21 @@ namespace MusicApp.Resources.Portable_Class
             builder.Show();
         }
 
-        public static async void Play(string videoID, string title, string artist, string thumbnailURL, YoutubeEngine instance = null)
+        public static void Play(string videoID, string title, string artist, string thumbnailURL, YoutubeEngine instance = null)
         {
-            ProgressBar parseProgress = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress);
-            parseProgress.Visibility = ViewStates.Visible;
-            parseProgress.ScaleY = 6;
-
-            YoutubeClient client = new YoutubeClient();
-            var mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(videoID);
-            AudioStreamInfo streamInfo = mediaStreamInfo.Audio.OrderBy(s => s.Bitrate).Last();
-
             Intent intent = new Intent(Android.App.Application.Context, typeof(MusicPlayer));
-            intent.PutExtra("file", streamInfo.Url);
+            intent.SetAction("YoutubePlay");
+            intent.PutExtra("action", "Play");
+            intent.PutExtra("file", videoID);
             intent.PutExtra("title", title);
             intent.PutExtra("artist", artist);
-            intent.PutExtra("youtubeID", videoID);
             intent.PutExtra("thumbnailURI", thumbnailURL);
             Android.App.Application.Context.StartService(intent);
-            parseProgress.Visibility = ViewStates.Gone;
 
             if (instance != null)
             {
-                MainActivity.instance.youtubeParcel = instance.ListView.GetLayoutManager().OnSaveInstanceState();
-                MainActivity.instance.youtubeInstanceSave = "YoutubeEngine" + "-" + instance.querryType;
+                MainActivity.youtubeParcel = instance.ListView.GetLayoutManager().OnSaveInstanceState();
+                MainActivity.youtubeInstanceSave = "YoutubeEngine" + "-" + instance.querryType;
 
                 ViewGroup rootView = instance.Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
                 foreach (YoutubeEngine inst in instances)
@@ -344,10 +334,6 @@ namespace MusicApp.Resources.Portable_Class
             }
             else
                 MainActivity.instance.SaveInstance();
-
-            MainActivity.instance.HideTabs();
-            MainActivity.instance.HideSearch();
-            MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).AddToBackStack(null).Commit();
         }
 
         public static async void PlayFiles(Song[] files)
@@ -373,48 +359,28 @@ namespace MusicApp.Resources.Portable_Class
         }
 
 
-        public static async void PlayNext(string videoID, string title, string artist, string thumbnailURL)
+        public static void PlayNext(string videoID, string title, string artist, string thumbnailURL)
         {
-            ProgressBar parseProgress = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress);
-            parseProgress.Visibility = ViewStates.Visible;
-            parseProgress.ScaleY = 6;
-
-            YoutubeClient client = new YoutubeClient();
-            var mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(videoID);
-            AudioStreamInfo streamInfo = mediaStreamInfo.Audio.OrderBy(s => s.Bitrate).Last();
-
             Intent intent = new Intent(Android.App.Application.Context, typeof(MusicPlayer));
-            intent.SetAction("PlayNext");
-            intent.PutExtra("file", streamInfo.Url);
+            intent.SetAction("YoutubePlay");
+            intent.PutExtra("action", "PlayNext");
+            intent.PutExtra("file", videoID);
             intent.PutExtra("title", title);
             intent.PutExtra("artist", artist);
-            intent.PutExtra("youtubeID", videoID);
             intent.PutExtra("thumbnailURI", thumbnailURL);
             Android.App.Application.Context.StartService(intent);
-
-            parseProgress.Visibility = ViewStates.Gone;
         }
 
-        public static async void PlayLast(string videoID, string title, string artist, string thumbnailURL)
+        public static void PlayLast(string videoID, string title, string artist, string thumbnailURL)
         {
-            ProgressBar parseProgress = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress);
-            parseProgress.Visibility = ViewStates.Visible;
-            parseProgress.ScaleY = 6;
-
-            YoutubeClient client = new YoutubeClient();
-            var mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(videoID);
-            AudioStreamInfo streamInfo = mediaStreamInfo.Audio.OrderBy(s => s.Bitrate).Last();
-
             Intent intent = new Intent(Android.App.Application.Context, typeof(MusicPlayer));
-            intent.SetAction("PlayLast");
-            intent.PutExtra("file", streamInfo.Url);
+            intent.SetAction("YoutubePlay");
+            intent.PutExtra("action", "PlayLast");
+            intent.PutExtra("file", videoID);
             intent.PutExtra("title", title);
             intent.PutExtra("artist", artist);
-            intent.PutExtra("youtubeID", videoID);
             intent.PutExtra("thumbnailURI", thumbnailURL);
             Android.App.Application.Context.StartService(intent);
-
-            parseProgress.Visibility = ViewStates.Gone;
         }
 
         public async static void Download(string name, string videoID)
@@ -448,52 +414,6 @@ namespace MusicApp.Resources.Portable_Class
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Android.App.Application.Context);
             if (prefManager.GetString("downloadPath", null) != null)
             {
-                //if (!skipExistVerification)
-                //{
-                //    List<string> downloadedName = new List<string>();
-                //    List<string> downloadedID = new List<string>();
-                //    for (int i = 0; i < names.Length; i++)
-                //    {
-                //        if (FileIsAlreadyDownloaded(videoIDs[i]))
-                //        {
-                //            downloadedName.Add(names[i]);
-                //            downloadedID.Add(videoIDs[i]);
-                //        }
-                //    }
-
-                //    if (downloadedName.Count > 0)
-                //    {
-                //        List<string> namesList = names.ToList();
-                //        List<string> idList = videoIDs.ToList();
-
-                //        for(int i = 0; i < downloadedName.Count; i++)
-                //        {
-                //            namesList.Remove(downloadedName[i]);
-                //            idList.Remove(downloadedID[i]);
-                //        }
-
-                //        names = namesList.ToArray();
-                //        videoIDs = idList.ToArray();
-
-                //        if (downloadedName.Count == 1)
-                //        {
-                //            Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), downloadedName[0] + " is already on your device.", Snackbar.LengthShort).SetAction("Download this file anyway", (v) =>
-                //            {
-                //                Downloader.instance.Download(new DownloadFile(downloadedName[0], downloadedID[0], playlist));
-                //            }).Show();
-                //        }
-                //        else
-                //        {
-                //            Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), downloadedName.Count + " files are already on your device", Snackbar.LengthShort).SetAction("Download all this files anyway", (v) =>
-                //            {
-                //                for(int i = 0; i < downloadedName.Count; i++)
-                //                    Downloader.instance.Download(new DownloadFile(downloadedName[i], downloadedID[i], playlist));
-
-                //            }).Show();
-                //        }
-                //    }
-                //}
-
                 Toast.MakeText(Android.App.Application.Context, "Downloading...", ToastLength.Short).Show();
                 Context context = Android.App.Application.Context;
                 Intent intent = new Intent(context, typeof(Downloader));
@@ -534,7 +454,7 @@ namespace MusicApp.Resources.Portable_Class
                     try
                     {
                         Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
-                        var meta = TagLib.File.Create(new StreamFileAbstraction(path, stream, stream)); //Make app crash if user has midi files ?
+                        var meta = TagLib.File.Create(new StreamFileAbstraction(path, stream, stream));
                         string ytID = meta.Tag.Comment;
                         stream.Dispose();
 
@@ -621,7 +541,7 @@ namespace MusicApp.Resources.Portable_Class
                 playListId.Add(playlist.Id);
             }
 
-            Android.Support.V7.App.AlertDialog.Builder builder = new Android.Support.V7.App.AlertDialog.Builder(context, MainActivity.dialogTheme);
+            AlertDialog.Builder builder = new AlertDialog.Builder(context, MainActivity.dialogTheme);
             builder.SetTitle("Add to a playlist");
             builder.SetItems(playList.ToArray(), (senderAlert, args) =>
             {

@@ -47,8 +47,8 @@ namespace MusicApp
         public static int dialogTheme;
         public static IParcelable parcelable;
         public static string parcelableSender;
-        public IParcelable youtubeParcel;
-        public string youtubeInstanceSave;
+        public static IParcelable youtubeParcel;
+        public static string youtubeInstanceSave;
 
         public Android.Support.V7.Widget.Toolbar ToolBar;
         public bool NoToolbarMenu = false;
@@ -58,6 +58,7 @@ namespace MusicApp
         public bool usePager;
         public View quickPlayLayout;
         public bool HomeDetails = false;
+        public bool paused = false;
 
         private Handler handler = new Handler();
         private ProgressBar bar;
@@ -92,6 +93,7 @@ namespace MusicApp
 
             OnPaddingChanged?.Invoke(this, e);
         }
+
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -335,9 +337,34 @@ namespace MusicApp
         private async void ActionPlayer()
         {
             await Task.Delay(100);
+            //if (YoutubeEngine.instances != null)
+            //{
+            //    YoutubeEngine instance = null;
+            //    foreach (YoutubeEngine inst in YoutubeEngine.instances)
+            //    {
+            //        Console.WriteLine(inst);
+            //        if (inst.focused)
+            //            instance = inst;
+            //    }
+
+            //    youtubeParcel = instance.ListView.GetLayoutManager().OnSaveInstanceState();
+            //    youtubeInstanceSave = "YoutubeEngine" + "-" + instance.querryType;
+
+            //    ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
+            //    foreach (YoutubeEngine inst in YoutubeEngine.instances)
+            //    {
+            //        OnPaddingChanged -= inst.OnPaddingChanged;
+            //        rootView.RemoveView(inst.emptyView);
+            //    }
+            //    rootView.RemoveView(YoutubeEngine.loadingView);
+            //    YoutubeEngine.instances = null;
+            //}
+            //else
+            //    SaveInstance();
+
             HideTabs();
             HideSearch();
-            SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).Commit();
+            SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).AddToBackStack(null).Commit();
         }
 
         private async void ReCreateSmallPlayer()
@@ -850,7 +877,6 @@ namespace MusicApp
 
         public void PrepareSmallPlayer()
         {
-            Console.WriteLine("&Index = " + MusicPlayer.CurrentID());
             Song current = MusicPlayer.queue[MusicPlayer.CurrentID()];
 
             CoordinatorLayout smallPlayer = FindViewById<CoordinatorLayout>(Resource.Id.smallPlayer);
@@ -954,19 +980,19 @@ namespace MusicApp
                 }
 
                 youtubeParcel = instance.ListView.GetLayoutManager().OnSaveInstanceState();
-                MainActivity.instance.youtubeInstanceSave = "YoutubeEngine" + "-" + instance.querryType;
+                youtubeInstanceSave = "YoutubeEngine" + "-" + instance.querryType;
 
                 ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
                 foreach (YoutubeEngine inst in YoutubeEngine.instances)
                 {
-                    MainActivity.instance.OnPaddingChanged -= inst.OnPaddingChanged;
+                    OnPaddingChanged -= inst.OnPaddingChanged;
                     rootView.RemoveView(inst.emptyView);
                 }
                 rootView.RemoveView(YoutubeEngine.loadingView);
                 YoutubeEngine.instances = null;
             }
             else
-                MainActivity.instance.SaveInstance();
+                SaveInstance();
 
             HideTabs();
             HideSearch();
@@ -1278,23 +1304,25 @@ namespace MusicApp
             return (int) (px * scale + 0.5f);
         }
 
-        //protected override void OnResume()
-        //{
-        //    base.OnResume();
+        protected override void OnResume()
+        {
+            base.OnResume();
+            paused = false;
+            instance = this;
 
-        //    if(parcelableSender != null && !ResumeKiller)
-        //    {
-        //        var searchView = menu.FindItem(Resource.Id.search).ActionView.JavaCast<SearchView>();
-        //        menu.FindItem(Resource.Id.search).CollapseActionView();
-        //        searchView.ClearFocus();
-        //        searchView.Iconified = true;
-        //        searchView.SetQuery("", false);
-        //        ResumeInstance();
-        //    }
+            if (parcelableSender != null && !ResumeKiller)
+            {
+                var searchView = menu.FindItem(Resource.Id.search).ActionView.JavaCast<SearchView>();
+                menu.FindItem(Resource.Id.search).CollapseActionView();
+                searchView.ClearFocus();
+                searchView.Iconified = true;
+                searchView.SetQuery("", false);
+                ResumeInstance();
+            }
 
-        //    if (ResumeKiller)
-        //        ResumeKiller = false;
-        //}
+            if (ResumeKiller)
+                ResumeKiller = false;
+        }
 
         public void SaveInstance()
         {
@@ -1306,11 +1334,6 @@ namespace MusicApp
                 parcelableSender = "Home";
                 parcelable = Home.instance.ListView.GetLayoutManager().OnSaveInstanceState();
             }
-            //else if (Queue.instance != null)
-            //{
-            //    parcelableSender = "Queue";
-            //    parcelable = Queue.instance.ListView.GetLayoutManager().OnSaveInstanceState();
-            //}
             else if (Browse.instance != null && Browse.instance.focused)
             {
                 parcelableSender = "Browse";
@@ -1325,7 +1348,6 @@ namespace MusicApp
             }
             else if (Playlist.instance != null)
             {
-                Console.WriteLine("&Playlist saved");
                 parcelableSender = "Playlist";
                 parcelable = Playlist.instance.ListView.GetLayoutManager().OnSaveInstanceState();
             }
@@ -1340,6 +1362,11 @@ namespace MusicApp
                 parcelableSender = "FolderTracks";
                 parcelable = FolderTracks.instance.ListView.OnSaveInstanceState();
             }
+            else
+            {
+                parcelableSender = "Home";
+                parcelable = null;
+            }
         }
 
         public void ResumeInstance()
@@ -1347,24 +1374,17 @@ namespace MusicApp
             switch (parcelableSender)
             {
                 case "Home":
-                    //Navigate(Resource.Id.musicLayout, true);
                     FindViewById<BottomNavigationView>(Resource.Id.bottomView).SelectedItemId = Resource.Id.musicLayout;
                     break;
-                //case "Queue":
-                //    Transition(Resource.Id.contentView, Queue.instance, false, true);
-                //    break;
                 case "Browse":
-                    //Navigate(Resource.Id.browseLayout, true);
                     FindViewById<BottomNavigationView>(Resource.Id.bottomView).SelectedItemId = Resource.Id.browseLayout;
                     break;
                 case "FolderBrowse":
-                    //Navigate(Resource.Id.browseLayout, true);
                     FindViewById<BottomNavigationView>(Resource.Id.bottomView).SelectedItemId = Resource.Id.browseLayout;
                     FindViewById<ViewPager>(Resource.Id.pager).CurrentItem = 1;
                     FindViewById<TabLayout>(Resource.Id.tabs).SetScrollPosition(1, 0f, true);
                     break;
                 case "Playlist":
-                    //Navigate(Resource.Id.playlistLayout, true);
                     FindViewById<BottomNavigationView>(Resource.Id.bottomView).SelectedItemId = Resource.Id.playlistLayout;
                     break;
                 case "YoutubeEngine-All":
@@ -1413,6 +1433,12 @@ namespace MusicApp
                 intent.SetAction("Stop");
                 StartService(intent);
             }
+        }
+
+        protected override void OnPause()
+        {
+            base.OnPause();
+            paused = true;
         }
     }
 }

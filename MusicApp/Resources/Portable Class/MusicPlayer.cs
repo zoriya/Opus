@@ -11,6 +11,7 @@ using Android.Support.V4.Content;
 using Android.Support.V4.Media.Session;
 using Android.Support.V7.Preferences;
 using Android.Support.V7.Widget;
+using Android.Views;
 using Android.Widget;
 using Com.Google.Android.Exoplayer2;
 using Com.Google.Android.Exoplayer2.Extractor;
@@ -68,6 +69,14 @@ namespace MusicApp.Resources.Portable_Class
 
             switch (intent.Action)
             {
+                case "YoutubePlay":
+                    string action = intent.GetStringExtra("action");
+                    string title = intent.GetStringExtra("title");
+                    string artist = intent.GetStringExtra("artist");
+                    string thumbnailURL = intent.GetStringExtra("thumbnailURI");
+                    ParseAndPlay(action, file, title, artist, thumbnailURL);
+                    break;
+
                 case "Previus":
                     PlayLast();
                     break;
@@ -99,34 +108,17 @@ namespace MusicApp.Resources.Portable_Class
                     break;
 
                 case "PlayNext":
-                    string title = intent.GetStringExtra("title");
-                    if (title != null)
-                    {
-                        string artist = intent.GetStringExtra("artist");
-                        string youtubeID = intent.GetStringExtra("youtubeID");
-                        string thumbnailURI = intent.GetStringExtra("thumbnailURI");
-                        AddToQueue(file, title, artist, youtubeID, thumbnailURI);
-                        return StartCommandResult.Sticky;
-                    }
                     AddToQueue(file);
                     break;
 
                 case "PlayLast":
-                    title = intent.GetStringExtra("title");
-                    if (title != null)
-                    {
-                        string artist = intent.GetStringExtra("artist");
-                        string youtubeID = intent.GetStringExtra("youtubeID");
-                        string thumbnailURI = intent.GetStringExtra("thumbnailURI");
-                        PlayLastInQueue(file, title, artist, youtubeID, thumbnailURI);
-                        return StartCommandResult.Sticky;
-                    }
                     PlayLastInQueue(file);
                     break;
 
                 case "Stop":
                     Stop();
                     break;
+
                 case "SleepPause":
                     SleepPause();
                     break;
@@ -136,18 +128,7 @@ namespace MusicApp.Resources.Portable_Class
                 return StartCommandResult.Sticky;
 
             if (file != null)
-            {
-                string title = intent.GetStringExtra("title");
-                if(title != null)
-                {
-                    string artist = intent.GetStringExtra("artist");
-                    string youtubeID = intent.GetStringExtra("youtubeID");
-                    string thumbnailURI = intent.GetStringExtra("thumbnailURI");
-                    Play(file, title, artist, youtubeID, thumbnailURI);
-                    return StartCommandResult.Sticky;
-                }
                 Play(file);
-            }
 
             return StartCommandResult.Sticky;
         }
@@ -241,7 +222,7 @@ namespace MusicApp.Resources.Portable_Class
             if(song.queueSlot == -1)
                 song.queueSlot = CurrentID() + 1;
 
-            Console.WriteLine("&QueueSlot = " + song.queueSlot);
+            Console.WriteLine("&QueueSlot = " + song.queueSlot + "Title = " + song.GetName());
 
             currentID = song.queueSlot;
 
@@ -253,23 +234,23 @@ namespace MusicApp.Resources.Portable_Class
             Player.instance?.RefreshPlayer();
             ParseNextSong();
 
-            CoordinatorLayout smallPlayer = MainActivity.instance.FindViewById<CoordinatorLayout>(Resource.Id.smallPlayer);
-            smallPlayer.FindViewById<TextView>(Resource.Id.spTitle).Text = song.GetName();
-            smallPlayer.FindViewById<TextView>(Resource.Id.spArtist).Text = song.GetArtist();
-            smallPlayer.FindViewById<ImageView>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
-            ImageView art = smallPlayer.FindViewById<ImageView>(Resource.Id.spArt);
+            //CoordinatorLayout smallPlayer = MainActivity.instance.FindViewById<CoordinatorLayout>(Resource.Id.smallPlayer);
+            //smallPlayer.FindViewById<TextView>(Resource.Id.spTitle).Text = song.GetName();
+            //smallPlayer.FindViewById<TextView>(Resource.Id.spArtist).Text = song.GetArtist();
+            //smallPlayer.FindViewById<ImageView>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
+            //ImageView art = smallPlayer.FindViewById<ImageView>(Resource.Id.spArt);
 
-            if (!song.IsYt)
-            {
-                var songCover = Uri.Parse("content://media/external/audio/albumart");
-                var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, song.GetAlbumArt());
+            //if (!song.IsYt)
+            //{
+            //    var songCover = Uri.Parse("content://media/external/audio/albumart");
+            //    var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, song.GetAlbumArt());
 
-                Picasso.With(Application.Context).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(art);
-            }
-            else
-            {
-                Picasso.With(Application.Context).Load(song.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(art);
-            }
+            //    Picasso.With(Application.Context).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(art);
+            //}
+            //else
+            //{
+            //    Picasso.With(Application.Context).Load(song.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(art);
+            //}
         }
 
         public void Play(Song song, bool addToQueue = true, long progress = -1)
@@ -364,6 +345,55 @@ namespace MusicApp.Resources.Portable_Class
             else
             {
                 Picasso.With(Application.Context).Load(song.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(art);
+            }
+        }
+
+        private async void ParseAndPlay(string action, string videoID, string title, string artist, string thumbnailURL)
+        {
+            if (!parsing)
+            {
+                parsing = true;
+
+                if (MainActivity.instance != null && action == "Play")
+                {
+                    ProgressBar parseProgress = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress);
+                    parseProgress.Visibility = ViewStates.Visible;
+                    parseProgress.ScaleY = 6;
+                }
+
+                YoutubeClient client = new YoutubeClient();
+                var mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(videoID);
+                AudioStreamInfo streamInfo = mediaStreamInfo.Audio.OrderBy(s => s.Bitrate).Last();
+
+                switch (action)
+                {
+                    case "Play":
+                        Play(streamInfo.Url, title, artist, videoID, thumbnailURL);
+                        break;
+
+                    case "PlayNext":
+                        AddToQueue(streamInfo.Url, title, artist, videoID, thumbnailURL);
+                        parsing = false;
+                        return;
+
+                    case "PlayLast":
+                        PlayLastInQueue(streamInfo.Url, title, artist, videoID, thumbnailURL);
+                        parsing = false;
+                        return;
+                }
+
+                if (MainActivity.instance != null)
+                {
+                    MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
+
+                    if (!MainActivity.instance.paused)
+                    {
+                        MainActivity.instance.HideTabs();
+                        MainActivity.instance.HideSearch();
+                        MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).AddToBackStack(null).Commit();
+                    }
+                }
+                parsing = false;
             }
         }
 
@@ -840,7 +870,6 @@ namespace MusicApp.Resources.Portable_Class
             queue[fromPosition].queueSlot = fromPosition;
             for(int i = 0; i < queue.Count; i++)
             {
-                Console.WriteLine("&CurrentID = " + CurrentID() + " item id = " + queue[i].queueSlot + " i = " + i + "Item name = " + queue[i].GetName());
                 if (CurrentID() == queue[i].queueSlot)
                     currentID = i;
 

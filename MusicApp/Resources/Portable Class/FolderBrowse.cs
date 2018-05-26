@@ -457,6 +457,7 @@ namespace MusicApp.Resources.Portable_Class
         public override void OnResume()
         {
             base.OnResume();
+            instance = this;
             if (MainActivity.parcelable != null && MainActivity.parcelableSender == "FolderBrowse")
             {
                 ListView.OnRestoreInstanceState(MainActivity.parcelable);

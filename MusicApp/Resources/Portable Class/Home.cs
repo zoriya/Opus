@@ -354,6 +354,7 @@ namespace MusicApp.Resources.Portable_Class
         public override void OnResume()
         {
             base.OnResume();
+            instance = this;
             if (MainActivity.parcelableSender == "Home" && !MainActivity.instance.ResumeKiller)
             {
                 ListView.GetLayoutManager().OnRestoreInstanceState(MainActivity.parcelable);

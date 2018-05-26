@@ -71,6 +71,7 @@ namespace MusicApp.Resources.Portable_Class
 
         protected override void OnDestroy()
         {
+            Player.instance?.UpdateNext();
             base.OnDestroy();
             instance = null;
         }
@@ -208,6 +209,7 @@ namespace MusicApp.Resources.Portable_Class
         protected override void OnResume()
         {
             base.OnResume();
+            instance = this;
             if (MainActivity.parcelableSender == "Queue" && !MainActivity.instance.ResumeKiller)
             {
                 ListView.GetLayoutManager().OnRestoreInstanceState(MainActivity.parcelable);

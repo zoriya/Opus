@@ -24,7 +24,7 @@ namespace MusicApp.Resources.Portable_Class
         public string path;
 
         private List<Song> tracks = new List<Song>();
-        private string[] actions = new string[] { "Play", "Play Next", "Play Last", "Add To Playlist" };
+        private readonly string[] actions = new string[] { "Play", "Play Next", "Play Last", "Add To Playlist" };
 
 
         public override void OnActivityCreated(Bundle savedInstanceState)
@@ -284,6 +284,12 @@ namespace MusicApp.Resources.Portable_Class
                 }
             });
             builder.Show();
+        }
+
+        public override void OnResume()
+        {
+            base.OnResume();
+            instance = this;
         }
     }
 }

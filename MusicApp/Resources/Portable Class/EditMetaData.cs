@@ -367,5 +367,11 @@ namespace MusicApp.Resources.Portable_Class
             albumArt = null;
             tempFile = false;
         }
+
+        protected override void OnResume()
+        {
+            base.OnResume();
+            instance = this;
+        }
     }
 }
