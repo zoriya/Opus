@@ -1309,19 +1309,6 @@ namespace MusicApp
             base.OnResume();
             paused = false;
             instance = this;
-
-            if (parcelableSender != null && !ResumeKiller)
-            {
-                var searchView = menu.FindItem(Resource.Id.search).ActionView.JavaCast<SearchView>();
-                menu.FindItem(Resource.Id.search).CollapseActionView();
-                searchView.ClearFocus();
-                searchView.Iconified = true;
-                searchView.SetQuery("", false);
-                ResumeInstance();
-            }
-
-            if (ResumeKiller)
-                ResumeKiller = false;
         }
 
         public void SaveInstance()

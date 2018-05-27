@@ -423,9 +423,6 @@ namespace MusicApp.Resources.Portable_Class
 
         private void ShowQueue_Click(object sender, EventArgs e)
         {
-            //MainActivity.instance.SupportFragmentManager.PopBackStack();
-            //MainActivity.instance.Transition(Resource.Id.contentView, Queue.NewInstance(), false);
-
             Intent intent = new Intent(Activity, typeof(Queue));
             StartActivity(intent);
         }
