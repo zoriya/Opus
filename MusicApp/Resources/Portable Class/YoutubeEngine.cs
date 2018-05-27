@@ -349,7 +349,7 @@ namespace MusicApp.Resources.Portable_Class
             if (files.Length < 2)
                 return;
 
-            while (MusicPlayer.instance == null)
+            while (MusicPlayer.instance == null || MusicPlayer.CurrentID() == -1)
                 await Task.Delay(10);
 
             foreach (Song song in files)
