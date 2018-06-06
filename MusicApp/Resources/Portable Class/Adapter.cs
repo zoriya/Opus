@@ -18,11 +18,19 @@ namespace MusicApp.Resources.Portable_Class
         private LayoutInflater inflater;
         private int resource;
 
+        public override int Count => songList.Count;
+
         public Adapter(Context context, int resource, List<Song> songList) : base(context, resource, songList)
         {
             this.context = context;
             this.resource = resource;
             this.songList = songList;
+        }
+
+        public void AddData(Song[] items)
+        {
+            songList.AddRange(items);
+            NotifyDataSetChanged();
         }
 
         public void Remove(Song item)

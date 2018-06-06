@@ -318,6 +318,14 @@ namespace MusicApp
         {
             pagerRefresh.SetEnabled(e.FirstVisibleItem == 0);
             contentRefresh.SetEnabled(e.FirstVisibleItem == 0);
+
+            if(PlaylistTracks.instance != null)
+            {
+                if (e.FirstVisibleItem + e.VisibleItemCount == e.TotalItemCount)
+                    PlaylistTracks.instance.lastVisible = true;
+                else
+                    PlaylistTracks.instance.lastVisible = false;
+            }
         }
 
         public void Scroll(object sender, View.ScrollChangeEventArgs e)
@@ -1286,15 +1294,18 @@ namespace MusicApp
                 result.Add(videoInfo);
             }
 
+            Song current = MusicPlayer.queue[MusicPlayer.CurrentID()];
+            current.queueSlot = 0;
+            MusicPlayer.queue.Clear();
+            MusicPlayer.queue.Add(current);
+            MusicPlayer.currentID = 0;
+
             Random r = new Random();
             result = result.OrderBy(x => r.Next()).ToList();
-            Player.instance?.UpdateNext();
             foreach (Song song in result)
-            {
                 MusicPlayer.instance.AddToQueue(song);
-                await Task.Delay(5);
-            }
 
+            Player.instance?.UpdateNext();
             parseProgress.Visibility = ViewStates.Gone;
         }
 

@@ -24,7 +24,9 @@ namespace MusicApp.Resources.Portable_Class
         public long playlistId = 0;
         public string ytID = "";
         private bool hasWriteAcess;
+        private string nextPageToken = null;
         public bool isEmpty = false;
+        public bool lastVisible = false;
 
         private List<Song> tracks = new List<Song>();
         private List<string> ytTracksIDs = new List<string>();
@@ -38,11 +40,21 @@ namespace MusicApp.Resources.Portable_Class
             emptyView = LayoutInflater.Inflate(Resource.Layout.NoPlaylist, null);
             ListView.EmptyView = emptyView;
             ListView.Scroll += MainActivity.instance.Scroll;
+            ListView.ScrollStateChanged += ListView_ScrollStateChanged;
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
             MainActivity.instance.OnPaddingChanged += OnPaddingChanged;
             MainActivity.instance.DisplaySearch(1);
 #pragma warning disable CS4014
             PopulateList();
+        }
+
+        private void ListView_ScrollStateChanged(object sender, AbsListView.ScrollStateChangedEventArgs e)
+        {
+            if (lastVisible && e.ScrollState == ScrollState.Idle)
+            {
+                lastVisible = false;
+                LoadMore();
+            }
         }
 
         public void OnPaddingChanged(object sender, PaddingChange e)
@@ -147,26 +159,20 @@ namespace MusicApp.Resources.Portable_Class
             else if (ytID != null)
             {
                 tracks = new List<Song>();
-                string nextPageToken = "";
-                while (nextPageToken != null)
+                var ytPlaylistRequest = YoutubeEngine.youtubeService.PlaylistItems.List("snippet, contentDetails");
+                ytPlaylistRequest.PlaylistId = ytID;
+                ytPlaylistRequest.MaxResults = 50;
+
+                var ytPlaylist = await ytPlaylistRequest.ExecuteAsync();
+
+                foreach (var item in ytPlaylist.Items)
                 {
-                    var ytPlaylistRequest = YoutubeEngine.youtubeService.PlaylistItems.List("snippet, contentDetails");
-                    ytPlaylistRequest.PlaylistId = ytID;
-                    ytPlaylistRequest.MaxResults = 50;
-                    ytPlaylistRequest.PageToken = nextPageToken;
-
-                    var ytPlaylist = await ytPlaylistRequest.ExecuteAsync();
-
-                    foreach (var item in ytPlaylist.Items)
-                    {
-                        Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
-                        tracks.Add(song);
-                        ytTracksIDs.Add(item.Id);
-                    }
-
-                    nextPageToken = ytPlaylist.NextPageToken;
+                    Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
+                    tracks.Add(song);
+                    ytTracksIDs.Add(item.Id);
                 }
 
+                nextPageToken = ytPlaylist.NextPageToken;
                 adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, tracks)
                 {
                     listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot
@@ -189,6 +195,32 @@ namespace MusicApp.Resources.Portable_Class
         {
             await PopulateList();
             MainActivity.instance.contentRefresh.Refreshing = false;
+        }
+
+        public async void LoadMore()
+        {
+            if (nextPageToken == null)
+                return;
+
+            var ytPlaylistRequest = YoutubeEngine.youtubeService.PlaylistItems.List("snippet, contentDetails");
+            ytPlaylistRequest.PlaylistId = ytID;
+            ytPlaylistRequest.MaxResults = 50;
+            ytPlaylistRequest.PageToken = nextPageToken;
+
+            var ytPlaylist = await ytPlaylistRequest.ExecuteAsync();
+
+            if (instance == null)
+                return;
+
+            foreach (var item in ytPlaylist.Items)
+            {
+                Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
+                tracks.Add(song);
+                ytTracksIDs.Add(item.Id);
+            }
+
+            nextPageToken = ytPlaylist.NextPageToken;
+            adapter.NotifyDataSetChanged();
         }
 
         public void Search(string search)
@@ -214,9 +246,9 @@ namespace MusicApp.Resources.Portable_Class
 
         private async void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
         {
-            List<Song> songs = tracks.GetRange(e.Position + 1, tracks.Count - e.Position - 1);
+            List<Song> songs = tracks.GetRange(e.Position, tracks.Count - e.Position);
             if (result != null && result.Count - 1 >= e.Position)
-                songs = result.GetRange(e.Position + 1, result.Count - e.Position - 1);
+                songs = result.GetRange(e.Position, result.Count - e.Position);
 
             if (MusicPlayer.isRunning)
                 MusicPlayer.queue.Clear();

@@ -802,7 +802,7 @@ namespace MusicApp.Resources.Portable_Class
                 CoordinatorLayout smallPlayer = MainActivity.instance.FindViewById<CoordinatorLayout>(Resource.Id.smallPlayer);
                 smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
 
-                Player.instance?.playerView.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
+                Player.instance?.playerView?.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
                 Queue.instance?.RefreshCurrent();
             }
         }
@@ -831,6 +831,42 @@ namespace MusicApp.Resources.Portable_Class
                 }
 
                 Queue.instance?.RefreshCurrent();
+
+                AudioAttributes attributes = new AudioAttributes.Builder()
+                .SetUsage(AudioUsageKind.Media)
+                .SetContentType(AudioContentType.Music)
+                .Build();
+
+                if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
+                {
+                    AudioFocusRequestClass focusRequest = new AudioFocusRequestClass.Builder(AudioFocus.Gain)
+                        .SetAudioAttributes(attributes)
+                        .SetAcceptsDelayedFocusGain(true)
+                        .SetOnAudioFocusChangeListener(this)
+                        .Build();
+                    AudioFocusRequest audioFocus = audioManager.RequestAudioFocus(focusRequest);
+
+                    if (audioFocus != AudioFocusRequest.Granted)
+                    {
+                        Console.WriteLine("Can't Get Audio Focus");
+                        return;
+                    }
+                }
+                else
+                {
+#pragma warning disable CS0618 // Type or member is obsolete
+
+                    AudioManager am = (AudioManager)MainActivity.instance.GetSystemService(AudioService);
+
+                    AudioFocusRequest audioFocus = am.RequestAudioFocus(this, Stream.Music, AudioFocus.Gain);
+
+                    if (audioFocus != AudioFocusRequest.Granted)
+                    {
+                        Console.WriteLine("Can't Get Audio Focus");
+                        return;
+                    }
+#pragma warning restore CS0618
+                }
             }
             else
             {
@@ -901,8 +937,7 @@ namespace MusicApp.Resources.Portable_Class
                     break;
 
                 case AudioFocus.LossTransientCanDuck:
-                    if (isRunning)
-                        player.Volume = prefManager.GetInt("volumeMultiplier", 100) / 100 * 0.2f;
+                    Pause();
                     break;
 
                 default:
