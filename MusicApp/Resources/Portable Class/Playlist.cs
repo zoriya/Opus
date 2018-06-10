@@ -411,12 +411,12 @@ namespace MusicApp.Resources.Portable_Class
                 Browse.Play(songs[0]);
                 songs.RemoveAt(0);
                 songs.Reverse();
-                
+
 
                 while (MusicPlayer.instance == null)
                     await Task.Delay(10);
 
-                foreach(Song song in songs)
+                foreach (Song song in songs)
                 {
                     MusicPlayer.instance.AddToQueue(song);
                 }

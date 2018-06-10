@@ -210,6 +210,9 @@ namespace MusicApp.Resources.Portable_Class
             while (MusicPlayer.CurrentID() == -1)
                 await Task.Delay(100);
 
+            if (playerView == null)
+                return;
+
             TextView title = playerView.FindViewById<TextView>(Resource.Id.playerTitle);
             TextView artist = playerView.FindViewById<TextView>(Resource.Id.playerArtist);
             imgView = playerView.FindViewById<ImageView>(Resource.Id.playerAlbum);

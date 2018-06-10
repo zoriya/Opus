@@ -180,10 +180,10 @@ namespace MusicApp.Resources.Portable_Class
             if(Build.VERSION.SdkInt >= BuildVersionCodes.O)
             {
                 AudioFocusRequestClass focusRequest = new AudioFocusRequestClass.Builder(AudioFocus.Gain)
-                .SetAudioAttributes(attributes)
-                .SetAcceptsDelayedFocusGain(true)
-                .SetOnAudioFocusChangeListener(this)
-                .Build();
+                    .SetAudioAttributes(attributes)
+                    .SetAcceptsDelayedFocusGain(true)
+                    .SetOnAudioFocusChangeListener(this)
+                    .Build();
                 AudioFocusRequest audioFocus = audioManager.RequestAudioFocus(focusRequest);
 
                 if (audioFocus != AudioFocusRequest.Granted)
@@ -228,29 +228,11 @@ namespace MusicApp.Resources.Portable_Class
 
             CreateNotification(song.GetName(), song.GetArtist(), song.GetAlbumArt(), song.GetAlbum());
 
-            if(addToQueue)
+            if (addToQueue)
                 AddToQueue(song);
 
             Player.instance?.RefreshPlayer();
             ParseNextSong();
-
-            //CoordinatorLayout smallPlayer = MainActivity.instance.FindViewById<CoordinatorLayout>(Resource.Id.smallPlayer);
-            //smallPlayer.FindViewById<TextView>(Resource.Id.spTitle).Text = song.GetName();
-            //smallPlayer.FindViewById<TextView>(Resource.Id.spArtist).Text = song.GetArtist();
-            //smallPlayer.FindViewById<ImageView>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
-            //ImageView art = smallPlayer.FindViewById<ImageView>(Resource.Id.spArt);
-
-            //if (!song.IsYt)
-            //{
-            //    var songCover = Uri.Parse("content://media/external/audio/albumart");
-            //    var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, song.GetAlbumArt());
-
-            //    Picasso.With(Application.Context).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(art);
-            //}
-            //else
-            //{
-            //    Picasso.With(Application.Context).Load(song.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(art);
-            //}
         }
 
         public void Play(Song song, bool addToQueue = true, long progress = -1)
@@ -897,7 +879,6 @@ namespace MusicApp.Resources.Portable_Class
 
         private void SleepPause()
         {
-            //Pause();
             Stop();
         }
 
