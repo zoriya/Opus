@@ -92,8 +92,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
                     android:layout_below="@id/snackBar"
-                    app:itemIconTint="?colorAccent"
-                    app:itemTextColor="?colorAccent"
+                    app:itemIconTint="@color/color_tint"
+                    app:itemTextColor="@color/color_tint"
                     app:menu="@menu/bottom_items" />
             </RelativeLayout>
         </RelativeLayout>

@@ -525,10 +525,10 @@ namespace MusicApp.Resources.Portable_Class
             ContentResolver resolver = Activity.ContentResolver;
             Android.Net.Uri uri = Playlists.ExternalContentUri;
             resolver.Delete(Playlists.ExternalContentUri, Playlists.InterfaceConsts.Id + "=?", new string[] { playlistID.ToString() });
+            adapter.Remove(position);
             playList.RemoveAt(position);
             playListCount.RemoveAt(position);
             playlistId.RemoveAt(position);
-            adapter.Remove(position);
 
             if (playList.Count == 1)
             {

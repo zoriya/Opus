@@ -220,7 +220,20 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             if(song.queueSlot == -1)
+            {
                 song.queueSlot = CurrentID() + 1;
+
+                if (queue.Exists(x => x.queueSlot == CurrentID() + 1) && queue.Find(x => x.queueSlot == CurrentID() + 1) != song)
+                {
+                    foreach (Song item in queue)
+                    {
+                        if (song.queueSlot > CurrentID())
+                        {
+                            song.queueSlot++;
+                        }
+                    }
+                }
+            }
 
             Console.WriteLine("&QueueSlot = " + song.queueSlot + "Title = " + song.GetName());
 
@@ -295,7 +308,21 @@ namespace MusicApp.Resources.Portable_Class
             CreateNotification(song.GetName(), song.GetArtist(), song.GetAlbumArt(), song.GetAlbum());
 
             if (song.queueSlot == -1)
+            {
                 song.queueSlot = CurrentID() + 1;
+
+                if (queue.Exists(x => x.queueSlot == CurrentID() + 1) && queue.Find(x => x.queueSlot == CurrentID() + 1) != song)
+                {
+                    foreach (Song item in queue)
+                    {
+                        if (song.queueSlot > CurrentID())
+                        {
+                            song.queueSlot++;
+                        }
+                    }
+                }
+            }
+
 
             currentID = song.queueSlot;
 

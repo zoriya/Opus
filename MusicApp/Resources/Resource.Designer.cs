@@ -1700,7 +1700,10 @@ namespace MusicApp
 			public const int cardview_shadow_start_color = 2131230731;
 			
 			// aapt resource value: 0x7f08006e
-			public const int common_google_signin_btn_text_dark = 2131230830;
+			public const int color_tint = 2131230830;
+			
+			// aapt resource value: 0x7f08006f
+			public const int common_google_signin_btn_text_dark = 2131230831;
 			
 			// aapt resource value: 0x7f080000
 			public const int common_google_signin_btn_text_dark_default = 2131230720;
@@ -1714,8 +1717,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f080003
 			public const int common_google_signin_btn_text_dark_pressed = 2131230723;
 			
-			// aapt resource value: 0x7f08006f
-			public const int common_google_signin_btn_text_light = 2131230831;
+			// aapt resource value: 0x7f080070
+			public const int common_google_signin_btn_text_light = 2131230832;
 			
 			// aapt resource value: 0x7f080004
 			public const int common_google_signin_btn_text_light_default = 2131230724;
@@ -1729,14 +1732,14 @@ namespace MusicApp
 			// aapt resource value: 0x7f080007
 			public const int common_google_signin_btn_text_light_pressed = 2131230727;
 			
-			// aapt resource value: 0x7f080070
-			public const int common_google_signin_btn_tint = 2131230832;
+			// aapt resource value: 0x7f080071
+			public const int common_google_signin_btn_tint = 2131230833;
 			
 			// aapt resource value: 0x7f080048
 			public const int design_bottom_navigation_shadow_color = 2131230792;
 			
-			// aapt resource value: 0x7f080071
-			public const int design_error = 2131230833;
+			// aapt resource value: 0x7f080072
+			public const int design_error = 2131230834;
 			
 			// aapt resource value: 0x7f080049
 			public const int design_fab_shadow_end_color = 2131230793;
@@ -1762,8 +1765,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f080050
 			public const int design_snackbar_background_color = 2131230800;
 			
-			// aapt resource value: 0x7f080072
-			public const int design_tint_password_toggle = 2131230834;
+			// aapt resource value: 0x7f080073
+			public const int design_tint_password_toggle = 2131230835;
 			
 			// aapt resource value: 0x7f08001e
 			public const int dim_foreground_disabled_material_dark = 2131230750;
@@ -1783,14 +1786,14 @@ namespace MusicApp
 			// aapt resource value: 0x7f080056
 			public const int dsb_progress_color = 2131230806;
 			
-			// aapt resource value: 0x7f080073
-			public const int dsb_progress_color_list = 2131230835;
+			// aapt resource value: 0x7f080074
+			public const int dsb_progress_color_list = 2131230836;
 			
 			// aapt resource value: 0x7f080057
 			public const int dsb_ripple_color_focused = 2131230807;
 			
-			// aapt resource value: 0x7f080074
-			public const int dsb_ripple_color_list = 2131230836;
+			// aapt resource value: 0x7f080075
+			public const int dsb_ripple_color_list = 2131230837;
 			
 			// aapt resource value: 0x7f080058
 			public const int dsb_ripple_color_pressed = 2131230808;
@@ -1798,8 +1801,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f080059
 			public const int dsb_track_color = 2131230809;
 			
-			// aapt resource value: 0x7f080075
-			public const int dsb_track_color_list = 2131230837;
+			// aapt resource value: 0x7f080076
+			public const int dsb_track_color_list = 2131230838;
 			
 			// aapt resource value: 0x7f080022
 			public const int error_color_material = 2131230754;
@@ -1915,11 +1918,11 @@ namespace MusicApp
 			// aapt resource value: 0x7f080042
 			public const int switch_thumb_disabled_material_light = 2131230786;
 			
-			// aapt resource value: 0x7f080076
-			public const int switch_thumb_material_dark = 2131230838;
-			
 			// aapt resource value: 0x7f080077
-			public const int switch_thumb_material_light = 2131230839;
+			public const int switch_thumb_material_dark = 2131230839;
+			
+			// aapt resource value: 0x7f080078
+			public const int switch_thumb_material_light = 2131230840;
 			
 			// aapt resource value: 0x7f080043
 			public const int switch_thumb_normal_material_dark = 2131230787;
