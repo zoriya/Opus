@@ -4,8 +4,8 @@
   <item
     android:id="@+id/musicLayout"
     android:enabled="true"
-    android:title="Music"
-    android:icon="@drawable/MusicIcon"
+    android:title="Home"
+    android:icon="@drawable/HomeIcon"
     app:showAsAction="ifRoom" />
   <item
     android:id="@+id/browseLayout"

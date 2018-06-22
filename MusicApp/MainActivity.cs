@@ -1278,6 +1278,8 @@ namespace MusicApp
 
             await WaitForYoutube();
 
+            Console.WriteLine("&VideoID = " + MusicPlayer.queue[MusicPlayer.CurrentID()].youtubeID);
+
             SearchResource.ListRequest searchResult = YoutubeEngine.youtubeService.Search.List("snippet");
             searchResult.Fields = "items(id/videoId,snippet/title,snippet/thumbnails/default/url,snippet/channelTitle)";
             searchResult.Type = "video";

@@ -219,7 +219,7 @@ namespace MusicApp.Resources.Portable_Class
                 song = new Song(title, artist, thumbnailURI, youtubeID, -1, -1, filePath, true);
             }
 
-            if(song.queueSlot == -1)
+            if (song.queueSlot == -1)
             {
                 song.queueSlot = CurrentID() + 1;
 
@@ -227,9 +227,9 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     foreach (Song item in queue)
                     {
-                        if (song.queueSlot > CurrentID())
+                        if (item.queueSlot > CurrentID())
                         {
-                            song.queueSlot++;
+                            item.queueSlot++;
                         }
                     }
                 }
@@ -315,9 +315,9 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     foreach (Song item in queue)
                     {
-                        if (song.queueSlot > CurrentID())
+                        if (item.queueSlot > CurrentID())
                         {
-                            song.queueSlot++;
+                            item.queueSlot++;
                         }
                     }
                 }
@@ -541,7 +541,6 @@ namespace MusicApp.Resources.Portable_Class
                 MediaStreamInfoSet mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(song.youtubeID);
                 AudioStreamInfo streamInfo = mediaStreamInfo.Audio.Where(x => x.Container == Container.M4A).OrderBy(s => s.Bitrate).Last();
                 song.SetPath(streamInfo.Url);
-                song.youtubeID = streamInfo.Url;
                 song.isParsed = true;
                 if (Queue.instance != null)
                 {
