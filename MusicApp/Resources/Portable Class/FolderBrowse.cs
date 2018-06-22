@@ -41,7 +41,7 @@ namespace MusicApp.Resources.Portable_Class
             emptyView = LayoutInflater.Inflate(Resource.Layout.NoSong, null);
             ListView.EmptyView = emptyView;
             ListView.Scroll += MainActivity.instance.Scroll;
-            MainActivity.instance.pagerRefresh.Refresh += OnRefresh;
+            MainActivity.instance.contentRefresh.Refresh += OnRefresh;
             MainActivity.instance.OnPaddingChanged += OnPaddingChanged;
 
             if (ListView.Adapter == null)
@@ -58,7 +58,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public override void OnDestroy()
         {
-            MainActivity.instance.pagerRefresh.Refresh -= OnRefresh;
+            MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
             MainActivity.instance.OnPaddingChanged -= OnPaddingChanged;
             if (isEmpty)
             {
@@ -140,7 +140,7 @@ namespace MusicApp.Resources.Portable_Class
             if (!focused)
                 return;
             Refresh();
-            MainActivity.instance.pagerRefresh.Refreshing = false;
+            MainActivity.instance.contentRefresh.Refreshing = false;
         }
 
         public void Refresh()

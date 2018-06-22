@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout 
+  xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
@@ -19,11 +20,11 @@
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
         app:layout_scrollFlags="scroll|enterAlways"
-        app:layout_collapseMode="pin"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
       <android.support.design.widget.TabLayout
         android:id="@+id/tabs"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:tabTextColor="@android:color/white"
@@ -39,65 +40,52 @@
       android:indeterminate="true"
       style="?android:attr/progressBarStyleHorizontal"
       android:visibility="gone" />
-  </LinearLayout>
-  <android.support.design.widget.CoordinatorLayout
-      android:layout_height="wrap_content"
-      android:layout_width="fill_parent">
     <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/pagerRefresh"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-      <android.support.v4.view.ViewPager
-          android:id="@+id/pager"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content" />
+      android:id="@+id/contentRefresh"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content" >
+      <FrameLayout
+        android:id="@+id/contentView"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent" />
     </android.support.v4.widget.SwipeRefreshLayout>
+  </LinearLayout>
+  <RelativeLayout
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content" >
     <RelativeLayout
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content">
-      <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/contentRefresh"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-        <FrameLayout
-          android:id="@+id/contentView"
-          android:layout_height="wrap_content"
-          android:layout_width="match_parent" />
-      </android.support.v4.widget.SwipeRefreshLayout>
-      <RelativeLayout
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        android:layout_alignParentBottom="true"
-        android:gravity="center_horizontal|bottom"
-        android:paddingBottom="70dp"
-        android:paddingRight="20dp"
-        android:paddingLeft="20dp"
-        android:elevation="6dp"
-        android:layout_width="wrap_content">
-        <include
-          layout="@layout/SmallPlayer"
-          android:id="@+id/smallPlayer" />
-      </RelativeLayout>
-      <RelativeLayout
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:background="?attr/defaultColor"
-        android:elevation="12dp"
-        android:layout_alignParentBottom="true">
-        <android.support.design.widget.CoordinatorLayout
-          android:id="@+id/snackBar"
-          android:layout_alignParentTop="true"
-          android:layout_height="wrap_content"
-          android:layout_width="match_parent" />
-        <android.support.design.widget.BottomNavigationView
-          android:id="@+id/bottomView"
-          android:layout_width="match_parent"
-          android:layout_height="56dp"
-          android:layout_below="@id/snackBar"
-          app:itemIconTint="@color/color_tint"
-          app:itemTextColor="@color/color_tint"
-          app:menu="@menu/bottom_items" />
-      </RelativeLayout>
+      android:layout_height="wrap_content"
+      android:visibility="gone"
+      android:layout_alignParentBottom="true"
+      android:gravity="center_horizontal|bottom"
+      android:paddingBottom="70dp"
+      android:paddingRight="20dp"
+      android:paddingLeft="20dp"
+      android:elevation="6dp"
+      android:layout_width="wrap_content">
+      <include
+        layout="@layout/SmallPlayer"
+        android:id="@+id/smallPlayer" />
     </RelativeLayout>
-  </android.support.design.widget.CoordinatorLayout>
-</LinearLayout>
+    <RelativeLayout
+      android:layout_height="wrap_content"
+      android:layout_width="match_parent"
+      android:background="?attr/defaultColor"
+      android:elevation="12dp"
+      android:layout_alignParentBottom="true">
+      <android.support.design.widget.CoordinatorLayout
+        android:id="@+id/snackBar"
+        android:layout_alignParentTop="true"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent" />
+      <android.support.design.widget.BottomNavigationView
+        android:id="@+id/bottomView"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_below="@id/snackBar"
+        app:itemIconTint="@color/color_tint"
+        app:itemTextColor="@color/color_tint"
+        app:menu="@menu/bottom_items" />
+    </RelativeLayout>
+  </RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>

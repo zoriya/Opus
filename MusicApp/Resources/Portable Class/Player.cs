@@ -413,7 +413,7 @@ namespace MusicApp.Resources.Portable_Class
                         break;
                 }
                 await Task.Delay(750);
-                MainActivity.instance.SetYtTabs(YoutubeEngine.searchKeyWorld, selectedTab);
+                MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(1, selectedTab)).Commit();
                 YoutubeEngine.instances[selectedTab].focused = true;
                 YoutubeEngine.instances[selectedTab].OnFocus();
                 YoutubeEngine.instances[selectedTab].ResumeListView();
