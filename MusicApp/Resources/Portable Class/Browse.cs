@@ -42,6 +42,7 @@ namespace MusicApp.Resources.Portable_Class
             ListView.EmptyView = emptyView;
             MainActivity.instance.pagerRefresh.Refresh += OnRefresh;
             ListView.Scroll += MainActivity.instance.Scroll;
+            ListView.NestedScrollingEnabled = true;
             MainActivity.instance.OnPaddingChanged += OnPaddingChanged;
 
             if (ListView.Adapter == null)
