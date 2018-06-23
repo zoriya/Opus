@@ -7,32 +7,28 @@
   android:layout_height="match_parent"
   android:orientation="vertical"
   android:fitsSystemWindows="true">
-  <LinearLayout
-    android:orientation="vertical"
+  <android.support.design.widget.AppBarLayout
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_width="match_parent">
-    <android.support.design.widget.AppBarLayout
+    android:id="@+id/appbar" >
+    <android.support.v7.widget.Toolbar
+      android:id="@+id/toolbar"
       android:layout_width="match_parent"
-      android:layout_height="wrap_content">
-      <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        app:layout_scrollFlags="scroll|enterAlways"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
-      <android.support.design.widget.TabLayout
-        android:id="@+id/tabs"
-        android:visibility="gone"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:tabTextColor="@android:color/white"
-        app:tabSelectedTextColor="@android:color/white"
-        app:tabIndicatorColor="?colorAccent"
-        app:tabGravity="fill"
-        app:tabMode="fixed" />
-    </android.support.design.widget.AppBarLayout>
+      android:layout_height="?attr/actionBarSize"
+      android:background="?attr/colorPrimary"
+      app:layout_scrollFlags="scroll|enterAlways|snap"
+      android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+      app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+    <android.support.design.widget.TabLayout
+      android:id="@+id/tabs"
+      android:visibility="gone"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      app:tabTextColor="@android:color/white"
+      app:tabSelectedTextColor="@android:color/white"
+      app:tabIndicatorColor="?colorAccent"
+      app:tabGravity="fill"
+      app:tabMode="fixed" />
     <ProgressBar
       android:layout_height="4dp"
       android:layout_width="match_parent"
@@ -40,16 +36,18 @@
       android:indeterminate="true"
       style="?android:attr/progressBarStyleHorizontal"
       android:visibility="gone" />
-    <android.support.v4.widget.SwipeRefreshLayout
-      android:id="@+id/contentRefresh"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content" >
-      <FrameLayout
-        android:id="@+id/contentView"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent" />
-    </android.support.v4.widget.SwipeRefreshLayout>
-  </LinearLayout>
+  </android.support.design.widget.AppBarLayout>
+  <android.support.v4.widget.SwipeRefreshLayout
+    android:id="@+id/contentRefresh"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content" >
+    <FrameLayout
+      android:id="@+id/contentView"
+      app:layout_behavior="@string/appbar_scrolling_view_behavior"
+      android:layout_height="wrap_content"
+      android:layout_width="match_parent" />
+  </android.support.v4.widget.SwipeRefreshLayout>
   <RelativeLayout
     android:layout_height="wrap_content"
     android:layout_width="wrap_content" >

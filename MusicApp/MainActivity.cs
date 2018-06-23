@@ -79,6 +79,7 @@ namespace MusicApp
         public GoogleApiClient googleClient;
         private bool canAsk;
         private bool waitingForYoutube;
+        private bool resuming = false;
         public bool ResumeKiller;
 
         public event EventHandler<PaddingChange> OnPaddingChanged;
@@ -587,7 +588,7 @@ namespace MusicApp
             Navigate(e.Item.ItemId);
         }
 
-        public void Navigate(int layout, bool resuming = false)
+        public void Navigate(int layout)
         {
             if(YoutubeEngine.instances != null)
             {
@@ -635,7 +636,8 @@ namespace MusicApp
                     tab = "Browse";
                     DisplaySearch();
                     HideQuickPlay();
-                    fragment = Pager.NewInstance(0, 0);
+                    fragment = Pager.NewInstance(0, resuming ? 1 : 0);
+                    resuming = false;
                     break;
 
                 case Resource.Id.playlistLayout:
@@ -674,9 +676,11 @@ namespace MusicApp
 
             viewPager = pager;
             TabLayout tabs = FindViewById<TabLayout>(Resource.Id.tabs);
+            ((AppBarLayout.LayoutParams)ToolBar.LayoutParameters).ScrollFlags = AppBarLayout.LayoutParams.ScrollFlagScroll | AppBarLayout.LayoutParams.ScrollFlagEnterAlways | AppBarLayout.LayoutParams.ScrollFlagSnap;
 
             if (Browse.instance != null)
             {
+                Console.WriteLine("&Browse instance exist, not refreshing tabs");
                 pager.CurrentItem = selectedTab;
                 tabs.SetScrollPosition(selectedTab, 0f, true);
                 CanSwitchDelay();
@@ -715,11 +719,14 @@ namespace MusicApp
 
             viewPager = pager;
             TabLayout tabs = FindViewById<TabLayout>(Resource.Id.tabs);
+            ((AppBarLayout.LayoutParams)ToolBar.LayoutParameters).ScrollFlags = AppBarLayout.LayoutParams.ScrollFlagScroll | AppBarLayout.LayoutParams.ScrollFlagEnterAlways | AppBarLayout.LayoutParams.ScrollFlagSnap;
 
-            if(YoutubeEngine.instances != null)
+            if (YoutubeEngine.instances != null)
             {
                 pager.CurrentItem = selectedTab;
                 tabs.SetScrollPosition(selectedTab, 0f, true);
+                YoutubeEngine.instances[selectedTab].focused = true;
+                YoutubeEngine.instances[selectedTab].OnFocus();
                 CanSwitchDelay();
                 return;
             }
@@ -748,8 +755,11 @@ namespace MusicApp
             tabs.TabMode = TabLayout.ModeScrollable;
             tabs.SetScrollPosition(selectedTab, 0f, true);
 
-            YoutubeEngine.instances[0].focused = true;
-            YoutubeEngine.instances[0].OnFocus();
+            YoutubeEngine.instances[selectedTab].focused = true;
+            YoutubeEngine.instances[selectedTab].OnFocus();
+
+            if(youtubeInstanceSave != null)
+                YoutubeEngine.instances[selectedTab].ResumeListView();
 
             CanSwitchDelay();
         }
@@ -797,17 +807,21 @@ namespace MusicApp
 
                 if(position == 0)
                 {
+                    if(Browse.instance.focused)
+                        Browse.instance.ListView.SmoothScrollToPosition(0);
+
                     Browse.instance.focused = true;
                     FolderBrowse.instance.focused = false;
                     DisplaySearch();
-                    Browse.instance.ListView.SmoothScrollToPosition(0);
                 }
                 if(position == 1)
                 {
+                    if(FolderBrowse.instance.focused)
+                        FolderBrowse.instance.ListView.SmoothScrollToPosition(0);
+
                     Browse.instance.focused = false;
                     FolderBrowse.instance.focused = true;
                     HideSearch();
-                    Browse.instance.ListView.SmoothScrollToPosition(0);
                 }
             }
             else if (YoutubeEngine.instances != null)
@@ -830,12 +844,25 @@ namespace MusicApp
             tabs.RemoveAllTabs();
             tabs.Visibility = ViewStates.Gone;
 
+            ((AppBarLayout.LayoutParams)ToolBar.LayoutParameters).ScrollFlags = 0;
+
             if (viewPager == null)
                 return;
 
             ViewPagerAdapter adapter = (ViewPagerAdapter)viewPager.Adapter;
             if (adapter != null)
             {
+                if (adapter.Count == 2)
+                {
+                    Console.WriteLine("&Removing browse instance");
+                    Browse.instance = null;
+                    FolderBrowse.instance = null;
+                }
+                else if (adapter.Count == 4)
+                {
+                    YoutubeEngine.instances = null;
+                }
+
                 for (int i = 0; i < adapter.Count; i++)
                     SupportFragmentManager.BeginTransaction().Remove(adapter.GetItem(i)).Commit();
 
@@ -896,7 +923,7 @@ namespace MusicApp
                 prepared = true;
 
                 SwipeDismissBehavior behavior = new SwipeDismissBehavior();
-                behavior.SetSwipeDirection(SwipeDismissBehavior.SwipeDirectionStartToEnd);
+                behavior.SetSwipeDirection(SwipeDismissBehavior.SwipeDirectionAny);
                 behavior.SetListener(this);
 
                 CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) smallPlayer.FindViewById<CardView>(Resource.Id.cardPlayer).LayoutParameters;
@@ -940,10 +967,10 @@ namespace MusicApp
         {
             if (YoutubeEngine.instances != null)
             {
-                YoutubeEngine instance = null;
+                Console.WriteLine("&Youtube instances != null");
+                YoutubeEngine instance = YoutubeEngine.instances[0];
                 foreach (YoutubeEngine inst in YoutubeEngine.instances)
                 {
-                    Console.WriteLine(inst);
                     if (inst.focused)
                         instance = inst;
                 }
@@ -1341,32 +1368,23 @@ namespace MusicApp
                     FindViewById<BottomNavigationView>(Resource.Id.bottomView).SelectedItemId = Resource.Id.browseLayout;
                     break;
                 case "FolderBrowse":
+                    resuming = true;
                     FindViewById<BottomNavigationView>(Resource.Id.bottomView).SelectedItemId = Resource.Id.browseLayout;
-                    FindViewById<ViewPager>(Resource.Id.pager).CurrentItem = 1;
-                    FindViewById<TabLayout>(Resource.Id.tabs).SetScrollPosition(1, 0f, true);
                     break;
                 case "Playlist":
                     FindViewById<BottomNavigationView>(Resource.Id.bottomView).SelectedItemId = Resource.Id.playlistLayout;
                     break;
                 case "YoutubeEngine-All":
                     SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(2, 0)).Commit();
-                    YoutubeEngine.instances[0].focused = true;
-                    YoutubeEngine.instances[0].OnFocus();
                     break;
                 case "YoutubeEngine-Tracks":
                     SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(2, 1)).Commit();
-                    YoutubeEngine.instances[1].focused = true;
-                    YoutubeEngine.instances[1].OnFocus();
                     break;
                 case "YoutubeEngine-Playlists":
                     SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(2, 2)).Commit();
-                    YoutubeEngine.instances[2].focused = true;
-                    YoutubeEngine.instances[2].OnFocus();
                     break;
                 case "YoutubeEngine-Channels":
                     SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(2, 3)).Commit();
-                    YoutubeEngine.instances[3].focused = true;
-                    YoutubeEngine.instances[3].OnFocus();
                     break;
                 case "PlaylistTracks":
                     Transition(Resource.Id.contentView, PlaylistTracks.instance, false, true);

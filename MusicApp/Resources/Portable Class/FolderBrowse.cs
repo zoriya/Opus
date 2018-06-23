@@ -41,6 +41,8 @@ namespace MusicApp.Resources.Portable_Class
             emptyView = LayoutInflater.Inflate(Resource.Layout.NoSong, null);
             ListView.EmptyView = emptyView;
             ListView.Scroll += MainActivity.instance.Scroll;
+            ListView.ItemClick += ListView_ItemClick;
+            ListView.ItemLongClick += ListView_ItemLongClick;
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
             MainActivity.instance.OnPaddingChanged += OnPaddingChanged;
 
@@ -125,8 +127,6 @@ namespace MusicApp.Resources.Portable_Class
                 listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot
             };
             ListAdapter = adapter;
-            ListView.ItemClick += ListView_ItemClick;
-            ListView.ItemLongClick += ListView_ItemLongClick;
 
             if (adapter == null || adapter.Count == 0)
             {

@@ -781,7 +781,6 @@ namespace MusicApp.Resources.Portable_Class
                     .SetShowActionsInCompactView(1)
                     .SetShowCancelButton(true)
                     .SetMediaSession(mediaSession.SessionToken))
-                .SetColor(ContextCompat.GetColor(Application.Context, Resource.Color.notification_icon_bg_color))
                 .SetDeleteIntent(deleteIntent)
                 .SetContentTitle(title)
                 .SetContentText(artist)
@@ -790,6 +789,8 @@ namespace MusicApp.Resources.Portable_Class
                 .Build();
             ContextCompat.StartForegroundService(Application.Context, new Intent(Application.Context, typeof(MusicPlayer)));
             StartForeground(notificationID, notification);
+
+            Console.WriteLine("&Notification color " + notification.Color);
         }
 
         public void Pause()

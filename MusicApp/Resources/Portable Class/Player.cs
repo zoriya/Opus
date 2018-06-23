@@ -391,7 +391,10 @@ namespace MusicApp.Resources.Portable_Class
 
         private async void Fab_Click(object sender, EventArgs e)
         {
-            MainActivity.instance.SupportFragmentManager.PopBackStack();
+            MainActivity.instance.ToolBar.Visibility = ViewStates.Visible;
+            MainActivity.instance.FindViewById<BottomNavigationView>(Resource.Id.bottomView).Visibility = ViewStates.Visible;
+            MainActivity.instance.ShowSmallPlayer();
+            MainActivity.instance.PrepareSmallPlayer();
             if (MainActivity.youtubeInstanceSave != null)
             {
                 int selectedTab = 0;
@@ -412,11 +415,8 @@ namespace MusicApp.Resources.Portable_Class
                     default:
                         break;
                 }
-                await Task.Delay(750);
+                await Task.Delay(10);
                 MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(1, selectedTab)).Commit();
-                YoutubeEngine.instances[selectedTab].focused = true;
-                YoutubeEngine.instances[selectedTab].OnFocus();
-                YoutubeEngine.instances[selectedTab].ResumeListView();
             }
             else
             {

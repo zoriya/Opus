@@ -160,9 +160,7 @@ namespace MusicApp.Resources.Portable_Class
             }
             searchResult.MaxResults = 20;
 
-            System.Console.WriteLine("&Search created");
             var searchReponse = await searchResult.ExecuteAsync();
-            System.Console.WriteLine("&Search waited");
 
             result = new List<YtFile>();
 
@@ -183,7 +181,7 @@ namespace MusicApp.Resources.Portable_Class
                         kind = YtKind.Channel;
                         break;
                     default:
-                        System.Console.WriteLine("&Kind = " + video.Id.Kind);
+                        Console.WriteLine("&Kind = " + video.Id.Kind);
                         break;
                 }
                 result.Add(new YtFile(videoInfo, kind));
