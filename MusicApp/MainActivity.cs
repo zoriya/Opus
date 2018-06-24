@@ -112,7 +112,6 @@ namespace MusicApp
             SetSupportActionBar(ToolBar);
             SupportActionBar.Title = "MusicApp";
 
-            //pagerRefresh = FindViewById<SwipeRefreshLayout>(Resource.Id.pagerRefresh);
             contentRefresh = FindViewById<SwipeRefreshLayout>(Resource.Id.contentRefresh);
 
             playToCross = GetDrawable(Resource.Drawable.PlayToCross);
@@ -135,9 +134,6 @@ namespace MusicApp
                 ReCreateSmallPlayer();
             else
                 PrepareApp();
-
-            if (Intent?.Action == "Player")
-                ActionPlayer();
         }
 
         async void PrepareApp()
@@ -340,39 +336,6 @@ namespace MusicApp
                 //    Home.instance.LoadMore();
                 //}
             }
-        }
-
-        private async void ActionPlayer()
-        {
-            await Task.Delay(100);
-            //if (YoutubeEngine.instances != null)
-            //{
-            //    YoutubeEngine instance = null;
-            //    foreach (YoutubeEngine inst in YoutubeEngine.instances)
-            //    {
-            //        Console.WriteLine(inst);
-            //        if (inst.focused)
-            //            instance = inst;
-            //    }
-
-            //    youtubeParcel = instance.ListView.GetLayoutManager().OnSaveInstanceState();
-            //    youtubeInstanceSave = "YoutubeEngine" + "-" + instance.querryType;
-
-            //    ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
-            //    foreach (YoutubeEngine inst in YoutubeEngine.instances)
-            //    {
-            //        OnPaddingChanged -= inst.OnPaddingChanged;
-            //        rootView.RemoveView(inst.emptyView);
-            //    }
-            //    rootView.RemoveView(YoutubeEngine.loadingView);
-            //    YoutubeEngine.instances = null;
-            //}
-            //else
-            //    SaveInstance();
-
-            HideTabs();
-            HideSearch();
-            SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).AddToBackStack(null).Commit();
         }
 
         private async void ReCreateSmallPlayer()
@@ -965,34 +928,8 @@ namespace MusicApp
 
         private void Container_Click(object sender, EventArgs e)
         {
-            if (YoutubeEngine.instances != null)
-            {
-                Console.WriteLine("&Youtube instances != null");
-                YoutubeEngine instance = YoutubeEngine.instances[0];
-                foreach (YoutubeEngine inst in YoutubeEngine.instances)
-                {
-                    if (inst.focused)
-                        instance = inst;
-                }
-
-                youtubeParcel = instance.ListView.GetLayoutManager().OnSaveInstanceState();
-                youtubeInstanceSave = "YoutubeEngine" + "-" + instance.querryType;
-
-                ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
-                foreach (YoutubeEngine inst in YoutubeEngine.instances)
-                {
-                    OnPaddingChanged -= inst.OnPaddingChanged;
-                    rootView.RemoveView(inst.emptyView);
-                }
-                rootView.RemoveView(YoutubeEngine.loadingView);
-                YoutubeEngine.instances = null;
-            }
-            else
-                SaveInstance();
-
-            HideTabs();
-            HideSearch();
-            SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).AddToBackStack(null).Commit();
+            Intent intent = new Intent(this, typeof(Player));
+            StartActivity(intent);
         }
 
         public void GetStoragePermission()
@@ -1207,10 +1144,8 @@ namespace MusicApp
                     intent.PutExtra("clearQueue", false);
                 intent.SetAction("RandomPlay");
                 StartService(intent);
-                HideTabs();
-                HideSearch();
-                SaveInstance();
-                SupportFragmentManager.BeginTransaction().AddToBackStack(null).Replace(Resource.Id.contentView, Player.NewInstance()).Commit();
+                Intent inte = new Intent(this, typeof(Player));
+                StartActivity(inte);
             }
             else
             {
@@ -1218,10 +1153,8 @@ namespace MusicApp
                 if (playlistID != -1)
                 {
                     Playlist.RandomPlay(playlistID, this);
-                    HideTabs();
-                    HideSearch();
-                    SaveInstance();
-                    SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).Commit();
+                    Intent intent = new Intent(this, typeof(Player));
+                    StartActivity(intent);
                 }
                 else
                     ((Snackbar)Snackbar.Make(FindViewById<View>(Resource.Id.snackBar), "No playlist set on setting.", Snackbar.LengthLong)

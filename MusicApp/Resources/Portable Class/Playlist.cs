@@ -488,9 +488,8 @@ namespace MusicApp.Resources.Portable_Class
             intent.SetAction("RandomPlay");
             context.StartService(intent);
 
-            MainActivity.instance.HideTabs();
-            MainActivity.instance.HideSearch();
-            MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).AddToBackStack(null).Commit();
+            Intent inte = new Intent(context, typeof(Player));
+            context.StartActivity(inte);
         }
 
         void Rename(int position, Song playlist)

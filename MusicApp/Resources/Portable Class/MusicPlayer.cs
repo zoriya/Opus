@@ -332,7 +332,7 @@ namespace MusicApp.Resources.Portable_Class
             if (progress != -1)
             {
                 player.SeekTo(progress);
-                Player.instance.playerView.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
+                Player.instance.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
             }
 
             Player.instance?.RefreshPlayer();
@@ -397,9 +397,8 @@ namespace MusicApp.Resources.Portable_Class
 
                     if (!MainActivity.instance.paused)
                     {
-                        MainActivity.instance.HideTabs();
-                        MainActivity.instance.HideSearch();
-                        MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Player.NewInstance()).AddToBackStack(null).Commit();
+                        Intent intent = new Intent(this, typeof(Player));
+                        StartActivity(intent);
                     }
                 }
                 parsing = false;
@@ -707,40 +706,30 @@ namespace MusicApp.Resources.Portable_Class
             MusicPlayer.title = title;
             Bitmap icon = null;
 
-            if (imageURI == null)
-            {
-                if (albumArt != 0)
-                {
-                    Uri songCover = Uri.Parse("content://media/external/audio/albumart");
-                    Uri iconURI = ContentUris.WithAppendedId(songCover, albumArt);
-
-                    await Task.Run(() =>
-                    {
-                        try
-                        {
-                            icon = Picasso.With(Application.Context).Load(iconURI).Error(Resource.Drawable.MusicIcon).Placeholder(Resource.Drawable.MusicIcon).NetworkPolicy(NetworkPolicy.Offline).Resize(400, 400).CenterCrop().Get();
-                        }
-                        catch (Exception)
-                        {
-                            icon = Picasso.With(Application.Context).Load(Resource.Drawable.MusicIcon).Get();
-                        }
-                    });
-                }
-                else
-                {
-                    await Task.Run(() =>
-                    {
-                        icon = Picasso.With(Application.Context).Load(imageURI).Get();
-                    });
-                }
-            }
-            else
+            if(albumArt == -1 || albumArt == 0)
             {
                 await Task.Run(() =>
                 {
                     try
                     {
                         icon = Picasso.With(Application.Context).Load(imageURI).Error(Resource.Drawable.MusicIcon).Placeholder(Resource.Drawable.MusicIcon).NetworkPolicy(NetworkPolicy.Offline).Resize(400, 400).CenterCrop().Get();
+                    }
+                    catch (Exception)
+                    {
+                        icon = Picasso.With(Application.Context).Load(Resource.Drawable.MusicIcon).Get();
+                    }
+                });
+            }
+            else
+            {
+                Uri songCover = Uri.Parse("content://media/external/audio/albumart");
+                Uri iconURI = ContentUris.WithAppendedId(songCover, albumArt);
+
+                await Task.Run(() =>
+                {
+                    try
+                    {
+                        icon = Picasso.With(Application.Context).Load(iconURI).Error(Resource.Drawable.MusicIcon).Placeholder(Resource.Drawable.MusicIcon).NetworkPolicy(NetworkPolicy.Offline).Resize(400, 400).CenterCrop().Get();
                     }
                     catch (Exception)
                     {
@@ -761,8 +750,7 @@ namespace MusicApp.Resources.Portable_Class
             tmpNextIntent.SetAction("Next");
             PendingIntent nextIntent = PendingIntent.GetService(Application.Context, 0, tmpNextIntent, PendingIntentFlags.UpdateCurrent);
 
-            Intent tmpDefaultIntent = new Intent(Application.Context, typeof(MainActivity));
-            tmpDefaultIntent.SetAction("Player");
+            Intent tmpDefaultIntent = new Intent(Application.Context, typeof(Player));
             PendingIntent defaultIntent = PendingIntent.GetActivity(Application.Context, 0, tmpDefaultIntent, PendingIntentFlags.UpdateCurrent);
 
             Intent tmpDeleteIntent = new Intent(Application.Context, typeof(MusicPlayer));
@@ -789,8 +777,6 @@ namespace MusicApp.Resources.Portable_Class
                 .Build();
             ContextCompat.StartForegroundService(Application.Context, new Intent(Application.Context, typeof(MusicPlayer)));
             StartForeground(notificationID, notification);
-
-            Console.WriteLine("&Notification color " + notification.Color);
         }
 
         public void Pause()
@@ -811,7 +797,7 @@ namespace MusicApp.Resources.Portable_Class
                 CoordinatorLayout smallPlayer = MainActivity.instance.FindViewById<CoordinatorLayout>(Resource.Id.smallPlayer);
                 smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
 
-                Player.instance?.playerView?.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
+                Player.instance?.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
                 Queue.instance?.RefreshCurrent();
             }
         }
@@ -835,7 +821,7 @@ namespace MusicApp.Resources.Portable_Class
 
                 if (Player.instance != null)
                 {
-                    Player.instance.playerView.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
+                    Player.instance.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
                     Player.instance.handler.PostDelayed(Player.instance.UpdateSeekBar, 1000);
                 }
 

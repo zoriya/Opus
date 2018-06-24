@@ -448,10 +448,8 @@ namespace MusicApp.Resources.Portable_Class
             intent.PutStringArrayListExtra("files", trackPaths.ToArray());
             intent.SetAction("RandomPlay");
             Activity.StartService(intent);
-            MainActivity.instance.HideTabs();
-            MainActivity.instance.HideSearch();
-            MainActivity.instance.SaveInstance();
-            MainActivity.instance.SupportFragmentManager.BeginTransaction().AddToBackStack(null).Replace(Resource.Id.contentView, Player.NewInstance()).Commit();
+            Intent inte = new Intent(Activity, typeof(Player));
+            StartActivity(inte);
         }
 
         public override void OnResume()
