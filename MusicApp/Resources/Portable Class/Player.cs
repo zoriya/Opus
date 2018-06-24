@@ -1,6 +1,7 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.Content.PM;
+using Android.Content.Res;
 using Android.Graphics;
 using Android.Graphics.Drawables;
 using Android.OS;
@@ -486,11 +487,52 @@ namespace MusicApp.Resources.Portable_Class
                     return;
             }
 
+            Palette.Swatch accent = null;
+            if (isColorDark(swatch.Rgb))
+            {
+                accent = palette.LightVibrantSwatch;
+
+                if (accent == null)
+                    accent = palette.LightMutedSwatch;
+
+                if (accent == null)
+                    accent = swatch;
+            }
+            else
+            {
+                accent = palette.DarkVibrantSwatch;
+
+                if (accent == null)
+                    accent = palette.DarkMutedSwatch;
+
+                if (accent == null)
+                    accent = swatch;
+            }
+
             Color text = Color.Argb(Color.GetAlphaComponent(swatch.BodyTextColor), Color.GetRedComponent(swatch.BodyTextColor), Color.GetGreenComponent(swatch.BodyTextColor), Color.GetBlueComponent(swatch.BodyTextColor));
             Color background = Color.Argb(Color.GetAlphaComponent(swatch.Rgb), Color.GetRedComponent(swatch.Rgb), Color.GetGreenComponent(swatch.Rgb), Color.GetBlueComponent(swatch.Rgb));
+            Color accentColor = Color.Argb(Color.GetAlphaComponent(accent.Rgb), Color.GetRedComponent(accent.Rgb), Color.GetGreenComponent(accent.Rgb), Color.GetBlueComponent(accent.Rgb));
             FindViewById<TextView>(Resource.Id.playerTitle).SetTextColor(text);
             FindViewById<TextView>(Resource.Id.playerArtist).SetTextColor(text);
             FindViewById<LinearLayout>(Resource.Id.infoPanel).SetBackgroundColor(background);
+            FindViewById<FloatingActionButton>(Resource.Id.downFAB).BackgroundTintList = ColorStateList.ValueOf(accentColor);
+            FindViewById<FloatingActionButton>(Resource.Id.downFAB).RippleColor = accent.Rgb;
+            FindViewById<DiscreteSeekBar>(Resource.Id.songTimer).SetThumbColor(accent.Rgb, accent.Rgb);
+            FindViewById<DiscreteSeekBar>(Resource.Id.songTimer).SetScrubberColor(accent.Rgb);
+            FindViewById<DiscreteSeekBar>(Resource.Id.songTimer).SetRippleColor(accent.Rgb);
+        }
+
+        public bool isColorDark(int color)
+        {
+            double darkness = 1 - (0.299 * Color.GetRedComponent(color) + 0.587 * Color.GetGreenComponent(color) + 0.114 * Color.GetBlueComponent(color)) / 255;
+            if (darkness < 0.5)
+            {
+                return false; // It's a light color
+            }
+            else
+            {
+                return true; // It's a dark color
+            }
         }
     }
 }
