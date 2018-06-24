@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<RelativeLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_height="wrap_content"
+  android:layout_width="fill_parent" >
+  <ImageView
+    android:layout_height="wrap_content"
+    android:layout_width="fill_parent"
+    android:src="@drawable/noAlbum"
+    android:scaleType="fitCenter"
+    android:adjustViewBounds="true" />
+  <ImageView
+    android:src="@drawable/darkRectangle"
+    android:layout_width="fill_parent"
+    android:layout_height="512px"
+    android:scaleType="fitCenter"
+    android:adjustViewBounds="true"
+    android:layout_alignParentBottom="true" />
+  <LinearLayout
+    android:orientation="vertical"
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
+    android:layout_marginLeft="15dp"
+    android:layout_alignParentBottom="true">
+    <TextView
+      android:id="@+id/headerTitle"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:textColor="#ffffff"
+      android:textSize="20dip"
+      android:textStyle="bold"
+      android:text="Title of the playlist" />
+    <TextView
+      android:id="@+id/headerNumber"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:textColor="#ffffff"
+      android:textSize="19dip"
+      android:alpha=".8"
+      android:text="by Username"/>
+    <TextView
+      android:id="@+id/headerNumber"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:textColor="#ffffff"
+      android:textSize="14dip"
+      android:alpha=".65"
+      android:text="256 songs"/>
+  </LinearLayout>
+  <LinearLayout
+    android:orientation="horizontal"
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
+    android:layout_alignParentBottom="true"
+    android:layout_alignParentRight="true" >
+    <ImageButton
+      android:id="@+id/headerPlay"
+      android:layout_width="60dp"
+      android:layout_height="60dp"
+      android:tint="#ffffff"
+      android:src="@drawable/ic_pause_black_24dp" />
+    <ImageButton
+      android:id="@+id/headerSuffle"
+      android:layout_width="60dp"
+      android:layout_height="60dp"
+      android:tint="#ffffff"
+      android:src="@drawable/Suffle" />
+    <ImageButton
+      android:id="@+id/headerMore"
+      android:layout_width="60dp"
+      android:layout_height="60dp"
+      android:tint="#ffffff"
+      android:src="@drawable/ic_more_vert_black_24dp" />
+  </LinearLayout>
+</RelativeLayout>
+

@@ -134,7 +134,7 @@
         android:focusableInTouchMode="true" 
         android:textSize="34sp"
         android:textColor="#FFFFFF"
-        android:alpha=".92"
+        android:alpha="1"
         android:textStyle="bold"
         android:paddingLeft="60dp"
         android:layout_alignParentBottom="true"

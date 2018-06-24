@@ -44,6 +44,9 @@ namespace MusicApp.Resources.Portable_Class
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
             MainActivity.instance.OnPaddingChanged += OnPaddingChanged;
             MainActivity.instance.DisplaySearch(1);
+
+            ListView.AddHeaderView(LayoutInflater.Inflate(Resource.Layout.PlaylistHeader, null));
+
 #pragma warning disable CS4014
             PopulateList();
         }
