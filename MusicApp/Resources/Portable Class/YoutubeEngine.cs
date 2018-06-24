@@ -316,22 +316,22 @@ namespace MusicApp.Resources.Portable_Class
             intent.PutExtra("thumbnailURI", thumbnailURL);
             Android.App.Application.Context.StartService(intent);
 
-            if (instance != null)
-            {
-                MainActivity.youtubeParcel = instance.ListView.GetLayoutManager().OnSaveInstanceState();
-                MainActivity.youtubeInstanceSave = "YoutubeEngine" + "-" + instance.querryType;
+            //if (instance != null)
+            //{
+            //    MainActivity.youtubeParcel = instance.ListView.GetLayoutManager().OnSaveInstanceState();
+            //    MainActivity.youtubeInstanceSave = "YoutubeEngine" + "-" + instance.querryType;
 
-                ViewGroup rootView = instance.Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
-                foreach (YoutubeEngine inst in instances)
-                {
-                    MainActivity.instance.OnPaddingChanged -= inst.OnPaddingChanged;
-                    rootView.RemoveView(inst.emptyView);
-                }
-                rootView.RemoveView(loadingView);
-                instances = null;
-            }
-            else
-                MainActivity.instance.SaveInstance();
+            //    ViewGroup rootView = instance.Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
+            //    foreach (YoutubeEngine inst in instances)
+            //    {
+            //        MainActivity.instance.OnPaddingChanged -= inst.OnPaddingChanged;
+            //        rootView.RemoveView(inst.emptyView);
+            //    }
+            //    rootView.RemoveView(loadingView);
+            //    instances = null;
+            //}
+            //else
+            //    MainActivity.instance.SaveInstance();
         }
 
         public static async void PlayFiles(Song[] files)

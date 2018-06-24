@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using YoutubeExplode;
+using YoutubeExplode.Models;
 using YoutubeExplode.Models.MediaStreams;
 using static Android.Support.V4.Media.App.NotificationCompat;
 using Uri = Android.Net.Uri;
@@ -391,6 +392,17 @@ namespace MusicApp.Resources.Portable_Class
                         return;
                 }
 
+                Video info = await client.GetVideoAsync(videoID);
+                thumbnailURL = info.Thumbnails.HighResUrl;
+                if (artist == null || artist == "")
+                    artist = info.Author;
+
+                queue[CurrentID()].SetAlbum(thumbnailURL);
+                queue[CurrentID()].SetArtist(artist);
+
+                Player.instance?.RefreshPlayer();
+                MainActivity.instance?.ShowSmallPlayer();
+
                 if (MainActivity.instance != null)
                 {
                     MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
@@ -553,6 +565,11 @@ namespace MusicApp.Resources.Portable_Class
                         youtubeIcon.ClearColorFilter();
                     }
                 }
+
+                Video info = await client.GetVideoAsync(song.youtubeID);
+                song.SetAlbum(info.Thumbnails.HighResUrl);
+                if (song.GetArtist() == null || song.GetArtist() == "")
+                    song.SetArtist(info.Author);
             }
 
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
@@ -626,6 +643,12 @@ namespace MusicApp.Resources.Portable_Class
                 AudioStreamInfo streamInfo = mediaStreamInfo.Audio.Where(x => x.Container == Container.M4A).OrderBy(s => s.Bitrate).Last();
                 song.SetPath(streamInfo.Url);
                 song.isParsed = true;
+
+                Video info = await client.GetVideoAsync(song.youtubeID);
+                song.SetAlbum(info.Thumbnails.HighResUrl);
+                if (song.GetArtist() == null || song.GetArtist() == "")
+                    song.SetArtist(info.Author);
+
                 parsing = false;
                 if (Queue.instance != null)
                 {

@@ -8,11 +8,10 @@ namespace MusicApp.Resources.values
         private string Name;
         private string Artist;
         private string Album;
-        private long AlbumArt;
+        private readonly long AlbumArt;
         public string youtubeID;
-        private long id;
+        private readonly long id;
         private string path;
-        private bool isYT;
         public bool isParsed;
         public int queueSlot;
 
@@ -22,7 +21,7 @@ namespace MusicApp.Resources.values
         public long GetAlbumArt() { return AlbumArt; }
         public long GetID() { return id; }
         public string GetPath() { return path; }
-        public bool IsYt { get { return isYT; } }
+        public bool IsYt { get; }
 
         public Song(string Name, string Artist, string Album, string youtubeID, long AlbumArt, long id, string path, bool isYT = false, bool isParsed = true, int queueSlot = -1)
         {
@@ -33,17 +32,19 @@ namespace MusicApp.Resources.values
             this.AlbumArt = AlbumArt;
             this.id = id;
             this.path = path;
-            this.isYT = isYT;
+            IsYt = isYT;
             this.isParsed = isParsed;
             this.queueSlot = queueSlot;
         }
 
         public void SetName(string Name) { this.Name = Name; }
+        public void SetArtist(string Artist) { this.Artist = Artist; }
+        public void SetAlbum(string Album) { this.Album = Album; }
         public void SetPath(string path) { this.path = path; }
 
         public override string ToString()
         {
-            return Name + " Artist: " + Artist + " Album: " + Album + " youtubeID: " + youtubeID + " AlbumArt: " + AlbumArt + " Id: " + id + " Path: " + path + " isYT: " + isYT + " isParsed: " + isParsed + " queueSlot: " + queueSlot;
+            return Name + " Artist: " + Artist + " Album: " + Album + " youtubeID: " + youtubeID + " AlbumArt: " + AlbumArt + " Id: " + id + " Path: " + path + " isYT: " + IsYt + " isParsed: " + isParsed + " queueSlot: " + queueSlot;
         }
 
         public static explicit operator Song(string v)

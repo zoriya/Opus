@@ -70,6 +70,7 @@ namespace MusicApp.Resources.Portable_Class
         protected override void OnDestroy()
         {
             Player.instance?.UpdateNext();
+            MusicPlayer.ParseNextSong();
             base.OnDestroy();
             instance = null;
         }

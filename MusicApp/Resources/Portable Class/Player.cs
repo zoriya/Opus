@@ -57,8 +57,6 @@ namespace MusicApp.Resources.Portable_Class
             while (MusicPlayer.CurrentID() == -1)
                 await Task.Delay(100);
 
-            Console.WriteLine("&CurrentID != -1");
-
             TextView title = FindViewById<TextView>(Resource.Id.playerTitle);
             TextView artist = FindViewById<TextView>(Resource.Id.playerArtist);
             imgView = FindViewById<ImageView>(Resource.Id.playerAlbum);
@@ -71,8 +69,6 @@ namespace MusicApp.Resources.Portable_Class
             FindViewById<FloatingActionButton>(Resource.Id.downFAB).Click += Fab_Click;
             FindViewById<ImageButton>(Resource.Id.playerDownload).Click += Download_Click;
             FindViewById<ImageButton>(Resource.Id.playerYoutube).Click += Youtube_Click;
-
-            Console.WriteLine("&ListenerAdded");
 
             Song current = MusicPlayer.queue[MusicPlayer.CurrentID()];
 
@@ -99,8 +95,6 @@ namespace MusicApp.Resources.Portable_Class
             {
                 Picasso.With(this).Load(current.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(imgView);
             }
-
-            Palette.From(((BitmapDrawable)imgView.Drawable).Bitmap).MaximumColorCount(28).Generate(this);
 
             if (current.IsYt)
             {
@@ -165,11 +159,11 @@ namespace MusicApp.Resources.Portable_Class
                     var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
                     var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, next.GetAlbumArt());
 
-                    Picasso.With(this).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
+                    Picasso.With(this).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(1080, 1080).CenterCrop().Into(nextArt);
                 }
                 else
                 {
-                    Picasso.With(this).Load(next.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
+                    Picasso.With(this).Load(next.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Resize(1080, 1080).CenterCrop().Into(nextArt);
                 }
             }
             else
@@ -190,7 +184,10 @@ namespace MusicApp.Resources.Portable_Class
             MusicPlayer.SetSeekBar(bar);
             handler.PostDelayed(UpdateSeekBar, 1000);
 
-            await Task.Delay(1000);
+            await Task.Delay(10);
+            Palette.From(((BitmapDrawable)imgView.Drawable).Bitmap).MaximumColorCount(28).Generate(this);
+
+            await Task.Delay(990);
             MusicPlayer.SetSeekBar(bar);
         }
 
@@ -218,11 +215,11 @@ namespace MusicApp.Resources.Portable_Class
                 var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
                 var songAlbumArtUri = ContentUris.WithAppendedId(songCover, current.GetAlbumArt());
 
-                Picasso.With(this).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(imgView);
+                Picasso.With(this).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(1080, 1080).CenterCrop().Into(imgView);
             }
             else
             {
-                Picasso.With(this).Load(current.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(imgView);
+                Picasso.With(this).Load(current.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Resize(1080, 1080).CenterCrop().Into(imgView);
             }
 
             Palette.From(((BitmapDrawable)imgView.Drawable).Bitmap).MaximumColorCount(28).Generate(this);
@@ -291,6 +288,9 @@ namespace MusicApp.Resources.Portable_Class
 
             bar.Progress = 0;
             bar.Max = (int)MusicPlayer.player.Duration;
+
+            await Task.Delay(10);
+            Palette.From(((BitmapDrawable)imgView.Drawable).Bitmap).MaximumColorCount(28).Generate(this);
         }
 
         public async void UpdateNext()
@@ -473,6 +473,9 @@ namespace MusicApp.Resources.Portable_Class
             List<Palette.Swatch> swatches = palette.Swatches.OrderBy(x => x.Population).ToList();
             int i = swatches.Count - 1;
             Palette.Swatch swatch = palette.MutedSwatch;
+
+            if (swatch == null && swatches.Count == 0)
+                return;
 
             while(swatch == null)
             {
