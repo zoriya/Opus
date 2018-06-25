@@ -8,6 +8,7 @@
     android:layout_height="wrap_content"
     android:layout_width="fill_parent"
     android:src="@drawable/noAlbum"
+    android:id="@+id/headerArt"
     android:scaleType="fitCenter"
     android:adjustViewBounds="true" />
   <ImageView
@@ -32,7 +33,7 @@
       android:textStyle="bold"
       android:text="Title of the playlist" />
     <TextView
-      android:id="@+id/headerNumber"
+      android:id="@+id/headerAuthor"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:textColor="#ffffff"
@@ -59,7 +60,7 @@
       android:layout_width="60dp"
       android:layout_height="60dp"
       android:tint="#ffffff"
-      android:src="@drawable/ic_pause_black_24dp"
+      android:src="@drawable/ic_play_arrow_black_24dp"
       android:background="@null" />
     <ImageButton
       android:id="@+id/headerShuffle"

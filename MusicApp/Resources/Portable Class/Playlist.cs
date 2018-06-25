@@ -148,7 +148,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 Google.Apis.YouTube.v3.Data.Playlist playlist = response.Items[i];
                 YtPlaylists.Add(playlist);
-                Song song = new Song(playlist.Snippet.Title, playlist.Snippet.ChannelTitle, playlist.Snippet.Thumbnails.Default__.Url, playlist.Id, -1, -1, playlist.Id, true, true);
+                Song song = new Song(playlist.Snippet.Title, playlist.Snippet.ChannelTitle, playlist.Snippet.Thumbnails.High.Url, playlist.Id, -1, -1, playlist.Id, true, true, (int)playlist.ContentDetails.ItemCount);
                 ytPlaylists.Add(song);
             }
 
@@ -182,7 +182,7 @@ namespace MusicApp.Resources.Portable_Class
                         Google.Apis.YouTube.v3.Data.Playlist playlist = plResponse.Items[0];
                         playlist.Kind = "youtube#saved";
                         YtPlaylists.Add(playlist);
-                        Song song = new Song(playlist.Snippet.Title, playlist.Snippet.ChannelTitle, playlist.Snippet.Thumbnails.Default__.Url, playlist.Id, -1, -1, playlist.Id, true, false);
+                        Song song = new Song(playlist.Snippet.Title, playlist.Snippet.ChannelTitle, playlist.Snippet.Thumbnails.High.Url, playlist.Id, -1, -1, playlist.Id, true, false, (int)playlist.ContentDetails.ItemCount);
                         ytPlaylists.Add(song);
                         forkedFound = true;
                     }
@@ -285,7 +285,7 @@ namespace MusicApp.Resources.Portable_Class
             if (local)
                 MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.GetID(), playlist.GetName()), true);
             else
-                MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.youtubeID, playlist.GetName(), playlist.isParsed), true);
+                MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.youtubeID, playlist.GetName(), playlist.isParsed, playlist.GetArtist(), playlist.queueSlot, playlist.GetAlbum()), true);
         }
 
         private void ListView_ItemLongClick(object sender, int position)

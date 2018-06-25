@@ -304,7 +304,7 @@ namespace MusicApp.Resources.Portable_Class
 
                     MainActivity.instance.HideTabs();
                     MainActivity.instance.HomeDetails = true;
-                    MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(section.data, item.GetName(), false), true);
+                    MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(section.data, item.GetName(), false, item.GetArtist(), -1, item.GetAlbum()), true);
                 }
             }
             else
@@ -325,7 +325,7 @@ namespace MusicApp.Resources.Portable_Class
 
                     MainActivity.instance.HideTabs();
                     MainActivity.instance.HomeDetails = true;
-                    MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(item.youtubeID, item.GetName(), false), true);
+                    MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(item.youtubeID, item.GetName(), false, item.GetArtist(), -1, item.GetAlbum()), true);
                 }
             }
         }

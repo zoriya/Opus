@@ -176,7 +176,6 @@ namespace MusicApp.Resources.Portable_Class
 
         public void SignedIn()
         {
-            System.Console.WriteLine("&Preference sign in callback");
             AccountPreference accountPreference = (AccountPreference)PreferenceScreen.FindPreference("account");
             accountPreference.Title = "Logged in as:";
             accountPreference.Summary = MainActivity.account.DisplayName;

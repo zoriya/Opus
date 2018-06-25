@@ -137,7 +137,7 @@ namespace MusicApp.Resources.Portable_Class
             await MainActivity.instance.WaitForYoutube();
 
             SearchResource.ListRequest searchResult = youtubeService.Search.List("snippet");
-            searchResult.Fields = "items(id/videoId,id/playlistId,id/kind,snippet/title,snippet/thumbnails/default/url,snippet/channelTitle)";
+            searchResult.Fields = "items(id/videoId,id/playlistId,id/kind,snippet/title,snippet/thumbnails/high/url,snippet/channelTitle)";
             searchResult.Q = search.Replace(" ", "+-");
             searchResult.Type = "video";
             switch (querryType)
@@ -166,7 +166,7 @@ namespace MusicApp.Resources.Portable_Class
 
             foreach (var video in searchReponse.Items)
             {
-                Song videoInfo = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.Default__.Url, video.Id.VideoId ?? video.Id.PlaylistId, -1, -1, video.Id.VideoId ?? video.Id.PlaylistId, true);
+                Song videoInfo = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.High.Url, video.Id.VideoId ?? video.Id.PlaylistId, -1, -1, video.Id.VideoId ?? video.Id.PlaylistId, true);
                 YtKind kind = YtKind.Null;
 
                 switch (video.Id.Kind)
@@ -256,7 +256,7 @@ namespace MusicApp.Resources.Portable_Class
                     instances = null;
                     MainActivity.youtubeParcel = ListView.GetLayoutManager().OnSaveInstanceState();
                     MainActivity.youtubeInstanceSave = "YoutubeEngine" + "-" + querryType;
-                    MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(item.youtubeID, item.GetName(), false), true);
+                    MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(item.youtubeID, item.GetName(), false, item.GetArtist(), -1, item.GetAlbum()), true);
                     break;
                 case YtKind.Channel:
                     Toast.MakeText(Activity, "Action comming soon", ToastLength.Short).Show();
