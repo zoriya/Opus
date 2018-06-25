@@ -639,11 +639,10 @@ namespace MusicApp
 
             viewPager = pager;
             TabLayout tabs = FindViewById<TabLayout>(Resource.Id.tabs);
-            ((AppBarLayout.LayoutParams)ToolBar.LayoutParameters).ScrollFlags = AppBarLayout.LayoutParams.ScrollFlagScroll | AppBarLayout.LayoutParams.ScrollFlagEnterAlways | AppBarLayout.LayoutParams.ScrollFlagSnap;
+            ((AppBarLayout.LayoutParams)FindViewById<CollapsingToolbarLayout>(Resource.Id.collapsingToolbar).LayoutParameters).ScrollFlags = AppBarLayout.LayoutParams.ScrollFlagScroll | AppBarLayout.LayoutParams.ScrollFlagEnterAlways | AppBarLayout.LayoutParams.ScrollFlagSnap;
 
             if (Browse.instance != null)
             {
-                Console.WriteLine("&Browse instance exist, not refreshing tabs");
                 pager.CurrentItem = selectedTab;
                 tabs.SetScrollPosition(selectedTab, 0f, true);
                 CanSwitchDelay();
@@ -682,7 +681,7 @@ namespace MusicApp
 
             viewPager = pager;
             TabLayout tabs = FindViewById<TabLayout>(Resource.Id.tabs);
-            ((AppBarLayout.LayoutParams)ToolBar.LayoutParameters).ScrollFlags = AppBarLayout.LayoutParams.ScrollFlagScroll | AppBarLayout.LayoutParams.ScrollFlagEnterAlways | AppBarLayout.LayoutParams.ScrollFlagSnap;
+            ((AppBarLayout.LayoutParams)FindViewById<CollapsingToolbarLayout>(Resource.Id.collapsingToolbar).LayoutParameters).ScrollFlags = AppBarLayout.LayoutParams.ScrollFlagScroll | AppBarLayout.LayoutParams.ScrollFlagEnterAlways | AppBarLayout.LayoutParams.ScrollFlagSnap;
 
             if (YoutubeEngine.instances != null)
             {
@@ -807,7 +806,7 @@ namespace MusicApp
             tabs.RemoveAllTabs();
             tabs.Visibility = ViewStates.Gone;
 
-            ((AppBarLayout.LayoutParams)ToolBar.LayoutParameters).ScrollFlags = 0;
+            ((AppBarLayout.LayoutParams)FindViewById<CollapsingToolbarLayout>(Resource.Id.collapsingToolbar).LayoutParameters).ScrollFlags = 0;
 
             if (viewPager == null)
                 return;

@@ -11,14 +11,24 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/appbar" >
-    <android.support.v7.widget.Toolbar
-      android:id="@+id/toolbar"
+    <android.support.design.widget.CollapsingToolbarLayout
       android:layout_width="match_parent"
-      android:layout_height="?attr/actionBarSize"
-      android:background="?attr/colorPrimary"
-      app:layout_scrollFlags="scroll|enterAlways|snap"
-      android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-      app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+      android:layout_height="wrap_content"
+      app:layout_scrollFlags="scroll"
+      android:fitsSystemWindows="true"
+      android:id="@+id/collapsingToolbar"
+      app:titleEnabled="false" >
+      <include
+        layout="@layout/PlaylistHeader"
+        android:id="@+id/playlistHeader"
+        android:visibility="gone" />
+      <android.support.v7.widget.Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        android:id="@+id/toolbar" />
+    </android.support.design.widget.CollapsingToolbarLayout>
     <android.support.design.widget.TabLayout
       android:id="@+id/tabs"
       android:visibility="gone"

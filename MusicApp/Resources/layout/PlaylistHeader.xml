@@ -2,7 +2,8 @@
 <RelativeLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_height="wrap_content"
-  android:layout_width="fill_parent" >
+  android:layout_width="fill_parent"
+  android:id="@+id/playlistHeader">
   <ImageView
     android:layout_height="wrap_content"
     android:layout_width="fill_parent"
@@ -58,19 +59,22 @@
       android:layout_width="60dp"
       android:layout_height="60dp"
       android:tint="#ffffff"
-      android:src="@drawable/ic_pause_black_24dp" />
+      android:src="@drawable/ic_pause_black_24dp"
+      android:background="@null" />
     <ImageButton
-      android:id="@+id/headerSuffle"
+      android:id="@+id/headerShuffle"
       android:layout_width="60dp"
       android:layout_height="60dp"
       android:tint="#ffffff"
-      android:src="@drawable/Suffle" />
+      android:src="@drawable/Shuffle"
+      android:background="@null"/>
     <ImageButton
       android:id="@+id/headerMore"
       android:layout_width="60dp"
       android:layout_height="60dp"
       android:tint="#ffffff"
-      android:src="@drawable/ic_more_vert_black_24dp" />
+      android:src="@drawable/ic_more_vert_black_24dp"
+      android:background="@null" />
   </LinearLayout>
 </RelativeLayout>
 

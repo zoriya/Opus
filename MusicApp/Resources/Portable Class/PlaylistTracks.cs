@@ -3,6 +3,7 @@ using Android.Database;
 using Android.Net;
 using Android.OS;
 using Android.Provider;
+using Android.Support.Design.Widget;
 using Android.Support.V4.App;
 using Android.Support.V7.App;
 using Android.Views;
@@ -41,11 +42,12 @@ namespace MusicApp.Resources.Portable_Class
             ListView.EmptyView = emptyView;
             ListView.Scroll += MainActivity.instance.Scroll;
             ListView.ScrollStateChanged += ListView_ScrollStateChanged;
+            ListView.NestedScrollingEnabled = true;
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
             MainActivity.instance.OnPaddingChanged += OnPaddingChanged;
             MainActivity.instance.DisplaySearch(1);
-
-            ListView.AddHeaderView(LayoutInflater.Inflate(Resource.Layout.PlaylistHeader, null));
+            Activity.FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Visible;
+            ((AppBarLayout.LayoutParams)Activity.FindViewById<CollapsingToolbarLayout>(Resource.Id.collapsingToolbar).LayoutParameters).ScrollFlags = AppBarLayout.LayoutParams.ScrollFlagScroll | AppBarLayout.LayoutParams.ScrollFlagEnterAlwaysCollapsed;
 
 #pragma warning disable CS4014
             PopulateList();
@@ -72,6 +74,8 @@ namespace MusicApp.Resources.Portable_Class
         {
             MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
             MainActivity.instance.OnPaddingChanged -= OnPaddingChanged;
+            Activity.FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Gone;
+
             base.OnDestroy();
             instance = null;
         }

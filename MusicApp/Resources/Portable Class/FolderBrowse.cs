@@ -29,7 +29,7 @@ namespace MusicApp.Resources.Portable_Class
         public bool focused = false;
 
         private View view;
-        private string[] actions = new string[] { "List songs", "Play in order", "Add To Playlist", "Random Play" };
+        private readonly string[] actions = new string[] { "List songs", "Play in order", "Add To Playlist", "Random Play" };
         private bool isEmpty = false;
 
 
@@ -43,6 +43,7 @@ namespace MusicApp.Resources.Portable_Class
             ListView.Scroll += MainActivity.instance.Scroll;
             ListView.ItemClick += ListView_ItemClick;
             ListView.ItemLongClick += ListView_ItemLongClick;
+            ListView.NestedScrollingEnabled = true;
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
             MainActivity.instance.OnPaddingChanged += OnPaddingChanged;
 
