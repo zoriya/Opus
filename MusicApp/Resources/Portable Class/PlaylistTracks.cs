@@ -1,6 +1,5 @@
 ﻿using Android.Content;
 using Android.Database;
-using Android.Graphics;
 using Android.Net;
 using Android.OS;
 using Android.Provider;
@@ -73,12 +72,12 @@ namespace MusicApp.Resources.Portable_Class
             Activity.FindViewById<ImageButton>(Resource.Id.headerMore).Click += (sender, e0) => 
             {
                 PopupMenu menu = new PopupMenu(Activity, Activity.FindViewById<ImageButton>(Resource.Id.headerMore));
-                if(playlistId == 0 && hasWriteAcess)
+                if (playlistId == 0 && hasWriteAcess)
                     menu.Inflate(Resource.Menu.ytplaylist_header_more);
-                else if(playlistId == 0)
+                else if (playlistId == 0)
                     menu.Inflate(Resource.Menu.ytplaylistnowrite_header_more);
                 else
-                    menu.Inflate(Resource.Menu.playlist_header_more)
+                    menu.Inflate(Resource.Menu.playlist_header_more);
                 menu.SetOnMenuItemClickListener(this);
                 menu.Show();
             };

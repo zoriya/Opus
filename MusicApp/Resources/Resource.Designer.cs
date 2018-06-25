@@ -4450,6 +4450,9 @@ namespace MusicApp
 			// aapt resource value: 0x7f0d0005
 			public const int ytplaylist_header_more = 2131558405;
 			
+			// aapt resource value: 0x7f0d0006
+			public const int ytplaylistnowrite_header_more = 2131558406;
+			
 			static Menu()
 			{
 				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
