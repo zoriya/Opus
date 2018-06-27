@@ -729,13 +729,13 @@ namespace MusicApp.Resources.Portable_Class
             MusicPlayer.title = title;
             Bitmap icon = null;
 
-            if(albumArt == -1 || albumArt == 0)
+            if(albumArt == -1)
             {
                 await Task.Run(() =>
                 {
                     try
                     {
-                        icon = Picasso.With(Application.Context).Load(imageURI).Error(Resource.Drawable.MusicIcon).Placeholder(Resource.Drawable.MusicIcon).NetworkPolicy(NetworkPolicy.Offline).Resize(400, 400).CenterCrop().Get();
+                        icon = Picasso.With(Application.Context).Load(imageURI).Error(Resource.Drawable.MusicIcon).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Get();
                     }
                     catch (Exception)
                     {

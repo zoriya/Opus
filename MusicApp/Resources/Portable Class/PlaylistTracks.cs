@@ -19,7 +19,7 @@ using static Android.Provider.MediaStore.Audio;
 
 namespace MusicApp.Resources.Portable_Class
 {
-    public class PlaylistTracks : ListFragment, PopupMenu.IOnMenuItemClickListener
+    public class PlaylistTracks : ListFragment, PopupMenu.IOnMenuItemClickListener, AppBarLayout.IOnOffsetChangedListener
     {
         public static PlaylistTracks instance;
         public string playlistName;
@@ -59,7 +59,8 @@ namespace MusicApp.Resources.Portable_Class
 
 
             Activity.FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Visible;
-            ((AppBarLayout.LayoutParams)Activity.FindViewById<CollapsingToolbarLayout>(Resource.Id.collapsingToolbar).LayoutParameters).ScrollFlags = AppBarLayout.LayoutParams.ScrollFlagScroll | AppBarLayout.LayoutParams.ScrollFlagExitUntilCollapsed;
+            ((AppBarLayout.LayoutParams)Activity.FindViewById<CollapsingToolbarLayout>(Resource.Id.collapsingToolbar).LayoutParameters).ScrollFlags = AppBarLayout.LayoutParams.ScrollFlagScroll | AppBarLayout.LayoutParams.ScrollFlagExitUntilCollapsed | AppBarLayout.LayoutParams.ScrollFlagSnap;
+            Activity.FindViewById<AppBarLayout>(Resource.Id.appbar).AddOnOffsetChangedListener(this);
             Activity.FindViewById<TextView>(Resource.Id.headerTitle).Text = playlistName;
             Activity.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { PlayInOrder(0); };
             Activity.FindViewById<ImageButton>(Resource.Id.headerShuffle).Click += (sender, e0) => 
@@ -202,9 +203,59 @@ namespace MusicApp.Resources.Portable_Class
 
         public override void OnDestroy()
         {
+            MainActivity.instance.HideSearch();
+            if (isEmpty)
+            {
+                ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
+                rootView.RemoveView(emptyView);
+            }
+            MainActivity.instance.SupportActionBar.SetHomeButtonEnabled(false);
+            MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(false);
+            MainActivity.instance.SupportActionBar.SetDisplayShowTitleEnabled(true);
+            MainActivity.instance.SupportActionBar.Title = "MusicApp";
+
             MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
             MainActivity.instance.OnPaddingChanged -= OnPaddingChanged;
+            Activity.FindViewById<AppBarLayout>(Resource.Id.appbar).RemoveOnOffsetChangedListener(this);
             Activity.FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Gone;
+
+            MainActivity.instance.SupportFragmentManager.PopBackStack();
+
+            //if (MainActivity.instance.HomeDetails)
+            //{
+            //    Home.instance = null;
+            //    MainActivity.instance.Navigate(Resource.Id.musicLayout);
+            //    MainActivity.instance.HomeDetails = false;
+            //}
+            //else if (MainActivity.youtubeInstanceSave != null)
+            //{
+            //    int selectedTab = 0;
+            //    switch (MainActivity.youtubeInstanceSave)
+            //    {
+            //        case "YoutubeEngine-All":
+            //            selectedTab = 0;
+            //            break;
+            //        case "YoutubeEngine-Tracks":
+            //            selectedTab = 1;
+            //            break;
+            //        case "YoutubeEngine-Playlists":
+            //            selectedTab = 2;
+            //            break;
+            //        case "YoutubeEngine-Channels":
+            //            selectedTab = 3;
+            //            break;
+            //        default:
+            //            break;
+            //    }
+            //    MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(2, selectedTab)).Commit();
+            //    YoutubeEngine.instances[selectedTab].focused = true;
+            //    YoutubeEngine.instances[selectedTab].OnFocus();
+            //    YoutubeEngine.instances[selectedTab].ResumeListView();
+            //}
+            //else
+            //{
+            //    MainActivity.instance.Navigate(Resource.Id.playlistLayout);
+            //}
 
             base.OnDestroy();
             instance = null;
@@ -587,6 +638,23 @@ namespace MusicApp.Resources.Portable_Class
                 ListView.OnRestoreInstanceState(MainActivity.parcelable);
                 MainActivity.parcelable = null;
                 MainActivity.parcelableSender = null;
+            }
+        }
+
+        public void OnOffsetChanged(AppBarLayout appBarLayout, int verticalOffset)
+        {
+            if (instance == null)
+                return;
+
+            if (System.Math.Abs(verticalOffset) <= appBarLayout.TotalScrollRange - MainActivity.instance.ToolBar.Height)
+            {
+                Activity.FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Visible;
+                MainActivity.instance.SupportActionBar.SetDisplayShowTitleEnabled(false);
+            }
+            else
+            {
+                Activity.FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Invisible;
+                MainActivity.instance.SupportActionBar.SetDisplayShowTitleEnabled(true);
             }
         }
     }

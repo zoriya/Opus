@@ -400,45 +400,50 @@ namespace MusicApp
                     }
                     SupportActionBar.SetHomeButtonEnabled(false);
                     SupportActionBar.SetDisplayHomeAsUpEnabled(false);
+                    SupportActionBar.SetDisplayShowTitleEnabled(true);
                     SupportActionBar.Title = "MusicApp";
                     contentRefresh.Refresh -= PlaylistTracks.instance.OnRefresh;
                     OnPaddingChanged -= PlaylistTracks.instance.OnPaddingChanged;
+                    FindViewById<AppBarLayout>(Resource.Id.appbar).RemoveOnOffsetChangedListener(PlaylistTracks.instance);
+                    FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Gone;
                     PlaylistTracks.instance = null;
-                    if (HomeDetails)
-                    {
-                        Home.instance = null;
-                        Navigate(Resource.Id.musicLayout);
-                        HomeDetails = false;
-                    }
-                    else if(youtubeInstanceSave != null)
-                    {
-                        int selectedTab = 0;
-                        switch (youtubeInstanceSave)
-                        {
-                            case "YoutubeEngine-All":
-                                selectedTab = 0;
-                                break;
-                            case "YoutubeEngine-Tracks":
-                                selectedTab = 1;
-                                break;
-                            case "YoutubeEngine-Playlists":
-                                selectedTab = 2;
-                                break;
-                            case "YoutubeEngine-Channels":
-                                selectedTab = 3;
-                                break;
-                            default:
-                                break;
-                        }
-                        SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(2, selectedTab)).Commit();
-                        YoutubeEngine.instances[selectedTab].focused = true;
-                        YoutubeEngine.instances[selectedTab].OnFocus();
-                        YoutubeEngine.instances[selectedTab].ResumeListView();
-                    }
-                    else
-                    {
-                        Navigate(Resource.Id.playlistLayout);
-                    }
+                    SupportFragmentManager.PopBackStack();
+
+                    //if (HomeDetails)
+                    //{
+                    //    Home.instance = null;
+                    //    Navigate(Resource.Id.musicLayout);
+                    //    HomeDetails = false;
+                    //}
+                    //else if(youtubeInstanceSave != null)
+                    //{
+                    //    int selectedTab = 0;
+                    //    switch (youtubeInstanceSave)
+                    //    {
+                    //        case "YoutubeEngine-All":
+                    //            selectedTab = 0;
+                    //            break;
+                    //        case "YoutubeEngine-Tracks":
+                    //            selectedTab = 1;
+                    //            break;
+                    //        case "YoutubeEngine-Playlists":
+                    //            selectedTab = 2;
+                    //            break;
+                    //        case "YoutubeEngine-Channels":
+                    //            selectedTab = 3;
+                    //            break;
+                    //        default:
+                    //            break;
+                    //    }
+                    //    SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(2, selectedTab)).Commit();
+                    //    YoutubeEngine.instances[selectedTab].focused = true;
+                    //    YoutubeEngine.instances[selectedTab].OnFocus();
+                    //    YoutubeEngine.instances[selectedTab].ResumeListView();
+                    //}
+                    //else
+                    //{
+                    //    Navigate(Resource.Id.playlistLayout);
+                    //}
                 }
                 else if (FolderTracks.instance != null)
                 {

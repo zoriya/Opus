@@ -85,17 +85,41 @@ namespace MusicApp.Resources.Portable_Class
             else
                 FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
 
-            if (current.GetAlbum() == null)
+            Bitmap icon = null;
+            if (current.GetAlbumArt() == -1)
             {
-                var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
-                var songAlbumArtUri = ContentUris.WithAppendedId(songCover, current.GetAlbumArt());
-
-                Picasso.With(this).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(imgView);
+                await Task.Run(() =>
+                {
+                    try
+                    {
+                        icon = Picasso.With(Application.Context).Load(current.GetAlbum()).Error(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.noAlbum).Resize(1080, 1080).CenterCrop().Get();
+                    }
+                    catch (Exception)
+                    {
+                        icon = Picasso.With(Application.Context).Load(Resource.Drawable.noAlbum).Get();
+                    }
+                });
             }
             else
             {
-                Picasso.With(this).Load(current.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(imgView);
+                Android.Net.Uri songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
+                Android.Net.Uri iconURI = ContentUris.WithAppendedId(songCover, current.GetAlbumArt());
+
+                await Task.Run(() =>
+                {
+                    try
+                    {
+                        icon = Picasso.With(Application.Context).Load(iconURI).Error(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.noAlbum).Resize(1080, 1080).CenterCrop().Get();
+                    }
+                    catch (Exception)
+                    {
+                        icon = Picasso.With(Application.Context).Load(Resource.Drawable.noAlbum).Get();
+                    }
+                });
             }
+
+            imgView.SetImageBitmap(icon);
+            Palette.From(icon).MaximumColorCount(28).Generate(this);
 
             if (current.IsYt)
             {
@@ -185,10 +209,7 @@ namespace MusicApp.Resources.Portable_Class
             MusicPlayer.SetSeekBar(bar);
             handler.PostDelayed(UpdateSeekBar, 1000);
 
-            await Task.Delay(10);
-            Palette.From(((BitmapDrawable)imgView.Drawable).Bitmap).MaximumColorCount(28).Generate(this);
-
-            await Task.Delay(990);
+            await Task.Delay(1000);
             MusicPlayer.SetSeekBar(bar);
         }
 
@@ -211,19 +232,41 @@ namespace MusicApp.Resources.Portable_Class
             else
                 FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
 
-            if (!current.IsYt)
+            Bitmap icon = null;
+            if (current.GetAlbumArt() == -1)
             {
-                var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
-                var songAlbumArtUri = ContentUris.WithAppendedId(songCover, current.GetAlbumArt());
-
-                Picasso.With(this).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(1080, 1080).CenterCrop().Into(imgView);
+                await Task.Run(() =>
+                {
+                    try
+                    {
+                        icon = Picasso.With(Application.Context).Load(current.GetAlbum()).Error(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.noAlbum).Resize(1080, 1080).CenterCrop().Get();
+                    }
+                    catch (Exception)
+                    {
+                        icon = Picasso.With(Application.Context).Load(Resource.Drawable.noAlbum).Get();
+                    }
+                });
             }
             else
             {
-                Picasso.With(this).Load(current.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Resize(1080, 1080).CenterCrop().Into(imgView);
+                Android.Net.Uri songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
+                Android.Net.Uri iconURI = ContentUris.WithAppendedId(songCover, current.GetAlbumArt());
+
+                await Task.Run(() =>
+                {
+                    try
+                    {
+                        icon = Picasso.With(Application.Context).Load(iconURI).Error(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.noAlbum).NetworkPolicy(NetworkPolicy.Offline).Resize(1080, 1080).CenterCrop().Get();
+                    }
+                    catch (Exception)
+                    {
+                        icon = Picasso.With(Application.Context).Load(Resource.Drawable.noAlbum).Get();
+                    }
+                });
             }
 
-            Palette.From(((BitmapDrawable)imgView.Drawable).Bitmap).MaximumColorCount(28).Generate(this);
+            imgView.SetImageBitmap(icon);
+            Palette.From(icon).MaximumColorCount(28).Generate(this);
 
             if (current.IsYt)
             {
@@ -289,9 +332,6 @@ namespace MusicApp.Resources.Portable_Class
 
             bar.Progress = 0;
             bar.Max = (int)MusicPlayer.player.Duration;
-
-            await Task.Delay(10);
-            Palette.From(((BitmapDrawable)imgView.Drawable).Bitmap).MaximumColorCount(28).Generate(this);
         }
 
         public async void UpdateNext()
@@ -382,40 +422,9 @@ namespace MusicApp.Resources.Portable_Class
             handler.PostDelayed(UpdateSeekBar, 1000);
         }
 
-        private /*async*/ void Fab_Click(object sender, EventArgs e)
+        private void Fab_Click(object sender, EventArgs e)
         {
             Finish();
-            //MainActivity.instance.ToolBar.Visibility = ViewStates.Visible;
-            //MainActivity.instance.FindViewById<BottomNavigationView>(Resource.Id.bottomView).Visibility = ViewStates.Visible;
-            //MainActivity.instance.ShowSmallPlayer();
-            //MainActivity.instance.PrepareSmallPlayer();
-            //if (MainActivity.youtubeInstanceSave != null)
-            //{
-            //    int selectedTab = 0;
-            //    switch (MainActivity.youtubeInstanceSave)
-            //    {
-            //        case "YoutubeEngine-All":
-            //            selectedTab = 0;
-            //            break;
-            //        case "YoutubeEngine-Tracks":
-            //            selectedTab = 1;
-            //            break;
-            //        case "YoutubeEngine-Playlists":
-            //            selectedTab = 2;
-            //            break;
-            //        case "YoutubeEngine-Channels":
-            //            selectedTab = 3;
-            //            break;
-            //        default:
-            //            break;
-            //    }
-            //    await Task.Delay(10);
-            //    MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(1, selectedTab)).Commit();
-            //}
-            //else
-            //{
-            //    MainActivity.instance.ResumeInstance();
-            //}
         }
 
         private void ShowQueue_Click(object sender, EventArgs e)
@@ -488,7 +497,7 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             Palette.Swatch accent = null;
-            if (isColorDark(swatch.Rgb))
+            if (IsColorDark(swatch.Rgb))
             {
                 accent = palette.LightVibrantSwatch;
 
@@ -520,12 +529,21 @@ namespace MusicApp.Resources.Portable_Class
             FindViewById<DiscreteSeekBar>(Resource.Id.songTimer).SetThumbColor(accent.Rgb, accent.Rgb);
             FindViewById<DiscreteSeekBar>(Resource.Id.songTimer).SetScrubberColor(accent.Rgb);
             FindViewById<DiscreteSeekBar>(Resource.Id.songTimer).SetRippleColor(accent.Rgb);
+
+            if (IsColorDark(accent.Rgb))
+            {
+                FindViewById<FloatingActionButton>(Resource.Id.downFAB).ImageTintList = ColorStateList.ValueOf(Color.White);
+            }
+            else
+            {
+                FindViewById<FloatingActionButton>(Resource.Id.downFAB).ImageTintList = ColorStateList.ValueOf(Color.Black);
+            }
         }
 
-        public bool isColorDark(int color)
+        public bool IsColorDark(int color)
         {
             double darkness = 1 - (0.299 * Color.GetRedComponent(color) + 0.587 * Color.GetGreenComponent(color) + 0.114 * Color.GetBlueComponent(color)) / 255;
-            if (darkness < 0.5)
+            if (darkness < 0.7)
             {
                 return false; // It's a light color
             }
