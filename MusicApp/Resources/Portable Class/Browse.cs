@@ -254,7 +254,7 @@ namespace MusicApp.Resources.Portable_Class
 
             item = CompleteItem(item);
 
-            Play(item);
+            Play(item, ListView.GetChildAt(e.Position - ListView.FirstVisiblePosition).FindViewById<ImageView>(Resource.Id.albumArt));
         }
 
         private void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
@@ -263,10 +263,10 @@ namespace MusicApp.Resources.Portable_Class
             if (result != null)
                 item = result[e.Position];
 
-            More(item);
+            More(item, e.Position);
         } 
 
-        public void More(Song item)
+        public void More(Song item, int position)
         {
             item = CompleteItem(item);
 
@@ -277,7 +277,7 @@ namespace MusicApp.Resources.Portable_Class
                 switch (args.Which)
                 {
                     case 0:
-                        Play(item);
+                        Play(item, ListView.GetChildAt(position - ListView.FirstVisiblePosition).FindViewById<ImageView>(Resource.Id.albumArt));
                         break;
                     case 1:
                         PlayNext(item);
@@ -309,14 +309,24 @@ namespace MusicApp.Resources.Portable_Class
             return new Song(item.GetName(), item.GetArtist(), item.GetAlbum(), ytID, item.GetAlbumArt(), item.GetID(), item.GetPath(), item.IsYt, item.isParsed, item.queueSlot);
         }
 
-        public static void Play(Song item)
+        public static void Play(Song item, View albumArt)
         {
             Context context = Android.App.Application.Context;
             Intent intent = new Intent(context, typeof(MusicPlayer));
             intent.PutExtra("file", item.GetPath());
             context.StartService(intent);
-            Intent inten = new Intent(context, typeof(Player));
-            context.StartActivity(inten);
+
+            if(albumArt != null)
+            {
+                Intent inten = new Intent(context, typeof(Player));
+                ActivityOptionsCompat options = ActivityOptionsCompat.MakeSceneTransitionAnimation(MainActivity.instance, albumArt, "albumArt");
+                MainActivity.instance.StartActivity(inten, options.ToBundle());
+            }
+            else
+            {
+                Intent inten = new Intent(context, typeof(Player));
+                MainActivity.instance.StartActivity(inten);
+            }
         }
 
         public static void PlayNext(Song item)

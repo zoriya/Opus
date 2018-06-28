@@ -234,7 +234,7 @@ namespace MusicApp.Resources.Portable_Class
             switch (result[position].Kind)
             {
                 case YtKind.Video:
-                    Play(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum(), this);
+                    Play(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
                     break;
                 case YtKind.Playlist:
                     ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
@@ -284,7 +284,7 @@ namespace MusicApp.Resources.Portable_Class
                 switch (args.Which)
                 {
                     case 0:
-                        Play(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum(), this);
+                        Play(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
                         break;
                     case 1:
                         PlayNext(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
@@ -305,7 +305,7 @@ namespace MusicApp.Resources.Portable_Class
             builder.Show();
         }
 
-        public static void Play(string videoID, string title, string artist, string thumbnailURL, YoutubeEngine instance = null)
+        public static void Play(string videoID, string title, string artist, string thumbnailURL)
         {
             Intent intent = new Intent(Android.App.Application.Context, typeof(MusicPlayer));
             intent.SetAction("YoutubePlay");

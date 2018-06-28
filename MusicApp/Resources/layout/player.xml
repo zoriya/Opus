@@ -19,6 +19,7 @@
         android:background="@null"
         android:layout_height="wrap_content"
         android:scaleType="fitCenter"
+        android:transitionName="albumArt"
         android:adjustViewBounds="true" />
       <LinearLayout
         android:gravity="center"

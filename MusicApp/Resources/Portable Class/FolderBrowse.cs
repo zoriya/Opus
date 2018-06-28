@@ -283,7 +283,7 @@ namespace MusicApp.Resources.Portable_Class
 
                 songs.Reverse();
                 Browse.act = Activity;
-                Browse.Play(songs[0]);
+                Browse.Play(songs[0], null);
 
                 while (MusicPlayer.instance == null)
                     await Task.Delay(10);

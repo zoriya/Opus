@@ -584,7 +584,7 @@ namespace MusicApp.Resources.Portable_Class
             if (!songs[0].IsYt)
             {
                 Browse.act = Activity;
-                Browse.Play(songs[0]);
+                Browse.Play(songs[0], ListView.GetChildAt(fromPosition - ListView.FirstVisiblePosition).FindViewById<ImageView>(Resource.Id.albumArt));
             }
             else
                 YoutubeEngine.Play(songs[0].youtubeID, songs[0].GetName(), songs[0].GetArtist(), songs[0].GetAlbum());

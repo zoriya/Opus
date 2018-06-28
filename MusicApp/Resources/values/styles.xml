@@ -5,6 +5,7 @@
   <style name="Theme.Base" parent="Theme.AppCompat.Light.DarkActionBar">
     <item name="windowNoTitle">true</item>
     <item name="windowActionBar">false</item>
+    <item name="android:windowActivityTransitions">true</item>
     <item name="android:windowContentTransitions">true</item>
     <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
     <item name="colorAccent">#15b7ed</item>
@@ -15,6 +16,7 @@
   <style name="DarkTheme" parent="Theme.AppCompat">
     <item name="windowNoTitle">true</item>
     <item name="windowActionBar">false</item>
+    <item name="android:windowActivityTransitions">true</item>
     <item name="android:windowContentTransitions">true</item>
     <item name="preferenceTheme">@style/DarkPreferences</item>
     <item name="colorAccent">#15b7ed</item>

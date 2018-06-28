@@ -216,7 +216,7 @@ namespace MusicApp.Resources.Portable_Class
             }
             queue.Reverse();
 
-            Browse.Play(item);
+            Browse.Play(item, ListView.GetChildAt(e.Position - ListView.FirstVisiblePosition).FindViewById<ImageView>(Resource.Id.albumArt));
 
             while(MusicPlayer.instance == null)
                 await Task.Delay(10);
@@ -234,10 +234,10 @@ namespace MusicApp.Resources.Portable_Class
             if (result != null)
                 item = result[e.Position];
 
-            More(item);
+            More(item, e.Position);
         }
 
-        public void More(Song item)
+        public void More(Song item, int position)
         {
             Browse.act = Activity;
             Browse.inflater = LayoutInflater;
@@ -259,7 +259,7 @@ namespace MusicApp.Resources.Portable_Class
                         }
                         queue.Reverse();
 
-                        Browse.Play(item);
+                        Browse.Play(item, ListView.GetChildAt(position - ListView.FirstVisiblePosition).FindViewById<ImageView>(Resource.Id.albumArt));
 
                         while (MusicPlayer.instance == null)
                             await Task.Delay(10);

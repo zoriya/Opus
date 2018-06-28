@@ -408,7 +408,7 @@ namespace MusicApp.Resources.Portable_Class
 
                 MusicPlayer.queue.Clear();
                 Browse.act = Activity;
-                Browse.Play(songs[0]);
+                Browse.Play(songs[0], null);
                 songs.RemoveAt(0);
                 songs.Reverse();
 
