@@ -12,6 +12,7 @@ using Android.OS;
 using Android.Provider;
 using Android.Runtime;
 using Android.Support.Design.Widget;
+using Android.Support.V4.App;
 using Android.Support.V4.View;
 using Android.Support.V4.Widget;
 using Android.Support.V7.App;
@@ -933,7 +934,8 @@ namespace MusicApp
         private void Container_Click(object sender, EventArgs e)
         {
             Intent intent = new Intent(this, typeof(Player));
-            StartActivity(intent);
+            ActivityOptionsCompat options = ActivityOptionsCompat.MakeSceneTransitionAnimation(this, FindViewById<ImageView>(Resource.Id.spArt), "albumArt");
+            StartActivity(intent, options.ToBundle());
         }
 
         public void GetStoragePermission()

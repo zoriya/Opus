@@ -595,6 +595,7 @@ namespace MusicApp.Resources.Portable_Class
             while (MusicPlayer.instance == null)
                 await Task.Delay(10);
 
+            MusicPlayer.currentID = -1;
             foreach (Song song in songs)
             {
                 MusicPlayer.instance.AddToQueue(song);

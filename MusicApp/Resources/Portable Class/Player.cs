@@ -143,7 +143,7 @@ namespace MusicApp.Resources.Portable_Class
                 NextTitle.SetTextColor(Color.White);
                 NextAlbum.SetTextColor(Color.White);
                 NextAlbum.Alpha = 0.7f;
-                ((GradientDrawable)ShowQueue.Background).SetStroke(5, Android.Content.Res.ColorStateList.ValueOf(Color.Argb(255, 62, 80, 180)));
+                ((GradientDrawable)ShowQueue.Background).SetStroke(5, ColorStateList.ValueOf(Color.Argb(255, 62, 80, 180)));
                 ShowQueue.SetTextColor(Color.Argb(255, 62, 80, 180));
             }
             else
@@ -424,7 +424,7 @@ namespace MusicApp.Resources.Portable_Class
 
         private void Fab_Click(object sender, EventArgs e)
         {
-            Finish();
+            FinishAfterTransition();
         }
 
         private void ShowQueue_Click(object sender, EventArgs e)

@@ -568,8 +568,7 @@ namespace MusicApp.Resources.Portable_Class
 
                 Video info = await client.GetVideoAsync(song.youtubeID);
                 song.SetAlbum(info.Thumbnails.HighResUrl);
-                if (song.GetArtist() == null || song.GetArtist() == "")
-                    song.SetArtist(info.Author);
+                song.SetArtist(info.Author);
             }
 
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
@@ -646,8 +645,7 @@ namespace MusicApp.Resources.Portable_Class
 
                 Video info = await client.GetVideoAsync(song.youtubeID);
                 song.SetAlbum(info.Thumbnails.HighResUrl);
-                if (song.GetArtist() == null || song.GetArtist() == "")
-                    song.SetArtist(info.Author);
+                song.SetArtist(info.Author);
 
                 parsing = false;
                 if (Queue.instance != null)
