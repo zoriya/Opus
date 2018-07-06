@@ -469,7 +469,7 @@ namespace MusicApp.Resources.Portable_Class
             Console.WriteLine("&Going to sleep in " + time + ", slected item is the " + checkedItem + " one.");
             Intent intent = new Intent(this, typeof(Sleeper));
             intent.PutExtra("time", time);
-            this.StartService(intent);
+            StartService(intent);
         }
 
         protected override void OnResume()

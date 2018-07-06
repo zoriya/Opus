@@ -220,43 +220,6 @@ namespace MusicApp.Resources.Portable_Class
             Activity.FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Gone;
 
             MainActivity.instance.SupportFragmentManager.PopBackStack();
-
-            //if (MainActivity.instance.HomeDetails)
-            //{
-            //    Home.instance = null;
-            //    MainActivity.instance.Navigate(Resource.Id.musicLayout);
-            //    MainActivity.instance.HomeDetails = false;
-            //}
-            //else if (MainActivity.youtubeInstanceSave != null)
-            //{
-            //    int selectedTab = 0;
-            //    switch (MainActivity.youtubeInstanceSave)
-            //    {
-            //        case "YoutubeEngine-All":
-            //            selectedTab = 0;
-            //            break;
-            //        case "YoutubeEngine-Tracks":
-            //            selectedTab = 1;
-            //            break;
-            //        case "YoutubeEngine-Playlists":
-            //            selectedTab = 2;
-            //            break;
-            //        case "YoutubeEngine-Channels":
-            //            selectedTab = 3;
-            //            break;
-            //        default:
-            //            break;
-            //    }
-            //    MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(2, selectedTab)).Commit();
-            //    YoutubeEngine.instances[selectedTab].focused = true;
-            //    YoutubeEngine.instances[selectedTab].OnFocus();
-            //    YoutubeEngine.instances[selectedTab].ResumeListView();
-            //}
-            //else
-            //{
-            //    MainActivity.instance.Navigate(Resource.Id.playlistLayout);
-            //}
-
             base.OnDestroy();
             instance = null;
         }
@@ -295,7 +258,7 @@ namespace MusicApp.Resources.Portable_Class
 
             if (playlistId != 0)
             {
-                Uri musicUri = MediaStore.Audio.Playlists.Members.GetContentUri("external", playlistId);
+                Uri musicUri = Playlists.Members.GetContentUri("external", playlistId);
 
                 CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
                 ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
@@ -304,17 +267,17 @@ namespace MusicApp.Resources.Portable_Class
 
                 if (musicCursor != null && musicCursor.MoveToFirst())
                 {
-                    int titleID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Title);
-                    int artistID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Artist);
-                    int albumID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Album);
-                    int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
-                    int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
+                    int titleID = musicCursor.GetColumnIndex(Media.InterfaceConsts.Title);
+                    int artistID = musicCursor.GetColumnIndex(Media.InterfaceConsts.Artist);
+                    int albumID = musicCursor.GetColumnIndex(Media.InterfaceConsts.Album);
+                    int thisID = musicCursor.GetColumnIndex(Media.InterfaceConsts.Id);
+                    int pathID = musicCursor.GetColumnIndex(Media.InterfaceConsts.Data);
                     do
                     {
                         string Artist = musicCursor.GetString(artistID);
                         string Title = musicCursor.GetString(titleID);
                         string Album = musicCursor.GetString(albumID);
-                        long AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
+                        long AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(Albums.InterfaceConsts.AlbumId));
                         long id = musicCursor.GetLong(thisID);
                         string path = musicCursor.GetString(pathID);
 

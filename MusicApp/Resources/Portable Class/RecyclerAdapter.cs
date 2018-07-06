@@ -145,20 +145,20 @@ namespace MusicApp.Resources.Portable_Class
             else
                 holder.ItemView.SetBackgroundColor(Color.ParseColor("#424242"));
 
-            if (position + 1 == songList.Count)
-            {
-                holder.ItemView.SetPadding((int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f), listPadding);
-                LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams)holder.more.LayoutParameters;
-                layoutParams.SetMargins(0, 0, 0, listPadding);
-                holder.more.LayoutParameters = layoutParams;
-            }
-            else
-            {
-                holder.ItemView.SetPadding((int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f));
-                LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams)holder.more.LayoutParameters;
-                layoutParams.SetMargins(0, 0, 0, 0);
-                holder.more.LayoutParameters = layoutParams;
-            }
+            //if (position + 1 == songList.Count)
+            //{
+            //    holder.ItemView.SetPadding((int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f), listPadding);
+            //    LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams)holder.more.LayoutParameters;
+            //    layoutParams.SetMargins(0, 0, 0, listPadding);
+            //    holder.more.LayoutParameters = layoutParams;
+            //}
+            //else
+            //{
+            //    holder.ItemView.SetPadding((int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f));
+            //    LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams)holder.more.LayoutParameters;
+            //    layoutParams.SetMargins(0, 0, 0, 0);
+            //    holder.more.LayoutParameters = layoutParams;
+            //}
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)

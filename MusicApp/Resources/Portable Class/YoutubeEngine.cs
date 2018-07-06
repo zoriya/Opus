@@ -315,23 +315,6 @@ namespace MusicApp.Resources.Portable_Class
             intent.PutExtra("artist", artist);
             intent.PutExtra("thumbnailURI", thumbnailURL);
             Android.App.Application.Context.StartService(intent);
-
-            //if (instance != null)
-            //{
-            //    MainActivity.youtubeParcel = instance.ListView.GetLayoutManager().OnSaveInstanceState();
-            //    MainActivity.youtubeInstanceSave = "YoutubeEngine" + "-" + instance.querryType;
-
-            //    ViewGroup rootView = instance.Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
-            //    foreach (YoutubeEngine inst in instances)
-            //    {
-            //        MainActivity.instance.OnPaddingChanged -= inst.OnPaddingChanged;
-            //        rootView.RemoveView(inst.emptyView);
-            //    }
-            //    rootView.RemoveView(loadingView);
-            //    instances = null;
-            //}
-            //else
-            //    MainActivity.instance.SaveInstance();
         }
 
         public static async void PlayFiles(Song[] files)
@@ -342,6 +325,7 @@ namespace MusicApp.Resources.Portable_Class
             if (MusicPlayer.isRunning)
                 MusicPlayer.queue.Clear();
 
+            MusicPlayer.currentID = -1;
             Play(files[0].GetPath(), files[0].GetName(), files[0].GetArtist(), files[0].GetAlbum());
 
             if (files.Length < 2)
@@ -350,7 +334,6 @@ namespace MusicApp.Resources.Portable_Class
             while (MusicPlayer.instance == null || MusicPlayer.CurrentID() == -1)
                 await Task.Delay(10);
 
-            MusicPlayer.currentID = -1;
             foreach (Song song in files)
             {
                 MusicPlayer.instance.AddToQueue(song);
