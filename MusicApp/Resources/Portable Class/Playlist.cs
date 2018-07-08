@@ -389,7 +389,7 @@ namespace MusicApp.Resources.Portable_Class
                     string Artist = musicCursor.GetString(artistID);
                     string Title = musicCursor.GetString(titleID);
                     string Album = musicCursor.GetString(albumID);
-                    long AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
+                    long AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(Albums.InterfaceConsts.AlbumId));
                     long id = musicCursor.GetLong(thisID);
                     string path = musicCursor.GetString(pathID);
 
@@ -410,7 +410,6 @@ namespace MusicApp.Resources.Portable_Class
                 Browse.Play(songs[0], null);
                 songs.RemoveAt(0);
                 songs.Reverse();
-
 
                 while (MusicPlayer.instance == null)
                     await Task.Delay(10);

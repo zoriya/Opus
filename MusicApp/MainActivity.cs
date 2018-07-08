@@ -578,6 +578,28 @@ namespace MusicApp
                 YoutubeEngine.instances = null;
             }
 
+            if(PlaylistTracks.instance != null)
+            {
+                HideSearch();
+                if (PlaylistTracks.instance.isEmpty)
+                {
+                    ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
+                    rootView.RemoveView(PlaylistTracks.instance.emptyView);
+                }
+                SupportActionBar.SetHomeButtonEnabled(false);
+                SupportActionBar.SetDisplayHomeAsUpEnabled(false);
+                SupportActionBar.SetDisplayShowTitleEnabled(true);
+                SupportActionBar.Title = "MusicApp";
+
+                contentRefresh.Refresh -= PlaylistTracks.instance.OnRefresh;
+                OnPaddingChanged -= PlaylistTracks.instance.OnPaddingChanged;
+                FindViewById<AppBarLayout>(Resource.Id.appbar).RemoveOnOffsetChangedListener(PlaylistTracks.instance);
+                FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Gone;
+
+                SupportFragmentManager.PopBackStack();
+                PlaylistTracks.instance = null;
+            }
+
             Android.Support.V4.App.Fragment fragment = null;
             switch (layout)
             {
@@ -822,7 +844,6 @@ namespace MusicApp
             {
                 if (adapter.Count == 2)
                 {
-                    Console.WriteLine("&Removing browse instance");
                     Browse.instance = null;
                     FolderBrowse.instance = null;
                 }

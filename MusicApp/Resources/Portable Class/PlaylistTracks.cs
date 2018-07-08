@@ -62,7 +62,7 @@ namespace MusicApp.Resources.Portable_Class
             ((AppBarLayout.LayoutParams)Activity.FindViewById<CollapsingToolbarLayout>(Resource.Id.collapsingToolbar).LayoutParameters).ScrollFlags = AppBarLayout.LayoutParams.ScrollFlagScroll | AppBarLayout.LayoutParams.ScrollFlagExitUntilCollapsed | AppBarLayout.LayoutParams.ScrollFlagSnap;
             Activity.FindViewById<AppBarLayout>(Resource.Id.appbar).AddOnOffsetChangedListener(this);
             Activity.FindViewById<TextView>(Resource.Id.headerTitle).Text = playlistName;
-            Activity.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { PlayInOrder(0); };
+            Activity.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { PlayInOrder(0, false); };
             Activity.FindViewById<ImageButton>(Resource.Id.headerShuffle).Click += (sender, e0) => 
             {
                 if (playlistId != 0)
@@ -406,7 +406,7 @@ namespace MusicApp.Resources.Portable_Class
 
         private void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
         {
-            PlayInOrder(e.Position);
+            PlayInOrder(e.Position, true);
         }
 
         private void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
@@ -443,7 +443,7 @@ namespace MusicApp.Resources.Portable_Class
                     {
                         case 0:
                             int Position = tracks.IndexOf(item);
-                            PlayInOrder(Position);
+                        PlayInOrder(Position, true);
                             break;
 
                         case 1:
@@ -499,7 +499,7 @@ namespace MusicApp.Resources.Portable_Class
                     {
                         case 0:
                             int Position = tracks.IndexOf(item);
-                            PlayInOrder(Position);
+                        PlayInOrder(Position, true);
                             break;
 
                         case 1:
@@ -535,19 +535,19 @@ namespace MusicApp.Resources.Portable_Class
             builder.Show();
         }
 
-        async void PlayInOrder(int fromPosition)
+        async void PlayInOrder(int fromPosition, bool useTransition)
         {
             List<Song> songs = tracks.GetRange(fromPosition, tracks.Count - fromPosition);
             if (result != null && result.Count - 1 >= fromPosition)
                 songs = result.GetRange(fromPosition, result.Count - fromPosition);
 
-            if (MusicPlayer.isRunning)
-                MusicPlayer.queue.Clear();
+            MusicPlayer.queue.Clear();
+            MusicPlayer.currentID = -1;
 
             if (!songs[0].IsYt)
             {
                 Browse.act = Activity;
-                Browse.Play(songs[0], ListView.GetChildAt(fromPosition - ListView.FirstVisiblePosition).FindViewById<ImageView>(Resource.Id.albumArt));
+                Browse.Play(songs[0], useTransition ? ListView.GetChildAt(fromPosition - ListView.FirstVisiblePosition).FindViewById<ImageView>(Resource.Id.albumArt) : null);
             }
             else
                 YoutubeEngine.Play(songs[0].youtubeID, songs[0].GetName(), songs[0].GetArtist(), songs[0].GetAlbum());
@@ -558,7 +558,6 @@ namespace MusicApp.Resources.Portable_Class
             while (MusicPlayer.instance == null)
                 await Task.Delay(10);
 
-            MusicPlayer.currentID = -1;
             foreach (Song song in songs)
             {
                 MusicPlayer.instance.AddToQueue(song);
