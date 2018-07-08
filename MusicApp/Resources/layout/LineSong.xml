@@ -7,5 +7,21 @@
   <ImageView 
     android:layout_width="150dp"
     android:layout_height="150dp"
-    android:id="@+id/albumArt"/>
+    android:id="@+id/albumArt" />
+  <ImageView
+    android:src="@drawable/darkRectangle"
+    android:layout_width="150dp"
+    android:layout_height="75dp"
+    android:layout_alignParentBottom="true" />
+  <TextView
+    android:id="@+id/title"
+    android:layout_width="150dp"
+    android:layout_height="wrap_content"
+    android:textSize="14dip"
+    android:paddingLeft="2dp"
+    android:textColor="#ffffff"
+    android:minLines="1"
+    android:maxLines="2"
+    android:ellipsize="end"
+    android:layout_alignParentBottom="true" />
 </RelativeLayout>

@@ -27,6 +27,8 @@ namespace MusicApp.Resources.Portable_Class
         {
             RecyclerHolder holder = (RecyclerHolder)viewHolder;
 
+            holder.Title.Text = songList[position].GetName();
+
             if (songList[position].GetAlbumArt() == -1 || songList[position].IsYt)
             {
                 var songAlbumArtUri = Android.Net.Uri.Parse(songList[position].GetAlbum());
