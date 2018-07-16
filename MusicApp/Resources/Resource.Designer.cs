@@ -3448,9 +3448,6 @@ namespace MusicApp
 			// aapt resource value: 0x7f0a0073
 			public const int forever = 2131361907;
 			
-			// aapt resource value: 0x7f0a00d1
-			public const int frame = 2131362001;
-			
 			// aapt resource value: 0x7f0a000a
 			public const int ghost_view = 2131361802;
 			
@@ -3999,6 +3996,9 @@ namespace MusicApp
 			
 			// aapt resource value: 0x7f0a0042
 			public const int useLogo = 2131361858;
+			
+			// aapt resource value: 0x7f0a00d1
+			public const int viewMore = 2131362001;
 			
 			// aapt resource value: 0x7f0a0016
 			public const int view_offset_helper = 2131361814;

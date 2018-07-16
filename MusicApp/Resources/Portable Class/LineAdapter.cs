@@ -1,25 +1,26 @@
 ﻿using Android.App;
 using Android.Content;
-using Android.Graphics;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
 using Square.Picasso;
-using System;
 using System.Collections.Generic;
 
 namespace MusicApp.Resources.Portable_Class
 {
     public class LineAdapter : RecyclerView.Adapter
     {
+        public RecyclerView recycler;
         public int listPadding = 0;
         private List<Song> songList;
 
+        private readonly string[] actions = new string[] { "Play", "Play Next", "Play Last", "Add To Playlist", "Edit Metadata" };
         public override int ItemCount => songList.Count;
 
-        public LineAdapter(List<Song> songList)
+        public LineAdapter(List<Song> songList, RecyclerView recycler)
         {
+            this.recycler = recycler;
             this.songList = songList;
         }
 
@@ -46,7 +47,17 @@ namespace MusicApp.Resources.Portable_Class
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
             View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.LineSong, parent, false);
-            return new RecyclerHolder(itemView, null, null);
+            return new RecyclerHolder(itemView, OnClick, OnLongClick);
+        }
+
+        void OnClick(int position)
+        {
+            Browse.Play(songList[position], recycler.GetLayoutManager().FindViewByPosition(position).FindViewById<ImageView>(Resource.Id.albumArt));
+        }
+
+        void OnLongClick(int position)
+        {
+            
         }
     }
 }

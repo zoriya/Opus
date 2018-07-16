@@ -32,6 +32,8 @@ namespace MusicApp.Resources.Portable_Class
             if (instance == null)
                 return;
 
+            System.Console.WriteLine("&Searching for topics");
+
             List<Song> channelLits = new List<Song>();
 
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
@@ -52,13 +54,16 @@ namespace MusicApp.Resources.Portable_Class
                 foreach (var item in response.Items)
                 {
                     Song channel = new Song(item.Snippet.Title.Substring(0, item.Snippet.Title.IndexOf(" - Topic")), item.Snippet.Description, item.Snippet.Thumbnails.Default__.Url, item.Snippet.ResourceId.ChannelId, -1, -1, null, true);
+                    System.Console.WriteLine("&Channel Name: " + channel.GetName());
                     channelLits.Add(channel);
                 }
 
                 nextPageToken = response.NextPageToken;
             }
 
+            System.Console.WriteLine("&ChannelsList count: " + channelLits.Count);
             channels = channelLits.OrderBy(x => x.GetName()).ToList();
+            System.Console.WriteLine("&Channels count: " + channels.Count);
 
             adapter = new ChannelAdapter(Application.Context, Resource.Layout.ChannelList, channels);
             ListAdapter = adapter;

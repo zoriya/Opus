@@ -26,8 +26,8 @@ namespace MusicApp.Resources.Portable_Class
         public Adapter adapter;
         public View emptyView;
         public List<Song> result;
-        public long playlistId = 0;
-        public string ytID = "";
+        public long playlistId;
+        public string ytID;
         private string author;
         private int count;
         private Uri thumnailURI;
@@ -35,8 +35,9 @@ namespace MusicApp.Resources.Portable_Class
         private string nextPageToken = null;
         public bool isEmpty = false;
         public bool lastVisible = false;
+        private bool useHeader = true;
 
-        private List<Song> tracks = new List<Song>();
+        public List<Song> tracks = new List<Song>();
         private List<string> ytTracksIDs = new List<string>();
         private List<string> ytTracksIdsResult;
         private string[] actions = new string[] { "Play", "Play Next", "Play Last", "Remove Track from playlist", "Add To Playlist" };
@@ -57,46 +58,48 @@ namespace MusicApp.Resources.Portable_Class
 #pragma warning disable CS4014
             PopulateList();
 
-
-            Activity.FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Visible;
-            ((AppBarLayout.LayoutParams)Activity.FindViewById<CollapsingToolbarLayout>(Resource.Id.collapsingToolbar).LayoutParameters).ScrollFlags = AppBarLayout.LayoutParams.ScrollFlagScroll | AppBarLayout.LayoutParams.ScrollFlagExitUntilCollapsed | AppBarLayout.LayoutParams.ScrollFlagSnap;
-            Activity.FindViewById<AppBarLayout>(Resource.Id.appbar).AddOnOffsetChangedListener(this);
-            Activity.FindViewById<TextView>(Resource.Id.headerTitle).Text = playlistName;
-            Activity.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { PlayInOrder(0, false); };
-            Activity.FindViewById<ImageButton>(Resource.Id.headerShuffle).Click += (sender, e0) => 
+            if (useHeader)
             {
+                Activity.FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Visible;
+                ((AppBarLayout.LayoutParams)Activity.FindViewById<CollapsingToolbarLayout>(Resource.Id.collapsingToolbar).LayoutParameters).ScrollFlags = AppBarLayout.LayoutParams.ScrollFlagScroll | AppBarLayout.LayoutParams.ScrollFlagExitUntilCollapsed | AppBarLayout.LayoutParams.ScrollFlagSnap;
+                Activity.FindViewById<AppBarLayout>(Resource.Id.appbar).AddOnOffsetChangedListener(this);
+                Activity.FindViewById<TextView>(Resource.Id.headerTitle).Text = playlistName;
+                Activity.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { PlayInOrder(0, false); };
+                Activity.FindViewById<ImageButton>(Resource.Id.headerShuffle).Click += (sender, e0) =>
+                {
+                    if (playlistId != 0)
+                        Playlist.RandomPlay(playlistId, Activity);
+                    else
+                        YoutubeEngine.RandomPlay(ytID);
+                };
+                Activity.FindViewById<ImageButton>(Resource.Id.headerMore).Click += (sender, e0) =>
+                {
+                    PopupMenu menu = new PopupMenu(Activity, Activity.FindViewById<ImageButton>(Resource.Id.headerMore));
+                    if (playlistId == 0 && hasWriteAcess)
+                        menu.Inflate(Resource.Menu.ytplaylist_header_more);
+                    else if (playlistId == 0)
+                        menu.Inflate(Resource.Menu.ytplaylistnowrite_header_more);
+                    else
+                        menu.Inflate(Resource.Menu.playlist_header_more);
+                    menu.SetOnMenuItemClickListener(this);
+                    menu.Show();
+                };
+
+
                 if (playlistId != 0)
-                    Playlist.RandomPlay(playlistId, Activity);
-                else
-                    YoutubeEngine.RandomPlay(ytID);
-            };
-            Activity.FindViewById<ImageButton>(Resource.Id.headerMore).Click += (sender, e0) => 
-            {
-                PopupMenu menu = new PopupMenu(Activity, Activity.FindViewById<ImageButton>(Resource.Id.headerMore));
-                if (playlistId == 0 && hasWriteAcess)
-                    menu.Inflate(Resource.Menu.ytplaylist_header_more);
-                else if (playlistId == 0)
-                    menu.Inflate(Resource.Menu.ytplaylistnowrite_header_more);
-                else
-                    menu.Inflate(Resource.Menu.playlist_header_more);
-                menu.SetOnMenuItemClickListener(this);
-                menu.Show();
-            };
+                {
+                    Activity.FindViewById<TextView>(Resource.Id.headerAuthor).Text = MainActivity.account == null ? "by me" : "by " + MainActivity.account.DisplayName;
+                }
+                else if (ytID != null && ytID != "")
+                {
+                    Activity.FindViewById<TextView>(Resource.Id.headerAuthor).Text = author;
+                    Activity.FindViewById<TextView>(Resource.Id.headerNumber).Text = count.ToString() + " songs";
+                    if (count == -1)
+                        Activity.FindViewById<TextView>(Resource.Id.headerNumber).Text = "NaN songs";
 
-
-            if (playlistId != 0)
-            {
-                Activity.FindViewById<TextView>(Resource.Id.headerAuthor).Text = MainActivity.account == null ? "by me" : "by " + MainActivity.account.DisplayName;
-            }
-            else if(ytID != null && ytID != "")
-            {
-                Activity.FindViewById<TextView>(Resource.Id.headerAuthor).Text = author;
-                Activity.FindViewById<TextView>(Resource.Id.headerNumber).Text = count.ToString() + " songs";
-                if(count == -1)
-                    Activity.FindViewById<TextView>(Resource.Id.headerNumber).Text = "NaN songs";
-
-                Picasso.With(Android.App.Application.Context).Load(thumnailURI).Placeholder(Resource.Drawable.noAlbum).Resize(1080, 1080).CenterCrop().Into(Activity.FindViewById<ImageView>(Resource.Id.headerArt));
-            }
+                    Picasso.With(Android.App.Application.Context).Load(thumnailURI).Placeholder(Resource.Drawable.noAlbum).Resize(1080, 1080).CenterCrop().Into(Activity.FindViewById<ImageView>(Resource.Id.headerArt));
+                }
+            }   
         }
 
         public bool OnMenuItemClick(IMenuItem item)
@@ -231,6 +234,15 @@ namespace MusicApp.Resources.Portable_Class
             return view;
         }
 
+        public static Fragment NewInstance(List<Song> songs, string playlistName)
+        {
+            instance = new PlaylistTracks { Arguments = new Bundle() };
+            instance.tracks = songs;
+            instance.playlistName = playlistName;
+            instance.useHeader = false;
+            return instance;
+        }
+
         public static Fragment NewInstance(long playlistId, string playlistName)
         {
             instance = new PlaylistTracks { Arguments = new Bundle() };
@@ -253,7 +265,7 @@ namespace MusicApp.Resources.Portable_Class
 
         async Task PopulateList()
         {
-            if (playlistId == 0 && ytID == "")
+            if (playlistId == 0 && ytID == "" && tracks.Count == 0)
                 return;
 
             if (playlistId != 0)
@@ -333,6 +345,24 @@ namespace MusicApp.Resources.Portable_Class
                 }
 
                 nextPageToken = ytPlaylist.NextPageToken;
+                adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, tracks)
+                {
+                    listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot
+                };
+                ListAdapter = adapter;
+                ListView.Adapter = adapter;
+                ListView.TextFilterEnabled = true;
+                ListView.ItemClick += ListView_ItemClick;
+                ListView.ItemLongClick += ListView_ItemLongClick;
+
+                if (adapter == null || adapter.Count == 0)
+                {
+                    isEmpty = true;
+                    Activity.AddContentView(emptyView, View.LayoutParameters);
+                }
+            }
+            else if(tracks.Count != 0)
+            {
                 adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, tracks)
                 {
                     listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot

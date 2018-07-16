@@ -29,7 +29,7 @@ namespace MusicApp.Resources.Portable_Class
         public bool focused = true;
 
         private View view;
-        private string[] actions = new string[] { "Play", "Play Next", "Play Last", "Add To Playlist", "Edit Metadata" };
+        private readonly string[] actions = new string[] { "Play", "Play Next", "Play Last", "Add To Playlist", "Edit Metadata" };
         private bool isEmpty = false;
 
 

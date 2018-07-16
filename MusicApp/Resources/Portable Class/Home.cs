@@ -1,5 +1,7 @@
 ﻿using Android.Content;
+using Android.Database;
 using Android.OS;
+using Android.Provider;
 using Android.Support.V4.App;
 using Android.Support.V7.App;
 using Android.Support.V7.Preferences;
@@ -19,13 +21,12 @@ namespace MusicApp.Resources.Portable_Class
     public class Home : Fragment
     {
         public static Home instance;
+        public static IParcelable savedState;
         public RecyclerView ListView;
         public HomeAdapter adapter;
         public ItemTouchHelper itemTouchHelper;
         public static List<HomeSection> adapterItems = new List<HomeSection>();
         public View view;
-
-        private readonly string[] actions = new string[] { "Play", "Play Next", "Play Last", "Add To Playlist", "Edit Metadata" };
 
         public override void OnActivityCreated(Bundle savedInstanceState)
         {
@@ -48,26 +49,63 @@ namespace MusicApp.Resources.Portable_Class
             view.SetPadding(0, 0, 0, MainActivity.defaultPaddingBot);
             ListView.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
 
-            if(adapterItems.Count > 0)
-            {
-                adapter = new HomeAdapter(adapterItems);
-                ListView.SetAdapter(adapter);
-                adapter.ItemClick += ListView_ItemClick;
-                ListView.SetItemAnimator(new DefaultItemAnimator());
-                ListView.ScrollChange += MainActivity.instance.Scroll;
-            }
-            else
+            if (savedState == null)
                 PopulateSongs();
+            else
+            {
+                //ListView.GetLayoutManager().OnRestoreInstanceState(savedState);
+                savedState = null;
+            }
             return view;
         }
 
         private /*async*/ void PopulateSongs()
         {
-            HomeSection queue = new HomeSection("Queue", SectionType.SinglePlaylist, MusicPlayer.queue);
+            adapterItems = new List<HomeSection>();
+
+            HomeSection queue = new HomeSection("Queue", SectionType.SinglePlaylist, MusicPlayer.queue, MusicPlayer.queue.Count);
             if(queue.contentValue.Count > 0)
                 adapterItems.Add(queue);
 
-            Console.WriteLine("&Queue nb: " + MusicPlayer.queue.Count);
+            Android.Net.Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
+
+            List<Song> allSongs = new List<Song>();
+            CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
+            ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
+
+            if (musicCursor != null && musicCursor.MoveToFirst())
+            {
+                int titleID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Title);
+                int artistID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Artist);
+                int albumID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Album);
+                int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
+                int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
+                do
+                {
+                    string Artist = musicCursor.GetString(artistID);
+                    string Title = musicCursor.GetString(titleID);
+                    string Album = musicCursor.GetString(albumID);
+                    long AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
+                    long id = musicCursor.GetLong(thisID);
+                    string path = musicCursor.GetString(pathID);
+
+                    if (Title == null)
+                        Title = "Unknown Title";
+                    if (Artist == null)
+                        Artist = "Unknow Artist";
+                    if (Album == null)
+                        Album = "Unknow Album";
+
+                    allSongs.Add(new Song(Title, Artist, Album, null, AlbumArt, id, path));
+                }
+                while (musicCursor.MoveToNext());
+                musicCursor.Close();
+            }
+            Random r = new Random();
+            List<Song> songList = allSongs.OrderBy(x => r.Next()).ToList();
+
+            HomeSection featured = new HomeSection("Featured", SectionType.SinglePlaylist, songList.GetRange(0, 50), 20);
+            adapterItems.Add(featured);
 
             adapter = new HomeAdapter(adapterItems);
             ListView.SetAdapter(adapter);
@@ -282,7 +320,7 @@ namespace MusicApp.Resources.Portable_Class
             return instance;
         }
 
-        private void OnRefresh(object sender, System.EventArgs e)
+        public void OnRefresh(object sender, EventArgs e)
         {
             Refresh();
             MainActivity.instance.contentRefresh.Refreshing = false;
@@ -290,7 +328,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public void Refresh()
         {
-            //Refresh
+            PopulateSongs();
         }
 
         public void LoadMore()
@@ -342,27 +380,6 @@ namespace MusicApp.Resources.Portable_Class
             //        MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(item.youtubeID, item.GetName(), false, item.GetArtist(), -1, item.GetAlbum()), true);
             //    }
             //}
-        }
-
-        private void ListView_ItemLongCLick(object sender, int e)
-        {
-            HomeSection item = adapterItems[e];
-            //More(item);
-        }
-
-        public void More(HomeItem item)
-        {
-            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
-            builder.SetTitle("Pick an action");
-            builder.SetItems(actions, (senderAlert, args) =>
-            {
-                switch (args.Which)
-                {
-                    default:
-                        break;
-                }
-            });
-            builder.Show();
         }
 
         public override void OnResume()

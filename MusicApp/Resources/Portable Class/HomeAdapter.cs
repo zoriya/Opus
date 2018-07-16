@@ -1,10 +1,7 @@
-﻿using Android.App;
-using Android.Graphics;
+﻿using Android.Graphics;
 using Android.Support.V7.Widget;
 using Android.Views;
-using Android.Widget;
 using MusicApp.Resources.values;
-using Square.Picasso;
 using System;
 using System.Collections.Generic;
 
@@ -50,7 +47,21 @@ namespace MusicApp.Resources.Portable_Class
             LineSongHolder holder = (LineSongHolder)viewHolder;
             holder.title.Text = items[position].SectionTitle;
             holder.recycler.SetLayoutManager(new LinearLayoutManager(MainActivity.instance, LinearLayoutManager.Horizontal, false));
-            holder.recycler.SetAdapter(new LineAdapter(items[position].contentValue));
+            holder.recycler.SetAdapter(new LineAdapter(items[position].contentValue.GetRange(0, 20), holder.recycler));
+            holder.more.Click += (sender, e) => 
+            {
+                Home.savedState = Home.instance.ListView.GetLayoutManager().OnSaveInstanceState();
+                Home.instance.RetainInstance = true;
+                MainActivity.instance.SupportActionBar.SetHomeButtonEnabled(true);
+                MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
+                MainActivity.instance.SupportActionBar.Title = items[position].SectionTitle;
+                MainActivity.instance.contentRefresh.Refresh -= Home.instance.OnRefresh;
+                Home.instance = null;
+                MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(items[position].contentValue, items[position].SectionTitle), true);
+            };
+
+            if(MainActivity.Theme == 1)
+                holder.ItemView.SetBackgroundColor(Color.Argb(255, 62, 62, 62));
         }
 
         void OnClick(int position)
