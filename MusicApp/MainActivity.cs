@@ -264,8 +264,10 @@ namespace MusicApp
                 .Post(body)
                 .Build();
             client.NewCall(request).Enqueue(this);
+            
+            Console.WriteLine("&Requesting access token");
         }
-
+        
         public void OnResponse(Square.OkHttp.Response response)
         {
             string jsonFile = response.Body().String();
@@ -285,6 +287,8 @@ namespace MusicApp
                 HttpClientInitializer = credential,
                 ApplicationName = "MusicApp"
             });
+
+            Console.WriteLine("&Youtube created");
         }
 
         public void OnFailure(Square.OkHttp.Request request, Java.IO.IOException iOException)

@@ -32,8 +32,6 @@ namespace MusicApp.Resources.Portable_Class
             if (instance == null)
                 return;
 
-            System.Console.WriteLine("&Searching for topics");
-
             List<Song> channelLits = new List<Song>();
 
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
@@ -41,7 +39,7 @@ namespace MusicApp.Resources.Portable_Class
             selectedTopicsID = prefManager.GetStringSet("selectedTopicsID", new string[] { }).ToList();
 
             string nextPageToken = "";
-            while(nextPageToken != null)
+            while (nextPageToken != null)
             {
                 YouTubeService youtube = YoutubeEngine.youtubeService;
                 SubscriptionsResource.ListRequest request = youtube.Subscriptions.List("snippet,contentDetails");
@@ -61,9 +59,7 @@ namespace MusicApp.Resources.Portable_Class
                 nextPageToken = response.NextPageToken;
             }
 
-            System.Console.WriteLine("&ChannelsList count: " + channelLits.Count);
             channels = channelLits.OrderBy(x => x.GetName()).ToList();
-            System.Console.WriteLine("&Channels count: " + channels.Count);
 
             adapter = new ChannelAdapter(Application.Context, Resource.Layout.ChannelList, channels);
             ListAdapter = adapter;

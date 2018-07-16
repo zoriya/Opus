@@ -59,11 +59,11 @@ namespace MusicApp.Resources.Portable_Class
             return view;
         }
 
-        private /*async*/ void PopulateSongs()
+        private async void PopulateSongs()
         {
             adapterItems = new List<HomeSection>();
 
-            HomeSection queue = new HomeSection("Queue", SectionType.SinglePlaylist, MusicPlayer.queue, MusicPlayer.queue.Count);
+            HomeSection queue = new HomeSection("Queue", SectionType.SinglePlaylist, MusicPlayer.queue);
             if(queue.contentValue.Count > 0)
                 adapterItems.Add(queue);
 
@@ -104,7 +104,7 @@ namespace MusicApp.Resources.Portable_Class
             Random r = new Random();
             List<Song> songList = allSongs.OrderBy(x => r.Next()).ToList();
 
-            HomeSection featured = new HomeSection("Featured", SectionType.SinglePlaylist, songList.GetRange(0, 50), 20);
+            HomeSection featured = new HomeSection("Featured", SectionType.SinglePlaylist, songList.GetRange(0, 50));
             adapterItems.Add(featured);
 
             adapter = new HomeAdapter(adapterItems);
@@ -113,205 +113,199 @@ namespace MusicApp.Resources.Portable_Class
             ListView.SetItemAnimator(new DefaultItemAnimator());
             ListView.ScrollChange += MainActivity.instance.Scroll;
 
-            #region yt
-            //ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Activity);
-            //string[] selectedTopicsID = prefManager.GetStringSet("selectedTopicsID", new string[] { }).ToArray();
+            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Activity);
+            string[] selectedTopics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToArray();
+            string[] selectedTopicsID = prefManager.GetStringSet("selectedTopicsID", new string[] { }).ToArray();
 
-            //if (selectedTopicsID.Length < 1)
-            //    return;
+            if (selectedTopicsID.Length > 0)
+            {
+                await MainActivity.instance.WaitForYoutube();
 
-            //if (YoutubeEngine.youtubeService == null)
-            //    MainActivity.instance.Login();
+                List<HomeItem> Items = new List<HomeItem>();
+                foreach (string topic in selectedTopicsID)
+                {
+                    YouTubeService youtube = YoutubeEngine.youtubeService;
+                    int maxSection = 3;
+                    switch (selectedTopics.Length)
+                    {
+                        case 1:
+                            maxSection = 5000;
+                            break;
+                        case 2:
+                            maxSection = 5;
+                            break;
+                        default:
+                            maxSection = 3;
+                            break;
+                    }
 
-            //await MainActivity.instance.WaitForYoutube();
+                    ChannelSectionsResource.ListRequest request = youtube.ChannelSections.List("snippet, contentDetails");
+                    request.ChannelId = topic;
 
-            //List<HomeItem> Items = new List<HomeItem>();
+                    ChannelSectionListResponse response = await request.ExecuteAsync();
+                    List<ChannelSection> topicItems = response.Items.ToList();
+                    topicItems.RemoveAt(0);
+                    r = new Random();
+                    topicItems = topicItems.OrderBy(x => r.Next()).ToList();
+                    topicItems.Insert(0, response.Items[0]);
 
-            //foreach (string topic in selectedTopicsID)
-            //{
-            //    YouTubeService youtube = YoutubeEngine.youtubeService;
+                    foreach (var section in topicItems)
+                    {
+                        if (section.Snippet.Type == "channelsectionTypeUndefined")
+                            continue;
 
-            //    ChannelSectionsResource.ListRequest request = youtube.ChannelSections.List("snippet, contentDetails");
-            //    request.ChannelId = topic;
+                        string title = section.Snippet.Title;
+                        if (title == null || title == "")
+                            title = selectedTopics[Array.IndexOf(selectedTopicsID, topic)];
 
-            //    ChannelSectionListResponse response = await request.ExecuteAsync();
+                        if (Items.Exists(x => x.SectionTitle == title))
+                            continue;
 
-            //    foreach (var section in response.Items)
-            //    {
-            //        if (section.Snippet.Type == "channelsectionTypeUndefined")
-            //            continue;
+                        SectionType type = SectionType.None;
+                        List<string> contentValue = null;
+                        switch (section.Snippet.Type)
+                        {
+                            case "multipleChannels":
+                                type = SectionType.ChannelList;
+                                contentValue = section.ContentDetails.Channels.ToList();
+                                break;
+                            case "multiplePlaylists":
+                                contentValue = section.ContentDetails.Playlists.ToList();
+                                type = SectionType.PlaylistList;
+                                break;
+                            case "singlePlaylist":
+                                contentValue = section.ContentDetails.Playlists.ToList();
+                                type = SectionType.SinglePlaylist;
+                                break;
+                            default:
+                                contentValue = new List<string>();
+                                break;
+                        }
 
-            //        SectionType type = SectionType.None;
-            //        List<string> contentValue = null;
-            //        switch (section.Snippet.Type)
-            //        {
-            //            case "multipleChannels":
-            //                type = SectionType.ChannelList;
-            //                contentValue = section.ContentDetails.Channels.ToList();
-            //                break;
-            //            case "multiplePlaylists":
-            //                contentValue = section.ContentDetails.Playlists.ToList();
-            //                type = SectionType.PlaylistList;
-            //                break;
-            //            case "singlePlaylist":
-            //                contentValue = section.ContentDetails.Playlists.ToList();
-            //                type = SectionType.SinglePlaylist;
-            //                break;
-            //            default:
-            //                contentValue = new List<string>();
-            //                break;
-            //        }
+                        HomeItem item = new HomeItem(title, type, contentValue);
+                        Items.Add(item);
+                    }
+                }
 
-            //        HomeItem item = new HomeItem(section.Snippet.Title, type, contentValue);
-            //        Items.Add(item);
-            //    }
-            //}
+                foreach (HomeItem item in Items)
+                {
+                    List<Song> contentValue = new List<Song>();
+                    switch (item.contentType)
+                    {
+                        case SectionType.SinglePlaylist:
+                            YouTubeService youtube = YoutubeEngine.youtubeService;
 
-            //List<HomeItem> itemsSave = Items;
-            //foreach(HomeItem item in Items)
-            //{
-            //    List<Song> contentValue = new List<Song>
-            //    {
-            //        new Song("HeaderSlot", null, null, null, -1, -1, null)
-            //    };
+                            PlaylistItemsResource.ListRequest request = youtube.PlaylistItems.List("snippet, contentDetails");
+                            request.PlaylistId = item.contentValue[0];
+                            request.MaxResults = 25;
+                            request.PageToken = "";
 
-            //    switch (item.contentType)
-            //    {
-            //        case SectionType.ChannelList:
-            //            if(adapterItems.Where(x => x.SectionTitle == item.SectionTitle).Count() == 0)
-            //            {
-            //                foreach (string channelID in item.contentValue)
-            //                {
-            //                    YouTubeService youtube = YoutubeEngine.youtubeService;
+                            PlaylistItemListResponse response = await request.ExecuteAsync();
 
-            //                    ChannelsResource.ListRequest request = youtube.Channels.List("snippet");
-            //                    request.Id = channelID;
+                            if (response.Items.Count < 10)
+                                break;
 
-            //                    ChannelListResponse response = await request.ExecuteAsync();
+                            foreach (var ytItem in response.Items)
+                            {
+                                Song song = new Song(ytItem.Snippet.Title, ytItem.Snippet.ChannelTitle, ytItem.Snippet.Thumbnails.High.Url, ytItem.ContentDetails.VideoId, -1, -1, ytItem.ContentDetails.VideoId, true);
+                                contentValue.Add(song);
 
-            //                    foreach (var ytItem in response.Items)
-            //                    {
-            //                        Song channel = new Song(ytItem.Snippet.Title, "", ytItem.Snippet.Thumbnails.Default__.Url, ytItem.Id, -1, -1, null, true);
-            //                        contentValue.Add(channel);
+                                if (instance == null)
+                                    return;
+                            }
 
-            //                        if (instance == null)
-            //                            return;
-            //                    }
+                            HomeSection section = new HomeSection(item.SectionTitle, item.contentType, contentValue);
+                            adapter.AddToList(new List<HomeSection>() { section });
+                            break;
+                        //case SectionType.ChannelList:
+                        //    if (adapterItems.Where(x => x.SectionTitle == item.SectionTitle).Count() == 0)
+                        //    {
+                        //        foreach (string channelID in item.contentValue)
+                        //        {
+                        //            YouTubeService youtube = YoutubeEngine.youtubeService;
 
-            //                }
+                        //            ChannelsResource.ListRequest request = youtube.Channels.List("snippet");
+                        //            request.Id = channelID;
 
-            //                HomeSection section = new HomeSection(item.SectionTitle, item.contentType, contentValue);
+                        //            ChannelListResponse response = await request.ExecuteAsync();
 
-            //                if (adapter == null)
-            //                {
-            //                    adapterItems.Add(section);
-            //                    adapter = new HomeAdapter(adapterItems);
-            //                    ListView.SetAdapter(adapter);
-            //                    adapter.ItemClick += ListView_ItemClick;
-            //                    adapter.ItemLongClick += ListView_ItemLongCLick;
-            //                    ListView.SetItemAnimator(new DefaultItemAnimator());
-            //                    ListView.ScrollChange += MainActivity.instance.Scroll;
-            //                }
-            //                else
-            //                {
-            //                    adapterItems.Add(section);
-            //                    adapter.AddToList(new List<HomeSection>() { section });
-            //                }
-            //            }
-            //            break;
-            //        case SectionType.SinglePlaylist:
-            //            if (adapterItems.Where(x => x.SectionTitle == item.SectionTitle).Count() == 0)
-            //            {
-            //                YouTubeService youtube = YoutubeEngine.youtubeService;
+                        //            foreach (var ytItem in response.Items)
+                        //            {
+                        //                Song channel = new Song(ytItem.Snippet.Title, "", ytItem.Snippet.Thumbnails.Default__.Url, ytItem.Id, -1, -1, null, true);
+                        //                contentValue.Add(channel);
 
-            //                PlaylistItemsResource.ListRequest request = youtube.PlaylistItems.List("snippet, contentDetails");
-            //                request.PlaylistId = item.contentValue[0];
-            //                request.MaxResults = 10;
-            //                request.PageToken = "";
+                        //                if (instance == null)
+                        //                    return;
+                        //            }
 
-            //                PlaylistItemListResponse response = await request.ExecuteAsync();
+                        //        }
 
-            //                foreach (var ytItem in response.Items)
-            //                {
-            //                    Song song = new Song(ytItem.Snippet.Title, ytItem.Snippet.ChannelTitle, ytItem.Snippet.Thumbnails.High.Url, ytItem.ContentDetails.VideoId, -1, -1, ytItem.ContentDetails.VideoId, true);
-            //                    contentValue.Add(song);
+                        //        HomeSection section = new HomeSection(item.SectionTitle, item.contentType, contentValue);
 
-            //                    if (instance == null)
-            //                        return;
-            //                }
+                        //        if (adapter == null)
+                        //        {
+                        //            adapterItems.Add(section);
+                        //            adapter = new HomeAdapter(adapterItems);
+                        //            ListView.SetAdapter(adapter);
+                        //            adapter.ItemClick += ListView_ItemClick;
+                        //            adapter.ItemLongClick += ListView_ItemLongCLick;
+                        //            ListView.SetItemAnimator(new DefaultItemAnimator());
+                        //            ListView.ScrollChange += MainActivity.instance.Scroll;
+                        //        }
+                        //        else
+                        //        {
+                        //            adapterItems.Add(section);
+                        //            adapter.AddToList(new List<HomeSection>() { section });
+                        //        }
+                        //    }
+                        //    break;
+                        //case SectionType.PlaylistList:
+                        //    if (adapterItems.Where(x => x.SectionTitle == item.SectionTitle).Count() == 0)
+                        //    {
+                        //        foreach (string playlistID in item.contentValue)
+                        //        {
+                        //            YouTubeService youtube = YoutubeEngine.youtubeService;
 
-            //                HomeSection section = new HomeSection(item.SectionTitle, item.contentType, contentValue)
-            //                {
-            //                    data = item.contentValue[0]
-            //                };
+                        //            PlaylistsResource.ListRequest request = youtube.Playlists.List("snippet, contentDetails");
+                        //            request.Id = playlistID;
 
-            //                if (adapter == null)
-            //                {
-            //                    adapterItems.Add(section);
-            //                    adapter = new HomeAdapter(adapterItems);
-            //                    ListView.SetAdapter(adapter);
-            //                    adapter.ItemClick += ListView_ItemClick;
-            //                    adapter.ItemLongClick += ListView_ItemLongCLick;
-            //                    ListView.SetItemAnimator(new DefaultItemAnimator());
-            //                    ListView.ScrollChange += MainActivity.instance.Scroll;
-            //                }
-            //                else
-            //                {
-            //                    adapterItems.Add(section);
-            //                    adapter.AddToList(new List<HomeSection>() { section });
-            //                }
-            //            }
-            //            break;
-            //        case SectionType.PlaylistList:
-            //            if (adapterItems.Where(x => x.SectionTitle == item.SectionTitle).Count() == 0)
-            //            {
-            //                foreach (string playlistID in item.contentValue)
-            //                {
-            //                    YouTubeService youtube = YoutubeEngine.youtubeService;
-
-            //                    PlaylistsResource.ListRequest request = youtube.Playlists.List("snippet, contentDetails");
-            //                    request.Id = playlistID;
-
-            //                    PlaylistListResponse response = await request.ExecuteAsync();
+                        //            PlaylistListResponse response = await request.ExecuteAsync();
 
 
-            //                    foreach (var playlist in response.Items)
-            //                    {
-            //                        Console.WriteLine("&" + playlist.Snippet.Title);
-            //                        Song song = new Song(playlist.Snippet.Title, playlist.Snippet.ChannelTitle, playlist.Snippet.Thumbnails.Default__.Url, playlist.Id, -1, -1, playlist.Id, true);
-            //                        contentValue.Add(song);
+                        //            foreach (var playlist in response.Items)
+                        //            {
+                        //                Console.WriteLine("&" + playlist.Snippet.Title);
+                        //                Song song = new Song(playlist.Snippet.Title, playlist.Snippet.ChannelTitle, playlist.Snippet.Thumbnails.Default__.Url, playlist.Id, -1, -1, playlist.Id, true);
+                        //                contentValue.Add(song);
 
-            //                        if (instance == null)
-            //                            return;
-            //                    }
-            //                }
+                        //                if (instance == null)
+                        //                    return;
+                        //            }
+                        //        }
 
-            //                HomeSection section = new HomeSection(item.SectionTitle, item.contentType, contentValue);
-            //                if (adapter == null)
-            //                {
-            //                    adapterItems.Add(section);
-            //                    adapter = new HomeAdapter(adapterItems);
-            //                    ListView.SetAdapter(adapter);
-            //                    adapter.ItemClick += ListView_ItemClick;
-            //                    adapter.ItemLongClick += ListView_ItemLongCLick;
-            //                    ListView.SetItemAnimator(new DefaultItemAnimator());
-            //                    ListView.ScrollChange += MainActivity.instance.Scroll;
-            //                }
-            //                else
-            //                {
-            //                    adapterItems.Add(section);
-            //                    adapter.AddToList(new List<HomeSection>() { section });
-            //                }
-            //            }
-            //            break;
-            //        default:
-            //            break;
-            //    }
-            //}
-
-            //if (instance == null)
-            //    return;
-            #endregion
+                        //        HomeSection section = new HomeSection(item.SectionTitle, item.contentType, contentValue);
+                        //        if (adapter == null)
+                        //        {
+                        //            adapterItems.Add(section);
+                        //            adapter = new HomeAdapter(adapterItems);
+                        //            ListView.SetAdapter(adapter);
+                        //            adapter.ItemClick += ListView_ItemClick;
+                        //            adapter.ItemLongClick += ListView_ItemLongCLick;
+                        //            ListView.SetItemAnimator(new DefaultItemAnimator());
+                        //            ListView.ScrollChange += MainActivity.instance.Scroll;
+                        //        }
+                        //        else
+                        //        {
+                        //            adapterItems.Add(section);
+                        //            adapter.AddToList(new List<HomeSection>() { section });
+                        //        }
+                        //    }
+                        //    break;
+                        default:
+                            break;
+                    }
+                }
+            }
         }
 
         public static Fragment NewInstance()

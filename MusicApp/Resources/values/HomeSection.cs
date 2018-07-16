@@ -8,14 +8,12 @@ namespace MusicApp.Resources.values
         public string SectionTitle;
         public SectionType contentType;
         public List<Song> contentValue;
-        public int maxItems;
 
-        public HomeSection(string sectionTitle, SectionType contentType, List<Song> contentValue, int maxItems)
+        public HomeSection(string sectionTitle, SectionType contentType, List<Song> contentValue)
         {
             SectionTitle = sectionTitle;
             this.contentType = contentType;
             this.contentValue = contentValue;
-            this.maxItems = maxItems;
         }
     }
 

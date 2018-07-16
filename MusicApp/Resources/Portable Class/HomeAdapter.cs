@@ -47,7 +47,7 @@ namespace MusicApp.Resources.Portable_Class
             LineSongHolder holder = (LineSongHolder)viewHolder;
             holder.title.Text = items[position].SectionTitle;
             holder.recycler.SetLayoutManager(new LinearLayoutManager(MainActivity.instance, LinearLayoutManager.Horizontal, false));
-            holder.recycler.SetAdapter(new LineAdapter(items[position].contentValue.GetRange(0, 20), holder.recycler));
+            holder.recycler.SetAdapter(new LineAdapter(items[position].contentValue.GetRange(0, items[position].contentValue.Count > 20 ? 20 : items[position].contentValue.Count), holder.recycler));
             holder.more.Click += (sender, e) => 
             {
                 Home.savedState = Home.instance.ListView.GetLayoutManager().OnSaveInstanceState();

@@ -52,7 +52,10 @@ namespace MusicApp.Resources.Portable_Class
 
         void OnClick(int position)
         {
-            Browse.Play(songList[position], recycler.GetLayoutManager().FindViewByPosition(position).FindViewById<ImageView>(Resource.Id.albumArt));
+            if (!songList[position].IsYt)
+                Browse.Play(songList[position], recycler.GetLayoutManager().FindViewByPosition(position).FindViewById<ImageView>(Resource.Id.albumArt));
+            else
+                YoutubeEngine.Play(songList[position].youtubeID, songList[position].GetName(), songList[position].GetArtist(), songList[position].GetAlbum());
         }
 
         void OnLongClick(int position)
