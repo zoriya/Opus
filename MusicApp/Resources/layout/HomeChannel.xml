@@ -13,15 +13,7 @@
     android:paddingLeft="20dp"
     android:gravity="center"
     android:src="@drawable/MusicIcon" />
-  <TextView
-    android:id="@+id/title"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:textSize="16dip"
-    android:layout_centerVertical="true"    
-    android:paddingLeft="90dp"
-    android:textStyle="bold" />
-  <Button 
+  <Button
     android:id="@+id/action"
     android:layout_centerVertical="true"
     android:layout_alignParentRight="true"
@@ -30,4 +22,14 @@
     android:layout_height="wrap_content"
     app:backgroundTint="?colorAccent"
     android:text="Loading" />
+  <TextView
+    android:id="@+id/title"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:textSize="16dip"
+    android:layout_centerVertical="true"    
+    android:paddingLeft="90dp"
+    android:textStyle="bold"
+    android:layout_alignParentLeft="true"
+    android:layout_toLeftOf="@id/action"/>
 </RelativeLayout >
