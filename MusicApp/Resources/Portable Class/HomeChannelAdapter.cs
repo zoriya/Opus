@@ -1,5 +1,4 @@
 ﻿using Android.App;
-using Android.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
@@ -31,6 +30,18 @@ namespace MusicApp.Resources.Portable_Class
             holder.Title.Text = songList[position].GetName();
             var songAlbumArtUri = Android.Net.Uri.Parse(songList[position].GetAlbum());
             Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Transform(new CircleTransformation()).Into(holder.AlbumArt);
+
+            if (songList[position].GetArtist() != null)
+                holder.action.Text = "Mix";
+
+            if(!holder.action.HasOnClickListeners)
+            {
+                holder.action.Click += (sender, e) =>
+                {
+                    if (songList[position].GetArtist() != null)
+                        Playlist.PlayInOrder(songList[position].GetArtist());
+                };
+            }
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)

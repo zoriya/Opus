@@ -80,9 +80,11 @@ namespace MusicApp.Resources.Portable_Class
                 holder.title.Text = items[position].SectionTitle;
                 holder.recycler.SetLayoutManager(new LinearLayoutManager(MainActivity.instance, LinearLayoutManager.Vertical, false));
                 holder.recycler.SetAdapter(new HomeChannelAdapter(items[position].contentValue.GetRange(0, items[position].contentValue.Count > 4 ? 4 : items[position].contentValue.Count), holder.recycler));
+                items[position].recycler = holder.recycler;
 
                 ((GradientDrawable)holder.more.Background).SetStroke(5, Android.Content.Res.ColorStateList.ValueOf(Color.Argb(255, 21, 183, 237)));
                 holder.more.SetTextColor(Color.Argb(255, 21, 183, 237));
+                holder.more.Text = ((HomeChannelAdapter)holder.recycler.GetAdapter()).songList.Count > 4 ? "View Less" : "View More";
                 holder.more.Click += (sender, e) =>
                 {
                     HomeChannelAdapter adapter = (HomeChannelAdapter)holder.recycler.GetAdapter();

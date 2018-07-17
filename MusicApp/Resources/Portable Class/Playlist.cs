@@ -422,7 +422,7 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
-        public async void PlayInOrder(string playlistID)
+        public static async void PlayInOrder(string playlistID)
         {
             List<Song> songs = new List<Song>();
             await MainActivity.instance.WaitForYoutube();

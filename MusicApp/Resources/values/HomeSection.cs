@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Android.Support.V7.Widget;
+using System.Collections.Generic;
 
 namespace MusicApp.Resources.values
 {
@@ -8,6 +9,7 @@ namespace MusicApp.Resources.values
         public string SectionTitle;
         public SectionType contentType;
         public List<Song> contentValue;
+        public RecyclerView recycler;
 
         public HomeSection(string sectionTitle, SectionType contentType, List<Song> contentValue)
         {
