@@ -334,7 +334,7 @@ namespace MusicApp
             if(Home.instance != null)
             {
                 //if (!Home.instance.adapter.RefreshDisabled())
-                //    contentRefresh.SetEnabled(((LinearLayoutManager)Home.instance.ListView.GetLayoutManager()).FindFirstCompletelyVisibleItemPosition() == 0);
+                    contentRefresh.SetEnabled(((LinearLayoutManager)Home.instance.ListView.GetLayoutManager()).FindFirstCompletelyVisibleItemPosition() == 0);
 
                 //if (((LinearLayoutManager)Home.instance.ListView.GetLayoutManager()).FindLastCompletelyVisibleItemPosition() == Home.instance.adapter.songList.Count)
                 //{

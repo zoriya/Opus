@@ -3,7 +3,6 @@ using Android.Database;
 using Android.OS;
 using Android.Provider;
 using Android.Support.V4.App;
-using Android.Support.V7.App;
 using Android.Support.V7.Preferences;
 using Android.Support.V7.Widget;
 using Android.Support.V7.Widget.Helper;
@@ -14,7 +13,6 @@ using MusicApp.Resources.values;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -32,11 +30,13 @@ namespace MusicApp.Resources.Portable_Class
         {
             base.OnActivityCreated(savedInstanceState);
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
+            ListView.ScrollChange += MainActivity.instance.Scroll;
         }
 
         public override void OnDestroy()
         {
             MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
+            ListView.ScrollChange -= MainActivity.instance.Scroll;
             ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
             base.OnDestroy();
             instance = null;
@@ -125,29 +125,11 @@ namespace MusicApp.Resources.Portable_Class
                 foreach (string topic in selectedTopicsID)
                 {
                     YouTubeService youtube = YoutubeEngine.youtubeService;
-                    int maxSection = 3;
-                    switch (selectedTopics.Length)
-                    {
-                        case 1:
-                            maxSection = 5000;
-                            break;
-                        case 2:
-                            maxSection = 5;
-                            break;
-                        default:
-                            maxSection = 3;
-                            break;
-                    }
-
                     ChannelSectionsResource.ListRequest request = youtube.ChannelSections.List("snippet, contentDetails");
                     request.ChannelId = topic;
 
                     ChannelSectionListResponse response = await request.ExecuteAsync();
-                    List<ChannelSection> topicItems = response.Items.ToList();
-                    topicItems.RemoveAt(0);
-                    r = new Random();
-                    topicItems = topicItems.OrderBy(x => r.Next()).ToList();
-                    topicItems.Insert(0, response.Items[0]);
+                    List<ChannelSection> topicItems = response.Items.ToList().OrderBy(x => r.Next()).ToList();
 
                     foreach (var section in topicItems)
                     {
@@ -217,48 +199,30 @@ namespace MusicApp.Resources.Portable_Class
                             HomeSection section = new HomeSection(item.SectionTitle, item.contentType, contentValue);
                             adapter.AddToList(new List<HomeSection>() { section });
                             break;
-                        //case SectionType.ChannelList:
-                        //    if (adapterItems.Where(x => x.SectionTitle == item.SectionTitle).Count() == 0)
-                        //    {
-                        //        foreach (string channelID in item.contentValue)
-                        //        {
-                        //            YouTubeService youtube = YoutubeEngine.youtubeService;
+                        case SectionType.ChannelList:
+                            foreach (string channelID in item.contentValue)
+                            {
+                                youtube = YoutubeEngine.youtubeService;
 
-                        //            ChannelsResource.ListRequest request = youtube.Channels.List("snippet");
-                        //            request.Id = channelID;
+                                ChannelsResource.ListRequest req = youtube.Channels.List("snippet");
+                                req.Id = channelID;
 
-                        //            ChannelListResponse response = await request.ExecuteAsync();
+                                ChannelListResponse resp = await req.ExecuteAsync();
 
-                        //            foreach (var ytItem in response.Items)
-                        //            {
-                        //                Song channel = new Song(ytItem.Snippet.Title, "", ytItem.Snippet.Thumbnails.Default__.Url, ytItem.Id, -1, -1, null, true);
-                        //                contentValue.Add(channel);
+                                foreach (var ytItem in resp.Items)
+                                {
+                                    Song channel = new Song(ytItem.Snippet.Title, "", ytItem.Snippet.Thumbnails.Default__.Url, ytItem.Id, -1, -1, null, true);
+                                    contentValue.Add(channel);
 
-                        //                if (instance == null)
-                        //                    return;
-                        //            }
+                                    if (instance == null)
+                                        return;
+                                }
 
-                        //        }
+                            }
 
-                        //        HomeSection section = new HomeSection(item.SectionTitle, item.contentType, contentValue);
-
-                        //        if (adapter == null)
-                        //        {
-                        //            adapterItems.Add(section);
-                        //            adapter = new HomeAdapter(adapterItems);
-                        //            ListView.SetAdapter(adapter);
-                        //            adapter.ItemClick += ListView_ItemClick;
-                        //            adapter.ItemLongClick += ListView_ItemLongCLick;
-                        //            ListView.SetItemAnimator(new DefaultItemAnimator());
-                        //            ListView.ScrollChange += MainActivity.instance.Scroll;
-                        //        }
-                        //        else
-                        //        {
-                        //            adapterItems.Add(section);
-                        //            adapter.AddToList(new List<HomeSection>() { section });
-                        //        }
-                        //    }
-                        //    break;
+                            section = new HomeSection(item.SectionTitle, item.contentType, contentValue);
+                            adapter.AddToList(new List<HomeSection>() { section });
+                            break;
                         //case SectionType.PlaylistList:
                         //    if (adapterItems.Where(x => x.SectionTitle == item.SectionTitle).Count() == 0)
                         //    {
