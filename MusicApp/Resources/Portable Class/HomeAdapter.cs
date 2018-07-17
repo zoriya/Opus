@@ -83,17 +83,23 @@ namespace MusicApp.Resources.Portable_Class
 
                 ((GradientDrawable)holder.more.Background).SetStroke(5, Android.Content.Res.ColorStateList.ValueOf(Color.Argb(255, 21, 183, 237)));
                 holder.more.SetTextColor(Color.Argb(255, 21, 183, 237));
-                //holder.more.Click += (sender, e) =>
-                //{
-                //    Home.savedState = Home.instance.ListView.GetLayoutManager().OnSaveInstanceState();
-                //    Home.instance.RetainInstance = true;
-                //    MainActivity.instance.SupportActionBar.SetHomeButtonEnabled(true);
-                //    MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
-                //    MainActivity.instance.SupportActionBar.Title = items[position].SectionTitle;
-                //    MainActivity.instance.contentRefresh.Refresh -= Home.instance.OnRefresh;
-                //    Home.instance = null;
-                //    MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(items[position].contentValue, items[position].SectionTitle), true);
-                //};
+                holder.more.Click += (sender, e) =>
+                {
+                    HomeChannelAdapter adapter = (HomeChannelAdapter)holder.recycler.GetAdapter();
+                    if(adapter.ItemCount == 4)
+                    {
+                        adapter.songList.AddRange(items[position].contentValue.GetRange(4, items[position].contentValue.Count - 4));
+                        adapter.NotifyItemRangeInserted(4, items[position].contentValue.Count - 4);
+                        holder.more.Text = "View Less";
+                    }
+                    else
+                    {
+                        int count = adapter.songList.Count - 4;
+                        adapter.songList.RemoveRange(4, count);
+                        adapter.NotifyItemRangeRemoved(4, count);
+                        holder.more.Text = "View More";
+                    }
+                };
 
                 if (MainActivity.Theme == 1)
                     holder.ItemView.SetBackgroundColor(Color.Argb(255, 62, 62, 62));

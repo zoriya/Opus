@@ -13,7 +13,7 @@ namespace MusicApp.Resources.Portable_Class
     {
         public RecyclerView recycler;
         public int listPadding = 0;
-        private List<Song> songList;
+        public List<Song> songList;
 
         private readonly string[] actions = new string[] { "Play", "Play Next", "Play Last", "Add To Playlist", "Edit Metadata" };
         public override int ItemCount => songList.Count;
