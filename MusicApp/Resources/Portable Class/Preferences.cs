@@ -67,8 +67,12 @@ namespace MusicApp.Resources.Portable_Class
                     {
                         ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(this);
                         ISharedPreferencesEditor editor = prefManager.Edit();
-                        editor.PutStringSet("selectedTopics", TopicSelector.instance.selectedTopics);
-                        editor.PutStringSet("selectedTopicsID", TopicSelector.instance.selectedTopicsID);
+                        List<string> topics = new List<string>();
+                        for (int i = 0; i < TopicSelector.instance.selectedTopics.Count; i++)
+                        {
+                            topics.Add(TopicSelector.instance.selectedTopics[i] + "/#-#/" + TopicSelector.instance.selectedTopicsID[i]);
+                        }
+                        editor.PutStringSet("selectedTopics", topics);
                         editor.Apply();
                         TopicSelector.instance = null;
                         Recreate();

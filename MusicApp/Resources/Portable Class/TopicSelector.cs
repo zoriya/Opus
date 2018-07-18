@@ -35,8 +35,12 @@ namespace MusicApp.Resources.Portable_Class
             List<Song> channelLits = new List<Song>();
 
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
-            selectedTopics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
-            selectedTopicsID = prefManager.GetStringSet("selectedTopicsID", new string[] { }).ToList();
+            List<string> topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
+            foreach(string topic in topics)
+            {
+                selectedTopics.Add(topic.Substring(0, topic.IndexOf("/#-#/")));
+                selectedTopicsID.Add(topic.Substring(topic.IndexOf("/#-#/") + 5));
+            }
 
             string nextPageToken = "";
             while (nextPageToken != null)
@@ -52,7 +56,6 @@ namespace MusicApp.Resources.Portable_Class
                 foreach (var item in response.Items)
                 {
                     Song channel = new Song(item.Snippet.Title.Substring(0, item.Snippet.Title.IndexOf(" - Topic")), item.Snippet.Description, item.Snippet.Thumbnails.Default__.Url, item.Snippet.ResourceId.ChannelId, -1, -1, null, true);
-                    System.Console.WriteLine("&Channel Name: " + channel.GetName());
                     channelLits.Add(channel);
                 }
 

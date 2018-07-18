@@ -473,7 +473,7 @@ namespace MusicApp.Resources.Portable_Class
                     {
                         case 0:
                             int Position = tracks.IndexOf(item);
-                        PlayInOrder(Position, true);
+                            PlayInOrder(Position, true);
                             break;
 
                         case 1:
@@ -505,7 +505,10 @@ namespace MusicApp.Resources.Portable_Class
                             break;
 
                         case 4:
-                            YoutubeEngine.GetPlaylists(item.GetPath(), Activity);
+                            if (item.IsYt)
+                                YoutubeEngine.GetPlaylists(item.GetPath(), Activity);
+                            else
+                                Browse.GetPlaylist(item);
                             break;
 
                         case 5:
@@ -529,7 +532,7 @@ namespace MusicApp.Resources.Portable_Class
                     {
                         case 0:
                             int Position = tracks.IndexOf(item);
-                        PlayInOrder(Position, true);
+                            PlayInOrder(Position, true);
                             break;
 
                         case 1:
@@ -547,7 +550,10 @@ namespace MusicApp.Resources.Portable_Class
                             break;
 
                         case 3:
-                            YoutubeEngine.GetPlaylists(item.GetPath(), Activity);
+                            if (item.IsYt)
+                                YoutubeEngine.GetPlaylists(item.GetPath(), Activity);
+                            else
+                                Browse.GetPlaylist(item);
                             break;
 
                         case 4:

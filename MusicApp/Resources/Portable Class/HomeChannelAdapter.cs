@@ -1,7 +1,6 @@
 ﻿using Android.App;
 using Android.Support.V7.Widget;
 using Android.Views;
-using Android.Widget;
 using MusicApp.Resources.values;
 using Square.Picasso;
 using System.Collections.Generic;
@@ -14,7 +13,6 @@ namespace MusicApp.Resources.Portable_Class
         public int listPadding = 0;
         public List<Song> songList;
 
-        private readonly string[] actions = new string[] { "Play", "Play Next", "Play Last", "Add To Playlist", "Edit Metadata" };
         public override int ItemCount => songList.Count;
 
         public HomeChannelAdapter(List<Song> songList, RecyclerView recycler)
@@ -50,17 +48,8 @@ namespace MusicApp.Resources.Portable_Class
             return new RecyclerHolder(itemView, OnClick, OnLongClick);
         }
 
-        void OnClick(int position)
-        {
-            if (!songList[position].IsYt)
-                Browse.Play(songList[position], recycler.GetLayoutManager().FindViewByPosition(position).FindViewById<ImageView>(Resource.Id.albumArt));
-            else
-                YoutubeEngine.Play(songList[position].youtubeID, songList[position].GetName(), songList[position].GetArtist(), songList[position].GetAlbum());
-        }
+        void OnClick(int position) { }
 
-        void OnLongClick(int position)
-        {
-
-        }
+        void OnLongClick(int position) { }
     }
 }

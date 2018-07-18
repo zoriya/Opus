@@ -6,6 +6,7 @@ using Android.Widget;
 using MusicApp.Resources.values;
 using Square.Picasso;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -15,7 +16,7 @@ namespace MusicApp.Resources.Portable_Class
         public int listPadding = 0;
         private List<Song> songList;
 
-        private readonly string[] actions = new string[] { "Play", "Play Next", "Play Last", "Add To Playlist", "Edit Metadata" };
+        private readonly string[] actions = new string[] { "Play", "Play Next", "Play Last", "Add To Playlist" };
         public override int ItemCount => songList.Count;
 
         public LineAdapter(List<Song> songList, RecyclerView recycler)
@@ -60,7 +61,67 @@ namespace MusicApp.Resources.Portable_Class
 
         void OnLongClick(int position)
         {
-            
+            Song item = songList[position];
+
+            List<string> action = actions.ToList();
+
+            if (!item.IsYt)
+            {
+                action.Add("Edit Metadata");
+                Browse.act = MainActivity.instance;
+                Browse.inflater = MainActivity.instance.LayoutInflater;
+            }
+            else
+            {
+                action.Add("Download");
+            }
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme);
+            builder.SetTitle("Pick an action");
+            builder.SetItems(action.ToArray(), (senderAlert, args) =>
+            {
+                switch (args.Which)
+                {
+                    case 0:
+                        if (!item.IsYt)
+                            Browse.Play(item, recycler.GetLayoutManager().FindViewByPosition(position).FindViewById<ImageView>(Resource.Id.albumArt));
+                        else
+                            YoutubeEngine.Play(item.youtubeID, item.GetName(), item.GetArtist(), item.GetAlbum());
+                        break;
+
+                    case 1:
+                        if (!item.IsYt)
+                            Browse.PlayNext(item);
+                        else
+                            YoutubeEngine.PlayNext(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
+                        break;
+
+                    case 2:
+                        if (!item.IsYt)
+                            Browse.PlayLast(item);
+                        else
+                            YoutubeEngine.PlayLast(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
+                        break;
+
+                    case 3:
+                        if (item.IsYt)
+                            YoutubeEngine.GetPlaylists(item.GetPath(), MainActivity.instance);
+                        else
+                            Browse.GetPlaylist(item);
+                        break;
+
+                    case 5:
+                        if (item.IsYt)
+                            YoutubeEngine.Download(item.GetName(), item.GetPath());
+                        else
+                            Browse.EditMetadata(item, "PlaylistTracks", Home.instance.ListView.GetLayoutManager().OnSaveInstanceState());
+                        break;
+
+                    default:
+                        break;
+                }
+            });
+            builder.Show();
         }
     }
 }

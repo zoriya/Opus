@@ -113,11 +113,17 @@ namespace MusicApp.Resources.Portable_Class
             ListView.SetItemAnimator(new DefaultItemAnimator());
             ListView.ScrollChange += MainActivity.instance.Scroll;
 
+            List<string> selectedTopics = new List<string>();
+            List<string> selectedTopicsID = new List<string>();
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Activity);
-            string[] selectedTopics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToArray();
-            string[] selectedTopicsID = prefManager.GetStringSet("selectedTopicsID", new string[] { }).ToArray();
+            List<string> topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
+            foreach (string topic in topics)
+            {
+                selectedTopics.Add(topic.Substring(0, topic.IndexOf("/#-#/")));
+                selectedTopicsID.Add(topic.Substring(topic.IndexOf("/#-#/") + 5));
+            }
 
-            if (selectedTopicsID.Length > 0)
+            if (selectedTopicsID.Count > 0)
             {
                 await MainActivity.instance.WaitForYoutube();
 
@@ -137,7 +143,13 @@ namespace MusicApp.Resources.Portable_Class
 
                         string title = section.Snippet.Title;
                         if (title == null || title == "")
-                            title = selectedTopics[Array.IndexOf(selectedTopicsID, topic)];
+                            title = selectedTopics[selectedTopicsID.IndexOf(topic)];
+
+                        if (title == "Popular Artists")
+                            title = (selectedTopics[selectedTopicsID.IndexOf(topic)].Contains(" Music") ? selectedTopics[selectedTopicsID.IndexOf(topic)].Substring(0, selectedTopics[selectedTopicsID.IndexOf(topic)].IndexOf(" Music")) : selectedTopics[selectedTopicsID.IndexOf(topic)]) + "'s Popular Artists";
+
+                        if (title == "Popular Channels")
+                            continue;
 
                         if (Items.Exists(x => x.SectionTitle == title))
                             continue;
@@ -248,6 +260,7 @@ namespace MusicApp.Resources.Portable_Class
                             }
 
                             section = new HomeSection(item.SectionTitle, item.contentType, contentValue);
+                            List<Song> removedValues = new List<Song>();
                             for (int i = 0; i < adapter.ItemCount; i++)
                             {
                                 if(adapter.items[i].contentType == SectionType.ChannelList)
@@ -257,6 +270,7 @@ namespace MusicApp.Resources.Portable_Class
                                         if (section.contentValue.Exists(x => x.GetName().Contains(adapter.items[i].contentValue[j].GetName())))
                                         {
                                             adapter.items[i].contentValue[j].SetArtist(section.contentValue.Find(x => x.GetName().Contains(adapter.items[i].contentValue[j].GetName())).youtubeID);
+                                            removedValues.Add(section.contentValue.Find(x => x.GetName().Contains(adapter.items[i].contentValue[j].GetName())));
                                             if (j < 4 && adapter.items[i].recycler != null)
                                             {
                                                 RecyclerHolder holder = (RecyclerHolder)adapter.items[i].recycler.GetChildViewHolder(adapter.items[i].recycler.GetLayoutManager().FindViewByPosition(j));
@@ -266,7 +280,9 @@ namespace MusicApp.Resources.Portable_Class
                                     }
                                 }
                             }
-                            //adapter.AddToList(new List<HomeSection>() { section });
+                            //section.contentValue = section.contentValue.Except(removedValues).ToList();
+                            //if(section.contentValue.Count > 0)
+                            //    adapter.AddToList(new List<HomeSection>() { section });
                             break;
                         default:
                             break;
