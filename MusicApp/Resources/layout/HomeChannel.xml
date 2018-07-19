@@ -31,5 +31,5 @@
     android:paddingLeft="90dp"
     android:textStyle="bold"
     android:layout_alignParentLeft="true"
-    android:layout_toLeftOf="@id/action"/>
+    android:layout_toLeftOf="@id/action" />
 </RelativeLayout >

@@ -24,6 +24,8 @@ namespace MusicApp.Resources.Portable_Class
         public HomeAdapter adapter;
         public ItemTouchHelper itemTouchHelper;
         public static List<HomeSection> adapterItems = new List<HomeSection>();
+        public List<string> selectedTopics = new List<string>();
+        public List<string> selectedTopicsID = new List<string>();
         public View view;
 
         public override void OnActivityCreated(Bundle savedInstanceState)
@@ -113,8 +115,6 @@ namespace MusicApp.Resources.Portable_Class
             ListView.SetItemAnimator(new DefaultItemAnimator());
             ListView.ScrollChange += MainActivity.instance.Scroll;
 
-            List<string> selectedTopics = new List<string>();
-            List<string> selectedTopicsID = new List<string>();
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Activity);
             List<string> topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
             foreach (string topic in topics)
@@ -288,7 +288,49 @@ namespace MusicApp.Resources.Portable_Class
                             break;
                     }
                 }
+
+                r = new Random();
+                if (r.Next(0, 100) > 90)
+                    AddHomeTopics();
             }
+            else
+            {
+                AddHomeTopics();
+            }
+        }
+
+        public async void AddHomeTopics()
+        {
+            await MainActivity.instance.WaitForYoutube();
+
+            List<Song> channelLits = new List<Song>();
+
+            string nextPageToken = "";
+            while (nextPageToken != null)
+            {
+                YouTubeService youtube = YoutubeEngine.youtubeService;
+                SubscriptionsResource.ListRequest request = youtube.Subscriptions.List("snippet,contentDetails");
+                request.ChannelId = "UCh3mHcmSMffgVxFniKQrpug";
+                request.MaxResults = 50;
+                request.PageToken = nextPageToken;
+
+                SubscriptionListResponse response = await request.ExecuteAsync();
+
+                foreach (var item in response.Items)
+                {
+                    Song channel = new Song(item.Snippet.Title.Substring(0, item.Snippet.Title.IndexOf(" - Topic")), item.Snippet.Description, item.Snippet.Thumbnails.Default__.Url, item.Snippet.ResourceId.ChannelId, -1, -1, null, true);
+                    channelLits.Add(channel);
+                }
+
+                nextPageToken = response.NextPageToken;
+            }
+
+            Random r = new Random();
+            List<Song> channels = channelLits.OrderBy(x => r.Next()).ToList();
+            channels.RemoveAll(x => selectedTopics.Contains(x.GetName()));
+
+            HomeSection TopicSelector = new HomeSection("Music Genres", SectionType.TopicSelector, channels);
+            adapter.AddToList(new List<HomeSection> { TopicSelector });
         }
 
         public static Fragment NewInstance()

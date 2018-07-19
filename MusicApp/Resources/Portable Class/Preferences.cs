@@ -121,13 +121,13 @@ namespace MusicApp.Resources.Portable_Class
             if (topics.Length == 0)
                 topicPreference.Summary = "Actually nothing";
             else if (topics.Length == 1)
-                topicPreference.Summary = topics[0];
+                topicPreference.Summary = topics[0].Substring(0, topics[0].IndexOf("/#-#/"));
             else if (topics.Length == 2)
-                topicPreference.Summary = topics[0] + " and " + topics[1];
+                topicPreference.Summary = topics[0].Substring(0, topics[0].IndexOf("/#-#/")) + " and " + topics[1].Substring(0, topics[1].IndexOf("/#-#/"));
             else if(topics.Length == 3)
-                topicPreference.Summary = topics[0] + ", " + topics[1] + " and " + topics[2];
+                topicPreference.Summary = topics[0].Substring(0, topics[0].IndexOf("/#-#/")) + ", " + topics[1].Substring(0, topics[1].IndexOf("/#-#/")) + " and " + topics[2].Substring(0, topics[2].IndexOf("/#-#/"));
             else if(topics.Length > 3)
-                topicPreference.Summary = topics[0] + ", " + topics[1] + ", " + topics[2] + " and more.";
+                topicPreference.Summary = topics[0].Substring(0, topics[0].IndexOf("/#-#/")) + ", " + topics[1].Substring(0, topics[1].IndexOf("/#-#/")) + ", " + topics[2].Substring(0, topics[2].IndexOf("/#-#/")) + " and more.";
 
             //Download Path
             Preference downloadPref = PreferenceScreen.FindPreference("downloadPath");

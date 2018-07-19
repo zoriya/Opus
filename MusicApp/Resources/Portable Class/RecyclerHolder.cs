@@ -17,6 +17,7 @@ namespace MusicApp.Resources.Portable_Class
         public ImageView youtubeIcon;
         public ImageView more;
         public TextView status;
+        public CheckBox checkBox;
         public Button action;
 
         public RecyclerHolder(View itemView, Action<int> listener, Action<int> longListener) : base(itemView)
@@ -30,6 +31,7 @@ namespace MusicApp.Resources.Portable_Class
             youtubeIcon = itemView.FindViewById<ImageView>(Resource.Id.youtubeIcon);
             more = itemView.FindViewById<ImageView>(Resource.Id.moreButton);
             status = itemView.FindViewById<TextView>(Resource.Id.status);
+            checkBox = itemView.FindViewById<CheckBox>(Resource.Id.checkBox);
             action = itemView.FindViewById<Button>(Resource.Id.action);
 
             itemView.Click += (sender, e) => listener(AdapterPosition);

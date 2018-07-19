@@ -24,6 +24,7 @@ namespace MusicApp.Resources.values
         None,
         ChannelList,
         PlaylistList,
-        SinglePlaylist
+        SinglePlaylist,
+        TopicSelector
     };
 }
