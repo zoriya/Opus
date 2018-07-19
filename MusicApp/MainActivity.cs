@@ -34,11 +34,14 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using TagLib;
+using YoutubeExplode;
 using SearchView = Android.Support.V7.Widget.SearchView;
 
 namespace MusicApp
 {
     [Activity(Label = "MusicApp", MainLauncher = true, Icon = "@drawable/launcher_icon", Theme = "@style/Theme", ScreenOrientation = ScreenOrientation.Portrait)]
+    [IntentFilter(new[] {Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, DataHost = "www.youtube.com", DataMimeType = "text/*")]
+    [IntentFilter(new[] {Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, DataHost = "m.youtube.com", DataMimeType = "text/plain")]
     public class MainActivity : AppCompatActivity, ViewPager.IOnPageChangeListener, SwipeDismissBehavior.IOnDismissListener, GoogleApiClient.IOnConnectionFailedListener, Square.OkHttp.ICallback, IResultCallback, IMenuItemOnActionExpandListener
     {
         public static MainActivity instance;
@@ -135,6 +138,24 @@ namespace MusicApp
                 ReCreateSmallPlayer();
             else
                 PrepareApp();
+
+            if(Intent.Action == Intent.ActionSend)
+            {
+                Console.WriteLine("&Intent Data: " + Intent.GetStringExtra(Intent.ExtraText));
+                if (YoutubeClient.TryParseVideoId(Intent.GetStringExtra(Intent.ExtraText), out string videoID))
+                {
+                    Intent intent = new Intent(this, typeof(MusicPlayer));
+                    intent.SetAction("YoutubePlay");
+                    intent.PutExtra("action", "Play");
+                    intent.PutExtra("file", videoID);
+                    StartService(intent);
+                }
+                else
+                {
+                    Toast.MakeText(this, "Can't play non youtube video.", ToastLength.Short).Show();
+                    Finish();
+                }
+            }
         }
 
         async void PrepareApp()

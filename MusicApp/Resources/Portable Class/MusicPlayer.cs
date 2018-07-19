@@ -374,6 +374,14 @@ namespace MusicApp.Resources.Portable_Class
                 var mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(videoID);
                 AudioStreamInfo streamInfo = mediaStreamInfo.Audio.OrderBy(s => s.Bitrate).Last();
 
+                if(title == null)
+                {
+                    Video video = await client.GetVideoAsync(videoID);
+                    title = video.Title;
+                    artist = video.Author;
+                    thumbnailURL = video.Thumbnails.HighResUrl;
+                }
+
                 switch (action)
                 {
                     case "Play":
