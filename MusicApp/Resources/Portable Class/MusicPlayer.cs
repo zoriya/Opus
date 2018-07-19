@@ -692,13 +692,14 @@ namespace MusicApp.Resources.Portable_Class
             string Artist = "Unknow";
             long AlbumArt = 0;
             long id = 0;
-            string path = filePath;
-
+            string path;
             Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
+
+            if (filePath.StartsWith("content://"))
+                musicUri = Uri.Parse(filePath);
 
             Android.Content.CursorLoader cursorLoader = new Android.Content.CursorLoader(Application.Context, musicUri, null, null, null, null);
             ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
-
             if (musicCursor != null && musicCursor.MoveToFirst())
             {
                 int titleID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Title);
@@ -708,8 +709,9 @@ namespace MusicApp.Resources.Portable_Class
                 do
                 {
                     path = musicCursor.GetString(pathID);
+                    Console.WriteLine("&Path: " + path);
 
-                    if (path == filePath)
+                    if (path == filePath || filePath.StartsWith("content://"))
                     {
                         Artist = musicCursor.GetString(artistID);
                         Title = musicCursor.GetString(titleID);

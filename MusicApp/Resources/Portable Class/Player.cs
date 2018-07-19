@@ -42,6 +42,7 @@ namespace MusicApp.Resources.Portable_Class
 
             SetContentView(Resource.Layout.player);
             instance = this;
+
             CreatePlayer();
         }
 

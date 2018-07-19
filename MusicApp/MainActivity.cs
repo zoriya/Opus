@@ -42,6 +42,7 @@ namespace MusicApp
     [Activity(Label = "MusicApp", MainLauncher = true, Icon = "@drawable/launcher_icon", Theme = "@style/Theme", ScreenOrientation = ScreenOrientation.Portrait)]
     [IntentFilter(new[] {Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, DataHost = "www.youtube.com", DataMimeType = "text/*")]
     [IntentFilter(new[] {Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, DataHost = "m.youtube.com", DataMimeType = "text/plain")]
+    [IntentFilter(new[] { Intent.ActionView }, Categories = new[] { Intent.CategoryDefault }, DataMimeTypes = new[] { "audio/*", "application/ogg", "application/x-ogg", "application/itunes" })]
     public class MainActivity : AppCompatActivity, ViewPager.IOnPageChangeListener, SwipeDismissBehavior.IOnDismissListener, GoogleApiClient.IOnConnectionFailedListener, Square.OkHttp.ICallback, IResultCallback, IMenuItemOnActionExpandListener
     {
         public static MainActivity instance;
@@ -155,6 +156,15 @@ namespace MusicApp
                     Toast.MakeText(this, "Can't play non youtube video.", ToastLength.Short).Show();
                     Finish();
                 }
+            }
+            else if (Intent.Action == Intent.ActionView)
+            {
+                Intent intent = new Intent(this, typeof(MusicPlayer));
+                intent.PutExtra("file", Intent.Data.ToString());
+                StartService(intent);
+
+                Intent inten = new Intent(this, typeof(Player));
+                StartActivity(inten);
             }
         }
 
