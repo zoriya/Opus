@@ -80,7 +80,7 @@ namespace MusicApp
         private Drawable crossToPlay;
 
         private const int RequestCode = 8539;
-        private const string versionURI = "https://raw.githubusercontent.com/AnonymusRaccoon/MusicApp/master/MusicApp/Resources/values/Version.txt";
+        private const string versionURI = "https://raw.githubusercontent.com/AnonymusRaccoon/MusicApp/master/MusicApp/Assets/Version.txt";
 
         private const string clientID = "112086459272-8m4do6aehtdg4a7nffd0a84jk94c64e8.apps.googleusercontent.com";
         public static YouTubeService youtubeService;
@@ -1316,21 +1316,39 @@ namespace MusicApp
             string versionID = VersionAsset.Substring(9, 3);
             int version = int.Parse(versionID.Remove(1, 1));
 
+            string gitVersionID;
             int gitVersion;
             string downloadPath;
 
             using(WebClient client = new WebClient())
             {
                 string GitVersion = await client.DownloadStringTaskAsync(new System.Uri(versionURI));
-                string gitVersionID = VersionAsset.Substring(9, 3);
+                gitVersionID = VersionAsset.Substring(9, 3);
                 gitVersion = int.Parse(versionID.Remove(1, 1));
                 downloadPath = VersionAsset.Substring(18);
             }
 
             if(gitVersion > version)
             {
-                Console.WriteLine("&Should update the app");
+                Android.Support.V7.App.AlertDialog.Builder builder = new Android.Support.V7.App.AlertDialog.Builder(Application.Context, dialogTheme);
+                builder.SetTitle("The version {0} is available");
+                builder.SetMessage("An update is available, do you want to download it now ?");
+                builder.SetPositiveButton("Ok", (sender, e) => { InstallUpdate(gitVersionID, downloadPath); });
+                builder.SetNegativeButton("Later", (sender, e) => { });
+                builder.Show();
             }
+        }
+
+        public async static void InstallUpdate(string version, string downloadPath)
+        {
+            using(WebClient client = new WebClient())
+            {
+                await client.DownloadFileTaskAsync(downloadPath, "MusicApp v" + version);
+            }
+            Intent intent = new Intent(Intent.ActionView);
+            intent.SetDataAndType(Android.Net.Uri.FromFile(new Java.IO.File(Android.OS.Environment.ExternalStorageDirectory + "/download/" + "MusicApp v" + version + ".apk")), "application/vnd.android.package-archive");
+            intent.SetFlags(ActivityFlags.NewTask);
+            Application.Context.StartActivity(intent);
         }
 
 
