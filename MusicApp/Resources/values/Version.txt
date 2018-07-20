@@ -1,0 +1,2 @@
+Version: 1.7
+Link: https://github.com/AnonymusRaccoon/MusicApp/releases/download/1.7/MusicApp.v1.7.apk

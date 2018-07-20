@@ -149,6 +149,10 @@ namespace MusicApp.Resources.Portable_Class
             themePreference.PreferenceClick += ChangeTheme;
             themePreference.Summary = prefManager.GetInt("theme", 0) == 0 ? "White Theme" : "Dark Theme";
 
+            //Check For Update
+            Preference updatePreference = PreferenceScreen.FindPreference("update");
+            updatePreference.PreferenceClick += UpdatePreference_PreferenceClick;
+
             //Account
             Preference accountPreference = PreferenceScreen.FindPreference("account");
 
@@ -313,6 +317,13 @@ namespace MusicApp.Resources.Portable_Class
                 Activity.Recreate();
             });
             builder.Show();
+        }
+        #endregion
+
+        #region Updater
+        private void UpdatePreference_PreferenceClick(object sender, Preference.PreferenceClickEventArgs e)
+        {
+            MainActivity.CheckForUpdate();
         }
         #endregion
     }

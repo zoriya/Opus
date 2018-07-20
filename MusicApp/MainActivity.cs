@@ -2,12 +2,14 @@
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
+using Android.Content.Res;
 using Android.Database;
 using Android.Gms.Auth.Api;
 using Android.Gms.Auth.Api.SignIn;
 using Android.Gms.Common;
 using Android.Gms.Common.Apis;
 using Android.Graphics.Drawables;
+using Android.Net;
 using Android.OS;
 using Android.Provider;
 using Android.Runtime;
@@ -32,6 +34,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using TagLib;
 using YoutubeExplode;
@@ -77,6 +80,7 @@ namespace MusicApp
         private Drawable crossToPlay;
 
         private const int RequestCode = 8539;
+        private const string versionURI = "";
 
         private const string clientID = "112086459272-8m4do6aehtdg4a7nffd0a84jk94c64e8.apps.googleusercontent.com";
         public static YouTubeService youtubeService;
@@ -1299,6 +1303,28 @@ namespace MusicApp
             float scale = Resources.DisplayMetrics.Density;
             return (int) (px * scale + 0.5f);
         }
+
+        public static void CheckForUpdate()
+        {
+            string VersionAsset;
+            AssetManager assets = Application.Context.Assets;
+            using (StreamReader sr = new StreamReader(assets.Open("Version.txt")))
+            {
+                VersionAsset = sr.ReadToEnd();
+            }
+
+            Console.WriteLine("&VersionAsset = " + VersionAsset);
+            string versionID = VersionAsset.Substring(9, 3);
+            Console.WriteLine("&VersionID = " + versionID);
+            int version = int.Parse(versionID.Remove(1, 1));
+            Console.WriteLine("&Version: " + version);
+
+            using(WebClient client = new WebClient())
+            {
+                client.DownloadStringAsync(versionURI);
+            }
+        }
+
 
         protected override void OnResume()
         {
