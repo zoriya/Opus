@@ -99,7 +99,21 @@ namespace MusicApp.Resources.Portable_Class
 
                     Picasso.With(Android.App.Application.Context).Load(thumnailURI).Placeholder(Resource.Drawable.noAlbum).Resize(1080, 1080).CenterCrop().Into(Activity.FindViewById<ImageView>(Resource.Id.headerArt));
                 }
-            }   
+            }
+            else
+            {
+                View header = LayoutInflater.Inflate(Resource.Layout.PlaylistSmallHeader, null);
+                ListView.AddHeaderView(header);
+                header.FindViewById<TextView>(Resource.Id.headerNumber).Text = tracks.Count + " songs";
+                Activity.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { PlayInOrder(0, false); };
+                Activity.FindViewById<ImageButton>(Resource.Id.headerShuffle).Click += (sender, e0) =>
+                {
+                    System.Console.WriteLine("&Shuffle clicked");
+                    System.Random r = new System.Random();
+                    Song[] songs = tracks.OrderBy(x => r.Next()).ToArray();
+                    YoutubeEngine.PlayFiles(songs);
+                };
+            }
         }
 
         public bool OnMenuItemClick(IMenuItem item)
@@ -339,9 +353,12 @@ namespace MusicApp.Resources.Portable_Class
 
                 foreach (var item in ytPlaylist.Items)
                 {
-                    Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
-                    tracks.Add(song);
-                    ytTracksIDs.Add(item.Id);
+                    if (item.Snippet.Title != "Deleted video")
+                    {
+                        Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
+                        tracks.Add(song);
+                        ytTracksIDs.Add(item.Id);
+                    }
                 }
 
                 nextPageToken = ytPlaylist.NextPageToken;

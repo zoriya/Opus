@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<RelativeLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_height="wrap_content"
+  android:layout_width="fill_parent"
+  android:id="@+id/playlistHeader">
+  <TextView
+    android:id="@+id/headerNumber"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:textColor="#ffffff"
+    android:textSize="14dip"
+    android:alpha=".65"
+    android:layout_centerVertical="true"
+    android:paddingLeft="20dp"
+    android:text="256 songs"/>
+  <LinearLayout
+    android:orientation="horizontal"
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
+    android:layout_alignParentBottom="true"
+    android:layout_alignParentRight="true" >
+    <ImageButton
+      android:id="@+id/headerPlay"
+      android:layout_width="60dp"
+      android:layout_height="60dp"
+      android:tint="#ffffff"
+      android:src="@drawable/ic_play_arrow_black_24dp"
+      android:background="@null" />
+    <ImageButton
+      android:id="@+id/headerShuffle"
+      android:layout_width="60dp"
+      android:layout_height="60dp"
+      android:tint="#ffffff"
+      android:src="@drawable/Shuffle"
+      android:background="@null"/>
+    <ImageButton
+      android:id="@+id/headerMore"
+      android:layout_width="60dp"
+      android:layout_height="60dp"
+      android:tint="#ffffff"
+      android:src="@drawable/ic_more_vert_black_24dp"
+      android:background="@null" />
+  </LinearLayout>
+</RelativeLayout>

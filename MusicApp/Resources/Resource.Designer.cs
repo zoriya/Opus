@@ -4354,97 +4354,100 @@ namespace MusicApp
 			public const int PlaylistList = 2130903127;
 			
 			// aapt resource value: 0x7f030058
-			public const int preference = 2130903128;
+			public const int PlaylistSmallHeader = 2130903128;
 			
 			// aapt resource value: 0x7f030059
-			public const int preference_category = 2130903129;
+			public const int preference = 2130903129;
 			
 			// aapt resource value: 0x7f03005a
-			public const int preference_dialog_edittext = 2130903130;
+			public const int preference_category = 2130903130;
 			
 			// aapt resource value: 0x7f03005b
-			public const int preference_dropdown = 2130903131;
+			public const int preference_dialog_edittext = 2130903131;
 			
 			// aapt resource value: 0x7f03005c
-			public const int preference_information = 2130903132;
+			public const int preference_dropdown = 2130903132;
 			
 			// aapt resource value: 0x7f03005d
-			public const int preference_list_fragment = 2130903133;
+			public const int preference_information = 2130903133;
 			
 			// aapt resource value: 0x7f03005e
-			public const int preference_recyclerview = 2130903134;
+			public const int preference_list_fragment = 2130903134;
 			
 			// aapt resource value: 0x7f03005f
-			public const int preference_widget_checkbox = 2130903135;
+			public const int preference_recyclerview = 2130903135;
 			
 			// aapt resource value: 0x7f030060
-			public const int preference_widget_seekbar = 2130903136;
+			public const int preference_widget_checkbox = 2130903136;
 			
 			// aapt resource value: 0x7f030061
-			public const int preference_widget_switch_compat = 2130903137;
+			public const int preference_widget_seekbar = 2130903137;
 			
 			// aapt resource value: 0x7f030062
-			public const int PreferenceContent = 2130903138;
+			public const int preference_widget_switch_compat = 2130903138;
 			
 			// aapt resource value: 0x7f030063
-			public const int Preferences = 2130903139;
+			public const int PreferenceContent = 2130903139;
 			
 			// aapt resource value: 0x7f030064
-			public const int PreferenceToolbar = 2130903140;
+			public const int Preferences = 2130903140;
 			
 			// aapt resource value: 0x7f030065
-			public const int QuickPlayLayout = 2130903141;
+			public const int PreferenceToolbar = 2130903141;
 			
 			// aapt resource value: 0x7f030066
-			public const int RecyclerFragment = 2130903142;
+			public const int QuickPlayLayout = 2130903142;
 			
 			// aapt resource value: 0x7f030067
-			public const int SaveAPlaylist = 2130903143;
+			public const int RecyclerFragment = 2130903143;
 			
 			// aapt resource value: 0x7f030068
-			public const int search_layout = 2130903144;
+			public const int SaveAPlaylist = 2130903144;
 			
 			// aapt resource value: 0x7f030069
-			public const int SeekbarPreference = 2130903145;
+			public const int search_layout = 2130903145;
 			
 			// aapt resource value: 0x7f03006a
-			public const int select_dialog_item_material = 2130903146;
+			public const int SeekbarPreference = 2130903146;
 			
 			// aapt resource value: 0x7f03006b
-			public const int select_dialog_multichoice_material = 2130903147;
+			public const int select_dialog_item_material = 2130903147;
 			
 			// aapt resource value: 0x7f03006c
-			public const int select_dialog_singlechoice_material = 2130903148;
+			public const int select_dialog_multichoice_material = 2130903148;
 			
 			// aapt resource value: 0x7f03006d
-			public const int SmallPlayer = 2130903149;
+			public const int select_dialog_singlechoice_material = 2130903149;
 			
 			// aapt resource value: 0x7f03006e
-			public const int SongList = 2130903150;
+			public const int SmallPlayer = 2130903150;
 			
 			// aapt resource value: 0x7f03006f
-			public const int SquareSong = 2130903151;
+			public const int SongList = 2130903151;
 			
 			// aapt resource value: 0x7f030070
-			public const int support_simple_spinner_dropdown_item = 2130903152;
+			public const int SquareSong = 2130903152;
 			
 			// aapt resource value: 0x7f030071
-			public const int tabs = 2130903153;
+			public const int support_simple_spinner_dropdown_item = 2130903153;
 			
 			// aapt resource value: 0x7f030072
-			public const int TimerLayout = 2130903154;
+			public const int tabs = 2130903154;
 			
 			// aapt resource value: 0x7f030073
-			public const int tooltip = 2130903155;
+			public const int TimerLayout = 2130903155;
 			
 			// aapt resource value: 0x7f030074
-			public const int TwoLineLayout = 2130903156;
+			public const int tooltip = 2130903156;
 			
 			// aapt resource value: 0x7f030075
-			public const int ViewPager = 2130903157;
+			public const int TwoLineLayout = 2130903157;
 			
 			// aapt resource value: 0x7f030076
-			public const int YtList = 2130903158;
+			public const int ViewPager = 2130903158;
+			
+			// aapt resource value: 0x7f030077
+			public const int YtList = 2130903159;
 			
 			static Layout()
 			{

@@ -146,7 +146,6 @@ namespace MusicApp
 
             if(Intent.Action == Intent.ActionSend)
             {
-                Console.WriteLine("&Intent Data: " + Intent.GetStringExtra(Intent.ExtraText));
                 if (YoutubeClient.TryParseVideoId(Intent.GetStringExtra(Intent.ExtraText), out string videoID))
                 {
                     Intent intent = new Intent(this, typeof(MusicPlayer));
@@ -180,7 +179,6 @@ namespace MusicApp
             paddingBot = FindViewById<BottomNavigationView>(Resource.Id.bottomView).Height;
             defaultPaddingBot = FindViewById<BottomNavigationView>(Resource.Id.bottomView).Height;
             Navigate(Resource.Id.musicLayout);
-            Login(false);
         }
 
         public void SwitchTheme(int themeID)

@@ -123,10 +123,10 @@ namespace MusicApp.Resources.Portable_Class
                 selectedTopicsID.Add(topic.Substring(topic.IndexOf("/#-#/") + 5));
             }
 
+            await MainActivity.instance.WaitForYoutube();
+
             if (selectedTopicsID.Count > 0)
             {
-                await MainActivity.instance.WaitForYoutube();
-
                 List<HomeItem> Items = new List<HomeItem>();
                 foreach (string topic in selectedTopicsID)
                 {
@@ -205,11 +205,14 @@ namespace MusicApp.Resources.Portable_Class
 
                             foreach (var ytItem in response.Items)
                             {
-                                Song song = new Song(ytItem.Snippet.Title, ytItem.Snippet.ChannelTitle, ytItem.Snippet.Thumbnails.High.Url, ytItem.ContentDetails.VideoId, -1, -1, ytItem.ContentDetails.VideoId, true);
-                                contentValue.Add(song);
+                                if(ytItem.Snippet.Title != "Deleted video")
+                                {
+                                    Song song = new Song(ytItem.Snippet.Title, ytItem.Snippet.ChannelTitle, ytItem.Snippet.Thumbnails.High.Url, ytItem.ContentDetails.VideoId, -1, -1, ytItem.ContentDetails.VideoId, true);
+                                    contentValue.Add(song);
 
-                                if (instance == null)
-                                    return;
+                                    if (instance == null)
+                                        return;
+                                }
                             }
 
                             HomeSection section = new HomeSection(item.SectionTitle, item.contentType, contentValue);
@@ -263,7 +266,7 @@ namespace MusicApp.Resources.Portable_Class
                             List<Song> removedValues = new List<Song>();
                             for (int i = 0; i < adapter.ItemCount; i++)
                             {
-                                if(adapter.items[i].contentType == SectionType.ChannelList)
+                                if (adapter.items[i].contentType == SectionType.ChannelList)
                                 {
                                     for (int j = 0; j < adapter.items[i].contentValue.Count; j++)
                                     {
@@ -301,8 +304,6 @@ namespace MusicApp.Resources.Portable_Class
 
         public async void AddHomeTopics()
         {
-            await MainActivity.instance.WaitForYoutube();
-
             List<Song> channelLits = new List<Song>();
 
             string nextPageToken = "";

@@ -654,8 +654,11 @@ namespace MusicApp.Resources.Portable_Class
 
                 foreach (var item in ytPlaylist.Items)
                 {
-                    Song song = new Song(item.Snippet.Title, "", item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
-                    tracks.Add(song);
+                    if (item.Snippet.Title != "Deleted video")
+                    {
+                        Song song = new Song(item.Snippet.Title, "", item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
+                        tracks.Add(song);
+                    }
                 }
 
                 nextPageToken = ytPlaylist.NextPageToken;
