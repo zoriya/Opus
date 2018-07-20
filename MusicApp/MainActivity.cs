@@ -80,7 +80,7 @@ namespace MusicApp
         private Drawable crossToPlay;
 
         private const int RequestCode = 8539;
-        private const string versionURI = "";
+        private const string versionURI = "https://raw.githubusercontent.com/AnonymusRaccoon/MusicApp/master/MusicApp/Resources/values/Version.txt";
 
         private const string clientID = "112086459272-8m4do6aehtdg4a7nffd0a84jk94c64e8.apps.googleusercontent.com";
         public static YouTubeService youtubeService;
@@ -1304,7 +1304,7 @@ namespace MusicApp
             return (int) (px * scale + 0.5f);
         }
 
-        public static void CheckForUpdate()
+        public async static void CheckForUpdate()
         {
             string VersionAsset;
             AssetManager assets = Application.Context.Assets;
@@ -1313,15 +1313,23 @@ namespace MusicApp
                 VersionAsset = sr.ReadToEnd();
             }
 
-            Console.WriteLine("&VersionAsset = " + VersionAsset);
             string versionID = VersionAsset.Substring(9, 3);
-            Console.WriteLine("&VersionID = " + versionID);
             int version = int.Parse(versionID.Remove(1, 1));
-            Console.WriteLine("&Version: " + version);
+
+            int gitVersion;
+            string downloadPath;
 
             using(WebClient client = new WebClient())
             {
-                client.DownloadStringAsync(versionURI);
+                string GitVersion = await client.DownloadStringTaskAsync(new System.Uri(versionURI));
+                string gitVersionID = VersionAsset.Substring(9, 3);
+                gitVersion = int.Parse(versionID.Remove(1, 1));
+                downloadPath = VersionAsset.Substring(18);
+            }
+
+            if(gitVersion > version)
+            {
+                Console.WriteLine("&Should update the app");
             }
         }
 
