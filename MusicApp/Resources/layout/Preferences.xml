@@ -33,10 +33,10 @@
   <PreferenceCategory android:title="Others">
     <Preference
       android:title="Update app :"
-      android:summary="Comming soon"
       android:key="update"/>
     <Preference
       android:title="Version :"
+      android:key="version"
       android:summary="V. 1.7" />
     <AccountPreference
       android:key="account"

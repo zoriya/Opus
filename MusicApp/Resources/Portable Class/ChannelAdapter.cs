@@ -1,14 +1,11 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.Graphics;
-using Android.Support.V4.Graphics.Drawable;
 using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
 using Square.Picasso;
-using System;
 using System.Collections.Generic;
-using System.Net;
 
 namespace MusicApp.Resources.Portable_Class
 {

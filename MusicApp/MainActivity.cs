@@ -170,6 +170,8 @@ namespace MusicApp
                 Intent inten = new Intent(this, typeof(Player));
                 StartActivity(inten);
             }
+
+            CheckForUpdate(this, false);
         }
 
         async void PrepareApp()
@@ -1304,7 +1306,7 @@ namespace MusicApp
             return (int) (px * scale + 0.5f);
         }
 
-        public async static void CheckForUpdate()
+        public async static void CheckForUpdate(Activity activity, bool displayToast)
         {
             string VersionAsset;
             AssetManager assets = Application.Context.Assets;
@@ -1333,14 +1335,14 @@ namespace MusicApp
             if(gitVersion > version)
             {
                 Console.WriteLine("&An update is available");
-                Android.Support.V7.App.AlertDialog.Builder builder = new Android.Support.V7.App.AlertDialog.Builder(Preferences.instance, dialogTheme);
+                Android.Support.V7.App.AlertDialog.Builder builder = new Android.Support.V7.App.AlertDialog.Builder(activity, dialogTheme);
                 builder.SetTitle(string.Format("The version {0} is available", gitVersionID));
                 builder.SetMessage("An update is available, do you want to download it now ?");
                 builder.SetPositiveButton("Ok", (sender, e) => { InstallUpdate(gitVersionID, downloadPath); });
                 builder.SetNegativeButton("Later", (sender, e) => { });
                 builder.Show();
             }
-            else
+            else if(displayToast)
             {
                 Toast.MakeText(Application.Context, "Your app is up to date.", ToastLength.Short).Show();
             }

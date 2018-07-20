@@ -76,7 +76,7 @@ namespace MusicApp.Resources.Portable_Class
                 action.Add("Download");
             }
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme);
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.instance);
             builder.SetTitle("Pick an action");
             builder.SetItems(action.ToArray(), (senderAlert, args) =>
             {

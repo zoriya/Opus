@@ -1,5 +1,6 @@
 ﻿using Android.App;
 using Android.Content;
+using Android.Content.Res;
 using Android.Database;
 using Android.Gms.Auth.Api;
 using Android.Gms.Auth.Api.SignIn;
@@ -9,6 +10,7 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using static Android.Provider.MediaStore.Audio;
@@ -152,6 +154,16 @@ namespace MusicApp.Resources.Portable_Class
             //Check For Update
             Preference updatePreference = PreferenceScreen.FindPreference("update");
             updatePreference.PreferenceClick += UpdatePreference_PreferenceClick;
+
+            //Version Number
+            Preference versionPreference = PreferenceScreen.FindPreference("version");
+            string VersionAsset;
+            AssetManager assets = Application.Context.Assets;
+            using (StreamReader sr = new StreamReader(assets.Open("Version.txt")))
+            {
+                VersionAsset = sr.ReadToEnd();
+            }
+            versionPreference.Summary = "V." + VersionAsset.Substring(9, 3);
 
             //Account
             Preference accountPreference = PreferenceScreen.FindPreference("account");
@@ -323,7 +335,7 @@ namespace MusicApp.Resources.Portable_Class
         #region Updater
         private void UpdatePreference_PreferenceClick(object sender, Preference.PreferenceClickEventArgs e)
         {
-            MainActivity.CheckForUpdate();
+            MainActivity.CheckForUpdate(Preferences.instance, true);
         }
         #endregion
     }
