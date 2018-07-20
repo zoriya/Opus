@@ -1323,30 +1323,38 @@ namespace MusicApp
             using(WebClient client = new WebClient())
             {
                 string GitVersion = await client.DownloadStringTaskAsync(new System.Uri(versionURI));
-                gitVersionID = VersionAsset.Substring(9, 3);
-                gitVersion = int.Parse(versionID.Remove(1, 1));
-                downloadPath = VersionAsset.Substring(18);
+                gitVersionID = GitVersion.Substring(9, 3);
+                gitVersion = int.Parse(gitVersionID.Remove(1, 1));
+                downloadPath = GitVersion.Substring(18);
             }
+
+            Console.WriteLine("&Version: " + version + " GitVersion: " + gitVersion);
 
             if(gitVersion > version)
             {
-                Android.Support.V7.App.AlertDialog.Builder builder = new Android.Support.V7.App.AlertDialog.Builder(Application.Context, dialogTheme);
-                builder.SetTitle("The version {0} is available");
+                Console.WriteLine("&An update is available");
+                Android.Support.V7.App.AlertDialog.Builder builder = new Android.Support.V7.App.AlertDialog.Builder(Preferences.instance, dialogTheme);
+                builder.SetTitle(string.Format("The version {0} is available", gitVersionID));
                 builder.SetMessage("An update is available, do you want to download it now ?");
                 builder.SetPositiveButton("Ok", (sender, e) => { InstallUpdate(gitVersionID, downloadPath); });
                 builder.SetNegativeButton("Later", (sender, e) => { });
                 builder.Show();
             }
+            else
+            {
+                Toast.MakeText(Application.Context, "Your app is up to date.", ToastLength.Short).Show();
+            }
         }
 
         public async static void InstallUpdate(string version, string downloadPath)
         {
-            using(WebClient client = new WebClient())
+            Toast.MakeText(Application.Context, "Downloading update, you will be prompt for the installation soon.", ToastLength.Short).Show();
+            using (WebClient client = new WebClient())
             {
-                await client.DownloadFileTaskAsync(downloadPath, "MusicApp v" + version);
+                await client.DownloadFileTaskAsync(downloadPath, Android.OS.Environment.ExternalStorageDirectory + "/download/" + "MusicApp-v" + version + ".apk");
             }
             Intent intent = new Intent(Intent.ActionView);
-            intent.SetDataAndType(Android.Net.Uri.FromFile(new Java.IO.File(Android.OS.Environment.ExternalStorageDirectory + "/download/" + "MusicApp v" + version + ".apk")), "application/vnd.android.package-archive");
+            intent.SetDataAndType(Android.Net.Uri.FromFile(new Java.IO.File(Android.OS.Environment.ExternalStorageDirectory + "/download/" + "MusicApp-v" + version + ".apk")), "application/vnd.android.package-archive");
             intent.SetFlags(ActivityFlags.NewTask);
             Application.Context.StartActivity(intent);
         }
