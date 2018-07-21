@@ -302,7 +302,7 @@ namespace MusicApp.Resources.Portable_Class
             AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
             builder.SetTitle("Pick an action");
             if (local)
-                builder.SetItems(new string[] { "Play in order", "Random play", "Rename", "Delete" }, (senderAlert, args) =>
+                builder.SetItems(new string[] { "Play in order", "Random play", "Add To Queue", "Rename", "Delete" }, (senderAlert, args) =>
                 {
                     switch (args.Which)
                     {
@@ -313,9 +313,12 @@ namespace MusicApp.Resources.Portable_Class
                             RandomPlay(playlist.GetID(), Activity);
                             break;
                         case 2:
-                            Rename(Position, playlist);
+                            AddToQueue(playlist.GetID());
                             break;
                         case 3:
+                            Rename(Position, playlist);
+                            break;
+                        case 4:
                             RemovePlaylist(Position, playlist.GetID());
                             break;
                         default:
@@ -323,7 +326,7 @@ namespace MusicApp.Resources.Portable_Class
                     }
                 });
             else if(playlist.isParsed)
-                builder.SetItems(new string[] { "Play in order", "Random play", "Rename", "Delete", "Download" }, (senderAlert, args) =>
+                builder.SetItems(new string[] { "Play in order", "Random play", "Add To Queue", "Rename", "Delete", "Download" }, (senderAlert, args) =>
                 {
                     switch (args.Which)
                     {
@@ -334,12 +337,15 @@ namespace MusicApp.Resources.Portable_Class
                             YoutubeEngine.RandomPlay(playlist.GetPath());
                             break;
                         case 2:
-                            RenameYoutubePlaylist(Position, playlist.GetPath());
+                            AddToQueue(playlist.GetPath());
                             break;
                         case 3:
-                            RemoveYoutubePlaylist(Position, playlist.GetPath());
+                            RenameYoutubePlaylist(Position, playlist.GetPath());
                             break;
                         case 4:
+                            RemoveYoutubePlaylist(Position, playlist.GetPath());
+                            break;
+                        case 5:
                             YoutubeEngine.DownloadPlaylist(playlist.GetName(), playlist.GetPath());
                             break;
                         default:
@@ -347,7 +353,7 @@ namespace MusicApp.Resources.Portable_Class
                     }
                 });
             else
-                builder.SetItems(new string[] { "Play in order", "Random play", "Remove", "Download" }, (senderAlert, args) =>
+                builder.SetItems(new string[] { "Play in order", "Random play", "Add To Queue", "Remove", "Download" }, (senderAlert, args) =>
                 {
                     switch (args.Which)
                     {
@@ -358,9 +364,12 @@ namespace MusicApp.Resources.Portable_Class
                             YoutubeEngine.RandomPlay(playlist.GetPath());
                             break;
                         case 2:
-                            Unfork(Position, playlist.GetPath());
+                            AddToQueue(playlist.GetPath());
                             break;
                         case 3:
+                            Unfork(Position, playlist.GetPath());
+                            break;
+                        case 4:
                             YoutubeEngine.DownloadPlaylist(playlist.GetName(), playlist.GetPath());
                             break;
                         default:
@@ -370,7 +379,7 @@ namespace MusicApp.Resources.Portable_Class
             builder.Show();
         }
 
-        public async void PlayInOrder(long playlistID)
+        public static async void PlayInOrder(long playlistID)
         {
             Android.Net.Uri musicUri = Playlists.Members.GetContentUri("external", playlistID);
             List<Song> songs = new List<Song>();
@@ -406,7 +415,7 @@ namespace MusicApp.Resources.Portable_Class
                 musicCursor.Close();
 
                 MusicPlayer.queue.Clear();
-                Browse.act = Activity;
+                Browse.act = MainActivity.instance;
                 Browse.Play(songs[0], null);
                 songs.RemoveAt(0);
                 songs.Reverse();
@@ -488,6 +497,76 @@ namespace MusicApp.Resources.Portable_Class
 
             Intent inte = new Intent(context, typeof(Player));
             context.StartActivity(inte);
+        }
+
+        public static void AddToQueue(long playlistID)
+        {
+            if (MusicPlayer.instance == null || MusicPlayer.queue == null || MusicPlayer.queue?.Count == 0)
+            {
+                PlayInOrder(playlistID);
+                return;
+            }
+
+            List<string> tracksPath = new List<string>();
+            Android.Net.Uri musicUri = Playlists.Members.GetContentUri("external", playlistID);
+
+            CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
+            ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
+
+            if (musicCursor != null && musicCursor.MoveToFirst())
+            {
+                int pathID = musicCursor.GetColumnIndex(Media.InterfaceConsts.Data);
+                do
+                {
+                    tracksPath.Add(musicCursor.GetString(pathID));
+                }
+                while (musicCursor.MoveToNext());
+                musicCursor.Close();
+            }
+
+            tracksPath.Reverse();
+
+            foreach(string path in tracksPath)
+                MusicPlayer.instance.AddToQueue(path);
+
+            Player.instance?.UpdateNext();
+        }
+
+        public static async void AddToQueue(string playlistID)
+        {
+            if (MusicPlayer.instance == null || MusicPlayer.queue == null || MusicPlayer.queue?.Count == 0)
+            {
+                PlayInOrder(playlistID);
+                return;
+            }
+
+            List<Song> songs = new List<Song>();
+            await MainActivity.instance.WaitForYoutube();
+            string nextPageToken = "";
+            while (nextPageToken != null)
+            {
+                var ytPlaylistRequest = YoutubeEngine.youtubeService.PlaylistItems.List("snippet, contentDetails");
+                ytPlaylistRequest.PlaylistId = playlistID;
+                ytPlaylistRequest.MaxResults = 50;
+                ytPlaylistRequest.PageToken = nextPageToken;
+
+                var ytPlaylist = await ytPlaylistRequest.ExecuteAsync();
+
+                foreach (var item in ytPlaylist.Items)
+                {
+                    Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
+                    songs.Add(song);
+                }
+
+                nextPageToken = ytPlaylist.NextPageToken;
+            }
+
+            songs.Reverse();
+
+            foreach (Song song in songs)
+                MusicPlayer.instance.AddToQueue(song);
+
+            Player.instance?.UpdateNext();
         }
 
         void Rename(int position, Song playlist)

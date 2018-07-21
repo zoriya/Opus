@@ -3166,6 +3166,9 @@ namespace MusicApp
 			// aapt resource value: 0x7f0a0043
 			public const int add = 2131361859;
 			
+			// aapt resource value: 0x7f0a0137
+			public const int addToQueue = 2131362103;
+			
 			// aapt resource value: 0x7f0a0031
 			public const int adjust_height = 2131361841;
 			
@@ -3289,8 +3292,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f0a0082
 			public const int default_activity_button = 2131361922;
 			
-			// aapt resource value: 0x7f0a0138
-			public const int delete = 2131362104;
+			// aapt resource value: 0x7f0a0139
+			public const int delete = 2131362105;
 			
 			// aapt resource value: 0x7f0a00b9
 			public const int design_bottom_sheet = 2131361977;
@@ -3313,8 +3316,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f0a0106
 			public const int downFAB = 2131362054;
 			
-			// aapt resource value: 0x7f0a013d
-			public const int download = 2131362109;
+			// aapt resource value: 0x7f0a013e
+			public const int download = 2131362110;
 			
 			// aapt resource value: 0x7f0a0135
 			public const int downloadMDfromYT = 2131362101;
@@ -3424,8 +3427,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f0a0063
 			public const int fill_vertical = 2131361891;
 			
-			// aapt resource value: 0x7f0a013b
-			public const int filter = 2131362107;
+			// aapt resource value: 0x7f0a013c
+			public const int filter = 2131362108;
 			
 			// aapt resource value: 0x7f0a0076
 			public const int fit = 2131361910;
@@ -3715,14 +3718,14 @@ namespace MusicApp
 			// aapt resource value: 0x7f0a00d6
 			public const int recycler = 2131362006;
 			
-			// aapt resource value: 0x7f0a0137
-			public const int rename = 2131362103;
+			// aapt resource value: 0x7f0a0138
+			public const int rename = 2131362104;
 			
 			// aapt resource value: 0x7f0a0128
 			public const int reorder = 2131362088;
 			
-			// aapt resource value: 0x7f0a013a
-			public const int repeat = 2131362106;
+			// aapt resource value: 0x7f0a013b
+			public const int repeat = 2131362107;
 			
 			// aapt resource value: 0x7f0a0065
 			public const int right = 2131361893;
@@ -3802,8 +3805,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f0a00ac
 			public const int select_dialog_listview = 2131361964;
 			
-			// aapt resource value: 0x7f0a013c
-			public const int settings = 2131362108;
+			// aapt resource value: 0x7f0a013d
+			public const int settings = 2131362109;
 			
 			// aapt resource value: 0x7f0a0096
 			public const int shortcut = 2131361942;
@@ -3820,8 +3823,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f0a0041
 			public const int showTitle = 2131361857;
 			
-			// aapt resource value: 0x7f0a0139
-			public const int shuffle = 2131362105;
+			// aapt resource value: 0x7f0a013a
+			public const int shuffle = 2131362106;
 			
 			// aapt resource value: 0x7f0a00b4
 			public const int smallLabel = 2131361972;
@@ -4472,16 +4475,19 @@ namespace MusicApp
 			public const int playlist_header_more = 2131558402;
 			
 			// aapt resource value: 0x7f0d0003
-			public const int QueueItems = 2131558403;
+			public const int playlist_smallheader_more = 2131558403;
 			
 			// aapt resource value: 0x7f0d0004
-			public const int toolbar_menu = 2131558404;
+			public const int QueueItems = 2131558404;
 			
 			// aapt resource value: 0x7f0d0005
-			public const int ytplaylist_header_more = 2131558405;
+			public const int toolbar_menu = 2131558405;
 			
 			// aapt resource value: 0x7f0d0006
-			public const int ytplaylistnowrite_header_more = 2131558406;
+			public const int ytplaylist_header_more = 2131558406;
+			
+			// aapt resource value: 0x7f0d0007
+			public const int ytplaylistnowrite_header_more = 2131558407;
 			
 			static Menu()
 			{

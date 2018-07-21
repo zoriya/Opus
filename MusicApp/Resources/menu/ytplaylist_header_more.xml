@@ -4,6 +4,9 @@
     android:id="@+id/download"
     android:title="Download" />
   <item
+    android:id="@+id/addToQueue"
+    android:title="Add To Queue" />
+  <item
     android:id="@+id/rename"
     android:title="Rename" />
   <item

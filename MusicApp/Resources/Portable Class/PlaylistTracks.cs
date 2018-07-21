@@ -1,5 +1,7 @@
 ﻿using Android.Content;
+using Android.Content.Res;
 using Android.Database;
+using Android.Graphics;
 using Android.Net;
 using Android.OS;
 using Android.Provider;
@@ -102,17 +104,48 @@ namespace MusicApp.Resources.Portable_Class
             }
             else
             {
-                View header = LayoutInflater.Inflate(Resource.Layout.PlaylistSmallHeader, null);
+                View header = LayoutInflater.Inflate(Resource.Layout.PlaylistSmallHeader, null, false);
                 ListView.AddHeaderView(header);
                 header.FindViewById<TextView>(Resource.Id.headerNumber).Text = tracks.Count + " songs";
-                Activity.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { PlayInOrder(0, false); };
-                Activity.FindViewById<ImageButton>(Resource.Id.headerShuffle).Click += (sender, e0) =>
+                header.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { PlayInOrder(0, false); };
+                header.FindViewById<ImageButton>(Resource.Id.headerShuffle).Click += (sender, e0) =>
                 {
-                    System.Console.WriteLine("&Shuffle clicked");
-                    System.Random r = new System.Random();
-                    Song[] songs = tracks.OrderBy(x => r.Next()).ToArray();
-                    YoutubeEngine.PlayFiles(songs);
+                    if (tracks[0].IsYt)
+                    {
+                        System.Random r = new System.Random();
+                        Song[] songs = tracks.OrderBy(x => r.Next()).ToArray();
+                        YoutubeEngine.PlayFiles(songs);
+                    }
+                    else
+                    {
+                        List<string> tracksPath = new List<string>();
+                        foreach (Song song in tracks)
+                            tracksPath.Add(song.GetPath());
+
+                        Intent intent = new Intent(MainActivity.instance, typeof(MusicPlayer));
+                        intent.PutStringArrayListExtra("files", tracksPath);
+                        intent.SetAction("RandomPlay");
+                        MainActivity.instance.StartService(intent);
+
+                        Intent inte = new Intent(MainActivity.instance, typeof(Player));
+                        MainActivity.instance.StartActivity(inte);
+                    }
                 };
+                header.FindViewById<ImageButton>(Resource.Id.headerMore).Click += (sender, e0) =>
+                {
+                    PopupMenu menu = new PopupMenu(Activity, header.FindViewById<ImageButton>(Resource.Id.headerMore));
+                    menu.Inflate(Resource.Menu.playlist_smallheader_more);
+                    menu.SetOnMenuItemClickListener(this);
+                    menu.Show();
+                };
+
+                if(MainActivity.Theme != 1)
+                {
+                    header.SetBackgroundColor(Color.Argb(255, 255, 255, 255));
+                    header.FindViewById<ImageButton>(Resource.Id.headerPlay).ImageTintList = ColorStateList.ValueOf(Color.Black);
+                    header.FindViewById<ImageButton>(Resource.Id.headerShuffle).ImageTintList = ColorStateList.ValueOf(Color.Black);
+                    header.FindViewById<ImageButton>(Resource.Id.headerMore).ImageTintList = ColorStateList.ValueOf(Color.Black);
+                }
             }
         }
 
@@ -123,6 +156,16 @@ namespace MusicApp.Resources.Portable_Class
                 case Resource.Id.download:
                     YoutubeEngine.DownloadPlaylist(playlistName, ytID);
                     break;
+
+                case Resource.Id.addToQueue:
+                    if (ytID != null)
+                        Playlist.AddToQueue(ytID);
+                    else if (playlistId != 0)
+                        Playlist.AddToQueue(playlistId);
+                    else
+                        AddToQueue();
+                    break;
+
                 case Resource.Id.rename:
                     AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
                     builder.SetTitle("Playlist name");
@@ -135,11 +178,37 @@ namespace MusicApp.Resources.Portable_Class
                     });
                     builder.Show();
                     break;
+
                 case Resource.Id.delete:
                     Delete();
                     break;
             }
             return true;
+        }
+
+        async void AddToQueue()
+        {
+            List<Song> songs = tracks;
+            if (MusicPlayer.instance == null || MusicPlayer.queue == null || MusicPlayer.queue?.Count == 0)
+            {
+                Song first = songs[0];
+                if (!first.IsYt)
+                {
+                    Browse.act = Activity;
+                    Browse.Play(first, null);
+                }
+                else
+                    YoutubeEngine.Play(first.youtubeID, first.GetName(), first.GetArtist(), first.GetAlbum());
+
+                songs.RemoveAt(0);
+            }
+
+            while (MusicPlayer.instance == null)
+                await Task.Delay(10);
+
+            songs.Reverse();
+            foreach (Song song in songs)
+                MusicPlayer.instance.AddToQueue(song);
         }
 
         async void Rename(string newName)
