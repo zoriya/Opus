@@ -32,7 +32,7 @@ namespace MusicApp.Resources.Portable_Class
             if (instance == null)
                 return;
 
-            List<Song> channelLits = new List<Song>();
+            List<Song> channelList = new List<Song>();
 
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
             List<string> topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
@@ -56,13 +56,32 @@ namespace MusicApp.Resources.Portable_Class
                 foreach (var item in response.Items)
                 {
                     Song channel = new Song(item.Snippet.Title.Substring(0, item.Snippet.Title.IndexOf(" - Topic")), item.Snippet.Description, item.Snippet.Thumbnails.Default__.Url, item.Snippet.ResourceId.ChannelId, -1, -1, null, true);
-                    channelLits.Add(channel);
+                    channelList.Add(channel);
                 }
 
                 nextPageToken = response.NextPageToken;
             }
 
-            channels = channelLits.OrderBy(x => x.GetName()).ToList();
+            List<string> topicList = channelList.ConvertAll(x => x.youtubeID);
+            foreach (string channelID in selectedTopicsID.Except(topicList))
+            {
+                YouTubeService youtube = YoutubeEngine.youtubeService;
+
+                ChannelsResource.ListRequest req = youtube.Channels.List("snippet");
+                req.Id = channelID;
+
+                ChannelListResponse resp = await req.ExecuteAsync();
+
+                foreach (var ytItem in resp.Items)
+                {
+                    Song channel = new Song(ytItem.Snippet.Title.Contains(" - Topic") ? ytItem.Snippet.Title.Substring(0, ytItem.Snippet.Title.IndexOf(" - Topic")) : ytItem.Snippet.Title, "", ytItem.Snippet.Thumbnails.Default__.Url, channelID, -1, -1, null, true);
+                    channelList.Add(channel);
+
+                    if (instance == null)
+                        return;
+                }
+            }
+            channels = channelList.OrderBy(x => x.GetName()).ToList();
 
             adapter = new ChannelAdapter(Application.Context, Resource.Layout.ChannelList, channels);
             ListAdapter = adapter;

@@ -230,7 +230,7 @@ namespace MusicApp.Resources.Portable_Class
 
                                 foreach (var ytItem in resp.Items)
                                 {
-                                    Song channel = new Song(ytItem.Snippet.Title.Contains(" - Topic") ? ytItem.Snippet.Title.Substring(0, ytItem.Snippet.Title.IndexOf(" - Topic")) : ytItem.Snippet.Title, null, ytItem.Snippet.Thumbnails.Default__.Url, ytItem.Id, -1, -1, null, true);
+                                    Song channel = new Song(ytItem.Snippet.Title.Contains(" - Topic") ? ytItem.Snippet.Title.Substring(0, ytItem.Snippet.Title.IndexOf(" - Topic")) : ytItem.Snippet.Title, null, ytItem.Snippet.Thumbnails.Default__.Url, channelID, -1, -1, null, true);
                                     contentValue.Add(channel);
 
                                     if (instance == null)
@@ -295,6 +295,25 @@ namespace MusicApp.Resources.Portable_Class
                 r = new Random();
                 if (r.Next(0, 100) > 90)
                     AddHomeTopics();
+
+                for(int i = 0; i < adapter.items.Count; i++)
+                {
+                    if(adapter.items[i].contentType == SectionType.ChannelList)
+                    {
+                        for (int j = 0; j < adapter.items[i].contentValue.Count; j++)
+                        {
+                            if(adapter.items[i].contentValue[j].GetArtist() == null)
+                            {
+                                adapter.items[i].contentValue[j].SetArtist("Follow");
+                                if (j < 4 && adapter.items[i].recycler != null)
+                                {
+                                    RecyclerHolder holder = (RecyclerHolder)adapter.items[i].recycler.GetChildViewHolder(adapter.items[i].recycler.GetLayoutManager().FindViewByPosition(j));
+                                    holder.action.Text = "Follow";
+                                }
+                            }
+                        }
+                    }
+                }
             }
             else
             {

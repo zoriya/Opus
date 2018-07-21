@@ -17,6 +17,7 @@ namespace MusicApp.Resources.Portable_Class
         public RecyclerView recycler;
         public int listPadding = 0;
         public List<Song> songList;
+        public List<Song> allItems;
         private bool useTopic = false;
 
         public override int ItemCount => useTopic ? 3 : songList.Count;
@@ -43,14 +44,42 @@ namespace MusicApp.Resources.Portable_Class
 
             if (!useTopic)
             {
-                if (songList[position].GetArtist() != null)
+                if (songList[position].GetArtist() == "Follow")
+                    holder.action.Text = "Follow";
+                else if (songList[position].GetArtist() != null)
                     holder.action.Text = "Mix";
 
                 if (!holder.action.HasOnClickListeners)
                 {
-                    holder.action.Click += (sender, e) =>
+                    holder.action.Click += async (sender, e) =>
                     {
-                        if (songList[position].GetArtist() != null)
+                        if (songList[position].GetArtist() == "Follow")
+                        {
+                            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(MainActivity.instance);
+                            List<string> topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
+
+                            ISharedPreferencesEditor editor = prefManager.Edit();
+                            topics.Add(songList[position].GetName() + "/#-#/" + songList[position].youtubeID);
+                            editor.PutStringSet("selectedTopics", topics);
+                            editor.Apply();
+
+                            holder.action.Text = "Following";
+                            await Task.Delay(1000);
+
+                            if(allItems.Count > 0 && songList.Count < 5)
+                            {
+                                songList[position] = allItems[allItems.Count - 1];
+                                NotifyItemChanged(position);
+                                allItems.RemoveAt(allItems.Count - 1);
+                            }
+                            else
+                            {
+                                songList.RemoveAt(position);
+                                allItems.RemoveAt(position);
+                                NotifyItemRemoved(position);
+                            }
+                        }
+                        else if (songList[position].GetArtist() != null)
                             Playlist.PlayInOrder(songList[position].GetArtist());
                     };
                 }
