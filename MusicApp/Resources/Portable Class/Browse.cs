@@ -311,7 +311,6 @@ namespace MusicApp.Resources.Portable_Class
 
         public static void Play(Song item, View albumArt)
         {
-            System.Console.WriteLine("&Playing from path: " + item.GetPath());
             Context context = Android.App.Application.Context;
             Intent intent = new Intent(context, typeof(MusicPlayer));
             intent.PutExtra("file", item.GetPath());

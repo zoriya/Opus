@@ -43,6 +43,16 @@ namespace MusicApp.Resources.Portable_Class
             base.OnActivityCreated(savedInstanceState);
             ListView.ScrollChange += MainActivity.instance.Scroll;
             MainActivity.instance.OnPaddingChanged += OnPaddingChanged;
+            MainActivity.instance.contentRefresh.Refresh += OnRefresh;
+        }
+
+        private async void OnRefresh(object sender, EventArgs e)
+        {
+            if (focused)
+            {
+                await Search(searchKeyWorld, querryType, false);
+                MainActivity.instance.contentRefresh.Refreshing = false;
+            }
         }
 
         public void OnPaddingChanged(object sender, PaddingChange e)

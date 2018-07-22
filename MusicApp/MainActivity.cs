@@ -144,7 +144,7 @@ namespace MusicApp
             else
                 PrepareApp();
 
-            if(Intent.Action == Intent.ActionSend)
+            if (Intent.Action == Intent.ActionSend)
             {
                 if (YoutubeClient.TryParseVideoId(Intent.GetStringExtra(Intent.ExtraText), out string videoID))
                 {
@@ -170,7 +170,10 @@ namespace MusicApp
                 StartActivity(inten);
             }
 
-            CheckForUpdate(this, false);
+            ConnectivityManager connectivityManager = (ConnectivityManager)GetSystemService(ConnectivityService);
+            NetworkInfo activeNetworkInfo = connectivityManager.ActiveNetworkInfo;
+            if(activeNetworkInfo != null && activeNetworkInfo.IsConnected)
+                CheckForUpdate(this, false);
         }
 
         async void PrepareApp()

@@ -102,9 +102,12 @@ namespace MusicApp.Resources.Portable_Class
             Random r = new Random();
             List<Song> songList = allSongs.OrderBy(x => r.Next()).ToList();
 
-            HomeSection featured = new HomeSection("Featured", SectionType.SinglePlaylist, songList.GetRange(0, 50));
-            adapterItems.Add(featured);
-
+            if(songList.Count > 0)
+            {
+                HomeSection featured = new HomeSection("Featured", SectionType.SinglePlaylist, songList.GetRange(0, songList.Count > 50 ? 50 : songList.Count));
+                adapterItems.Add(featured);
+            }
+            
             adapter = new HomeAdapter(adapterItems);
             ListView.SetAdapter(adapter);
             adapter.ItemClick += ListView_ItemClick;
