@@ -120,6 +120,9 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             await MainActivity.instance.WaitForYoutube();
+            Console.WriteLine("Youtube service here");
+            if (instance == null)
+                return;
 
             if (selectedTopicsID.Count > 0)
             {
@@ -319,6 +322,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public async void AddHomeTopics()
         {
+            Console.WriteLine("Adding home topics");
             List<Song> channelLits = new List<Song>();
 
             string nextPageToken = "";
@@ -338,8 +342,12 @@ namespace MusicApp.Resources.Portable_Class
                     channelLits.Add(channel);
                 }
 
+                Console.WriteLine("Page loaded");
+
                 nextPageToken = response.NextPageToken;
             }
+
+            Console.WriteLine("Add channels are loaded");
 
             Random r = new Random();
             List<Song> channels = channelLits.OrderBy(x => r.Next()).ToList();
