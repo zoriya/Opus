@@ -53,7 +53,21 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     holder.action.Click += async (sender, e) =>
                     {
-                        if (songList[position].GetArtist() == "Follow")
+                        if(holder.action.Text == "Following")
+                        {
+                            holder.action.Text = "Unfollowed";
+                            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(MainActivity.instance);
+                            List<string> topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
+
+                            ISharedPreferencesEditor editor = prefManager.Edit();
+                            topics.Remove(songList[position].GetName() + "/#-#/" + songList[position].youtubeID);
+                            editor.PutStringSet("selectedTopics", topics);
+                            editor.Apply();
+
+                            await Task.Delay(1000);
+                            holder.action.Text = "Follow";
+                        }
+                        else if (songList[position].GetArtist() == "Follow")
                         {
                             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(MainActivity.instance);
                             List<string> topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
@@ -66,17 +80,20 @@ namespace MusicApp.Resources.Portable_Class
                             holder.action.Text = "Following";
                             await Task.Delay(1000);
 
-                            if(allItems.Count > 0 && songList.Count < 5)
+                            if(holder.action.Text != "Unfollowed")
                             {
-                                songList[position] = allItems[allItems.Count - 1];
-                                NotifyItemChanged(position);
-                                allItems.RemoveAt(allItems.Count - 1);
-                            }
-                            else
-                            {
-                                songList.RemoveAt(position);
-                                allItems.RemoveAt(position);
-                                NotifyItemRemoved(position);
+                                if (allItems.Count > 0 && songList.Count < 5)
+                                {
+                                    songList[position] = allItems[allItems.Count - 1];
+                                    NotifyItemChanged(position);
+                                    allItems.RemoveAt(allItems.Count - 1);
+                                }
+                                else
+                                {
+                                    songList.RemoveAt(position);
+                                    allItems.RemoveAt(position);
+                                    NotifyItemRemoved(position);
+                                }
                             }
                         }
                         else if (songList[position].GetArtist() != null)
@@ -92,29 +109,49 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     holder.action.Click += async (sender, e) =>
                     {
-                        ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(MainActivity.instance);
-                        List<string> topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
-
-                        ISharedPreferencesEditor editor = prefManager.Edit();
-                        topics.Add(songList[position].GetName() + "/#-#/" + songList[position].youtubeID);
-                        editor.PutStringSet("selectedTopics", topics);
-                        editor.Apply();
-
-                        holder.action.Text = "Following";
-                        await Task.Delay(1000);
-
-                        if(position == 0 || position == 1)
+                        if (holder.action.Text == "Following")
                         {
-                            if (songList.Count < 4)
-                                return;
+                            holder.action.Text = "Unfollowed";
+                            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(MainActivity.instance);
+                            List<string> topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
 
-                            songList[position] = songList[songList.Count - 1];
-                            songList.RemoveAt(songList.Count - 1);
+                            ISharedPreferencesEditor editor = prefManager.Edit();
+                            topics.Remove(songList[position].GetName() + "/#-#/" + songList[position].youtubeID);
+                            editor.PutStringSet("selectedTopics", topics);
+                            editor.Apply();
+
+                            await Task.Delay(1000);
+                            holder.action.Text = "Follow";
                         }
                         else
-                            songList.RemoveAt(position);
+                        {
+                            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(MainActivity.instance);
+                            List<string> topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
 
-                        NotifyItemChanged(position);
+                            ISharedPreferencesEditor editor = prefManager.Edit();
+                            topics.Add(songList[position].GetName() + "/#-#/" + songList[position].youtubeID);
+                            editor.PutStringSet("selectedTopics", topics);
+                            editor.Apply();
+
+                            holder.action.Text = "Following";
+                            await Task.Delay(1000);
+
+                            if (holder.action.Text != "Unfollowed")
+                            {
+                                if (position == 0 || position == 1)
+                                {
+                                    if (songList.Count < 4)
+                                        return;
+
+                                    songList[position] = songList[songList.Count - 1];
+                                    songList.RemoveAt(songList.Count - 1);
+                                }
+                                else
+                                    songList.RemoveAt(position);
+
+                                NotifyItemChanged(position);
+                            }
+                        }
                     };
                 }
                 holder.ItemView.SetPadding(4, 1, 4, 1);

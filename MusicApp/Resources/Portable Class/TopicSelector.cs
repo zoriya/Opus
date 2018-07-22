@@ -65,6 +65,7 @@ namespace MusicApp.Resources.Portable_Class
             List<string> topicList = channelList.ConvertAll(x => x.youtubeID);
             foreach (string channelID in selectedTopicsID.Except(topicList))
             {
+                System.Console.WriteLine("&Channel id: " + channelID);
                 YouTubeService youtube = YoutubeEngine.youtubeService;
 
                 ChannelsResource.ListRequest req = youtube.Channels.List("snippet");
@@ -81,6 +82,7 @@ namespace MusicApp.Resources.Portable_Class
                         return;
                 }
             }
+            System.Console.WriteLine("&Topics count: " + selectedTopics.Count + " channel count: " + channelList.Count);
             channels = channelList.OrderBy(x => x.GetName()).ToList();
 
             adapter = new ChannelAdapter(Application.Context, Resource.Layout.ChannelList, channels);

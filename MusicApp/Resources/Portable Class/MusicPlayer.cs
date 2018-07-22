@@ -386,7 +386,7 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     case "Play":
                         Play(streamInfo.Url, title, artist, videoID, thumbnailURL);
-                        break;
+                        break; //Crash chez celia, make a return here and check if the app keep on crashing
 
                     case "PlayNext":
                         AddToQueue(streamInfo.Url, title, artist, videoID, thumbnailURL);

@@ -31,6 +31,7 @@ namespace MusicApp.Resources.values
         public TextView Artist;
         public ImageView AlbumArt;
         public CheckBox CheckBox;
+        public Button action;
 
         public RecyclerChannelHolder(View itemView, Action<int> listener, Action<int> longListener) : base(itemView)
         {
@@ -39,8 +40,9 @@ namespace MusicApp.Resources.values
             Artist = itemView.FindViewById<TextView>(Resource.Id.artist);
             AlbumArt = itemView.FindViewById<ImageView>(Resource.Id.albumArt);
             CheckBox = itemView.FindViewById<CheckBox>(Resource.Id.checkBox);
+            action = itemView.FindViewById<Button>(Resource.Id.action);
 
-            if(listener != null)
+            if (listener != null)
             {
                 itemView.Click += (sender, e) => listener(AdapterPosition);
                 itemView.LongClick += (sender, e) => longListener(AdapterPosition);

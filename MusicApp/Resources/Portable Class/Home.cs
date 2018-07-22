@@ -147,8 +147,8 @@ namespace MusicApp.Resources.Portable_Class
                         if (title == null || title == "")
                             title = selectedTopics[selectedTopicsID.IndexOf(topic)];
 
-                        if (title == "Popular Artists")
-                            title = (selectedTopics[selectedTopicsID.IndexOf(topic)].Contains(" Music") ? selectedTopics[selectedTopicsID.IndexOf(topic)].Substring(0, selectedTopics[selectedTopicsID.IndexOf(topic)].IndexOf(" Music")) : selectedTopics[selectedTopicsID.IndexOf(topic)]) + "'s Popular Artists";
+                        if (title == "Popular Artists" || title == "Featured channels")
+                            title = (selectedTopics[selectedTopicsID.IndexOf(topic)].Contains(" Music") ? selectedTopics[selectedTopicsID.IndexOf(topic)].Substring(0, selectedTopics[selectedTopicsID.IndexOf(topic)].IndexOf(" Music")) : selectedTopics[selectedTopicsID.IndexOf(topic)]) + "'s " + title;
 
                         if (title == "Popular Channels")
                             continue;
@@ -223,21 +223,25 @@ namespace MusicApp.Resources.Portable_Class
                         case SectionType.ChannelList:
                             foreach (string channelID in item.contentValue)
                             {
-                                youtube = YoutubeEngine.youtubeService;
-
-                                ChannelsResource.ListRequest req = youtube.Channels.List("snippet");
-                                req.Id = channelID;
-
-                                ChannelListResponse resp = await req.ExecuteAsync();
-
-                                foreach (var ytItem in resp.Items)
+                                try
                                 {
-                                    Song channel = new Song(ytItem.Snippet.Title.Contains(" - Topic") ? ytItem.Snippet.Title.Substring(0, ytItem.Snippet.Title.IndexOf(" - Topic")) : ytItem.Snippet.Title, null, ytItem.Snippet.Thumbnails.Default__.Url, channelID, -1, -1, null, true);
-                                    contentValue.Add(channel);
+                                    youtube = YoutubeEngine.youtubeService;
 
-                                    if (instance == null)
-                                        return;
+                                    ChannelsResource.ListRequest req = youtube.Channels.List("snippet");
+                                    req.Id = channelID;
+
+                                    ChannelListResponse resp = await req.ExecuteAsync();
+
+                                    foreach (var ytItem in resp.Items)
+                                    {
+                                        Song channel = new Song(ytItem.Snippet.Title.Contains(" - Topic") ? ytItem.Snippet.Title.Substring(0, ytItem.Snippet.Title.IndexOf(" - Topic")) : ytItem.Snippet.Title, null, ytItem.Snippet.Thumbnails.Default__.Url, channelID, -1, -1, null, true);
+                                        contentValue.Add(channel);
+
+                                        if (instance == null)
+                                            return;
+                                    }
                                 }
+                                catch { }
                             }
 
                             section = new HomeSection(item.SectionTitle, item.contentType, contentValue);

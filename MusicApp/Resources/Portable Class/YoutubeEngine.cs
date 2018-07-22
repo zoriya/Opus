@@ -203,9 +203,14 @@ namespace MusicApp.Resources.Portable_Class
                 rootView.RemoveView(loadingView);
             }
 
+            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(MainActivity.instance);
+            List<string> topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
+            List<string> selectedTopics = topics.ConvertAll(x => x.Substring(x.IndexOf("/#-#/") + 5));
+
             adapter = new YtAdapter(result)
             {
-                listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot
+                listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot,
+                selectedTopicsID = selectedTopics
             };
             adapter.ItemClick += ListView_ItemClick;
             adapter.ItemLongCLick += ListView_ItemLongClick;
