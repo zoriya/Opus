@@ -19,7 +19,6 @@ namespace MusicApp.Resources.Portable_Class
     public class Home : Fragment
     {
         public static Home instance;
-        public static IParcelable savedState;
         public RecyclerView ListView;
         public HomeAdapter adapter;
         public ItemTouchHelper itemTouchHelper;
@@ -51,13 +50,10 @@ namespace MusicApp.Resources.Portable_Class
             view.SetPadding(0, 0, 0, MainActivity.defaultPaddingBot);
             ListView.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
 
-            if (savedState == null)
-                PopulateSongs();
+            if (adapter != null)
+                ListView.SetAdapter(adapter);
             else
-            {
-                //ListView.GetLayoutManager().OnRestoreInstanceState(savedState);
-                savedState = null;
-            }
+                PopulateSongs();
             return view;
         }
 

@@ -32,12 +32,11 @@
   </PreferenceCategory>
   <PreferenceCategory android:title="Others">
     <Preference
-      android:title="Update app :"
+      android:title="Check for updates"
       android:key="update"/>
     <Preference
       android:title="Version :"
-      android:key="version"
-      android:summary="V. 1.7" />
+      android:key="version" />
     <AccountPreference
       android:key="account"
       android:icon="@drawable/ic_account_circle_black_24dp"

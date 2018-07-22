@@ -72,8 +72,6 @@ namespace MusicApp.Resources.Portable_Class
                 holder.recycler.SetAdapter(new LineAdapter(items[position].contentValue.GetRange(0, items[position].contentValue.Count > 20 ? 20 : items[position].contentValue.Count), holder.recycler));
                 holder.more.Click += (sender, e) =>
                 {
-                    Home.savedState = Home.instance.ListView.GetLayoutManager().OnSaveInstanceState();
-                    Home.instance.RetainInstance = true;
                     MainActivity.instance.SupportActionBar.SetHomeButtonEnabled(true);
                     MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
                     MainActivity.instance.SupportActionBar.Title = items[position].SectionTitle;
