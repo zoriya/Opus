@@ -45,7 +45,12 @@ namespace MusicApp.Resources.Portable_Class
             if (!useTopic)
             {
                 if (songList[position].GetArtist() == "Follow")
-                    holder.action.Text = "Follow";
+                {
+                    if(Home.instance.selectedTopicsID.Contains(songList[position].youtubeID))
+                        holder.action.Text = "Unfollow";
+                    else
+                        holder.action.Text = "Follow";
+                }
                 else if (songList[position].GetArtist() != null)
                     holder.action.Text = "Mix";
 
@@ -63,6 +68,8 @@ namespace MusicApp.Resources.Portable_Class
                             topics.Remove(songList[position].GetName() + "/#-#/" + songList[position].youtubeID);
                             editor.PutStringSet("selectedTopics", topics);
                             editor.Apply();
+                            Home.instance.selectedTopics.Remove(songList[position].GetName());
+                            Home.instance.selectedTopicsID.Remove(songList[position].youtubeID);
 
                             await Task.Delay(1000);
                             holder.action.Text = "Follow";
@@ -76,6 +83,8 @@ namespace MusicApp.Resources.Portable_Class
                             topics.Add(songList[position].GetName() + "/#-#/" + songList[position].youtubeID);
                             editor.PutStringSet("selectedTopics", topics);
                             editor.Apply();
+                            Home.instance.selectedTopics.Add(songList[position].GetName());
+                            Home.instance.selectedTopicsID.Add(songList[position].youtubeID);
 
                             holder.action.Text = "Following";
                             await Task.Delay(1000);
