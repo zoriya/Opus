@@ -147,9 +147,10 @@ namespace MusicApp.Resources.Portable_Class
             await MainActivity.instance.WaitForYoutube();
 
             SearchResource.ListRequest searchResult = youtubeService.Search.List("snippet");
-            searchResult.Fields = "items(id/videoId,id/playlistId,id/kind,snippet/title,snippet/thumbnails/high/url,snippet/channelTitle)";
+            searchResult.Fields = "items(id/videoId,id/playlistId,id/channelId,id/kind,snippet/title,snippet/thumbnails/high/url,snippet/channelTitle)";
             searchResult.Q = search.Replace(" ", "+-");
             searchResult.Type = "video";
+            searchResult.TopicId = "/m/04rlf";
             switch (querryType)
             {
                 case "All":
@@ -176,19 +177,22 @@ namespace MusicApp.Resources.Portable_Class
 
             foreach (var video in searchReponse.Items)
             {
-                Song videoInfo = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.High.Url, video.Id.VideoId ?? video.Id.PlaylistId, -1, -1, video.Id.VideoId ?? video.Id.PlaylistId, true);
+                Song videoInfo = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.High.Url, null, -1, -1, null, true);
                 YtKind kind = YtKind.Null;
 
                 switch (video.Id.Kind)
                 {
                     case "youtube#video":
                         kind = YtKind.Video;
+                        videoInfo.youtubeID = video.Id.VideoId;
                         break;
                     case "youtube#playlist":
                         kind = YtKind.Playlist;
+                        videoInfo.youtubeID = video.Id.PlaylistId;
                         break;
                     case "youtube#channel":
                         kind = YtKind.Channel;
+                        videoInfo.youtubeID = video.Id.ChannelId;
                         break;
                     default:
                         Console.WriteLine("&Kind = " + video.Id.Kind);
@@ -272,9 +276,6 @@ namespace MusicApp.Resources.Portable_Class
                     MainActivity.youtubeParcel = ListView.GetLayoutManager().OnSaveInstanceState();
                     MainActivity.youtubeInstanceSave = "YoutubeEngine" + "-" + querryType;
                     MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(item.youtubeID, item.GetName(), false, item.GetArtist(), -1, item.GetAlbum()), true);
-                    break;
-                case YtKind.Channel:
-                    Toast.MakeText(Activity, "Action comming soon", ToastLength.Short).Show();
                     break;
                 default:
                     break;

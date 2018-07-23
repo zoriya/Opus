@@ -28,11 +28,14 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     app:backgroundTint="?colorAccent"
+    android:layout_toLeftOf="@id/checkBox"
+    android:visibility="gone"
     android:text="Loading"
     android:id="@+id/action"/>
   <LinearLayout
     android:orientation="vertical"
     android:layout_width="fill_parent"
+    android:layout_toLeftOf="@id/action"
     android:layout_height="wrap_content"
     android:id="@+id/textLayout"
     android:paddingLeft="100dp">

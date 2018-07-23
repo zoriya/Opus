@@ -82,7 +82,6 @@ namespace MusicApp.Resources.Portable_Class
                         return;
                 }
             }
-            System.Console.WriteLine("&Topics count: " + selectedTopics.Count + " channel count: " + channelList.Count);
             channels = channelList.OrderBy(x => x.GetName()).ToList();
 
             adapter = new ChannelAdapter(Application.Context, Resource.Layout.ChannelList, channels);
