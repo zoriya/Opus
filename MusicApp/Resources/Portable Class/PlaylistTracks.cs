@@ -522,16 +522,16 @@ namespace MusicApp.Resources.Portable_Class
 
         private void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
         {
-            PlayInOrder(e.Position, true);
+            PlayInOrder(useHeader ? e.Position : e.Position - 1, true);
         }
 
         private void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
         {
-            Song item = tracks[e.Position];
-            if (result != null && result.Count > e.Position)
-                item = result[e.Position];
+            Song item = tracks[useHeader ? e.Position : e.Position - 1];
+            if (result != null && result.Count > (useHeader ? e.Position : e.Position - 1))
+                item = result[useHeader ? e.Position : e.Position - 1];
 
-            More(item, e.Position);
+            More(item, useHeader ? e.Position : e.Position - 1);
         }
 
         public void More(Song item, int position)

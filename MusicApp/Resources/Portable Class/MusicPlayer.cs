@@ -11,6 +11,7 @@ using Android.Support.V4.Content;
 using Android.Support.V4.Media.Session;
 using Android.Support.V7.Preferences;
 using Android.Support.V7.Widget;
+using Android.Util;
 using Android.Views;
 using Android.Widget;
 using Com.Google.Android.Exoplayer2;
@@ -66,6 +67,12 @@ namespace MusicApp.Resources.Portable_Class
 
         public override StartCommandResult OnStartCommand(Intent intent, StartCommandFlags flags, int startId)
         {
+            if (intent == null)
+            {
+                //Resume playback with the last item played
+                return StartCommandResult.Sticky;
+            }
+
             string file = intent.GetStringExtra("file");
 
             switch (intent.Action)
@@ -79,7 +86,7 @@ namespace MusicApp.Resources.Portable_Class
                     break;
 
                 case "Previus":
-                    PlayLast();
+                    PlayPrevious();
                     break;
 
                 case "Pause":
@@ -220,25 +227,11 @@ namespace MusicApp.Resources.Portable_Class
                 song = new Song(title, artist, thumbnailURI, youtubeID, -1, -1, filePath, true);
             }
 
-            if (song.queueSlot == -1)
-            {
-                if (queue.Exists(x => x.queueSlot == CurrentID() + 1) && queue.Find(x => x.queueSlot == CurrentID() + 1) != song)
-                {
-                    foreach (Song item in queue)
-                    {
-                        if (item.queueSlot > CurrentID())
-                        {
-                            item.queueSlot++;
-                        }
-                    }
-                }
-
-                song.queueSlot = CurrentID() + 1;
-            }
-
-            Console.WriteLine("&QueueSlot = " + song.queueSlot + "Title = " + song.GetName());
-
+            UpdateQueueSlots();
             currentID = song.queueSlot;
+
+            isRunning = true;
+            player.PlayWhenReady = true;
 
             CreateNotification(song.GetName(), song.GetArtist(), song.GetAlbumArt(), song.GetAlbum());
 
@@ -308,23 +301,11 @@ namespace MusicApp.Resources.Portable_Class
             player.Prepare(mediaSource, true, true);
             CreateNotification(song.GetName(), song.GetArtist(), song.GetAlbumArt(), song.GetAlbum());
 
-            if (song.queueSlot == -1)
-            {
-                if (queue.Exists(x => x.queueSlot == CurrentID() + 1) && queue.Find(x => x.queueSlot == CurrentID() + 1) != song)
-                {
-                    foreach (Song item in queue)
-                    {
-                        if (item.queueSlot > CurrentID())
-                        {
-                            item.queueSlot++;
-                        }
-                    }
-                }
-
-                song.queueSlot = CurrentID() + 1;
-            }
-
+            UpdateQueueSlots();
             currentID = song.queueSlot;
+
+            isRunning = true;
+            player.PlayWhenReady = true;
 
             if (addToQueue)
                 AddToQueue(song);
@@ -354,6 +335,14 @@ namespace MusicApp.Resources.Portable_Class
             else
             {
                 Picasso.With(Application.Context).Load(song.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(art);
+            }
+        }
+
+        void UpdateQueueSlots()
+        {
+            for (int i = 0; i < queue.Count; i++)
+            {
+                queue[i].queueSlot = i;
             }
         }
 
@@ -459,11 +448,8 @@ namespace MusicApp.Resources.Portable_Class
             currentID = 0;
             queue.Add(current);
 
-            foreach(Song song in newQueue)
-            {
-                song.queueSlot = queue.Count;
-                queue.Add(song);
-            }
+            queue.AddRange(newQueue);
+            UpdateQueueSlots();
 
             Player.instance?.UpdateNext();
             Queue.instance?.Refresh();
@@ -479,34 +465,22 @@ namespace MusicApp.Resources.Portable_Class
 
             if (song.queueSlot == -1)
                 song.queueSlot = CurrentID() + 1;
-
-            foreach(Song item in queue)
-            {
-                if(item.queueSlot >= CurrentID() + 1)
-                    item.queueSlot++;
-            }
-
             queue.Insert(song.queueSlot, song);
+            UpdateQueueSlots();
         }
 
         public void AddToQueue(Song song)
         {
             if (song.queueSlot == -1)
                 song.queueSlot = CurrentID() + 1;
-
-            foreach (Song item in queue)
-            {
-                if (item.queueSlot >= CurrentID() + 1)
-                    item.queueSlot++;
-            }
-
             queue.Insert(song.queueSlot, song);
+            UpdateQueueSlots();
         }
 
         public void PlayLastInQueue(string filePath)
         {
             GetTrackSong(filePath, out Song song);
-            song.queueSlot = CurrentID() + 1;
+            song.queueSlot = queue.Count + 1;
 
             queue.Add(song);
         }
@@ -515,19 +489,19 @@ namespace MusicApp.Resources.Portable_Class
         {
             Song song = new Song(title, artist, thumbnailURI, youtubeID, -1, -1, filePath, true)
             {
-                queueSlot = CurrentID() + 1
+                queueSlot = queue.Count + 1
             };
 
             queue.Add(song);
         }
 
-        public void PlayLast()
+        public void PlayPrevious()
         {
             if (CurrentID() - 1 < 0)
                 return;
 
-            Song last = queue[CurrentID() - 1];
-            SwitchQueue(last);
+            Song privous = queue[CurrentID() - 1];
+            SwitchQueue(privous);
         }
 
         public void PlayNext()
@@ -780,8 +754,9 @@ namespace MusicApp.Resources.Portable_Class
             tmpNextIntent.SetAction("Next");
             PendingIntent nextIntent = PendingIntent.GetService(Application.Context, 0, tmpNextIntent, PendingIntentFlags.UpdateCurrent);
 
+            Intent mainActivity = new Intent(Application.Context, typeof(MainActivity));
             Intent tmpDefaultIntent = new Intent(Application.Context, typeof(Player));
-            PendingIntent defaultIntent = PendingIntent.GetActivity(Application.Context, 0, tmpDefaultIntent, PendingIntentFlags.UpdateCurrent);
+            PendingIntent defaultIntent = PendingIntent.GetActivities(Application.Context, 0, new Intent[] { mainActivity, tmpDefaultIntent }, PendingIntentFlags.UpdateCurrent);
 
             Intent tmpDeleteIntent = new Intent(Application.Context, typeof(MusicPlayer));
             tmpDeleteIntent.SetAction("Stop");
@@ -903,7 +878,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             isRunning = false;
             title = null;
-            //queue.Clear();
+            queue?.Clear();
             parsing = false;
             currentID = -1;
             progress = 0;

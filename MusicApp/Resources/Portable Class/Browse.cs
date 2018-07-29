@@ -169,61 +169,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public void Refresh()
         {
-            musicList.Clear();
-
-            Android.Net.Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
-
-            CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
-            ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
-
-            if (musicCursor != null && musicCursor.MoveToFirst())
-            {
-                int titleID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Title);
-                int artistID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Artist);
-                int albumID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Album);
-                int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
-                int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
-                do
-                {
-                    string Artist = musicCursor.GetString(artistID);
-                    string Title = musicCursor.GetString(titleID);
-                    string Album = musicCursor.GetString(albumID);
-                    long AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
-                    long id = musicCursor.GetLong(thisID);
-                    string path = musicCursor.GetString(pathID);
-
-                    if (Title == null)
-                        Title = "Unknown Title";
-                    if (Artist == null)
-                        Artist = "Unknow Artist";
-                    if (Album == null)
-                        Album = "Unknow Album";
-
-                    musicList.Add(new Song(Title, Artist, Album, null, AlbumArt, id, path));
-                }
-                while (musicCursor.MoveToNext());
-                musicCursor.Close();
-            }
-
-            List<Song> songList = musicList.OrderBy(x => x.GetName()).ToList();
-            musicList = songList;
-            int listPadding = 0;
-            if (adapter != null)
-                listPadding = adapter.listPadding;
-            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, musicList)
-            {
-                listPadding = listPadding
-            };
-            ListAdapter = adapter;
-
-            if (adapter == null || adapter.Count == 0)
-            {
-                if (isEmpty)
-                    return;
-
-                isEmpty = true;
-                Activity.AddContentView(emptyView, View.LayoutParameters);
-            }
+            PopulateList();
         }
 
         public void Search(string search)

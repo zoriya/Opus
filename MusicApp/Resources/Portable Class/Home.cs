@@ -62,9 +62,11 @@ namespace MusicApp.Resources.Portable_Class
         {
             adapterItems = new List<HomeSection>();
 
-            HomeSection queue = new HomeSection("Queue", SectionType.SinglePlaylist, MusicPlayer.queue);
-            if(queue.contentValue.Count > 0)
+            if(MusicPlayer.queue != null && MusicPlayer.queue?.Count > 0)
+            {
+                HomeSection queue = new HomeSection("Queue", SectionType.SinglePlaylist, MusicPlayer.queue);
                 adapterItems.Add(queue);
+            }
 
             Android.Net.Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
 

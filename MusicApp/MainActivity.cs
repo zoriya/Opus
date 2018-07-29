@@ -139,10 +139,10 @@ namespace MusicApp
                 notificationManager.CreateNotificationChannel(channel);
             }
 
-            if (MusicPlayer.queue.Count > 0)
-                ReCreateSmallPlayer();
-            else
-                PrepareApp();
+            //if (MusicPlayer.queue.Count > 0)
+            //    ReCreateSmallPlayer();
+            //else
+            PrepareApp();
 
             if (Intent.Action == Intent.ActionSend)
             {
@@ -657,7 +657,7 @@ namespace MusicApp
                     break;
 
                 case Resource.Id.browseLayout:
-                    if (Browse.instance != null && YoutubeEngine.instances != null && !resuming)
+                    if (Browse.instance != null)
                     {
                         Browse.instance.Refresh();
                         return;
