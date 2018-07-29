@@ -1,5 +1,6 @@
 ﻿using Android.Content;
 using Android.Database;
+using Android.Net;
 using Android.OS;
 using Android.Provider;
 using Android.Support.V4.App;
@@ -114,6 +115,11 @@ namespace MusicApp.Resources.Portable_Class
             ListView.SetItemAnimator(new DefaultItemAnimator());
             ListView.ScrollChange += MainActivity.instance.Scroll;
 
+            ConnectivityManager connectivityManager = (ConnectivityManager)MainActivity.instance.GetSystemService(Context.ConnectivityService);
+            NetworkInfo activeNetworkInfo = connectivityManager.ActiveNetworkInfo;
+            if (activeNetworkInfo == null || !activeNetworkInfo.IsConnected)
+                return;
+
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Activity);
             List<string> topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
             foreach (string topic in topics)
@@ -207,7 +213,7 @@ namespace MusicApp.Resources.Portable_Class
 
                             foreach (var ytItem in response.Items)
                             {
-                                if(ytItem.Snippet.Title != "Deleted video")
+                                if (ytItem.Snippet.Title != "[Deleted video]" && ytItem.Snippet.Title != "Private video" && ytItem.Snippet.Title != "Deleted video")
                                 {
                                     Song song = new Song(ytItem.Snippet.Title, ytItem.Snippet.ChannelTitle, ytItem.Snippet.Thumbnails.High.Url, ytItem.ContentDetails.VideoId, -1, -1, ytItem.ContentDetails.VideoId, true);
                                     contentValue.Add(song);

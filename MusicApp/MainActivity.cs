@@ -170,10 +170,7 @@ namespace MusicApp
                 StartActivity(inten);
             }
 
-            ConnectivityManager connectivityManager = (ConnectivityManager)GetSystemService(ConnectivityService);
-            NetworkInfo activeNetworkInfo = connectivityManager.ActiveNetworkInfo;
-            if(activeNetworkInfo != null && activeNetworkInfo.IsConnected)
-                CheckForUpdate(this, false);
+            CheckForUpdate(this, false);
         }
 
         async void PrepareApp()
@@ -1309,6 +1306,11 @@ namespace MusicApp
 
         public async static void CheckForUpdate(Activity activity, bool displayToast)
         {
+            ConnectivityManager connectivityManager = (ConnectivityManager)Application.Context.GetSystemService(ConnectivityService);
+            NetworkInfo activeNetworkInfo = connectivityManager.ActiveNetworkInfo;
+            if (activeNetworkInfo == null || !activeNetworkInfo.IsConnected)
+                return;
+
             string VersionAsset;
             AssetManager assets = Application.Context.Assets;
             using (StreamReader sr = new StreamReader(assets.Open("Version.txt")))

@@ -149,7 +149,6 @@ namespace MusicApp.Resources.Portable_Class
             SearchResource.ListRequest searchResult = youtubeService.Search.List("snippet");
             searchResult.Fields = "items(id/videoId,id/playlistId,id/channelId,id/kind,snippet/title,snippet/thumbnails/high/url,snippet/channelTitle)";
             searchResult.Q = search.Replace(" ", "+-");
-            searchResult.Type = "video";
             searchResult.TopicId = "/m/04rlf";
             switch (querryType)
             {
@@ -184,6 +183,7 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     case "youtube#video":
                         kind = YtKind.Video;
+                        Console.WriteLine("&VideoID = " + video.Id.VideoId);
                         videoInfo.youtubeID = video.Id.VideoId;
                         break;
                     case "youtube#playlist":
@@ -253,7 +253,7 @@ namespace MusicApp.Resources.Portable_Class
             switch (result[position].Kind)
             {
                 case YtKind.Video:
-                    Play(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
+                    Play(item.youtubeID, item.GetName(), item.GetArtist(), item.GetAlbum());
                     break;
                 case YtKind.Playlist:
                     ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
@@ -300,19 +300,19 @@ namespace MusicApp.Resources.Portable_Class
                 switch (args.Which)
                 {
                     case 0:
-                        Play(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
+                        Play(item.youtubeID, item.GetName(), item.GetArtist(), item.GetAlbum());
                         break;
                     case 1:
-                        PlayNext(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
+                        PlayNext(item.youtubeID, item.GetName(), item.GetArtist(), item.GetAlbum());
                         break;
                     case 2:
-                        PlayLast(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
+                        PlayLast(item.youtubeID, item.GetName(), item.GetArtist(), item.GetAlbum());
                         break;
                     case 3:
-                        GetPlaylists(item.GetPath(), Activity);
+                        GetPlaylists(item.youtubeID, Activity);
                         break;
                     case 4:
-                        Download(item.GetName(), item.GetPath());
+                        Download(item.GetName(), item.youtubeID);
                         break;
                     default:
                         break;
@@ -670,7 +670,7 @@ namespace MusicApp.Resources.Portable_Class
 
                 foreach (var item in ytPlaylist.Items)
                 {
-                    if (item.Snippet.Title != "Deleted video")
+                    if (item.Snippet.Title != "[Deleted video]" && item.Snippet.Title != "Private video" && item.Snippet.Title != "Deleted video")
                     {
                         Song song = new Song(item.Snippet.Title, "", item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
                         tracks.Add(song);
