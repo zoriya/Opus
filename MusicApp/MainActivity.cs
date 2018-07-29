@@ -38,6 +38,8 @@ using System.Net;
 using System.Threading.Tasks;
 using TagLib;
 using YoutubeExplode;
+using YoutubeExplode.Models;
+using Playlist = MusicApp.Resources.Portable_Class.Playlist;
 using SearchView = Android.Support.V7.Widget.SearchView;
 
 namespace MusicApp
@@ -83,7 +85,6 @@ namespace MusicApp
         private const string versionURI = "https://raw.githubusercontent.com/AnonymusRaccoon/MusicApp/master/MusicApp/Assets/Version.txt";
 
         private const string clientID = "112086459272-8m4do6aehtdg4a7nffd0a84jk94c64e8.apps.googleusercontent.com";
-        public static YouTubeService youtubeService;
         public static GoogleSignInAccount account;
         public GoogleApiClient googleClient;
         private bool canAsk;
@@ -1265,23 +1266,43 @@ namespace MusicApp
 
             await WaitForYoutube();
 
-            Console.WriteLine("&VideoID = " + MusicPlayer.queue[MusicPlayer.CurrentID()].youtubeID);
+            YoutubeClient client = new YoutubeClient();
+            Video video = await client.GetVideoAsync(MusicPlayer.queue[MusicPlayer.CurrentID()].youtubeID);
 
-            SearchResource.ListRequest searchResult = YoutubeEngine.youtubeService.Search.List("snippet");
-            searchResult.Fields = "items(id/videoId,snippet/title,snippet/thumbnails/default/url,snippet/channelTitle)";
-            searchResult.Type = "video";
-            searchResult.MaxResults = 20;
-            searchResult.RelatedToVideoId = MusicPlayer.queue[MusicPlayer.CurrentID()].youtubeID;
+            Console.WriteLine("&Playlist ID: " + video.GetVideoMixPlaylistId());
+            List<Song> tracks = new List<Song>();
+            var ytPlaylistRequest = YoutubeEngine.youtubeService.PlaylistItems.List("snippet, contentDetails");
+            ytPlaylistRequest.PlaylistId = video.GetVideoMixPlaylistId();
+            ytPlaylistRequest.MaxResults = 50;
 
-            var searchReponse = await searchResult.ExecuteAsync();
+            var ytPlaylist = await ytPlaylistRequest.ExecuteAsync();
 
-            List<Song> result = new List<Song>();
-
-            foreach (var video in searchReponse.Items)
+            foreach (var item in ytPlaylist.Items)
             {
-                Song videoInfo = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.Default__.Url, video.Id.VideoId, -1, -1, video.Id.VideoId, true, false);
-                result.Add(videoInfo);
+                if (item.Snippet.Title != "[Deleted video]" && item.Snippet.Title != "Private video" && item.Snippet.Title != "Deleted video" && item.ContentDetails.VideoId != MusicPlayer.queue[MusicPlayer.CurrentID()].youtubeID)
+                {
+                    Song song = new Song(item.Snippet.Title, "", item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
+                    tracks.Add(song);
+                }
             }
+
+            #region RelatedVideoMix
+            //SearchResource.ListRequest searchResult = YoutubeEngine.youtubeService.Search.List("snippet");
+            //searchResult.Fields = "items(id/videoId,snippet/title,snippet/thumbnails/default/url,snippet/channelTitle)";
+            //searchResult.Type = "video";
+            //searchResult.MaxResults = 20;
+            //searchResult.RelatedToVideoId = MusicPlayer.queue[MusicPlayer.CurrentID()].youtubeID;
+
+            //var searchReponse = await searchResult.ExecuteAsync();
+
+            //List<Song> result = new List<Song>();
+
+            //foreach (var video in searchReponse.Items)
+            //{
+            //    Song videoInfo = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.Default__.Url, video.Id.VideoId, -1, -1, video.Id.VideoId, true, false);
+            //    result.Add(videoInfo);
+            //}
+            #endregion
 
             Song current = MusicPlayer.queue[MusicPlayer.CurrentID()];
             current.queueSlot = 0;
@@ -1290,8 +1311,8 @@ namespace MusicApp
             MusicPlayer.currentID = 0;
 
             Random r = new Random();
-            result = result.OrderBy(x => r.Next()).ToList();
-            foreach (Song song in result)
+            tracks = tracks.OrderBy(x => r.Next()).ToList();
+            foreach (Song song in tracks)
                 MusicPlayer.instance.AddToQueue(song);
 
             Player.instance?.UpdateNext();

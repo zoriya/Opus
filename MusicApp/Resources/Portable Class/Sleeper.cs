@@ -38,7 +38,18 @@ namespace MusicApp.Resources.Portable_Class
                     StopForeground(true);
                 }
                 else
+                {
                     timer = time;
+                    NotificationCompat.Builder notification = new NotificationCompat.Builder(Application.Context, "MusicApp.Channel")
+                    .SetVisibility(NotificationCompat.VisibilityPublic)
+                    .SetSmallIcon(Resource.Drawable.MusicIcon)
+                    .SetContentTitle("Music will stop in:")
+                    .SetContentText(timer + " minutes")
+                    .SetOngoing(true);
+
+                    NotificationManager notificationManager = (NotificationManager)GetSystemService(NotificationService);
+                    notificationManager.Notify(1001, notification.Build());
+                }
             }
             return StartCommandResult.Sticky;
         }

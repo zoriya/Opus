@@ -11,7 +11,6 @@ using Android.Support.V4.Content;
 using Android.Support.V4.Media.Session;
 using Android.Support.V7.Preferences;
 using Android.Support.V7.Widget;
-using Android.Util;
 using Android.Views;
 using Android.Widget;
 using Com.Google.Android.Exoplayer2;
@@ -227,9 +226,6 @@ namespace MusicApp.Resources.Portable_Class
                 song = new Song(title, artist, thumbnailURI, youtubeID, -1, -1, filePath, true);
             }
 
-            UpdateQueueSlots();
-            currentID = song.queueSlot;
-
             isRunning = true;
             player.PlayWhenReady = true;
 
@@ -237,6 +233,9 @@ namespace MusicApp.Resources.Portable_Class
 
             if (addToQueue)
                 AddToQueue(song);
+
+            UpdateQueueSlots();
+            currentID = CurrentID() + 1;
 
             Player.instance?.RefreshPlayer();
             ParseNextSong();
@@ -301,14 +300,14 @@ namespace MusicApp.Resources.Portable_Class
             player.Prepare(mediaSource, true, true);
             CreateNotification(song.GetName(), song.GetArtist(), song.GetAlbumArt(), song.GetAlbum());
 
-            UpdateQueueSlots();
-            currentID = song.queueSlot;
-
             isRunning = true;
             player.PlayWhenReady = true;
 
             if (addToQueue)
                 AddToQueue(song);
+
+            UpdateQueueSlots();
+            currentID = CurrentID() + 1;
 
             if (progress != -1)
             {
