@@ -97,7 +97,7 @@ namespace MusicApp
         public virtual void PaddingHasChanged(PaddingChange e)
         {
             paddingBot = (((RelativeLayout)instance.FindViewById(Resource.Id.smallPlayer).Parent).Visibility == ViewStates.Gone)
-                ? FindViewById<BottomNavigationView>(Resource.Id.bottomView).Height
+                ? DpToPx(56)
                 : instance.FindViewById(Resource.Id.smallPlayer).Height + ((RelativeLayout)instance.FindViewById(Resource.Id.smallPlayer).Parent).PaddingBottom;
 
             paddingBot += e.paddingChange;
@@ -140,10 +140,14 @@ namespace MusicApp
                 notificationManager.CreateNotificationChannel(channel);
             }
 
-            //if (MusicPlayer.queue.Count > 0)
-            //    ReCreateSmallPlayer();
-            //else
-            PrepareApp();
+            if (MusicPlayer.queue.Count > 0)
+                ReCreateSmallPlayer();
+            else
+            {
+                paddingBot = DpToPx(56);
+                defaultPaddingBot = DpToPx(56);
+                Navigate(Resource.Id.musicLayout);
+            }
 
             if (Intent.Action == Intent.ActionSend)
             {
@@ -172,14 +176,6 @@ namespace MusicApp
             }
 
             CheckForUpdate(this, false);
-        }
-
-        async void PrepareApp()
-        {
-            await Task.Delay(100);
-            paddingBot = FindViewById<BottomNavigationView>(Resource.Id.bottomView).Height;
-            defaultPaddingBot = FindViewById<BottomNavigationView>(Resource.Id.bottomView).Height;
-            Navigate(Resource.Id.musicLayout);
         }
 
         public void SwitchTheme(int themeID)
@@ -1113,7 +1109,7 @@ namespace MusicApp
             quickPlayLayout = LayoutInflater.Inflate(Resource.Layout.QuickPlayLayout, null);
             ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
             AddContentView(quickPlayLayout, rootView.LayoutParameters);
-            quickPlayLayout.SetPadding(0, 0, 0, paddingBot + PxToDp(20));
+            quickPlayLayout.SetPadding(0, 0, 0, paddingBot + DpToPx(20));
             quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.quickPlay).Click += QuickPlay;
             quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.localPlay).Click += LocalPlay;
             quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.ytPlay).Click += YtPlay;
@@ -1286,24 +1282,6 @@ namespace MusicApp
                 }
             }
 
-            #region RelatedVideoMix
-            //SearchResource.ListRequest searchResult = YoutubeEngine.youtubeService.Search.List("snippet");
-            //searchResult.Fields = "items(id/videoId,snippet/title,snippet/thumbnails/default/url,snippet/channelTitle)";
-            //searchResult.Type = "video";
-            //searchResult.MaxResults = 20;
-            //searchResult.RelatedToVideoId = MusicPlayer.queue[MusicPlayer.CurrentID()].youtubeID;
-
-            //var searchReponse = await searchResult.ExecuteAsync();
-
-            //List<Song> result = new List<Song>();
-
-            //foreach (var video in searchReponse.Items)
-            //{
-            //    Song videoInfo = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.Default__.Url, video.Id.VideoId, -1, -1, video.Id.VideoId, true, false);
-            //    result.Add(videoInfo);
-            //}
-            #endregion
-
             Song current = MusicPlayer.queue[MusicPlayer.CurrentID()];
             current.queueSlot = 0;
             MusicPlayer.queue.Clear();
@@ -1319,10 +1297,10 @@ namespace MusicApp
             parseProgress.Visibility = ViewStates.Gone;
         }
 
-        int PxToDp(int px)
+        int DpToPx(int dx)
         {
             float scale = Resources.DisplayMetrics.Density;
-            return (int) (px * scale + 0.5f);
+            return (int) (dx * scale + 0.5f);
         }
 
         public async static void CheckForUpdate(Activity activity, bool displayToast)

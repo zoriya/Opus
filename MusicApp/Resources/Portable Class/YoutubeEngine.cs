@@ -331,6 +331,7 @@ namespace MusicApp.Resources.Portable_Class
             intent.PutExtra("artist", artist);
             intent.PutExtra("thumbnailURI", thumbnailURL);
             Android.App.Application.Context.StartService(intent);
+            ShowRecomandations(videoID);
         }
 
         public static async void PlayFiles(Song[] files)
@@ -367,6 +368,7 @@ namespace MusicApp.Resources.Portable_Class
             intent.PutExtra("artist", artist);
             intent.PutExtra("thumbnailURI", thumbnailURL);
             Android.App.Application.Context.StartService(intent);
+            ShowRecomandations(videoID);
         }
 
         public static void PlayLast(string videoID, string title, string artist, string thumbnailURL)
@@ -379,6 +381,28 @@ namespace MusicApp.Resources.Portable_Class
             intent.PutExtra("artist", artist);
             intent.PutExtra("thumbnailURI", thumbnailURL);
             Android.App.Application.Context.StartService(intent);
+            ShowRecomandations(videoID);
+        }
+
+        public static void ShowRecomandations(string videoID)
+        {
+            //Diplay a card with related video that the user might want to play
+
+            //SearchResource.ListRequest searchResult = YoutubeEngine.youtubeService.Search.List("snippet");
+            //searchResult.Fields = "items(id/videoId,snippet/title,snippet/thumbnails/default/url,snippet/channelTitle)";
+            //searchResult.Type = "video";
+            //searchResult.MaxResults = 20;
+            //searchResult.RelatedToVideoId = MusicPlayer.queue[MusicPlayer.CurrentID()].youtubeID;
+
+            //var searchReponse = await searchResult.ExecuteAsync();
+
+            //List<Song> result = new List<Song>();
+
+            //foreach (var video in searchReponse.Items)
+            //{
+            //    Song videoInfo = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.Default__.Url, video.Id.VideoId, -1, -1, video.Id.VideoId, true, false);
+            //    result.Add(videoInfo);
+            //}
         }
 
         public async static void Download(string name, string videoID)
@@ -552,7 +576,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             if(playlistID == "newPlaylist")
             {
-                Android.Support.V7.App.AlertDialog.Builder builder = new Android.Support.V7.App.AlertDialog.Builder(context, MainActivity.dialogTheme);
+                AlertDialog.Builder builder = new AlertDialog.Builder(context, MainActivity.dialogTheme);
                 builder.SetTitle("Playlist name");
                 View view = MainActivity.instance.LayoutInflater.Inflate(Resource.Layout.CreatePlaylistDialog, null);
                 builder.SetView(view);

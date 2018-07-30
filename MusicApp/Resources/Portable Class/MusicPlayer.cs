@@ -66,11 +66,11 @@ namespace MusicApp.Resources.Portable_Class
 
         public override StartCommandResult OnStartCommand(Intent intent, StartCommandFlags flags, int startId)
         {
-            if (intent == null)
-            {
-                //Resume playback with the last item played
-                return StartCommandResult.Sticky;
-            }
+            //if (intent == null) //If service is started sticky
+            //{
+            //    StopSelf();
+            //    return StartCommandResult.Sticky;
+            //}
 
             string file = intent.GetStringExtra("file");
 
@@ -132,12 +132,12 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             if (intent.Action != null)
-                return StartCommandResult.Sticky;
+                return StartCommandResult.NotSticky;
 
             if (file != null)
                 Play(file);
 
-            return StartCommandResult.Sticky;
+            return StartCommandResult.NotSticky;
         }
 
         private void InitializeService()
@@ -682,7 +682,6 @@ namespace MusicApp.Resources.Portable_Class
                 do
                 {
                     path = musicCursor.GetString(pathID);
-                    Console.WriteLine("&Path: " + path);
 
                     if (path == filePath || filePath.StartsWith("content://"))
                     {

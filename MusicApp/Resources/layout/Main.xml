@@ -50,6 +50,7 @@
   </android.support.design.widget.AppBarLayout>
   <android.support.v4.widget.SwipeRefreshLayout
     android:id="@+id/contentRefresh"
+    android:layout_above="@+id/bottomLayout"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content" >
