@@ -18,6 +18,7 @@ using Com.Google.Android.Exoplayer2.Extractor;
 using Com.Google.Android.Exoplayer2.Source;
 using Com.Google.Android.Exoplayer2.Trackselection;
 using Com.Google.Android.Exoplayer2.Upstream;
+using Google.Apis.YouTube.v3;
 using MusicApp.Resources.values;
 using Org.Adw.Library.Widgets.Discreteseekbar;
 using Square.Picasso;
@@ -45,13 +46,14 @@ namespace MusicApp.Resources.Portable_Class
         public static bool isRunning = false;
         public static string title;
         private static bool parsing = false;
+        private bool generating = false;
         public static int currentID = -1;
         public static bool repeat = false;
+        public static bool useAutoPlay = true;
 
         private Notification notification;
         private const int notificationID = 1000;
         private static long progress;
-
 
         public override IBinder OnBind(Intent intent)
         {
@@ -232,10 +234,16 @@ namespace MusicApp.Resources.Portable_Class
             CreateNotification(song.GetName(), song.GetArtist(), song.GetAlbumArt(), song.GetAlbum());
 
             if (addToQueue)
+            {
                 AddToQueue(song);
 
-            UpdateQueueSlots();
-            currentID = CurrentID() + 1;
+                UpdateQueueSlots();
+                currentID = CurrentID() + 1;
+            }
+            else
+            {
+                currentID = song.queueSlot;
+            }   
 
             Player.instance?.RefreshPlayer();
             ParseNextSong();
@@ -304,10 +312,16 @@ namespace MusicApp.Resources.Portable_Class
             player.PlayWhenReady = true;
 
             if (addToQueue)
+            {
                 AddToQueue(song);
 
-            UpdateQueueSlots();
-            currentID = CurrentID() + 1;
+                UpdateQueueSlots();
+                currentID = CurrentID() + 1;
+            }
+            else
+            {
+                currentID = song.queueSlot;
+            }
 
             if (progress != -1)
             {
@@ -412,6 +426,127 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
+        async void GenerateNext(int number)
+        {
+            if (generating == true)
+                return;
+
+            generating = true;
+
+            string youtubeID = null;
+            if (MainActivity.HasInternet())
+            {
+                int i = 1;
+                while (youtubeID == null)
+                {
+                    if (queue.Count >= i)
+                    {
+                        youtubeID = queue[queue.Count - i].youtubeID;
+                        i++;
+                    }
+                    else
+                        youtubeID = "local";
+                }
+            }
+            else
+                youtubeID = "local";
+
+            if (youtubeID != "local" && MainActivity.HasInternet())
+            {
+                await MainActivity.instance.WaitForYoutube();
+
+                //if (number < 4)
+                //{
+                //    SearchResource.ListRequest searchResult = YoutubeEngine.youtubeService.Search.List("snippet");
+                //    searchResult.Fields = "items(id/videoId,snippet/title,snippet/thumbnails/high/url,snippet/channelTitle)";
+                //    searchResult.Type = "video";
+                //    searchResult.MaxResults = number + 2;
+                //    searchResult.RelatedToVideoId = youtubeID;
+
+
+                //    List<Song> songs = new List<Song>();
+                //    Google.Apis.YouTube.v3.Data.SearchListResponse response = await searchResult.ExecuteAsync();
+                //    foreach (Google.Apis.YouTube.v3.Data.SearchResult video in response.Items)
+                //    {
+                //        Song song = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.High.Url, video.Id.VideoId, -1, -1, null, true, false);
+                //        songs.Add(song);
+                //    }
+                //    songs = songs.Except(songs.Where(x => queue.Exists(y => x.youtubeID == y.youtubeID))).ToList();
+                //    if(songs.Count > 0)
+                //        PlayLastInQueue(songs[0]);
+                //}
+                //else
+                //{
+                    YoutubeClient client = new YoutubeClient();
+                    Video video = await client.GetVideoAsync(youtubeID);
+
+                    var ytPlaylistRequest = YoutubeEngine.youtubeService.PlaylistItems.List("snippet, contentDetails");
+                    ytPlaylistRequest.PlaylistId = video.GetVideoMixPlaylistId();
+                    ytPlaylistRequest.MaxResults = number + 2;
+
+                    var ytPlaylist = await ytPlaylistRequest.ExecuteAsync();
+
+                    foreach (var item in ytPlaylist.Items)
+                    {
+                        if (item.Snippet.Title != "[Deleted video]" && item.Snippet.Title != "Private video" && item.Snippet.Title != "Deleted video" && item.ContentDetails.VideoId != MusicPlayer.queue[MusicPlayer.CurrentID()].youtubeID)
+                        {
+                            Song song = new Song(item.Snippet.Title, "", item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
+                            if(!queue.Exists(x => x.youtubeID == song.youtubeID))
+                            {
+                                PlayLastInQueue(song);
+                                break;
+                            }
+                        }
+                    }
+                //}
+                ParseNextSong();
+            }
+            else
+            {
+                Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
+
+                List<Song> allSongs = new List<Song>();
+                Android.Content.CursorLoader cursorLoader = new Android.Content.CursorLoader(Application.Context, musicUri, null, null, null, null);
+                ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
+
+                if (musicCursor != null && musicCursor.MoveToFirst())
+                {
+                    int titleID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Title);
+                    int artistID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Artist);
+                    int albumID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Album);
+                    int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
+                    int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
+                    do
+                    {
+                        string Artist = musicCursor.GetString(artistID);
+                        string Title = musicCursor.GetString(titleID);
+                        string Album = musicCursor.GetString(albumID);
+                        long AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
+                        long id = musicCursor.GetLong(thisID);
+                        string path = musicCursor.GetString(pathID);
+
+                        if (Title == null)
+                            Title = "Unknown Title";
+                        if (Artist == null)
+                            Artist = "Unknow Artist";
+                        if (Album == null)
+                            Album = "Unknow Album";
+
+                        allSongs.Add(new Song(Title, Artist, Album, null, AlbumArt, id, path));
+                    }
+                    while (musicCursor.MoveToNext());
+                    musicCursor.Close();
+                }
+                Random r = new Random();
+                List<Song> songList = allSongs.OrderBy(x => r.Next()).ToList();
+                for (int i = 0; i < (number > songList.Count ? songList.Count : number); i++)
+                    PlayLastInQueue(songList[i]);
+            }
+
+            Queue.instance?.Refresh();
+            generating = false;
+        }
+
         public async void RandomPlay(List<string> filePath, bool clearQueue)
         {
             currentID = -1;
@@ -481,6 +616,12 @@ namespace MusicApp.Resources.Portable_Class
             queue.Add(song);
         }
 
+        public void PlayLastInQueue(Song song)
+        {
+            song.queueSlot = queue.Count + 1;
+            queue.Add(song);
+        }
+
         public void PlayLastInQueue(string filePath, string title, string artist, string youtubeID, string thumbnailURI)
         {
             Song song = new Song(title, artist, thumbnailURI, youtubeID, -1, -1, filePath, true)
@@ -519,6 +660,11 @@ namespace MusicApp.Resources.Portable_Class
 
             Song next = queue[CurrentID() + 1];
             SwitchQueue(next);
+
+            if (CurrentID() + 3 > queue.Count)
+            {
+                GenerateNext(1);
+            }
         }
 
         public async void SwitchQueue(Song song)
@@ -604,8 +750,14 @@ namespace MusicApp.Resources.Portable_Class
 
         public static async void ParseNextSong()
         {
-            if (CurrentID() + 1 > queue.Count - 1 || CurrentID() == -1)
+            if (CurrentID() == -1)
                 return;
+
+            if (CurrentID() + 1 > queue.Count - 1)
+            {
+                instance.GenerateNext(1);
+                return;
+            }
 
             Song song = queue[CurrentID() + 1];
             if (song.isParsed)

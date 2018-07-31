@@ -287,7 +287,7 @@ namespace MusicApp.Resources.Portable_Class
                 adapter.listPadding = (int)(8 * MainActivity.instance.Resources.DisplayMetrics.Density + 0.5f);
         }
 
-        public override void OnDestroy()
+        public override void OnStop()
         {
             MainActivity.instance.HideSearch();
             if (isEmpty)
@@ -306,7 +306,7 @@ namespace MusicApp.Resources.Portable_Class
             Activity.FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Gone;
 
             MainActivity.instance?.SupportFragmentManager.PopBackStack();
-            base.OnDestroy();
+            base.OnStop();
             instance = null;
         }
 

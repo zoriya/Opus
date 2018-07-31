@@ -176,7 +176,7 @@ namespace MusicApp.Resources.Portable_Class
 
             foreach (var video in searchReponse.Items)
             {
-                Song videoInfo = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.High.Url, null, -1, -1, null, true);
+                Song videoInfo = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.High.Url, null, -1, -1, null, true, false);
                 YtKind kind = YtKind.Null;
 
                 switch (video.Id.Kind)

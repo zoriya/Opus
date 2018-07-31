@@ -21,6 +21,7 @@ namespace MusicApp.Resources.Portable_Class
         public RecyclerView ListView;
         public RecyclerAdapter adapter;
         public ItemTouchHelper itemTouchHelper;
+        public IMenu menu;
 
         private readonly string[] actions = new string[] { "Remove from queue", "Edit Metadata" };
 
@@ -83,7 +84,7 @@ namespace MusicApp.Resources.Portable_Class
         public void RefreshCurrent()
         {
             int first = ((LinearLayoutManager)ListView.GetLayoutManager()).FindFirstVisibleItemPosition();
-            int last = ((LinearLayoutManager)ListView.GetLayoutManager()).FindLastVisibleItemPosition();
+            int last = ((LinearLayoutManager)ListView.GetLayoutManager()).FindLastVisibleItemPosition() - 1;
             for (int i = first; i <= last; i++)
             {
                 Song song = MusicPlayer.queue[i];
@@ -102,6 +103,7 @@ namespace MusicApp.Resources.Portable_Class
         public override bool OnCreateOptionsMenu(IMenu menu)
         {
             MenuInflater.Inflate(Resource.Menu.QueueItems, menu);
+            this.menu = menu;
             if(MusicPlayer.repeat)
                 menu.FindItem(Resource.Id.repeat).Icon.SetColorFilter(Color.Argb(255, 62, 80, 180), PorterDuff.Mode.Multiply);
             return base.OnCreateOptionsMenu(menu);

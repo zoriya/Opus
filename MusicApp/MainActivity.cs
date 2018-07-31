@@ -1265,7 +1265,6 @@ namespace MusicApp
             YoutubeClient client = new YoutubeClient();
             Video video = await client.GetVideoAsync(MusicPlayer.queue[MusicPlayer.CurrentID()].youtubeID);
 
-            Console.WriteLine("&Playlist ID: " + video.GetVideoMixPlaylistId());
             List<Song> tracks = new List<Song>();
             var ytPlaylistRequest = YoutubeEngine.youtubeService.PlaylistItems.List("snippet, contentDetails");
             ytPlaylistRequest.PlaylistId = video.GetVideoMixPlaylistId();
@@ -1303,11 +1302,19 @@ namespace MusicApp
             return (int) (dx * scale + 0.5f);
         }
 
-        public async static void CheckForUpdate(Activity activity, bool displayToast)
+        public static bool HasInternet()
         {
             ConnectivityManager connectivityManager = (ConnectivityManager)Application.Context.GetSystemService(ConnectivityService);
             NetworkInfo activeNetworkInfo = connectivityManager.ActiveNetworkInfo;
             if (activeNetworkInfo == null || !activeNetworkInfo.IsConnected)
+                return false;
+
+            return true;
+        }
+
+        public async static void CheckForUpdate(Activity activity, bool displayToast)
+        {
+            if(!HasInternet())
             {
                 if (displayToast)
                     Toast.MakeText(Application.Context, "You are not connected to internet, can't check for updates.", ToastLength.Short).Show();
