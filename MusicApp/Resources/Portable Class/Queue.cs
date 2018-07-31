@@ -52,7 +52,7 @@ namespace MusicApp.Resources.Portable_Class
             adapter.ItemClick += ListView_ItemClick;
             adapter.ItemLongCLick += ListView_ItemLongCLick;
             ListView.SetItemAnimator(new DefaultItemAnimator());
-            ListView.ScrollChange += Scroll; ;
+            ListView.ScrollChange += Scroll;
 
             ItemTouchHelper.Callback callback = new ItemTouchCallback(adapter);
             itemTouchHelper = new ItemTouchHelper(callback);

@@ -439,15 +439,12 @@ namespace MusicApp.Resources.Portable_Class
         {
             Random r = new Random();
             Song current = queue[CurrentID()];
-            List<Song> newQueue = queue.OrderBy(x => r.Next()).ToList();
-            queue.Clear();
+            queue.RemoveAt(CurrentID());
+            queue = queue.OrderBy(x => r.Next()).ToList();
 
-            newQueue.Remove(current);
             current.queueSlot = 0;
             currentID = 0;
-            queue.Add(current);
-
-            queue.AddRange(newQueue);
+            queue.Insert(0, current);
             UpdateQueueSlots();
 
             Player.instance?.UpdateNext();

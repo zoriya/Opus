@@ -1308,7 +1308,11 @@ namespace MusicApp
             ConnectivityManager connectivityManager = (ConnectivityManager)Application.Context.GetSystemService(ConnectivityService);
             NetworkInfo activeNetworkInfo = connectivityManager.ActiveNetworkInfo;
             if (activeNetworkInfo == null || !activeNetworkInfo.IsConnected)
+            {
+                if (displayToast)
+                    Toast.MakeText(Application.Context, "You are not connected to internet, can't check for updates.", ToastLength.Short).Show();
                 return;
+            }
 
             string VersionAsset;
             AssetManager assets = Application.Context.Assets;
@@ -1317,8 +1321,9 @@ namespace MusicApp
                 VersionAsset = sr.ReadToEnd();
             }
 
-            string versionID = VersionAsset.Substring(9, 3);
-            int version = int.Parse(versionID.Remove(1, 1));
+            string versionID = VersionAsset.Substring(9, 5);
+            versionID = versionID.Remove(1, 1);
+            int version = int.Parse(versionID.Remove(2, 1));
 
             string gitVersionID;
             int gitVersion;
@@ -1328,7 +1333,8 @@ namespace MusicApp
             {
                 string GitVersion = await client.DownloadStringTaskAsync(new System.Uri(versionURI));
                 gitVersionID = GitVersion.Substring(9, 3);
-                gitVersion = int.Parse(gitVersionID.Remove(1, 1));
+                gitVersionID = gitVersionID.Remove(1, 1);
+                gitVersion = int.Parse(gitVersionID.Remove(2, 1));
                 downloadPath = GitVersion.Substring(18);
             }
 

@@ -305,7 +305,7 @@ namespace MusicApp.Resources.Portable_Class
             Activity.FindViewById<AppBarLayout>(Resource.Id.appbar).RemoveOnOffsetChangedListener(this);
             Activity.FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Gone;
 
-            MainActivity.instance.SupportFragmentManager.PopBackStack();
+            MainActivity.instance?.SupportFragmentManager.PopBackStack();
             base.OnDestroy();
             instance = null;
         }
