@@ -1332,7 +1332,7 @@ namespace MusicApp
             using(WebClient client = new WebClient())
             {
                 string GitVersion = await client.DownloadStringTaskAsync(new System.Uri(versionURI));
-                gitVersionID = GitVersion.Substring(9, 3);
+                gitVersionID = GitVersion.Substring(9, 5);
                 gitVersionID = gitVersionID.Remove(1, 1);
                 gitVersion = int.Parse(gitVersionID.Remove(2, 1));
                 downloadPath = GitVersion.Substring(18);

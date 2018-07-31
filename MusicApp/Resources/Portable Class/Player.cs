@@ -8,6 +8,7 @@ using Android.OS;
 using Android.Support.Design.Widget;
 using Android.Support.V7.App;
 using Android.Support.V7.Graphics;
+using Android.Util;
 using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
@@ -136,21 +137,34 @@ namespace MusicApp.Resources.Portable_Class
             TextView NextTitle = FindViewById<TextView>(Resource.Id.nextTitle);
             TextView NextAlbum = FindViewById<TextView>(Resource.Id.nextArtist);
             Button ShowQueue = FindViewById<Button>(Resource.Id.showQueue);
+            ImageButton smallQueue = FindViewById<ImageButton>(Resource.Id.smallQueue);
 
             ShowQueue.Click += ShowQueue_Click;
+            smallQueue.Click += ShowQueue_Click;
+
+            ((GradientDrawable)ShowQueue.Background).SetStroke(5, ColorStateList.ValueOf(Color.Argb(255, 21, 183, 237)));
+            ShowQueue.SetTextColor(Color.Argb(255, 21, 183, 237));
+
+            ((GradientDrawable)smallQueue.Background).SetStroke(5, ColorStateList.ValueOf(Color.Argb(255, 21, 183, 237)));
 
             if (MainActivity.Theme == 1)
             {
                 NextTitle.SetTextColor(Color.White);
                 NextAlbum.SetTextColor(Color.White);
                 NextAlbum.Alpha = 0.7f;
-                ((GradientDrawable)ShowQueue.Background).SetStroke(5, ColorStateList.ValueOf(Color.Argb(255, 62, 80, 180)));
-                ShowQueue.SetTextColor(Color.Argb(255, 62, 80, 180));
+                smallQueue.ImageTintList = ColorStateList.ValueOf(Color.Argb(255, 255, 255, 255));
             }
             else
             {
-                ((GradientDrawable)ShowQueue.Background).SetStroke(5, Android.Content.Res.ColorStateList.ValueOf(Color.Argb(255, 21, 183, 237)));
-                ShowQueue.SetTextColor(Color.Argb(255, 21, 183, 237));
+                smallQueue.ImageTintList = ColorStateList.ValueOf(Color.Argb(255, 0, 0, 0));
+            }
+
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            WindowManager.DefaultDisplay.GetMetrics(displayMetrics);
+            if(displayMetrics.HeightPixels < displayMetrics.WidthPixels + FindViewById<LinearLayout>(Resource.Id.infoPanel).Height + FindViewById<RelativeLayout>(Resource.Id.nextSong).Height + ShowQueue.Height)
+            {
+                smallQueue.Visibility = ViewStates.Visible;
+                ShowQueue.Visibility = ViewStates.Gone;
             }
 
             bool asNext = MusicPlayer.queue.Count > MusicPlayer.CurrentID() + 1;

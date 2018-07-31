@@ -163,7 +163,11 @@ namespace MusicApp.Resources.Portable_Class
             {
                 VersionAsset = sr.ReadToEnd();
             }
-            versionPreference.Summary = "V. " + VersionAsset.Substring(9, 3);
+
+            string version = VersionAsset.Substring(9, 5);
+            if (version.EndsWith(".0"))
+                version = version.Substring(0, 3);
+            versionPreference.Summary = "V. " + version;
 
             //Account
             Preference accountPreference = PreferenceScreen.FindPreference("account");
