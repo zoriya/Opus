@@ -68,11 +68,11 @@ namespace MusicApp.Resources.Portable_Class
 
         public override StartCommandResult OnStartCommand(Intent intent, StartCommandFlags flags, int startId)
         {
-            //if (intent == null) //If service is started sticky
-            //{
-            //    StopSelf();
-            //    return StartCommandResult.Sticky;
-            //}
+            if (intent == null)
+            {
+                StopSelf();
+                return StartCommandResult.Sticky;
+            }
 
             string file = intent.GetStringExtra("file");
 
@@ -134,12 +134,12 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             if (intent.Action != null)
-                return StartCommandResult.NotSticky;
+                return StartCommandResult.Sticky;
 
             if (file != null)
                 Play(file);
 
-            return StartCommandResult.NotSticky;
+            return StartCommandResult.Sticky;
         }
 
         private void InitializeService()
@@ -611,14 +611,14 @@ namespace MusicApp.Resources.Portable_Class
         public void PlayLastInQueue(string filePath)
         {
             GetTrackSong(filePath, out Song song);
-            song.queueSlot = queue.Count + 1;
+            song.queueSlot = queue.Count;
 
             queue.Add(song);
         }
 
         public void PlayLastInQueue(Song song)
         {
-            song.queueSlot = queue.Count + 1;
+            song.queueSlot = queue.Count;
             queue.Add(song);
         }
 
@@ -626,7 +626,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             Song song = new Song(title, artist, thumbnailURI, youtubeID, -1, -1, filePath, true)
             {
-                queueSlot = queue.Count + 1
+                queueSlot = queue.Count
             };
 
             queue.Add(song);

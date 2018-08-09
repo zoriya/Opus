@@ -401,6 +401,19 @@ namespace MusicApp
             var filterView = item.ActionView.JavaCast<SearchView>();
             filterView.QueryTextChange += Search;
             var searchView = menu.FindItem(Resource.Id.search).ActionView.JavaCast<SearchView>();
+            searchView.SuggestionsAdapter = new Android.Support.V4.Widget.SimpleCursorAdapter(this, Android.Resource.Layout.TestListItem, null, new string[] { SearchManager.SuggestColumnText1 }, new int[] { Android.Resource.Id.Text1 });
+            searchView.SuggestionClick += (s, e) =>
+            {
+                ICursor cursor = (ICursor)searchView.SuggestionsAdapter.GetItem(e.Position);
+                string suggestion = cursor.GetString(cursor.GetColumnIndex(SearchManager.SuggestColumnText1));
+                cursor.Close();
+                searchView.SetQuery(suggestion, true);
+            };
+            searchView.QueryTextChange += (s, e) =>
+            {
+                if(e.NewText.Length > 0)
+                    new SearchCompleter(searchView).Execute(e.NewText, searchView);
+            };
             searchView.QueryTextSubmit += (s, e) =>
             {
                 if(YoutubeEngine.instances != null)
@@ -595,6 +608,8 @@ namespace MusicApp
 
         public void Navigate(int layout)
         {
+            contentRefresh.Refreshing = false;
+
             if(YoutubeEngine.instances != null)
             {
                 ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
@@ -948,7 +963,7 @@ namespace MusicApp
                 prepared = true;
 
                 SwipeDismissBehavior behavior = new SwipeDismissBehavior();
-                behavior.SetSwipeDirection(SwipeDismissBehavior.SwipeDirectionAny);
+                behavior.SetSwipeDirection(SwipeDismissBehavior.S);
                 behavior.SetListener(this);
 
                 CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) smallPlayer.FindViewById<CardView>(Resource.Id.cardPlayer).LayoutParameters;

@@ -183,7 +183,6 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     case "youtube#video":
                         kind = YtKind.Video;
-                        Console.WriteLine("&VideoID = " + video.Id.VideoId);
                         videoInfo.youtubeID = video.Id.VideoId;
                         break;
                     case "youtube#playlist":

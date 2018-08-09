@@ -289,23 +289,26 @@ namespace MusicApp.Resources.Portable_Class
 
         public override void OnStop()
         {
-            MainActivity.instance.HideSearch();
-            if (isEmpty)
+            if (Player.instance == null)
             {
-                ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
-                rootView.RemoveView(emptyView);
+                MainActivity.instance.HideSearch();
+                if (isEmpty)
+                {
+                    ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
+                    rootView.RemoveView(emptyView);
+                }
+                MainActivity.instance.SupportActionBar.SetHomeButtonEnabled(false);
+                MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(false);
+                MainActivity.instance.SupportActionBar.SetDisplayShowTitleEnabled(true);
+                MainActivity.instance.SupportActionBar.Title = "MusicApp";
+
+                MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
+                MainActivity.instance.OnPaddingChanged -= OnPaddingChanged;
+                Activity.FindViewById<AppBarLayout>(Resource.Id.appbar).RemoveOnOffsetChangedListener(this);
+                Activity.FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Gone;
+                MainActivity.instance?.SupportFragmentManager.PopBackStack();
             }
-            MainActivity.instance.SupportActionBar.SetHomeButtonEnabled(false);
-            MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(false);
-            MainActivity.instance.SupportActionBar.SetDisplayShowTitleEnabled(true);
-            MainActivity.instance.SupportActionBar.Title = "MusicApp";
 
-            MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
-            MainActivity.instance.OnPaddingChanged -= OnPaddingChanged;
-            Activity.FindViewById<AppBarLayout>(Resource.Id.appbar).RemoveOnOffsetChangedListener(this);
-            Activity.FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Gone;
-
-            MainActivity.instance?.SupportFragmentManager.PopBackStack();
             base.OnStop();
             instance = null;
         }

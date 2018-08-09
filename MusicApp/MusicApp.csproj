@@ -245,6 +245,7 @@
     <Compile Include="Resources\Portable Class\Browse.cs" />
     <Compile Include="Resources\Portable Class\ChannelAdapter.cs" />
     <Compile Include="Resources\Portable Class\CircleTransformation.cs" />
+    <Compile Include="Resources\Portable Class\SearchCompleter.cs" />
     <Compile Include="Resources\Portable Class\Downloader.cs" />
     <Compile Include="Resources\Portable Class\DownloadFragment.cs" />
     <Compile Include="Resources\Portable Class\EditMetaData.cs" />
