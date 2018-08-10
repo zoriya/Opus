@@ -88,7 +88,7 @@ namespace MusicApp
         public static GoogleSignInAccount account;
         public GoogleApiClient googleClient;
         private bool canAsk;
-        private bool waitingForYoutube;
+        public bool waitingForYoutube;
         private bool resuming = false;
         public bool ResumeKiller;
 
@@ -240,7 +240,12 @@ namespace MusicApp
                 else if (canAsk)
                 {
                     ResumeKiller = true;
-                    StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);
+
+                    //if (Preferences.instance != null)
+                        Console.WriteLine("&Pref 1");
+                    //Preferences.instance.StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);
+                    //else
+                        StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);
                 }
 
                 return;
@@ -248,7 +253,11 @@ namespace MusicApp
             if (canAsk)
             {
                 ResumeKiller = true;
-                StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);
+                //if (Preferences.instance != null)
+                    Console.WriteLine("&Pref 2");
+                //Preferences.instance.StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);
+                //else
+                    StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);
             }
         }
 
@@ -262,6 +271,10 @@ namespace MusicApp
                 {
                     account = result.SignInAccount;
                     CreateYoutube();
+                }
+                else
+                {
+                    waitingForYoutube = false;
                 }
             }
         }
@@ -333,7 +346,7 @@ namespace MusicApp
             Console.WriteLine("&Connection Failed: " + result.ErrorMessage);
         }
 
-        public async Task WaitForYoutube()
+        public async Task<bool> WaitForYoutube()
         {
             if(YoutubeEngine.youtubeService == null)
             {
@@ -343,9 +356,15 @@ namespace MusicApp
                 waitingForYoutube = true;
 
                 while (YoutubeEngine.youtubeService == null)
+                {
+                    if (waitingForYoutube == false)
+                        return false;
+
                     await Task.Delay(10);
+                }
             }
             waitingForYoutube = false;
+            return true;
         }
 
         public void Scroll(object sender, AbsListView.ScrollEventArgs e)
@@ -495,6 +514,25 @@ namespace MusicApp
                     //    Navigate(Resource.Id.playlistLayout);
                     //}
                 }
+                else if(YoutubeEngine.instances != null)
+                {
+                    YoutubeEngine.error = false;
+                    ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
+                    foreach (YoutubeEngine instance in YoutubeEngine.instances)
+                    {
+                        OnPaddingChanged -= instance.OnPaddingChanged;
+                        rootView.RemoveView(instance.emptyView);
+                    }
+                    rootView.RemoveView(YoutubeEngine.loadingView);
+
+                    var searchView = menu.FindItem(Resource.Id.search).ActionView.JavaCast<SearchView>();
+                    menu.FindItem(Resource.Id.search).CollapseActionView();
+                    searchView.ClearFocus();
+                    searchView.Iconified = true;
+                    searchView.SetQuery("", false);
+                    SupportActionBar.SetDisplayHomeAsUpEnabled(false);
+                    YoutubeEngine.instances = null;
+                }
                 else if (FolderTracks.instance != null)
                 {
                     HideSearch();
@@ -612,6 +650,7 @@ namespace MusicApp
 
             if(YoutubeEngine.instances != null)
             {
+                YoutubeEngine.error = false;
                 ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
                 foreach (YoutubeEngine instance in YoutubeEngine.instances)
                 {
@@ -620,7 +659,7 @@ namespace MusicApp
                 }
                 rootView.RemoveView(YoutubeEngine.loadingView);
 
-                var searchView = menu.FindItem(Resource.Id.search).ActionView.JavaCast<Android.Support.V7.Widget.SearchView>();
+                var searchView = menu.FindItem(Resource.Id.search).ActionView.JavaCast<SearchView>();
                 menu.FindItem(Resource.Id.search).CollapseActionView();
                 searchView.ClearFocus();
                 searchView.Iconified = true;
@@ -1275,7 +1314,11 @@ namespace MusicApp
             parseProgress.ScaleY = 6;
             QuickPlay(this, e);
 
-            await WaitForYoutube();
+            if(!await WaitForYoutube())
+            {
+                Toast.MakeText(this, "Error while loading.\nCheck your internet connection and check if your logged in.", ToastLength.Long).Show();
+                return;
+            }
 
             YoutubeClient client = new YoutubeClient();
             Video video = await client.GetVideoAsync(MusicPlayer.queue[MusicPlayer.CurrentID()].youtubeID);

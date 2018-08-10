@@ -28,17 +28,21 @@ namespace MusicApp.Resources.Portable_Class
         protected override ICursor RunInBackground(string[] query)
         {
             MatrixCursor cursor = new MatrixCursor(AutoCompleteNames);
-            using(WebClient client = new WebClient())
+            try
             {
-                string json = client.DownloadString("http://suggestqueries.google.com/complete/search?client=youtube&ds=yt&client=firefox&q=" + query[0]);
-                json = json.Substring(4 + query[0].Length);
-                json = json.Remove(json.Length - 1);
-                List<string> items = JsonConvert.DeserializeObject<List<string>>(json);
+                using (WebClient client = new WebClient())
+                {
+                    string json = client.DownloadString("http://suggestqueries.google.com/complete/search?client=youtube&ds=yt&client=firefox&q=" + query[0]);
+                    json = json.Substring(4 + query[0].Length);
+                    json = json.Remove(json.Length - 1);
+                    List<string> items = JsonConvert.DeserializeObject<List<string>>(json);
 
-                for (int i = 0; i < items.Count; i++)
-                    cursor.AddRow(new Object[] { i, items[i] });
+                    for (int i = 0; i < items.Count; i++)
+                        cursor.AddRow(new Object[] { i, items[i] });
 
+                }
             }
+            catch { }
             return cursor;
         }
 

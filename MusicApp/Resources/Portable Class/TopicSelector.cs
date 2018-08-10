@@ -1,7 +1,9 @@
 ﻿using Android.App;
 using Android.Content;
+using Android.Graphics;
 using Android.OS;
 using Android.Support.V7.Preferences;
+using Android.Views;
 using Android.Widget;
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
@@ -19,15 +21,24 @@ namespace MusicApp.Resources.Portable_Class
         public List<string> selectedTopicsID = new List<string>();
         private List<Song> channels = new List<Song>();
         private ChannelAdapter adapter;
+        private View emptyView;
 
 
         public async override void OnActivityCreated(Bundle savedInstanceState)
         {
             base.OnActivityCreated(savedInstanceState);
-            if(MainActivity.Theme == 0)
-                ListView.SetBackgroundColor(Android.Graphics.Color.White);
+            ListView.SetPadding(0, Preferences.instance.toolbar.Height, 0, 0);
 
-            await MainActivity.instance.WaitForYoutube();
+            if (!await MainActivity.instance.WaitForYoutube())
+            {
+                System.Console.WriteLine("&Youtube awaited");
+                ListAdapter = null;
+                emptyView = LayoutInflater.Inflate(Resource.Layout.EmptyYoutubeSearch, null);
+                ((TextView)emptyView).Text = "Error while loading.\nCheck your internet connection and check if your logged in.";
+                ((TextView)emptyView).SetTextColor(Color.Red);
+                Activity.AddContentView(emptyView, ListView.LayoutParameters);
+                return;
+            }
 
             if (instance == null)
                 return;
@@ -65,7 +76,6 @@ namespace MusicApp.Resources.Portable_Class
             List<string> topicList = channelList.ConvertAll(x => x.youtubeID);
             foreach (string channelID in selectedTopicsID.Except(topicList))
             {
-                System.Console.WriteLine("&Channel id: " + channelID);
                 YouTubeService youtube = YoutubeEngine.youtubeService;
 
                 ChannelsResource.ListRequest req = youtube.Channels.List("snippet");
@@ -96,12 +106,6 @@ namespace MusicApp.Resources.Portable_Class
             return instance;
         }
 
-        public override void OnDestroy()
-        {
-            base.OnDestroy();
-            instance = null;
-        }
-
         private void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
         {
             Song channel = channels[e.Position];
@@ -119,6 +123,17 @@ namespace MusicApp.Resources.Portable_Class
                 selectedTopics.RemoveAt(index);
                 selectedTopicsID.RemoveAt(index);
             }
+        }
+
+        public override void OnStop()
+        {
+            if (emptyView != null)
+            {
+                ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
+                rootView.RemoveView(emptyView);
+            }
+            base.OnStop();
+            Preferences.instance.toolbar.Title = "Settings";
         }
     }
 }

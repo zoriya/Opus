@@ -33,39 +33,26 @@ namespace MusicApp.Resources.Portable_Class
                 SetTheme(Resource.Style.DarkPreferences);
 
             instance = this;
-
-            FragmentManager.BeginTransaction().Replace(Android.Resource.Id.Content, new PreferencesFragment()).Commit();
-        }
-
-        protected override void OnDestroy()
-        {
-            base.OnDestroy();
-            instance = null;
-        }
-
-        protected override void OnPostCreate(Bundle savedInstanceState)
-        {
-            base.OnPostCreate(savedInstanceState);
             LinearLayout root = (LinearLayout)FindViewById(Android.Resource.Id.List).Parent.Parent.Parent;
             toolbar = (Toolbar)LayoutInflater.From(this).Inflate(Resource.Layout.PreferenceToolbar, root, false);
-            root.AddView(toolbar, 0);
+            AddContentView(toolbar, toolbar.LayoutParameters);
             toolbar.Title = "Settings";
-            toolbar.NavigationClick += (sender, e) => 
+            toolbar.NavigationClick += (sender, e) =>
             {
-                if(DownloadFragment.instance == null && TopicSelector.instance == null)
+                if (DownloadFragment.instance == null && TopicSelector.instance == null)
                     Finish();
                 else
                 {
-                    if(DownloadFragment.instance != null)
+                    if (DownloadFragment.instance != null)
                     {
                         ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(this);
                         ISharedPreferencesEditor editor = prefManager.Edit();
                         editor.PutString("downloadPath", DownloadFragment.instance.path);
                         editor.Apply();
                         DownloadFragment.instance = null;
-                        Recreate();
+                        FragmentManager.PopBackStack();
                     }
-                    else if(TopicSelector.instance != null)
+                    else if (TopicSelector.instance != null)
                     {
                         ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(this);
                         ISharedPreferencesEditor editor = prefManager.Edit();
@@ -77,10 +64,18 @@ namespace MusicApp.Resources.Portable_Class
                         editor.PutStringSet("selectedTopics", topics);
                         editor.Apply();
                         TopicSelector.instance = null;
-                        Recreate();
+                        FragmentManager.PopBackStack();
                     }
                 }
             };
+
+            FragmentManager.BeginTransaction().Replace(Android.Resource.Id.Content, new PreferencesFragment()).Commit();
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            instance = null;
         }
 
         protected override void OnActivityResult(int requestCode, [GeneratedEnum] Result resultCode, Intent data)
@@ -93,6 +88,10 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     MainActivity.account = result.SignInAccount;
                     PreferencesFragment.instance?.SignedIn();
+                }
+                else
+                {
+                    MainActivity.instance.waitingForYoutube = false;
                 }
             }
         }
@@ -209,7 +208,7 @@ namespace MusicApp.Resources.Portable_Class
         #region Topic Preference
         private void TopicPreference(object sender, Preference.PreferenceClickEventArgs e)
         {
-            FragmentManager.BeginTransaction().Replace(Android.Resource.Id.ListContainer, TopicSelector.NewInstance()).AddToBackStack(null).Commit();
+            FragmentManager.BeginTransaction().Replace(Android.Resource.Id.Content, TopicSelector.NewInstance()).AddToBackStack(null).Commit();
             instance = null;
             Preferences.instance.toolbar.Title = "Music Genres";
         }
@@ -218,7 +217,7 @@ namespace MusicApp.Resources.Portable_Class
         #region Download location
         private void DownloadClick(object sender, Preference.PreferenceClickEventArgs e)
         {
-            FragmentManager.BeginTransaction().Replace(Android.Resource.Id.ListContainer, DownloadFragment.NewInstance()).AddToBackStack(null).Commit();
+            FragmentManager.BeginTransaction().Replace(Android.Resource.Id.Content, DownloadFragment.NewInstance()).AddToBackStack(null).Commit();
             instance = null;
             Preferences.instance.toolbar.Title = "Download Location";
         }

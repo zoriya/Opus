@@ -130,7 +130,12 @@ namespace MusicApp.Resources.Portable_Class
             };
             adapter.SetYtPlaylists(ytPlaylists, false);
 
-            await MainActivity.instance.WaitForYoutube();
+            if (!await MainActivity.instance.WaitForYoutube())
+            {
+                ytPlaylists[1] = new Song("Error", null, null, null, -1, -1, null);
+                adapter.SetYtPlaylists(ytPlaylists, false);
+                return;
+            }
 
             YouTubeService youtube = YoutubeEngine.youtubeService;
 
@@ -153,8 +158,9 @@ namespace MusicApp.Resources.Portable_Class
                 ytPlaylists.Add(song);
             }
 
-            if(ytPlaylists.Count > 2)
-                ytPlaylists.RemoveAt(1);
+            ytPlaylists.RemoveAt(1);
+            Song loading = new Song("Loading", null, null, null, -1, -1, null);
+            ytPlaylists.Add(loading);
 
             adapter.SetYtPlaylists(ytPlaylists, false);
 
@@ -191,8 +197,7 @@ namespace MusicApp.Resources.Portable_Class
                 }
             }
 
-            if(ytPlaylists[1].youtubeID == null && ytPlaylists[1].GetName() == "Loading")
-                ytPlaylists.RemoveAt(1);
+            ytPlaylists.Remove(loading);
 
             if (ytPlaylists.Count == 1)
             {
@@ -356,7 +361,7 @@ namespace MusicApp.Resources.Portable_Class
                     }
                 });
             else
-                builder.SetItems(new string[] { "Play in order", "Random play", "Add To Queue", "Remove", "Download" }, (senderAlert, args) =>
+                builder.SetItems(new string[] { "Play in order", "Random play", "Add To Queue", "Unfork", "Download" }, (senderAlert, args) =>
                 {
                     switch (args.Which)
                     {
@@ -437,7 +442,14 @@ namespace MusicApp.Resources.Portable_Class
         public static async void PlayInOrder(string playlistID)
         {
             List<Song> songs = new List<Song>();
-            await MainActivity.instance.WaitForYoutube();
+
+            if(!await MainActivity.instance.WaitForYoutube())
+            {
+                Toast.MakeText(Android.App.Application.Context, "Error while loading.\nCheck your internet connection and check if your logged in.", ToastLength.Long).Show();
+                return;
+            }
+
+
             string nextPageToken = "";
             while (nextPageToken != null)
             {
@@ -544,7 +556,14 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             List<Song> songs = new List<Song>();
-            await MainActivity.instance.WaitForYoutube();
+
+            if(!await MainActivity.instance.WaitForYoutube())
+            {
+                Toast.MakeText(Android.App.Application.Context, "Error while loading.\nCheck your internet connection and check if your logged in.", ToastLength.Long).Show();
+                return;
+            }
+
+
             string nextPageToken = "";
             while (nextPageToken != null)
             {

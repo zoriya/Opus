@@ -97,10 +97,6 @@ namespace MusicApp.Resources.Portable_Class
                 EmptyCategoryHolder holder = (EmptyCategoryHolder)viewHolder;
                 holder.text.Text = playlistsName[1].Substring(8);
             }
-            else if(position - playlistsName.Count == 1 && ytPlaylists[1].GetName() == "Loading")
-            {
-                //Do nothing
-            }
             else if (position == playlistsName.Count + ytPlaylists.Count)
             {
                 ButtonHolder holder = (ButtonHolder)viewHolder;
@@ -120,6 +116,13 @@ namespace MusicApp.Resources.Portable_Class
                     holder.ItemView.SetPadding((int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f), listPadding);
                 else
                     holder.ItemView.SetPadding((int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f));
+            }
+            else if(position >= playlistsName.Count && ytPlaylists[position - playlistsName.Count].GetName() == "Loading" && ytPlaylists[position - playlistsName.Count].youtubeID == null) { }
+            else if(position - playlistsName.Count == 1 && ytPlaylists[1].GetName() == "Error" && ytPlaylists[1].youtubeID == null)
+            {
+                EmptyCategoryHolder holder = (EmptyCategoryHolder)viewHolder;
+                holder.text.Text = "Error while loading.\nCheck your internet connection and check if your logged in.";
+                holder.text.SetTextColor(Color.Red);
             }
             else if (playlistsName.Count >= position)
             {
@@ -237,16 +240,19 @@ namespace MusicApp.Resources.Portable_Class
 
         public override int GetItemViewType(int position)
         {
+            Console.WriteLine("&Pos: " + position + " PlaylistName.Count = " + playlistsName.Count);
             if (position == 0 || position - playlistsName.Count == 0)
                 return 0;
             else if (playlistsName.Count >= position && (playlistsName.Count > 2 || !playlistsName[1].StartsWith("EMPTY - ")))
                 return 1;
-            else if (position == playlistsName.Count + 1 && ytPlaylists[1].GetName() == "Loading" && ytPlaylists[1].youtubeID == null)
-                return 2;
-            else if (position > playlistsName.Count && position < playlistsName.Count + ytPlaylists.Count && (ytPlaylists.Count > 2 || ytPlaylists[1].GetName() != "EMPTY"))
-                return 3;
             else if (position == playlistsName.Count + ytPlaylists.Count)
                 return 4;
+            else if (position >= playlistsName.Count && ytPlaylists[position - playlistsName.Count].GetName() == "Loading" && ytPlaylists[position - playlistsName.Count].youtubeID == null)
+                return 2;
+            else if (position == playlistsName.Count + 1 && ytPlaylists[1].GetName() == "Error" && ytPlaylists[1].youtubeID == null)
+                return 5;
+            else if (position > playlistsName.Count && position < playlistsName.Count + ytPlaylists.Count && (ytPlaylists.Count > 2 || ytPlaylists[1].GetName() != "EMPTY"))
+                return 3;
             else
                 return 5;
         }

@@ -23,11 +23,11 @@ namespace MusicApp.Resources.Portable_Class
         {
             base.OnActivityCreated(savedInstanceState);
             folders = ListFolders();
+            ListView.SetPadding(0, Preferences.instance.toolbar.Height, 0, 0);
             adapter = new FolderAdapter(Application.Context, Resource.Layout.folderList, folders);
-            ListView.FastScrollEnabled = true;
-            ListView.SmoothScrollbarEnabled = true;
             ListView.Divider = null;
             ListView.ItemClick += ListView_ItemClick;
+            ListView.TextFilterEnabled = true;
             ListView.DividerHeight = 0;
             ListAdapter = adapter;
         }
@@ -188,6 +188,12 @@ namespace MusicApp.Resources.Portable_Class
             List<Folder> folderList = folders.OrderBy(x => x.name).ToList();
             folders = folderList;
             return folders;
+        }
+
+        public override void OnStop()
+        {
+            base.OnStop();
+            Preferences.instance.toolbar.Title = "Settings";
         }
     }
 }

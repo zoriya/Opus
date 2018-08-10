@@ -1,5 +1,6 @@
 ﻿using Android.Content;
 using Android.Database;
+using Android.Graphics;
 using Android.OS;
 using Android.Preferences;
 using Android.Provider;
@@ -27,6 +28,7 @@ namespace MusicApp.Resources.Portable_Class
         public static YoutubeEngine[] instances;
         public static YouTubeService youtubeService;
         public static string searchKeyWorld;
+        public static bool error = false;
         public string querryType;
         public bool focused = false;
         public RecyclerView ListView;
@@ -65,7 +67,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public void OnFocus()
         {
-            if (searching)
+            if (searching && !error)
             {
                 adapter = null;
                 ListView.SetAdapter(null);
@@ -128,7 +130,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public async Task Search(string search, string querryType, bool loadingBar)
         {
-            if (search == null || search == "")
+            if (search == null || search == "" || error)
                 return;
 
             searching = true;
@@ -144,7 +146,21 @@ namespace MusicApp.Resources.Portable_Class
                 Activity.AddContentView(loadingView, ListView.LayoutParameters);
             }
 
-            await MainActivity.instance.WaitForYoutube();
+            if(!await MainActivity.instance.WaitForYoutube())
+            {
+                error = true;
+                if (loadingBar && focused)
+                {
+                    ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
+                    rootView.RemoveView(loadingView);
+                }
+                ListView.SetAdapter(null);
+                emptyView = LayoutInflater.Inflate(Resource.Layout.EmptyYoutubeSearch, null);
+                ((TextView)emptyView).Text = "Error while loading.\nCheck your internet connection and check if your logged in.";
+                ((TextView)emptyView).SetTextColor(Color.Red);
+                Activity.AddContentView(emptyView, ListView.LayoutParameters);
+                return;
+            }
 
             SearchResource.ListRequest searchResult = youtubeService.Search.List("snippet");
             searchResult.Fields = "items(id/videoId,id/playlistId,id/channelId,id/kind,snippet/title,snippet/thumbnails/high/url,snippet/channelTitle)";
@@ -242,7 +258,7 @@ namespace MusicApp.Resources.Portable_Class
                         break;
                 }
 
-                Activity.AddContentView(loadingView, ListView.LayoutParameters);
+                Activity.AddContentView(emptyView, ListView.LayoutParameters);
             }
         }
 
@@ -542,7 +558,11 @@ namespace MusicApp.Resources.Portable_Class
 
         public static async void GetPlaylists(string videoID, Context context)
         {
-            await MainActivity.instance.WaitForYoutube();
+            if(!await MainActivity.instance.WaitForYoutube())
+            {
+                Toast.MakeText(context, "Error while loading.\nCheck your internet connection and check if your logged in.", ToastLength.Long).Show();
+                return;
+            }
 
             List<string> playList = new List<string>();
             List<string> playListId = new List<string>();

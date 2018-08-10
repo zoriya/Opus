@@ -130,8 +130,9 @@ namespace MusicApp.Resources.Portable_Class
                 selectedTopicsID.Add(topic.Substring(topic.IndexOf("/#-#/") + 5));
             }
 
-            await MainActivity.instance.WaitForYoutube();
-            Console.WriteLine("Youtube service here");
+            if (!await MainActivity.instance.WaitForYoutube())
+                return;
+
             if (instance == null)
                 return;
 

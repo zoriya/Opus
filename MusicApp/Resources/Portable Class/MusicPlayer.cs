@@ -451,10 +451,8 @@ namespace MusicApp.Resources.Portable_Class
             else
                 youtubeID = "local";
 
-            if (youtubeID != "local" && MainActivity.HasInternet())
+            if (youtubeID != "local" && MainActivity.HasInternet() && !await MainActivity.instance.WaitForYoutube())
             {
-                await MainActivity.instance.WaitForYoutube();
-
                 //if (number < 4)
                 //{
                 //    SearchResource.ListRequest searchResult = YoutubeEngine.youtubeService.Search.List("snippet");
