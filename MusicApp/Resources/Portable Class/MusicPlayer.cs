@@ -351,11 +351,12 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
-        void UpdateQueueSlots()
+        public void UpdateQueueSlots()
         {
             for (int i = 0; i < queue.Count; i++)
             {
                 queue[i].queueSlot = i;
+                queue[i].SetName(queue[i].GetName() + " " + i);
             }
         }
 
@@ -1045,18 +1046,6 @@ namespace MusicApp.Resources.Portable_Class
         private void SleepPause()
         {
             Stop();
-        }
-
-        public static void Swap(int fromPosition, int toPosition)
-        {
-            queue[fromPosition].queueSlot = fromPosition;
-            for(int i = 0; i < queue.Count; i++)
-            {
-                if (CurrentID() == queue[i].queueSlot)
-                    currentID = i;
-
-                queue[i].queueSlot = i;
-            }
         }
 
         public void OnAudioFocusChange(AudioFocus focusChange)

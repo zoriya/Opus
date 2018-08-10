@@ -216,7 +216,10 @@ namespace MusicApp.Resources.Portable_Class
 
         public void ItemMoveEnded(int fromPosition, int toPosition)
         {
-            MusicPlayer.Swap(fromPosition, toPosition);
+            if (MusicPlayer.CurrentID() == fromPosition)
+                MusicPlayer.currentID = toPosition;
+
+            MusicPlayer.instance.UpdateQueueSlots();
         }
 
         List<T> Swap<T>(List<T> list, int fromPosition, int toPosition)

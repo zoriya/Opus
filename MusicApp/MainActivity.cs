@@ -963,7 +963,7 @@ namespace MusicApp
                 prepared = true;
 
                 SwipeDismissBehavior behavior = new SwipeDismissBehavior();
-                behavior.SetSwipeDirection(SwipeDismissBehavior.S);
+                behavior.SetSwipeDirection(SwipeDismissBehavior.SwipeDirectionAny);
                 behavior.SetListener(this);
 
                 CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) smallPlayer.FindViewById<CardView>(Resource.Id.cardPlayer).LayoutParameters;
