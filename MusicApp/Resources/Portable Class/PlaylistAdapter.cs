@@ -97,6 +97,10 @@ namespace MusicApp.Resources.Portable_Class
                 EmptyCategoryHolder holder = (EmptyCategoryHolder)viewHolder;
                 holder.text.Text = playlistsName[1].Substring(8);
             }
+            else if(position - playlistsName.Count == 1 && ytPlaylists[1].GetName() == "Loading")
+            {
+                //Do nothing
+            }
             else if (position == playlistsName.Count + ytPlaylists.Count)
             {
                 ButtonHolder holder = (ButtonHolder)viewHolder;
@@ -211,10 +215,15 @@ namespace MusicApp.Resources.Portable_Class
             }
             else if(viewType == 2)
             {
+                View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.smallLoading, parent, false);
+                return new UslessHolder(itemView);
+            }
+            else if(viewType == 3)
+            {
                 View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.SongList, parent, false);
                 return new RecyclerHolder(itemView, OnClick, OnLongClick);
             }
-            else if (viewType == 3)
+            else if (viewType == 4)
             {
                 View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.BorderlessButton, parent, false);
                 return new ButtonHolder(itemView, OnClick);
@@ -232,12 +241,14 @@ namespace MusicApp.Resources.Portable_Class
                 return 0;
             else if (playlistsName.Count >= position && (playlistsName.Count > 2 || !playlistsName[1].StartsWith("EMPTY - ")))
                 return 1;
-            else if(position > playlistsName.Count && position < playlistsName.Count + ytPlaylists.Count && (ytPlaylists.Count > 2 || ytPlaylists[1].GetName() != "EMPTY")) 
+            else if (position == playlistsName.Count + 1 && ytPlaylists[1].GetName() == "Loading" && ytPlaylists[1].youtubeID == null)
                 return 2;
-            else if (position == playlistsName.Count + ytPlaylists.Count)
+            else if (position > playlistsName.Count && position < playlistsName.Count + ytPlaylists.Count && (ytPlaylists.Count > 2 || ytPlaylists[1].GetName() != "EMPTY"))
                 return 3;
-            else 
+            else if (position == playlistsName.Count + ytPlaylists.Count)
                 return 4;
+            else
+                return 5;
         }
 
         void OnClick(int position)

@@ -401,7 +401,7 @@ namespace MusicApp
             var filterView = item.ActionView.JavaCast<SearchView>();
             filterView.QueryTextChange += Search;
             var searchView = menu.FindItem(Resource.Id.search).ActionView.JavaCast<SearchView>();
-            searchView.SuggestionsAdapter = new Android.Support.V4.Widget.SimpleCursorAdapter(this, Android.Resource.Layout.TestListItem, null, new string[] { SearchManager.SuggestColumnText1 }, new int[] { Android.Resource.Id.Text1 });
+            searchView.SuggestionsAdapter = new Android.Support.V4.Widget.SimpleCursorAdapter(this, Resource.Layout.SuggestionLayout, null, new string[] { SearchManager.SuggestColumnText1 }, new int[] { Android.Resource.Id.Text1 });
             searchView.SuggestionClick += (s, e) =>
             {
                 ICursor cursor = (ICursor)searchView.SuggestionsAdapter.GetItem(e.Position);

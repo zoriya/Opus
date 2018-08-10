@@ -356,7 +356,6 @@ namespace MusicApp.Resources.Portable_Class
             for (int i = 0; i < queue.Count; i++)
             {
                 queue[i].queueSlot = i;
-                queue[i].SetName(queue[i].GetName() + " " + i);
             }
         }
 

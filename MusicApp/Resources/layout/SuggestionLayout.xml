@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<RelativeLayout 
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="46dip" >
+  <ImageView
+    android:id="@android:id/icon1"
+    android:layout_width="@dimen/abc_dropdownitem_icon_width"
+    android:layout_height="40dip"
+    android:scaleType="centerInside"
+    android:layout_alignParentTop="true"
+    android:layout_alignParentBottom="true"
+    android:src="@drawable/search"
+    android:tint="#000"
+    style="@style/RtlOverlay.Widget.AppCompat.Search.DropDown.Icon1" />
+  <!--<ImageView
+    android:id="@+id/edit_query"
+    android:layout_width="48dip"
+    android:layout_height="48dip"
+    android:scaleType="centerInside"
+    android:layout_alignParentTop="true"
+    android:layout_alignParentBottom="true"
+    android:background="?attr/selectableItemBackground"
+    style="@style/RtlOverlay.Widget.AppCompat.Search.DropDown.Query" />-->
+  <TextView 
+    android:id="@android:id/text1"
+    style="?android:attr/dropDownItemStyle"
+    android:singleLine="true"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_centerVertical="true" />
+</RelativeLayout>

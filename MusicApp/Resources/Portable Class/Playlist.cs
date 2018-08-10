@@ -123,6 +123,13 @@ namespace MusicApp.Resources.Portable_Class
             ListView.ScrollChange += MainActivity.instance.Scroll;
 
             //Youtube playlists
+            ytPlaylists = new List<Song>
+            {
+                new Song("Header", null, null, null, -1, -1, null),
+                new Song("Loading", null, null, null, -1, -1, null)
+            };
+            adapter.SetYtPlaylists(ytPlaylists, false);
+
             await MainActivity.instance.WaitForYoutube();
 
             YouTubeService youtube = YoutubeEngine.youtubeService;
@@ -138,11 +145,6 @@ namespace MusicApp.Resources.Portable_Class
             if (instance == null)
                 return;
 
-            ytPlaylists = new List<Song>
-            {
-                new Song("Header", null, null, null, -1, -1, null)
-            };
-
             for (int i = 0; i < response.Items.Count; i++)
             {
                 Google.Apis.YouTube.v3.Data.Playlist playlist = response.Items[i];
@@ -150,6 +152,9 @@ namespace MusicApp.Resources.Portable_Class
                 Song song = new Song(playlist.Snippet.Title, playlist.Snippet.ChannelTitle, playlist.Snippet.Thumbnails.High.Url, playlist.Id, -1, -1, playlist.Id, true, true, (int)playlist.ContentDetails.ItemCount);
                 ytPlaylists.Add(song);
             }
+
+            if(ytPlaylists.Count > 2)
+                ytPlaylists.RemoveAt(1);
 
             adapter.SetYtPlaylists(ytPlaylists, false);
 
@@ -160,7 +165,6 @@ namespace MusicApp.Resources.Portable_Class
             if (instance == null)
                 return;
 
-            bool forkedFound = false;
             foreach (ChannelSection section in forkedResponse.Items)
             {
                 if(section.Snippet.Title == "Saved Playlists")
@@ -183,20 +187,19 @@ namespace MusicApp.Resources.Portable_Class
                         YtPlaylists.Add(playlist);
                         Song song = new Song(playlist.Snippet.Title, playlist.Snippet.ChannelTitle, playlist.Snippet.Thumbnails.High.Url, playlist.Id, -1, -1, playlist.Id, true, false, (int)playlist.ContentDetails.ItemCount);
                         ytPlaylists.Add(song);
-                        forkedFound = true;
                     }
                 }
             }
+
+            if(ytPlaylists[1].youtubeID == null && ytPlaylists[1].GetName() == "Loading")
+                ytPlaylists.RemoveAt(1);
 
             if (ytPlaylists.Count == 1)
             {
                 ytPlaylists.Add(new Song("EMPTY", "You don't have any youtube playlist on your account. \nWarning: Only playlist from your google account are displayed", null, null, -1, -1, null));
             }
 
-            if (forkedFound)
-                adapter.SetYtPlaylists(ytPlaylists, true);
-            else
-                adapter.SetYtPlaylists(ytPlaylists, true);
+            adapter.SetYtPlaylists(ytPlaylists, true);
         }
 
         public static Fragment NewInstance()

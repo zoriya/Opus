@@ -4438,34 +4438,40 @@ namespace MusicApp
 			public const int select_dialog_singlechoice_material = 2130903150;
 			
 			// aapt resource value: 0x7f03006f
-			public const int SmallPlayer = 2130903151;
+			public const int smallLoading = 2130903151;
 			
 			// aapt resource value: 0x7f030070
-			public const int SongList = 2130903152;
+			public const int SmallPlayer = 2130903152;
 			
 			// aapt resource value: 0x7f030071
-			public const int SquareSong = 2130903153;
+			public const int SongList = 2130903153;
 			
 			// aapt resource value: 0x7f030072
-			public const int support_simple_spinner_dropdown_item = 2130903154;
+			public const int SquareSong = 2130903154;
 			
 			// aapt resource value: 0x7f030073
-			public const int tabs = 2130903155;
+			public const int SuggestionLayout = 2130903155;
 			
 			// aapt resource value: 0x7f030074
-			public const int TimerLayout = 2130903156;
+			public const int support_simple_spinner_dropdown_item = 2130903156;
 			
 			// aapt resource value: 0x7f030075
-			public const int tooltip = 2130903157;
+			public const int tabs = 2130903157;
 			
 			// aapt resource value: 0x7f030076
-			public const int TwoLineLayout = 2130903158;
+			public const int TimerLayout = 2130903158;
 			
 			// aapt resource value: 0x7f030077
-			public const int ViewPager = 2130903159;
+			public const int tooltip = 2130903159;
 			
 			// aapt resource value: 0x7f030078
-			public const int YtList = 2130903160;
+			public const int TwoLineLayout = 2130903160;
+			
+			// aapt resource value: 0x7f030079
+			public const int ViewPager = 2130903161;
+			
+			// aapt resource value: 0x7f03007a
+			public const int YtList = 2130903162;
 			
 			static Layout()
 			{
@@ -4824,11 +4830,11 @@ namespace MusicApp
 			// aapt resource value: 0x7f0b0170
 			public const int Animation_Design_BottomSheetDialog = 2131427696;
 			
-			// aapt resource value: 0x7f0b019f
-			public const int AppCompatAlertDialogStyle = 2131427743;
-			
 			// aapt resource value: 0x7f0b01a0
-			public const int AppCompatDarkAlertDialogStyle = 2131427744;
+			public const int AppCompatAlertDialogStyle = 2131427744;
+			
+			// aapt resource value: 0x7f0b01a1
+			public const int AppCompatDarkAlertDialogStyle = 2131427745;
 			
 			// aapt resource value: 0x7f0b00ab
 			public const int Base_AlertDialog_AppCompat = 2131427499;
@@ -5334,8 +5340,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f0b019e
 			public const int DarkPopup = 2131427742;
 			
-			// aapt resource value: 0x7f0b01a1
-			public const int DarkPreferences = 2131427745;
+			// aapt resource value: 0x7f0b01a2
+			public const int DarkPreferences = 2131427746;
 			
 			// aapt resource value: 0x7f0b019d
 			public const int DarkTheme = 2131427741;
@@ -5363,6 +5369,9 @@ namespace MusicApp
 			
 			// aapt resource value: 0x7f0b0198
 			public const int ExoMediaButton_Shuffle = 2131427736;
+			
+			// aapt resource value: 0x7f0b019f
+			public const int LightDropDown = 2131427743;
 			
 			// aapt resource value: 0x7f0b002f
 			public const int Platform_AppCompat = 2131427375;
