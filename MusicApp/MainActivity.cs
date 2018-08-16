@@ -28,6 +28,7 @@ using Google.Apis.YouTube.v3;
 using MusicApp.Resources.Fragments;
 using MusicApp.Resources.Portable_Class;
 using MusicApp.Resources.values;
+using Newtonsoft.Json.Linq;
 using Square.OkHttp;
 using Square.Picasso;
 using System;
@@ -207,15 +208,15 @@ namespace MusicApp
             if(googleClient == null)
             {
                 GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DefaultSignIn)
-                        .RequestIdToken("112086459272-59scolco82ho7d6hcieq8kmdjai2i2qd.apps.googleusercontent.com")
-                        .RequestServerAuthCode("112086459272-59scolco82ho7d6hcieq8kmdjai2i2qd.apps.googleusercontent.com")
-                        .RequestEmail()
-                        .RequestScopes(new Scope(YouTubeService.Scope.Youtube))
-                        .Build();
+                    .RequestIdToken("112086459272-59scolco82ho7d6hcieq8kmdjai2i2qd.apps.googleusercontent.com")
+                    .RequestServerAuthCode("112086459272-59scolco82ho7d6hcieq8kmdjai2i2qd.apps.googleusercontent.com")
+                    .RequestEmail()
+                    .RequestScopes(new Scope(YouTubeService.Scope.Youtube))
+                    .Build();
 
                 googleClient = new GoogleApiClient.Builder(this)
-                        .AddApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                        .Build();
+                    .AddApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                    .Build();
 
                 googleClient.Connect();
             }
@@ -240,11 +241,7 @@ namespace MusicApp
                 else if (canAsk)
                 {
                     ResumeKiller = true;
-
-                    //if (Preferences.instance != null)
-                    //Preferences.instance.StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);
-                    //else
-                        StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);
+                    StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);
                 }
 
                 return;
@@ -252,10 +249,7 @@ namespace MusicApp
             if (canAsk)
             {
                 ResumeKiller = true;
-                //if (Preferences.instance != null)
-                //Preferences.instance.StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);
-                //else
-                    StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);
+                StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);
             }
         }
 
@@ -265,6 +259,7 @@ namespace MusicApp
             if(requestCode == 1598)
             {
                 GoogleSignInResult result = Auth.GoogleSignInApi.GetSignInResultFromIntent(data);
+                Console.WriteLine("&Result: " + result.IsSuccess);
                 if (result.IsSuccess)
                 {
                     account = result.SignInAccount;
@@ -318,13 +313,8 @@ namespace MusicApp
             if (jsonFile.Contains("error"))
                 return;
 
-            string access = jsonFile.Substring(jsonFile.IndexOf("\"access_token\": ", 0), jsonFile.IndexOf("\"token_type\": ", 0) - jsonFile.IndexOf("\"access_token\": ", 0));
-            Console.WriteLine(access);
-            string AccessToken = access.Substring(17, access.Length - 21);
-            Console.WriteLine(AccessToken);
-
-            GoogleCredential credential = GoogleCredential.FromAccessToken(AccessToken);
-            Console.WriteLine("&Credential: " + credential);
+            JToken json = JObject.Parse(jsonFile);
+            GoogleCredential credential = GoogleCredential.FromAccessToken((string)json.SelectToken("access_token"));
             YoutubeEngine.youtubeService = new YouTubeService(new BaseClientService.Initializer()
             {
                 HttpClientInitializer = credential,

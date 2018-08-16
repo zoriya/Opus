@@ -31,8 +31,8 @@ public class SeekbarPreference : Preference
         seekbar.SetNumericTransformer(new PercentTransform());
         seekbar.ProgressChanged += (sender, e) =>
         {
-            bool FromUser = e.P2;
-            int Progress = e.P1;
+            bool FromUser = e.FromUser;
+            int Progress = e.Value;
 
             ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
             ISharedPreferencesEditor editor = pref.Edit();

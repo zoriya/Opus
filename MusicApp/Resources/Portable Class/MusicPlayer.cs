@@ -735,8 +735,8 @@ namespace MusicApp.Resources.Portable_Class
             bar.Progress = (int) player.CurrentPosition;
             bar.ProgressChanged += (sender, e) =>
             {
-                bool FromUser = e.P2;
-                int Progress = e.P1;
+                bool FromUser = e.FromUser;
+                int Progress = e.Value;
 
                 if (player != null && FromUser)
                     player.SeekTo(Progress);
