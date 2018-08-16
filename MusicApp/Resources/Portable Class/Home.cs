@@ -344,23 +344,31 @@ namespace MusicApp.Resources.Portable_Class
             string nextPageToken = "";
             while (nextPageToken != null)
             {
-                YouTubeService youtube = YoutubeEngine.youtubeService;
-                SubscriptionsResource.ListRequest request = youtube.Subscriptions.List("snippet,contentDetails");
-                request.ChannelId = "UCh3mHcmSMffgVxFniKQrpug";
-                request.MaxResults = 50;
-                request.PageToken = nextPageToken;
-
-                SubscriptionListResponse response = await request.ExecuteAsync();
-
-                foreach (var item in response.Items)
+                try
                 {
-                    Song channel = new Song(item.Snippet.Title.Substring(0, item.Snippet.Title.IndexOf(" - Topic")), item.Snippet.Description, item.Snippet.Thumbnails.Default__.Url, item.Snippet.ResourceId.ChannelId, -1, -1, null, true);
-                    channelLits.Add(channel);
+                    YouTubeService youtube = YoutubeEngine.youtubeService;
+                    SubscriptionsResource.ListRequest request = youtube.Subscriptions.List("snippet,contentDetails");
+                    request.ChannelId = "UCh3mHcmSMffgVxFniKQrpug";
+                    request.MaxResults = 50;
+                    request.PageToken = nextPageToken;
+
+                    SubscriptionListResponse response = await request.ExecuteAsync();
+
+                    foreach (var item in response.Items)
+                    {
+                        Song channel = new Song(item.Snippet.Title.Substring(0, item.Snippet.Title.IndexOf(" - Topic")), item.Snippet.Description, item.Snippet.Thumbnails.Default__.Url, item.Snippet.ResourceId.ChannelId, -1, -1, null, true);
+                        channelLits.Add(channel);
+                    }
+
+                    Console.WriteLine("Page loaded");
+
+                    nextPageToken = response.NextPageToken;
                 }
-
-                Console.WriteLine("Page loaded");
-
-                nextPageToken = response.NextPageToken;
+                catch(Exception ex)
+                {
+                    Console.WriteLine("&ERROR FOUND (on home topics load) " + ex.Message);
+                    return;
+                }
             }
 
             Console.WriteLine("Add channels are loaded");

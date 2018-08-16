@@ -3460,6 +3460,9 @@ namespace MusicApp
 			// aapt resource value: 0x7f0a0073
 			public const int forever = 2131361907;
 			
+			// aapt resource value: 0x7f0a0142
+			public const int fork = 2131362114;
+			
 			// aapt resource value: 0x7f0a000a
 			public const int ghost_view = 2131361802;
 			
@@ -4508,7 +4511,10 @@ namespace MusicApp
 			public const int ytplaylist_header_more = 2131558406;
 			
 			// aapt resource value: 0x7f0d0007
-			public const int ytplaylistnowrite_header_more = 2131558407;
+			public const int ytplaylist_nowrite_nofork_header_more = 2131558407;
+			
+			// aapt resource value: 0x7f0d0008
+			public const int ytplaylistnowrite_header_more = 2131558408;
 			
 			static Menu()
 			{

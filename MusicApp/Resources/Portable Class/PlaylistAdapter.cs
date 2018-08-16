@@ -97,6 +97,11 @@ namespace MusicApp.Resources.Portable_Class
                 EmptyCategoryHolder holder = (EmptyCategoryHolder)viewHolder;
                 holder.text.Text = playlistsName[1].Substring(8);
             }
+            else if (position - playlistsName.Count == 1 && ytPlaylists[1].GetName() == "EMPTY")
+            {
+                EmptyCategoryHolder holder = (EmptyCategoryHolder)viewHolder;
+                holder.text.Text = ytPlaylists[1].GetArtist();
+            }
             else if (position == playlistsName.Count + ytPlaylists.Count)
             {
                 ButtonHolder holder = (ButtonHolder)viewHolder;
@@ -240,7 +245,6 @@ namespace MusicApp.Resources.Portable_Class
 
         public override int GetItemViewType(int position)
         {
-            Console.WriteLine("&Pos: " + position + " PlaylistName.Count = " + playlistsName.Count);
             if (position == 0 || position - playlistsName.Count == 0)
                 return 0;
             else if (playlistsName.Count >= position && (playlistsName.Count > 2 || !playlistsName[1].StartsWith("EMPTY - ")))

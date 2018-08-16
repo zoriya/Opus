@@ -242,7 +242,6 @@ namespace MusicApp
                     ResumeKiller = true;
 
                     //if (Preferences.instance != null)
-                        Console.WriteLine("&Pref 1");
                     //Preferences.instance.StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);
                     //else
                         StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);
@@ -254,7 +253,6 @@ namespace MusicApp
             {
                 ResumeKiller = true;
                 //if (Preferences.instance != null)
-                    Console.WriteLine("&Pref 2");
                 //Preferences.instance.StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);
                 //else
                     StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);

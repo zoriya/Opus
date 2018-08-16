@@ -95,29 +95,7 @@ namespace MusicApp.Resources.Portable_Class
                     holder.more.Click += (sender, e) =>
                     {
                         int tagPosition = (int)((ImageView)sender).Tag;
-                        Song playlist = items[tagPosition].item;
-                        
-                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme);
-                        builder.SetTitle("Pick an action");
-                        builder.SetItems(new string[] { "Random play", "Save To Youtube", "Download" }, (senderAlert, args) =>
-                        {
-                            switch (args.Which)
-                            {
-                                case 0:
-                                    YoutubeEngine.RandomPlay(playlist.GetPath());
-                                    break;
-                                case 1:
-                                #pragma warning disable CS4014
-                                    YoutubeEngine.ForkPlaylist(playlist.GetPath());
-                                    break;
-                                case 2:
-                                    YoutubeEngine.DownloadPlaylist(playlist.GetName(), playlist.GetPath());
-                                    break;
-                                default:
-                                    break;
-                            }
-                        });
-                        builder.Show();
+                        YoutubeEngine.instances[0].PlaylistMore(items[tagPosition].item);
                     };
                 }
 

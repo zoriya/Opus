@@ -34,6 +34,7 @@ namespace MusicApp.Resources.Portable_Class
         private int count;
         private Uri thumnailURI;
         private bool hasWriteAcess;
+        private bool forked;
         private string nextPageToken = null;
         public bool isEmpty = false;
         public bool lastVisible = false;
@@ -79,8 +80,10 @@ namespace MusicApp.Resources.Portable_Class
                     PopupMenu menu = new PopupMenu(Activity, Activity.FindViewById<ImageButton>(Resource.Id.headerMore));
                     if (playlistId == 0 && hasWriteAcess)
                         menu.Inflate(Resource.Menu.ytplaylist_header_more);
-                    else if (playlistId == 0)
+                    else if (playlistId == 0 && forked)
                         menu.Inflate(Resource.Menu.ytplaylistnowrite_header_more);
+                    else if (playlistId == 0)
+                        menu.Inflate(Resource.Menu.ytplaylist_nowrite_nofork_header_more);
                     else
                         menu.Inflate(Resource.Menu.playlist_header_more);
                     menu.SetOnMenuItemClickListener(this);
@@ -155,6 +158,10 @@ namespace MusicApp.Resources.Portable_Class
             {
                 case Resource.Id.download:
                     YoutubeEngine.DownloadPlaylist(playlistName, ytID);
+                    break;
+
+                case Resource.Id.fork:
+                    YoutubeEngine.ForkPlaylist(ytID);
                     break;
 
                 case Resource.Id.addToQueue:
@@ -337,11 +344,12 @@ namespace MusicApp.Resources.Portable_Class
             return instance;
         }
 
-        public static Fragment NewInstance(string ytID, string playlistName, bool hasWriteAcess, string author, int count, string thumbnailURI)
+        public static Fragment NewInstance(string ytID, string playlistName, bool hasWriteAcess, bool forked, string author, int count, string thumbnailURI)
         {
             instance = new PlaylistTracks { Arguments = new Bundle() };
             instance.ytID = ytID;
             instance.hasWriteAcess = hasWriteAcess;
+            instance.forked = forked;
             instance.playlistName = playlistName;
             instance.author = author;
             instance.count = count;

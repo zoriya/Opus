@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+  <item
+    android:id="@+id/download"
+    android:title="Download" />
+  <item
+    android:id="@+id/fork"
+    android:title="Fork Playlist" />
+  <item
+    android:id="@+id/addToQueue"
+    android:title="Add To Queue" />
+  <item
+    android:id="@+id/delete"
+    android:title="Delete" />
+</menu>

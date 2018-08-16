@@ -290,7 +290,7 @@ namespace MusicApp.Resources.Portable_Class
                     instances = null;
                     MainActivity.youtubeParcel = ListView.GetLayoutManager().OnSaveInstanceState();
                     MainActivity.youtubeInstanceSave = "YoutubeEngine" + "-" + querryType;
-                    MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(item.youtubeID, item.GetName(), false, item.GetArtist(), -1, item.GetAlbum()), true);
+                    MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(item.youtubeID, item.GetName(), false, false, item.GetArtist(), -1, item.GetAlbum()), true);
                     break;
                 default:
                     break;
@@ -303,6 +303,11 @@ namespace MusicApp.Resources.Portable_Class
             {
                 Song item = result[position].item;
                 More(item);
+            }
+            else if(result[position].Kind == YtKind.Playlist)
+            {
+                Song item = result[position].item;
+                PlaylistMore(item);
             }
         }
 
@@ -328,6 +333,31 @@ namespace MusicApp.Resources.Portable_Class
                         break;
                     case 4:
                         Download(item.GetName(), item.youtubeID);
+                        break;
+                    default:
+                        break;
+                }
+            });
+            builder.Show();
+        }
+
+        public void PlaylistMore(Song playlist)
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme);
+            builder.SetTitle("Pick an action");
+            builder.SetItems(new string[] { "Random play", "Fork playlist", "Download" }, (senderAlert, args) =>
+            {
+                switch (args.Which)
+                {
+                    case 0:
+                        RandomPlay(playlist.GetPath());
+                        break;
+                    case 1:
+#pragma warning disable CS4014
+                        ForkPlaylist(playlist.GetPath());
+                        break;
+                    case 2:
+                        DownloadPlaylist(playlist.GetName(), playlist.GetPath());
                         break;
                     default:
                         break;
@@ -666,6 +696,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 if (section.Snippet.Title == "Saved Playlists")
                 {
+                    Console.WriteLine("&Section found");
                     //AddToSection
                     if (section.ContentDetails.Playlists.Contains(playlistID))
                     {

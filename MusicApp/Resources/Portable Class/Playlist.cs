@@ -269,7 +269,13 @@ namespace MusicApp.Resources.Portable_Class
                                 ytPlaylists.Add(song);
                             }
                         }
-                        adapter.NotifyItemInserted(playList.Count + ytPlaylists.Count);
+                        if(ytPlaylists.Count == 3 && ytPlaylists[1].GetName() == "EMPTY")
+                        {
+                            ytPlaylists.RemoveAt(1);
+                            adapter.NotifyItemChanged(playList.Count + ytPlaylists.Count - 1);
+                        }
+                        else
+                            adapter.NotifyItemInserted(playList.Count + ytPlaylists.Count);
                     })
                     .Show();
                 return;
@@ -292,7 +298,7 @@ namespace MusicApp.Resources.Portable_Class
             if (local)
                 MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.GetID(), playlist.GetName()), true);
             else
-                MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.youtubeID, playlist.GetName(), playlist.isParsed, playlist.GetArtist(), playlist.queueSlot, playlist.GetAlbum()), true);
+                MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.youtubeID, playlist.GetName(), playlist.isParsed, true, playlist.GetArtist(), playlist.queueSlot, playlist.GetAlbum()), true);
         }
 
         private void ListView_ItemLongClick(object sender, int position)
@@ -690,9 +696,17 @@ namespace MusicApp.Resources.Portable_Class
             {
                 if (section.Snippet.Title == "Saved Playlists")
                 {
-                    section.ContentDetails.Playlists.Remove(playlistID);
-                    ChannelSectionsResource.UpdateRequest request = YoutubeEngine.youtubeService.ChannelSections.Update(section, "snippet,contentDetails");
-                    ChannelSection response = await request.ExecuteAsync();
+                    if(section.ContentDetails.Playlists.Count > 1)
+                    {
+                        section.ContentDetails.Playlists.Remove(playlistID);
+                        ChannelSectionsResource.UpdateRequest request = YoutubeEngine.youtubeService.ChannelSections.Update(section, "snippet,contentDetails");
+                        ChannelSection response = await request.ExecuteAsync();
+                    }
+                    else
+                    {
+                        ChannelSectionsResource.DeleteRequest delete = YoutubeEngine.youtubeService.ChannelSections.Delete(section.Id);
+                        await delete.ExecuteAsync();
+                    }
                 }
             }
 
