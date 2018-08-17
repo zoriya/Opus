@@ -328,7 +328,7 @@ namespace MusicApp.Resources.Portable_Class
             if (progress != -1)
             {
                 player.SeekTo(progress);
-                Player.instance.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
+                Player.instance?.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
             }
 
             SaveQueueSlot();
@@ -774,7 +774,7 @@ namespace MusicApp.Resources.Portable_Class
                 db.DropTable<Song>();
                 db.CreateTable<Song>();
             }
-
+            
             foreach (Song item in queue)
             {
                 db.InsertOrReplace(item);
@@ -1096,7 +1096,7 @@ namespace MusicApp.Resources.Portable_Class
             currentID = -1;
             progress = 0;
             MainActivity.instance.HideSmallPlayer();
-            Player.instance?.Stoped();
+            //Player.instance?.Stoped();
             if (player != null)
             {
                 if (isRunning)

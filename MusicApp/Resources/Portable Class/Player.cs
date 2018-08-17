@@ -8,7 +8,6 @@ using Android.OS;
 using Android.Support.Design.Widget;
 using Android.Support.V7.App;
 using Android.Support.V7.Graphics;
-using Android.Util;
 using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
@@ -45,6 +44,11 @@ namespace MusicApp.Resources.Portable_Class
             instance = this;
 
             CreatePlayer();
+
+            if(Intent.Action == "Sleep")
+            {
+                SleepButton_Click("", null);
+            }
         }
 
         protected override void OnDestroy()
@@ -159,10 +163,9 @@ namespace MusicApp.Resources.Portable_Class
                 smallQueue.ImageTintList = ColorStateList.ValueOf(Color.Argb(255, 0, 0, 0));
             }
 
-            DisplayMetrics displayMetrics = new DisplayMetrics();
-            WindowManager.DefaultDisplay.GetMetrics(displayMetrics);
-            if(displayMetrics.HeightPixels < displayMetrics.WidthPixels + FindViewById<LinearLayout>(Resource.Id.infoPanel).Height + FindViewById<RelativeLayout>(Resource.Id.nextSong).Height + ShowQueue.Height)
+            if(ShowQueue.Height < 100)
             {
+                Console.WriteLine("&Small Queue");
                 smallQueue.Visibility = ViewStates.Visible;
                 ShowQueue.Visibility = ViewStates.Gone;
             }
@@ -481,7 +484,6 @@ namespace MusicApp.Resources.Portable_Class
 
         void Sleep(int time)
         {
-            Console.WriteLine("&Going to sleep in " + time + ", slected item is the " + checkedItem + " one.");
             Intent intent = new Intent(this, typeof(Sleeper));
             intent.PutExtra("time", time);
             StartService(intent);
