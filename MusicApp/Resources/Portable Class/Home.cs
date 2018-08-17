@@ -285,10 +285,10 @@ namespace MusicApp.Resources.Portable_Class
                                 {
                                     for (int j = 0; j < adapter.items[i].contentValue.Count; j++)
                                     {
-                                        if (section.contentValue.Exists(x => x.GetName().Contains(adapter.items[i].contentValue[j].GetName())))
+                                        if (section.contentValue.Exists(x => x.Name.Contains(adapter.items[i].contentValue[j].Name)))
                                         {
-                                            adapter.items[i].contentValue[j].SetArtist(section.contentValue.Find(x => x.GetName().Contains(adapter.items[i].contentValue[j].GetName())).youtubeID);
-                                            removedValues.Add(section.contentValue.Find(x => x.GetName().Contains(adapter.items[i].contentValue[j].GetName())));
+                                            adapter.items[i].contentValue[j].Artist = section.contentValue.Find(x => x.Name.Contains(adapter.items[i].contentValue[j].Name)).youtubeID;
+                                            removedValues.Add(section.contentValue.Find(x => x.Name.Contains(adapter.items[i].contentValue[j].Name)));
                                             if (j < 4 && adapter.items[i].recycler != null)
                                             {
                                                 RecyclerHolder holder = (RecyclerHolder)adapter.items[i].recycler.GetChildViewHolder(adapter.items[i].recycler.GetLayoutManager().FindViewByPosition(j));
@@ -317,9 +317,9 @@ namespace MusicApp.Resources.Portable_Class
                     {
                         for (int j = 0; j < adapter.items[i].contentValue.Count; j++)
                         {
-                            if(adapter.items[i].contentValue[j].GetArtist() == null)
+                            if(adapter.items[i].contentValue[j].Artist == null)
                             {
-                                adapter.items[i].contentValue[j].SetArtist("Follow");
+                                adapter.items[i].contentValue[j].Artist = "Follow";
                                 if (j < 4 && adapter.items[i].recycler != null)
                                 {
                                     RecyclerHolder holder = (RecyclerHolder)adapter.items[i].recycler.GetChildViewHolder(adapter.items[i].recycler.GetLayoutManager().FindViewByPosition(j));
@@ -375,7 +375,7 @@ namespace MusicApp.Resources.Portable_Class
 
             Random r = new Random();
             List<Song> channels = channelLits.OrderBy(x => r.Next()).ToList();
-            channels.RemoveAll(x => selectedTopics.Contains(x.GetName()));
+            channels.RemoveAll(x => selectedTopics.Contains(x.Name));
 
             HomeSection TopicSelector = new HomeSection("Music Genres", SectionType.TopicSelector, channels);
             adapter.AddToList(new List<HomeSection> { TopicSelector });

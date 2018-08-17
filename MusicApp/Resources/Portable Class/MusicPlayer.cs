@@ -11,6 +11,7 @@ using Android.Support.V4.Content;
 using Android.Support.V4.Media.Session;
 using Android.Support.V7.Preferences;
 using Android.Support.V7.Widget;
+using Android.Util;
 using Android.Views;
 using Android.Widget;
 using Com.Google.Android.Exoplayer2;
@@ -18,9 +19,9 @@ using Com.Google.Android.Exoplayer2.Extractor;
 using Com.Google.Android.Exoplayer2.Source;
 using Com.Google.Android.Exoplayer2.Trackselection;
 using Com.Google.Android.Exoplayer2.Upstream;
-using Google.Apis.YouTube.v3;
 using MusicApp.Resources.values;
 using Org.Adw.Library.Widgets.Discreteseekbar;
+using SQLite;
 using Square.Picasso;
 using System;
 using System.Collections.Generic;
@@ -231,7 +232,7 @@ namespace MusicApp.Resources.Portable_Class
             isRunning = true;
             player.PlayWhenReady = true;
 
-            CreateNotification(song.GetName(), song.GetArtist(), song.GetAlbumArt(), song.GetAlbum());
+            CreateNotification(song.Name, song.Artist, song.AlbumArt, song.Album);
 
             if (addToQueue)
             {
@@ -267,7 +268,7 @@ namespace MusicApp.Resources.Portable_Class
             DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(Application.Context, "MusicApp");
             IExtractorsFactory extractorFactory = new DefaultExtractorsFactory();
             Handler handler = new Handler();
-            IMediaSource mediaSource = new ExtractorMediaSource(Uri.Parse(song.GetPath()), dataSourceFactory, extractorFactory, handler, null);
+            IMediaSource mediaSource = new ExtractorMediaSource(Uri.Parse(song.Path), dataSourceFactory, extractorFactory, handler, null);
             AudioAttributes attributes = new AudioAttributes.Builder()
                 .SetUsage(AudioUsageKind.Media)
                 .SetContentType(AudioContentType.Music)
@@ -306,7 +307,7 @@ namespace MusicApp.Resources.Portable_Class
 
             player.PlayWhenReady = true;
             player.Prepare(mediaSource, true, true);
-            CreateNotification(song.GetName(), song.GetArtist(), song.GetAlbumArt(), song.GetAlbum());
+            CreateNotification(song.Name, song.Artist, song.AlbumArt, song.Album);
 
             isRunning = true;
             player.PlayWhenReady = true;
@@ -333,21 +334,21 @@ namespace MusicApp.Resources.Portable_Class
             ParseNextSong();
 
             CoordinatorLayout smallPlayer = MainActivity.instance.FindViewById<CoordinatorLayout>(Resource.Id.smallPlayer);
-            smallPlayer.FindViewById<TextView>(Resource.Id.spTitle).Text = song.GetName();
-            smallPlayer.FindViewById<TextView>(Resource.Id.spArtist).Text = song.GetArtist();
+            smallPlayer.FindViewById<TextView>(Resource.Id.spTitle).Text = song.Name;
+            smallPlayer.FindViewById<TextView>(Resource.Id.spArtist).Text = song.Artist;
             smallPlayer.FindViewById<ImageView>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
             ImageView art = smallPlayer.FindViewById<ImageView>(Resource.Id.spArt);
 
             if (!song.IsYt)
             {
                 var songCover = Uri.Parse("content://media/external/audio/albumart");
-                var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, song.GetAlbumArt());
+                var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, song.AlbumArt);
 
                 Picasso.With(Application.Context).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(art);
             }
             else
             {
-                Picasso.With(Application.Context).Load(song.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(art);
+                Picasso.With(Application.Context).Load(song.Album).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(art);
             }
         }
 
@@ -357,6 +358,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 queue[i].queueSlot = i;
             }
+            UpdateQueueDataBase();
         }
 
         private async void ParseAndPlay(string action, string videoID, string title, string artist, string thumbnailURL)
@@ -406,9 +408,10 @@ namespace MusicApp.Resources.Portable_Class
                 if (artist == null || artist == "")
                     artist = info.Author;
 
-                queue[CurrentID()].SetAlbum(thumbnailURL);
-                queue[CurrentID()].SetArtist(artist);
+                queue[CurrentID()].Album = thumbnailURL;
+                queue[CurrentID()].Artist = artist;
 
+                UpdateQueueItemDB(queue[CurrentID()]);
                 Player.instance?.RefreshPlayer();
                 MainActivity.instance?.ShowSmallPlayer();
 
@@ -566,6 +569,7 @@ namespace MusicApp.Resources.Portable_Class
                 queue.Add(song);
                 await Task.Delay(10);
             }
+            UpdateQueueDataBase();
         }
 
         private void RandomizeQueue()
@@ -612,12 +616,14 @@ namespace MusicApp.Resources.Portable_Class
             song.queueSlot = queue.Count;
 
             queue.Add(song);
+            UpdateQueueItemDB(song);
         }
 
         public void PlayLastInQueue(Song song)
         {
             song.queueSlot = queue.Count;
             queue.Add(song);
+            UpdateQueueItemDB(song);
         }
 
         public void PlayLastInQueue(string filePath, string title, string artist, string youtubeID, string thumbnailURI)
@@ -628,6 +634,7 @@ namespace MusicApp.Resources.Portable_Class
             };
 
             queue.Add(song);
+            UpdateQueueItemDB(song);
         }
 
         public void PlayPrevious()
@@ -672,7 +679,7 @@ namespace MusicApp.Resources.Portable_Class
                 YoutubeClient client = new YoutubeClient();
                 MediaStreamInfoSet mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(song.youtubeID);
                 AudioStreamInfo streamInfo = mediaStreamInfo.Audio.Where(x => x.Container == Container.M4A).OrderBy(s => s.Bitrate).Last();
-                song.SetPath(streamInfo.Url);
+                song.Path = streamInfo.Url;
                 song.isParsed = true;
                 if (Queue.instance != null)
                 {
@@ -688,14 +695,14 @@ namespace MusicApp.Resources.Portable_Class
                 }
 
                 Video info = await client.GetVideoAsync(song.youtubeID);
-                song.SetAlbum(info.Thumbnails.HighResUrl);
-                song.SetArtist(info.Author);
+                song.Album = info.Thumbnails.HighResUrl;
+                song.Artist = info.Author;
             }
 
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
-            if (YoutubeEngine.FileIsAlreadyDownloaded(song.GetPath()) && !prefManager.GetBoolean("skipExistVerification", false))
+            if (YoutubeEngine.FileIsAlreadyDownloaded(song.Path) && !prefManager.GetBoolean("skipExistVerification", false))
             {
-                GetTrackSong(YoutubeEngine.GetLocalPathFromYTID(song.GetPath()), out song);
+                GetTrackSong(YoutubeEngine.GetLocalPathFromYTID(song.Path), out song);
             }
 
             Play(song, false);
@@ -704,21 +711,21 @@ namespace MusicApp.Resources.Portable_Class
             Queue.instance?.RefreshCurrent();
 
             CoordinatorLayout smallPlayer = MainActivity.instance.FindViewById<CoordinatorLayout>(Resource.Id.smallPlayer);
-            smallPlayer.FindViewById<TextView>(Resource.Id.spTitle).Text = song.GetName();
-            smallPlayer.FindViewById<TextView>(Resource.Id.spArtist).Text = song.GetArtist();
+            smallPlayer.FindViewById<TextView>(Resource.Id.spTitle).Text = song.Name;
+            smallPlayer.FindViewById<TextView>(Resource.Id.spArtist).Text = song.Artist;
             smallPlayer.FindViewById<ImageView>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
             ImageView art = smallPlayer.FindViewById<ImageView>(Resource.Id.spArt);
 
             if(!song.IsYt)
             {
                 var songCover = Uri.Parse("content://media/external/audio/albumart");
-                var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, song.GetAlbumArt());
+                var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, song.AlbumArt);
 
                 Picasso.With(Application.Context).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(art);
             }
             else
             {
-                Picasso.With(Application.Context).Load(song.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(art);
+                Picasso.With(Application.Context).Load(song.Album).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(art);
             }
         }
 
@@ -746,6 +753,48 @@ namespace MusicApp.Resources.Portable_Class
             };
         }
 
+        void AddSongToDataBase(Song item)
+        {
+            SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "Queue.sqlite"));
+            db.CreateTable<Song>();
+
+            db.InsertOrReplace(item);
+        }
+
+        void UpdateQueueDataBase()
+        {
+            SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "Queue.sqlite"));
+            db.CreateTable<Song>();
+
+            if(db.Table<Song>().Count() > queue.Count)
+            {
+                db.DropTable<Song>();
+            }
+
+            foreach (Song item in queue)
+            {
+                db.InsertOrReplace(item);
+            }
+        }
+
+        void UpdateQueueItemDB(Song item)
+        {
+            SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "Queue.sqlite"));
+            db.CreateTable<Song>();
+
+            db.InsertOrReplace(item);
+        }
+
+        public static void RetrieveQueueFromDataBase()
+        {
+            SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "Queue.sqlite"));
+            db.CreateTable<Song>();
+
+            queue = db.Table<Song>().ToList();
+            if(queue != null && queue.Count > 0)
+                currentID = 0;
+        }
+
         public static async void ParseNextSong()
         {
             if (CurrentID() == -1)
@@ -767,13 +816,14 @@ namespace MusicApp.Resources.Portable_Class
                 YoutubeClient client = new YoutubeClient();
                 MediaStreamInfoSet mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(song.youtubeID);
                 AudioStreamInfo streamInfo = mediaStreamInfo.Audio.Where(x => x.Container == Container.M4A).OrderBy(s => s.Bitrate).Last();
-                song.SetPath(streamInfo.Url);
+                song.Path = streamInfo.Url;
                 song.isParsed = true;
 
                 Video info = await client.GetVideoAsync(song.youtubeID);
-                song.SetAlbum(info.Thumbnails.HighResUrl);
-                song.SetArtist(info.Author);
+                song.Album = info.Thumbnails.HighResUrl;
+                song.Artist = info.Author;
 
+                instance.UpdateQueueItemDB(song);
                 parsing = false;
                 if (Queue.instance != null)
                 {
@@ -794,7 +844,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             get
             {
-                return (int) player.Duration;
+                return player == null ? 1 : (int) player.Duration;
             }
         }
 

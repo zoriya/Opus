@@ -92,7 +92,7 @@ namespace MusicApp.Resources.Portable_Class
                         return;
                 }
             }
-            channels = channelList.OrderBy(x => x.GetName()).ToList();
+            channels = channelList.OrderBy(x => x.Name).ToList();
 
             adapter = new ChannelAdapter(Application.Context, Resource.Layout.ChannelList, channels);
             ListAdapter = adapter;
@@ -109,17 +109,17 @@ namespace MusicApp.Resources.Portable_Class
         private void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
         {
             Song channel = channels[e.Position];
-            bool Checked = selectedTopics.Contains(channel.GetName());
+            bool Checked = selectedTopics.Contains(channel.Name);
             e.View.FindViewById<CheckBox>(Resource.Id.checkBox).Checked = !Checked;
 
             if (!Checked)
             {
-                selectedTopics.Add(channel.GetName());
+                selectedTopics.Add(channel.Name);
                 selectedTopicsID.Add(channel.youtubeID);
             }
             else
             {
-                int index = selectedTopics.IndexOf(channel.GetName());
+                int index = selectedTopics.IndexOf(channel.Name);
                 selectedTopics.RemoveAt(index);
                 selectedTopicsID.RemoveAt(index);
             }

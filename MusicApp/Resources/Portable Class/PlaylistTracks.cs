@@ -123,7 +123,7 @@ namespace MusicApp.Resources.Portable_Class
                     {
                         List<string> tracksPath = new List<string>();
                         foreach (Song song in tracks)
-                            tracksPath.Add(song.GetPath());
+                            tracksPath.Add(song.Path);
 
                         Intent intent = new Intent(MainActivity.instance, typeof(MusicPlayer));
                         intent.PutStringArrayListExtra("files", tracksPath);
@@ -205,7 +205,7 @@ namespace MusicApp.Resources.Portable_Class
                     Browse.Play(first, null);
                 }
                 else
-                    YoutubeEngine.Play(first.youtubeID, first.GetName(), first.GetArtist(), first.GetAlbum());
+                    YoutubeEngine.Play(first.youtubeID, first.Name, first.Artist, first.Album);
 
                 songs.RemoveAt(0);
             }
@@ -418,7 +418,7 @@ namespace MusicApp.Resources.Portable_Class
 
                 Activity.FindViewById<TextView>(Resource.Id.headerNumber).Text = tracks.Count.ToString() + " songs";
                 var songCover = Uri.Parse("content://media/external/audio/albumart");
-                var songAlbumArtUri = ContentUris.WithAppendedId(songCover, tracks[0].GetAlbumArt());
+                var songAlbumArtUri = ContentUris.WithAppendedId(songCover, tracks[0].AlbumArt);
 
                 Picasso.With(Android.App.Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(1080, 1080).CenterCrop().Into(Activity.FindViewById<ImageView>(Resource.Id.headerArt));
             }
@@ -517,7 +517,7 @@ namespace MusicApp.Resources.Portable_Class
             for(int i = 0; i < tracks.Count; i++)
             {
                 Song item = tracks[i];
-                if (item.GetName().ToLower().Contains(search.ToLower()) || item.GetArtist().ToLower().Contains(search.ToLower()))
+                if (item.Name.ToLower().Contains(search.ToLower()) || item.Artist.ToLower().Contains(search.ToLower()))
                 {
                     result.Add(item);
                     if (ytID != null)
@@ -577,14 +577,14 @@ namespace MusicApp.Resources.Portable_Class
                             if (!item.IsYt)
                                 Browse.PlayNext(item);
                             else
-                                YoutubeEngine.PlayNext(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
+                                YoutubeEngine.PlayNext(item.Path, item.Name, item.Artist, item.Album);
                             break;
 
                         case 2:
                             if (!item.IsYt)
                                 Browse.PlayLast(item);
                             else
-                                YoutubeEngine.PlayLast(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
+                                YoutubeEngine.PlayLast(item.Path, item.Name, item.Artist, item.Album);
                             break;
 
                         case 3:
@@ -603,14 +603,14 @@ namespace MusicApp.Resources.Portable_Class
 
                         case 4:
                             if (item.IsYt)
-                                YoutubeEngine.GetPlaylists(item.GetPath(), Activity);
+                                YoutubeEngine.GetPlaylists(item.Path, Activity);
                             else
                                 Browse.GetPlaylist(item);
                             break;
 
                         case 5:
                             if (item.IsYt)
-                                YoutubeEngine.Download(item.GetName(), item.GetPath());
+                                YoutubeEngine.Download(item.Name, item.Path);
                             else
                                 Browse.EditMetadata(item, "PlaylistTracks", ListView.OnSaveInstanceState());
                             break;
@@ -636,26 +636,26 @@ namespace MusicApp.Resources.Portable_Class
                             if (!item.IsYt)
                                 Browse.PlayNext(item);
                             else
-                                YoutubeEngine.PlayNext(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
+                                YoutubeEngine.PlayNext(item.Path, item.Name, item.Artist, item.Album);
                             break;
 
                         case 2:
                             if (!item.IsYt)
                                 Browse.PlayLast(item);
                             else
-                                YoutubeEngine.PlayLast(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
+                                YoutubeEngine.PlayLast(item.Path, item.Name, item.Artist, item.Album);
                             break;
 
                         case 3:
                             if (item.IsYt)
-                                YoutubeEngine.GetPlaylists(item.GetPath(), Activity);
+                                YoutubeEngine.GetPlaylists(item.Path, Activity);
                             else
                                 Browse.GetPlaylist(item);
                             break;
 
                         case 4:
                             if (item.IsYt)
-                                YoutubeEngine.Download(item.GetName(), item.GetPath());
+                                YoutubeEngine.Download(item.Name, item.Path);
                             else
                                 Browse.EditMetadata(item, "PlaylistTracks", ListView.OnSaveInstanceState());
                             break;
@@ -683,7 +683,7 @@ namespace MusicApp.Resources.Portable_Class
                 Browse.Play(songs[0], useTransition ? ListView.GetChildAt(fromPosition - ListView.FirstVisiblePosition).FindViewById<ImageView>(Resource.Id.albumArt) : null);
             }
             else
-                YoutubeEngine.Play(songs[0].youtubeID, songs[0].GetName(), songs[0].GetArtist(), songs[0].GetAlbum());
+                YoutubeEngine.Play(songs[0].youtubeID, songs[0].Name, songs[0].Artist, songs[0].Album);
 
             songs.RemoveAt(0);
             songs.Reverse();
@@ -715,7 +715,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             ContentResolver resolver = Activity.ContentResolver;
             Uri uri = MediaStore.Audio.Playlists.Members.GetContentUri("external", playlistId);
-            resolver.Delete(uri, MediaStore.Audio.Playlists.Members.Id + "=?", new string[] { item.GetID().ToString() });
+            resolver.Delete(uri, MediaStore.Audio.Playlists.Members.Id + "=?", new string[] { item.Id.ToString() });
             tracks.Remove(item);
             adapter.Remove(item);
             if (adapter == null || adapter.Count == 0)

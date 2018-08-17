@@ -127,6 +127,7 @@ namespace MusicApp
 
             playToCross = GetDrawable(Resource.Drawable.PlayToCross);
             crossToPlay = GetDrawable(Resource.Drawable.CrossToPlay);
+            MusicPlayer.RetrieveQueueFromDataBase();
 
             if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
             {
@@ -958,17 +959,17 @@ namespace MusicApp
                 smallPlayer.FindViewById<ImageButton>(Resource.Id.spNext).SetColorFilter(Android.Graphics.Color.White);
             }
 
-            title.Text = current.GetName();
-            artist.Text = current.GetArtist();
+            title.Text = current.Name;
+            artist.Text = current.Artist;
 
             if (current.IsYt)
             {
-                Picasso.With(Application.Context).Load(current.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(art);
+                Picasso.With(Application.Context).Load(current.Album).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(art);
             }
             else
             {
                 var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
-                var songAlbumArtUri = ContentUris.WithAppendedId(songCover, current.GetAlbumArt());
+                var songAlbumArtUri = ContentUris.WithAppendedId(songCover, current.AlbumArt);
 
                 Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(art);
             }
@@ -1279,9 +1280,9 @@ namespace MusicApp
             {
                 if (MusicPlayer.CurrentID() != -1)
                 {
-                    Stream stream = new FileStream(MusicPlayer.queue[MusicPlayer.CurrentID()].GetPath(), FileMode.Open, FileAccess.Read);
+                    Stream stream = new FileStream(MusicPlayer.queue[MusicPlayer.CurrentID()].Path, FileMode.Open, FileAccess.Read);
 
-                    var meta = TagLib.File.Create(new StreamFileAbstraction(MusicPlayer.queue[MusicPlayer.CurrentID()].GetPath(), stream, stream));
+                    var meta = TagLib.File.Create(new StreamFileAbstraction(MusicPlayer.queue[MusicPlayer.CurrentID()].Path, stream, stream));
                     string ytID = meta.Tag.Comment;
                     stream.Dispose();
 

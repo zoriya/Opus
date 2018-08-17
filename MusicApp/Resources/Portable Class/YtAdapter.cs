@@ -37,11 +37,11 @@ namespace MusicApp.Resources.Portable_Class
             {
                 RecyclerHolder holder = (RecyclerHolder)viewHolder;
 
-                holder.Title.Text = song.GetName();
-                holder.Artist.Text = song.GetArtist();
+                holder.Title.Text = song.Name;
+                holder.Artist.Text = song.Artist;
                 holder.reorder.Visibility = ViewStates.Gone;
 
-                var songAlbumArtUri = Android.Net.Uri.Parse(song.GetAlbum());
+                var songAlbumArtUri = Android.Net.Uri.Parse(song.Album);
                 Picasso.With(Android.App.Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400 * 16 / 9, 400).CenterCrop().Into(holder.AlbumArt);
 
                 holder.more.Tag = position;
@@ -83,10 +83,10 @@ namespace MusicApp.Resources.Portable_Class
             {
                 RecyclerHolder holder = (RecyclerHolder)viewHolder;
 
-                holder.Title.Text = song.GetName();
-                holder.Artist.Text = song.GetArtist();
+                holder.Title.Text = song.Name;
+                holder.Artist.Text = song.Artist;
 
-                var songAlbumArtUri = Android.Net.Uri.Parse(song.GetAlbum());
+                var songAlbumArtUri = Android.Net.Uri.Parse(song.Album);
                 Picasso.With(Android.App.Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
 
                 holder.more.Tag = position;
@@ -111,8 +111,8 @@ namespace MusicApp.Resources.Portable_Class
             {
                 RecyclerChannelHolder holder = (RecyclerChannelHolder)viewHolder;
 
-                holder.Title.Text = song.GetName();
-                Picasso.With(Android.App.Application.Context).Load(song.GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Transform(new CircleTransformation()).Into(holder.AlbumArt);
+                holder.Title.Text = song.Name;
+                Picasso.With(Android.App.Application.Context).Load(song.Album).Placeholder(Resource.Drawable.MusicIcon).Transform(new CircleTransformation()).Into(holder.AlbumArt);
 
                 holder.action.Visibility = ViewStates.Visible;
                 holder.CheckBox.Visibility = ViewStates.Gone;
@@ -134,7 +134,7 @@ namespace MusicApp.Resources.Portable_Class
                             List<string> topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
 
                             ISharedPreferencesEditor editor = prefManager.Edit();
-                            topics.Remove(song.GetName() + "/#-#/" + song.youtubeID);
+                            topics.Remove(song.Name + "/#-#/" + song.youtubeID);
                             editor.PutStringSet("selectedTopics", topics);
                             editor.Apply();
 
@@ -148,7 +148,7 @@ namespace MusicApp.Resources.Portable_Class
                             List<string> topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
 
                             ISharedPreferencesEditor editor = prefManager.Edit();
-                            topics.Add(song.GetName() + "/#-#/" + song.youtubeID);
+                            topics.Add(song.Name + "/#-#/" + song.youtubeID);
                             editor.PutStringSet("selectedTopics", topics);
                             editor.Apply();
 

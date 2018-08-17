@@ -38,11 +38,11 @@ namespace MusicApp.Resources.Portable_Class
             }
             ChannelHolder holder = new ChannelHolder(convertView)
             {
-                Title = { Text = channelList[position].GetName() },
-                Artist = { Text = channelList[position].GetArtist() },
+                Title = { Text = channelList[position].Name },
+                Artist = { Text = channelList[position].Artist },
             };
 
-            Picasso.With(Application.Context).Load(channelList[position].GetAlbum()).Placeholder(Resource.Drawable.MusicIcon).Transform(new CircleTransformation()).Into(holder.AlbumArt);
+            Picasso.With(Application.Context).Load(channelList[position].Album).Placeholder(Resource.Drawable.MusicIcon).Transform(new CircleTransformation()).Into(holder.AlbumArt);
 
             if (MainActivity.Theme == 1)
             {
@@ -51,7 +51,7 @@ namespace MusicApp.Resources.Portable_Class
                 holder.Artist.Alpha = 0.7f;
             }
 
-            if (TopicSelector.instance.selectedTopics.Contains(channelList[position].GetName()))
+            if (TopicSelector.instance.selectedTopics.Contains(channelList[position].Name))
                 holder.CheckBox.Checked = true;
             else
                 holder.CheckBox.Checked = false;

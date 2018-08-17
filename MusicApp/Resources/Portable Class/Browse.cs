@@ -124,7 +124,7 @@ namespace MusicApp.Resources.Portable_Class
                 musicCursor.Close();
             }
 
-            List<Song> songList = musicList.OrderBy(x => x.GetName()).ToList();
+            List<Song> songList = musicList.OrderBy(x => x.Name).ToList();
             musicList = songList;
             int listPadding = 0;
             if (adapter != null)
@@ -177,7 +177,7 @@ namespace MusicApp.Resources.Portable_Class
             result = new List<Song>();
             foreach(Song item in musicList)
             {
-                if(item.GetName().ToLower().Contains(search.ToLower()) || item.GetArtist().ToLower().Contains(search.ToLower()))
+                if(item.Name.ToLower().Contains(search.ToLower()) || item.Artist.ToLower().Contains(search.ToLower()))
                 {
                     result.Add(item);
                 }
@@ -246,20 +246,20 @@ namespace MusicApp.Resources.Portable_Class
 
         public Song CompleteItem(Song item)
         {
-            Stream stream = new FileStream(item.GetPath(), FileMode.Open, FileAccess.Read);
+            Stream stream = new FileStream(item.Path, FileMode.Open, FileAccess.Read);
 
-            var meta = TagLib.File.Create(new StreamFileAbstraction(item.GetPath(), stream, stream));
+            var meta = TagLib.File.Create(new StreamFileAbstraction(item.Path, stream, stream));
             string ytID = meta.Tag.Comment;
             stream.Dispose();
 
-            return new Song(item.GetName(), item.GetArtist(), item.GetAlbum(), ytID, item.GetAlbumArt(), item.GetID(), item.GetPath(), item.IsYt, item.isParsed, item.queueSlot);
+            return new Song(item.Name, item.Artist, item.Album, ytID, item.AlbumArt, item.Id, item.Path, item.IsYt, item.isParsed, item.queueSlot);
         }
 
         public static void Play(Song item, View albumArt)
         {
             Context context = Android.App.Application.Context;
             Intent intent = new Intent(context, typeof(MusicPlayer));
-            intent.PutExtra("file", item.GetPath());
+            intent.PutExtra("file", item.Path);
             context.StartService(intent);
 
             if(albumArt != null)
@@ -279,7 +279,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             Context context = Android.App.Application.Context;
             Intent intent = new Intent(context, typeof(MusicPlayer));
-            intent.PutExtra("file", item.GetPath());
+            intent.PutExtra("file", item.Path);
             intent.SetAction("PlayNext");
             context.StartService(intent);
         }
@@ -288,7 +288,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             Context context = Android.App.Application.Context;
             Intent intent = new Intent(context, typeof(MusicPlayer));
-            intent.PutExtra("file", item.GetPath());
+            intent.PutExtra("file", item.Path);
             intent.SetAction("PlayLast");
             context.StartService(intent);
         }
@@ -405,7 +405,7 @@ namespace MusicApp.Resources.Portable_Class
 
                 ContentResolver resolver = act.ContentResolver;
                 ContentValues value = new ContentValues();
-                value.Put(MediaStore.Audio.Playlists.Members.AudioId, item.GetID());
+                value.Put(MediaStore.Audio.Playlists.Members.AudioId, item.Id);
                 value.Put(MediaStore.Audio.Playlists.Members.PlayOrder, 0);
                 resolver.Insert(MediaStore.Audio.Playlists.Members.GetContentUri("external", playlistID), value);
             }

@@ -38,20 +38,20 @@ namespace MusicApp.Resources.Portable_Class
         {
             RecyclerHolder holder = (RecyclerHolder)viewHolder;
 
-            holder.Title.Text = songList[position].GetName();
-            var songAlbumArtUri = Android.Net.Uri.Parse(songList[position].GetAlbum());
+            holder.Title.Text = songList[position].Name;
+            var songAlbumArtUri = Android.Net.Uri.Parse(songList[position].Album);
             Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Transform(new CircleTransformation()).Into(holder.AlbumArt);
 
             if (!useTopic)
             {
-                if (songList[position].GetArtist() == "Follow")
+                if (songList[position].Artist == "Follow")
                 {
                     if(Home.instance.selectedTopicsID.Contains(songList[position].youtubeID))
                         holder.action.Text = "Unfollow";
                     else
                         holder.action.Text = "Follow";
                 }
-                else if (songList[position].GetArtist() != null)
+                else if (songList[position].Artist != null)
                     holder.action.Text = "Mix";
 
                 if (!holder.action.HasOnClickListeners)
@@ -65,25 +65,25 @@ namespace MusicApp.Resources.Portable_Class
                             List<string> topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
 
                             ISharedPreferencesEditor editor = prefManager.Edit();
-                            topics.Remove(songList[position].GetName() + "/#-#/" + songList[position].youtubeID);
+                            topics.Remove(songList[position].Name + "/#-#/" + songList[position].youtubeID);
                             editor.PutStringSet("selectedTopics", topics);
                             editor.Apply();
-                            Home.instance.selectedTopics.Remove(songList[position].GetName());
+                            Home.instance.selectedTopics.Remove(songList[position].Name);
                             Home.instance.selectedTopicsID.Remove(songList[position].youtubeID);
 
                             await Task.Delay(1000);
                             holder.action.Text = "Follow";
                         }
-                        else if (songList[position].GetArtist() == "Follow")
+                        else if (songList[position].Artist == "Follow")
                         {
                             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(MainActivity.instance);
                             List<string> topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
 
                             ISharedPreferencesEditor editor = prefManager.Edit();
-                            topics.Add(songList[position].GetName() + "/#-#/" + songList[position].youtubeID);
+                            topics.Add(songList[position].Name + "/#-#/" + songList[position].youtubeID);
                             editor.PutStringSet("selectedTopics", topics);
                             editor.Apply();
-                            Home.instance.selectedTopics.Add(songList[position].GetName());
+                            Home.instance.selectedTopics.Add(songList[position].Name);
                             Home.instance.selectedTopicsID.Add(songList[position].youtubeID);
 
                             holder.action.Text = "Following";
@@ -105,8 +105,8 @@ namespace MusicApp.Resources.Portable_Class
                                 }
                             }
                         }
-                        else if (songList[position].GetArtist() != null)
-                            Playlist.PlayInOrder(songList[position].GetArtist());
+                        else if (songList[position].Artist != null)
+                            Playlist.PlayInOrder(songList[position].Artist);
                     };
                 }
             }
@@ -125,7 +125,7 @@ namespace MusicApp.Resources.Portable_Class
                             List<string> topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
 
                             ISharedPreferencesEditor editor = prefManager.Edit();
-                            topics.Remove(songList[position].GetName() + "/#-#/" + songList[position].youtubeID);
+                            topics.Remove(songList[position].Name + "/#-#/" + songList[position].youtubeID);
                             editor.PutStringSet("selectedTopics", topics);
                             editor.Apply();
 
@@ -138,7 +138,7 @@ namespace MusicApp.Resources.Portable_Class
                             List<string> topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
 
                             ISharedPreferencesEditor editor = prefManager.Edit();
-                            topics.Add(songList[position].GetName() + "/#-#/" + songList[position].youtubeID);
+                            topics.Add(songList[position].Name + "/#-#/" + songList[position].youtubeID);
                             editor.PutStringSet("selectedTopics", topics);
                             editor.Apply();
 

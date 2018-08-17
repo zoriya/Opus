@@ -57,18 +57,18 @@ namespace MusicApp.Resources.Portable_Class
             }
             Holder holder = new Holder(convertView)
             {
-                Title = { Text = songList[position].GetName() },
-                Artist = { Text = songList[position].GetArtist() },
+                Title = { Text = songList[position].Name },
+                Artist = { Text = songList[position].Artist },
             };
-            if(songList[position].GetAlbumArt() == -1 || songList[position].IsYt)
+            if(songList[position].AlbumArt == -1 || songList[position].IsYt)
             {
-                var songAlbumArtUri = Android.Net.Uri.Parse(songList[position].GetAlbum()); 
+                var songAlbumArtUri = Android.Net.Uri.Parse(songList[position].Album); 
                 Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
             }
             else
             {
                 var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
-                var songAlbumArtUri = ContentUris.WithAppendedId(songCover, songList[position].GetAlbumArt());
+                var songAlbumArtUri = ContentUris.WithAppendedId(songCover, songList[position].AlbumArt);
 
                 Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
             }

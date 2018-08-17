@@ -27,7 +27,7 @@ namespace MusicApp.Resources.Portable_Class
             int dragFlag = ItemTouchHelper.Up | ItemTouchHelper.Down;
             int swipeFlag = ItemTouchHelper.Left | ItemTouchHelper.Right;
 
-            if (MusicPlayer.queue[MusicPlayer.CurrentID()].GetName() == viewHolder.ItemView.FindViewById<TextView>(Resource.Id.title).Text)
+            if (MusicPlayer.queue[MusicPlayer.CurrentID()].Name == viewHolder.ItemView.FindViewById<TextView>(Resource.Id.title).Text)
                 return MakeMovementFlags(dragFlag, 0);
 
             return MakeMovementFlags(dragFlag, swipeFlag);

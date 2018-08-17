@@ -75,21 +75,21 @@ namespace MusicApp.Resources.Portable_Class
             FloatingActionButton fab = FindViewById<FloatingActionButton>(Resource.Id.metadataFAB);
             fab.Click += async (sender, e) => { await ValidateChanges(); };
 
-            title.Text = song.GetName();
-            artist.Text = song.GetArtist();
-            album.Text = song.GetAlbum();
+            title.Text = song.Name;
+            artist.Text = song.Artist;
+            album.Text = song.Album;
             youtubeID.Text = song.youtubeID;
             albumArt.Click += AlbumArt_Click;
 
-            if (song.GetAlbumArt() == -1 || song.IsYt)
+            if (song.AlbumArt == -1 || song.IsYt)
             {
-                var songAlbumArtUri = Android.Net.Uri.Parse(song.GetAlbum());
+                var songAlbumArtUri = Android.Net.Uri.Parse(song.Album);
                 Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(albumArt);
             }
             else
             {
                 var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
-                var songAlbumArtUri = ContentUris.WithAppendedId(songCover, song.GetAlbumArt());
+                var songAlbumArtUri = ContentUris.WithAppendedId(songCover, song.AlbumArt);
 
                 Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(albumArt);
             }
@@ -171,7 +171,7 @@ namespace MusicApp.Resources.Portable_Class
 
         async Task ValidateChanges()
         {
-            if (song.GetName() == title.Text && song.GetArtist() == artist.Text && song.youtubeID == youtubeID.Text && song.GetAlbum() == album.Text && artURI == null)
+            if (song.Name == title.Text && song.Artist == artist.Text && song.youtubeID == youtubeID.Text && song.Album == album.Text && artURI == null)
                 return;
 
             const string permission = Manifest.Permission.WriteExternalStorage;
@@ -185,8 +185,8 @@ namespace MusicApp.Resources.Portable_Class
                     await Task.Delay(1000);
             }
 
-            Stream stream = new FileStream(song.GetPath(), FileMode.Open, FileAccess.ReadWrite);
-            var meta = TagLib.File.Create(new StreamFileAbstraction(song.GetPath(), stream, stream));
+            Stream stream = new FileStream(song.Path, FileMode.Open, FileAccess.ReadWrite);
+            var meta = TagLib.File.Create(new StreamFileAbstraction(song.Path, stream, stream));
 
             meta.Tag.Title = title.Text;
             meta.Tag.Performers = new string[] { artist.Text };
@@ -208,7 +208,7 @@ namespace MusicApp.Resources.Portable_Class
                 if(!tempFile)
                     artURI = null;
 
-                ContentResolver.Delete(ContentUris.WithAppendedId(Android.Net.Uri.Parse("content://media/external/audio/albumart"), song.GetAlbumArt()), null, null);
+                ContentResolver.Delete(ContentUris.WithAppendedId(Android.Net.Uri.Parse("content://media/external/audio/albumart"), song.AlbumArt), null, null);
             }
 
             meta.Save();
@@ -222,7 +222,7 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             await Task.Delay(10);
-            Android.Media.MediaScannerConnection.ScanFile(this, new string[] { song.GetPath() }, null, null);
+            Android.Media.MediaScannerConnection.ScanFile(this, new string[] { song.Path }, null, null);
 
             Toast.MakeText(this, "Changes saved.", ToastLength.Short).Show();
         }
@@ -345,21 +345,21 @@ namespace MusicApp.Resources.Portable_Class
 
         void UndoChange()
         {
-            title.Text = song.GetName();
-            artist.Text = song.GetArtist();
-            album.Text = song.GetAlbum();
+            title.Text = song.Name;
+            artist.Text = song.Artist;
+            album.Text = song.Album;
             youtubeID.Text = song.youtubeID;
             albumArt.Click += AlbumArt_Click;
 
-            if (song.GetAlbumArt() == -1 || song.IsYt)
+            if (song.AlbumArt == -1 || song.IsYt)
             {
-                var songAlbumArtUri = Android.Net.Uri.Parse(song.GetAlbum());
+                var songAlbumArtUri = Android.Net.Uri.Parse(song.Album);
                 Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(albumArt);
             }
             else
             {
                 var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
-                var songAlbumArtUri = ContentUris.WithAppendedId(songCover, song.GetAlbumArt());
+                var songAlbumArtUri = ContentUris.WithAppendedId(songCover, song.AlbumArt);
 
                 Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(albumArt);
             }

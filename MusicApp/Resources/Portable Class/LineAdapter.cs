@@ -29,17 +29,17 @@ namespace MusicApp.Resources.Portable_Class
         {
             RecyclerHolder holder = (RecyclerHolder)viewHolder;
 
-            holder.Title.Text = songList[position].GetName();
+            holder.Title.Text = songList[position].Name;
 
-            if (songList[position].GetAlbumArt() == -1 || songList[position].IsYt)
+            if (songList[position].AlbumArt == -1 || songList[position].IsYt)
             {
-                var songAlbumArtUri = Android.Net.Uri.Parse(songList[position].GetAlbum());
+                var songAlbumArtUri = Android.Net.Uri.Parse(songList[position].Album);
                 Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
             }
             else
             {
                 var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
-                var songAlbumArtUri = ContentUris.WithAppendedId(songCover, songList[position].GetAlbumArt());
+                var songAlbumArtUri = ContentUris.WithAppendedId(songCover, songList[position].AlbumArt);
 
                 Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
             }
@@ -56,7 +56,7 @@ namespace MusicApp.Resources.Portable_Class
             if (!songList[position].IsYt)
                 Browse.Play(songList[position], recycler.GetLayoutManager().FindViewByPosition(position).FindViewById<ImageView>(Resource.Id.albumArt));
             else
-                YoutubeEngine.Play(songList[position].youtubeID, songList[position].GetName(), songList[position].GetArtist(), songList[position].GetAlbum());
+                YoutubeEngine.Play(songList[position].youtubeID, songList[position].Name, songList[position].Artist, songList[position].Album);
         }
 
         void OnLongClick(int position)
@@ -86,33 +86,33 @@ namespace MusicApp.Resources.Portable_Class
                         if (!item.IsYt)
                             Browse.Play(item, recycler.GetLayoutManager().FindViewByPosition(position).FindViewById<ImageView>(Resource.Id.albumArt));
                         else
-                            YoutubeEngine.Play(item.youtubeID, item.GetName(), item.GetArtist(), item.GetAlbum());
+                            YoutubeEngine.Play(item.youtubeID, item.Name, item.Artist, item.Album);
                         break;
 
                     case 1:
                         if (!item.IsYt)
                             Browse.PlayNext(item);
                         else
-                            YoutubeEngine.PlayNext(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
+                            YoutubeEngine.PlayNext(item.Path, item.Name, item.Artist, item.Album);
                         break;
 
                     case 2:
                         if (!item.IsYt)
                             Browse.PlayLast(item);
                         else
-                            YoutubeEngine.PlayLast(item.GetPath(), item.GetName(), item.GetArtist(), item.GetAlbum());
+                            YoutubeEngine.PlayLast(item.Path, item.Name, item.Artist, item.Album);
                         break;
 
                     case 3:
                         if (item.IsYt)
-                            YoutubeEngine.GetPlaylists(item.GetPath(), MainActivity.instance);
+                            YoutubeEngine.GetPlaylists(item.Path, MainActivity.instance);
                         else
                             Browse.GetPlaylist(item);
                         break;
 
                     case 5:
                         if (item.IsYt)
-                            YoutubeEngine.Download(item.GetName(), item.GetPath());
+                            YoutubeEngine.Download(item.Name, item.Path);
                         else
                             Browse.EditMetadata(item, "PlaylistTracks", Home.instance.ListView.GetLayoutManager().OnSaveInstanceState());
                         break;
