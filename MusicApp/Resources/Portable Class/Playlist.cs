@@ -296,9 +296,9 @@ namespace MusicApp.Resources.Portable_Class
             MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
 
             if (local)
-                MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.Id, playlist.Name), true);
+                MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.Id, playlist.Name)).AddToBackStack(null).Commit();
             else
-                MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.youtubeID, playlist.Name, playlist.isParsed, true, playlist.Artist, playlist.queueSlot, playlist.Album), true);
+                MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.youtubeID, playlist.Name, playlist.isParsed, true, playlist.Artist, playlist.queueSlot, playlist.Album)).AddToBackStack(null).Commit();
         }
 
         private void ListView_ItemLongClick(object sender, int position)

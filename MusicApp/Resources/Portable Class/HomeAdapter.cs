@@ -77,7 +77,7 @@ namespace MusicApp.Resources.Portable_Class
                     MainActivity.instance.SupportActionBar.Title = items[position].SectionTitle;
                     MainActivity.instance.contentRefresh.Refresh -= Home.instance.OnRefresh;
                     Home.instance = null;
-                    MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(items[position].contentValue, items[position].SectionTitle), true);
+                    MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(items[position].contentValue, items[position].SectionTitle)).AddToBackStack(null).Commit();
                 };
 
                 if (MainActivity.Theme == 1)

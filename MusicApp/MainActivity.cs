@@ -637,6 +637,7 @@ namespace MusicApp
         {
             contentRefresh.Refreshing = false;
 
+            bool youtubeSwitch = false;
             if(YoutubeEngine.instances != null)
             {
                 YoutubeEngine.error = false;
@@ -655,6 +656,7 @@ namespace MusicApp
                 searchView.SetQuery("", false);
                 SupportActionBar.SetDisplayHomeAsUpEnabled(false);
                 YoutubeEngine.instances = null;
+                youtubeSwitch = true;
             }
 
             if(PlaylistTracks.instance != null)
@@ -683,7 +685,7 @@ namespace MusicApp
             switch (layout)
             {
                 case Resource.Id.musicLayout:
-                    if (Home.instance != null && YoutubeEngine.instances != null && !resuming)
+                    if (Home.instance != null && !resuming)
                     {
                         Home.instance.Refresh();
                         return;
@@ -697,7 +699,7 @@ namespace MusicApp
                     break;
 
                 case Resource.Id.browseLayout:
-                    if (Browse.instance != null)
+                    if (Browse.instance != null && !youtubeSwitch)
                     {
                         Browse.instance.Refresh();
                         return;
@@ -711,7 +713,7 @@ namespace MusicApp
                     break;
 
                 case Resource.Id.playlistLayout:
-                    if (Playlist.instance != null && YoutubeEngine.instances != null && !resuming)
+                    if (Playlist.instance != null && !resuming)
                     {
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                         Playlist.instance.Refresh();
@@ -748,14 +750,15 @@ namespace MusicApp
             TabLayout tabs = FindViewById<TabLayout>(Resource.Id.tabs);
             ((AppBarLayout.LayoutParams)FindViewById<CollapsingToolbarLayout>(Resource.Id.collapsingToolbar).LayoutParameters).ScrollFlags = AppBarLayout.LayoutParams.ScrollFlagScroll | AppBarLayout.LayoutParams.ScrollFlagEnterAlways | AppBarLayout.LayoutParams.ScrollFlagSnap;
 
-            if (Browse.instance != null)
-            {
-                pager.CurrentItem = selectedTab;
-                tabs.SetScrollPosition(selectedTab, 0f, true);
-                CanSwitchDelay();
-                return;
-            }
+            //if (Browse.instance != null)
+            //{
+            //    pager.CurrentItem = selectedTab;
+            //    tabs.SetScrollPosition(selectedTab, 0f, true);
+            //    CanSwitchDelay();
+            //    return;
+            //}
 
+            tabs.RemoveAllTabs();
             tabs.Visibility = ViewStates.Visible;
             tabs.AddTab(tabs.NewTab().SetText("Songs"));
             tabs.AddTab(tabs.NewTab().SetText("Folders"));
@@ -801,7 +804,7 @@ namespace MusicApp
             }
 
             tabs.Visibility = ViewStates.Visible;
-                
+            tabs.RemoveAllTabs();
             tabs.AddTab(tabs.NewTab().SetText("All"));
             tabs.AddTab(tabs.NewTab().SetText("Tracks"));
             tabs.AddTab(tabs.NewTab().SetText("Playlists"));
@@ -921,16 +924,6 @@ namespace MusicApp
             ViewPagerAdapter adapter = (ViewPagerAdapter)viewPager.Adapter;
             if (adapter != null)
             {
-                if (adapter.Count == 2)
-                {
-                    Browse.instance = null;
-                    FolderBrowse.instance = null;
-                }
-                else if (adapter.Count == 4)
-                {
-                    YoutubeEngine.instances = null;
-                }
-
                 for (int i = 0; i < adapter.Count; i++)
                     SupportFragmentManager.BeginTransaction().Remove(adapter.GetItem(i)).Commit();
 
@@ -1079,22 +1072,6 @@ namespace MusicApp
             Playlist.instance?.PopulateView();
             if (Browse.instance == null && Playlist.instance == null && PreferencesFragment.instance == null && Preferences.instance == null)
                 LocalPlay(sender, new EventArgs());
-        }
-
-        public void Transition(int Layout, Android.Support.V4.App.Fragment fragment, bool backStack, bool manageTabs = false)
-        {
-            if (manageTabs)
-            {
-                if (Layout == Resource.Id.contentView)
-                    HideTabs();
-                else if (Layout == Resource.Id.pager)
-                    SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(0, 0)).Commit();
-            }
-
-            if (backStack)
-                SupportFragmentManager.BeginTransaction().Replace(Layout, fragment).AddToBackStack(null).Commit();
-            else
-                SupportFragmentManager.BeginTransaction().Replace(Layout, fragment).Commit();
         }
 
         void SetSmallPlayerProgressBar()
@@ -1445,13 +1422,11 @@ namespace MusicApp
             {
                 parcelableSender = "Browse";
                 parcelable = Browse.instance.ListView.OnSaveInstanceState();
-                HideTabs();
             }
             else if (FolderBrowse.instance != null && FolderBrowse.instance.focused)
             {
                 parcelableSender = "FolderBrowse";
                 parcelable = FolderBrowse.instance.ListView.OnSaveInstanceState();
-                HideTabs();
             }
             else if (Playlist.instance != null)
             {
@@ -1506,13 +1481,13 @@ namespace MusicApp
                     SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(2, 3)).Commit();
                     break;
                 case "PlaylistTracks":
-                    Transition(Resource.Id.contentView, PlaylistTracks.instance, false, true);
+                    SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.instance).Commit();
                     SupportActionBar.SetHomeButtonEnabled(true);
                     SupportActionBar.SetDisplayHomeAsUpEnabled(true);
                     SupportActionBar.Title = PlaylistTracks.instance.playlistName;
                     break;
                 case "FolderTracks":
-                    Transition(Resource.Id.contentView, FolderTracks.instance, false, true);
+                    SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, FolderTracks.instance).Commit();
                     SupportActionBar.SetHomeButtonEnabled(true);
                     SupportActionBar.SetDisplayHomeAsUpEnabled(true);
                     SupportActionBar.Title = FolderTracks.instance.folderName;

@@ -239,7 +239,7 @@ namespace MusicApp.Resources.Portable_Class
             act.SupportActionBar.Title = displayPath;
 
             MainActivity.instance.HideTabs();
-            MainActivity.instance.Transition(Resource.Id.contentView, FolderTracks.NewInstance(path, displayPath), true);
+            MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, FolderTracks.NewInstance(path, displayPath)).AddToBackStack(null).Commit();
         }
 
         async void PlayInOrder(string folderPath)

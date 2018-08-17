@@ -29,8 +29,6 @@ namespace MusicApp.Resources.Portable_Class
 
         public void Clear()
         {
-            fragmentList.Clear();
-            titles.Clear();
             fragmentList = new List<Fragment>();
             titles = new List<string>();
             NotifyDataSetChanged();

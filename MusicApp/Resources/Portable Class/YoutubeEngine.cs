@@ -290,7 +290,7 @@ namespace MusicApp.Resources.Portable_Class
                     instances = null;
                     MainActivity.youtubeParcel = ListView.GetLayoutManager().OnSaveInstanceState();
                     MainActivity.youtubeInstanceSave = "YoutubeEngine" + "-" + querryType;
-                    MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(item.youtubeID, item.Name, false, false, item.Artist, -1, item.Album), true);
+                    MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(item.youtubeID, item.Name, false, false, item.Artist, -1, item.Album)).AddToBackStack(null).Commit();
                     break;
                 default:
                     break;
