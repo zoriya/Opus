@@ -9,7 +9,7 @@ namespace MusicApp.Resources.values
         public string Name { get; set; }
         public string Artist { get; set; }
         public string Album { get; set; }
-        public readonly long AlbumArt;
+        public long AlbumArt { get; set; }
         public string youtubeID { get; set; }
         public long Id { get; set; }
         public string Path { get; set; }

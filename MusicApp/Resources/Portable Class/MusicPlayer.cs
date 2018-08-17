@@ -71,7 +71,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             if (intent == null)
             {
-                StopSelf();
+                RetrieveQueueFromDataBase();
                 return StartCommandResult.Sticky;
             }
 
@@ -244,8 +244,9 @@ namespace MusicApp.Resources.Portable_Class
             else
             {
                 currentID = song.queueSlot;
-            }   
+            }
 
+            SaveQueueSlot();
             Player.instance?.RefreshPlayer();
             ParseNextSong();
         }
@@ -330,6 +331,7 @@ namespace MusicApp.Resources.Portable_Class
                 Player.instance.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
             }
 
+            SaveQueueSlot();
             Player.instance?.RefreshPlayer();
             ParseNextSong();
 
@@ -584,6 +586,7 @@ namespace MusicApp.Resources.Portable_Class
             queue.Insert(0, current);
             UpdateQueueSlots();
 
+            SaveQueueSlot();
             Player.instance?.UpdateNext();
             Queue.instance?.Refresh();
         }
@@ -769,6 +772,7 @@ namespace MusicApp.Resources.Portable_Class
             if(db.Table<Song>().Count() > queue.Count)
             {
                 db.DropTable<Song>();
+                db.CreateTable<Song>();
             }
 
             foreach (Song item in queue)
@@ -785,6 +789,14 @@ namespace MusicApp.Resources.Portable_Class
             db.InsertOrReplace(item);
         }
 
+        void SaveQueueSlot()
+        {
+            ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
+            ISharedPreferencesEditor editor = pref.Edit();
+            editor.PutInt("currentID", currentID);
+            editor.Apply();
+        }
+
         public static void RetrieveQueueFromDataBase()
         {
             SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "Queue.sqlite"));
@@ -792,7 +804,13 @@ namespace MusicApp.Resources.Portable_Class
 
             queue = db.Table<Song>().ToList();
             if(queue != null && queue.Count > 0)
-                currentID = 0;
+                currentID = RetrieveQueueSlot();
+        }
+
+        public static int RetrieveQueueSlot()
+        {
+            ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
+            return pref.GetInt("currentID", -1);
         }
 
         public static async void ParseNextSong()
