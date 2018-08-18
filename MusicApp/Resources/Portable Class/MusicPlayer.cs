@@ -758,35 +758,44 @@ namespace MusicApp.Resources.Portable_Class
 
         void AddSongToDataBase(Song item)
         {
-            SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "Queue.sqlite"));
-            db.CreateTable<Song>();
+            Task.Run(() =>
+            {
+                SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "Queue.sqlite"));
+                db.CreateTable<Song>();
 
-            db.InsertOrReplace(item);
+                db.InsertOrReplace(item);
+            });
         }
 
         void UpdateQueueDataBase()
         {
-            SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "Queue.sqlite"));
-            db.CreateTable<Song>();
-
-            if(db.Table<Song>().Count() > queue.Count)
+            Task.Run(() =>
             {
-                db.DropTable<Song>();
+                SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "Queue.sqlite"));
                 db.CreateTable<Song>();
-            }
-            
-            foreach (Song item in queue)
-            {
-                db.InsertOrReplace(item);
-            }
+
+                if (db.Table<Song>().Count() > queue.Count)
+                {
+                    db.DropTable<Song>();
+                    db.CreateTable<Song>();
+                }
+
+                foreach (Song item in queue)
+                {
+                    db.InsertOrReplace(item);
+                }
+            });
         }
 
         void UpdateQueueItemDB(Song item)
         {
-            SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "Queue.sqlite"));
-            db.CreateTable<Song>();
+            Task.Run(() =>
+            {
+                SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "Queue.sqlite"));
+                db.CreateTable<Song>();
 
-            db.InsertOrReplace(item);
+                db.InsertOrReplace(item);
+            });
         }
 
         void SaveQueueSlot()
@@ -799,12 +808,15 @@ namespace MusicApp.Resources.Portable_Class
 
         public static void RetrieveQueueFromDataBase()
         {
-            SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "Queue.sqlite"));
-            db.CreateTable<Song>();
+            Task.Run(() =>
+            {
+                SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "Queue.sqlite"));
+                db.CreateTable<Song>();
 
-            queue = db.Table<Song>().ToList();
-            if(queue != null && queue.Count > 0)
-                currentID = RetrieveQueueSlot();
+                queue = db.Table<Song>().ToList();
+                if (queue != null && queue.Count > 0)
+                    currentID = RetrieveQueueSlot();
+            });
         }
 
         public static int RetrieveQueueSlot()

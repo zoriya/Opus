@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 
 namespace MusicApp.Resources.Portable_Class
 {
-    [Activity(Label = "Player", Theme = "@style/Theme", ScreenOrientation = ScreenOrientation.Portrait)]
+    [Activity(Label = "Player", Theme = "@style/Theme", ScreenOrientation = ScreenOrientation.Portrait, LaunchMode = LaunchMode.SingleTop)]
     public class Player : AppCompatActivity, Palette.IPaletteAsyncListener
     {
         public static Player instance;
