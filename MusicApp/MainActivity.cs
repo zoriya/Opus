@@ -127,7 +127,8 @@ namespace MusicApp
 
             playToCross = GetDrawable(Resource.Drawable.PlayToCross);
             crossToPlay = GetDrawable(Resource.Drawable.CrossToPlay);
-            MusicPlayer.RetrieveQueueFromDataBase();
+            if(!MusicPlayer.isRunning)
+                MusicPlayer.RetrieveQueueFromDataBase();
 
             if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
             {
@@ -408,6 +409,7 @@ namespace MusicApp
             item.SetVisible(false);
             menu.FindItem(Resource.Id.search).SetOnActionExpandListener(this);
             ((SearchView)menu.FindItem(Resource.Id.search).ActionView).SetOnQueryTextFocusChangeListener(this);
+            ((SearchView)menu.FindItem(Resource.Id.search).ActionView).QueryHint = "Search Youtube";
             return base.OnCreateOptionsMenu(menu);
         }
 

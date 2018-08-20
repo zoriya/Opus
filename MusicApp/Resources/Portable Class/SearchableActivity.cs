@@ -6,9 +6,12 @@ using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
 using Newtonsoft.Json;
+using SQLite;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
-using System.Threading;
+//using System.Threading;
+using System.Threading.Tasks;
 using SearchView = Android.Support.V7.Widget.SearchView;
 using Toolbar = Android.Support.V7.Widget.Toolbar;
 
@@ -45,6 +48,22 @@ namespace MusicApp.Resources.Portable_Class
                 searched = true;
                 searchView.SetQuery(suggestions[e.Position].Text, true);
             };
+
+            Task.Run(() => 
+            {
+                SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "RecentSearch.sqlite"));
+                db.CreateTable<Suggestion>();
+
+                History = db.Table<Suggestion>().ToList().ConvertAll(HistoryItem);
+                foreach (Suggestion sug in History)
+                    System.Console.WriteLine("&Sugge: " + sug.Text);
+                suggestions = History;
+            });
+        }
+
+        Suggestion HistoryItem(Suggestion suggestion)
+        {
+            return new Suggestion(Resource.Drawable.History, suggestion.Text);
         }
 
         public override bool OnCreateOptionsMenu(IMenu menu)
@@ -53,13 +72,14 @@ namespace MusicApp.Resources.Portable_Class
             IMenuItem searchItem = menu.FindItem(Resource.Id.search);
             searchItem.ExpandActionView();
             searchView = searchItem.ActionView.JavaCast<SearchView>();
+            ListView.Adapter = ListView.Adapter = new SuggestionAdapter(instance, Resource.Layout.SuggestionLayout, suggestions);
             searchView.MaxWidth = int.MaxValue;
             searchView.QueryHint = "Search Youtube";
             searchView.QueryTextChange += (s, e) =>
             {
                 if (e.NewText.Length > 0)
                 {
-                    new Thread(() =>
+                    Task.Run(() =>
                     {
                         try
                         {
@@ -70,18 +90,25 @@ namespace MusicApp.Resources.Portable_Class
                                 json = json.Remove(json.Length - 1);
                                 List<string> items = JsonConvert.DeserializeObject<List<string>>(json);
                                 suggestions = items.ConvertAll(StringToSugest);
+                                suggestions.InsertRange(0, History.Where(x => x.Text.StartsWith(e.NewText)));
 
                                 if(!searched)
                                     RunOnUiThread(new Java.Lang.Runnable(() => { ListView.Adapter = new SuggestionAdapter(instance, Resource.Layout.SuggestionLayout, suggestions); }));
                             }
                         }
                         catch { }
-                    }).Start();
+                    });
+                }
+                else
+                {
+                    suggestions = History;
+                    ListView.Adapter = new SuggestionAdapter(instance, Resource.Layout.SuggestionLayout, suggestions);
                 }
             };
             searchView.QueryTextSubmit += (s, e) =>
             {
                 searched = true;
+                AddQueryToHistory(e.Query);
                 Finish();
                 OverridePendingTransition(Android.Resource.Animation.FadeIn, Android.Resource.Animation.FadeOut);
                 MainActivity.instance.SearchOnYoutube(e.Query);
@@ -90,6 +117,17 @@ namespace MusicApp.Resources.Portable_Class
             searchItem.SetOnActionExpandListener(this);
             searchView.SetQuery(((SearchView)MainActivity.instance.menu.FindItem(Resource.Id.search).ActionView).Query, false);
             return base.OnCreateOptionsMenu(menu);
+        }
+
+        void AddQueryToHistory(string query)
+        {
+            Task.Run(() =>
+            {
+                SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "RecentSearch.sqlite"));
+                db.CreateTable<Suggestion>();
+
+                db.Insert(new Suggestion(-1, query));
+            });
         }
 
         Suggestion StringToSugest(string text)

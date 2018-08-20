@@ -35,8 +35,10 @@ namespace MusicApp.Resources.Portable_Class
 
             SetContentView(Resource.Layout.ListPopupLayout);
             instance = this;
+            if (!MusicPlayer.isRunning)
+                MusicPlayer.RetrieveQueueFromDataBase();
 
-            SetSupportActionBar(FindViewById<Android.Support.V7.Widget.Toolbar>(Resource.Id.toolbar));
+            SetSupportActionBar(FindViewById<Toolbar>(Resource.Id.toolbar));
             SupportActionBar.SetHomeAsUpIndicator(Resource.Drawable.Close);
             SupportActionBar.SetDisplayHomeAsUpEnabled(true);
 
@@ -198,13 +200,12 @@ namespace MusicApp.Resources.Portable_Class
                 return;
             }
 
-            foreach(Song song in MusicPlayer.queue)
-            {
-                if (song.queueSlot > item.queueSlot)
-                    song.queueSlot--;
-            }
+            if (MusicPlayer.CurrentID() > item.queueSlot)
+                MusicPlayer.currentID--;
 
             MusicPlayer.queue.Remove(item);
+            MusicPlayer.instance.UpdateQueueSlots();
+
         }
 
         protected override void OnResume()

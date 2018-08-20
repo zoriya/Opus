@@ -42,6 +42,8 @@ namespace MusicApp.Resources.Portable_Class
 
             SetContentView(Resource.Layout.player);
             instance = this;
+            if(!MusicPlayer.isRunning)
+                MusicPlayer.RetrieveQueueFromDataBase();
 
             CreatePlayer();
 

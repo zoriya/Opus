@@ -813,10 +813,20 @@ namespace MusicApp.Resources.Portable_Class
                 SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "Queue.sqlite"));
                 db.CreateTable<Song>();
 
-                queue = db.Table<Song>().ToList();
+                queue = db.Table<Song>().ToList().ConvertAll(RemoveParseValues);
                 if (queue != null && queue.Count > 0)
                     currentID = RetrieveQueueSlot();
             });
+        }
+
+        static Song RemoveParseValues(Song song)
+        {
+            if (song.IsYt && song.isParsed)
+            {
+                song.isParsed = false;
+                song.Path = song.youtubeID;
+            }
+            return song;
         }
 
         public static int RetrieveQueueSlot()
