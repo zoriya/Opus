@@ -49,7 +49,7 @@ namespace MusicApp
     [IntentFilter(new[] {Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, DataHost = "www.youtube.com", DataMimeType = "text/*")]
     [IntentFilter(new[] {Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, DataHost = "m.youtube.com", DataMimeType = "text/plain")]
     [IntentFilter(new[] { Intent.ActionView }, Categories = new[] { Intent.CategoryDefault }, DataMimeTypes = new[] { "audio/*", "application/ogg", "application/x-ogg", "application/itunes" })]
-    public class MainActivity : AppCompatActivity, ViewPager.IOnPageChangeListener, SwipeDismissBehavior.IOnDismissListener, GoogleApiClient.IOnConnectionFailedListener, Square.OkHttp.ICallback, IResultCallback, IMenuItemOnActionExpandListener
+    public class MainActivity : AppCompatActivity, ViewPager.IOnPageChangeListener, SwipeDismissBehavior.IOnDismissListener, GoogleApiClient.IOnConnectionFailedListener, Square.OkHttp.ICallback, IResultCallback, IMenuItemOnActionExpandListener, View.IOnFocusChangeListener
     {
         public static MainActivity instance;
         public static int paddingBot = 0;
@@ -402,45 +402,12 @@ namespace MusicApp
             MenuInflater.Inflate(Resource.Menu.toolbar_menu, menu);
             this.menu = menu;
 
-
             var item = menu.FindItem(Resource.Id.filter);
-            item.SetVisible(false);
-
             var filterView = item.ActionView.JavaCast<SearchView>();
             filterView.QueryTextChange += Search;
-            var searchView = menu.FindItem(Resource.Id.search).ActionView.JavaCast<SearchView>();
-            searchView.SuggestionsAdapter = new Android.Support.V4.Widget.SimpleCursorAdapter(this, Resource.Layout.SuggestionLayout, null, new string[] { SearchManager.SuggestColumnText1 }, new int[] { Android.Resource.Id.Text1 });
-            searchView.SuggestionClick += (s, e) =>
-            {
-                ICursor cursor = (ICursor)searchView.SuggestionsAdapter.GetItem(e.Position);
-                string suggestion = cursor.GetString(cursor.GetColumnIndex(SearchManager.SuggestColumnText1));
-                cursor.Close();
-                searchView.SetQuery(suggestion, true);
-            };
-            searchView.QueryTextChange += (s, e) =>
-            {
-                if(e.NewText.Length > 0)
-                    new SearchCompleter(searchView).Execute(e.NewText, searchView);
-            };
-            searchView.QueryTextSubmit += (s, e) =>
-            {
-                if(YoutubeEngine.instances != null)
-                {
-                    YoutubeEngine.searchKeyWorld = e.Query;
-#pragma warning disable CS4014
-                    foreach(YoutubeEngine instance in YoutubeEngine.instances)
-                        instance.Search(e.Query, instance.querryType, true);
-                }
-                else
-                {
-                    SaveInstance();
-                    YoutubeEngine.searchKeyWorld = e.Query;
-                    SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(1, 0)).Commit();
-                }
-                e.Handled = true;
-            };
-
+            item.SetVisible(false);
             menu.FindItem(Resource.Id.search).SetOnActionExpandListener(this);
+            ((SearchView)menu.FindItem(Resource.Id.search).ActionView).SetOnQueryTextFocusChangeListener(this);
             return base.OnCreateOptionsMenu(menu);
         }
 
@@ -547,18 +514,18 @@ namespace MusicApp
 
         public bool OnMenuItemActionCollapse(IMenuItem item) //Youtube search collapse
         {
-            if (YoutubeEngine.instances == null)
-                return true;
-
-            ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
-            foreach (YoutubeEngine instance in YoutubeEngine.instances)
+            if (YoutubeEngine.instances != null)
             {
-                OnPaddingChanged -= instance.OnPaddingChanged;
-                rootView.RemoveView(instance.emptyView);
+                ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
+                foreach (YoutubeEngine instance in YoutubeEngine.instances)
+                {
+                    OnPaddingChanged -= instance.OnPaddingChanged;
+                    rootView.RemoveView(instance.emptyView);
+                }
+                rootView.RemoveView(YoutubeEngine.loadingView);
+                YoutubeEngine.instances = null;
+                ResumeInstance();
             }
-            rootView.RemoveView(YoutubeEngine.loadingView);
-            YoutubeEngine.instances = null;
-            ResumeInstance();
             return true;
         }
 
@@ -575,6 +542,32 @@ namespace MusicApp
                 PlaylistTracks.instance.Search(e.NewText);
             if (FolderTracks.instance != null)
                 FolderTracks.instance.Search(e.NewText);
+        }
+
+        public void OnFocusChange(View v, bool hasFocus)
+        {
+            if (hasFocus)
+            {
+                Bundle animation = ActivityOptionsCompat.MakeCustomAnimation(this, Android.Resource.Animation.FadeIn, Android.Resource.Animation.FadeOut).ToBundle();
+                StartActivity(new Intent(this, typeof(SearchableActivity)), animation);
+            }
+        }
+
+        public void SearchOnYoutube(string query)
+        {
+            SaveInstance();
+            YoutubeEngine.searchKeyWorld = query;
+            IMenuItem searchItem = menu.FindItem(Resource.Id.search);
+            SearchView searchView = (SearchView)searchItem.ActionView;
+            searchView.SetQuery(query, false);
+            searchView.ClearFocus();
+            searchView.Focusable = false;
+        }
+
+        public void CancelSearch()
+        {
+            IMenuItem searchItem = menu.FindItem(Resource.Id.search);
+            searchItem.CollapseActionView();
         }
 
         public void HideSearch()
@@ -1406,6 +1399,21 @@ namespace MusicApp
             base.OnResume();
             paused = false;
             instance = this;
+
+            if(SearchableActivity.instance != null && SearchableActivity.instance.searched)
+            {
+                if (YoutubeEngine.instances != null)
+                {
+#pragma warning disable CS4014
+                    foreach (YoutubeEngine instance in YoutubeEngine.instances)
+                        instance.Search(YoutubeEngine.searchKeyWorld, instance.querryType, true);
+                }
+                else
+                {
+                    SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(1, 0)).Commit();
+                }
+                SearchableActivity.instance = null;
+            }
         }
 
         public void SaveInstance()

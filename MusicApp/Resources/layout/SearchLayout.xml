@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="vertical"
+  android:fitsSystemWindows="true">
+  <android.support.design.widget.AppBarLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/appbar" >
+    <android.support.v7.widget.Toolbar
+      android:layout_width="match_parent"
+      android:layout_height="?attr/actionBarSize"
+      android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+      app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+      android:id="@+id/toolbar" />
+  </android.support.design.widget.AppBarLayout>
+  <ListView
+    android:id="@+id/searchSuggestions"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent" />
+  <RelativeLayout
+    android:layout_height="wrap_content"
+    android:visibility="gone"
+    android:layout_alignParentBottom="true"
+    android:gravity="center_horizontal|bottom"
+    android:paddingBottom="70dp"
+    android:paddingRight="20dp"
+    android:paddingLeft="20dp"
+    android:elevation="6dp"
+    android:layout_width="wrap_content">
+    <include
+      layout="@layout/SmallPlayer"
+      android:id="@+id/smallPlayer" />
+  </RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>
