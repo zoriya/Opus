@@ -767,7 +767,7 @@ namespace MusicApp.Resources.Portable_Class
             });
         }
 
-        void UpdateQueueDataBase()
+        public static void UpdateQueueDataBase()
         {
             Task.Run(() =>
             {

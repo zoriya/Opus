@@ -120,16 +120,27 @@ namespace MusicApp.Resources.Portable_Class
 
         void AddQueryToHistory(string query)
         {
-            if (History.ConvertAll(SuggestToQuery).Contains(query, new QueryComparer()))
-                return;
-
-            Task.Run(() =>
+            if (!History.ConvertAll(SuggestToQuery).Contains(query, new QueryComparer()))
             {
-                SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "RecentSearch.sqlite"));
-                db.CreateTable<Suggestion>();
+                Task.Run(() =>
+                {
+                    SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "RecentSearch.sqlite"));
+                    db.CreateTable<Suggestion>();
 
-                db.Insert(new Suggestion(-1, query));
-            });
+                    db.Insert(new Suggestion(-1, query));
+                });
+            }
+            else
+            {
+                Task.Run(() =>
+                {
+                    SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "RecentSearch.sqlite"));
+                    db.CreateTable<Suggestion>();
+
+                    db.Delete(db.Table<Suggestion>().ToList().Find(x => x.Text == query));
+                    db.Insert(new Suggestion(-1, query));
+                });
+            }
         }
 
         Suggestion StringToSugest(string text)

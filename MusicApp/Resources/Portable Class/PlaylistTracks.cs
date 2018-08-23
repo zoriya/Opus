@@ -483,7 +483,7 @@ namespace MusicApp.Resources.Portable_Class
             MainActivity.instance.contentRefresh.Refreshing = false;
         }
 
-        public async void LoadMore()
+        public async Task LoadMore()
         {
             if (nextPageToken == null)
                 return;
@@ -683,6 +683,12 @@ namespace MusicApp.Resources.Portable_Class
             }
             else
                 YoutubeEngine.Play(songs[0].youtubeID, songs[0].Title, songs[0].Artist, songs[0].Album);
+
+            if(ytID != null)
+            {
+                while(nextPageToken != null)
+                    await LoadMore();
+            }
 
             songs.RemoveAt(0);
             songs.Reverse();

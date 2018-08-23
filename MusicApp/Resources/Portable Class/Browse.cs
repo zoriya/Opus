@@ -257,6 +257,10 @@ namespace MusicApp.Resources.Portable_Class
 
         public static void Play(Song item, View albumArt)
         {
+            MusicPlayer.queue?.Clear();
+            MusicPlayer.UpdateQueueDataBase();
+            MusicPlayer.currentID = -1;
+
             Context context = Android.App.Application.Context;
             Intent intent = new Intent(context, typeof(MusicPlayer));
             intent.PutExtra("file", item.Path);

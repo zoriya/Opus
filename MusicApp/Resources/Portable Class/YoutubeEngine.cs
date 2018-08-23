@@ -374,6 +374,10 @@ namespace MusicApp.Resources.Portable_Class
 
         public static void Play(string videoID, string title, string artist, string thumbnailURL)
         {
+            MusicPlayer.queue?.Clear();
+            MusicPlayer.UpdateQueueDataBase();
+            MusicPlayer.currentID = -1;
+
             Intent intent = new Intent(Android.App.Application.Context, typeof(MusicPlayer));
             intent.SetAction("YoutubePlay");
             intent.PutExtra("action", "Play");
