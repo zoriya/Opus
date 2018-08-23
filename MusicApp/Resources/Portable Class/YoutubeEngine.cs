@@ -408,6 +408,8 @@ namespace MusicApp.Resources.Portable_Class
 
             for (int i = 1; i < files.Length; i++)
                 MusicPlayer.instance.AddToQueue(files[i]);
+
+            Player.instance?.UpdateNext();
         }
 
 

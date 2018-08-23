@@ -459,6 +459,10 @@ namespace MusicApp.Resources.Portable_Class
                 MainActivity.parcelable = null;
                 MainActivity.parcelableSender = null;
             }
+
+            adapterItems[0].recycler?.GetAdapter()?.NotifyDataSetChanged();
+            if (MusicPlayer.CurrentID() != -1 && MusicPlayer.CurrentID() <= MusicPlayer.queue.Count)
+                adapterItems[0].recycler?.ScrollToPosition(MusicPlayer.CurrentID());
         }
     }
 }

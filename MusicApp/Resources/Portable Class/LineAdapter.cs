@@ -14,6 +14,7 @@ namespace MusicApp.Resources.Portable_Class
     {
         public RecyclerView recycler;
         public int listPadding = 0;
+        private bool useQueue = false;
         private List<Song> songList;
 
         private readonly string[] actions = new string[] { "Play", "Play Next", "Play Last", "Add To Playlist" };
@@ -23,6 +24,15 @@ namespace MusicApp.Resources.Portable_Class
         {
             this.recycler = recycler;
             this.songList = songList;
+        }
+        /*
+         * Use this method if the songList is the queue
+         */
+        public LineAdapter(RecyclerView recycler)
+        {
+            this.recycler = recycler;
+            useQueue = true;
+            songList = MusicPlayer.queue;
         }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position)
@@ -53,7 +63,9 @@ namespace MusicApp.Resources.Portable_Class
 
         void OnClick(int position)
         {
-            if (!songList[position].IsYt)
+            if (useQueue && MusicPlayer.instance != null)
+                MusicPlayer.instance.SwitchQueue(songList[position]);
+            else if (!songList[position].IsYt)
                 Browse.Play(songList[position], recycler.GetLayoutManager().FindViewByPosition(position).FindViewById<ImageView>(Resource.Id.albumArt));
             else
                 YoutubeEngine.Play(songList[position].youtubeID, songList[position].Title, songList[position].Artist, songList[position].Album);

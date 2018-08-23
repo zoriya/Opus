@@ -69,16 +69,30 @@ namespace MusicApp.Resources.Portable_Class
                 LineSongHolder holder = (LineSongHolder)viewHolder;
                 holder.title.Text = items[position].SectionTitle;
                 holder.recycler.SetLayoutManager(new LinearLayoutManager(MainActivity.instance, LinearLayoutManager.Horizontal, false));
-                holder.recycler.SetAdapter(new LineAdapter(items[position].contentValue.GetRange(0, items[position].contentValue.Count > 20 ? 20 : items[position].contentValue.Count), holder.recycler));
-                holder.more.Click += (sender, e) =>
+                if (items[position].SectionTitle == "Queue")
                 {
-                    MainActivity.instance.SupportActionBar.SetHomeButtonEnabled(true);
-                    MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
-                    MainActivity.instance.SupportActionBar.Title = items[position].SectionTitle;
-                    MainActivity.instance.contentRefresh.Refresh -= Home.instance.OnRefresh;
-                    Home.instance = null;
-                    MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(items[position].contentValue, items[position].SectionTitle)).AddToBackStack(null).Commit();
-                };
+                    holder.recycler.SetAdapter(new LineAdapter(holder.recycler));
+                    holder.more.Click += (sender, e) =>
+                    {
+                        Intent intent = new Intent(MainActivity.instance, typeof(Queue));
+                        MainActivity.instance.StartActivity(intent);
+                    };
+                    if(MusicPlayer.CurrentID() != -1 && MusicPlayer.CurrentID() <= MusicPlayer.queue.Count)
+                        holder.recycler.ScrollToPosition(MusicPlayer.CurrentID());
+                }
+                else
+                {
+                    holder.recycler.SetAdapter(new LineAdapter(items[position].contentValue.GetRange(0, items[position].contentValue.Count > 20 ? 20 : items[position].contentValue.Count), holder.recycler));
+                    holder.more.Click += (sender, e) =>
+                    {
+                        MainActivity.instance.SupportActionBar.SetHomeButtonEnabled(true);
+                        MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
+                        MainActivity.instance.SupportActionBar.Title = items[position].SectionTitle;
+                        MainActivity.instance.contentRefresh.Refresh -= Home.instance.OnRefresh;
+                        Home.instance = null;
+                        MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(items[position].contentValue, items[position].SectionTitle)).AddToBackStack(null).Commit();
+                    };
+                }
 
                 if (MainActivity.Theme == 1)
                     holder.ItemView.SetBackgroundColor(Color.Argb(255, 62, 62, 62));
