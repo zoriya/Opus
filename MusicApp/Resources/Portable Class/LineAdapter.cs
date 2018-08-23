@@ -29,7 +29,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             RecyclerHolder holder = (RecyclerHolder)viewHolder;
 
-            holder.Title.Text = songList[position].Name;
+            holder.Title.Text = songList[position].Title;
 
             if (songList[position].AlbumArt == -1 || songList[position].IsYt)
             {
@@ -56,7 +56,7 @@ namespace MusicApp.Resources.Portable_Class
             if (!songList[position].IsYt)
                 Browse.Play(songList[position], recycler.GetLayoutManager().FindViewByPosition(position).FindViewById<ImageView>(Resource.Id.albumArt));
             else
-                YoutubeEngine.Play(songList[position].youtubeID, songList[position].Name, songList[position].Artist, songList[position].Album);
+                YoutubeEngine.Play(songList[position].youtubeID, songList[position].Title, songList[position].Artist, songList[position].Album);
         }
 
         void OnLongClick(int position)
@@ -86,21 +86,21 @@ namespace MusicApp.Resources.Portable_Class
                         if (!item.IsYt)
                             Browse.Play(item, recycler.GetLayoutManager().FindViewByPosition(position).FindViewById<ImageView>(Resource.Id.albumArt));
                         else
-                            YoutubeEngine.Play(item.youtubeID, item.Name, item.Artist, item.Album);
+                            YoutubeEngine.Play(item.youtubeID, item.Title, item.Artist, item.Album);
                         break;
 
                     case 1:
                         if (!item.IsYt)
                             Browse.PlayNext(item);
                         else
-                            YoutubeEngine.PlayNext(item.Path, item.Name, item.Artist, item.Album);
+                            YoutubeEngine.PlayNext(item.Path, item.Title, item.Artist, item.Album);
                         break;
 
                     case 2:
                         if (!item.IsYt)
                             Browse.PlayLast(item);
                         else
-                            YoutubeEngine.PlayLast(item.Path, item.Name, item.Artist, item.Album);
+                            YoutubeEngine.PlayLast(item.Path, item.Title, item.Artist, item.Album);
                         break;
 
                     case 3:
@@ -112,7 +112,7 @@ namespace MusicApp.Resources.Portable_Class
 
                     case 5:
                         if (item.IsYt)
-                            YoutubeEngine.Download(item.Name, item.Path);
+                            YoutubeEngine.Download(item.Title, item.Path);
                         else
                             Browse.EditMetadata(item, "PlaylistTracks", Home.instance.ListView.GetLayoutManager().OnSaveInstanceState());
                         break;

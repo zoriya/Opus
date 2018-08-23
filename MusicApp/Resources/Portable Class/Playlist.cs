@@ -269,7 +269,7 @@ namespace MusicApp.Resources.Portable_Class
                                 ytPlaylists.Add(song);
                             }
                         }
-                        if(ytPlaylists.Count == 3 && ytPlaylists[1].Name == "EMPTY")
+                        if(ytPlaylists.Count == 3 && ytPlaylists[1].Title == "EMPTY")
                         {
                             ytPlaylists.RemoveAt(1);
                             adapter.NotifyItemChanged(playList.Count + ytPlaylists.Count - 1);
@@ -289,16 +289,16 @@ namespace MusicApp.Resources.Portable_Class
             AppCompatActivity act = (AppCompatActivity)Activity;
             act.SupportActionBar.SetHomeButtonEnabled(true);
             act.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
-            act.SupportActionBar.Title = playlist.Name;
+            act.SupportActionBar.Title = playlist.Title;
             instance = null;
             MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
             MainActivity.instance.OnPaddingChanged -= OnPaddingChanged;
             MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
 
             if (local)
-                MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.Id, playlist.Name)).AddToBackStack(null).Commit();
+                MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.Id, playlist.Title)).AddToBackStack(null).Commit();
             else
-                MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.youtubeID, playlist.Name, playlist.isParsed, true, playlist.Artist, playlist.queueSlot, playlist.Album)).AddToBackStack(null).Commit();
+                MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.youtubeID, playlist.Title, playlist.isParsed, true, playlist.Artist, playlist.queueSlot, playlist.Album)).AddToBackStack(null).Commit();
         }
 
         private void ListView_ItemLongClick(object sender, int position)
@@ -360,7 +360,7 @@ namespace MusicApp.Resources.Portable_Class
                             RemoveYoutubePlaylist(Position, playlist.Path);
                             break;
                         case 5:
-                            YoutubeEngine.DownloadPlaylist(playlist.Name, playlist.Path);
+                            YoutubeEngine.DownloadPlaylist(playlist.Title, playlist.Path);
                             break;
                         default:
                             break;
@@ -384,7 +384,7 @@ namespace MusicApp.Resources.Portable_Class
                             Unfork(Position, playlist.Path);
                             break;
                         case 4:
-                            YoutubeEngine.DownloadPlaylist(playlist.Name, playlist.Path);
+                            YoutubeEngine.DownloadPlaylist(playlist.Title, playlist.Path);
                             break;
                         default:
                             break;
@@ -468,17 +468,20 @@ namespace MusicApp.Resources.Portable_Class
 
                 foreach (var item in ytPlaylist.Items)
                 {
-                    Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
-                    songs.Add(song);
+                    if (item.Snippet.Title != "[Deleted video]" && item.Snippet.Title != "Private video" && item.Snippet.Title != "Deleted video")
+                    {
+                        Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
+                        songs.Add(song);
+                    }
                 }
 
-                nextPageToken = ytPlaylist.NextPageToken;
-            }
+            nextPageToken = ytPlaylist.NextPageToken;
+        }
 
             if (MusicPlayer.isRunning)
-                MusicPlayer.queue.Clear();
+                MusicPlayer.queue?.Clear();
 
-            YoutubeEngine.Play(songs[0].youtubeID, songs[0].Name, songs[0].Artist, songs[0].Album);
+            YoutubeEngine.Play(songs[0].youtubeID, songs[0].Title, songs[0].Artist, songs[0].Album);
             songs.RemoveAt(0);
             songs.Reverse();
 
@@ -563,7 +566,7 @@ namespace MusicApp.Resources.Portable_Class
 
             List<Song> songs = new List<Song>();
 
-            if(!await MainActivity.instance.WaitForYoutube())
+            if (!await MainActivity.instance.WaitForYoutube())
             {
                 Toast.MakeText(Android.App.Application.Context, "Error while loading.\nCheck your internet connection and check if your logged in.", ToastLength.Long).Show();
                 return;
@@ -582,8 +585,11 @@ namespace MusicApp.Resources.Portable_Class
 
                 foreach (var item in ytPlaylist.Items)
                 {
-                    Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
-                    songs.Add(song);
+                    if (item.Snippet.Title != "[Deleted video]" && item.Snippet.Title != "Private video" && item.Snippet.Title != "Deleted video")
+                    {
+                        Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
+                        songs.Add(song);
+                    }
                 }
 
                 nextPageToken = ytPlaylist.NextPageToken;
@@ -606,7 +612,7 @@ namespace MusicApp.Resources.Portable_Class
             builder.SetNegativeButton("Cancel", (senderAlert, args) => { });
             builder.SetPositiveButton("Rename", (senderAlert, args) =>
             {
-                playlist.Name = view.FindViewById<EditText>(Resource.Id.playlistName).Text;
+                playlist.Title = view.FindViewById<EditText>(Resource.Id.playlistName).Text;
                 RenamePlaylist(position, playlist);
             });
             builder.Show();
@@ -617,9 +623,9 @@ namespace MusicApp.Resources.Portable_Class
             ContentResolver resolver = Activity.ContentResolver;
             Android.Net.Uri uri = Playlists.ExternalContentUri;
             ContentValues value = new ContentValues();
-            value.Put(Playlists.InterfaceConsts.Name, playlist.Name);
+            value.Put(Playlists.InterfaceConsts.Name, playlist.Title);
             resolver.Update(Playlists.ExternalContentUri, value, Playlists.InterfaceConsts.Id + "=?", new string[] { playlist.Id.ToString() });
-            playList[position] = playlist.Name;
+            playList[position] = playlist.Title;
 
             adapter.UpdateElement(position, playlist);
         }
@@ -668,7 +674,7 @@ namespace MusicApp.Resources.Portable_Class
             YtPlaylists[position - playList.Count].Snippet.Title = name;
             YoutubeEngine.youtubeService.Playlists.Update(playlist, "snippet").Execute();
 
-            ytPlaylists[position - playList.Count - 1].Name = name;
+            ytPlaylists[position - playList.Count - 1].Title = name;
             adapter.UpdateElement(position, ytPlaylists[position - playList.Count - 1]);
         }
 

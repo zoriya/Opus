@@ -42,7 +42,7 @@ namespace MusicApp.Resources.Portable_Class
 
             SetContentView(Resource.Layout.player);
             instance = this;
-            if(!MusicPlayer.isRunning)
+            if(MusicPlayer.queue == null)
                 MusicPlayer.RetrieveQueueFromDataBase();
 
             CreatePlayer();
@@ -81,7 +81,7 @@ namespace MusicApp.Resources.Portable_Class
 
             Song current = MusicPlayer.queue[MusicPlayer.CurrentID()];
 
-            title.Text = current.Name;
+            title.Text = current.Title;
             artist.Text = current.Artist;
             title.Selected = true;
             title.SetMarqueeRepeatLimit(3);
@@ -177,7 +177,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 Song next = MusicPlayer.queue[MusicPlayer.CurrentID() + 1];
                 NextTitle.Text = "Next music:";
-                NextAlbum.Text = next.Name;
+                NextAlbum.Text = next.Title;
                 ImageView nextArt = FindViewById<ImageView>(Resource.Id.nextArt);
 
                 if (next.Album == null)
@@ -196,7 +196,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 Song next = MusicPlayer.queue[0];
                 NextTitle.Text = "Next music:";
-                NextAlbum.Text = next.Name;
+                NextAlbum.Text = next.Title;
                 ImageView nextArt = FindViewById<ImageView>(Resource.Id.nextArt);
 
                 if (next.Album == null)
@@ -244,7 +244,7 @@ namespace MusicApp.Resources.Portable_Class
 
             Song current = MusicPlayer.queue[MusicPlayer.CurrentID()];
 
-            title.Text = current.Name;
+            title.Text = current.Title;
             artist.Text = current.Artist;
 
             if (MusicPlayer.isRunning)
@@ -304,7 +304,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 Song next = MusicPlayer.queue[MusicPlayer.CurrentID() + 1];
                 FindViewById<TextView>(Resource.Id.nextTitle).Text = "Next music:";
-                FindViewById<TextView>(Resource.Id.nextArtist).Text = next.Name;
+                FindViewById<TextView>(Resource.Id.nextArtist).Text = next.Title;
                 ImageView nextArt = FindViewById<ImageView>(Resource.Id.nextArt);
 
                 if (next.Album == null)
@@ -323,7 +323,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 Song next = MusicPlayer.queue[0];
                 FindViewById<TextView>(Resource.Id.nextTitle).Text = "Next music:";
-                FindViewById<TextView>(Resource.Id.nextArtist).Text = next.Name;
+                FindViewById<TextView>(Resource.Id.nextArtist).Text = next.Title;
                 ImageView nextArt = FindViewById<ImageView>(Resource.Id.nextArt);
 
                 if (next.Album == null)
@@ -362,7 +362,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 Song next = MusicPlayer.queue[MusicPlayer.CurrentID() + 1];
                 FindViewById<TextView>(Resource.Id.nextTitle).Text = "Next music:";
-                FindViewById<TextView>(Resource.Id.nextArtist).Text = next.Name;
+                FindViewById<TextView>(Resource.Id.nextArtist).Text = next.Title;
                 ImageView nextArt = FindViewById<ImageView>(Resource.Id.nextArt);
 
                 if (next.Album == null)
@@ -381,7 +381,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 Song next = MusicPlayer.queue[0];
                 FindViewById<TextView>(Resource.Id.nextTitle).Text = "Next music:";
-                FindViewById<TextView>(Resource.Id.nextArtist).Text = next.Name;
+                FindViewById<TextView>(Resource.Id.nextArtist).Text = next.Title;
                 ImageView nextArt = FindViewById<ImageView>(Resource.Id.nextArt);
 
                 if (next.Album == null)
@@ -409,7 +409,7 @@ namespace MusicApp.Resources.Portable_Class
         private void Download_Click(object sender, EventArgs e)
         {
             Song song = MusicPlayer.queue[MusicPlayer.CurrentID()];
-            YoutubeEngine.Download(song.Name, song.youtubeID);
+            YoutubeEngine.Download(song.Title, song.youtubeID);
         }
 
         private void Youtube_Click(object sender, EventArgs e)

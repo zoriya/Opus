@@ -268,7 +268,7 @@ namespace MusicApp.Resources.Portable_Class
             switch (result[position].Kind)
             {
                 case YtKind.Video:
-                    Play(item.youtubeID, item.Name, item.Artist, item.Album);
+                    Play(item.youtubeID, item.Title, item.Artist, item.Album);
                     break;
                 case YtKind.Playlist:
                     ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
@@ -285,12 +285,12 @@ namespace MusicApp.Resources.Portable_Class
                     searchView.Iconified = true;
                     searchView.SetQuery("", false);
                     MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
-                    MainActivity.instance.SupportActionBar.Title = item.Name;
+                    MainActivity.instance.SupportActionBar.Title = item.Title;
                     MainActivity.instance.HideTabs();
                     instances = null;
                     MainActivity.youtubeParcel = ListView.GetLayoutManager().OnSaveInstanceState();
                     MainActivity.youtubeInstanceSave = "YoutubeEngine" + "-" + querryType;
-                    MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(item.youtubeID, item.Name, false, false, item.Artist, -1, item.Album)).AddToBackStack(null).Commit();
+                    MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(item.youtubeID, item.Title, false, false, item.Artist, -1, item.Album)).AddToBackStack(null).Commit();
                     break;
                 default:
                     break;
@@ -320,19 +320,19 @@ namespace MusicApp.Resources.Portable_Class
                 switch (args.Which)
                 {
                     case 0:
-                        Play(item.youtubeID, item.Name, item.Artist, item.Album);
+                        Play(item.youtubeID, item.Title, item.Artist, item.Album);
                         break;
                     case 1:
-                        PlayNext(item.youtubeID, item.Name, item.Artist, item.Album);
+                        PlayNext(item.youtubeID, item.Title, item.Artist, item.Album);
                         break;
                     case 2:
-                        PlayLast(item.youtubeID, item.Name, item.Artist, item.Album);
+                        PlayLast(item.youtubeID, item.Title, item.Artist, item.Album);
                         break;
                     case 3:
                         GetPlaylists(item.youtubeID, Activity);
                         break;
                     case 4:
-                        Download(item.Name, item.youtubeID);
+                        Download(item.Title, item.youtubeID);
                         break;
                     default:
                         break;
@@ -345,19 +345,25 @@ namespace MusicApp.Resources.Portable_Class
         {
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme);
             builder.SetTitle("Pick an action");
-            builder.SetItems(new string[] { "Random play", "Fork playlist", "Download" }, (senderAlert, args) =>
+            builder.SetItems(new string[] { "Play In Order", "Random play", "Add To Queue", "Fork playlist", "Download" }, (senderAlert, args) =>
             {
                 switch (args.Which)
                 {
                     case 0:
-                        RandomPlay(playlist.Path);
+                        Playlist.PlayInOrder(playlist.youtubeID);
                         break;
                     case 1:
-#pragma warning disable CS4014
-                        ForkPlaylist(playlist.Path);
+                        RandomPlay(playlist.youtubeID);
                         break;
                     case 2:
-                        DownloadPlaylist(playlist.Name, playlist.Path);
+                        Playlist.AddToQueue(playlist.youtubeID);
+                        break;
+                    case 3:
+#pragma warning disable CS4014
+                        ForkPlaylist(playlist.youtubeID);
+                        break;
+                    case 4:
+                        DownloadPlaylist(playlist.Title, playlist.youtubeID);
                         break;
                     default:
                         break;
@@ -388,7 +394,7 @@ namespace MusicApp.Resources.Portable_Class
                 MusicPlayer.queue.Clear();
 
             MusicPlayer.currentID = -1;
-            Play(files[0].Path, files[0].Name, files[0].Artist, files[0].Album);
+            Play(files[0].Path, files[0].Title, files[0].Artist, files[0].Album);
 
             if (files.Length < 2)
                 return;
@@ -396,10 +402,8 @@ namespace MusicApp.Resources.Portable_Class
             while (MusicPlayer.instance == null || MusicPlayer.CurrentID() == -1)
                 await Task.Delay(10);
 
-            foreach (Song song in files)
-            {
-                MusicPlayer.instance.AddToQueue(song);
-            }
+            for (int i = 1; i < files.Length; i++)
+                MusicPlayer.instance.AddToQueue(files[i]);
         }
 
 

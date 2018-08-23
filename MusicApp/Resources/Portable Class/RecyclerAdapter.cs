@@ -62,7 +62,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 RecyclerHolder holder = (RecyclerHolder)viewHolder;
 
-                holder.Title.Text = songList[position].Name;
+                holder.Title.Text = songList[position].Title;
                 holder.Artist.Text = songList[position].Artist;
 
                 if (songList[position].AlbumArt == -1 || songList[position].IsYt)

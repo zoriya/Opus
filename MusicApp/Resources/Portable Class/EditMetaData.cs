@@ -75,7 +75,7 @@ namespace MusicApp.Resources.Portable_Class
             FloatingActionButton fab = FindViewById<FloatingActionButton>(Resource.Id.metadataFAB);
             fab.Click += async (sender, e) => { await ValidateChanges(); };
 
-            title.Text = song.Name;
+            title.Text = song.Title;
             artist.Text = song.Artist;
             album.Text = song.Album;
             youtubeID.Text = song.youtubeID;
@@ -171,7 +171,7 @@ namespace MusicApp.Resources.Portable_Class
 
         async Task ValidateChanges()
         {
-            if (song.Name == title.Text && song.Artist == artist.Text && song.youtubeID == youtubeID.Text && song.Album == album.Text && artURI == null)
+            if (song.Title == title.Text && song.Artist == artist.Text && song.youtubeID == youtubeID.Text && song.Album == album.Text && artURI == null)
                 return;
 
             const string permission = Manifest.Permission.WriteExternalStorage;
@@ -345,7 +345,7 @@ namespace MusicApp.Resources.Portable_Class
 
         void UndoChange()
         {
-            title.Text = song.Name;
+            title.Text = song.Title;
             artist.Text = song.Artist;
             album.Text = song.Album;
             youtubeID.Text = song.youtubeID;

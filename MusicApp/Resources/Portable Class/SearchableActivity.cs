@@ -55,8 +55,7 @@ namespace MusicApp.Resources.Portable_Class
                 db.CreateTable<Suggestion>();
 
                 History = db.Table<Suggestion>().ToList().ConvertAll(HistoryItem);
-                foreach (Suggestion sug in History)
-                    System.Console.WriteLine("&Sugge: " + sug.Text);
+                History.Reverse();
                 suggestions = History;
             });
         }
@@ -121,6 +120,9 @@ namespace MusicApp.Resources.Portable_Class
 
         void AddQueryToHistory(string query)
         {
+            if (History.ConvertAll(SuggestToQuery).Contains(query, new QueryComparer()))
+                return;
+
             Task.Run(() =>
             {
                 SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "RecentSearch.sqlite"));
@@ -135,6 +137,11 @@ namespace MusicApp.Resources.Portable_Class
             return new Suggestion(Android.Resource.Drawable.IcSearchCategoryDefault, text);
         }
 
+        string SuggestToQuery(Suggestion suggestion)
+        {
+            return suggestion.Text;
+        }
+
         public void Refine(int position)
         {
             searchView.SetQuery(suggestions[position].Text, false);
@@ -143,7 +150,7 @@ namespace MusicApp.Resources.Portable_Class
         protected override void OnStop()
         {
             base.OnStop();
-            if(!searched)
+            if(!searched && YoutubeEngine.instances == null)
                 MainActivity.instance.CancelSearch();
         }
 
@@ -155,5 +162,18 @@ namespace MusicApp.Resources.Portable_Class
         }
 
         public bool OnMenuItemActionExpand(IMenuItem item) { return true; }
+    }
+
+    public class QueryComparer : IEqualityComparer<string>
+    {
+        public bool Equals(string x, string y)
+        {
+            return x.Trim().ToLower().Equals(y.Trim().ToLower());
+        }
+
+        public int GetHashCode(string obj)
+        {
+            return obj.GetHashCode();
+        }
     }
 }

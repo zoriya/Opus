@@ -232,7 +232,7 @@ namespace MusicApp.Resources.Portable_Class
             isRunning = true;
             player.PlayWhenReady = true;
 
-            CreateNotification(song.Name, song.Artist, song.AlbumArt, song.Album);
+            CreateNotification(song.Title, song.Artist, song.AlbumArt, song.Album);
 
             if (addToQueue)
             {
@@ -308,7 +308,7 @@ namespace MusicApp.Resources.Portable_Class
 
             player.PlayWhenReady = true;
             player.Prepare(mediaSource, true, true);
-            CreateNotification(song.Name, song.Artist, song.AlbumArt, song.Album);
+            CreateNotification(song.Title, song.Artist, song.AlbumArt, song.Album);
 
             isRunning = true;
             player.PlayWhenReady = true;
@@ -336,7 +336,7 @@ namespace MusicApp.Resources.Portable_Class
             ParseNextSong();
 
             CoordinatorLayout smallPlayer = MainActivity.instance.FindViewById<CoordinatorLayout>(Resource.Id.smallPlayer);
-            smallPlayer.FindViewById<TextView>(Resource.Id.spTitle).Text = song.Name;
+            smallPlayer.FindViewById<TextView>(Resource.Id.spTitle).Text = song.Title;
             smallPlayer.FindViewById<TextView>(Resource.Id.spArtist).Text = song.Artist;
             smallPlayer.FindViewById<ImageView>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
             ImageView art = smallPlayer.FindViewById<ImageView>(Resource.Id.spArt);
@@ -714,7 +714,7 @@ namespace MusicApp.Resources.Portable_Class
             Queue.instance?.RefreshCurrent();
 
             CoordinatorLayout smallPlayer = MainActivity.instance.FindViewById<CoordinatorLayout>(Resource.Id.smallPlayer);
-            smallPlayer.FindViewById<TextView>(Resource.Id.spTitle).Text = song.Name;
+            smallPlayer.FindViewById<TextView>(Resource.Id.spTitle).Text = song.Title;
             smallPlayer.FindViewById<TextView>(Resource.Id.spArtist).Text = song.Artist;
             smallPlayer.FindViewById<ImageView>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
             ImageView art = smallPlayer.FindViewById<ImageView>(Resource.Id.spArt);

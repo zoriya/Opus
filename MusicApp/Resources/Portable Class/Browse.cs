@@ -124,7 +124,7 @@ namespace MusicApp.Resources.Portable_Class
                 musicCursor.Close();
             }
 
-            List<Song> songList = musicList.OrderBy(x => x.Name).ToList();
+            List<Song> songList = musicList.OrderBy(x => x.Title).ToList();
             musicList = songList;
             int listPadding = 0;
             if (adapter != null)
@@ -177,7 +177,7 @@ namespace MusicApp.Resources.Portable_Class
             result = new List<Song>();
             foreach(Song item in musicList)
             {
-                if(item.Name.ToLower().Contains(search.ToLower()) || item.Artist.ToLower().Contains(search.ToLower()))
+                if(item.Title.ToLower().Contains(search.ToLower()) || item.Artist.ToLower().Contains(search.ToLower()))
                 {
                     result.Add(item);
                 }
@@ -252,7 +252,7 @@ namespace MusicApp.Resources.Portable_Class
             string ytID = meta.Tag.Comment;
             stream.Dispose();
 
-            return new Song(item.Name, item.Artist, item.Album, ytID, item.AlbumArt, item.Id, item.Path, item.IsYt, item.isParsed, item.queueSlot);
+            return new Song(item.Title, item.Artist, item.Album, ytID, item.AlbumArt, item.Id, item.Path, item.IsYt, item.isParsed, item.queueSlot);
         }
 
         public static void Play(Song item, View albumArt)

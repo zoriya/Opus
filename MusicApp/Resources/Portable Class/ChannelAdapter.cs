@@ -38,7 +38,7 @@ namespace MusicApp.Resources.Portable_Class
             }
             ChannelHolder holder = new ChannelHolder(convertView)
             {
-                Title = { Text = channelList[position].Name },
+                Title = { Text = channelList[position].Title },
                 Artist = { Text = channelList[position].Artist },
             };
 
@@ -51,7 +51,7 @@ namespace MusicApp.Resources.Portable_Class
                 holder.Artist.Alpha = 0.7f;
             }
 
-            if (TopicSelector.instance.selectedTopics.Contains(channelList[position].Name))
+            if (TopicSelector.instance.selectedTopics.Contains(channelList[position].Title))
                 holder.CheckBox.Checked = true;
             else
                 holder.CheckBox.Checked = false;

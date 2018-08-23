@@ -37,7 +37,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 RecyclerHolder holder = (RecyclerHolder)viewHolder;
 
-                holder.Title.Text = song.Name;
+                holder.Title.Text = song.Title;
                 holder.Artist.Text = song.Artist;
                 holder.reorder.Visibility = ViewStates.Gone;
 
@@ -83,7 +83,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 RecyclerHolder holder = (RecyclerHolder)viewHolder;
 
-                holder.Title.Text = song.Name;
+                holder.Title.Text = song.Title;
                 holder.Artist.Text = song.Artist;
 
                 var songAlbumArtUri = Android.Net.Uri.Parse(song.Album);
@@ -111,7 +111,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 RecyclerChannelHolder holder = (RecyclerChannelHolder)viewHolder;
 
-                holder.Title.Text = song.Name;
+                holder.Title.Text = song.Title;
                 Picasso.With(Android.App.Application.Context).Load(song.Album).Placeholder(Resource.Drawable.MusicIcon).Transform(new CircleTransformation()).Into(holder.AlbumArt);
 
                 holder.action.Visibility = ViewStates.Visible;
@@ -134,7 +134,7 @@ namespace MusicApp.Resources.Portable_Class
                             List<string> topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
 
                             ISharedPreferencesEditor editor = prefManager.Edit();
-                            topics.Remove(song.Name + "/#-#/" + song.youtubeID);
+                            topics.Remove(song.Title + "/#-#/" + song.youtubeID);
                             editor.PutStringSet("selectedTopics", topics);
                             editor.Apply();
 
@@ -148,7 +148,7 @@ namespace MusicApp.Resources.Portable_Class
                             List<string> topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
 
                             ISharedPreferencesEditor editor = prefManager.Edit();
-                            topics.Add(song.Name + "/#-#/" + song.youtubeID);
+                            topics.Add(song.Title + "/#-#/" + song.youtubeID);
                             editor.PutStringSet("selectedTopics", topics);
                             editor.Apply();
 

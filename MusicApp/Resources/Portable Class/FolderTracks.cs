@@ -191,7 +191,7 @@ namespace MusicApp.Resources.Portable_Class
             result = new List<Song>();
             foreach (Song item in tracks)
             {
-                if (item.Name.ToLower().Contains(search.ToLower()) || item.Artist.ToLower().Contains(search.ToLower()))
+                if (item.Title.ToLower().Contains(search.ToLower()) || item.Artist.ToLower().Contains(search.ToLower()))
                 {
                     result.Add(item);
                 }

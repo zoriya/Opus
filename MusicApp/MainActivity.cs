@@ -671,8 +671,6 @@ namespace MusicApp
                 OnPaddingChanged -= PlaylistTracks.instance.OnPaddingChanged;
                 FindViewById<AppBarLayout>(Resource.Id.appbar).RemoveOnOffsetChangedListener(PlaylistTracks.instance);
                 FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Gone;
-
-                SupportFragmentManager.PopBackStack();
                 PlaylistTracks.instance = null;
             }
 
@@ -947,7 +945,7 @@ namespace MusicApp
                 smallPlayer.FindViewById<ImageButton>(Resource.Id.spNext).SetColorFilter(Android.Graphics.Color.White);
             }
 
-            title.Text = current.Name;
+            title.Text = current.Title;
             artist.Text = current.Artist;
 
             if (current.IsYt)

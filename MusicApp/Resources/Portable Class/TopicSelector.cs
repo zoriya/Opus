@@ -58,7 +58,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 YouTubeService youtube = YoutubeEngine.youtubeService;
                 SubscriptionsResource.ListRequest request = youtube.Subscriptions.List("snippet,contentDetails");
-                request.ChannelId = "UCh3mHcmSMffgVxFniKQrpug";
+                request.ChannelId = "UCRPb0XKQwDoHbgvtawH-gGw";
                 request.MaxResults = 50;
                 request.PageToken = nextPageToken;
 
@@ -92,7 +92,7 @@ namespace MusicApp.Resources.Portable_Class
                         return;
                 }
             }
-            channels = channelList.OrderBy(x => x.Name).ToList();
+            channels = channelList.OrderBy(x => x.Title).ToList();
 
             adapter = new ChannelAdapter(Application.Context, Resource.Layout.ChannelList, channels);
             ListAdapter = adapter;
@@ -109,17 +109,17 @@ namespace MusicApp.Resources.Portable_Class
         private void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
         {
             Song channel = channels[e.Position];
-            bool Checked = selectedTopics.Contains(channel.Name);
+            bool Checked = selectedTopics.Contains(channel.Title);
             e.View.FindViewById<CheckBox>(Resource.Id.checkBox).Checked = !Checked;
 
             if (!Checked)
             {
-                selectedTopics.Add(channel.Name);
+                selectedTopics.Add(channel.Title);
                 selectedTopicsID.Add(channel.youtubeID);
             }
             else
             {
-                int index = selectedTopics.IndexOf(channel.Name);
+                int index = selectedTopics.IndexOf(channel.Title);
                 selectedTopics.RemoveAt(index);
                 selectedTopicsID.RemoveAt(index);
             }

@@ -6,7 +6,7 @@ namespace MusicApp.Resources.values
     [Serializable]
     public class Song
     {
-        public string Name { get; set; }
+        public string Title { get; set; }
         public string Artist { get; set; }
         public string Album { get; set; }
         public long AlbumArt { get; set; }
@@ -20,9 +20,9 @@ namespace MusicApp.Resources.values
 
         public Song() { }
 
-        public Song(string Name, string Artist, string Album, string youtubeID, long AlbumArt, long id, string path, bool isYT = false, bool isParsed = true, int queueSlot = -1)
+        public Song(string Title, string Artist, string Album, string youtubeID, long AlbumArt, long id, string path, bool isYT = false, bool isParsed = true, int queueSlot = -1)
         {
-            this.Name = Name;
+            this.Title = Title;
             this.Artist = Artist;
             this.Album = Album;
             this.youtubeID = youtubeID;
@@ -36,7 +36,7 @@ namespace MusicApp.Resources.values
 
         public override string ToString()
         {
-            return Name + " Artist: " + Artist + " Album: " + Album + " youtubeID: " + youtubeID + " AlbumArt: " + AlbumArt + " Id: " + Id + " Path: " + Path + " isYT: " + IsYt + " isParsed: " + isParsed + " queueSlot: " + queueSlot;
+            return Title + " Artist: " + Artist + " Album: " + Album + " youtubeID: " + youtubeID + " AlbumArt: " + AlbumArt + " Id: " + Id + " Path: " + Path + " isYT: " + IsYt + " isParsed: " + isParsed + " queueSlot: " + queueSlot;
         }
 
         public static explicit operator Song(string v)

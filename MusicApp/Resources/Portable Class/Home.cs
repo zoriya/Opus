@@ -285,10 +285,10 @@ namespace MusicApp.Resources.Portable_Class
                                 {
                                     for (int j = 0; j < adapter.items[i].contentValue.Count; j++)
                                     {
-                                        if (section.contentValue.Exists(x => x.Name.Contains(adapter.items[i].contentValue[j].Name)))
+                                        if (section.contentValue.Exists(x => x.Title.Contains(adapter.items[i].contentValue[j].Title)))
                                         {
-                                            adapter.items[i].contentValue[j].Artist = section.contentValue.Find(x => x.Name.Contains(adapter.items[i].contentValue[j].Name)).youtubeID;
-                                            removedValues.Add(section.contentValue.Find(x => x.Name.Contains(adapter.items[i].contentValue[j].Name)));
+                                            adapter.items[i].contentValue[j].Artist = section.contentValue.Find(x => x.Title.Contains(adapter.items[i].contentValue[j].Title)).youtubeID;
+                                            removedValues.Add(section.contentValue.Find(x => x.Title.Contains(adapter.items[i].contentValue[j].Title)));
                                             if (j < 4 && adapter.items[i].recycler != null)
                                             {
                                                 RecyclerHolder holder = (RecyclerHolder)adapter.items[i].recycler.GetChildViewHolder(adapter.items[i].recycler.GetLayoutManager().FindViewByPosition(j));
@@ -348,7 +348,7 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     YouTubeService youtube = YoutubeEngine.youtubeService;
                     SubscriptionsResource.ListRequest request = youtube.Subscriptions.List("snippet,contentDetails");
-                    request.ChannelId = "UCh3mHcmSMffgVxFniKQrpug";
+                    request.ChannelId = "UCRPb0XKQwDoHbgvtawH-gGw";
                     request.MaxResults = 50;
                     request.PageToken = nextPageToken;
 
@@ -375,7 +375,7 @@ namespace MusicApp.Resources.Portable_Class
 
             Random r = new Random();
             List<Song> channels = channelLits.OrderBy(x => r.Next()).ToList();
-            channels.RemoveAll(x => selectedTopics.Contains(x.Name));
+            channels.RemoveAll(x => selectedTopics.Contains(x.Title));
 
             HomeSection TopicSelector = new HomeSection("Music Genres", SectionType.TopicSelector, channels);
             adapter.AddToList(new List<HomeSection> { TopicSelector });
