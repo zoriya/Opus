@@ -4,7 +4,6 @@ using Android.Graphics;
 using Android.OS;
 using Android.Preferences;
 using Android.Provider;
-using Android.Runtime;
 using Android.Support.Design.Widget;
 using Android.Support.V4.App;
 using Android.Support.V7.App;
@@ -30,6 +29,7 @@ namespace MusicApp.Resources.Portable_Class
         public static string searchKeyWorld;
         public static bool error = false;
         public string querryType;
+
         public bool focused = false;
         public RecyclerView ListView;
         public List<YtFile> result;
@@ -75,6 +75,7 @@ namespace MusicApp.Resources.Portable_Class
                 rootView.RemoveView(loadingView);
                 loadingView = LayoutInflater.Inflate(Resource.Layout.EmptyLoadingLayout, null);
                 Activity.AddContentView(loadingView, ListView.LayoutParameters);
+
             }
         }
 
@@ -85,16 +86,6 @@ namespace MusicApp.Resources.Portable_Class
                 ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
                 rootView.RemoveView(loadingView);
             }
-        }
-
-        public async void ResumeListView()
-        {
-            while (ListView == null || ListView.GetLayoutManager() == null)
-                await Task.Delay(10);
-
-            ListView.GetLayoutManager().OnRestoreInstanceState(MainActivity.youtubeParcel);
-            MainActivity.youtubeInstanceSave = null;
-            MainActivity.youtubeParcel = null;
         }
 
         public static Fragment[] NewInstances(string searchQuery)
@@ -279,18 +270,13 @@ namespace MusicApp.Resources.Portable_Class
                         MainActivity.instance.OnPaddingChanged -= instance.OnPaddingChanged;
                     }
 
-                    var searchView = MainActivity.instance.menu.FindItem(Resource.Id.search).ActionView.JavaCast<Android.Support.V7.Widget.SearchView>();
-                    MainActivity.instance.menu.FindItem(Resource.Id.search).CollapseActionView();
-                    searchView.ClearFocus();
-                    searchView.Iconified = true;
-                    searchView.SetQuery("", false);
                     MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
                     MainActivity.instance.SupportActionBar.Title = item.Title;
-                    MainActivity.instance.HideTabs();
-                    instances = null;
-                    MainActivity.youtubeParcel = ListView.GetLayoutManager().OnSaveInstanceState();
-                    MainActivity.youtubeInstanceSave = "YoutubeEngine" + "-" + querryType;
-                    MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(item.youtubeID, item.Title, false, false, item.Artist, -1, item.Album)).AddToBackStack(null).Commit();
+                    PlaylistTracks.openned = true;
+                    MainActivity.instance.menu.FindItem(Resource.Id.search).CollapseActionView();
+                    MainActivity.instance.FindViewById<TabLayout>(Resource.Id.tabs).Visibility = ViewStates.Gone;
+                    MainActivity.instance.SupportFragmentManager.BeginTransaction().Add(Resource.Id.contentView, PlaylistTracks.NewInstance(item.youtubeID, item.Title, false, false, item.Artist, -1, item.Album)).Commit();
+                    MainActivity.instance.SupportFragmentManager.BeginTransaction().Detach(this).Commit();
                     break;
                 default:
                     break;

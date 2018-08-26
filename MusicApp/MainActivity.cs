@@ -58,8 +58,8 @@ namespace MusicApp
         public static int dialogTheme;
         public static IParcelable parcelable;
         public static string parcelableSender;
-        public static IParcelable youtubeParcel;
-        public static string youtubeInstanceSave;
+        //public static IParcelable youtubeParcel;
+        //public static string youtubeInstanceSave;
 
         public Android.Support.V7.Widget.Toolbar ToolBar;
         public bool NoToolbarMenu = false;
@@ -419,60 +419,9 @@ namespace MusicApp
             {
                 if (PlaylistTracks.instance != null)
                 {
-                    HideSearch();
-                    if (PlaylistTracks.instance.isEmpty)
-                    {
-                        ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
-                        rootView.RemoveView(PlaylistTracks.instance.emptyView);
-                    }
-                    SupportActionBar.SetHomeButtonEnabled(false);
-                    SupportActionBar.SetDisplayHomeAsUpEnabled(false);
-                    SupportActionBar.SetDisplayShowTitleEnabled(true);
-                    SupportActionBar.Title = "MusicApp";
-                    contentRefresh.Refresh -= PlaylistTracks.instance.OnRefresh;
-                    OnPaddingChanged -= PlaylistTracks.instance.OnPaddingChanged;
-                    FindViewById<AppBarLayout>(Resource.Id.appbar).RemoveOnOffsetChangedListener(PlaylistTracks.instance);
-                    FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Gone;
-                    PlaylistTracks.instance = null;
-                    SupportFragmentManager.PopBackStack();
-
-                    //if (HomeDetails)
-                    //{
-                    //    Home.instance = null;
-                    //    Navigate(Resource.Id.musicLayout);
-                    //    HomeDetails = false;
-                    //}
-                    //else if(youtubeInstanceSave != null)
-                    //{
-                    //    int selectedTab = 0;
-                    //    switch (youtubeInstanceSave)
-                    //    {
-                    //        case "YoutubeEngine-All":
-                    //            selectedTab = 0;
-                    //            break;
-                    //        case "YoutubeEngine-Tracks":
-                    //            selectedTab = 1;
-                    //            break;
-                    //        case "YoutubeEngine-Playlists":
-                    //            selectedTab = 2;
-                    //            break;
-                    //        case "YoutubeEngine-Channels":
-                    //            selectedTab = 3;
-                    //            break;
-                    //        default:
-                    //            break;
-                    //    }
-                    //    SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(2, selectedTab)).Commit();
-                    //    YoutubeEngine.instances[selectedTab].focused = true;
-                    //    YoutubeEngine.instances[selectedTab].OnFocus();
-                    //    YoutubeEngine.instances[selectedTab].ResumeListView();
-                    //}
-                    //else
-                    //{
-                    //    Navigate(Resource.Id.playlistLayout);
-                    //}
+                    SupportFragmentManager.BeginTransaction().Remove(PlaylistTracks.instance).Commit();
                 }
-                else if(YoutubeEngine.instances != null)
+                else if (YoutubeEngine.instances != null)
                 {
                     YoutubeEngine.error = false;
                     ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
@@ -516,7 +465,7 @@ namespace MusicApp
 
         public bool OnMenuItemActionCollapse(IMenuItem item) //Youtube search collapse
         {
-            if (YoutubeEngine.instances != null)
+            if (YoutubeEngine.instances != null && !PlaylistTracks.openned)
             {
                 ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
                 foreach (YoutubeEngine instance in YoutubeEngine.instances)
@@ -526,7 +475,7 @@ namespace MusicApp
                 }
                 rootView.RemoveView(YoutubeEngine.loadingView);
                 YoutubeEngine.instances = null;
-                ResumeInstance();
+                SupportFragmentManager.PopBackStack();
             }
             return true;
         }
@@ -548,16 +497,16 @@ namespace MusicApp
 
         public void OnFocusChange(View v, bool hasFocus)
         {
-            if (hasFocus)
+            if (hasFocus && !PlaylistTracks.openned)
             {
                 Bundle animation = ActivityOptionsCompat.MakeCustomAnimation(this, Android.Resource.Animation.FadeIn, Android.Resource.Animation.FadeOut).ToBundle();
                 StartActivity(new Intent(this, typeof(SearchableActivity)), animation);
             }
+            PlaylistTracks.openned = false;
         }
 
         public void SearchOnYoutube(string query)
         {
-            SaveInstance();
             YoutubeEngine.searchKeyWorld = query;
             IMenuItem searchItem = menu.FindItem(Resource.Id.search);
             SearchView searchView = (SearchView)searchItem.ActionView;
@@ -776,6 +725,8 @@ namespace MusicApp
 
         public async void SetYtTabs(ViewPager pager, string querry, int selectedTab = 0)
         {
+            Console.WriteLine("&Setting yt tabs");
+
             while (!canSwitch)
                 await Task.Delay(10);
 
@@ -788,10 +739,19 @@ namespace MusicApp
 
             if (YoutubeEngine.instances != null)
             {
+                tabs.Visibility = ViewStates.Visible;
+                for (int i = 0; i < YoutubeEngine.instances.Length; i++)
+                {
+                    if (YoutubeEngine.instances[i].focused)
+                        selectedTab = i;
+                }
+
                 pager.CurrentItem = selectedTab;
-                tabs.SetScrollPosition(selectedTab, 0f, true);
+                pager.SetCurrentItem(selectedTab, true);
+
                 YoutubeEngine.instances[selectedTab].focused = true;
                 YoutubeEngine.instances[selectedTab].OnFocus();
+                pager.RefreshDrawableState();
                 CanSwitchDelay();
                 return;
             }
@@ -822,9 +782,6 @@ namespace MusicApp
 
             YoutubeEngine.instances[selectedTab].focused = true;
             YoutubeEngine.instances[selectedTab].OnFocus();
-
-            if(youtubeInstanceSave != null)
-                YoutubeEngine.instances[selectedTab].ResumeListView();
 
             CanSwitchDelay();
         }
@@ -1410,100 +1367,100 @@ namespace MusicApp
                 }
                 else
                 {
-                    SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(1, 0)).Commit();
+                    SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(1, 0)).AddToBackStack(null).Commit();
                 }
                 SearchableActivity.instance = null;
             }
         }
 
-        public void SaveInstance()
-        {
-            if (Queue.instance != null)
-                return;
+        //public void SaveInstance()
+        //{
+        //    if (Queue.instance != null)
+        //        return;
 
-            if (Home.instance != null)
-            {
-                parcelableSender = "Home";
-                parcelable = Home.instance.ListView.GetLayoutManager().OnSaveInstanceState();
-            }
-            else if (Browse.instance != null && Browse.instance.focused)
-            {
-                parcelableSender = "Browse";
-                parcelable = Browse.instance.ListView.OnSaveInstanceState();
-            }
-            else if (FolderBrowse.instance != null && FolderBrowse.instance.focused)
-            {
-                parcelableSender = "FolderBrowse";
-                parcelable = FolderBrowse.instance.ListView.OnSaveInstanceState();
-            }
-            else if (Playlist.instance != null)
-            {
-                parcelableSender = "Playlist";
-                parcelable = Playlist.instance.ListView.GetLayoutManager().OnSaveInstanceState();
-            }
-            //Artist instance
-            else if (PlaylistTracks.instance != null)
-            {
-                parcelableSender = "PlaylistTracks";
-                parcelable = PlaylistTracks.instance.ListView.OnSaveInstanceState();
-            }
-            else if(FolderTracks.instance != null)
-            {
-                parcelableSender = "FolderTracks";
-                parcelable = FolderTracks.instance.ListView.OnSaveInstanceState();
-            }
-            else
-            {
-                parcelableSender = "Home";
-                parcelable = null;
-            }
-        }
+        //    if (Home.instance != null)
+        //    {
+        //        parcelableSender = "Home";
+        //        parcelable = Home.instance.ListView.GetLayoutManager().OnSaveInstanceState();
+        //    }
+        //    else if (Browse.instance != null && Browse.instance.focused)
+        //    {
+        //        parcelableSender = "Browse";
+        //        parcelable = Browse.instance.ListView.OnSaveInstanceState();
+        //    }
+        //    else if (FolderBrowse.instance != null && FolderBrowse.instance.focused)
+        //    {
+        //        parcelableSender = "FolderBrowse";
+        //        parcelable = FolderBrowse.instance.ListView.OnSaveInstanceState();
+        //    }
+        //    else if (Playlist.instance != null)
+        //    {
+        //        parcelableSender = "Playlist";
+        //        parcelable = Playlist.instance.ListView.GetLayoutManager().OnSaveInstanceState();
+        //    }
+        //    //Artist instance
+        //    else if (PlaylistTracks.instance != null)
+        //    {
+        //        parcelableSender = "PlaylistTracks";
+        //        parcelable = PlaylistTracks.instance.ListView.OnSaveInstanceState();
+        //    }
+        //    else if(FolderTracks.instance != null)
+        //    {
+        //        parcelableSender = "FolderTracks";
+        //        parcelable = FolderTracks.instance.ListView.OnSaveInstanceState();
+        //    }
+        //    else
+        //    {
+        //        parcelableSender = "Home";
+        //        parcelable = null;
+        //    }
+        //}
 
-        public void ResumeInstance()
-        {
-            switch (parcelableSender)
-            {
-                case "Home":
-                    FindViewById<BottomNavigationView>(Resource.Id.bottomView).SelectedItemId = Resource.Id.musicLayout;
-                    break;
-                case "Browse":
-                    FindViewById<BottomNavigationView>(Resource.Id.bottomView).SelectedItemId = Resource.Id.browseLayout;
-                    break;
-                case "FolderBrowse":
-                    resuming = true;
-                    FindViewById<BottomNavigationView>(Resource.Id.bottomView).SelectedItemId = Resource.Id.browseLayout;
-                    break;
-                case "Playlist":
-                    FindViewById<BottomNavigationView>(Resource.Id.bottomView).SelectedItemId = Resource.Id.playlistLayout;
-                    break;
-                case "YoutubeEngine-All":
-                    SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(2, 0)).Commit();
-                    break;
-                case "YoutubeEngine-Tracks":
-                    SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(2, 1)).Commit();
-                    break;
-                case "YoutubeEngine-Playlists":
-                    SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(2, 2)).Commit();
-                    break;
-                case "YoutubeEngine-Channels":
-                    SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(2, 3)).Commit();
-                    break;
-                case "PlaylistTracks":
-                    SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.instance).Commit();
-                    SupportActionBar.SetHomeButtonEnabled(true);
-                    SupportActionBar.SetDisplayHomeAsUpEnabled(true);
-                    SupportActionBar.Title = PlaylistTracks.instance.playlistName;
-                    break;
-                case "FolderTracks":
-                    SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, FolderTracks.instance).Commit();
-                    SupportActionBar.SetHomeButtonEnabled(true);
-                    SupportActionBar.SetDisplayHomeAsUpEnabled(true);
-                    SupportActionBar.Title = FolderTracks.instance.folderName;
-                    break;
-                default:
-                    break;
-            }
-        }
+        //public void ResumeInstance()
+        //{
+        //    switch (parcelableSender)
+        //    {
+        //        case "Home":
+        //            FindViewById<BottomNavigationView>(Resource.Id.bottomView).SelectedItemId = Resource.Id.musicLayout;
+        //            break;
+        //        case "Browse":
+        //            FindViewById<BottomNavigationView>(Resource.Id.bottomView).SelectedItemId = Resource.Id.browseLayout;
+        //            break;
+        //        case "FolderBrowse":
+        //            resuming = true;
+        //            FindViewById<BottomNavigationView>(Resource.Id.bottomView).SelectedItemId = Resource.Id.browseLayout;
+        //            break;
+        //        case "Playlist":
+        //            FindViewById<BottomNavigationView>(Resource.Id.bottomView).SelectedItemId = Resource.Id.playlistLayout;
+        //            break;
+        //        case "YoutubeEngine-All":
+        //            SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(2, 0)).Commit();
+        //            break;
+        //        case "YoutubeEngine-Tracks":
+        //            SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(2, 1)).Commit();
+        //            break;
+        //        case "YoutubeEngine-Playlists":
+        //            SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(2, 2)).Commit();
+        //            break;
+        //        case "YoutubeEngine-Channels":
+        //            SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(2, 3)).Commit();
+        //            break;
+        //        case "PlaylistTracks":
+        //            SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.instance).Commit();
+        //            SupportActionBar.SetHomeButtonEnabled(true);
+        //            SupportActionBar.SetDisplayHomeAsUpEnabled(true);
+        //            SupportActionBar.Title = PlaylistTracks.instance.playlistName;
+        //            break;
+        //        case "FolderTracks":
+        //            SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, FolderTracks.instance).Commit();
+        //            SupportActionBar.SetHomeButtonEnabled(true);
+        //            SupportActionBar.SetDisplayHomeAsUpEnabled(true);
+        //            SupportActionBar.Title = FolderTracks.instance.folderName;
+        //            break;
+        //        default:
+        //            break;
+        //    }
+        //}
 
         protected override void OnDestroy()
         {
@@ -1520,6 +1477,14 @@ namespace MusicApp
         {
             base.OnPause();
             paused = true;
+        }
+
+        public override void OnBackPressed()
+        {
+            if (PlaylistTracks.instance != null)
+                SupportFragmentManager.BeginTransaction().Remove(PlaylistTracks.instance).Commit();
+            else
+                base.OnBackPressed();
         }
     }
 }

@@ -39,6 +39,7 @@ namespace MusicApp.Resources.Portable_Class
         public bool isEmpty = false;
         public bool lastVisible = false;
         private bool useHeader = true;
+        public static bool openned = false;
 
         public List<Song> tracks = new List<Song>();
         private List<string> ytTracksIDs = new List<string>();
@@ -49,6 +50,7 @@ namespace MusicApp.Resources.Portable_Class
         public override void OnActivityCreated(Bundle savedInstanceState)
         {
             base.OnActivityCreated(savedInstanceState);
+
             emptyView = LayoutInflater.Inflate(Resource.Layout.NoPlaylist, null);
             ListView.EmptyView = emptyView;
             ListView.Scroll += MainActivity.instance.Scroll;
@@ -314,6 +316,28 @@ namespace MusicApp.Resources.Portable_Class
                 Activity.FindViewById<AppBarLayout>(Resource.Id.appbar).RemoveOnOffsetChangedListener(this);
                 Activity.FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Gone;
             }
+
+
+            if (YoutubeEngine.instances != null)
+            {
+                MainActivity.instance.FindViewById<TabLayout>(Resource.Id.tabs).Visibility = ViewStates.Visible;
+                Android.Support.V7.Widget.SearchView searchView = (Android.Support.V7.Widget.SearchView)MainActivity.instance.menu.FindItem(Resource.Id.search).ActionView;
+                searchView.Focusable = false;
+                MainActivity.instance.menu.FindItem(Resource.Id.search).ExpandActionView();
+                searchView.SetQuery(YoutubeEngine.searchKeyWorld, false);
+                searchView.ClearFocus();
+
+                int selectedTab = 0;
+                for (int i = 0; i < YoutubeEngine.instances.Length; i++)
+                {
+                    if (YoutubeEngine.instances[i].focused)
+                        selectedTab = i;
+                }
+                MainActivity.instance.SupportFragmentManager.BeginTransaction().Attach(YoutubeEngine.instances[selectedTab]).Commit();
+                MainActivity.instance.SupportFragmentManager.BeginTransaction().Remove(instance).Commit();
+            }
+            else
+                MainActivity.instance.SupportFragmentManager.PopBackStack();
 
             base.OnStop();
             instance = null;
