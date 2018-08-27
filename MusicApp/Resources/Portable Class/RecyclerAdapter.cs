@@ -90,15 +90,15 @@ namespace MusicApp.Resources.Portable_Class
                     };
                 }
 
-                //if (!holder.reorder.HasOnClickListeners)
-                //{
-                //    holder.reorder.Click += (sender, e) =>
-                //    {
-                //        Queue.instance.itemTouchHelper.StartDrag(viewHolder);
-                //        MainActivity.instance.contentRefresh.SetEnabled(false);
-                //        Queue.instance.adapter.DisableRefresh(true);
-                //    };
-                //}
+                if (!holder.reorder.HasOnClickListeners)
+                {
+                    holder.reorder.Touch += (sender, e) =>
+                    {
+                        Queue.instance.itemTouchHelper.StartDrag(viewHolder);
+                        MainActivity.instance.contentRefresh.SetEnabled(false);
+                        Queue.instance.adapter.DisableRefresh(true);
+                    };
+                }
 
 
                 if (songList[position].queueSlot == MusicPlayer.CurrentID())
@@ -219,7 +219,7 @@ namespace MusicApp.Resources.Portable_Class
             if (MusicPlayer.CurrentID() == fromPosition)
                 MusicPlayer.currentID = toPosition;
 
-            MusicPlayer.instance.UpdateQueueSlots();
+            MusicPlayer.instance?.UpdateQueueSlots();
         }
 
         List<T> Swap<T>(List<T> list, int fromPosition, int toPosition)

@@ -1270,7 +1270,7 @@ namespace MusicApp
             parseProgress.Visibility = ViewStates.Gone;
         }
 
-        int DpToPx(int dx)
+        public int DpToPx(int dx)
         {
             float scale = Resources.DisplayMetrics.Density;
             return (int) (dx * scale + 0.5f);
