@@ -70,6 +70,7 @@ namespace MusicApp
         public View quickPlayLayout;
         public bool HomeDetails = false;
         public bool paused = false;
+        public bool StateSaved = false;
 
         private Handler handler = new Handler();
         private ProgressBar bar;
@@ -1356,6 +1357,7 @@ namespace MusicApp
             base.OnResume();
             paused = false;
             instance = this;
+            StateSaved = false;
 
             if(SearchableActivity.instance != null && SearchableActivity.instance.searched)
             {
@@ -1485,6 +1487,12 @@ namespace MusicApp
                 SupportFragmentManager.BeginTransaction().Remove(PlaylistTracks.instance).Commit();
             else
                 base.OnBackPressed();
+        }
+
+        protected override void OnSaveInstanceState(Bundle outState)
+        {
+            StateSaved = true;
+            base.OnSaveInstanceState(outState);
         }
     }
 }

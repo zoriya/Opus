@@ -167,7 +167,6 @@ namespace MusicApp.Resources.Portable_Class
         private void ListView_ItemLongCLick(object sender, int e)
         {
             MainActivity.instance.contentRefresh.SetEnabled(false);
-            adapter.DisableRefresh(true);
         }
 
         public void More(Song item)

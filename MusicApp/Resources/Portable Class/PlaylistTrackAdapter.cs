@@ -14,7 +14,6 @@ namespace MusicApp.Resources.Portable_Class
     public class PlaylistTrackAdapter : RecyclerView.Adapter, IItemTouchAdapter
     {
         public List<Song> songList;
-        private bool refreshDisabled = true;
         public event EventHandler<int> ItemClick;
         public event EventHandler<int> ItemLongClick;
         public int listPadding;
@@ -153,16 +152,6 @@ namespace MusicApp.Resources.Portable_Class
         {
             //Queue.RemoveFromQueue(songList[position]);
             //NotifyItemRemoved(position);
-        }
-
-        public bool RefreshDisabled()
-        {
-            return refreshDisabled;
-        }
-
-        public void DisableRefresh(bool disable)
-        {
-            refreshDisabled = disable;
         }
     }
 }

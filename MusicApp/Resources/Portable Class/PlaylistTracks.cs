@@ -150,6 +150,11 @@ namespace MusicApp.Resources.Portable_Class
             Activity.FindViewById<TextView>(Resource.Id.headerTitle).Text = playlistName;
         }
 
+        public void Delete(Song song, int position)
+        {
+            System.Console.WriteLine("Deleting " + song.Title);
+        }
+
         async void Delete()
         {
             if(playlistId == 0)
@@ -195,52 +200,55 @@ namespace MusicApp.Resources.Portable_Class
 
         public override void OnStop()
         {
-            if (Player.instance == null)
+            if (!MainActivity.instance.StateSaved)
             {
-                MainActivity.instance.HideSearch();
-                if (isEmpty)
-                {
-                    ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
-                    rootView.RemoveView(emptyView);
-                }
-                MainActivity.instance.SupportActionBar.SetHomeButtonEnabled(false);
-                MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(false);
-                MainActivity.instance.SupportActionBar.SetDisplayShowTitleEnabled(true);
-                MainActivity.instance.SupportActionBar.Title = "MusicApp";
-
-                MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
-                MainActivity.instance.OnPaddingChanged -= OnPaddingChanged;
-                Activity.FindViewById<AppBarLayout>(Resource.Id.appbar).RemoveOnOffsetChangedListener(this);
-                Activity.FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Gone;
-            }
-
-
-            if (YoutubeEngine.instances != null)
-            {
-                MainActivity.instance.FindViewById<TabLayout>(Resource.Id.tabs).Visibility = ViewStates.Visible;
-                Android.Support.V7.Widget.SearchView searchView = (Android.Support.V7.Widget.SearchView)MainActivity.instance.menu.FindItem(Resource.Id.search).ActionView;
-                searchView.Focusable = false;
-                MainActivity.instance.menu.FindItem(Resource.Id.search).ExpandActionView();
-                searchView.SetQuery(YoutubeEngine.searchKeyWorld, false);
-                searchView.ClearFocus();
-
-                int selectedTab = 0;
-                for (int i = 0; i < YoutubeEngine.instances.Length; i++)
-                {
-                    if (YoutubeEngine.instances[i].focused)
-                        selectedTab = i;
-                }
                 if (Player.instance == null)
                 {
-                    MainActivity.instance.SupportFragmentManager.BeginTransaction().Attach(YoutubeEngine.instances[selectedTab]).Commit();
-                    MainActivity.instance.SupportFragmentManager.BeginTransaction().Remove(instance).Commit();
-                }
-            }
-            else if (Player.instance == null)
-                MainActivity.instance.SupportFragmentManager.PopBackStack();
+                    MainActivity.instance.HideSearch();
+                    if (isEmpty)
+                    {
+                        ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
+                        rootView.RemoveView(emptyView);
+                    }
+                    MainActivity.instance.SupportActionBar.SetHomeButtonEnabled(false);
+                    MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(false);
+                    MainActivity.instance.SupportActionBar.SetDisplayShowTitleEnabled(true);
+                    MainActivity.instance.SupportActionBar.Title = "MusicApp";
 
+                    MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
+                    MainActivity.instance.OnPaddingChanged -= OnPaddingChanged;
+                    Activity.FindViewById<AppBarLayout>(Resource.Id.appbar).RemoveOnOffsetChangedListener(this);
+                    Activity.FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Gone;
+                }
+
+
+                if (YoutubeEngine.instances != null)
+                {
+                    MainActivity.instance.FindViewById<TabLayout>(Resource.Id.tabs).Visibility = ViewStates.Visible;
+                    Android.Support.V7.Widget.SearchView searchView = (Android.Support.V7.Widget.SearchView)MainActivity.instance.menu.FindItem(Resource.Id.search).ActionView;
+                    searchView.Focusable = false;
+                    MainActivity.instance.menu.FindItem(Resource.Id.search).ExpandActionView();
+                    searchView.SetQuery(YoutubeEngine.searchKeyWorld, false);
+                    searchView.ClearFocus();
+
+                    int selectedTab = 0;
+                    for (int i = 0; i < YoutubeEngine.instances.Length; i++)
+                    {
+                        if (YoutubeEngine.instances[i].focused)
+                            selectedTab = i;
+                    }
+                    if (Player.instance == null)
+                    {
+                        MainActivity.instance?.SupportFragmentManager.BeginTransaction().Attach(YoutubeEngine.instances[selectedTab]).Commit();
+                        MainActivity.instance?.SupportFragmentManager.BeginTransaction().Remove(instance).Commit();
+                    }
+                }
+                else if (Player.instance == null)
+                    MainActivity.instance?.SupportFragmentManager.PopBackStack();
+
+                instance = null;
+            }
             base.OnStop();
-            instance = null;
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -252,7 +260,7 @@ namespace MusicApp.Resources.Portable_Class
             ListView.SetAdapter(new PlaylistTrackAdapter(new List<Song>()));
             ListView.ScrollChange += ListView_ScrollChange;
 
-            Android.Support.V7.Widget.Helper.ItemTouchHelper.Callback callback = new PlaylistItemTouch(adapter);
+            Android.Support.V7.Widget.Helper.ItemTouchHelper.Callback callback = new ItemTouchCallback(adapter);
             itemTouchHelper = new Android.Support.V7.Widget.Helper.ItemTouchHelper(callback);
             itemTouchHelper.AttachToRecyclerView(ListView);
 
