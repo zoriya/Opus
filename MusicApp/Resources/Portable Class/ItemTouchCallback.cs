@@ -50,15 +50,19 @@ namespace MusicApp.Resources.Portable_Class
         public override void OnSwiped(RecyclerView.ViewHolder viewHolder, int direction)
         {
             adapter.ItemDismissed(viewHolder.AdapterPosition);
+            MainActivity.instance.contentRefresh.SetEnabled(true);
         }
-
 
         public override void OnChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, bool isCurrentlyActive)
         {
             if (actionState == ItemTouchHelper.ActionStateSwipe)
             {
                 viewHolder.ItemView.TranslationX = dX;
-                MainActivity.instance.contentRefresh.SetEnabled(false);
+
+                if(isCurrentlyActive)
+                    MainActivity.instance.contentRefresh.SetEnabled(false);
+                else
+                    MainActivity.instance.contentRefresh.SetEnabled(true);
 
                 ColorDrawable background = new ColorDrawable(Color.Red);
                 if (dX < 0)

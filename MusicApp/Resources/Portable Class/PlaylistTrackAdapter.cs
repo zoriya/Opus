@@ -1,5 +1,6 @@
 ﻿using Android.App;
 using Android.Content;
+using Android.Content.Res;
 using Android.Graphics;
 using Android.Support.V7.Widget;
 using Android.Views;
@@ -8,6 +9,7 @@ using MusicApp.Resources.values;
 using Square.Picasso;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -37,10 +39,60 @@ namespace MusicApp.Resources.Portable_Class
             NotifyItemRemoved(position);
         }
 
-        public override int ItemCount => songList.Count + (PlaylistTracks.instance.fullyLoadded ? 0 : 1);
+        public override int ItemCount => songList.Count + (PlaylistTracks.instance.fullyLoadded ? 0 : 1) + (PlaylistTracks.instance.useHeader ? 0 : 1);
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position)
         {
+            if (!PlaylistTracks.instance.useHeader) 
+                position--;
+
+            if(position == -1 && !PlaylistTracks.instance.useHeader)
+            {
+                View header = viewHolder.ItemView;
+                header.FindViewById<TextView>(Resource.Id.headerNumber).Text = PlaylistTracks.instance.tracks.Count + " songs";
+                header.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { PlaylistTracks.instance.PlayInOrder(0, false); };
+                header.FindViewById<ImageButton>(Resource.Id.headerShuffle).Click += (sender, e0) =>
+                {
+                    if (PlaylistTracks.instance.tracks[0].IsYt)
+                    {
+                        Random r = new Random();
+                        Song[] songs = PlaylistTracks.instance.tracks.OrderBy(x => r.Next()).ToArray();
+                        YoutubeEngine.PlayFiles(songs);
+                    }
+                    else
+                    {
+                        List<string> tracksPath = new List<string>();
+                        foreach (Song song in PlaylistTracks.instance.tracks)
+                            tracksPath.Add(song.Path);
+
+                        Intent intent = new Intent(MainActivity.instance, typeof(MusicPlayer));
+                        intent.PutStringArrayListExtra("files", tracksPath);
+                        intent.SetAction("RandomPlay");
+                        MainActivity.instance.StartService(intent);
+
+                        Intent inte = new Intent(MainActivity.instance, typeof(Player));
+                        MainActivity.instance.StartActivity(inte);
+                    }
+                };
+                header.FindViewById<ImageButton>(Resource.Id.headerMore).Click += (sender, e0) =>
+                {
+                    Android.Support.V7.Widget.PopupMenu menu = new Android.Support.V7.Widget.PopupMenu(MainActivity.instance, header.FindViewById<ImageButton>(Resource.Id.headerMore));
+                    menu.Inflate(Resource.Menu.playlist_smallheader_more);
+                    menu.SetOnMenuItemClickListener(PlaylistTracks.instance);
+                    menu.Show();
+                };
+
+                if (MainActivity.Theme != 1)
+                {
+                    header.SetBackgroundColor(Color.Argb(255, 255, 255, 255));
+                    header.FindViewById<ImageButton>(Resource.Id.headerPlay).ImageTintList = ColorStateList.ValueOf(Color.Black);
+                    header.FindViewById<ImageButton>(Resource.Id.headerShuffle).ImageTintList = ColorStateList.ValueOf(Color.Black);
+                    header.FindViewById<ImageButton>(Resource.Id.headerMore).ImageTintList = ColorStateList.ValueOf(Color.Black);
+                }
+
+                return;
+            }
+
             if(position >= songList.Count)
                 return;
 
@@ -90,16 +142,23 @@ namespace MusicApp.Resources.Portable_Class
                 View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.SongList, parent, false);
                 return new RecyclerHolder(itemView, OnClick, OnLongClick);
             }
-            else
+            else if(viewType == 1)
             {
                 View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.smallLoading, parent, false);
+                return new UslessHolder(itemView);
+            }
+            else
+            {
+                View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.PlaylistSmallHeader, parent, false);
                 return new UslessHolder(itemView);
             }
         }
 
         public override int GetItemViewType(int position)
         {
-            if (position >= songList.Count)
+            if (position == 0 && !PlaylistTracks.instance.useHeader)
+                return 2;
+            else if (position - (PlaylistTracks.instance.useHeader ? 0 : 1) >= songList.Count)
                 return 1;
             return 0;
         }
@@ -132,26 +191,11 @@ namespace MusicApp.Resources.Portable_Class
             //NotifyItemMoved(fromPosition, toPosition);
         }
 
-        public void ItemMoveEnded(int fromPosition, int toPosition)
-        {
-            //if (MusicPlayer.CurrentID() == fromPosition)
-            //    MusicPlayer.currentID = toPosition;
-
-            //MusicPlayer.instance.UpdateQueueSlots();
-        }
-
-        //List<T> Swap<T>(List<T> list, int fromPosition, int toPosition)
-        //{
-        //    T item = list[fromPosition];
-        //    list[fromPosition] = list[toPosition];
-        //    list[toPosition] = item;
-        //    return list;
-        //}
+        public void ItemMoveEnded(int fromPosition, int toPosition) { }
 
         public void ItemDismissed(int position)
         {
-            //Queue.RemoveFromQueue(songList[position]);
-            //NotifyItemRemoved(position);
+            PlaylistTracks.instance.DeleteDialog(position);
         }
     }
 }

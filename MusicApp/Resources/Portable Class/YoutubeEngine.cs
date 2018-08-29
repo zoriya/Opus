@@ -577,9 +577,9 @@ namespace MusicApp.Resources.Portable_Class
             return null;
         }
 
-        public static void RemoveFromPlaylist(string videoID)
+        public static async void RemoveFromPlaylist(string videoID)
         {
-            youtubeService.PlaylistItems.Delete(videoID).Execute();
+            await youtubeService.PlaylistItems.Delete(videoID).ExecuteAsync();
         }
 
         public static async void GetPlaylists(string videoID, Context context)

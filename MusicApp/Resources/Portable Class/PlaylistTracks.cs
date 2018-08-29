@@ -1,7 +1,5 @@
 ﻿using Android.Content;
-using Android.Content.Res;
 using Android.Database;
-using Android.Graphics;
 using Android.Net;
 using Android.OS;
 using Android.Provider;
@@ -19,6 +17,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using static Android.Provider.MediaStore.Audio;
 using RecyclerView = Android.Support.V7.Widget.RecyclerView;
+using PopupMenu = Android.Support.V7.Widget.PopupMenu;
+
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -30,7 +30,7 @@ namespace MusicApp.Resources.Portable_Class
         public PlaylistTrackAdapter adapter;
         public View emptyView;
         private Android.Support.V7.Widget.Helper.ItemTouchHelper itemTouchHelper;
-        public List<Song> result;
+        public List<Song> result = null;
         public long playlistId;
         public string ytID;
         private string author;
@@ -42,8 +42,9 @@ namespace MusicApp.Resources.Portable_Class
         public bool fullyLoadded = false;
         public bool isEmpty = false;
         public bool lastVisible = false;
-        private bool useHeader = true;
+        public bool useHeader = true;
         public static bool openned = false;
+        public bool navigating = false;
 
         public List<Song> tracks = new List<Song>();
         private List<string> ytTracksIDs = new List<string>();
@@ -237,13 +238,13 @@ namespace MusicApp.Resources.Portable_Class
                         if (YoutubeEngine.instances[i].focused)
                             selectedTab = i;
                     }
-                    if (Player.instance == null)
+                    if (Player.instance == null && !navigating)
                     {
                         MainActivity.instance?.SupportFragmentManager.BeginTransaction().Attach(YoutubeEngine.instances[selectedTab]).Commit();
                         MainActivity.instance?.SupportFragmentManager.BeginTransaction().Remove(instance).Commit();
                     }
                 }
-                else if (Player.instance == null)
+                else if (Player.instance == null && !navigating)
                     MainActivity.instance?.SupportFragmentManager.PopBackStack();
 
                 instance = null;
@@ -260,10 +261,6 @@ namespace MusicApp.Resources.Portable_Class
             ListView.SetAdapter(new PlaylistTrackAdapter(new List<Song>()));
             ListView.ScrollChange += ListView_ScrollChange;
 
-            Android.Support.V7.Widget.Helper.ItemTouchHelper.Callback callback = new ItemTouchCallback(adapter);
-            itemTouchHelper = new Android.Support.V7.Widget.Helper.ItemTouchHelper(callback);
-            itemTouchHelper.AttachToRecyclerView(ListView);
-
             PopulateList();
             CreateHeader();
             return view;
@@ -271,7 +268,7 @@ namespace MusicApp.Resources.Portable_Class
 
         private void ListView_ScrollChange(object sender, View.ScrollChangeEventArgs e)
         {
-            if (((Android.Support.V7.Widget.LinearLayoutManager)ListView.GetLayoutManager()).FindLastVisibleItemPosition() == adapter.ItemCount - 1)
+            if (((Android.Support.V7.Widget.LinearLayoutManager)ListView?.GetLayoutManager())?.FindLastVisibleItemPosition() == adapter?.ItemCount - 1)
                 LoadMore();
         }
 
@@ -321,51 +318,6 @@ namespace MusicApp.Resources.Portable_Class
                     Picasso.With(Android.App.Application.Context).Load(thumnailURI).Placeholder(Resource.Drawable.noAlbum).Resize(1080, 1080).CenterCrop().Into(Activity.FindViewById<ImageView>(Resource.Id.headerArt));
                 }
             }
-            else
-            {
-                View header = LayoutInflater.Inflate(Resource.Layout.PlaylistSmallHeader, null, false);
-                //ListView.AddHeaderView(header);
-                header.FindViewById<TextView>(Resource.Id.headerNumber).Text = tracks.Count + " songs";
-                header.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { PlayInOrder(0, false); };
-                header.FindViewById<ImageButton>(Resource.Id.headerShuffle).Click += (sender, e0) =>
-                {
-                    if (tracks[0].IsYt)
-                    {
-                        System.Random r = new System.Random();
-                        Song[] songs = tracks.OrderBy(x => r.Next()).ToArray();
-                        YoutubeEngine.PlayFiles(songs);
-                    }
-                    else
-                    {
-                        List<string> tracksPath = new List<string>();
-                        foreach (Song song in tracks)
-                            tracksPath.Add(song.Path);
-
-                        Intent intent = new Intent(MainActivity.instance, typeof(MusicPlayer));
-                        intent.PutStringArrayListExtra("files", tracksPath);
-                        intent.SetAction("RandomPlay");
-                        MainActivity.instance.StartService(intent);
-
-                        Intent inte = new Intent(MainActivity.instance, typeof(Player));
-                        MainActivity.instance.StartActivity(inte);
-                    }
-                };
-                header.FindViewById<ImageButton>(Resource.Id.headerMore).Click += (sender, e0) =>
-                {
-                    PopupMenu menu = new PopupMenu(Activity, header.FindViewById<ImageButton>(Resource.Id.headerMore));
-                    menu.Inflate(Resource.Menu.playlist_smallheader_more);
-                    menu.SetOnMenuItemClickListener(this);
-                    menu.Show();
-                };
-
-                if (MainActivity.Theme != 1)
-                {
-                    header.SetBackgroundColor(Color.Argb(255, 255, 255, 255));
-                    header.FindViewById<ImageButton>(Resource.Id.headerPlay).ImageTintList = ColorStateList.ValueOf(Color.Black);
-                    header.FindViewById<ImageButton>(Resource.Id.headerShuffle).ImageTintList = ColorStateList.ValueOf(Color.Black);
-                    header.FindViewById<ImageButton>(Resource.Id.headerMore).ImageTintList = ColorStateList.ValueOf(Color.Black);
-                }
-            }
         }
 
         public static Fragment NewInstance(List<Song> songs, string playlistName)
@@ -374,6 +326,7 @@ namespace MusicApp.Resources.Portable_Class
             instance.tracks = songs;
             instance.playlistName = playlistName;
             instance.useHeader = false;
+            instance.fullyLoadded = true;
             return instance;
         }
 
@@ -382,6 +335,7 @@ namespace MusicApp.Resources.Portable_Class
             instance = new PlaylistTracks { Arguments = new Bundle() };
             instance.playlistId = playlistId;
             instance.playlistName = playlistName;
+            instance.fullyLoadded = true;
             return instance;
         }
 
@@ -395,6 +349,7 @@ namespace MusicApp.Resources.Portable_Class
             instance.author = author;
             instance.count = count;
             instance.thumnailURI = Uri.Parse(thumbnailURI);
+            instance.fullyLoadded = false;
             return instance;
         }
 
@@ -441,15 +396,18 @@ namespace MusicApp.Resources.Portable_Class
                     musicCursor.Close();
                 }
 
-                //adapter = new PlaylistTrackAdapter(tracks)
-                //{
-                //    listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot
-                //};
-                adapter.AddToList(tracks);
+                adapter = new PlaylistTrackAdapter(tracks)
+                {
+                    listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot
+                };
                 adapter.listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot;
                 adapter.ItemClick += ListView_ItemClick;
                 adapter.ItemLongClick += ListView_ItemLongClick;
                 ListView.SetAdapter(adapter);
+
+                Android.Support.V7.Widget.Helper.ItemTouchHelper.Callback callback = new ItemTouchCallback(adapter);
+                itemTouchHelper = new Android.Support.V7.Widget.Helper.ItemTouchHelper(callback);
+                itemTouchHelper.AttachToRecyclerView(ListView);
 
                 if (adapter == null || adapter.ItemCount == 0)
                 {
@@ -483,15 +441,18 @@ namespace MusicApp.Resources.Portable_Class
                 }
 
                 nextPageToken = ytPlaylist.NextPageToken;
-                //adapter = new PlaylistTrackAdapter(tracks)
-                //{
-                //    listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot
-                //};
-                adapter.AddToList(tracks);
+                adapter = new PlaylistTrackAdapter(tracks)
+                {
+                    listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot
+                };
                 adapter.listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot;
                 adapter.ItemClick += ListView_ItemClick;
                 adapter.ItemLongClick += ListView_ItemLongClick;
                 ListView.SetAdapter(adapter);
+
+                Android.Support.V7.Widget.Helper.ItemTouchHelper.Callback callback = new ItemTouchCallback(adapter);
+                itemTouchHelper = new Android.Support.V7.Widget.Helper.ItemTouchHelper(callback);
+                itemTouchHelper.AttachToRecyclerView(ListView);
 
                 if (adapter == null || adapter.ItemCount == 0)
                 {
@@ -501,11 +462,10 @@ namespace MusicApp.Resources.Portable_Class
             }
             else if(tracks.Count != 0)
             {
-                //adapter = new PlaylistTrackAdapter(tracks)
-                //{
-                //    listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot
-                //};
-                adapter.AddToList(tracks);
+                adapter = new PlaylistTrackAdapter(tracks)
+                {
+                    listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot
+                };
                 adapter.listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot;
                 adapter.ItemClick += ListView_ItemClick;
                 adapter.ItemLongClick += ListView_ItemLongClick;
@@ -575,25 +535,39 @@ namespace MusicApp.Resources.Portable_Class
             };
             adapter.ItemClick += ListView_ItemClick;
             adapter.ItemLongClick += ListView_ItemLongClick;
+
+            Android.Support.V7.Widget.Helper.ItemTouchHelper.Callback callback = new ItemTouchCallback(adapter);
+            itemTouchHelper = new Android.Support.V7.Widget.Helper.ItemTouchHelper(callback);
+            itemTouchHelper.AttachToRecyclerView(ListView);
+
             ListView.SetAdapter(adapter);
         }
 
         private void ListView_ItemClick(object sender, int Position)
         {
-            PlayInOrder(useHeader ? Position : Position - 1, true);
+            if (useHeader)
+                Position--;
+
+            PlayInOrder(Position, true);
         }
 
         private void ListView_ItemLongClick(object sender, int Position)
         {
-            Song item = tracks[useHeader ? Position : Position - 1];
-            if (result != null && result.Count > (useHeader ? Position : Position - 1))
-                item = result[useHeader ? Position : Position - 1];
+            if (!useHeader)
+                Position--;
 
-            More(item, useHeader ? Position : Position - 1);
+            Song item = tracks[Position];
+            if (result != null && result.Count > Position)
+                item = result[Position];
+
+            More(item, Position);
         }
 
         public void More(Song item, int position)
         {
+            if (!useHeader)
+                position--;
+
             List<string> action = actions.ToList();
 
             if (!item.IsYt)
@@ -616,8 +590,7 @@ namespace MusicApp.Resources.Portable_Class
                     switch (args.Which)
                     {
                         case 0:
-                            int Position = tracks.IndexOf(item);
-                            PlayInOrder(Position, true);
+                            PlayInOrder(position, true);
                             break;
 
                         case 1:
@@ -635,12 +608,12 @@ namespace MusicApp.Resources.Portable_Class
                             break;
 
                         case 3:
-                            if (!item.IsYt)
+                            if (playlistId != 0)
                                 RemoveFromPlaylist(item);
-                            else
+                            else if(ytID != null)
                             {
                                 string ytTrackID = ytTracksIDs[position];
-                                if (ytTracksIdsResult != null)
+                                if (ytTracksIdsResult != null && ytTracksIdsResult.Count > position)
                                     ytTrackID = ytTracksIdsResult[position];
 
                                 YoutubeEngine.RemoveFromPlaylist(ytTrackID);
@@ -675,8 +648,7 @@ namespace MusicApp.Resources.Portable_Class
                     switch (args.Which)
                     {
                         case 0:
-                            int Position = tracks.IndexOf(item);
-                            PlayInOrder(Position, true);
+                            PlayInOrder(position, true);
                             break;
 
                         case 1:
@@ -715,7 +687,7 @@ namespace MusicApp.Resources.Portable_Class
             builder.Show();
         }
 
-        async void PlayInOrder(int fromPosition, bool useTransition)
+        public async void PlayInOrder(int fromPosition, bool useTransition)
         {
             List<Song> songs = tracks.GetRange(fromPosition, tracks.Count - fromPosition);
             if (result != null && result.Count - 1 >= fromPosition)
@@ -753,10 +725,11 @@ namespace MusicApp.Resources.Portable_Class
 
         private void RemoveFromYtPlaylist(Song item, string ytTrackID)
         {
-            tracks.Remove(item);
             ytTracksIDs.Remove(ytTrackID);
             ytTracksIdsResult?.Remove(ytTrackID);
             adapter.Remove(item);
+            tracks.Remove(item);
+            result?.Remove(item);
             if (adapter == null || adapter.ItemCount == 0)
             {
                 isEmpty = true;
@@ -769,8 +742,9 @@ namespace MusicApp.Resources.Portable_Class
             ContentResolver resolver = Activity.ContentResolver;
             Uri uri = MediaStore.Audio.Playlists.Members.GetContentUri("external", playlistId);
             resolver.Delete(uri, MediaStore.Audio.Playlists.Members.Id + "=?", new string[] { item.Id.ToString() });
-            tracks.Remove(item);
             adapter.Remove(item);
+            tracks.Remove(item);
+            result?.Remove(item);
             if (adapter == null || adapter.ItemCount == 0)
             {
                 isEmpty = true;
@@ -805,6 +779,32 @@ namespace MusicApp.Resources.Portable_Class
                 Activity.FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Invisible;
                 MainActivity.instance.SupportActionBar.SetDisplayShowTitleEnabled(true);
             }
+        }
+
+        public void DeleteDialog(int position)
+        {
+            if (!useHeader)
+                position--;
+
+            Song song = tracks[position];
+            if (result != null && result.Count > position)
+                song = result[position];
+
+            AlertDialog dialog = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme)
+                .SetTitle("Remove " + song.Title + " from playlist ?")
+                .SetPositiveButton("Yes", (sender, e) =>
+                {
+                    if (ytID != null)
+                    {
+                        YoutubeEngine.RemoveFromPlaylist((ytTracksIdsResult != null && ytTracksIdsResult.Count > position) ? ytTracksIdsResult[position] : ytTracksIDs[position]);
+                        RemoveFromYtPlaylist(song, (ytTracksIdsResult != null && ytTracksIdsResult.Count > position) ? ytTracksIdsResult[position] : ytTracksIDs[position]);
+                    }
+                    else if (playlistId != 0)
+                        RemoveFromPlaylist(song);
+                })
+                .SetNegativeButton("No", (sender, e) => { adapter.NotifyItemChanged(position); })
+                .Create();
+            dialog.Show();
         }
     }
 }
