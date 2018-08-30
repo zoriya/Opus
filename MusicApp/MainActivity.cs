@@ -600,6 +600,7 @@ namespace MusicApp
                 searchView.Iconified = true;
                 searchView.SetQuery("", false);
                 SupportActionBar.SetDisplayHomeAsUpEnabled(false);
+                FindViewById(Resource.Id.tabs).Visibility = ViewStates.Gone;
                 YoutubeEngine.instances = null;
                 youtubeSwitch = true;
             }
