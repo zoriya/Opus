@@ -444,11 +444,6 @@ namespace MusicApp
                 else if (FolderTracks.instance != null)
                 {
                     HideSearch();
-                    if (FolderTracks.instance.isEmpty)
-                    {
-                        ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
-                        rootView.RemoveView(PlaylistTracks.instance.emptyView);
-                    }
                     SupportActionBar.SetHomeButtonEnabled(false);
                     SupportActionBar.SetDisplayHomeAsUpEnabled(false);
                     SupportActionBar.Title = "MusicApp";

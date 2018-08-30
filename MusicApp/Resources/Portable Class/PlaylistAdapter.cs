@@ -94,12 +94,12 @@ namespace MusicApp.Resources.Portable_Class
             }
             else if (position == 1 && playlistsName[1].StartsWith("EMPTY - "))
             {
-                EmptyCategoryHolder holder = (EmptyCategoryHolder)viewHolder;
+                EmptyHolder holder = (EmptyHolder)viewHolder;
                 holder.text.Text = playlistsName[1].Substring(8);
             }
             else if (position - playlistsName.Count == 1 && ytPlaylists[1].Title == "EMPTY")
             {
-                EmptyCategoryHolder holder = (EmptyCategoryHolder)viewHolder;
+                EmptyHolder holder = (EmptyHolder)viewHolder;
                 holder.text.Text = ytPlaylists[1].Artist;
             }
             else if (position == playlistsName.Count + ytPlaylists.Count)
@@ -125,7 +125,7 @@ namespace MusicApp.Resources.Portable_Class
             else if(position >= playlistsName.Count && ytPlaylists[position - playlistsName.Count].Title == "Loading" && ytPlaylists[position - playlistsName.Count].youtubeID == null) { }
             else if(position - playlistsName.Count == 1 && ytPlaylists[1].Title == "Error" && ytPlaylists[1].youtubeID == null)
             {
-                EmptyCategoryHolder holder = (EmptyCategoryHolder)viewHolder;
+                EmptyHolder holder = (EmptyHolder)viewHolder;
                 holder.text.Text = "Error while loading.\nCheck your internet connection and check if your logged in.";
                 holder.text.SetTextColor(Color.Red);
             }
@@ -239,7 +239,7 @@ namespace MusicApp.Resources.Portable_Class
             else
             {
                 View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.EmptyListCategory, parent, false);
-                return new EmptyCategoryHolder(itemView);
+                return new EmptyHolder(itemView);
             }
         }
 

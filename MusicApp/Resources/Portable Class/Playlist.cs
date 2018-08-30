@@ -31,13 +31,11 @@ namespace MusicApp.Resources.Portable_Class
         private List<Google.Apis.YouTube.v3.Data.Playlist> YtPlaylists = new List<Google.Apis.YouTube.v3.Data.Playlist>();
 
         private PlaylistAdapter adapter;
-        private View emptyView;
 
         public override void OnActivityCreated(Bundle savedInstanceState)
         {
             base.OnActivityCreated(savedInstanceState);
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
-            emptyView = LayoutInflater.Inflate(Resource.Layout.NoPlaylist, null);
             MainActivity.instance.OnPaddingChanged += OnPaddingChanged;
         }
 

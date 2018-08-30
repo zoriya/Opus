@@ -18,9 +18,7 @@ namespace MusicApp.Resources.Portable_Class
         public static FolderTracks instance;
         public string folderName;
         public Adapter adapter;
-        public View emptyView;
         public List<Song> result;
-        public bool isEmpty = false;
         public string path;
 
         private List<Song> tracks = new List<Song>();
@@ -30,8 +28,6 @@ namespace MusicApp.Resources.Portable_Class
         public override void OnActivityCreated(Bundle savedInstanceState)
         {
             base.OnActivityCreated(savedInstanceState);
-            emptyView = LayoutInflater.Inflate(Resource.Layout.NoPlaylist, null);
-            ListView.EmptyView = emptyView;
             ListView.Scroll += MainActivity.instance.Scroll;
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
             MainActivity.instance.OnPaddingChanged += OnPaddingChanged;
@@ -121,12 +117,6 @@ namespace MusicApp.Resources.Portable_Class
             ListView.TextFilterEnabled = true;
             ListView.ItemClick += ListView_ItemClick;
             ListView.ItemLongClick += ListView_ItemLongClick;
-
-            if (adapter == null || adapter.Count == 0)
-            {
-                isEmpty = true;
-                Activity.AddContentView(emptyView, View.LayoutParameters);
-            }
         }
 
         private void OnRefresh(object sender, System.EventArgs e)
@@ -177,12 +167,6 @@ namespace MusicApp.Resources.Portable_Class
                 listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot
             };
             ListAdapter = adapter;
-
-            if (adapter == null || adapter.Count == 0)
-            {
-                isEmpty = true;
-                Activity.AddContentView(emptyView, View.LayoutParameters);
-            }
             MainActivity.instance.contentRefresh.Refreshing = false;
         }
 

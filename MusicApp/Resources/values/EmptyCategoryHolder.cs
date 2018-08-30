@@ -4,10 +4,10 @@ using Android.Widget;
 
 namespace MusicApp.Resources.values
 {
-    public class EmptyCategoryHolder : RecyclerView.ViewHolder
+    public class EmptyHolder : RecyclerView.ViewHolder
     {
         public TextView text;
-        public EmptyCategoryHolder(View itemView) : base(itemView)
+        public EmptyHolder(View itemView) : base(itemView)
         {
             text = (TextView)itemView;
         }

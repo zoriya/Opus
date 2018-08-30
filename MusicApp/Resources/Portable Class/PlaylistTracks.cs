@@ -28,7 +28,6 @@ namespace MusicApp.Resources.Portable_Class
         public string playlistName;
         public RecyclerView ListView;
         public PlaylistTrackAdapter adapter;
-        public View emptyView;
         private Android.Support.V7.Widget.Helper.ItemTouchHelper itemTouchHelper;
         public List<Song> result = null;
         public long playlistId;
@@ -206,11 +205,6 @@ namespace MusicApp.Resources.Portable_Class
                 if (Player.instance == null)
                 {
                     MainActivity.instance.HideSearch();
-                    if (isEmpty)
-                    {
-                        ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
-                        rootView.RemoveView(emptyView);
-                    }
                     MainActivity.instance.SupportActionBar.SetHomeButtonEnabled(false);
                     MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(false);
                     MainActivity.instance.SupportActionBar.SetDisplayShowTitleEnabled(true);
@@ -411,12 +405,6 @@ namespace MusicApp.Resources.Portable_Class
                 itemTouchHelper = new Android.Support.V7.Widget.Helper.ItemTouchHelper(callback);
                 itemTouchHelper.AttachToRecyclerView(ListView);
 
-                if (adapter == null || adapter.ItemCount == 0)
-                {
-                    isEmpty = true;
-                    Activity.AddContentView(emptyView, View.LayoutParameters);
-                }
-
                 Activity.FindViewById<TextView>(Resource.Id.headerNumber).Text = tracks.Count.ToString() + " songs";
                 var songCover = Uri.Parse("content://media/external/audio/albumart");
                 var songAlbumArtUri = ContentUris.WithAppendedId(songCover, tracks[0].AlbumArt);
@@ -455,12 +443,6 @@ namespace MusicApp.Resources.Portable_Class
                 Android.Support.V7.Widget.Helper.ItemTouchHelper.Callback callback = new ItemTouchCallback(adapter);
                 itemTouchHelper = new Android.Support.V7.Widget.Helper.ItemTouchHelper(callback);
                 itemTouchHelper.AttachToRecyclerView(ListView);
-
-                if (adapter == null || adapter.ItemCount == 0)
-                {
-                    isEmpty = true;
-                    Activity.AddContentView(emptyView, View.LayoutParameters);
-                }
             }
             else if(tracks.Count != 0)
             {
@@ -472,12 +454,6 @@ namespace MusicApp.Resources.Portable_Class
                 adapter.ItemClick += ListView_ItemClick;
                 adapter.ItemLongClick += ListView_ItemLongClick;
                 ListView.SetAdapter(adapter);
-
-                if (adapter == null || adapter.ItemCount == 0)
-                {
-                    isEmpty = true;
-                    Activity.AddContentView(emptyView, View.LayoutParameters);
-                }
             }
         }
 
@@ -732,11 +708,6 @@ namespace MusicApp.Resources.Portable_Class
             adapter.Remove(item);
             tracks.Remove(item);
             result?.Remove(item);
-            if (adapter == null || adapter.ItemCount == 0)
-            {
-                isEmpty = true;
-                Activity.AddContentView(emptyView, View.LayoutParameters);
-            }
         }
 
         void RemoveFromPlaylist(Song item)
@@ -747,11 +718,6 @@ namespace MusicApp.Resources.Portable_Class
             adapter.Remove(item);
             tracks.Remove(item);
             result?.Remove(item);
-            if (adapter == null || adapter.ItemCount == 0)
-            {
-                isEmpty = true;
-                Activity.AddContentView(emptyView, View.LayoutParameters);
-            }
         }
 
         public override void OnResume()

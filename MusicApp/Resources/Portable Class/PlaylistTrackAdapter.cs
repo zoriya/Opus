@@ -19,6 +19,7 @@ namespace MusicApp.Resources.Portable_Class
         public event EventHandler<int> ItemClick;
         public event EventHandler<int> ItemLongClick;
         public int listPadding;
+        private bool empty = false;
 
         public PlaylistTrackAdapter(List<Song> songList)
         {
@@ -39,10 +40,32 @@ namespace MusicApp.Resources.Portable_Class
             NotifyItemRemoved(position);
         }
 
-        public override int ItemCount => songList.Count + (PlaylistTracks.instance.fullyLoadded ? 0 : 1) + (PlaylistTracks.instance.useHeader ? 0 : 1);
+        public override int ItemCount
+        {
+            get
+            {
+                int count = songList.Count + (PlaylistTracks.instance.fullyLoadded ? 0 : 1) + (PlaylistTracks.instance.useHeader ? 0 : 1);
+                if (count == 0 || (count == 1 && !PlaylistTracks.instance.useHeader))
+                {
+                    empty = true;
+                    count++;
+                }
+
+                return count;
+            }
+        }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position)
         {
+            if(empty && position + 1 == ItemCount)
+            {
+                if(PlaylistTracks.instance.tracks.Count == 0)
+                    ((TextView)viewHolder.ItemView).Text = "This playlist is empty.";
+                else
+                    ((TextView)viewHolder.ItemView).Text = "No track found.";
+                return;
+            }
+
             if (!PlaylistTracks.instance.useHeader) 
                 position--;
 
@@ -147,15 +170,23 @@ namespace MusicApp.Resources.Portable_Class
                 View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.smallLoading, parent, false);
                 return new UslessHolder(itemView);
             }
-            else
+            else if(viewType == 2)
             {
                 View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.PlaylistSmallHeader, parent, false);
                 return new UslessHolder(itemView);
+            }
+            else
+            {
+                View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.EmptyView, parent, false);
+                return new EmptyHolder(itemView);
             }
         }
 
         public override int GetItemViewType(int position)
         {
+            if (empty && position + 1 == ItemCount)
+                return 3;
+
             if (position == 0 && !PlaylistTracks.instance.useHeader)
                 return 2;
             else if (position - (PlaylistTracks.instance.useHeader ? 0 : 1) >= songList.Count)
@@ -173,23 +204,7 @@ namespace MusicApp.Resources.Portable_Class
             ItemLongClick?.Invoke(this, position);
         }
 
-        public void ItemMoved(int fromPosition, int toPosition)
-        {
-            //Enable this only if the user is editing the playlist
-
-            //if (fromPosition < toPosition)
-            //{
-            //    for (int i = fromPosition; i < toPosition; i++)
-            //        songList = Swap(songList, i, i + 1);
-            //}
-            //else
-            //{
-            //    for (int i = fromPosition; i > toPosition; i--)
-            //        songList = Swap(songList, i, i - 1);
-            //}
-
-            //NotifyItemMoved(fromPosition, toPosition);
-        }
+        public void ItemMoved(int fromPosition, int toPosition) { }
 
         public void ItemMoveEnded(int fromPosition, int toPosition) { }
 

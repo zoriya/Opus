@@ -4267,61 +4267,61 @@ namespace MusicApp
 			public const int EmptyLoadingLayout = 2130903086;
 			
 			// aapt resource value: 0x7f03002f
-			public const int EmptyYoutubeSearch = 2130903087;
+			public const int EmptyView = 2130903087;
 			
 			// aapt resource value: 0x7f030030
-			public const int exo_list_divider = 2130903088;
+			public const int EmptyYoutubeSearch = 2130903088;
 			
 			// aapt resource value: 0x7f030031
-			public const int exo_playback_control_view = 2130903089;
+			public const int exo_list_divider = 2130903089;
 			
 			// aapt resource value: 0x7f030032
-			public const int exo_player_control_view = 2130903090;
+			public const int exo_playback_control_view = 2130903090;
 			
 			// aapt resource value: 0x7f030033
-			public const int exo_player_view = 2130903091;
+			public const int exo_player_control_view = 2130903091;
 			
 			// aapt resource value: 0x7f030034
-			public const int exo_simple_player_view = 2130903092;
+			public const int exo_player_view = 2130903092;
 			
 			// aapt resource value: 0x7f030035
-			public const int exo_track_selection_dialog = 2130903093;
+			public const int exo_simple_player_view = 2130903093;
 			
 			// aapt resource value: 0x7f030036
-			public const int folderList = 2130903094;
+			public const int exo_track_selection_dialog = 2130903094;
 			
 			// aapt resource value: 0x7f030037
-			public const int HomeChannel = 2130903095;
+			public const int folderList = 2130903095;
 			
 			// aapt resource value: 0x7f030038
-			public const int HomeChannels = 2130903096;
+			public const int HomeChannel = 2130903096;
 			
 			// aapt resource value: 0x7f030039
-			public const int HomePlaylists = 2130903097;
+			public const int HomeChannels = 2130903097;
 			
 			// aapt resource value: 0x7f03003a
-			public const int HomeTopic = 2130903098;
+			public const int HomePlaylists = 2130903098;
 			
 			// aapt resource value: 0x7f03003b
-			public const int LineSong = 2130903099;
+			public const int HomeTopic = 2130903099;
 			
 			// aapt resource value: 0x7f03003c
-			public const int LineSongs = 2130903100;
+			public const int LineSong = 2130903100;
 			
 			// aapt resource value: 0x7f03003d
-			public const int ListPopupLayout = 2130903101;
+			public const int LineSongs = 2130903101;
 			
 			// aapt resource value: 0x7f03003e
-			public const int LogOutButton = 2130903102;
+			public const int ListPopupLayout = 2130903102;
 			
 			// aapt resource value: 0x7f03003f
-			public const int Main = 2130903103;
+			public const int LogOutButton = 2130903103;
 			
 			// aapt resource value: 0x7f030040
-			public const int MusicLayout = 2130903104;
+			public const int Main = 2130903104;
 			
 			// aapt resource value: 0x7f030041
-			public const int NoPlaylist = 2130903105;
+			public const int MusicLayout = 2130903105;
 			
 			// aapt resource value: 0x7f030042
 			public const int NoQueue = 2130903106;
