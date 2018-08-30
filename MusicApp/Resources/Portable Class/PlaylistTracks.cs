@@ -36,7 +36,7 @@ namespace MusicApp.Resources.Portable_Class
         private string author;
         private int count;
         private Uri thumnailURI;
-        private bool hasWriteAcess;
+        public bool hasWriteAcess;
         private bool forked;
         private string nextPageToken = null;
         public bool fullyLoadded = false;
@@ -327,6 +327,7 @@ namespace MusicApp.Resources.Portable_Class
             instance.playlistName = playlistName;
             instance.useHeader = false;
             instance.fullyLoadded = true;
+            instance.hasWriteAcess = false;
             return instance;
         }
 
@@ -336,6 +337,7 @@ namespace MusicApp.Resources.Portable_Class
             instance.playlistId = playlistId;
             instance.playlistName = playlistName;
             instance.fullyLoadded = true;
+            instance.hasWriteAcess = true;
             return instance;
         }
 

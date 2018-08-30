@@ -3,7 +3,6 @@ using Android.Graphics.Drawables;
 using Android.Support.V7.Widget;
 using Android.Support.V7.Widget.Helper;
 using Android.Widget;
-using System;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -14,8 +13,25 @@ namespace MusicApp.Resources.Portable_Class
         private int from = -1;
         private int to = -1;
 
-        public override bool IsItemViewSwipeEnabled => true;
-        public override bool IsLongPressDragEnabled => true;
+        public override bool IsItemViewSwipeEnabled
+        {
+            get
+            {
+                if (PlaylistTracks.instance != null && !PlaylistTracks.instance.hasWriteAcess)
+                    return false;
+                return true;
+            }
+        }
+        public override bool IsLongPressDragEnabled
+        {
+            get
+            {
+                if (Queue.instance != null)
+                    return true;
+                else
+                    return false;
+            }
+        }
 
         private Drawable drawable;
 
