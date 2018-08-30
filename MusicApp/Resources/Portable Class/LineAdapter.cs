@@ -63,8 +63,22 @@ namespace MusicApp.Resources.Portable_Class
 
         void OnClick(int position)
         {
-            if (useQueue && MusicPlayer.instance != null)
-                MusicPlayer.instance.SwitchQueue(songList[position]);
+            if (useQueue)
+            {
+                if(MusicPlayer.instance != null)
+                    MusicPlayer.instance.SwitchQueue(songList[position]);
+                else
+                {
+                    Intent intent = new Intent(MainActivity.instance, typeof(MusicPlayer));
+                    intent.SetAction("SwitchQueue");
+                    intent.PutExtra("queueSlot", position);
+                    MainActivity.instance.StartService(intent);
+
+                    Intent player = new Intent(MainActivity.instance, typeof(Player));
+                    MainActivity.instance.StartActivity(player);
+                }
+
+            }
             else if (!songList[position].IsYt)
                 Browse.Play(songList[position], recycler.GetLayoutManager().FindViewByPosition(position).FindViewById<ImageView>(Resource.Id.albumArt));
             else

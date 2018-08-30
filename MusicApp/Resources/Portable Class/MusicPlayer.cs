@@ -11,7 +11,6 @@ using Android.Support.V4.Content;
 using Android.Support.V4.Media.Session;
 using Android.Support.V7.Preferences;
 using Android.Support.V7.Widget;
-using Android.Util;
 using Android.Views;
 using Android.Widget;
 using Com.Google.Android.Exoplayer2;
@@ -131,6 +130,10 @@ namespace MusicApp.Resources.Portable_Class
 
                 case "SleepPause":
                     SleepPause();
+                    break;
+
+                case "SwitchQueue":
+                    SwitchQueue(queue[intent.GetIntExtra("queueSlot", -1)]);
                     break;
             }
 

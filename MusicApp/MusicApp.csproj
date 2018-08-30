@@ -76,23 +76,23 @@
     <Reference Include="DiscreteSeekBar, Version=1.0.1.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Karamunting.Android.AnderWeb.DiscreteSeekBar.1.0.1.1\lib\monoandroid81\DiscreteSeekBar.dll</HintPath>
     </Reference>
-    <Reference Include="ExoPlayer, Version=2.8.7.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Xam.Plugins.Android.ExoPlayer.2.8.7\lib\monoandroid81\ExoPlayer.dll</HintPath>
+    <Reference Include="ExoPlayer, Version=2.8.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xam.Plugins.Android.ExoPlayer.2.8.8\lib\monoandroid81\ExoPlayer.dll</HintPath>
     </Reference>
-    <Reference Include="ExoPlayer.Core, Version=2.8.7.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Xam.Plugins.Android.ExoPlayer.Core.2.8.7\lib\monoandroid81\ExoPlayer.Core.dll</HintPath>
+    <Reference Include="ExoPlayer.Core, Version=2.8.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xam.Plugins.Android.ExoPlayer.Core.2.8.8\lib\monoandroid81\ExoPlayer.Core.dll</HintPath>
     </Reference>
-    <Reference Include="ExoPlayer.Dash, Version=2.8.7.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Xam.Plugins.Android.ExoPlayer.Dash.2.8.7\lib\monoandroid81\ExoPlayer.Dash.dll</HintPath>
+    <Reference Include="ExoPlayer.Dash, Version=2.8.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xam.Plugins.Android.ExoPlayer.Dash.2.8.8\lib\monoandroid81\ExoPlayer.Dash.dll</HintPath>
     </Reference>
-    <Reference Include="ExoPlayer.Hls, Version=2.8.7.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Xam.Plugins.Android.ExoPlayer.Hls.2.8.7\lib\monoandroid81\ExoPlayer.Hls.dll</HintPath>
+    <Reference Include="ExoPlayer.Hls, Version=2.8.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xam.Plugins.Android.ExoPlayer.Hls.2.8.8\lib\monoandroid81\ExoPlayer.Hls.dll</HintPath>
     </Reference>
-    <Reference Include="ExoPlayer.SmoothStreaming, Version=2.8.7.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Xam.Plugins.Android.ExoPlayer.SmoothStreaming.2.8.7\lib\monoandroid81\ExoPlayer.SmoothStreaming.dll</HintPath>
+    <Reference Include="ExoPlayer.SmoothStreaming, Version=2.8.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xam.Plugins.Android.ExoPlayer.SmoothStreaming.2.8.8\lib\monoandroid81\ExoPlayer.SmoothStreaming.dll</HintPath>
     </Reference>
-    <Reference Include="ExoPlayer.UI, Version=2.8.7.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Xam.Plugins.Android.ExoPlayer.UI.2.8.7\lib\monoandroid81\ExoPlayer.UI.dll</HintPath>
+    <Reference Include="ExoPlayer.UI, Version=2.8.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xam.Plugins.Android.ExoPlayer.UI.2.8.8\lib\monoandroid81\ExoPlayer.UI.dll</HintPath>
     </Reference>
     <Reference Include="Google.Apis, Version=1.35.1.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
       <HintPath>..\packages\Google.Apis.1.35.1\lib\netstandard2.0\Google.Apis.dll</HintPath>
@@ -248,8 +248,8 @@
     <Reference Include="Xamarin.GooglePlayServices.Tasks, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Xamarin.GooglePlayServices.Tasks.60.1142.1\lib\MonoAndroid80\Xamarin.GooglePlayServices.Tasks.dll</HintPath>
     </Reference>
-    <Reference Include="YoutubeExplode, Version=4.3.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\YoutubeExplode.4.3.0\lib\netstandard2.0\YoutubeExplode.dll</HintPath>
+    <Reference Include="YoutubeExplode, Version=4.3.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\YoutubeExplode.4.3.1\lib\netstandard2.0\YoutubeExplode.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
