@@ -10,7 +10,7 @@ namespace MusicApp.Resources.Portable_Class
     public class Sleeper : Service
     {
         public static Sleeper instance;
-        public int timer;
+        public int timer = 0;
 
         public override IBinder OnBind(Intent intent)
         {
@@ -24,12 +24,12 @@ namespace MusicApp.Resources.Portable_Class
 
         public override StartCommandResult OnStartCommand(Intent intent, StartCommandFlags flags, int startId)
         {
-            if (instance == null)
-                StartTimer(intent);
+            int time = intent.GetIntExtra("time", timer);
+            if (instance == null && time > 0)
+                StartTimer(time);
             else
             {
                 NotificationManager notificationManager = (NotificationManager)GetSystemService(NotificationService);
-                int time = intent.GetIntExtra("time", timer);
                 if (time < 1)
                 {
                     notificationManager.Cancel(1001);
@@ -51,10 +51,10 @@ namespace MusicApp.Resources.Portable_Class
             return StartCommandResult.Sticky;
         }
 
-        async void StartTimer(Intent intent)
+        async void StartTimer(int time)
         {
             instance = this;
-            timer = intent.GetIntExtra("time", 0); // In minutes
+            timer = time; // In minutes
 
             Intent mainActivity = new Intent(Application.Context, typeof(MainActivity));
             Intent sleepIntent = new Intent(Application.Context, typeof(Player));
