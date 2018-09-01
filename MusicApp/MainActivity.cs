@@ -82,6 +82,7 @@ namespace MusicApp
         private object sender;
         private Drawable playToCross;
         private Drawable crossToPlay;
+        public BottomSheetBehavior SheetBehavior;
 
         private const int RequestCode = 8539;
         private const string versionURI = "https://raw.githubusercontent.com/AnonymusRaccoon/MusicApp/master/MusicApp/Assets/Version.txt";
@@ -98,9 +99,9 @@ namespace MusicApp
 
         public virtual void PaddingHasChanged(PaddingChange e)
         {
-            paddingBot = (((RelativeLayout)instance.FindViewById(Resource.Id.smallPlayer).Parent).Visibility == ViewStates.Gone)
-                ? DpToPx(56)
-                : instance.FindViewById(Resource.Id.smallPlayer).Height + ((RelativeLayout)instance.FindViewById(Resource.Id.smallPlayer).Parent).PaddingBottom;
+            //paddingBot = (((ListView)instance.FindViewById(Resource.Id.smallPlayer).Parent).Visibility == ViewStates.Gone)
+            //    ? DpToPx(56)
+            //    : instance.FindViewById(Resource.Id.smallPlayer).Height + ((RelativeLayout)instance.FindViewById(Resource.Id.smallPlayer).Parent).PaddingBottom;
 
             paddingBot += e.paddingChange;
 
@@ -131,6 +132,12 @@ namespace MusicApp
             if(!MusicPlayer.isRunning)
                 MusicPlayer.RetrieveQueueFromDataBase();
 
+            SheetBehavior = BottomSheetBehavior.From(FindViewById(Resource.Id.playerSheet));
+            SheetBehavior.State = BottomSheetBehavior.StateCollapsed;
+            SheetBehavior.SetBottomSheetCallback(new PlayerCallback(this));
+            SheetBehavior.PeekHeight = DpToPx(70);
+            SupportFragmentManager.BeginTransaction().Replace(Resource.Id.playerFrame, new Player()).Commit();
+
             if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
             {
                 NotificationManager notificationManager = (NotificationManager)GetSystemService(NotificationService);
@@ -153,7 +160,11 @@ namespace MusicApp
                 Navigate(Resource.Id.musicLayout);
             }
 
-            if (Intent.Action == Intent.ActionSend)
+            if(Intent.Action == "Player")
+            {
+                SheetBehavior.State = BottomSheetBehavior.StateExpanded;
+            }
+            else if (Intent.Action == Intent.ActionSend)
             {
                 if (YoutubeClient.TryParseVideoId(Intent.GetStringExtra(Intent.ExtraText), out string videoID))
                 {
@@ -175,8 +186,12 @@ namespace MusicApp
                 intent.PutExtra("file", Intent.Data.ToString());
                 StartService(intent);
 
-                Intent inten = new Intent(this, typeof(Player));
-                StartActivity(inten);
+                ShowSmallPlayer();
+                SheetBehavior.State = BottomSheetBehavior.StateExpanded;
+            }
+            else if (Intent.Action == "Sleep")
+            {
+                Player.instance.SleepButton_Click("", null);
             }
 
             CheckForUpdate(this, false);
@@ -869,7 +884,7 @@ namespace MusicApp
         {
             Song current = MusicPlayer.queue[MusicPlayer.CurrentID()];
 
-            CoordinatorLayout smallPlayer = FindViewById<CoordinatorLayout>(Resource.Id.smallPlayer);
+            CardView smallPlayer = FindViewById<CardView>(Resource.Id.smallPlayer);
             TextView title = smallPlayer.FindViewById<TextView>(Resource.Id.spTitle);
             TextView artist = smallPlayer.FindViewById<TextView>(Resource.Id.spArtist);
             ImageView art = smallPlayer.FindViewById<ImageView>(Resource.Id.spArt);
@@ -920,9 +935,9 @@ namespace MusicApp
                 behavior.SetSwipeDirection(SwipeDismissBehavior.SwipeDirectionAny);
                 behavior.SetListener(this);
 
-                CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) smallPlayer.FindViewById<CardView>(Resource.Id.cardPlayer).LayoutParameters;
-                layoutParams.Behavior = behavior;
-                smallPlayer.FindViewById<CardView>(Resource.Id.cardPlayer).LayoutParameters = layoutParams;
+                //CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) smallPlayer.FindViewById<CardView>(Resource.Id.cardPlayer).LayoutParameters;
+                //layoutParams.Behavior = behavior;
+                //smallPlayer.FindViewById<CardView>(Resource.Id.cardPlayer).LayoutParameters = layoutParams;
             }
         }
 
@@ -959,9 +974,8 @@ namespace MusicApp
 
         private void Container_Click(object sender, EventArgs e)
         {
-            Intent intent = new Intent(this, typeof(Player));
-            ActivityOptionsCompat options = ActivityOptionsCompat.MakeSceneTransitionAnimation(this, FindViewById<ImageView>(Resource.Id.spArt), "albumArt");
-            StartActivity(intent, options.ToBundle());
+            ShowSmallPlayer();
+            SheetBehavior.State = BottomSheetBehavior.StateExpanded;
         }
 
         public void GetStoragePermission()
@@ -1029,8 +1043,8 @@ namespace MusicApp
 
         public async void HideSmallPlayer()
         {
-            CoordinatorLayout smallPlayer = FindViewById<CoordinatorLayout>(Resource.Id.smallPlayer);
-            RelativeLayout parent = (RelativeLayout)smallPlayer.Parent;
+            CardView smallPlayer = FindViewById<CardView>(Resource.Id.smallPlayer);
+            NestedScrollView parent = FindViewById<NestedScrollView>(Resource.Id.playerSheet);
             bool hasChanged = parent.Visibility != ViewStates.Gone;
             parent.Visibility = ViewStates.Gone;
 
@@ -1041,8 +1055,8 @@ namespace MusicApp
 
         public async void ShowSmallPlayer()
         {
-            CoordinatorLayout smallPlayer = FindViewById<CoordinatorLayout>(Resource.Id.smallPlayer);
-            RelativeLayout parent = (RelativeLayout)smallPlayer.Parent;
+            CardView smallPlayer = FindViewById<CardView>(Resource.Id.smallPlayer);
+            NestedScrollView parent = FindViewById<NestedScrollView>(Resource.Id.playerSheet);
             bool hasChanged = parent.Visibility == ViewStates.Gone;
             parent.Visibility = ViewStates.Visible;
             smallPlayer.Visibility = ViewStates.Visible;
@@ -1160,8 +1174,8 @@ namespace MusicApp
                     intent.PutExtra("clearQueue", false);
                 intent.SetAction("RandomPlay");
                 StartService(intent);
-                Intent inte = new Intent(this, typeof(Player));
-                StartActivity(inte);
+                ShowSmallPlayer();
+                SheetBehavior.State = BottomSheetBehavior.StateExpanded;
             }
             else
             {
@@ -1169,8 +1183,8 @@ namespace MusicApp
                 if (playlistID != -1)
                 {
                     Playlist.RandomPlay(playlistID, this);
-                    Intent intent = new Intent(this, typeof(Player));
-                    StartActivity(intent);
+                    ShowSmallPlayer();
+                    SheetBehavior.State = BottomSheetBehavior.StateExpanded;
                 }
                 else
                     ((Snackbar)Snackbar.Make(FindViewById<View>(Resource.Id.snackBar), "No playlist set on setting.", Snackbar.LengthLong)

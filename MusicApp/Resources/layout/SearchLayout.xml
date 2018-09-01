@@ -23,18 +23,4 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     android:layout_height="match_parent"
     android:layout_width="match_parent" />
-  <RelativeLayout
-    android:layout_height="wrap_content"
-    android:visibility="gone"
-    android:layout_alignParentBottom="true"
-    android:gravity="center_horizontal|bottom"
-    android:paddingBottom="70dp"
-    android:paddingRight="20dp"
-    android:paddingLeft="20dp"
-    android:elevation="6dp"
-    android:layout_width="wrap_content">
-    <include
-      layout="@layout/SmallPlayer"
-      android:id="@+id/smallPlayer" />
-  </RelativeLayout>
 </android.support.design.widget.CoordinatorLayout>

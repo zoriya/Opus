@@ -331,14 +331,14 @@ namespace MusicApp.Resources.Portable_Class
             if (progress != -1)
             {
                 player.SeekTo(progress);
-                Player.instance?.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
+                MainActivity.instance?.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
             }
 
             SaveQueueSlot();
             Player.instance?.RefreshPlayer();
             ParseNextSong();
 
-            CoordinatorLayout smallPlayer = MainActivity.instance.FindViewById<CoordinatorLayout>(Resource.Id.smallPlayer);
+            CardView smallPlayer = MainActivity.instance.FindViewById<CardView>(Resource.Id.smallPlayer);
             smallPlayer.FindViewById<TextView>(Resource.Id.spTitle).Text = song.Title;
             smallPlayer.FindViewById<TextView>(Resource.Id.spArtist).Text = song.Artist;
             smallPlayer.FindViewById<ImageView>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
@@ -423,12 +423,8 @@ namespace MusicApp.Resources.Portable_Class
                 if (MainActivity.instance != null)
                 {
                     MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
-
-                    if (!MainActivity.instance.paused)
-                    {
-                        Intent intent = new Intent(this, typeof(Player));
-                        StartActivity(intent);
-                    }
+                    MainActivity.instance.ShowSmallPlayer();
+                    MainActivity.instance.SheetBehavior.State = BottomSheetBehavior.StateExpanded;
                 }
                 parsing = false;
             }
@@ -693,7 +689,7 @@ namespace MusicApp.Resources.Portable_Class
             Player.instance?.RefreshPlayer();
             Queue.instance?.RefreshCurrent();
 
-            CoordinatorLayout smallPlayer = MainActivity.instance.FindViewById<CoordinatorLayout>(Resource.Id.smallPlayer);
+            CardView smallPlayer = MainActivity.instance.FindViewById<CardView>(Resource.Id.smallPlayer);
             smallPlayer.FindViewById<TextView>(Resource.Id.spTitle).Text = song.Title;
             smallPlayer.FindViewById<TextView>(Resource.Id.spArtist).Text = song.Artist;
             smallPlayer.FindViewById<ImageView>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
@@ -970,9 +966,9 @@ namespace MusicApp.Resources.Portable_Class
             tmpNextIntent.SetAction("Next");
             PendingIntent nextIntent = PendingIntent.GetService(Application.Context, 0, tmpNextIntent, PendingIntentFlags.UpdateCurrent);
 
-            Intent mainActivity = new Intent(Application.Context, typeof(MainActivity));
-            Intent tmpDefaultIntent = new Intent(Application.Context, typeof(Player));
-            PendingIntent defaultIntent = PendingIntent.GetActivities(Application.Context, 0, new Intent[] { mainActivity, tmpDefaultIntent }, PendingIntentFlags.UpdateCurrent);
+            Intent tmpDefaultIntent = new Intent(Application.Context, typeof(MainActivity));
+            tmpDefaultIntent.SetAction("Player");
+            PendingIntent defaultIntent = PendingIntent.GetActivity(Application.Context, 0, tmpDefaultIntent, PendingIntentFlags.UpdateCurrent);
 
             Intent tmpDeleteIntent = new Intent(Application.Context, typeof(MusicPlayer));
             tmpDeleteIntent.SetAction("Stop");
@@ -1015,10 +1011,10 @@ namespace MusicApp.Resources.Portable_Class
                 player.PlayWhenReady = false;
                 StopForeground(false);
 
-                CoordinatorLayout smallPlayer = MainActivity.instance.FindViewById<CoordinatorLayout>(Resource.Id.smallPlayer);
+                CardView smallPlayer = MainActivity.instance.FindViewById<CardView>(Resource.Id.smallPlayer);
                 smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
 
-                Player.instance?.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
+                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton)?.SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
                 Queue.instance?.RefreshCurrent();
             }
         }
@@ -1037,12 +1033,12 @@ namespace MusicApp.Resources.Portable_Class
                 player.PlayWhenReady = true;
                 StartForeground(notificationID, notification);
 
-                CoordinatorLayout smallPlayer = MainActivity.instance.FindViewById<CoordinatorLayout>(Resource.Id.smallPlayer);
+                CardView smallPlayer = MainActivity.instance.FindViewById<CardView>(Resource.Id.smallPlayer);
                 smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
 
                 if (Player.instance != null)
                 {
-                    Player.instance.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
+                    MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
                     Player.instance.handler.PostDelayed(Player.instance.UpdateSeekBar, 1000);
                 }
 

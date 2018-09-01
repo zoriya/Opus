@@ -462,11 +462,6 @@
     <AndroidResource Include="Resources\drawable\ic_playlist_add_white_24dp.png" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\layout\SmallPlayer.xml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
-  </ItemGroup>
-  <ItemGroup>
     <AndroidResource Include="Resources\layout\YtList.xml" />
   </ItemGroup>
   <ItemGroup>

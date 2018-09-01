@@ -2,6 +2,7 @@
 using Android.Database;
 using Android.OS;
 using Android.Provider;
+using Android.Support.Design.Widget;
 using Android.Support.V4.App;
 using Android.Support.V7.App;
 using Android.Support.V7.Widget;
@@ -517,8 +518,8 @@ namespace MusicApp.Resources.Portable_Class
             intent.SetAction("RandomPlay");
             context.StartService(intent);
 
-            Intent inte = new Intent(context, typeof(Player));
-            context.StartActivity(inte);
+            MainActivity.instance.ShowSmallPlayer();
+            MainActivity.instance.SheetBehavior.State = BottomSheetBehavior.StateExpanded;
         }
 
         public static void AddToQueue(long playlistID)

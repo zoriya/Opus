@@ -6,8 +6,10 @@ using Android.Graphics;
 using Android.Graphics.Drawables;
 using Android.OS;
 using Android.Support.Design.Widget;
+using Android.Support.V4.Widget;
 using Android.Support.V7.App;
 using Android.Support.V7.Graphics;
+using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
@@ -21,7 +23,7 @@ using System.Threading.Tasks;
 namespace MusicApp.Resources.Portable_Class
 {
     [Activity(Label = "Player", Theme = "@style/Theme", ScreenOrientation = ScreenOrientation.Portrait, LaunchMode = LaunchMode.SingleTop)]
-    public class Player : AppCompatActivity, Palette.IPaletteAsyncListener
+    public class Player : Android.Support.V4.App.Fragment, Palette.IPaletteAsyncListener
     {
         public static Player instance;
         public Handler handler = new Handler();
@@ -33,117 +35,41 @@ namespace MusicApp.Resources.Portable_Class
         private int checkedItem = 0;
 
 
-        protected override void OnCreate(Bundle savedInstanceState)
+        public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            base.OnCreate(savedInstanceState);
-
-            if (MainActivity.Theme == 1)
-                SetTheme(Resource.Style.DarkTheme);
-
-            SetContentView(Resource.Layout.player);
+            View view = inflater.Inflate(Resource.Layout.player, container, false);
             instance = this;
-            if(MusicPlayer.queue == null)
-                MusicPlayer.RetrieveQueueFromDataBase();
-
             CreatePlayer();
-
-            if(Intent.Action == "Sleep")
-            {
-                SleepButton_Click("", null);
-            }
-        }
-
-        protected override void OnDestroy()
-        {
-            MainActivity.instance.ShowSmallPlayer();
-            MainActivity.instance.PrepareSmallPlayer();
-            base.OnDestroy();
-            instance = null;
+            return view;
         }
 
         async void CreatePlayer()
         {
-            while (MusicPlayer.CurrentID() == -1)
-                await Task.Delay(100);
+            await Task.Delay(1000);
 
-            TextView title = FindViewById<TextView>(Resource.Id.playerTitle);
-            TextView artist = FindViewById<TextView>(Resource.Id.playerArtist);
-            imgView = FindViewById<ImageView>(Resource.Id.playerAlbum);
+            MainActivity.instance.PrepareSmallPlayer();
+            TextView title = MainActivity.instance.FindViewById<TextView>(Resource.Id.playerTitle);
+            TextView artist = MainActivity.instance.FindViewById<TextView>(Resource.Id.playerArtist);
+            imgView = MainActivity.instance.FindViewById<ImageView>(Resource.Id.playerAlbum);
 
-            FindViewById<ImageButton>(Resource.Id.lastButton).Click += Last_Click;
-            FindViewById<ImageButton>(Resource.Id.playButton).Click += Play_Click;
-            FindViewById<ImageButton>(Resource.Id.nextButton).Click += Next_Click;
-            FindViewById<ImageButton>(Resource.Id.playerSleep).Click += SleepButton_Click;
-            FindViewById<ImageButton>(Resource.Id.playerPlaylistAdd).Click += AddToPlaylist_Click; ;
-            FindViewById<FloatingActionButton>(Resource.Id.downFAB).Click += Fab_Click;
-            FindViewById<ImageButton>(Resource.Id.playerDownload).Click += Download_Click;
-            FindViewById<ImageButton>(Resource.Id.playerYoutube).Click += Youtube_Click;
+            MainActivity.instance.FindViewById<ImageButton>(Resource.Id.lastButton).Click += Last_Click;
+            MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton).Click += Play_Click;
+            MainActivity.instance.FindViewById<ImageButton>(Resource.Id.nextButton).Click += Next_Click;
+            MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playerSleep).Click += SleepButton_Click;
+            MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playerPlaylistAdd).Click += AddToPlaylist_Click;
+            MainActivity.instance.FindViewById<FloatingActionButton>(Resource.Id.downFAB).Click += Fab_Click;
+            MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playerDownload).Click += Download_Click;
+            MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playerYoutube).Click += Youtube_Click;
 
-            Song current = MusicPlayer.queue[MusicPlayer.CurrentID()];
-
-            title.Text = current.Title;
-            artist.Text = current.Artist;
             title.Selected = true;
             title.SetMarqueeRepeatLimit(3);
             artist.Selected = true;
             artist.SetMarqueeRepeatLimit(3);
 
-            if (MusicPlayer.isRunning)
-                FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
-            else
-                FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
-
-            Bitmap icon = null;
-            if (current.AlbumArt == -1)
-            {
-                await Task.Run(() =>
-                {
-                    try
-                    {
-                        icon = Picasso.With(Application.Context).Load(current.Album).Error(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.noAlbum).Resize(1080, 1080).CenterCrop().Get();
-                    }
-                    catch (Exception)
-                    {
-                        icon = Picasso.With(Application.Context).Load(Resource.Drawable.noAlbum).Get();
-                    }
-                });
-            }
-            else
-            {
-                Android.Net.Uri songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
-                Android.Net.Uri iconURI = ContentUris.WithAppendedId(songCover, current.AlbumArt);
-
-                await Task.Run(() =>
-                {
-                    try
-                    {
-                        icon = Picasso.With(Application.Context).Load(iconURI).Error(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.noAlbum).Resize(1080, 1080).CenterCrop().Get();
-                    }
-                    catch (Exception)
-                    {
-                        icon = Picasso.With(Application.Context).Load(Resource.Drawable.noAlbum).Get();
-                    }
-                });
-            }
-
-            imgView.SetImageBitmap(icon);
-            Palette.From(icon).MaximumColorCount(28).Generate(this);
-
-            if (current.IsYt)
-            {
-                FindViewById<ImageButton>(Resource.Id.playerDownload).Visibility = ViewStates.Visible;
-                FindViewById<ImageButton>(Resource.Id.playerYoutube).Visibility = ViewStates.Visible;
-            }
-            else
-            {
-                FindViewById<ImageButton>(Resource.Id.playerDownload).Visibility = ViewStates.Gone;
-                FindViewById<ImageButton>(Resource.Id.playerYoutube).Visibility = ViewStates.Gone;
-            }
-
-            TextView NextTitle = FindViewById<TextView>(Resource.Id.nextTitle);
-            TextView NextAlbum = FindViewById<TextView>(Resource.Id.nextArtist);
-            Button ShowQueue = FindViewById<Button>(Resource.Id.showQueue);
-            ImageButton smallQueue = FindViewById<ImageButton>(Resource.Id.smallQueue);
+            TextView NextTitle = MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle);
+            TextView NextAlbum = MainActivity.instance.FindViewById<TextView>(Resource.Id.nextArtist);
+            Button ShowQueue = MainActivity.instance.FindViewById<Button>(Resource.Id.showQueue);
+            ImageButton smallQueue = MainActivity.instance.FindViewById<ImageButton>(Resource.Id.smallQueue);
 
             ShowQueue.Click += ShowQueue_Click;
             smallQueue.Click += ShowQueue_Click;
@@ -165,72 +91,131 @@ namespace MusicApp.Resources.Portable_Class
                 smallQueue.ImageTintList = ColorStateList.ValueOf(Color.Argb(255, 0, 0, 0));
             }
 
-            if(ShowQueue.Height < 100)
+            if (ShowQueue.Height < 100)
             {
-                Console.WriteLine("&Small Queue");
                 smallQueue.Visibility = ViewStates.Visible;
                 ShowQueue.Visibility = ViewStates.Gone;
             }
 
-            bool asNext = MusicPlayer.queue.Count > MusicPlayer.CurrentID() + 1;
-            if (asNext)
-            {
-                Song next = MusicPlayer.queue[MusicPlayer.CurrentID() + 1];
-                NextTitle.Text = "Next music:";
-                NextAlbum.Text = next.Title;
-                ImageView nextArt = FindViewById<ImageView>(Resource.Id.nextArt);
+            bar = MainActivity.instance.FindViewById<DiscreteSeekBar>(Resource.Id.songTimer);
+            bar.LayoutParameters.Width = (int)(MainActivity.instance.Resources.DisplayMetrics.WidthPixels * 1.2f);
 
-                if (next.Album == null)
-                {
-                    var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
-                    var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, next.AlbumArt);
+            //while (MusicPlayer.CurrentID() == -1)
+            //    await Task.Delay(100);
 
-                    Picasso.With(this).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
-                }
-                else
-                {
-                    Picasso.With(this).Load(next.Album).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
-                }
-            }
-            else if (MusicPlayer.repeat)
-            {
-                Song next = MusicPlayer.queue[0];
-                NextTitle.Text = "Next music:";
-                NextAlbum.Text = next.Title;
-                ImageView nextArt = FindViewById<ImageView>(Resource.Id.nextArt);
+            //Song current = MusicPlayer.queue[MusicPlayer.CurrentID()];
+            //title.Text = current.Title;
+            //artist.Text = current.Artist;
 
-                if (next.Album == null)
-                {
-                    var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
-                    var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, next.AlbumArt);
+            //if (MusicPlayer.isRunning)
+            //    MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
+            //else
+            //    MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
 
-                    Picasso.With(this).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(1080, 1080).CenterCrop().Into(nextArt);
-                }
-                else
-                {
-                    Picasso.With(this).Load(next.Album).Placeholder(Resource.Drawable.MusicIcon).Resize(1080, 1080).CenterCrop().Into(nextArt);
-                }
-            }
-            else
-            {
-                NextTitle.Text = "Next music:";
-                NextAlbum.Text = "Nothing.";
+            //Bitmap icon = null;
+            //if (current.AlbumArt == -1)
+            //{
+            //    await Task.Run(() =>
+            //    {
+            //        try
+            //        {
+            //            icon = Picasso.With(Application.Context).Load(current.Album).Error(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.noAlbum).Resize(1080, 1080).CenterCrop().Get();
+            //        }
+            //        catch (Exception)
+            //        {
+            //            icon = Picasso.With(Application.Context).Load(Resource.Drawable.noAlbum).Get();
+            //        }
+            //    });
+            //}
+            //else
+            //{
+            //    Android.Net.Uri songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
+            //    Android.Net.Uri iconURI = ContentUris.WithAppendedId(songCover, current.AlbumArt);
 
-                ImageView nextArt = FindViewById<ImageView>(Resource.Id.nextArt);
-                Picasso.With(this).Load(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
-            }
+            //    await Task.Run(() =>
+            //    {
+            //        try
+            //        {
+            //            icon = Picasso.With(Application.Context).Load(iconURI).Error(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.noAlbum).Resize(1080, 1080).CenterCrop().Get();
+            //        }
+            //        catch (Exception)
+            //        {
+            //            icon = Picasso.With(Application.Context).Load(Resource.Drawable.noAlbum).Get();
+            //        }
+            //    });
+            //}
 
-            while (MusicPlayer.player == null || MusicPlayer.player.Duration == 0)
-                await Task.Delay(100);
+            //imgView.SetImageBitmap(icon);
+            //Palette.From(icon).MaximumColorCount(28).Generate(this);
 
-            bar = FindViewById<DiscreteSeekBar>(Resource.Id.songTimer);
-            bar.SetNumericTransformer(new TimerTransformer());
-            bar.LayoutParameters.Width = (int)(MainActivity.instance.Resources.DisplayMetrics.WidthPixels * 1.1f);
-            MusicPlayer.SetSeekBar(bar);
-            handler.PostDelayed(UpdateSeekBar, 1000);
+            //if (current.IsYt)
+            //{
+            //    MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playerDownload).Visibility = ViewStates.Visible;
+            //    MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playerYoutube).Visibility = ViewStates.Visible;
+            //}
+            //else
+            //{
+            //    MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playerDownload).Visibility = ViewStates.Gone;
+            //    MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playerYoutube).Visibility = ViewStates.Gone;
+            //}
 
-            await Task.Delay(1000);
-            MusicPlayer.SetSeekBar(bar);
+            //bool asNext = MusicPlayer.queue.Count > MusicPlayer.CurrentID() + 1;
+            //if (asNext)
+            //{
+            //    Song next = MusicPlayer.queue[MusicPlayer.CurrentID() + 1];
+            //    NextTitle.Text = "Next music:";
+            //    NextAlbum.Text = next.Title;
+            //    ImageView nextArt = MainActivity.instance.FindViewById<ImageView>(Resource.Id.nextArt);
+
+            //    if (next.Album == null)
+            //    {
+            //        var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
+            //        var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, next.AlbumArt);
+
+            //        Picasso.With(MainActivity.instance).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
+            //    }
+            //    else
+            //    {
+            //        Picasso.With(MainActivity.instance).Load(next.Album).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
+            //    }
+            //}
+            //else if (MusicPlayer.repeat)
+            //{
+            //    Song next = MusicPlayer.queue[0];
+            //    NextTitle.Text = "Next music:";
+            //    NextAlbum.Text = next.Title;
+            //    ImageView nextArt = MainActivity.instance.FindViewById<ImageView>(Resource.Id.nextArt);
+
+            //    if (next.Album == null)
+            //    {
+            //        var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
+            //        var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, next.AlbumArt);
+
+            //        Picasso.With(MainActivity.instance).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(1080, 1080).CenterCrop().Into(nextArt);
+            //    }
+            //    else
+            //    {
+            //        Picasso.With(MainActivity.instance).Load(next.Album).Placeholder(Resource.Drawable.MusicIcon).Resize(1080, 1080).CenterCrop().Into(nextArt);
+            //    }
+            //}
+            //else
+            //{
+            //    NextTitle.Text = "Next music:";
+            //    NextAlbum.Text = "Nothing.";
+
+            //    ImageView nextArt = MainActivity.instance.FindViewById<ImageView>(Resource.Id.nextArt);
+            //    Picasso.With(MainActivity.instance).Load(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
+            //}
+
+            //while (MusicPlayer.player == null || MusicPlayer.player.Duration == 0)
+            //    await Task.Delay(100);
+
+            //bar.SetNumericTransformer(new TimerTransformer());
+            //MusicPlayer.SetSeekBar(bar);
+            //handler.PostDelayed(UpdateSeekBar, 1000);
+
+            //await Task.Delay(1000);
+            //MusicPlayer.SetSeekBar(bar);
         }
 
         public async void RefreshPlayer()
@@ -238,19 +223,36 @@ namespace MusicApp.Resources.Portable_Class
             while (MusicPlayer.CurrentID() == -1)
                 await Task.Delay(100);
 
-            TextView title = FindViewById<TextView>(Resource.Id.playerTitle);
-            TextView artist = FindViewById<TextView>(Resource.Id.playerArtist);
-            imgView = FindViewById<ImageView>(Resource.Id.playerAlbum);
-
             Song current = MusicPlayer.queue[MusicPlayer.CurrentID()];
 
+            CardView smallPlayer = MainActivity.instance.FindViewById<CardView>(Resource.Id.smallPlayer);
+            smallPlayer.FindViewById<TextView>(Resource.Id.spTitle).Text = current.Title;
+            smallPlayer.FindViewById<TextView>(Resource.Id.spArtist).Text = current.Artist;
+            smallPlayer.FindViewById<ImageView>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
+            ImageView art = smallPlayer.FindViewById<ImageView>(Resource.Id.spArt);
+
+            if (!current.IsYt)
+            {
+                var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
+                var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, current.AlbumArt);
+
+                Picasso.With(Application.Context).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(art);
+            }
+            else
+            {
+                Picasso.With(Application.Context).Load(current.Album).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(art);
+            }
+
+            TextView title = MainActivity.instance.FindViewById<TextView>(Resource.Id.playerTitle);
+            TextView artist = MainActivity.instance.FindViewById<TextView>(Resource.Id.playerArtist);
+            imgView = MainActivity.instance.FindViewById<ImageView>(Resource.Id.playerAlbum);
             title.Text = current.Title;
             artist.Text = current.Artist;
 
             if (MusicPlayer.isRunning)
-                FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
+                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
             else
-                FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
+                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
 
             Bitmap icon = null;
             if (current.AlbumArt == -1)
@@ -290,61 +292,61 @@ namespace MusicApp.Resources.Portable_Class
 
             if (current.IsYt)
             {
-                FindViewById<ImageButton>(Resource.Id.playerDownload).Visibility = ViewStates.Visible;
-                FindViewById<ImageButton>(Resource.Id.playerYoutube).Visibility = ViewStates.Visible;
+                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playerDownload).Visibility = ViewStates.Visible;
+                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playerYoutube).Visibility = ViewStates.Visible;
             }
             else
             {
-                FindViewById<ImageButton>(Resource.Id.playerDownload).Visibility = ViewStates.Gone;
-                FindViewById<ImageButton>(Resource.Id.playerYoutube).Visibility = ViewStates.Gone;
+                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playerDownload).Visibility = ViewStates.Gone;
+                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playerYoutube).Visibility = ViewStates.Gone;
             }
 
             bool asNext = MusicPlayer.queue.Count > MusicPlayer.CurrentID() + 1;
             if (asNext)
             {
                 Song next = MusicPlayer.queue[MusicPlayer.CurrentID() + 1];
-                FindViewById<TextView>(Resource.Id.nextTitle).Text = "Next music:";
-                FindViewById<TextView>(Resource.Id.nextArtist).Text = next.Title;
-                ImageView nextArt = FindViewById<ImageView>(Resource.Id.nextArt);
+                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle).Text = "Next music:";
+                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextArtist).Text = next.Title;
+                ImageView nextArt = MainActivity.instance.FindViewById<ImageView>(Resource.Id.nextArt);
 
                 if (next.Album == null)
                 {
                     var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
                     var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, next.AlbumArt);
 
-                    Picasso.With(this).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
+                    Picasso.With(MainActivity.instance).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
                 }
                 else
                 {
-                    Picasso.With(this).Load(next.Album).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
+                    Picasso.With(MainActivity.instance).Load(next.Album).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
                 }
             }
             else if (MusicPlayer.repeat)
             {
                 Song next = MusicPlayer.queue[0];
-                FindViewById<TextView>(Resource.Id.nextTitle).Text = "Next music:";
-                FindViewById<TextView>(Resource.Id.nextArtist).Text = next.Title;
-                ImageView nextArt = FindViewById<ImageView>(Resource.Id.nextArt);
+                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle).Text = "Next music:";
+                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextArtist).Text = next.Title;
+                ImageView nextArt = MainActivity.instance.FindViewById<ImageView>(Resource.Id.nextArt);
 
                 if (next.Album == null)
                 {
                     var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
                     var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, next.AlbumArt);
 
-                    Picasso.With(this).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
+                    Picasso.With(MainActivity.instance).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
                 }
                 else
                 {
-                    Picasso.With(this).Load(next.Album).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
+                    Picasso.With(MainActivity.instance).Load(next.Album).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
                 }
             }
             else
             {
-                FindViewById<TextView>(Resource.Id.nextTitle).Text = "Next music:";
-                FindViewById<TextView>(Resource.Id.nextArtist).Text = "Nothing.";
+                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle).Text = "Next music:";
+                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextArtist).Text = "Nothing.";
 
-                ImageView nextArt = FindViewById<ImageView>(Resource.Id.nextArt);
-                Picasso.With(this).Load(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
+                ImageView nextArt = MainActivity.instance.FindViewById<ImageView>(Resource.Id.nextArt);
+                Picasso.With(MainActivity.instance).Load(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
             }
 
             while (MusicPlayer.player.Duration < 1)
@@ -361,48 +363,48 @@ namespace MusicApp.Resources.Portable_Class
             if (asNext)
             {
                 Song next = MusicPlayer.queue[MusicPlayer.CurrentID() + 1];
-                FindViewById<TextView>(Resource.Id.nextTitle).Text = "Next music:";
-                FindViewById<TextView>(Resource.Id.nextArtist).Text = next.Title;
-                ImageView nextArt = FindViewById<ImageView>(Resource.Id.nextArt);
+                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle).Text = "Next music:";
+                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextArtist).Text = next.Title;
+                ImageView nextArt = MainActivity.instance.FindViewById<ImageView>(Resource.Id.nextArt);
 
                 if (next.Album == null)
                 {
                     var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
                     var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, next.AlbumArt);
 
-                    Picasso.With(this).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
+                    Picasso.With(MainActivity.instance).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
                 }
                 else
                 {
-                    Picasso.With(this).Load(next.Album).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
+                    Picasso.With(MainActivity.instance).Load(next.Album).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
                 }
             }
             else if (MusicPlayer.repeat)
             {
                 Song next = MusicPlayer.queue[0];
-                FindViewById<TextView>(Resource.Id.nextTitle).Text = "Next music:";
-                FindViewById<TextView>(Resource.Id.nextArtist).Text = next.Title;
-                ImageView nextArt = FindViewById<ImageView>(Resource.Id.nextArt);
+                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle).Text = "Next music:";
+                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextArtist).Text = next.Title;
+                ImageView nextArt = MainActivity.instance.FindViewById<ImageView>(Resource.Id.nextArt);
 
                 if (next.Album == null)
                 {
                     var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
                     var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, next.AlbumArt);
 
-                    Picasso.With(this).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
+                    Picasso.With(MainActivity.instance).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
                 }
                 else
                 {
-                    Picasso.With(this).Load(next.Album).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
+                    Picasso.With(MainActivity.instance).Load(next.Album).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
                 }
             }
             else
             {
-                FindViewById<TextView>(Resource.Id.nextTitle).Text = "Next music:";
-                FindViewById<TextView>(Resource.Id.nextArtist).Text = "Nothing.";
+                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle).Text = "Next music:";
+                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextArtist).Text = "Nothing.";
 
-                ImageView nextArt = FindViewById<ImageView>(Resource.Id.nextArt);
-                Picasso.With(this).Load(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
+                ImageView nextArt = MainActivity.instance.FindViewById<ImageView>(Resource.Id.nextArt);
+                Picasso.With(MainActivity.instance).Load(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
             }
         }
 
@@ -420,12 +422,13 @@ namespace MusicApp.Resources.Portable_Class
 
         public void Stoped()
         {
-            MainActivity.instance.FindViewById<BottomNavigationView>(Resource.Id.bottomView).SelectedItemId = Resource.Id.musicLayout;
+            MainActivity.instance.ShowSmallPlayer();
+            MainActivity.instance.SheetBehavior.State = BottomSheetBehavior.StateCollapsed;
         }
 
         private void AddToPlaylist_Click(object sender, EventArgs e)
         {
-            Browse.act = this;
+            Browse.act = MainActivity.instance;
             Browse.inflater = LayoutInflater;
             Browse.GetPlaylist(MusicPlayer.queue[MusicPlayer.CurrentID()]);
         }
@@ -444,39 +447,40 @@ namespace MusicApp.Resources.Portable_Class
 
         private void Fab_Click(object sender, EventArgs e)
         {
-            FinishAfterTransition();
+            MainActivity.instance.ShowSmallPlayer();
+            MainActivity.instance.SheetBehavior.State = BottomSheetBehavior.StateCollapsed;
         }
 
         private void ShowQueue_Click(object sender, EventArgs e)
         {
-            Intent intent = new Intent(this, typeof(Queue));
-            StartActivity(intent);
+            Intent intent = new Intent(MainActivity.instance, typeof(Queue));
+            MainActivity.instance.StartActivity(intent);
         }
 
         private void Last_Click(object sender, EventArgs e)
         {
-            Intent intent = new Intent(this, typeof(MusicPlayer));
+            Intent intent = new Intent(MainActivity.instance, typeof(MusicPlayer));
             intent.SetAction("Previus");
-            StartService(intent);
+            MainActivity.instance.StartService(intent);
         }
 
         private void Play_Click(object sender, EventArgs e)
         {
-            Intent intent = new Intent(this, typeof(MusicPlayer));
+            Intent intent = new Intent(MainActivity.instance, typeof(MusicPlayer));
             intent.SetAction("Pause");
-            StartService(intent);
+            MainActivity.instance.StartService(intent);
         }
 
         private void Next_Click(object sender, EventArgs e)
         {
-            Intent intent = new Intent(this, typeof(MusicPlayer));
+            Intent intent = new Intent(MainActivity.instance, typeof(MusicPlayer));
             intent.SetAction("Next");
-            StartService(intent);
+            MainActivity.instance.StartService(intent);
         }
 
-        private void SleepButton_Click(object sender, EventArgs e)
+        public void SleepButton_Click(object sender, EventArgs e)
         {
-            Android.Support.V7.App.AlertDialog.Builder builder = new Android.Support.V7.App.AlertDialog.Builder(this, MainActivity.dialogTheme);
+            Android.Support.V7.App.AlertDialog.Builder builder = new Android.Support.V7.App.AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme);
             builder.SetTitle("Sleep in :");
             builder.SetSingleChoiceItems(items, checkedItem, ((senders, eventargs) => { checkedItem = eventargs.Which; }));
             builder.SetPositiveButton("Ok", ((senders, args) => { Sleep(timers[checkedItem]); }));
@@ -486,15 +490,9 @@ namespace MusicApp.Resources.Portable_Class
 
         void Sleep(int time)
         {
-            Intent intent = new Intent(this, typeof(Sleeper));
+            Intent intent = new Intent(MainActivity.instance, typeof(Sleeper));
             intent.PutExtra("time", time);
-            StartService(intent);
-        }
-
-        protected override void OnResume()
-        {
-            base.OnResume();
-            instance = this;
+            MainActivity.instance.StartService(intent);
         }
 
         public void OnGenerated(Palette palette)
@@ -506,7 +504,7 @@ namespace MusicApp.Resources.Portable_Class
             if (swatch == null && swatches.Count == 0)
                 return;
 
-            while(swatch == null)
+            while (swatch == null)
             {
                 swatch = swatches[i];
                 i--;
@@ -540,22 +538,22 @@ namespace MusicApp.Resources.Portable_Class
             Color text = Color.Argb(Color.GetAlphaComponent(swatch.BodyTextColor), Color.GetRedComponent(swatch.BodyTextColor), Color.GetGreenComponent(swatch.BodyTextColor), Color.GetBlueComponent(swatch.BodyTextColor));
             Color background = Color.Argb(Color.GetAlphaComponent(swatch.Rgb), Color.GetRedComponent(swatch.Rgb), Color.GetGreenComponent(swatch.Rgb), Color.GetBlueComponent(swatch.Rgb));
             Color accentColor = Color.Argb(Color.GetAlphaComponent(accent.Rgb), Color.GetRedComponent(accent.Rgb), Color.GetGreenComponent(accent.Rgb), Color.GetBlueComponent(accent.Rgb));
-            FindViewById<TextView>(Resource.Id.playerTitle).SetTextColor(text);
-            FindViewById<TextView>(Resource.Id.playerArtist).SetTextColor(text);
-            FindViewById<LinearLayout>(Resource.Id.infoPanel).SetBackgroundColor(background);
-            FindViewById<FloatingActionButton>(Resource.Id.downFAB).BackgroundTintList = ColorStateList.ValueOf(accentColor);
-            FindViewById<FloatingActionButton>(Resource.Id.downFAB).RippleColor = accent.Rgb;
-            FindViewById<DiscreteSeekBar>(Resource.Id.songTimer).SetThumbColor(accent.Rgb, accent.Rgb);
-            FindViewById<DiscreteSeekBar>(Resource.Id.songTimer).SetScrubberColor(accent.Rgb);
-            FindViewById<DiscreteSeekBar>(Resource.Id.songTimer).SetRippleColor(accent.Rgb);
+            MainActivity.instance.FindViewById<TextView>(Resource.Id.playerTitle).SetTextColor(text);
+            MainActivity.instance.FindViewById<TextView>(Resource.Id.playerArtist).SetTextColor(text);
+            MainActivity.instance.FindViewById<LinearLayout>(Resource.Id.infoPanel).SetBackgroundColor(background);
+            MainActivity.instance.FindViewById<FloatingActionButton>(Resource.Id.downFAB).BackgroundTintList = ColorStateList.ValueOf(accentColor);
+            MainActivity.instance.FindViewById<FloatingActionButton>(Resource.Id.downFAB).RippleColor = accent.Rgb;
+            MainActivity.instance.FindViewById<DiscreteSeekBar>(Resource.Id.songTimer).SetThumbColor(accent.Rgb, accent.Rgb);
+            MainActivity.instance.FindViewById<DiscreteSeekBar>(Resource.Id.songTimer).SetScrubberColor(accent.Rgb);
+            MainActivity.instance.FindViewById<DiscreteSeekBar>(Resource.Id.songTimer).SetRippleColor(accent.Rgb);
 
             if (IsColorDark(accent.Rgb))
             {
-                FindViewById<FloatingActionButton>(Resource.Id.downFAB).ImageTintList = ColorStateList.ValueOf(Color.White);
+                MainActivity.instance.FindViewById<FloatingActionButton>(Resource.Id.downFAB).ImageTintList = ColorStateList.ValueOf(Color.White);
             }
             else
             {
-                FindViewById<FloatingActionButton>(Resource.Id.downFAB).ImageTintList = ColorStateList.ValueOf(Color.Black);
+                MainActivity.instance.FindViewById<FloatingActionButton>(Resource.Id.downFAB).ImageTintList = ColorStateList.ValueOf(Color.Black);
             }
         }
 
@@ -569,6 +567,51 @@ namespace MusicApp.Resources.Portable_Class
             else
             {
                 return true; // It's a dark color
+            }
+        }
+    }
+
+    public class PlayerCallback : BottomSheetBehavior.BottomSheetCallback
+    {
+        private Activity context;
+        private NestedScrollView sheet;
+        private FrameLayout frame;
+        private bool Refreshed = false;
+
+        public PlayerCallback(Activity context)
+        {
+            this.context = context;
+            sheet = context.FindViewById<NestedScrollView>(Resource.Id.playerSheet);
+            frame = context.FindViewById<FrameLayout>(Resource.Id.playerFrame);
+        }
+
+        public override void OnSlide(View bottomSheet, float slideOffset)
+        {
+            int defaultPadding = (int)(20 * context.Resources.DisplayMetrics.Density + 0.5f);
+            sheet.SetPadding((int)(defaultPadding * (1 - slideOffset)), 0, (int)(defaultPadding * (1 - slideOffset)), 0);
+
+            if (!Refreshed && slideOffset > .3)
+            {
+                Refreshed = true;
+                Player.instance.RefreshPlayer();
+            }
+            else if(slideOffset < .3)
+                Refreshed = false;
+        }
+
+        public override void OnStateChanged(View bottomSheet, int newState)
+        {
+            if(newState == BottomSheetBehavior.StateExpanded)
+            {
+                sheet.SetPadding(0, 0, 0, 0);
+                Player.instance.RefreshPlayer();
+                Refreshed = true;
+            }
+            else if(newState == BottomSheetBehavior.StateCollapsed)
+            {
+                int defaultPadding = (int)(20 * context.Resources.DisplayMetrics.Density + 0.5f);
+                sheet.SetPadding(defaultPadding, 0, defaultPadding, 0);
+                Refreshed = false;
             }
         }
     }

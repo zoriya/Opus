@@ -57,7 +57,7 @@ namespace MusicApp.Resources.Portable_Class
             timer = time; // In minutes
 
             Intent mainActivity = new Intent(Application.Context, typeof(MainActivity));
-            Intent sleepIntent = new Intent(Application.Context, typeof(Player));
+            Intent sleepIntent = new Intent(Application.Context, typeof(MainActivity));
             sleepIntent.SetAction("Sleep");
             PendingIntent defaultIntent = PendingIntent.GetActivities(Application.Context, 0, new Intent[] { mainActivity, sleepIntent }, PendingIntentFlags.UpdateCurrent);
 

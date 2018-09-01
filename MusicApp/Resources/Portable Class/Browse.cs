@@ -4,6 +4,7 @@ using Android.Content.PM;
 using Android.Database;
 using Android.OS;
 using Android.Provider;
+using Android.Support.Design.Widget;
 using Android.Support.V4.App;
 using Android.Support.V7.App;
 using Android.Views;
@@ -266,17 +267,19 @@ namespace MusicApp.Resources.Portable_Class
             intent.PutExtra("file", item.Path);
             context.StartService(intent);
 
-            if(albumArt != null)
-            {
-                Intent inten = new Intent(context, typeof(Player));
-                ActivityOptionsCompat options = ActivityOptionsCompat.MakeSceneTransitionAnimation(MainActivity.instance, albumArt, "albumArt");
-                MainActivity.instance.StartActivity(inten, options.ToBundle());
-            }
-            else
-            {
-                Intent inten = new Intent(context, typeof(Player));
-                MainActivity.instance.StartActivity(inten);
-            }
+            MainActivity.instance.ShowSmallPlayer();
+            MainActivity.instance.SheetBehavior.State = BottomSheetBehavior.StateExpanded;
+            //if(albumArt != null)
+            //{
+            //    Intent inten = new Intent(context, typeof(Player));
+            //    ActivityOptionsCompat options = ActivityOptionsCompat.MakeSceneTransitionAnimation(MainActivity.instance, albumArt, "albumArt");
+            //    MainActivity.instance.StartActivity(inten, options.ToBundle());
+            //}
+            //else
+            //{
+            //    Intent inten = new Intent(context, typeof(Player));
+            //    MainActivity.instance.StartActivity(inten);
+            //}
         }
 
         public static void PlayNext(Song item)

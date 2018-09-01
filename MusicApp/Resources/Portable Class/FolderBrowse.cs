@@ -5,6 +5,7 @@ using Android.Database;
 using Android.Net;
 using Android.OS;
 using Android.Provider;
+using Android.Support.Design.Widget;
 using Android.Support.V4.App;
 using Android.Support.V7.App;
 using Android.Views;
@@ -449,8 +450,8 @@ namespace MusicApp.Resources.Portable_Class
             intent.PutStringArrayListExtra("files", trackPaths.ToArray());
             intent.SetAction("RandomPlay");
             Activity.StartService(intent);
-            Intent inte = new Intent(Activity, typeof(Player));
-            StartActivity(inte);
+            MainActivity.instance.ShowSmallPlayer();
+            MainActivity.instance.SheetBehavior.State = BottomSheetBehavior.StateExpanded;
         }
 
         public override void OnResume()

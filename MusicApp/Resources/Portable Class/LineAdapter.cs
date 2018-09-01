@@ -1,5 +1,6 @@
 ﻿using Android.App;
 using Android.Content;
+using Android.Support.Design.Widget;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
@@ -74,8 +75,8 @@ namespace MusicApp.Resources.Portable_Class
                     intent.PutExtra("queueSlot", position);
                     MainActivity.instance.StartService(intent);
 
-                    Intent player = new Intent(MainActivity.instance, typeof(Player));
-                    MainActivity.instance.StartActivity(player);
+                    MainActivity.instance.ShowSmallPlayer();
+                    MainActivity.instance.SheetBehavior.State = BottomSheetBehavior.StateExpanded;
                 }
 
             }

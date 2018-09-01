@@ -2,6 +2,7 @@
 using Android.Content;
 using Android.Content.Res;
 using Android.Graphics;
+using Android.Support.Design.Widget;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
@@ -93,8 +94,8 @@ namespace MusicApp.Resources.Portable_Class
                         intent.SetAction("RandomPlay");
                         MainActivity.instance.StartService(intent);
 
-                        Intent inte = new Intent(MainActivity.instance, typeof(Player));
-                        MainActivity.instance.StartActivity(inte);
+                        MainActivity.instance.ShowSmallPlayer();
+                        MainActivity.instance.SheetBehavior.State = BottomSheetBehavior.StateExpanded;
                     }
                 };
                 header.FindViewById<ImageButton>(Resource.Id.headerMore).Click += (sender, e0) =>

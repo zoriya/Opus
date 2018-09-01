@@ -10,7 +10,6 @@ using SQLite;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-//using System.Threading;
 using System.Threading.Tasks;
 using SearchView = Android.Support.V7.Widget.SearchView;
 using Toolbar = Android.Support.V7.Widget.Toolbar;
