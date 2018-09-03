@@ -129,7 +129,7 @@ namespace MusicApp
 
             playToCross = GetDrawable(Resource.Drawable.PlayToCross);
             crossToPlay = GetDrawable(Resource.Drawable.CrossToPlay);
-            if(!MusicPlayer.isRunning)
+            if (!MusicPlayer.isRunning)
                 MusicPlayer.RetrieveQueueFromDataBase();
 
             SheetBehavior = BottomSheetBehavior.From(FindViewById(Resource.Id.playerSheet));
@@ -163,6 +163,7 @@ namespace MusicApp
             if(Intent.Action == "Player")
             {
                 SheetBehavior.State = BottomSheetBehavior.StateExpanded;
+                Player.instance.RefreshPlayer();
             }
             else if (Intent.Action == Intent.ActionSend)
             {
@@ -882,6 +883,9 @@ namespace MusicApp
 
         public void PrepareSmallPlayer()
         {
+            if (MusicPlayer.CurrentID() == -1)
+                return;
+
             Song current = MusicPlayer.queue[MusicPlayer.CurrentID()];
 
             CardView smallPlayer = FindViewById<CardView>(Resource.Id.smallPlayer);

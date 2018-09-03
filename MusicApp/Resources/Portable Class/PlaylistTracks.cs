@@ -202,19 +202,16 @@ namespace MusicApp.Resources.Portable_Class
         {
             if (!MainActivity.instance.StateSaved)
             {
-                if (Player.instance == null)
-                {
-                    MainActivity.instance.HideSearch();
-                    MainActivity.instance.SupportActionBar.SetHomeButtonEnabled(false);
-                    MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(false);
-                    MainActivity.instance.SupportActionBar.SetDisplayShowTitleEnabled(true);
-                    MainActivity.instance.SupportActionBar.Title = "MusicApp";
+                MainActivity.instance.HideSearch();
+                MainActivity.instance.SupportActionBar.SetHomeButtonEnabled(false);
+                MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(false);
+                MainActivity.instance.SupportActionBar.SetDisplayShowTitleEnabled(true);
+                MainActivity.instance.SupportActionBar.Title = "MusicApp";
 
-                    MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
-                    MainActivity.instance.OnPaddingChanged -= OnPaddingChanged;
-                    Activity.FindViewById<AppBarLayout>(Resource.Id.appbar).RemoveOnOffsetChangedListener(this);
-                    Activity.FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Gone;
-                }
+                MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
+                MainActivity.instance.OnPaddingChanged -= OnPaddingChanged;
+                Activity.FindViewById<AppBarLayout>(Resource.Id.appbar).RemoveOnOffsetChangedListener(this);
+                Activity.FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Gone;
 
 
                 if (YoutubeEngine.instances != null)
@@ -232,13 +229,13 @@ namespace MusicApp.Resources.Portable_Class
                         if (YoutubeEngine.instances[i].focused)
                             selectedTab = i;
                     }
-                    if (Player.instance == null && !navigating)
+                    if (!navigating)
                     {
                         MainActivity.instance?.SupportFragmentManager.BeginTransaction().Attach(YoutubeEngine.instances[selectedTab]).Commit();
                         MainActivity.instance?.SupportFragmentManager.BeginTransaction().Remove(instance).Commit();
                     }
                 }
-                else if (Player.instance == null && !navigating)
+                else if (!navigating)
                     MainActivity.instance?.SupportFragmentManager.PopBackStack();
 
                 instance = null;

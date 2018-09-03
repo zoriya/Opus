@@ -574,45 +574,59 @@ namespace MusicApp.Resources.Portable_Class
     public class PlayerCallback : BottomSheetBehavior.BottomSheetCallback
     {
         private Activity context;
+        private CoordinatorLayout layout;
         private NestedScrollView sheet;
         private FrameLayout frame;
+        private RelativeLayout bottomLayer;
         private bool Refreshed = false;
 
         public PlayerCallback(Activity context)
         {
             this.context = context;
+            layout = context.FindViewById<CoordinatorLayout>(Resource.Id.playerLayout);
             sheet = context.FindViewById<NestedScrollView>(Resource.Id.playerSheet);
             frame = context.FindViewById<FrameLayout>(Resource.Id.playerFrame);
+            bottomLayer = context.FindViewById<RelativeLayout>(Resource.Id.bottomLayer);
         }
 
         public override void OnSlide(View bottomSheet, float slideOffset)
         {
+            Console.WriteLine("&Slided");
+            slideOffset = Math.Max(slideOffset, 0);
+            slideOffset = Math.Min(slideOffset, 1);
+
             int defaultPadding = (int)(20 * context.Resources.DisplayMetrics.Density + 0.5f);
+            ((CoordinatorLayout.LayoutParams)layout.LayoutParameters).BottomMargin = (int)((70 * context.Resources.DisplayMetrics.Density + 0.5f) * (1 - slideOffset));
             sheet.SetPadding((int)(defaultPadding * (1 - slideOffset)), 0, (int)(defaultPadding * (1 - slideOffset)), 0);
+            bottomLayer.TranslationY = (int)((56 * context.Resources.DisplayMetrics.Density + 0.5f) * slideOffset);
 
             if (!Refreshed && slideOffset > .3)
             {
                 Refreshed = true;
                 Player.instance.RefreshPlayer();
             }
-            else if(slideOffset < .3)
+            else if (slideOffset < .3)
                 Refreshed = false;
         }
 
         public override void OnStateChanged(View bottomSheet, int newState)
         {
-            if(newState == BottomSheetBehavior.StateExpanded)
-            {
-                sheet.SetPadding(0, 0, 0, 0);
-                Player.instance.RefreshPlayer();
-                Refreshed = true;
-            }
-            else if(newState == BottomSheetBehavior.StateCollapsed)
-            {
-                int defaultPadding = (int)(20 * context.Resources.DisplayMetrics.Density + 0.5f);
-                sheet.SetPadding(defaultPadding, 0, defaultPadding, 0);
-                Refreshed = false;
-            }
+            //if (newState == BottomSheetBehavior.StateExpanded)
+            //{
+            //    ((CoordinatorLayout.LayoutParams)layout.LayoutParameters).BottomMargin = 0;
+            //    sheet.SetPadding(0, 0, 0, 0);
+            //    bottomLayer.TranslationY = (int)(56 * context.Resources.DisplayMetrics.Density + 0.5f);
+            //    Player.instance.RefreshPlayer();
+            //    Refreshed = true;
+            //}
+            //else if (newState == BottomSheetBehavior.StateCollapsed)
+            //{
+            //    int defaultPadding = (int)(20 * context.Resources.DisplayMetrics.Density + 0.5f);
+            //    ((CoordinatorLayout.LayoutParams)layout.LayoutParameters).BottomMargin = (int)(70 * context.Resources.DisplayMetrics.Density + 0.5f);
+            //    sheet.SetPadding(defaultPadding, 0, defaultPadding, 0);
+            //    bottomLayer.TranslationY = 0;
+            //    Refreshed = false;
+            //}
         }
     }
 }

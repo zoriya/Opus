@@ -49,7 +49,7 @@ namespace MusicApp.Resources.Portable_Class
 
             if (inflater == null)
             {
-                inflater = (LayoutInflater)context.GetSystemService(Context.LayoutInflaterService);
+                inflater = LayoutInflater.From(parent.Context);
             }
             if (convertView == null)
             {
