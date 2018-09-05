@@ -55,7 +55,6 @@ namespace MusicApp.Resources.Portable_Class
         {
             base.OnActivityCreated(savedInstanceState);
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
-            MainActivity.instance.OnPaddingChanged += OnPaddingChanged;
             MainActivity.instance.DisplaySearch(1);
         }
 
@@ -190,14 +189,6 @@ namespace MusicApp.Resources.Portable_Class
             MainActivity.instance.SupportFragmentManager.PopBackStack();
         }
 
-        public void OnPaddingChanged(object sender, PaddingChange e)
-        {
-            if (MainActivity.paddingBot > e.oldPadding)
-                adapter.listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot;
-            else
-                adapter.listPadding = (int)(8 * MainActivity.instance.Resources.DisplayMetrics.Density + 0.5f);
-        }
-
         public override void OnStop()
         {
             if (!MainActivity.instance.StateSaved)
@@ -209,7 +200,6 @@ namespace MusicApp.Resources.Portable_Class
                 MainActivity.instance.SupportActionBar.Title = "MusicApp";
 
                 MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
-                MainActivity.instance.OnPaddingChanged -= OnPaddingChanged;
                 Activity.FindViewById<AppBarLayout>(Resource.Id.appbar).RemoveOnOffsetChangedListener(this);
                 Activity.FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Gone;
 
@@ -246,7 +236,6 @@ namespace MusicApp.Resources.Portable_Class
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             View view = inflater.Inflate(Resource.Layout.RecyclerFragment, container, false);
-            view.SetPadding(0, 0, 0, MainActivity.defaultPaddingBot);
             ListView = view.FindViewById<RecyclerView>(Resource.Id.recycler);
             ListView.SetLayoutManager(new Android.Support.V7.Widget.LinearLayoutManager(MainActivity.instance));
             ListView.SetAdapter(new PlaylistTrackAdapter(new List<Song>()));
@@ -389,11 +378,7 @@ namespace MusicApp.Resources.Portable_Class
                     musicCursor.Close();
                 }
 
-                adapter = new PlaylistTrackAdapter(tracks)
-                {
-                    listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot
-                };
-                adapter.listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot;
+                adapter = new PlaylistTrackAdapter(tracks);
                 adapter.ItemClick += ListView_ItemClick;
                 adapter.ItemLongClick += ListView_ItemLongClick;
                 ListView.SetAdapter(adapter);
@@ -428,11 +413,7 @@ namespace MusicApp.Resources.Portable_Class
                 }
 
                 nextPageToken = ytPlaylist.NextPageToken;
-                adapter = new PlaylistTrackAdapter(tracks)
-                {
-                    listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot
-                };
-                adapter.listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot;
+                adapter = new PlaylistTrackAdapter(tracks);
                 adapter.ItemClick += ListView_ItemClick;
                 adapter.ItemLongClick += ListView_ItemLongClick;
                 ListView.SetAdapter(adapter);
@@ -443,11 +424,7 @@ namespace MusicApp.Resources.Portable_Class
             }
             else if(tracks.Count != 0)
             {
-                adapter = new PlaylistTrackAdapter(tracks)
-                {
-                    listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot
-                };
-                adapter.listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot;
+                adapter = new PlaylistTrackAdapter(tracks);
                 adapter.ItemClick += ListView_ItemClick;
                 adapter.ItemLongClick += ListView_ItemLongClick;
                 ListView.SetAdapter(adapter);
@@ -504,10 +481,7 @@ namespace MusicApp.Resources.Portable_Class
                         ytTracksIdsResult.Add(ytTracksIDs[i]);
                 }
             }
-            adapter = new PlaylistTrackAdapter(result)
-            {
-                listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot
-            };
+            adapter = new PlaylistTrackAdapter(result);
             adapter.ItemClick += ListView_ItemClick;
             adapter.ItemLongClick += ListView_ItemLongClick;
 

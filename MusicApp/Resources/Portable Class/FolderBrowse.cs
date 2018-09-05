@@ -46,24 +46,14 @@ namespace MusicApp.Resources.Portable_Class
             ListView.ItemLongClick += ListView_ItemLongClick;
             ListView.NestedScrollingEnabled = true;
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
-            MainActivity.instance.OnPaddingChanged += OnPaddingChanged;
 
             if (ListView.Adapter == null)
                 PopulateList();
         }
 
-        private void OnPaddingChanged(object sender, PaddingChange e)
-        {
-            if (MainActivity.paddingBot > e.oldPadding)
-                adapter.listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot;
-            else
-                adapter.listPadding = (int)(8 * MainActivity.instance.Resources.DisplayMetrics.Density + 0.5f);
-        }
-
         public override void OnDestroy()
         {
             MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
-            MainActivity.instance.OnPaddingChanged -= OnPaddingChanged;
             if (isEmpty)
             {
                 ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
@@ -79,7 +69,6 @@ namespace MusicApp.Resources.Portable_Class
         {
             View view = base.OnCreateView(inflater, container, savedInstanceState);
             this.view = view;
-            view.SetPadding(0, 0, 0, MainActivity.defaultPaddingBot);
             return view;
         }
 
@@ -124,10 +113,7 @@ namespace MusicApp.Resources.Portable_Class
                 musicCursor.Close();
             }
 
-            adapter = new TwoLineAdapter(Android.App.Application.Context, Resource.Layout.TwoLineLayout, pathDisplay, pathUse)
-            {
-                listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot
-            };
+            adapter = new TwoLineAdapter(Android.App.Application.Context, Resource.Layout.TwoLineLayout, pathDisplay, pathUse);
             ListAdapter = adapter;
 
             if (adapter == null || adapter.Count == 0)
@@ -179,10 +165,7 @@ namespace MusicApp.Resources.Portable_Class
                 musicCursor.Close();
             }
 
-            adapter = new TwoLineAdapter(Android.App.Application.Context, Resource.Layout.TwoLineLayout, pathDisplay, pathUse)
-            {
-                listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot
-            };
+            adapter = new TwoLineAdapter(Android.App.Application.Context, Resource.Layout.TwoLineLayout, pathDisplay, pathUse);
             ListAdapter = adapter;
 
             if (adapter == null || adapter.Count == 0)
@@ -451,7 +434,7 @@ namespace MusicApp.Resources.Portable_Class
             intent.SetAction("RandomPlay");
             Activity.StartService(intent);
             MainActivity.instance.ShowSmallPlayer();
-            MainActivity.instance.SheetBehavior.State = BottomSheetBehavior.StateExpanded;
+            MainActivity.instance.ShowPlayer();
         }
 
         public override void OnResume()

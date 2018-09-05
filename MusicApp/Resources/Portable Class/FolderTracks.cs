@@ -30,24 +30,14 @@ namespace MusicApp.Resources.Portable_Class
             base.OnActivityCreated(savedInstanceState);
             ListView.Scroll += MainActivity.instance.Scroll;
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
-            MainActivity.instance.OnPaddingChanged += OnPaddingChanged;
 
             PopulateList();
             MainActivity.instance.DisplaySearch(1);
         }
 
-        private void OnPaddingChanged(object sender, PaddingChange e)
-        {
-            if (MainActivity.paddingBot > e.oldPadding)
-                adapter.listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot;
-            else
-                adapter.listPadding = (int)(8 * MainActivity.instance.Resources.DisplayMetrics.Density + 0.5f);
-        }
-
         public override void OnDestroy()
         {
             MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
-            MainActivity.instance.OnPaddingChanged -= OnPaddingChanged;
             instance = null;
             base.OnDestroy();
         }
@@ -55,7 +45,6 @@ namespace MusicApp.Resources.Portable_Class
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             View view = base.OnCreateView(inflater, container, savedInstanceState);
-            view.SetPadding(0, 0, 0, MainActivity.defaultPaddingBot);
             return view;
         }
 
@@ -109,10 +98,7 @@ namespace MusicApp.Resources.Portable_Class
                 musicCursor.Close();
             }
 
-            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, tracks)
-            {
-                listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot
-            };
+            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, tracks);
             ListAdapter = adapter;
             ListView.TextFilterEnabled = true;
             ListView.ItemClick += ListView_ItemClick;
@@ -162,10 +148,7 @@ namespace MusicApp.Resources.Portable_Class
                 musicCursor.Close();
             }
 
-            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, tracks)
-            {
-                listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot
-            };
+            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, tracks);
             ListAdapter = adapter;
             MainActivity.instance.contentRefresh.Refreshing = false;
         }
@@ -180,10 +163,7 @@ namespace MusicApp.Resources.Portable_Class
                     result.Add(item);
                 }
             }
-            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, result)
-            {
-                listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot
-            };
+            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, result);
             ListAdapter = adapter;
         }
 

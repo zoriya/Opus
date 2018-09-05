@@ -95,7 +95,7 @@ namespace MusicApp.Resources.Portable_Class
                         MainActivity.instance.StartService(intent);
 
                         MainActivity.instance.ShowSmallPlayer();
-                        MainActivity.instance.SheetBehavior.State = BottomSheetBehavior.StateExpanded;
+                        MainActivity.instance.ShowPlayer();
                     }
                 };
                 header.FindViewById<ImageButton>(Resource.Id.headerMore).Click += (sender, e0) =>

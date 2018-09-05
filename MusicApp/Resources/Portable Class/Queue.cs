@@ -50,7 +50,6 @@ namespace MusicApp.Resources.Portable_Class
             else
                 adapter = new RecyclerAdapter(new List<Song>());
 
-            adapter.listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot;
             ListView.SetAdapter(adapter);
             adapter.ItemClick += ListView_ItemClick;
             adapter.ItemLongCLick += ListView_ItemLongCLick;

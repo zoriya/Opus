@@ -1,207 +1,201 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
+<android.support.constraint.ConstraintLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:orientation="vertical"
-  android:fitsSystemWindows="true">
-  <android.support.design.widget.AppBarLayout
-    android:layout_width="match_parent"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent"
+  android:fitsSystemWindows="true" >
+  <LinearLayout
+    android:orientation="vertical"
+    android:layout_gravity="bottom"
     android:layout_height="wrap_content"
-    android:id="@+id/appbar" >
-    <android.support.design.widget.CollapsingToolbarLayout
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      app:layout_scrollFlags="scroll"
-      android:fitsSystemWindows="true"
-      android:id="@+id/collapsingToolbar"
-      app:titleEnabled="false" >
-      <include
-        layout="@layout/PlaylistHeader"
-        android:id="@+id/playlistHeader"
-        android:visibility="gone" />
-      <android.support.v7.widget.Toolbar
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        app:layout_collapseMode="pin"
-        android:id="@+id/toolbar" />
-    </android.support.design.widget.CollapsingToolbarLayout>
-    <android.support.design.widget.TabLayout
-      android:id="@+id/tabs"
-      android:visibility="gone"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      app:tabTextColor="@android:color/white"
-      app:tabSelectedTextColor="@android:color/white"
-      app:tabIndicatorColor="?colorAccent"
-      app:tabGravity="fill"
-      app:tabMode="fixed" />
-    <ProgressBar
-      android:layout_height="4dp"
-      android:layout_width="match_parent"
-      android:id="@+id/ytProgress"
-      android:indeterminate="true"
-      style="?android:attr/progressBarStyleHorizontal"
-      android:visibility="gone" />
-  </android.support.design.widget.AppBarLayout>
-  
-  <android.support.v4.widget.SwipeRefreshLayout
-    android:id="@+id/contentRefresh"
-    android:layout_above="@+id/bottomLayout"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content" >
-    <FrameLayout
-      android:id="@+id/contentView"
-      app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    android:layout_width="match_parent"
+    android:id="@+id/bottomLayer" >
+    <android.support.design.widget.CoordinatorLayout
+      android:id="@+id/snackBar"
       android:layout_height="wrap_content"
       android:layout_width="match_parent" />
-  </android.support.v4.widget.SwipeRefreshLayout>
-
-  <RelativeLayout
-    android:layout_height="fill_parent"
-    android:layout_width="fill_parent"
-    android:id="@+id/bottomLayer">
-    <LinearLayout
-      android:orientation="vertical"
-      android:layout_alignParentBottom="true"
-      android:layout_height="wrap_content"
+    <android.support.design.widget.BottomNavigationView
+      android:id="@+id/bottomView"
       android:layout_width="match_parent"
+      android:layout_height="56dp"
       android:background="?attr/defaultColor"
-      android:elevation="12dp" >
-      <android.support.design.widget.CoordinatorLayout
-        android:id="@+id/snackBar"
-        android:layout_alignParentTop="true"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent" />
-      <android.support.design.widget.BottomNavigationView
-        android:id="@+id/bottomView"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_below="@id/snackBar"
-        app:itemIconTint="@color/color_tint"
-        app:itemTextColor="@color/color_tint"
-        app:menu="@menu/bottom_items" />
-    </LinearLayout>
-  </RelativeLayout>
-
+      android:elevation="12dp"
+      app:itemIconTint="@color/color_tint"
+      app:itemTextColor="@color/color_tint"
+      app:menu="@menu/bottom_items" />
+  </LinearLayout>
   <android.support.design.widget.CoordinatorLayout
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_marginBottom="70dp"
-    android:id="@+id/playerLayout"
-    android:orientation="vertical"
-    android:fitsSystemWindows="true">
-    <android.support.v4.widget.NestedScrollView
-      android:id="@+id/playerSheet"
-      android:visibility="gone"
-      android:layout_width="wrap_content"
+    android:layout_height="fill_parent"
+    layout_constraintEnd_toStartOf="@id/bottomLayer" >
+    <android.support.design.widget.AppBarLayout
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:elevation="6dp"
-      android:clipToPadding="false"
-      android:paddingRight="20dp"
-      android:paddingLeft="20dp"
-      android:gravity="center_horizontal|bottom"
-      app:layout_behavior="android.support.design.widget.BottomSheetBehavior" >
-      <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
-        <android.support.v7.widget.CardView
-          android:layout_width="wrap_content"
-          android:id="@+id/smallPlayer"
-          android:elevation="6dp"
-          android:layout_height="wrap_content" >
-          <LinearLayout
-            android:orientation="horizontal"
-            android:clickable="true"
-            android:id="@+id/spContainer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-            <ImageView
-              android:id="@+id/spArt"
-              android:layout_width="70dp"
-              android:clickable="false"
-              android:layout_height="70dp"
-              android:layout_gravity="left"
-              android:layout_alignParentBottom="true"/>
-            <LinearLayout
-              android:orientation="vertical"
-              android:paddingLeft="10dp"
-              android:paddingRight="130dp"
-              android:clickable="false"
-              android:layout_width="wrap_content"
-              android:layout_gravity="center_vertical"
-              android:layout_height="wrap_content">
-              <TextView
-                android:id="@+id/spTitle"
-                android:text="Title"
-                android:clickable="false"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:singleLine="true"
-                android:textColor="#000"
-                android:textSize="18dip" />
-              <TextView
-                android:id="@+id/spArtist"
-                android:text="Artist"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:singleLine="true"
-                android:clickable="false"
-                android:textSize="14dip"
-                android:textColor="#4f5b62" />
-            </LinearLayout>
-          </LinearLayout>
-          <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-            <ImageButton
-              android:id="@+id/spNext"
-              android:layout_alignParentBottom="true"
-              android:layout_width="40dp"
-              android:layout_height="40dp"
-              android:background="@null"
-              android:layout_alignParentRight="true"
-              android:src="@drawable/ic_skip_next_black_24dp"/>
-            <ImageButton
-              android:id="@+id/spPlay"
-              android:layout_alignParentBottom="true"
-              android:layout_width="40dp"
-              android:layout_height="40dp"
-              android:layout_marginLeft="3dp"
-              android:layout_toLeftOf="@id/spNext"
-              android:background="@null"
-              android:layout_marginRight="3dp"
-              android:src="@drawable/ic_pause_black_24dp"/>
-            <ImageButton
-              android:id="@+id/spLast"
-              android:layout_alignParentBottom="true"
-              android:background="@null"
-              android:layout_width="40dp"
-              android:layout_height="40dp"
-              android:layout_toLeftOf="@id/spPlay"
-              android:src="@drawable/ic_skip_previous_black_24dp"/>
-          </RelativeLayout>
-          <ProgressBar
-            android:id="@+id/spProgress"
-            style="@android:style/Widget.ProgressBar.Horizontal"
-            android:paddingLeft="70dp"
-            android:layout_width="match_parent"
-            android:layout_height="3dp"
-            android:layout_alignParentTop="true"
-            android:progress="25"/>
-        </android.support.v7.widget.CardView>
-        <FrameLayout
-          android:id="@+id/playerFrame"
+      android:id="@+id/appbar" >
+      <android.support.design.widget.CollapsingToolbarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_scrollFlags="scroll"
+        android:fitsSystemWindows="true"
+        android:id="@+id/collapsingToolbar"
+        app:titleEnabled="false" >
+        <include
+          layout="@layout/PlaylistHeader"
+          android:id="@+id/playlistHeader"
+          android:visibility="gone" />
+        <android.support.v7.widget.Toolbar
+          android:layout_width="match_parent"
+          android:layout_height="?attr/actionBarSize"
+          android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+          app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+          app:layout_collapseMode="pin"
+          android:id="@+id/toolbar" />
+      </android.support.design.widget.CollapsingToolbarLayout>
+      <android.support.design.widget.TabLayout
+        android:id="@+id/tabs"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:tabTextColor="@android:color/white"
+        app:tabSelectedTextColor="@android:color/white"
+        app:tabIndicatorColor="?colorAccent"
+        app:tabGravity="fill"
+        app:tabMode="fixed" />
+      <ProgressBar
+        android:layout_height="4dp"
+        android:layout_width="match_parent"
+        android:id="@+id/ytProgress"
+        android:indeterminate="true"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:visibility="gone" />
+    </android.support.design.widget.AppBarLayout>
+
+    <android.support.v4.widget.SwipeRefreshLayout
+      android:id="@+id/contentRefresh"
+      app:layout_behavior="@string/appbar_scrolling_view_behavior"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content" >
+      <FrameLayout
+        android:id="@+id/contentView"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent" />
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+    <android.support.design.widget.CoordinatorLayout
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:id="@+id/playerLayout"
+      android:orientation="vertical" >
+      <android.support.v4.widget.NestedScrollView
+        android:id="@+id/playerSheet"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:elevation="6dp"
+        android:clipToPadding="false"
+        android:paddingRight="20dp"
+        android:paddingLeft="20dp"
+        android:gravity="center_horizontal|bottom"
+        app:layout_behavior="android.support.design.widget.BottomSheetBehavior" >
+        <LinearLayout
+          android:orientation="vertical"
           android:layout_width="fill_parent"
-          android:layout_height="wrap_content" />
-      </LinearLayout>
-    </android.support.v4.widget.NestedScrollView>
+          android:layout_height="wrap_content">
+          <android.support.v7.widget.CardView
+            android:layout_width="wrap_content"
+            android:id="@+id/smallPlayer"
+            android:elevation="6dp"
+            android:layout_height="wrap_content" >
+            <LinearLayout
+              android:orientation="horizontal"
+              android:clickable="true"
+              android:id="@+id/spContainer"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content" >
+              <ImageView
+                android:id="@+id/spArt"
+                android:layout_width="70dp"
+                android:clickable="false"
+                android:layout_height="70dp"
+                android:layout_gravity="left"
+                android:layout_alignParentBottom="true"/>
+              <LinearLayout
+                android:orientation="vertical"
+                android:paddingLeft="10dp"
+                android:paddingRight="130dp"
+                android:clickable="false"
+                android:layout_width="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_height="wrap_content">
+                <TextView
+                  android:id="@+id/spTitle"
+                  android:text="Title"
+                  android:clickable="false"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:singleLine="true"
+                  android:textColor="#000"
+                  android:textSize="18dip" />
+                <TextView
+                  android:id="@+id/spArtist"
+                  android:text="Artist"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:singleLine="true"
+                  android:clickable="false"
+                  android:textSize="14dip"
+                  android:textColor="#4f5b62" />
+              </LinearLayout>
+            </LinearLayout>
+            <RelativeLayout
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content" >
+              <ImageButton
+                android:id="@+id/spNext"
+                android:layout_alignParentBottom="true"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@null"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/ic_skip_next_black_24dp"/>
+              <ImageButton
+                android:id="@+id/spPlay"
+                android:layout_alignParentBottom="true"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginLeft="3dp"
+                android:layout_toLeftOf="@id/spNext"
+                android:background="@null"
+                android:layout_marginRight="3dp"
+                android:src="@drawable/ic_pause_black_24dp"/>
+              <ImageButton
+                android:id="@+id/spLast"
+                android:layout_alignParentBottom="true"
+                android:background="@null"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_toLeftOf="@id/spPlay"
+                android:src="@drawable/ic_skip_previous_black_24dp"/>
+            </RelativeLayout>
+            <ProgressBar
+              android:id="@+id/spProgress"
+              style="@android:style/Widget.ProgressBar.Horizontal"
+              android:paddingLeft="70dp"
+              android:layout_width="match_parent"
+              android:layout_height="3dp"
+              android:layout_alignParentTop="true"
+              android:progress="25"/>
+          </android.support.v7.widget.CardView>
+          <FrameLayout
+            android:id="@+id/playerFrame"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+        </LinearLayout>
+      </android.support.v4.widget.NestedScrollView>
+    </android.support.design.widget.CoordinatorLayout>
+
   </android.support.design.widget.CoordinatorLayout>
-  
-</android.support.design.widget.CoordinatorLayout>
+</android.support.constraint.ConstraintLayout>

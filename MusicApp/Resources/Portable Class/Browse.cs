@@ -44,24 +44,14 @@ namespace MusicApp.Resources.Portable_Class
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
             ListView.Scroll += MainActivity.instance.Scroll;
             ListView.NestedScrollingEnabled = true;
-            MainActivity.instance.OnPaddingChanged += OnPaddingChanged;
 
             if (ListView.Adapter == null)
                 MainActivity.instance.GetStoragePermission();
         }
 
-        private void OnPaddingChanged(object sender, PaddingChange e)
-        {
-            if(MainActivity.paddingBot > e.oldPadding)
-                adapter.listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot;
-            else
-                adapter.listPadding = (int)(8 * MainActivity.instance.Resources.DisplayMetrics.Density + 0.5f);
-        }
-
         public override void OnDestroy()
         {
             MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
-            MainActivity.instance.OnPaddingChanged -= OnPaddingChanged;
             if (isEmpty)
             {
                 ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
@@ -77,7 +67,6 @@ namespace MusicApp.Resources.Portable_Class
         {
             View view = base.OnCreateView(inflater, container, savedInstanceState);
             this.view = view;
-            view.SetPadding(0, 0, 0, MainActivity.defaultPaddingBot);
             return view;
         }
 
@@ -145,8 +134,8 @@ namespace MusicApp.Resources.Portable_Class
                 Activity.AddContentView(emptyView, View.LayoutParameters);
             }
 
-            if (MainActivity.paddingBot > MainActivity.defaultPaddingBot && adapter.listPadding == 0)
-                adapter.listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot;
+            //if (MainActivity.paddingBot > MainActivity.defaultPaddingBot && adapter.listPadding == 0)
+            //    adapter.listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot;
 
             if(result != null)
             {
@@ -268,7 +257,7 @@ namespace MusicApp.Resources.Portable_Class
             context.StartService(intent);
 
             MainActivity.instance.ShowSmallPlayer();
-            MainActivity.instance.SheetBehavior.State = BottomSheetBehavior.StateExpanded;
+            MainActivity.instance.ShowPlayer();
             //if(albumArt != null)
             //{
             //    Intent inten = new Intent(context, typeof(Player));

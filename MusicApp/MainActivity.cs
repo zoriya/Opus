@@ -53,7 +53,6 @@ namespace MusicApp
     {
         public static MainActivity instance;
         public static int paddingBot = 0;
-        public static int defaultPaddingBot = 0;
         public new static int Theme = 1;
         public static int dialogTheme;
         public static IParcelable parcelable;
@@ -95,20 +94,6 @@ namespace MusicApp
         private bool resuming = false;
         public bool ResumeKiller;
 
-        public event EventHandler<PaddingChange> OnPaddingChanged;
-
-        public virtual void PaddingHasChanged(PaddingChange e)
-        {
-            //paddingBot = (((ListView)instance.FindViewById(Resource.Id.smallPlayer).Parent).Visibility == ViewStates.Gone)
-            //    ? DpToPx(56)
-            //    : instance.FindViewById(Resource.Id.smallPlayer).Height + ((RelativeLayout)instance.FindViewById(Resource.Id.smallPlayer).Parent).PaddingBottom;
-
-            paddingBot += e.paddingChange;
-
-            OnPaddingChanged?.Invoke(this, e);
-        }
-
-
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -134,6 +119,7 @@ namespace MusicApp
 
             SheetBehavior = BottomSheetBehavior.From(FindViewById(Resource.Id.playerSheet));
             SheetBehavior.State = BottomSheetBehavior.StateCollapsed;
+            SheetBehavior.Hideable = true;
             SheetBehavior.SetBottomSheetCallback(new PlayerCallback(this));
             SheetBehavior.PeekHeight = DpToPx(70);
             SupportFragmentManager.BeginTransaction().Replace(Resource.Id.playerFrame, new Player()).Commit();
@@ -156,13 +142,12 @@ namespace MusicApp
             else
             {
                 paddingBot = DpToPx(56);
-                defaultPaddingBot = DpToPx(56);
                 Navigate(Resource.Id.musicLayout);
             }
 
             if(Intent.Action == "Player")
             {
-                SheetBehavior.State = BottomSheetBehavior.StateExpanded;
+                ShowPlayer();
                 Player.instance.RefreshPlayer();
             }
             else if (Intent.Action == Intent.ActionSend)
@@ -188,7 +173,7 @@ namespace MusicApp
                 StartService(intent);
 
                 ShowSmallPlayer();
-                SheetBehavior.State = BottomSheetBehavior.StateExpanded;
+                ShowPlayer();
             }
             else if (Intent.Action == "Sleep")
             {
@@ -444,7 +429,6 @@ namespace MusicApp
                     ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
                     foreach (YoutubeEngine instance in YoutubeEngine.instances)
                     {
-                        OnPaddingChanged -= instance.OnPaddingChanged;
                         rootView.RemoveView(instance.emptyView);
                     }
                     rootView.RemoveView(YoutubeEngine.loadingView);
@@ -482,7 +466,6 @@ namespace MusicApp
                 ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
                 foreach (YoutubeEngine instance in YoutubeEngine.instances)
                 {
-                    OnPaddingChanged -= instance.OnPaddingChanged;
                     rootView.RemoveView(instance.emptyView);
                 }
                 rootView.RemoveView(YoutubeEngine.loadingView);
@@ -600,7 +583,6 @@ namespace MusicApp
                 ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
                 foreach (YoutubeEngine instance in YoutubeEngine.instances)
                 {
-                    OnPaddingChanged -= instance.OnPaddingChanged;
                     rootView.RemoveView(instance.emptyView);
                 }
                 rootView.RemoveView(YoutubeEngine.loadingView);
@@ -979,7 +961,13 @@ namespace MusicApp
         private void Container_Click(object sender, EventArgs e)
         {
             ShowSmallPlayer();
-            SheetBehavior.State = BottomSheetBehavior.StateExpanded;
+            ShowPlayer();
+        }
+
+        public void ShowPlayer()
+        {
+            FindViewById<NestedScrollView>(Resource.Id.playerSheet).SetPadding(0, 0, 0,0);
+            //SheetBehavior.State = BottomSheetBehavior.StateExpanded;
         }
 
         public void GetStoragePermission()
@@ -1006,7 +994,6 @@ namespace MusicApp
                     {
                         ((Snackbar)Snackbar.Make(FindViewById<View>(Resource.Id.snackBar), "Permission denied, can't list musics.", Snackbar.LengthLong)
                             .SetAction("Ask Again", (v) => { GetStoragePermission(); })
-                            .AddCallback(new SnackbarCallback())
                             ).Show();
                     }
                 }
@@ -1045,29 +1032,21 @@ namespace MusicApp
             handler.PostDelayed(UpdateProgressBar, 1000);
         }
 
-        public async void HideSmallPlayer()
+        public void HideSmallPlayer()
         {
             CardView smallPlayer = FindViewById<CardView>(Resource.Id.smallPlayer);
             NestedScrollView parent = FindViewById<NestedScrollView>(Resource.Id.playerSheet);
             bool hasChanged = parent.Visibility != ViewStates.Gone;
             parent.Visibility = ViewStates.Gone;
-
-            await Task.Delay(75);
-            if (hasChanged)
-                PaddingHasChanged(new PaddingChange(paddingBot));
         }
 
-        public async void ShowSmallPlayer()
+        public void ShowSmallPlayer()
         {
             CardView smallPlayer = FindViewById<CardView>(Resource.Id.smallPlayer);
             NestedScrollView parent = FindViewById<NestedScrollView>(Resource.Id.playerSheet);
             bool hasChanged = parent.Visibility == ViewStates.Gone;
             parent.Visibility = ViewStates.Visible;
             smallPlayer.Visibility = ViewStates.Visible;
-
-            await Task.Delay(75);
-            if (hasChanged)
-                PaddingHasChanged(new PaddingChange(paddingBot));
         }
 
         public void ShowQuickPlay()
@@ -1084,7 +1063,6 @@ namespace MusicApp
             quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.quickPlay).Click += QuickPlay;
             quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.localPlay).Click += LocalPlay;
             quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.ytPlay).Click += YtPlay;
-            OnPaddingChanged += QuickPlayChangePosition;
         }
 
         public void HideQuickPlay()
@@ -1167,7 +1145,6 @@ namespace MusicApp
                 if(paths.Count == 0)
                 {
                     ((Snackbar)Snackbar.Make(FindViewById<View>(Resource.Id.snackBar), "No music file found on this device. Can't create a mix.", Snackbar.LengthLong)
-                        .AddCallback(new SnackbarCallback())
                         ).Show();
                     return;
                 }
@@ -1179,7 +1156,7 @@ namespace MusicApp
                 intent.SetAction("RandomPlay");
                 StartService(intent);
                 ShowSmallPlayer();
-                SheetBehavior.State = BottomSheetBehavior.StateExpanded;
+                ShowPlayer();
             }
             else
             {
@@ -1188,7 +1165,7 @@ namespace MusicApp
                 {
                     Playlist.RandomPlay(playlistID, this);
                     ShowSmallPlayer();
-                    SheetBehavior.State = BottomSheetBehavior.StateExpanded;
+                    ShowPlayer();
                 }
                 else
                     ((Snackbar)Snackbar.Make(FindViewById<View>(Resource.Id.snackBar), "No playlist set on setting.", Snackbar.LengthLong)
@@ -1197,7 +1174,6 @@ namespace MusicApp
                             Intent intent = new Intent(Application.Context, typeof(Preferences));
                             StartActivity(intent);
                         })
-                        .AddCallback(new SnackbarCallback())
                         ).Show();
             }
         }

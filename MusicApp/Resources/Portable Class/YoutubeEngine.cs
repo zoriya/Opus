@@ -44,7 +44,6 @@ namespace MusicApp.Resources.Portable_Class
         {
             base.OnActivityCreated(savedInstanceState);
             ListView.ScrollChange += MainActivity.instance.Scroll;
-            MainActivity.instance.OnPaddingChanged += OnPaddingChanged;
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
         }
 
@@ -56,15 +55,6 @@ namespace MusicApp.Resources.Portable_Class
                 MainActivity.instance.contentRefresh.Refreshing = false;
             }
         }
-
-        public void OnPaddingChanged(object sender, PaddingChange e)
-        {
-            if (MainActivity.paddingBot > e.oldPadding)
-                adapter.listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot;
-            else
-                adapter.listPadding = (int)(8 * MainActivity.instance.Resources.DisplayMetrics.Density + 0.5f);
-        }
-
         public void OnFocus()
         {
             if (searching && !error)
@@ -109,7 +99,6 @@ namespace MusicApp.Resources.Portable_Class
         {
             View view = inflater.Inflate(Resource.Layout.RecyclerFragment, container, false);
             ListView = view.FindViewById<RecyclerView>(Resource.Id.recycler);
-            view.SetPadding(0, 0, 0, MainActivity.defaultPaddingBot);
             ListView.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
             ListView.SetItemAnimator(new DefaultItemAnimator());
             ListView.ScrollChange += MainActivity.instance.Scroll;
@@ -217,11 +206,7 @@ namespace MusicApp.Resources.Portable_Class
             List<string> topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
             List<string> selectedTopics = topics.ConvertAll(x => x.Substring(x.IndexOf("/#-#/") + 5));
 
-            adapter = new YtAdapter(result)
-            {
-                listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot,
-                selectedTopicsID = selectedTopics
-            };
+            adapter = new YtAdapter(result);
             adapter.ItemClick += ListView_ItemClick;
             adapter.ItemLongCLick += ListView_ItemLongClick;
             ListView.SetAdapter(adapter);
@@ -267,7 +252,6 @@ namespace MusicApp.Resources.Portable_Class
                     foreach(YoutubeEngine instance in instances)
                     {
                         rootView.RemoveView(instance.emptyView);
-                        MainActivity.instance.OnPaddingChanged -= instance.OnPaddingChanged;
                     }
 
                     MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(true);

@@ -577,8 +577,9 @@ namespace MusicApp.Resources.Portable_Class
         private CoordinatorLayout layout;
         private NestedScrollView sheet;
         private FrameLayout frame;
-        private RelativeLayout bottomLayer;
+        private LinearLayout bottomLayer;
         private bool Refreshed = false;
+        private SheetMovement movement = SheetMovement.Unknow;
 
         public PlayerCallback(Activity context)
         {
@@ -586,31 +587,62 @@ namespace MusicApp.Resources.Portable_Class
             layout = context.FindViewById<CoordinatorLayout>(Resource.Id.playerLayout);
             sheet = context.FindViewById<NestedScrollView>(Resource.Id.playerSheet);
             frame = context.FindViewById<FrameLayout>(Resource.Id.playerFrame);
-            bottomLayer = context.FindViewById<RelativeLayout>(Resource.Id.bottomLayer);
+            bottomLayer = context.FindViewById<LinearLayout>(Resource.Id.bottomLayer);
         }
 
         public override void OnSlide(View bottomSheet, float slideOffset)
         {
-            Console.WriteLine("&Slided");
-            slideOffset = Math.Max(slideOffset, 0);
-            slideOffset = Math.Min(slideOffset, 1);
-
-            int defaultPadding = (int)(20 * context.Resources.DisplayMetrics.Density + 0.5f);
-            ((CoordinatorLayout.LayoutParams)layout.LayoutParameters).BottomMargin = (int)((70 * context.Resources.DisplayMetrics.Density + 0.5f) * (1 - slideOffset));
-            sheet.SetPadding((int)(defaultPadding * (1 - slideOffset)), 0, (int)(defaultPadding * (1 - slideOffset)), 0);
-            bottomLayer.TranslationY = (int)((56 * context.Resources.DisplayMetrics.Density + 0.5f) * slideOffset);
-
-            if (!Refreshed && slideOffset > .3)
+            if(movement == SheetMovement.Unknow)
             {
-                Refreshed = true;
-                Player.instance.RefreshPlayer();
+                if (slideOffset > 0)
+                    movement = SheetMovement.Expanding;
+                else if (slideOffset < 0)
+                    movement = SheetMovement.Hidding;
             }
-            else if (slideOffset < .3)
-                Refreshed = false;
+
+            if(movement == SheetMovement.Expanding && 0 <= slideOffset && slideOffset <= 1)
+            {
+                Console.WriteLine("&Expanding with offset: " + slideOffset);
+
+                sheet.Alpha = 1;
+
+                int defaultPadding = (int)(20 * context.Resources.DisplayMetrics.Density + 0.5f);
+                //((CoordinatorLayout.LayoutParams)layout.LayoutParameters).BottomMargin = (int)((70 * context.Resources.DisplayMetrics.Density + 0.5f) * (1 - slideOffset));
+                //layout.RequestLayout();
+                sheet.SetPadding((int)(defaultPadding * (1 - slideOffset)), 0, (int)(defaultPadding * (1 - slideOffset)), 0);
+                bottomLayer.TranslationY = (int)((56 * context.Resources.DisplayMetrics.Density + 0.5f) * slideOffset);
+
+                if (!Refreshed && slideOffset > .3)
+                {
+                    Refreshed = true;
+                    Player.instance.RefreshPlayer();
+                }
+                else if (slideOffset < .3)
+                    Refreshed = false;
+            }
+            else if(movement == SheetMovement.Hidding && - 1 <= slideOffset && slideOffset < 0)
+            {
+                //((CoordinatorLayout.LayoutParams)layout.LayoutParameters).BottomMargin = (int)((70 * context.Resources.DisplayMetrics.Density + 0.5f) * (1 + slideOffset));
+                //layout.RequestLayout();
+                sheet.Alpha = 1 + slideOffset;
+            }
         }
 
         public override void OnStateChanged(View bottomSheet, int newState)
         {
+            Console.WriteLine("&State: " + newState);
+            if (newState == BottomSheetBehavior.StateExpanded)
+                movement = SheetMovement.Unknow;
+            else if (newState == BottomSheetBehavior.StateCollapsed)
+                movement = SheetMovement.Unknow;
+            else if(newState == BottomSheetBehavior.StateHidden)
+            {
+                movement = SheetMovement.Unknow;
+                Intent intent = new Intent(context, typeof(MusicPlayer));
+                intent.SetAction("Stop");
+                context.StartService(intent);
+                sheet.Alpha = 1;
+            }
             //if (newState == BottomSheetBehavior.StateExpanded)
             //{
             //    ((CoordinatorLayout.LayoutParams)layout.LayoutParameters).BottomMargin = 0;
@@ -629,4 +661,6 @@ namespace MusicApp.Resources.Portable_Class
             //}
         }
     }
+
+    public enum SheetMovement { Expanding, Hidding, Unknow }
 }

@@ -424,7 +424,7 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
                     MainActivity.instance.ShowSmallPlayer();
-                    MainActivity.instance.SheetBehavior.State = BottomSheetBehavior.StateExpanded;
+                    MainActivity.instance.ShowPlayer();
                 }
                 parsing = false;
             }

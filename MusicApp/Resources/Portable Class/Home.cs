@@ -48,7 +48,6 @@ namespace MusicApp.Resources.Portable_Class
         {
             view = inflater.Inflate(Resource.Layout.RecyclerFragment, container, false);
             ListView = view.FindViewById<RecyclerView>(Resource.Id.recycler);
-            view.SetPadding(0, 0, 0, MainActivity.defaultPaddingBot);
             ListView.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
 
             if (adapter != null)

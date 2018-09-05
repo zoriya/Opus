@@ -37,22 +37,11 @@ namespace MusicApp.Resources.Portable_Class
         {
             base.OnActivityCreated(savedInstanceState);
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
-            MainActivity.instance.OnPaddingChanged += OnPaddingChanged;
-        }
-
-        private void OnPaddingChanged(object sender, PaddingChange e)
-        {
-            if (MainActivity.paddingBot > e.oldPadding)
-                adapter.listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot;
-            else
-                adapter.listPadding = (int)(8 * MainActivity.instance.Resources.DisplayMetrics.Density + 0.5f);
         }
 
         public override void OnDestroy()
         {
             MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
-            MainActivity.instance.OnPaddingChanged -= OnPaddingChanged;
-
             base.OnDestroy();
             instance = null;
         }
@@ -60,7 +49,6 @@ namespace MusicApp.Resources.Portable_Class
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             View view = inflater.Inflate(Resource.Layout.RecyclerFragment, container, false);
-            view.SetPadding(0, 0, 0, MainActivity.defaultPaddingBot);
             ListView = view.FindViewById<RecyclerView>(Resource.Id.recycler);
             ListView.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
 
@@ -111,10 +99,7 @@ namespace MusicApp.Resources.Portable_Class
                 playListCount.Add(-1);
             }
 
-            adapter = new PlaylistAdapter(playList, playListCount, new List<Song>())
-            {
-                listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot
-            };
+            adapter = new PlaylistAdapter(playList, playListCount, new List<Song>());
             ListView.SetAdapter(adapter);
             adapter.ItemClick += ListView_ItemClick;
             adapter.ItemLongCLick += ListView_ItemLongClick;
@@ -291,7 +276,6 @@ namespace MusicApp.Resources.Portable_Class
             act.SupportActionBar.Title = playlist.Title;
             instance = null;
             MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
-            MainActivity.instance.OnPaddingChanged -= OnPaddingChanged;
             MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
 
             if (local)
@@ -519,7 +503,7 @@ namespace MusicApp.Resources.Portable_Class
             context.StartService(intent);
 
             MainActivity.instance.ShowSmallPlayer();
-            MainActivity.instance.SheetBehavior.State = BottomSheetBehavior.StateExpanded;
+            MainActivity.instance.ShowPlayer();
         }
 
         public static void AddToQueue(long playlistID)
