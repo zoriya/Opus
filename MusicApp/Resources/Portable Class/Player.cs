@@ -602,13 +602,9 @@ namespace MusicApp.Resources.Portable_Class
 
             if(movement == SheetMovement.Expanding && 0 <= slideOffset && slideOffset <= 1)
             {
-                Console.WriteLine("&Expanding with offset: " + slideOffset);
-
                 sheet.Alpha = 1;
 
                 int defaultPadding = (int)(20 * context.Resources.DisplayMetrics.Density + 0.5f);
-                //((CoordinatorLayout.LayoutParams)layout.LayoutParameters).BottomMargin = (int)((70 * context.Resources.DisplayMetrics.Density + 0.5f) * (1 - slideOffset));
-                //layout.RequestLayout();
                 sheet.SetPadding((int)(defaultPadding * (1 - slideOffset)), 0, (int)(defaultPadding * (1 - slideOffset)), 0);
                 bottomLayer.TranslationY = (int)((56 * context.Resources.DisplayMetrics.Density + 0.5f) * slideOffset);
 
@@ -622,15 +618,12 @@ namespace MusicApp.Resources.Portable_Class
             }
             else if(movement == SheetMovement.Hidding && - 1 <= slideOffset && slideOffset < 0)
             {
-                //((CoordinatorLayout.LayoutParams)layout.LayoutParameters).BottomMargin = (int)((70 * context.Resources.DisplayMetrics.Density + 0.5f) * (1 + slideOffset));
-                //layout.RequestLayout();
                 sheet.Alpha = 1 + slideOffset;
             }
         }
 
         public override void OnStateChanged(View bottomSheet, int newState)
         {
-            Console.WriteLine("&State: " + newState);
             if (newState == BottomSheetBehavior.StateExpanded)
                 movement = SheetMovement.Unknow;
             else if (newState == BottomSheetBehavior.StateCollapsed)

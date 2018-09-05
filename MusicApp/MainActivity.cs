@@ -967,7 +967,7 @@ namespace MusicApp
         public void ShowPlayer()
         {
             FindViewById<NestedScrollView>(Resource.Id.playerSheet).SetPadding(0, 0, 0,0);
-            //SheetBehavior.State = BottomSheetBehavior.StateExpanded;
+            SheetBehavior.State = BottomSheetBehavior.StateExpanded;
         }
 
         public void GetStoragePermission()
