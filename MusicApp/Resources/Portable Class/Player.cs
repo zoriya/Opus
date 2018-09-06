@@ -574,9 +574,7 @@ namespace MusicApp.Resources.Portable_Class
     public class PlayerCallback : BottomSheetBehavior.BottomSheetCallback
     {
         private Activity context;
-        private CoordinatorLayout layout;
         private NestedScrollView sheet;
-        private FrameLayout frame;
         private LinearLayout bottomLayer;
         private bool Refreshed = false;
         private SheetMovement movement = SheetMovement.Unknow;
@@ -584,9 +582,7 @@ namespace MusicApp.Resources.Portable_Class
         public PlayerCallback(Activity context)
         {
             this.context = context;
-            layout = context.FindViewById<CoordinatorLayout>(Resource.Id.playerLayout);
             sheet = context.FindViewById<NestedScrollView>(Resource.Id.playerSheet);
-            frame = context.FindViewById<FrameLayout>(Resource.Id.playerFrame);
             bottomLayer = context.FindViewById<LinearLayout>(Resource.Id.bottomLayer);
         }
 
@@ -636,22 +632,6 @@ namespace MusicApp.Resources.Portable_Class
                 context.StartService(intent);
                 sheet.Alpha = 1;
             }
-            //if (newState == BottomSheetBehavior.StateExpanded)
-            //{
-            //    ((CoordinatorLayout.LayoutParams)layout.LayoutParameters).BottomMargin = 0;
-            //    sheet.SetPadding(0, 0, 0, 0);
-            //    bottomLayer.TranslationY = (int)(56 * context.Resources.DisplayMetrics.Density + 0.5f);
-            //    Player.instance.RefreshPlayer();
-            //    Refreshed = true;
-            //}
-            //else if (newState == BottomSheetBehavior.StateCollapsed)
-            //{
-            //    int defaultPadding = (int)(20 * context.Resources.DisplayMetrics.Density + 0.5f);
-            //    ((CoordinatorLayout.LayoutParams)layout.LayoutParameters).BottomMargin = (int)(70 * context.Resources.DisplayMetrics.Density + 0.5f);
-            //    sheet.SetPadding(defaultPadding, 0, defaultPadding, 0);
-            //    bottomLayer.TranslationY = 0;
-            //    Refreshed = false;
-            //}
         }
     }
 

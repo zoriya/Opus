@@ -45,7 +45,7 @@
     <BundleAssemblies>false</BundleAssemblies>
     <Debugger>Xamarin</Debugger>
     <AndroidSupportedAbis>armeabi-v7a;x86</AndroidSupportedAbis>
-    <AndroidEnableMultiDex>false</AndroidEnableMultiDex>
+    <AndroidEnableMultiDex>true</AndroidEnableMultiDex>
     <JavaMaximumHeapSize>1G</JavaMaximumHeapSize>
     <EnableProguard>false</EnableProguard>
   </PropertyGroup>

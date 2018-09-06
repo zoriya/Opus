@@ -49,7 +49,7 @@ namespace MusicApp
     [IntentFilter(new[] {Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, DataHost = "www.youtube.com", DataMimeType = "text/*")]
     [IntentFilter(new[] {Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, DataHost = "m.youtube.com", DataMimeType = "text/plain")]
     [IntentFilter(new[] { Intent.ActionView }, Categories = new[] { Intent.CategoryDefault }, DataMimeTypes = new[] { "audio/*", "application/ogg", "application/x-ogg", "application/itunes" })]
-    public class MainActivity : AppCompatActivity, ViewPager.IOnPageChangeListener, SwipeDismissBehavior.IOnDismissListener, GoogleApiClient.IOnConnectionFailedListener, Square.OkHttp.ICallback, IResultCallback, IMenuItemOnActionExpandListener, View.IOnFocusChangeListener
+    public class MainActivity : AppCompatActivity, ViewPager.IOnPageChangeListener, GoogleApiClient.IOnConnectionFailedListener, Square.OkHttp.ICallback, IResultCallback, IMenuItemOnActionExpandListener, View.IOnFocusChangeListener
     {
         public static MainActivity instance;
         public static int paddingBot = 0;
@@ -916,26 +916,8 @@ namespace MusicApp
 
                 smallPlayer.FindViewById<LinearLayout>(Resource.Id.spContainer).Click += Container_Click;
                 prepared = true;
-
-                SwipeDismissBehavior behavior = new SwipeDismissBehavior();
-                behavior.SetSwipeDirection(SwipeDismissBehavior.SwipeDirectionAny);
-                behavior.SetListener(this);
-
-                //CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) smallPlayer.FindViewById<CardView>(Resource.Id.cardPlayer).LayoutParameters;
-                //layoutParams.Behavior = behavior;
-                //smallPlayer.FindViewById<CardView>(Resource.Id.cardPlayer).LayoutParameters = layoutParams;
             }
         }
-
-        public void OnDismiss(View view)
-        {
-            Intent intent = new Intent(this, typeof(MusicPlayer));
-            intent.SetAction("Stop");
-            StartService(intent);
-            view.Alpha = 1;
-        }
-
-        public void OnDragStateChanged(int state) { }
 
         private void Last_Click(object sender, EventArgs e)
         {
@@ -966,8 +948,9 @@ namespace MusicApp
 
         public void ShowPlayer()
         {
-            FindViewById<NestedScrollView>(Resource.Id.playerSheet).SetPadding(0, 0, 0,0);
-            SheetBehavior.State = BottomSheetBehavior.StateExpanded;
+            //FindViewById<NestedScrollView>(Resource.Id.playerSheet).SetPadding(0, 0, 0,0);
+            //FindViewById<LinearLayout>(Resource.Id.bottomLayer).TranslationY = (int)(56 * Resources.DisplayMetrics.Density + 0.5f);
+            //SheetBehavior.State = BottomSheetBehavior.StateExpanded;
         }
 
         public void GetStoragePermission()
