@@ -1025,11 +1025,7 @@ namespace MusicApp
 
         public void ShowSmallPlayer()
         {
-            CardView smallPlayer = FindViewById<CardView>(Resource.Id.smallPlayer);
-            NestedScrollView parent = FindViewById<NestedScrollView>(Resource.Id.playerSheet);
-            bool hasChanged = parent.Visibility == ViewStates.Gone;
-            parent.Visibility = ViewStates.Visible;
-            smallPlayer.Visibility = ViewStates.Visible;
+            FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Visible;
         }
 
         public void ShowQuickPlay()

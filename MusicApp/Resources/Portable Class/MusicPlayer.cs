@@ -791,7 +791,10 @@ namespace MusicApp.Resources.Portable_Class
 
                 queue = db.Table<Song>().ToList().ConvertAll(RemoveParseValues);
                 if (queue != null && queue.Count > 0)
+                {
                     currentID = RetrieveQueueSlot();
+                    MainActivity.instance.ShowSmallPlayer();
+                }
             });
         }
 

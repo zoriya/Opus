@@ -600,8 +600,8 @@ namespace MusicApp.Resources.Portable_Class
             {
                 sheet.Alpha = 1;
 
-                int defaultPadding = (int)(20 * context.Resources.DisplayMetrics.Density + 0.5f);
-                sheet.SetPadding((int)(defaultPadding * (1 - slideOffset)), 0, (int)(defaultPadding * (1 - slideOffset)), 0);
+                //int defaultPadding = (int)(20 * context.Resources.DisplayMetrics.Density + 0.5f);
+                //sheet.SetPadding((int)(defaultPadding * (1 - slideOffset)), 0, (int)(defaultPadding * (1 - slideOffset)), 0);
                 bottomLayer.TranslationY = (int)((56 * context.Resources.DisplayMetrics.Density + 0.5f) * slideOffset);
 
                 if (!Refreshed && slideOffset > .3)
