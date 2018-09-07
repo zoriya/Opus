@@ -55,7 +55,8 @@
       android:id="@+id/contentRefresh"
       app:layout_behavior="@string/appbar_scrolling_view_behavior"
       android:layout_width="wrap_content"
-      android:layout_height="wrap_content" >
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="56dp">
       <FrameLayout
         android:id="@+id/contentView"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
