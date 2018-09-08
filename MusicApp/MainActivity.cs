@@ -117,11 +117,6 @@ namespace MusicApp
             if (!MusicPlayer.isRunning)
                 MusicPlayer.RetrieveQueueFromDataBase();
 
-            SheetBehavior = BottomSheetBehavior.From(FindViewById(Resource.Id.playerSheet));
-            SheetBehavior.State = BottomSheetBehavior.StateCollapsed;
-            SheetBehavior.Hideable = true;
-            SheetBehavior.SetBottomSheetCallback(new PlayerCallback(this));
-            SheetBehavior.PeekHeight = DpToPx(70);
             SupportFragmentManager.BeginTransaction().Replace(Resource.Id.playerFrame, new Player()).Commit();
 
             if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
@@ -181,6 +176,17 @@ namespace MusicApp
             }
 
             CheckForUpdate(this, false);
+            OnLateCreate();
+        }
+
+        private async void OnLateCreate()
+        {
+            await Task.Delay(100);
+            SheetBehavior = BottomSheetBehavior.From(FindViewById(Resource.Id.playerSheet));
+            SheetBehavior.State = BottomSheetBehavior.StateCollapsed;
+            SheetBehavior.Hideable = true;
+            SheetBehavior.SetBottomSheetCallback(new PlayerCallback(this));
+            SheetBehavior.PeekHeight = DpToPx(70);
         }
 
         public void SwitchTheme(int themeID)
@@ -865,51 +871,12 @@ namespace MusicApp
 
         public void PrepareSmallPlayer()
         {
-            if (MusicPlayer.CurrentID() == -1)
-                return;
-
-            Song current = MusicPlayer.queue[MusicPlayer.CurrentID()];
-
-            CardView smallPlayer = FindViewById<CardView>(Resource.Id.smallPlayer);
-            TextView title = smallPlayer.FindViewById<TextView>(Resource.Id.spTitle);
-            TextView artist = smallPlayer.FindViewById<TextView>(Resource.Id.spArtist);
-            ImageView art = smallPlayer.FindViewById<ImageView>(Resource.Id.spArt);
-
-            if (Theme == 1)
-            {
-                title.SetTextColor(Android.Graphics.Color.White);
-                artist.SetTextColor(Android.Graphics.Color.White);
-                artist.Alpha = 0.7f;
-
-                smallPlayer.FindViewById<ImageButton>(Resource.Id.spLast).SetColorFilter(Android.Graphics.Color.White);
-                smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).SetColorFilter(Android.Graphics.Color.White);
-                smallPlayer.FindViewById<ImageButton>(Resource.Id.spNext).SetColorFilter(Android.Graphics.Color.White);
-            }
-
-            title.Text = current.Title;
-            artist.Text = current.Artist;
-
-            if (current.IsYt)
-            {
-                Picasso.With(Application.Context).Load(current.Album).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(art);
-            }
-            else
-            {
-                var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
-                var songAlbumArtUri = ContentUris.WithAppendedId(songCover, current.AlbumArt);
-
-                Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(art);
-            }
-
+            Player.instance.RefreshPlayer();
             SetSmallPlayerProgressBar();
-
-            if (MusicPlayer.isRunning)
-                smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
-            else
-                smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
 
             if (!prepared)
             {
+                FrameLayout smallPlayer = FindViewById<FrameLayout>(Resource.Id.smallPlayer);
                 smallPlayer.FindViewById<ImageButton>(Resource.Id.spLast).Click += Last_Click;
                 smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).Click += Play_Click;
                 smallPlayer.FindViewById<ImageButton>(Resource.Id.spNext).Click += Next_Click;
@@ -948,9 +915,8 @@ namespace MusicApp
 
         public void ShowPlayer()
         {
-            //FindViewById<NestedScrollView>(Resource.Id.playerSheet).SetPadding(0, 0, 0,0);
-            //FindViewById<LinearLayout>(Resource.Id.bottomLayer).TranslationY = (int)(56 * Resources.DisplayMetrics.Density + 0.5f);
-            //SheetBehavior.State = BottomSheetBehavior.StateExpanded;
+            FindViewById<LinearLayout>(Resource.Id.bottomLayer).TranslationY = (int)(56 * Resources.DisplayMetrics.Density + 0.5f);
+            SheetBehavior.State = BottomSheetBehavior.StateExpanded;
         }
 
         public void GetStoragePermission()
@@ -1017,14 +983,16 @@ namespace MusicApp
 
         public void HideSmallPlayer()
         {
-            CardView smallPlayer = FindViewById<CardView>(Resource.Id.smallPlayer);
-            NestedScrollView parent = FindViewById<NestedScrollView>(Resource.Id.playerSheet);
-            bool hasChanged = parent.Visibility != ViewStates.Gone;
-            parent.Visibility = ViewStates.Gone;
+            //CardView smallPlayer = FindViewById<CardView>(Resource.Id.smallPlayer);
+            //NestedScrollView parent = FindViewById<NestedScrollView>(Resource.Id.playerSheet);
+            //bool hasChanged = parent.Visibility != ViewStates.Gone;
+            //parent.Visibility = ViewStates.Gone;
         }
 
         public void ShowSmallPlayer()
         {
+            FindViewById(Resource.Id.playerView).Alpha = 0;
+            Player.instance.RefreshPlayer();
             FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Visible;
         }
 
@@ -1192,23 +1160,31 @@ namespace MusicApp
                 return;
             }
 
-            YoutubeClient client = new YoutubeClient();
-            Video video = await client.GetVideoAsync(MusicPlayer.queue[MusicPlayer.CurrentID()].youtubeID);
-
             List<Song> tracks = new List<Song>();
-            var ytPlaylistRequest = YoutubeEngine.youtubeService.PlaylistItems.List("snippet, contentDetails");
-            ytPlaylistRequest.PlaylistId = video.GetVideoMixPlaylistId();
-            ytPlaylistRequest.MaxResults = 50;
-
-            var ytPlaylist = await ytPlaylistRequest.ExecuteAsync();
-
-            foreach (var item in ytPlaylist.Items)
+            try
             {
-                if (item.Snippet.Title != "[Deleted video]" && item.Snippet.Title != "Private video" && item.Snippet.Title != "Deleted video" && item.ContentDetails.VideoId != MusicPlayer.queue[MusicPlayer.CurrentID()].youtubeID)
+                YoutubeClient client = new YoutubeClient();
+                Video video = await client.GetVideoAsync(MusicPlayer.queue[MusicPlayer.CurrentID()].youtubeID);
+
+                var ytPlaylistRequest = YoutubeEngine.youtubeService.PlaylistItems.List("snippet, contentDetails");
+                ytPlaylistRequest.PlaylistId = video.GetVideoMixPlaylistId();
+                ytPlaylistRequest.MaxResults = 50;
+
+                var ytPlaylist = await ytPlaylistRequest.ExecuteAsync();
+
+                foreach (var item in ytPlaylist.Items)
                 {
-                    Song song = new Song(item.Snippet.Title, "", item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
-                    tracks.Add(song);
+                    if (item.Snippet.Title != "[Deleted video]" && item.Snippet.Title != "Private video" && item.Snippet.Title != "Deleted video" && item.ContentDetails.VideoId != MusicPlayer.queue[MusicPlayer.CurrentID()].youtubeID)
+                    {
+                        Song song = new Song(item.Snippet.Title, "", item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
+                        tracks.Add(song);
+                    }
                 }
+            }
+            catch (YoutubeExplode.Exceptions.ParseException)
+            {
+                YoutubeEndPointChanged();
+                return;
             }
 
             Song current = MusicPlayer.queue[MusicPlayer.CurrentID()];
@@ -1224,6 +1200,12 @@ namespace MusicApp
 
             Player.instance?.UpdateNext();
             parseProgress.Visibility = ViewStates.Gone;
+        }
+
+        public void YoutubeEndPointChanged()
+        {
+            FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
+            Snackbar.Make(FindViewById(Resource.Id.snackBar), "Youtube has changed his way to play video, service unvailable for some time.", (int)ToastLength.Long).Show();
         }
 
         public int DpToPx(int dx)

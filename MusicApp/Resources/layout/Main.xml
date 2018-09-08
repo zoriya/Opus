@@ -73,8 +73,9 @@
     android:id="@+id/bottomLayer" >
     <android.support.design.widget.CoordinatorLayout
       android:id="@+id/snackBar"
-      android:layout_height="wrap_content"
-      android:layout_width="match_parent" />
+      android:layout_height="16dp"
+      android:layout_width="match_parent"
+      android:visibility="gone" />
     <android.support.design.widget.BottomNavigationView
       android:id="@+id/bottomView"
       android:layout_width="match_parent"
@@ -97,15 +98,13 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:elevation="6dp"
-      android:visibility="gone"
       android:clipToPadding="false"
       android:layout_gravity="center_horizontal|bottom"
       app:layout_behavior="android.support.design.widget.BottomSheetBehavior" >
-      <LinearLayout
-        android:orientation="vertical"
+      <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content">
-        <android.support.v7.widget.CardView
+        <FrameLayout
           android:layout_width="wrap_content"
           android:id="@+id/smallPlayer"
           android:elevation="6dp"
@@ -138,7 +137,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:singleLine="true"
-                android:textColor="#000"
                 android:textSize="18dip" />
               <TextView
                 android:id="@+id/spArtist"
@@ -147,8 +145,8 @@
                 android:layout_height="wrap_content"
                 android:singleLine="true"
                 android:clickable="false"
-                android:textSize="14dip"
-                android:textColor="#4f5b62" />
+                android:alpha="0.7"
+                android:textSize="14dip" />
             </LinearLayout>
           </LinearLayout>
           <RelativeLayout
@@ -190,12 +188,12 @@
             android:layout_height="3dp"
             android:layout_alignParentTop="true"
             android:progress="25"/>
-        </android.support.v7.widget.CardView>
+        </FrameLayout>
         <FrameLayout
           android:id="@+id/playerFrame"
           android:layout_width="fill_parent"
-          android:layout_height="wrap_content" />
-      </LinearLayout>
+          android:layout_height="fill_parent" />
+      </RelativeLayout>
     </android.support.v4.widget.NestedScrollView>
   </android.support.design.widget.CoordinatorLayout>
 </android.support.design.widget.CoordinatorLayout>

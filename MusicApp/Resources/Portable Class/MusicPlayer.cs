@@ -336,24 +336,6 @@ namespace MusicApp.Resources.Portable_Class
             SaveQueueSlot();
             Player.instance?.RefreshPlayer();
             ParseNextSong();
-
-            CardView smallPlayer = MainActivity.instance.FindViewById<CardView>(Resource.Id.smallPlayer);
-            smallPlayer.FindViewById<TextView>(Resource.Id.spTitle).Text = song.Title;
-            smallPlayer.FindViewById<TextView>(Resource.Id.spArtist).Text = song.Artist;
-            smallPlayer.FindViewById<ImageView>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
-            ImageView art = smallPlayer.FindViewById<ImageView>(Resource.Id.spArt);
-
-            if (!song.IsYt)
-            {
-                var songCover = Uri.Parse("content://media/external/audio/albumart");
-                var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, song.AlbumArt);
-
-                Picasso.With(Application.Context).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(art);
-            }
-            else
-            {
-                Picasso.With(Application.Context).Load(song.Album).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(art);
-            }
         }
 
         public void UpdateQueueSlots()
@@ -378,42 +360,50 @@ namespace MusicApp.Resources.Portable_Class
                     parseProgress.ScaleY = 6;
                 }
 
-                YoutubeClient client = new YoutubeClient();
-                var mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(videoID);
-                AudioStreamInfo streamInfo = mediaStreamInfo.Audio.OrderBy(s => s.Bitrate).Last();
-
-                if(title == null)
+                try
                 {
-                    Video video = await client.GetVideoAsync(videoID);
-                    title = video.Title;
-                    artist = video.Author;
-                    thumbnailURL = video.Thumbnails.HighResUrl;
-                }
+                    YoutubeClient client = new YoutubeClient();
+                    var mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(videoID);
+                    AudioStreamInfo streamInfo = mediaStreamInfo.Audio.OrderBy(s => s.Bitrate).Last();
 
-                switch (action)
+                    if (title == null)
+                    {
+                        Video video = await client.GetVideoAsync(videoID);
+                        title = video.Title;
+                        artist = video.Author;
+                        thumbnailURL = video.Thumbnails.HighResUrl;
+                    }
+
+                    switch (action)
+                    {
+                        case "Play":
+                            Play(streamInfo.Url, title, artist, videoID, thumbnailURL);
+                            break; //Crash chez celia, make a return here and check if the app keep on crashing
+
+                        case "PlayNext":
+                            AddToQueue(streamInfo.Url, title, artist, videoID, thumbnailURL);
+                            parsing = false;
+                            return;
+
+                        case "PlayLast":
+                            PlayLastInQueue(streamInfo.Url, title, artist, videoID, thumbnailURL);
+                            parsing = false;
+                            return;
+                    }
+
+                    Video info = await client.GetVideoAsync(videoID);
+                    thumbnailURL = info.Thumbnails.HighResUrl;
+                    if (artist == null || artist == "")
+                        artist = info.Author;
+
+                    queue[CurrentID()].Album = thumbnailURL;
+                    queue[CurrentID()].Artist = artist;
+                }
+                catch (YoutubeExplode.Exceptions.ParseException)
                 {
-                    case "Play":
-                        Play(streamInfo.Url, title, artist, videoID, thumbnailURL);
-                        break; //Crash chez celia, make a return here and check if the app keep on crashing
-
-                    case "PlayNext":
-                        AddToQueue(streamInfo.Url, title, artist, videoID, thumbnailURL);
-                        parsing = false;
-                        return;
-
-                    case "PlayLast":
-                        PlayLastInQueue(streamInfo.Url, title, artist, videoID, thumbnailURL);
-                        parsing = false;
-                        return;
+                    MainActivity.instance.YoutubeEndPointChanged();
+                    return;
                 }
-
-                Video info = await client.GetVideoAsync(videoID);
-                thumbnailURL = info.Thumbnails.HighResUrl;
-                if (artist == null || artist == "")
-                    artist = info.Author;
-
-                queue[CurrentID()].Album = thumbnailURL;
-                queue[CurrentID()].Artist = artist;
 
                 UpdateQueueItemDB(queue[CurrentID()]);
                 Player.instance?.RefreshPlayer();
@@ -654,27 +644,35 @@ namespace MusicApp.Resources.Portable_Class
         {
             if (!song.isParsed)
             {
-                YoutubeClient client = new YoutubeClient();
-                MediaStreamInfoSet mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(song.youtubeID);
-                AudioStreamInfo streamInfo = mediaStreamInfo.Audio.Where(x => x.Container == Container.M4A).OrderBy(s => s.Bitrate).Last();
-                song.Path = streamInfo.Url;
-                song.isParsed = true;
-                if (Queue.instance != null)
+                try
                 {
-                    int item = queue.IndexOf(song);
-                    int firstItem = ((LinearLayoutManager)Queue.instance.ListView.GetLayoutManager()).FindFirstVisibleItemPosition();
-                    int lastItem = ((LinearLayoutManager)Queue.instance.ListView.GetLayoutManager()).FindLastVisibleItemPosition();
-                    if (firstItem < item && item < lastItem)
+                    YoutubeClient client = new YoutubeClient();
+                    MediaStreamInfoSet mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(song.youtubeID);
+                    AudioStreamInfo streamInfo = mediaStreamInfo.Audio.Where(x => x.Container == Container.M4A).OrderBy(s => s.Bitrate).Last();
+                    song.Path = streamInfo.Url;
+                    song.isParsed = true;
+                    if (Queue.instance != null)
                     {
-                        ImageView youtubeIcon = Queue.instance.ListView.GetChildAt(item - firstItem).FindViewById<ImageView>(Resource.Id.youtubeIcon);
-                        youtubeIcon.SetImageResource(Resource.Drawable.youtubeIcon);
-                        youtubeIcon.ClearColorFilter();
+                        int item = queue.IndexOf(song);
+                        int firstItem = ((LinearLayoutManager)Queue.instance.ListView.GetLayoutManager()).FindFirstVisibleItemPosition();
+                        int lastItem = ((LinearLayoutManager)Queue.instance.ListView.GetLayoutManager()).FindLastVisibleItemPosition();
+                        if (firstItem < item && item < lastItem)
+                        {
+                            ImageView youtubeIcon = Queue.instance.ListView.GetChildAt(item - firstItem).FindViewById<ImageView>(Resource.Id.youtubeIcon);
+                            youtubeIcon.SetImageResource(Resource.Drawable.youtubeIcon);
+                            youtubeIcon.ClearColorFilter();
+                        }
                     }
-                }
 
-                Video info = await client.GetVideoAsync(song.youtubeID);
-                song.Album = info.Thumbnails.HighResUrl;
-                song.Artist = info.Author;
+                    Video info = await client.GetVideoAsync(song.youtubeID);
+                    song.Album = info.Thumbnails.HighResUrl;
+                    song.Artist = info.Author;
+                }
+                catch (YoutubeExplode.Exceptions.ParseException)
+                {
+                    MainActivity.instance.YoutubeEndPointChanged();
+                    return;
+                }
             }
 
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
@@ -687,24 +685,6 @@ namespace MusicApp.Resources.Portable_Class
 
             Player.instance?.RefreshPlayer();
             Queue.instance?.RefreshCurrent();
-
-            CardView smallPlayer = MainActivity.instance.FindViewById<CardView>(Resource.Id.smallPlayer);
-            smallPlayer.FindViewById<TextView>(Resource.Id.spTitle).Text = song.Title;
-            smallPlayer.FindViewById<TextView>(Resource.Id.spArtist).Text = song.Artist;
-            smallPlayer.FindViewById<ImageView>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
-            ImageView art = smallPlayer.FindViewById<ImageView>(Resource.Id.spArt);
-
-            if(!song.IsYt)
-            {
-                var songCover = Uri.Parse("content://media/external/audio/albumart");
-                var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, song.AlbumArt);
-
-                Picasso.With(Application.Context).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(art);
-            }
-            else
-            {
-                Picasso.With(Application.Context).Load(song.Album).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(art);
-            }
         }
 
         public static int CurrentID()
@@ -832,29 +812,37 @@ namespace MusicApp.Resources.Portable_Class
             if (!song.isParsed && !parsing)
             {
                 parsing = true;
-                YoutubeClient client = new YoutubeClient();
-                MediaStreamInfoSet mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(song.youtubeID);
-                AudioStreamInfo streamInfo = mediaStreamInfo.Audio.Where(x => x.Container == Container.M4A).OrderBy(s => s.Bitrate).Last();
-                song.Path = streamInfo.Url;
-                song.isParsed = true;
-
-                Video info = await client.GetVideoAsync(song.youtubeID);
-                song.Album = info.Thumbnails.HighResUrl;
-                song.Artist = info.Author;
-
-                instance.UpdateQueueItemDB(song);
-                parsing = false;
-                if (Queue.instance != null)
+                try
                 {
-                    int item = queue.IndexOf(song);
-                    int firstItem = ((LinearLayoutManager)Queue.instance.ListView.GetLayoutManager()).FindFirstVisibleItemPosition();
-                    int lastItem = ((LinearLayoutManager)Queue.instance.ListView.GetLayoutManager()).FindLastVisibleItemPosition();
-                    if(firstItem < item && item < lastItem)
+                    YoutubeClient client = new YoutubeClient();
+                    MediaStreamInfoSet mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(song.youtubeID);
+                    AudioStreamInfo streamInfo = mediaStreamInfo.Audio.Where(x => x.Container == Container.M4A).OrderBy(s => s.Bitrate).Last();
+                    song.Path = streamInfo.Url;
+                    song.isParsed = true;
+
+                    Video info = await client.GetVideoAsync(song.youtubeID);
+                    song.Album = info.Thumbnails.HighResUrl;
+                    song.Artist = info.Author;
+
+                    instance.UpdateQueueItemDB(song);
+                    parsing = false;
+                    if (Queue.instance != null)
                     {
-                        ImageView youtubeIcon = Queue.instance.ListView.GetChildAt(item - firstItem).FindViewById<ImageView>(Resource.Id.youtubeIcon);
-                        youtubeIcon.SetImageResource(Resource.Drawable.youtubeIcon);
-                        youtubeIcon.ClearColorFilter();
+                        int item = queue.IndexOf(song);
+                        int firstItem = ((LinearLayoutManager)Queue.instance.ListView.GetLayoutManager()).FindFirstVisibleItemPosition();
+                        int lastItem = ((LinearLayoutManager)Queue.instance.ListView.GetLayoutManager()).FindLastVisibleItemPosition();
+                        if (firstItem < item && item < lastItem)
+                        {
+                            ImageView youtubeIcon = Queue.instance.ListView.GetChildAt(item - firstItem).FindViewById<ImageView>(Resource.Id.youtubeIcon);
+                            youtubeIcon.SetImageResource(Resource.Drawable.youtubeIcon);
+                            youtubeIcon.ClearColorFilter();
+                        }
                     }
+                }
+                catch (YoutubeExplode.Exceptions.ParseException)
+                {
+                    MainActivity.instance.YoutubeEndPointChanged();
+                    return;
                 }
             }
         }
@@ -1013,7 +1001,7 @@ namespace MusicApp.Resources.Portable_Class
                 player.PlayWhenReady = false;
                 StopForeground(false);
 
-                CardView smallPlayer = MainActivity.instance.FindViewById<CardView>(Resource.Id.smallPlayer);
+                FrameLayout smallPlayer = MainActivity.instance.FindViewById<FrameLayout>(Resource.Id.smallPlayer);
                 smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
 
                 MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton)?.SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
@@ -1035,7 +1023,7 @@ namespace MusicApp.Resources.Portable_Class
                 player.PlayWhenReady = true;
                 StartForeground(notificationID, notification);
 
-                CardView smallPlayer = MainActivity.instance.FindViewById<CardView>(Resource.Id.smallPlayer);
+                FrameLayout smallPlayer = MainActivity.instance.FindViewById<FrameLayout>(Resource.Id.smallPlayer);
                 smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
 
                 if (Player.instance != null)

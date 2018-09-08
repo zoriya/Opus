@@ -225,7 +225,7 @@ namespace MusicApp.Resources.Portable_Class
 
             Song current = MusicPlayer.queue[MusicPlayer.CurrentID()];
 
-            CardView smallPlayer = MainActivity.instance.FindViewById<CardView>(Resource.Id.smallPlayer);
+            FrameLayout smallPlayer = MainActivity.instance.FindViewById<FrameLayout>(Resource.Id.smallPlayer);
             smallPlayer.FindViewById<TextView>(Resource.Id.spTitle).Text = current.Title;
             smallPlayer.FindViewById<TextView>(Resource.Id.spArtist).Text = current.Artist;
             smallPlayer.FindViewById<ImageView>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
@@ -250,9 +250,15 @@ namespace MusicApp.Resources.Portable_Class
             artist.Text = current.Artist;
 
             if (MusicPlayer.isRunning)
+            {
                 MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
+                smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
+            }
             else
+            {
                 MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
+                smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
+            }
 
             Bitmap icon = null;
             if (current.AlbumArt == -1)
@@ -543,7 +549,10 @@ namespace MusicApp.Resources.Portable_Class
             Color accentColor = Color.Argb(Color.GetAlphaComponent(accent.Rgb), Color.GetRedComponent(accent.Rgb), Color.GetGreenComponent(accent.Rgb), Color.GetBlueComponent(accent.Rgb));
             MainActivity.instance.FindViewById<TextView>(Resource.Id.playerTitle).SetTextColor(text);
             MainActivity.instance.FindViewById<TextView>(Resource.Id.playerArtist).SetTextColor(text);
+            MainActivity.instance.FindViewById<TextView>(Resource.Id.spTitle).SetTextColor(text);
+            MainActivity.instance.FindViewById<TextView>(Resource.Id.spArtist).SetTextColor(text);
             MainActivity.instance.FindViewById<LinearLayout>(Resource.Id.infoPanel).SetBackgroundColor(background);
+            MainActivity.instance.FindViewById<NestedScrollView>(Resource.Id.playerSheet).SetBackgroundColor(background);
             MainActivity.instance.FindViewById<FloatingActionButton>(Resource.Id.downFAB).BackgroundTintList = ColorStateList.ValueOf(accentColor);
             MainActivity.instance.FindViewById<FloatingActionButton>(Resource.Id.downFAB).RippleColor = accent.Rgb;
             MainActivity.instance.FindViewById<DiscreteSeekBar>(Resource.Id.songTimer).SetThumbColor(accent.Rgb, accent.Rgb);
@@ -553,10 +562,16 @@ namespace MusicApp.Resources.Portable_Class
             if (IsColorDark(accent.Rgb))
             {
                 MainActivity.instance.FindViewById<FloatingActionButton>(Resource.Id.downFAB).ImageTintList = ColorStateList.ValueOf(Color.White);
+                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.spNext).ImageTintList = ColorStateList.ValueOf(Color.White);
+                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.spPlay).ImageTintList = ColorStateList.ValueOf(Color.White);
+                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.spLast).ImageTintList = ColorStateList.ValueOf(Color.White);
             }
             else
             {
                 MainActivity.instance.FindViewById<FloatingActionButton>(Resource.Id.downFAB).ImageTintList = ColorStateList.ValueOf(Color.Black);
+                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.spNext).ImageTintList = ColorStateList.ValueOf(Color.Black);
+                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.spPlay).ImageTintList = ColorStateList.ValueOf(Color.Black);
+                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.spLast).ImageTintList = ColorStateList.ValueOf(Color.Black);
             }
         }
 
@@ -579,6 +594,8 @@ namespace MusicApp.Resources.Portable_Class
         private Activity context;
         private NestedScrollView sheet;
         private LinearLayout bottomLayer;
+        private FrameLayout smallPlayer;
+        private View playerView;
         private bool Refreshed = false;
         private SheetMovement movement = SheetMovement.Unknow;
 
@@ -587,6 +604,8 @@ namespace MusicApp.Resources.Portable_Class
             this.context = context;
             sheet = context.FindViewById<NestedScrollView>(Resource.Id.playerSheet);
             bottomLayer = context.FindViewById<LinearLayout>(Resource.Id.bottomLayer);
+            smallPlayer = context.FindViewById<FrameLayout>(Resource.Id.smallPlayer);
+            playerView = context.FindViewById(Resource.Id.playerView);
         }
 
         public override void OnSlide(View bottomSheet, float slideOffset)
@@ -602,10 +621,10 @@ namespace MusicApp.Resources.Portable_Class
             if(movement == SheetMovement.Expanding && 0 <= slideOffset && slideOffset <= 1)
             {
                 sheet.Alpha = 1;
-
-                //int defaultPadding = (int)(20 * context.Resources.DisplayMetrics.Density + 0.5f);
-                //sheet.SetPadding((int)(defaultPadding * (1 - slideOffset)), 0, (int)(defaultPadding * (1 - slideOffset)), 0);
                 bottomLayer.TranslationY = (int)((56 * context.Resources.DisplayMetrics.Density + 0.5f) * slideOffset);
+
+                playerView.Alpha = Math.Max(0, (slideOffset - 0.5f) * 2.5f);
+                smallPlayer.Alpha = Math.Max(0, 1 - slideOffset * 2);
 
                 if (!Refreshed && slideOffset > .3)
                 {
