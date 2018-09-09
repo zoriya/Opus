@@ -259,7 +259,6 @@
     <Compile Include="Resources\Portable Class\AccountPreference.cs" />
     <Compile Include="Resources\Portable Class\Adapter.cs" />
     <Compile Include="Resources\Portable Class\AudioStopper.cs" />
-    <Compile Include="Resources\Portable Class\BottomFollowBehavior.cs" />
     <Compile Include="Resources\Portable Class\Browse.cs" />
     <Compile Include="Resources\Portable Class\ChannelAdapter.cs" />
     <Compile Include="Resources\Portable Class\CircleTransformation.cs" />

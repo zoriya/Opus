@@ -5,7 +5,8 @@
   xmlns:tools="http://schemas.android.com/tools"
   android:fitsSystemWindows="true"
   android:layout_width="match_parent"
-  android:layout_height="fill_parent" >
+  android:layout_height="fill_parent"
+  android:id="@+id/root">
   <android.support.design.widget.CoordinatorLayout
     android:layout_width="fill_parent"
     android:layout_height="wrap_content" >
@@ -66,32 +67,21 @@
     </android.support.v4.widget.SwipeRefreshLayout>
   </android.support.design.widget.CoordinatorLayout>
   
-  <LinearLayout
-    android:orientation="vertical"
-    android:layout_gravity="bottom"
-    android:layout_height="wrap_content"
+  <android.support.design.widget.BottomNavigationView
+    android:id="@+id/bottomView"
     android:layout_width="match_parent"
-    android:id="@+id/bottomLayer" >
-    <android.support.design.widget.CoordinatorLayout
-      android:id="@+id/snackBar"
-      android:layout_height="16dp"
-      android:layout_width="match_parent"
-      android:visibility="gone" />
-    <android.support.design.widget.BottomNavigationView
-      android:id="@+id/bottomView"
-      android:layout_width="match_parent"
-      android:layout_height="56dp"
-      android:background="?attr/defaultColor"
-      android:elevation="12dp"
-      app:itemIconTint="@color/color_tint"
-      app:itemTextColor="@color/color_tint"
-      app:menu="@menu/bottom_items" />
-  </LinearLayout>
+    android:layout_height="56dp"
+    android:layout_gravity="bottom"
+    android:background="?attr/defaultColor"
+    android:elevation="12dp"
+    app:itemIconTint="@color/color_tint"
+    app:itemTextColor="@color/color_tint"
+    app:menu="@menu/bottom_items" />
 
   <android.support.design.widget.CoordinatorLayout
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    app:layout_anchor="@id/bottomLayer"
+    app:layout_anchor="@id/bottomView"
     app:layout_anchorGravity="top"
     android:layout_gravity="top" >
     <android.support.v4.widget.NestedScrollView
@@ -198,6 +188,15 @@
       </RelativeLayout>
     </android.support.v4.widget.NestedScrollView>
   </android.support.design.widget.CoordinatorLayout>
+  
+  <android.support.design.widget.CoordinatorLayout
+    android:id="@+id/snackBar"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    app:layout_anchor="@id/playerSheet"
+    app:layout_anchorGravity="top"
+    android:layout_gravity="top"
+    android:padding="10dp" />
 
   <LinearLayout
     android:layout_height="wrap_content"
@@ -205,7 +204,7 @@
     android:id="@+id/quickPlayLinear"
     android:orientation="vertical"
     android:padding="20dp"
-    app:layout_anchor="@id/playerSheet"
+    app:layout_anchor="@id/snackBar"
     app:layout_anchorGravity="top|end"
     android:layout_gravity="top|end" >
     <android.support.design.widget.FloatingActionButton

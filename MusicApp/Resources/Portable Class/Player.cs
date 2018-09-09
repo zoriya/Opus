@@ -493,10 +493,11 @@ namespace MusicApp.Resources.Portable_Class
     {
         private Activity context;
         private NestedScrollView sheet;
-        private LinearLayout bottomLayer;
+        private BottomNavigationView bottomView;
         private FrameLayout smallPlayer;
         private View playerView;
         private LinearLayout quickPlay;
+        private CoordinatorLayout snackBar;
         private bool Refreshed = false;
         private SheetMovement movement = SheetMovement.Unknow;
 
@@ -504,10 +505,11 @@ namespace MusicApp.Resources.Portable_Class
         {
             this.context = context;
             sheet = context.FindViewById<NestedScrollView>(Resource.Id.playerSheet);
-            bottomLayer = context.FindViewById<LinearLayout>(Resource.Id.bottomLayer);
+            bottomView = context.FindViewById<BottomNavigationView>(Resource.Id.bottomView);
             smallPlayer = context.FindViewById<FrameLayout>(Resource.Id.smallPlayer);
             playerView = context.FindViewById(Resource.Id.playerView);
             quickPlay = context.FindViewById<LinearLayout>(Resource.Id.quickPlayLinear);
+            snackBar = context.FindViewById<CoordinatorLayout>(Resource.Id.snackBar);
         }
 
         public override void OnSlide(View bottomSheet, float slideOffset)
@@ -523,12 +525,13 @@ namespace MusicApp.Resources.Portable_Class
             if(movement == SheetMovement.Expanding && 0 <= slideOffset && slideOffset <= 1)
             {
                 sheet.Alpha = 1;
-                bottomLayer.TranslationY = (int)((56 * context.Resources.DisplayMetrics.Density + 0.5f) * slideOffset);
+                bottomView.TranslationY = (int)((56 * context.Resources.DisplayMetrics.Density + 0.5f) * slideOffset);
 
                 playerView.Alpha = Math.Max(0, (slideOffset - 0.5f) * 2.5f);
                 smallPlayer.Alpha = Math.Max(0, 1 - slideOffset * 2);
                 quickPlay.ScaleX = Math.Max(0, 1 - slideOffset * 2);
                 quickPlay.ScaleY = Math.Max(0, 1 - slideOffset * 2);
+                snackBar.TranslationY = (int)((90 * context.Resources.DisplayMetrics.Density + 0.5f) * slideOffset);
 
                 if (!Refreshed && slideOffset > .3)
                 {

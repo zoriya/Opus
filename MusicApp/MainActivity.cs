@@ -111,6 +111,7 @@ namespace MusicApp
                 MusicPlayer.RetrieveQueueFromDataBase();
 
             SupportFragmentManager.BeginTransaction().Replace(Resource.Id.playerFrame, Player.instance ?? new Player()).Commit();
+            YoutubeEndPointChanged();
 
             if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
             {
@@ -909,7 +910,7 @@ namespace MusicApp
 
         public void ShowPlayer()
         {
-            FindViewById<LinearLayout>(Resource.Id.bottomLayer).TranslationY = (int)(56 * Resources.DisplayMetrics.Density + 0.5f);
+            FindViewById<BottomNavigationView>(Resource.Id.bottomView).TranslationY = (int)(56 * Resources.DisplayMetrics.Density + 0.5f);
             FindViewById(Resource.Id.playerView).Alpha = 1;
             FindViewById(Resource.Id.smallPlayer).Alpha = 0;
             FindViewById(Resource.Id.quickPlayLinear).ScaleX = 0;
@@ -993,6 +994,7 @@ namespace MusicApp
 
         public async void QuickPlay(object sender, EventArgs e)
         {
+            YoutubeEndPointChanged();
             FloatingActionButton quickPlay = FindViewById<FloatingActionButton>(Resource.Id.quickPlay);
             if (QuickPlayOpenned)
             {
@@ -1174,7 +1176,7 @@ namespace MusicApp
         public void YoutubeEndPointChanged()
         {
             FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
-            Snackbar.Make(FindViewById(Resource.Id.snackBar), "Youtube has changed his way to play video, service unvailable for some time.", (int)ToastLength.Long).Show();
+            Snackbar.Make(FindViewById(Resource.Id.snackBar), "The way youtube play video has changed, the app can't play this video now. Wait for the next update.", (int)ToastLength.Short).Show();
         }
 
         public int DpToPx(int dx)
