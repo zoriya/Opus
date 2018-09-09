@@ -67,7 +67,6 @@ namespace MusicApp
         public bool StateSaved = false;
 
         private Handler handler = new Handler();
-        private ProgressBar bar;
         private bool prepared = false;
         private bool searchDisplayed;
         private bool canSwitch = true;
@@ -864,7 +863,6 @@ namespace MusicApp
         public void PrepareSmallPlayer()
         {
             Player.instance.RefreshPlayer();
-            SetSmallPlayerProgressBar();
 
             if (!prepared)
             {
@@ -953,26 +951,6 @@ namespace MusicApp
                 LocalPlay(sender, new EventArgs());
         }
 
-        void SetSmallPlayerProgressBar()
-        {
-            bar = FindViewById<ProgressBar>(Resource.Id.spProgress);
-            bar.Max = MusicPlayer.Duration;
-            bar.Progress = MusicPlayer.CurrentPosition;
-            handler.PostDelayed(UpdateProgressBar, 1000);
-        }
-
-        private void UpdateProgressBar()
-        {
-            if (!MusicPlayer.isRunning)
-            {
-                handler.RemoveCallbacks(UpdateProgressBar);
-                return;
-            }
-
-            bar.Progress = MusicPlayer.CurrentPosition;
-            handler.PostDelayed(UpdateProgressBar, 1000);
-        }
-
         public void HideSmallPlayer()
         {
             FindViewById<FrameLayout>(Resource.Id.contentView).SetPadding(0, 0, 0, 0);
@@ -983,11 +961,9 @@ namespace MusicApp
 
         public void ShowSmallPlayer()
         {
-            Console.WriteLine("&Show small player");
             FindViewById(Resource.Id.playerView).Alpha = 0;
             Player.instance.RefreshPlayer();
             FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Visible;
-            Console.WriteLine("&Showing small player");
             FindViewById<FrameLayout>(Resource.Id.contentView).SetPadding(0, 0, 0, DpToPx(70));
         }
 

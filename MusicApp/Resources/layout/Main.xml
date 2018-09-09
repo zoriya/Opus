@@ -189,7 +189,7 @@
             android:layout_width="match_parent"
             android:layout_height="3dp"
             android:layout_alignParentTop="true"
-            android:progress="25"/>
+            android:progress="0"/>
         </FrameLayout>
         <FrameLayout
           android:id="@+id/playerFrame"
