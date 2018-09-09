@@ -954,9 +954,8 @@ namespace MusicApp
         public void HideSmallPlayer()
         {
             FindViewById<FrameLayout>(Resource.Id.contentView).SetPadding(0, 0, 0, 0);
-            FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Gone;
+            FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Invisible;
             FindViewById<NestedScrollView>(Resource.Id.playerSheet).Alpha = 1;
-            SheetBehavior.State = BottomSheetBehavior.StateCollapsed;
         }
 
         public void ShowSmallPlayer()
