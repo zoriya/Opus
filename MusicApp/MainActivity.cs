@@ -48,7 +48,7 @@ namespace MusicApp
     [IntentFilter(new[] {Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, DataHost = "www.youtube.com", DataMimeType = "text/*")]
     [IntentFilter(new[] {Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, DataHost = "m.youtube.com", DataMimeType = "text/plain")]
     [IntentFilter(new[] { Intent.ActionView }, Categories = new[] { Intent.CategoryDefault }, DataMimeTypes = new[] { "audio/*", "application/ogg", "application/x-ogg", "application/itunes" })]
-    public class MainActivity : AppCompatActivity, ViewPager.IOnPageChangeListener, GoogleApiClient.IOnConnectionFailedListener, Square.OkHttp.ICallback, IResultCallback, IMenuItemOnActionExpandListener, View.IOnFocusChangeListener
+    public class MainActivity : AppCompatActivity, ViewPager.IOnPageChangeListener, GoogleApiClient.IOnConnectionFailedListener, ICallback, IResultCallback, IMenuItemOnActionExpandListener, View.IOnFocusChangeListener
     {
         public static MainActivity instance;
         public new static int Theme = 1;
@@ -66,7 +66,6 @@ namespace MusicApp
         public bool paused = false;
         public bool StateSaved = false;
 
-        private Handler handler = new Handler();
         private bool prepared = false;
         private bool searchDisplayed;
         private bool canSwitch = true;
@@ -111,7 +110,7 @@ namespace MusicApp
             if (!MusicPlayer.isRunning)
                 MusicPlayer.RetrieveQueueFromDataBase();
 
-            SupportFragmentManager.BeginTransaction().Replace(Resource.Id.playerFrame, new Player()).Commit();
+            SupportFragmentManager.BeginTransaction().Replace(Resource.Id.playerFrame, Player.instance ?? new Player()).Commit();
 
             if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
             {
@@ -131,12 +130,7 @@ namespace MusicApp
             else
                 Navigate(Resource.Id.musicLayout);
 
-            if (Intent.Action == "Player")
-            {
-                ShowPlayer();
-                Player.instance.RefreshPlayer();
-            }
-            else if (Intent.Action == Intent.ActionSend)
+            if (Intent.Action == Intent.ActionSend)
             {
                 if (YoutubeClient.TryParseVideoId(Intent.GetStringExtra(Intent.ExtraText), out string videoID))
                 {
@@ -152,32 +146,42 @@ namespace MusicApp
                     Finish();
                 }
             }
-            else if (Intent.Action == Intent.ActionView)
+
+            CheckForUpdate(this, false);
+            OnLateCreate(Intent);
+        }
+
+        private async void OnLateCreate(Intent intent, bool lateSetup = true)
+        {
+            if (lateSetup)
             {
-                Intent intent = new Intent(this, typeof(MusicPlayer));
-                intent.PutExtra("file", Intent.Data.ToString());
-                StartService(intent);
+                await Task.Delay(100);
+                SheetBehavior = BottomSheetBehavior.From(FindViewById(Resource.Id.playerSheet));
+                SheetBehavior.State = BottomSheetBehavior.StateCollapsed;
+                SheetBehavior.Hideable = true;
+                SheetBehavior.SetBottomSheetCallback(new PlayerCallback(this));
+                SheetBehavior.PeekHeight = DpToPx(70);
+            }
+
+            if(intent.Action == "Sleep")
+            {
+                ShowPlayer();
+                Player.instance.SleepButton_Click("", null);
+            }
+            else if (intent.Action == "Player")
+            {
+                ShowPlayer();
+                Player.instance.RefreshPlayer();
+            }
+            else if (intent.Action == Intent.ActionView)
+            {
+                Intent inte = new Intent(this, typeof(MusicPlayer));
+                inte.PutExtra("file", Intent.Data.ToString());
+                StartService(inte);
 
                 ShowSmallPlayer();
                 ShowPlayer();
             }
-            else if (Intent.Action == "Sleep")
-            {
-                Player.instance.SleepButton_Click("", null);
-            }
-
-            CheckForUpdate(this, false);
-            OnLateCreate();
-        }
-
-        private async void OnLateCreate()
-        {
-            await Task.Delay(100);
-            SheetBehavior = BottomSheetBehavior.From(FindViewById(Resource.Id.playerSheet));
-            SheetBehavior.State = BottomSheetBehavior.StateCollapsed;
-            SheetBehavior.Hideable = true;
-            SheetBehavior.SetBottomSheetCallback(new PlayerCallback(this));
-            SheetBehavior.PeekHeight = DpToPx(70);
         }
 
         public void SwitchTheme(int themeID)
@@ -906,6 +910,10 @@ namespace MusicApp
         public void ShowPlayer()
         {
             FindViewById<LinearLayout>(Resource.Id.bottomLayer).TranslationY = (int)(56 * Resources.DisplayMetrics.Density + 0.5f);
+            FindViewById(Resource.Id.playerView).Alpha = 1;
+            FindViewById(Resource.Id.smallPlayer).Alpha = 0;
+            FindViewById(Resource.Id.quickPlayLinear).ScaleX = 0;
+            FindViewById(Resource.Id.quickPlayLinear).ScaleY = 0;
             SheetBehavior.State = BottomSheetBehavior.StateExpanded;
         }
 
@@ -1391,6 +1399,12 @@ namespace MusicApp
         {
             StateSaved = true;
             base.OnSaveInstanceState(outState);
+        }
+
+        protected override void OnNewIntent(Intent intent)
+        {
+            base.OnNewIntent(intent);
+            OnLateCreate(intent, false);
         }
     }
 }
