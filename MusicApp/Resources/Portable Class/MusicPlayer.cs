@@ -763,7 +763,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public static void RetrieveQueueFromDataBase()
         {
-            Task.Run(() =>
+            Task.Run(/*async*/ () =>
             {
                 SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "Queue.sqlite"));
                 db.CreateTable<Song>();
@@ -772,7 +772,8 @@ namespace MusicApp.Resources.Portable_Class
                 if (queue != null && queue.Count > 0)
                 {
                     currentID = RetrieveQueueSlot();
-                    MainActivity.instance.ShowSmallPlayer();
+                    //await Task.Delay(1000);
+                    MainActivity.instance.RunOnUiThread(() => { MainActivity.instance.ShowSmallPlayer(); });
                 }
             });
         }

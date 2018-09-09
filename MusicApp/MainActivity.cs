@@ -51,7 +51,6 @@ namespace MusicApp
     public class MainActivity : AppCompatActivity, ViewPager.IOnPageChangeListener, GoogleApiClient.IOnConnectionFailedListener, Square.OkHttp.ICallback, IResultCallback, IMenuItemOnActionExpandListener, View.IOnFocusChangeListener
     {
         public static MainActivity instance;
-        public static int paddingBot = 0;
         public new static int Theme = 1;
         public static int dialogTheme;
         public static IParcelable parcelable;
@@ -131,12 +130,9 @@ namespace MusicApp
             if (MusicPlayer.queue.Count > 0)
                 ReCreateSmallPlayer();
             else
-            {
-                paddingBot = DpToPx(56);
                 Navigate(Resource.Id.musicLayout);
-            }
 
-            if(Intent.Action == "Player")
+            if (Intent.Action == "Player")
             {
                 ShowPlayer();
                 Player.instance.RefreshPlayer();
@@ -979,7 +975,7 @@ namespace MusicApp
 
         public void HideSmallPlayer()
         {
-            ((CoordinatorLayout.LayoutParams)FindViewById<SwipeRefreshLayout>(Resource.Id.contentRefresh).LayoutParameters).BottomMargin = DpToPx(56);
+            FindViewById<FrameLayout>(Resource.Id.contentView).SetPadding(0, 0, 0, 0);
             FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Gone;
             FindViewById<NestedScrollView>(Resource.Id.playerSheet).Alpha = 1;
             SheetBehavior.State = BottomSheetBehavior.StateCollapsed;
@@ -987,11 +983,12 @@ namespace MusicApp
 
         public void ShowSmallPlayer()
         {
+            Console.WriteLine("&Show small player");
             FindViewById(Resource.Id.playerView).Alpha = 0;
             Player.instance.RefreshPlayer();
             FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Visible;
-            ((CoordinatorLayout.LayoutParams)FindViewById<SwipeRefreshLayout>(Resource.Id.contentRefresh).LayoutParameters).BottomMargin = DpToPx(126);
-            FindViewById<SwipeRefreshLayout>(Resource.Id.contentRefresh).RequestLayout();
+            Console.WriteLine("&Showing small player");
+            FindViewById<FrameLayout>(Resource.Id.contentView).SetPadding(0, 0, 0, DpToPx(70));
         }
 
         public void ShowQuickPlay()
