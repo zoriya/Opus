@@ -596,6 +596,7 @@ namespace MusicApp.Resources.Portable_Class
         private LinearLayout bottomLayer;
         private FrameLayout smallPlayer;
         private View playerView;
+        private LinearLayout quickPlay;
         private bool Refreshed = false;
         private SheetMovement movement = SheetMovement.Unknow;
 
@@ -606,6 +607,7 @@ namespace MusicApp.Resources.Portable_Class
             bottomLayer = context.FindViewById<LinearLayout>(Resource.Id.bottomLayer);
             smallPlayer = context.FindViewById<FrameLayout>(Resource.Id.smallPlayer);
             playerView = context.FindViewById(Resource.Id.playerView);
+            quickPlay = context.FindViewById<LinearLayout>(Resource.Id.quickPlayLinear);
         }
 
         public override void OnSlide(View bottomSheet, float slideOffset)
@@ -625,6 +627,8 @@ namespace MusicApp.Resources.Portable_Class
 
                 playerView.Alpha = Math.Max(0, (slideOffset - 0.5f) * 2.5f);
                 smallPlayer.Alpha = Math.Max(0, 1 - slideOffset * 2);
+                quickPlay.ScaleX = Math.Max(0, 1 - slideOffset * 2);
+                quickPlay.ScaleY = Math.Max(0, 1 - slideOffset * 2);
 
                 if (!Refreshed && slideOffset > .3)
                 {

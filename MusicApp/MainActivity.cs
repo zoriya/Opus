@@ -30,7 +30,6 @@ using MusicApp.Resources.Portable_Class;
 using MusicApp.Resources.values;
 using Newtonsoft.Json.Linq;
 using Square.OkHttp;
-using Square.Picasso;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -57,8 +56,6 @@ namespace MusicApp
         public static int dialogTheme;
         public static IParcelable parcelable;
         public static string parcelableSender;
-        //public static IParcelable youtubeParcel;
-        //public static string youtubeInstanceSave;
 
         public Android.Support.V7.Widget.Toolbar ToolBar;
         public bool NoToolbarMenu = false;
@@ -66,7 +63,6 @@ namespace MusicApp
         public ViewPager viewPager;
         public SwipeRefreshLayout contentRefresh;
         public bool usePager;
-        public View quickPlayLayout;
         public bool HomeDetails = false;
         public bool paused = false;
         public bool StateSaved = false;
@@ -983,10 +979,10 @@ namespace MusicApp
 
         public void HideSmallPlayer()
         {
-            //CardView smallPlayer = FindViewById<CardView>(Resource.Id.smallPlayer);
-            //NestedScrollView parent = FindViewById<NestedScrollView>(Resource.Id.playerSheet);
-            //bool hasChanged = parent.Visibility != ViewStates.Gone;
-            //parent.Visibility = ViewStates.Gone;
+            ((CoordinatorLayout.LayoutParams)FindViewById<SwipeRefreshLayout>(Resource.Id.contentRefresh).LayoutParameters).BottomMargin = DpToPx(56);
+            FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Gone;
+            FindViewById<NestedScrollView>(Resource.Id.playerSheet).Alpha = 1;
+            SheetBehavior.State = BottomSheetBehavior.StateCollapsed;
         }
 
         public void ShowSmallPlayer()
@@ -994,32 +990,25 @@ namespace MusicApp
             FindViewById(Resource.Id.playerView).Alpha = 0;
             Player.instance.RefreshPlayer();
             FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Visible;
+            ((CoordinatorLayout.LayoutParams)FindViewById<SwipeRefreshLayout>(Resource.Id.contentRefresh).LayoutParameters).BottomMargin = DpToPx(126);
+            FindViewById<SwipeRefreshLayout>(Resource.Id.contentRefresh).RequestLayout();
         }
 
         public void ShowQuickPlay()
         {
-            if(quickPlayLayout != null)
+            LinearLayout quickPlayLayout = FindViewById<LinearLayout>(Resource.Id.quickPlayLinear);
+            quickPlayLayout.FindViewById<LinearLayout>(Resource.Id.quickPlayLinear).Animate().Alpha(1);
+            if (!quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.quickPlay).HasOnClickListeners)
             {
-                quickPlayLayout.FindViewById<LinearLayout>(Resource.Id.quickPlayLinear).Animate().Alpha(1);
-                return;
+                quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.quickPlay).Click += QuickPlay;
+                quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.localPlay).Click += LocalPlay;
+                quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.ytPlay).Click += YtPlay;
             }
-            quickPlayLayout = LayoutInflater.Inflate(Resource.Layout.QuickPlayLayout, null);
-            ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
-            AddContentView(quickPlayLayout, rootView.LayoutParameters);
-            quickPlayLayout.SetPadding(0, 0, 0, paddingBot + DpToPx(20));
-            quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.quickPlay).Click += QuickPlay;
-            quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.localPlay).Click += LocalPlay;
-            quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.ytPlay).Click += YtPlay;
         }
 
         public void HideQuickPlay()
         {
-            quickPlayLayout.FindViewById<LinearLayout>(Resource.Id.quickPlayLinear).Animate().Alpha(0);
-        }
-
-        private void QuickPlayChangePosition(object sender, PaddingChange e)
-        {
-            quickPlayLayout.FindViewById<LinearLayout>(Resource.Id.quickPlayLinear).Animate().TranslationYBy(-(paddingBot - e.oldPadding));
+            FindViewById<LinearLayout>(Resource.Id.quickPlayLinear).Animate().Alpha(0);
         }
 
         public async void QuickPlay(object sender, EventArgs e)
@@ -1032,12 +1021,12 @@ namespace MusicApp
                 drawable.Start();
                 QuickPlayOpenned = false;
                 await Task.Delay(10);
-                quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.ytPlay).Animate().Alpha(0);
+                FindViewById<FloatingActionButton>(Resource.Id.ytPlay).Animate().Alpha(0);
                 await Task.Delay(10);
-                quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.localPlay).Visibility = ViewStates.Gone;
-                quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.ytPlay).Animate().Alpha(0);
+                FindViewById<FloatingActionButton>(Resource.Id.localPlay).Visibility = ViewStates.Gone;
+                FindViewById<FloatingActionButton>(Resource.Id.ytPlay).Animate().Alpha(0);
                 await Task.Delay(10);
-                quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.ytPlay).Visibility = ViewStates.Gone;
+                FindViewById<FloatingActionButton>(Resource.Id.ytPlay).Visibility = ViewStates.Gone;
             }
             else
             {
@@ -1046,13 +1035,13 @@ namespace MusicApp
                 drawable.Start();
                 QuickPlayOpenned = true;
                 await Task.Delay(10);
-                quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.ytPlay).Alpha = 0;
-                quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.ytPlay).Visibility = ViewStates.Visible;
-                quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.ytPlay).Animate().Alpha(1);
+                FindViewById<FloatingActionButton>(Resource.Id.ytPlay).Alpha = 0;
+                FindViewById<FloatingActionButton>(Resource.Id.ytPlay).Visibility = ViewStates.Visible;
+                FindViewById<FloatingActionButton>(Resource.Id.ytPlay).Animate().Alpha(1);
                 await Task.Delay(10);
-                quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.localPlay).Alpha = 0;
-                quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.localPlay).Visibility = ViewStates.Visible;
-                quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.localPlay).Animate().Alpha(1);
+                FindViewById<FloatingActionButton>(Resource.Id.localPlay).Alpha = 0;
+                FindViewById<FloatingActionButton>(Resource.Id.localPlay).Visibility = ViewStates.Visible;
+                FindViewById<FloatingActionButton>(Resource.Id.localPlay).Animate().Alpha(1);
             }
         }
 
