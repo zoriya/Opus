@@ -680,7 +680,7 @@ namespace MusicApp.Resources.Portable_Class
                     //AddToSection
                     if (section.ContentDetails.Playlists.Contains(playlistID))
                     {
-                        Snackbar.Make(MainActivity.instance.FindViewById<View>(Resource.Id.snackBar), "You've already added this playlist.", 1).Show();
+                        Snackbar.Make(MainActivity.instance.FindViewById<CoordinatorLayout>(Resource.Id.snackBar), "You've already added this playlist.", 1).Show();
                         return;
                     }
                     else

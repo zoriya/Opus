@@ -157,6 +157,13 @@ namespace MusicApp
             if (lateSetup)
             {
                 await Task.Delay(100);
+                //Console.WriteLine("&Root height: " + FindViewById(Resource.Id.rootCoordinator).Height);
+                ////((View)FindViewById(Resource.Id.playerSheet).Parent.Parent).LayoutParameters.Height = FindViewById(Resource.Id.rootCoordinator).Height;
+                //((View)FindViewById(Resource.Id.playerSheet).Parent).LayoutParameters.Height = FindViewById(Resource.Id.rootCoordinator).Height + DpToPx(56);
+                //FindViewById(Resource.Id.playerSheet).LayoutParameters.Height = FindViewById(Resource.Id.rootCoordinator).Height;
+                //FindViewById(Resource.Id.playerSheet).Invalidate();
+                //FindViewById(Resource.Id.playerSheet).RequestLayout();
+                //Console.WriteLine("&Player height: " + FindViewById(Resource.Id.playerSheet).Height);
                 SheetBehavior = BottomSheetBehavior.From(FindViewById(Resource.Id.playerSheet));
                 SheetBehavior.State = BottomSheetBehavior.StateCollapsed;
                 SheetBehavior.Hideable = true;
@@ -940,9 +947,9 @@ namespace MusicApp
                         PremissionAuthorized();
                     else
                     {
-                        ((Snackbar)Snackbar.Make(FindViewById<View>(Resource.Id.snackBar), "Permission denied, can't list musics.", Snackbar.LengthLong)
+                        Snackbar.Make(FindViewById<CoordinatorLayout>(Resource.Id.snackBar), "Permission denied, can't list musics.", Snackbar.LengthLong)
                             .SetAction("Ask Again", (v) => { GetStoragePermission(); })
-                            ).Show();
+                            .Show();
                     }
                 }
             }
@@ -1062,8 +1069,8 @@ namespace MusicApp
                 
                 if(paths.Count == 0)
                 {
-                    ((Snackbar)Snackbar.Make(FindViewById<View>(Resource.Id.snackBar), "No music file found on this device. Can't create a mix.", Snackbar.LengthLong)
-                        ).Show();
+                    Snackbar.Make(FindViewById<CoordinatorLayout>(Resource.Id.snackBar), "No music file found on this device. Can't create a mix.", Snackbar.LengthLong)
+                        .Show();
                     return;
                 }
 
@@ -1086,13 +1093,13 @@ namespace MusicApp
                     ShowPlayer();
                 }
                 else
-                    ((Snackbar)Snackbar.Make(FindViewById<View>(Resource.Id.snackBar), "No playlist set on setting.", Snackbar.LengthLong)
+                    Snackbar.Make(FindViewById<View>(Resource.Id.snackBar), "No playlist set on setting.", Snackbar.LengthLong)
                         .SetAction("Set it now", (v) => 
                         {
                             Intent intent = new Intent(Application.Context, typeof(Preferences));
                             StartActivity(intent);
                         })
-                        ).Show();
+                        .Show();
             }
         }
 
