@@ -1119,7 +1119,7 @@ namespace MusicApp
                 }
 
                 QuickPlay(this, e);
-                Toast.MakeText(this, "This button create a playlist based on the youtube file your actually watching, it won't work if your not playing a youtube audio", ToastLength.Long).Show();
+                Snackbar.Make(FindViewById(Resource.Id.snackBar), "You need to be playing a youtube song in order to create a mix.", Snackbar.LengthLong).Show();
                 return;
             }
 
@@ -1132,7 +1132,7 @@ namespace MusicApp
 
             if(!await WaitForYoutube())
             {
-                Toast.MakeText(this, "Error while loading.\nCheck your internet connection and check if your logged in.", ToastLength.Long).Show();
+                Snackbar.Make(FindViewById(Resource.Id.snackBar), "Error while loading. Check your internet connection and check if your logged in.", Snackbar.LengthShort).Show();
                 return;
             }
 
@@ -1185,13 +1185,12 @@ namespace MusicApp
         public void YoutubeEndPointChanged()
         {
             FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
-            Snackbar.Make(FindViewById(Resource.Id.snackBar), "The way youtube play video has changed, the app can't play this video now. Wait for the next update.", (int)ToastLength.Short).Show();
+            Snackbar.Make(FindViewById(Resource.Id.snackBar), "The way youtube play video has changed, the app can't play this video now. Wait for the next update.", Snackbar.LengthShort).Show();
         }
 
         public void Timout()
         {
-            Console.WriteLine("&Timout");
-            Snackbar.Make(FindViewById(Resource.Id.snackBar), "Timout exception, check if you're still connected to internet.", (int)ToastLength.Short).Show();
+            Snackbar.Make(FindViewById(Resource.Id.snackBar), "Timout exception, check if you're still connected to internet.", Snackbar.LengthShort).Show();
         }
 
         public int DpToPx(int dx)
@@ -1215,7 +1214,12 @@ namespace MusicApp
             if(!HasInternet())
             {
                 if (displayToast)
-                    Toast.MakeText(Application.Context, "You are not connected to internet, can't check for updates.", ToastLength.Short).Show();
+                {
+                    if (instance != null)
+                        Snackbar.Make(instance.FindViewById(Resource.Id.snackBar), "You are not connected to internet, can't check for updates.", Snackbar.LengthShort).Show();
+                    else
+                        Toast.MakeText(Application.Context, "You are not connected to internet, can't check for updates.", ToastLength.Short).Show();
+                }
                 return;
             }
 
@@ -1257,7 +1261,10 @@ namespace MusicApp
             }
             else if(displayToast)
             {
-                Toast.MakeText(Application.Context, "Your app is up to date.", ToastLength.Short).Show();
+                if (instance != null)
+                    Snackbar.Make(instance.FindViewById(Resource.Id.snackBar), "Your app is up to date.", Snackbar.LengthShort).Show();
+                else
+                    Toast.MakeText(Application.Context, "Your app is up to date.", ToastLength.Short).Show();
             }
         }
 
