@@ -56,40 +56,54 @@ namespace MusicApp.Resources.Portable_Class
             string nextPageToken = "";
             while (nextPageToken != null)
             {
-                YouTubeService youtube = YoutubeEngine.youtubeService;
-                SubscriptionsResource.ListRequest request = youtube.Subscriptions.List("snippet,contentDetails");
-                request.ChannelId = "UCRPb0XKQwDoHbgvtawH-gGw";
-                request.MaxResults = 50;
-                request.PageToken = nextPageToken;
-
-                SubscriptionListResponse response = await request.ExecuteAsync();
-
-                foreach (var item in response.Items)
+                try
                 {
-                    Song channel = new Song(item.Snippet.Title.Substring(0, item.Snippet.Title.IndexOf(" - Topic")), item.Snippet.Description, item.Snippet.Thumbnails.Default__.Url, item.Snippet.ResourceId.ChannelId, -1, -1, null, true);
-                    channelList.Add(channel);
-                }
+                    YouTubeService youtube = YoutubeEngine.youtubeService;
+                    SubscriptionsResource.ListRequest request = youtube.Subscriptions.List("snippet,contentDetails");
+                    request.ChannelId = "UCRPb0XKQwDoHbgvtawH-gGw";
+                    request.MaxResults = 50;
+                    request.PageToken = nextPageToken;
 
-                nextPageToken = response.NextPageToken;
+                    SubscriptionListResponse response = await request.ExecuteAsync();
+
+                    foreach (var item in response.Items)
+                    {
+                        Song channel = new Song(item.Snippet.Title.Substring(0, item.Snippet.Title.IndexOf(" - Topic")), item.Snippet.Description, item.Snippet.Thumbnails.Default__.Url, item.Snippet.ResourceId.ChannelId, -1, -1, null, true);
+                        channelList.Add(channel);
+                    }
+
+                    nextPageToken = response.NextPageToken;
+                }
+                catch (System.Net.Http.HttpRequestException)
+                {
+                    MainActivity.instance.Timout();
+                }
             }
 
             List<string> topicList = channelList.ConvertAll(x => x.youtubeID);
             foreach (string channelID in selectedTopicsID.Except(topicList))
             {
-                YouTubeService youtube = YoutubeEngine.youtubeService;
-
-                ChannelsResource.ListRequest req = youtube.Channels.List("snippet");
-                req.Id = channelID;
-
-                ChannelListResponse resp = await req.ExecuteAsync();
-
-                foreach (var ytItem in resp.Items)
+                try
                 {
-                    Song channel = new Song(ytItem.Snippet.Title.Contains(" - Topic") ? ytItem.Snippet.Title.Substring(0, ytItem.Snippet.Title.IndexOf(" - Topic")) : ytItem.Snippet.Title, "", ytItem.Snippet.Thumbnails.Default__.Url, channelID, -1, -1, null, true);
-                    channelList.Add(channel);
+                    YouTubeService youtube = YoutubeEngine.youtubeService;
 
-                    if (instance == null)
-                        return;
+                    ChannelsResource.ListRequest req = youtube.Channels.List("snippet");
+                    req.Id = channelID;
+
+                    ChannelListResponse resp = await req.ExecuteAsync();
+
+                    foreach (var ytItem in resp.Items)
+                    {
+                        Song channel = new Song(ytItem.Snippet.Title.Contains(" - Topic") ? ytItem.Snippet.Title.Substring(0, ytItem.Snippet.Title.IndexOf(" - Topic")) : ytItem.Snippet.Title, "", ytItem.Snippet.Thumbnails.Default__.Url, channelID, -1, -1, null, true);
+                        channelList.Add(channel);
+
+                        if (instance == null)
+                            return;
+                    }
+                }
+                catch (System.Net.Http.HttpRequestException)
+                {
+                    MainActivity.instance.Timout();
                 }
             }
             channels = channelList.OrderBy(x => x.Title).ToList();

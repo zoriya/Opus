@@ -128,9 +128,13 @@ namespace MusicApp.Resources.Portable_Class
                 if (queue.Count != 0)
                     DownloadAudio(queue[0], path);
             }
-            catch (YoutubeExplode.Exceptions.ParseException)
+            catch (System.Exception ex)
             {
-                MainActivity.instance.YoutubeEndPointChanged();
+                if (ex is YoutubeExplode.Exceptions.ParseException)
+                    MainActivity.instance.YoutubeEndPointChanged();
+                else if (ex is System.Net.Http.HttpRequestException)
+                    MainActivity.instance.Timout();
+
                 return;
             }
         }

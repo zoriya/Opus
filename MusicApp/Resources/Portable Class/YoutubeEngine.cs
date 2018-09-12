@@ -563,7 +563,14 @@ namespace MusicApp.Resources.Portable_Class
 
         public static async void RemoveFromPlaylist(string videoID)
         {
-            await youtubeService.PlaylistItems.Delete(videoID).ExecuteAsync();
+            try
+            {
+                await youtubeService.PlaylistItems.Delete(videoID).ExecuteAsync();
+            }
+            catch (System.Net.Http.HttpRequestException)
+            {
+                MainActivity.instance.Timout();
+            }
         }
 
         public static async void GetPlaylists(string videoID, Context context)
@@ -579,17 +586,23 @@ namespace MusicApp.Resources.Portable_Class
             playList.Add("Create a playlist");
             playListId.Add("newPlaylist");
 
-
-            PlaylistsResource.ListRequest ytPlaylists = youtubeService.Playlists.List("snippet,contentDetails");
-            ytPlaylists.Mine = true;
-            ytPlaylists.MaxResults = 25;
-            PlaylistListResponse response = await ytPlaylists.ExecuteAsync();
-
-            for (int i = 0; i < response.Items.Count; i++)
+            try
             {
-                Google.Apis.YouTube.v3.Data.Playlist playlist = response.Items[i];
-                playList.Add(playlist.Snippet.Title);
-                playListId.Add(playlist.Id);
+                PlaylistsResource.ListRequest ytPlaylists = youtubeService.Playlists.List("snippet,contentDetails");
+                ytPlaylists.Mine = true;
+                ytPlaylists.MaxResults = 25;
+                PlaylistListResponse response = await ytPlaylists.ExecuteAsync();
+
+                for (int i = 0; i < response.Items.Count; i++)
+                {
+                    Google.Apis.YouTube.v3.Data.Playlist playlist = response.Items[i];
+                    playList.Add(playlist.Snippet.Title);
+                    playListId.Add(playlist.Id);
+                }
+            }
+            catch (System.Net.Http.HttpRequestException)
+            {
+                MainActivity.instance.Timout();
             }
 
             AlertDialog.Builder builder = new AlertDialog.Builder(context, MainActivity.dialogTheme);
@@ -618,52 +631,66 @@ namespace MusicApp.Resources.Portable_Class
             }
             else
             {
-                PlaylistItem playlistItem = new PlaylistItem();
-                PlaylistItemSnippet snippet = new PlaylistItemSnippet
+                try
                 {
-                    PlaylistId = playlistID
+                    PlaylistItem playlistItem = new PlaylistItem();
+                    PlaylistItemSnippet snippet = new PlaylistItemSnippet
+                    {
+                        PlaylistId = playlistID
+                    };
+                    ResourceId resourceId = new ResourceId
+                    {
+                        Kind = "youtube#video",
+                        VideoId = videoID
+                    };
+                    snippet.ResourceId = resourceId;
+                    playlistItem.Snippet = snippet;
+
+                    var insertRequest = youtubeService.PlaylistItems.Insert(playlistItem, "snippet");
+                    insertRequest.Execute();
+                }
+                catch (System.Net.Http.HttpRequestException)
+                {
+                    MainActivity.instance.Timout();
+                }
+            }
+        }
+
+        public async static void NewPlaylist(string playlistName, string videoID)
+        {
+            try
+            {
+                Google.Apis.YouTube.v3.Data.Playlist playlist = new Google.Apis.YouTube.v3.Data.Playlist();
+                PlaylistSnippet snippet = new PlaylistSnippet();
+                PlaylistStatus status = new PlaylistStatus();
+                snippet.Title = playlistName;
+                playlist.Snippet = snippet;
+                playlist.Status = status;
+
+                var createRequest = youtubeService.Playlists.Insert(playlist, "snippet, status");
+                Google.Apis.YouTube.v3.Data.Playlist response = await createRequest.ExecuteAsync();
+
+
+                PlaylistItem playlistItem = new PlaylistItem();
+                PlaylistItemSnippet snippetItem = new PlaylistItemSnippet
+                {
+                    PlaylistId = response.Id
                 };
                 ResourceId resourceId = new ResourceId
                 {
                     Kind = "youtube#video",
                     VideoId = videoID
                 };
-                snippet.ResourceId = resourceId;
-                playlistItem.Snippet = snippet;
+                snippetItem.ResourceId = resourceId;
+                playlistItem.Snippet = snippetItem;
 
                 var insertRequest = youtubeService.PlaylistItems.Insert(playlistItem, "snippet");
-                insertRequest.Execute();
+                insertRequest.ExecuteAsync();
             }
-        }
-
-        public static void NewPlaylist(string playlistName, string videoID)
-        {
-            Google.Apis.YouTube.v3.Data.Playlist playlist = new Google.Apis.YouTube.v3.Data.Playlist();
-            PlaylistSnippet snippet = new PlaylistSnippet();
-            PlaylistStatus status = new PlaylistStatus();
-            snippet.Title = playlistName;
-            playlist.Snippet = snippet;
-            playlist.Status = status;
-
-            var createRequest = youtubeService.Playlists.Insert(playlist, "snippet, status");
-            Google.Apis.YouTube.v3.Data.Playlist response = createRequest.Execute();
-
-
-            PlaylistItem playlistItem = new PlaylistItem();
-            PlaylistItemSnippet snippetItem = new PlaylistItemSnippet
+            catch (System.Net.Http.HttpRequestException)
             {
-                PlaylistId = response.Id
-            };
-            ResourceId resourceId = new ResourceId
-            {
-                Kind = "youtube#video",
-                VideoId = videoID
-            };
-            snippetItem.ResourceId = resourceId;
-            playlistItem.Snippet = snippetItem;
-
-            var insertRequest = youtubeService.PlaylistItems.Insert(playlistItem, "snippet");
-            insertRequest.Execute();
+                MainActivity.instance.Timout();
+            }
         }
 
         public static async Task ForkPlaylist(string playlistID)
@@ -685,9 +712,16 @@ namespace MusicApp.Resources.Portable_Class
                     }
                     else
                     {
-                        section.ContentDetails.Playlists.Add(playlistID);
-                        ChannelSectionsResource.UpdateRequest request = youtubeService.ChannelSections.Update(section, "snippet,contentDetails");
-                        ChannelSection response = await request.ExecuteAsync();
+                        try
+                        {
+                            section.ContentDetails.Playlists.Add(playlistID);
+                            ChannelSectionsResource.UpdateRequest request = youtubeService.ChannelSections.Update(section, "snippet,contentDetails");
+                            ChannelSection response = await request.ExecuteAsync();
+                        }
+                        catch (System.Net.Http.HttpRequestException)
+                        {
+                            MainActivity.instance.Timout();
+                        }
                         return;
                     }
                 }
@@ -711,32 +745,39 @@ namespace MusicApp.Resources.Portable_Class
 
         public static async void RandomPlay(string playlistID)
         {
-            List<Song> tracks = new List<Song>();
-            string nextPageToken = "";
-            while (nextPageToken != null)
+            try
             {
-                var ytPlaylistRequest = youtubeService.PlaylistItems.List("snippet, contentDetails");
-                ytPlaylistRequest.PlaylistId = playlistID;
-                ytPlaylistRequest.MaxResults = 50;
-                ytPlaylistRequest.PageToken = nextPageToken;
-
-                var ytPlaylist = await ytPlaylistRequest.ExecuteAsync();
-
-                foreach (var item in ytPlaylist.Items)
+                List<Song> tracks = new List<Song>();
+                string nextPageToken = "";
+                while (nextPageToken != null)
                 {
-                    if (item.Snippet.Title != "[Deleted video]" && item.Snippet.Title != "Private video" && item.Snippet.Title != "Deleted video")
+                    var ytPlaylistRequest = youtubeService.PlaylistItems.List("snippet, contentDetails");
+                    ytPlaylistRequest.PlaylistId = playlistID;
+                    ytPlaylistRequest.MaxResults = 50;
+                    ytPlaylistRequest.PageToken = nextPageToken;
+
+                    var ytPlaylist = await ytPlaylistRequest.ExecuteAsync();
+
+                    foreach (var item in ytPlaylist.Items)
                     {
-                        Song song = new Song(item.Snippet.Title, "", item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
-                        tracks.Add(song);
+                        if (item.Snippet.Title != "[Deleted video]" && item.Snippet.Title != "Private video" && item.Snippet.Title != "Deleted video")
+                        {
+                            Song song = new Song(item.Snippet.Title, "", item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
+                            tracks.Add(song);
+                        }
                     }
+
+                    nextPageToken = ytPlaylist.NextPageToken;
                 }
 
-                nextPageToken = ytPlaylist.NextPageToken;
+                Random r = new Random();
+                tracks = tracks.OrderBy(x => r.Next()).ToList();
+                PlayFiles(tracks.ToArray());
             }
-
-            Random r = new Random();
-            tracks = tracks.OrderBy(x => r.Next()).ToList();
-            PlayFiles(tracks.ToArray());
+            catch (System.Net.Http.HttpRequestException)
+            {
+                MainActivity.instance.Timout();
+            }
         }
 
         public static async void DownloadPlaylist(string playlist, string playlistID)

@@ -140,53 +140,60 @@ namespace MusicApp.Resources.Portable_Class
                 List<HomeItem> Items = new List<HomeItem>();
                 foreach (string topic in selectedTopicsID)
                 {
-                    YouTubeService youtube = YoutubeEngine.youtubeService;
-                    ChannelSectionsResource.ListRequest request = youtube.ChannelSections.List("snippet, contentDetails");
-                    request.ChannelId = topic;
-
-                    ChannelSectionListResponse response = await request.ExecuteAsync();
-
-                    foreach (var section in response.Items)
+                    try
                     {
-                        if (section.Snippet.Type == "channelsectionTypeUndefined")
-                            continue;
+                        YouTubeService youtube = YoutubeEngine.youtubeService;
+                        ChannelSectionsResource.ListRequest request = youtube.ChannelSections.List("snippet, contentDetails");
+                        request.ChannelId = topic;
 
-                        string title = section.Snippet.Title;
-                        if (title == null || title == "")
-                            title = selectedTopics[selectedTopicsID.IndexOf(topic)];
+                        ChannelSectionListResponse response = await request.ExecuteAsync();
 
-                        if (title == "Popular Artists" || title == "Featured channels")
-                            title = (selectedTopics[selectedTopicsID.IndexOf(topic)].Contains(" Music") ? selectedTopics[selectedTopicsID.IndexOf(topic)].Substring(0, selectedTopics[selectedTopicsID.IndexOf(topic)].IndexOf(" Music")) : selectedTopics[selectedTopicsID.IndexOf(topic)]) + "'s " + title;
-
-                        if (title == "Popular Channels")
-                            continue;
-
-                        if (Items.Exists(x => x.SectionTitle == title))
-                            continue;
-
-                        SectionType type = SectionType.None;
-                        List<string> contentValue = null;
-                        switch (section.Snippet.Type)
+                        foreach (var section in response.Items)
                         {
-                            case "multipleChannels":
-                                type = SectionType.ChannelList;
-                                contentValue = section.ContentDetails.Channels.ToList();
-                                break;
-                            case "multiplePlaylists":
-                                contentValue = section.ContentDetails.Playlists.ToList();
-                                type = SectionType.PlaylistList;
-                                break;
-                            case "singlePlaylist":
-                                contentValue = section.ContentDetails.Playlists.ToList();
-                                type = SectionType.SinglePlaylist;
-                                break;
-                            default:
-                                contentValue = new List<string>();
-                                break;
-                        }
+                            if (section.Snippet.Type == "channelsectionTypeUndefined")
+                                continue;
 
-                        HomeItem item = new HomeItem(title, type, contentValue);
-                        Items.Add(item);
+                            string title = section.Snippet.Title;
+                            if (title == null || title == "")
+                                title = selectedTopics[selectedTopicsID.IndexOf(topic)];
+
+                            if (title == "Popular Artists" || title == "Featured channels")
+                                title = (selectedTopics[selectedTopicsID.IndexOf(topic)].Contains(" Music") ? selectedTopics[selectedTopicsID.IndexOf(topic)].Substring(0, selectedTopics[selectedTopicsID.IndexOf(topic)].IndexOf(" Music")) : selectedTopics[selectedTopicsID.IndexOf(topic)]) + "'s " + title;
+
+                            if (title == "Popular Channels")
+                                continue;
+
+                            if (Items.Exists(x => x.SectionTitle == title))
+                                continue;
+
+                            SectionType type = SectionType.None;
+                            List<string> contentValue = null;
+                            switch (section.Snippet.Type)
+                            {
+                                case "multipleChannels":
+                                    type = SectionType.ChannelList;
+                                    contentValue = section.ContentDetails.Channels.ToList();
+                                    break;
+                                case "multiplePlaylists":
+                                    contentValue = section.ContentDetails.Playlists.ToList();
+                                    type = SectionType.PlaylistList;
+                                    break;
+                                case "singlePlaylist":
+                                    contentValue = section.ContentDetails.Playlists.ToList();
+                                    type = SectionType.SinglePlaylist;
+                                    break;
+                                default:
+                                    contentValue = new List<string>();
+                                    break;
+                            }
+
+                            HomeItem item = new HomeItem(title, type, contentValue);
+                            Items.Add(item);
+                        }
+                    }
+                    catch (System.Net.Http.HttpRequestException)
+                    {
+                        MainActivity.instance.Timout();
                     }
                 }
                 List<HomeItem> playlistList = Items.FindAll(x => x.contentType == SectionType.PlaylistList);
@@ -201,28 +208,35 @@ namespace MusicApp.Resources.Portable_Class
                     switch (item.contentType)
                     {
                         case SectionType.SinglePlaylist:
-                            YouTubeService youtube = YoutubeEngine.youtubeService;
-
-                            PlaylistItemsResource.ListRequest request = youtube.PlaylistItems.List("snippet, contentDetails");
-                            request.PlaylistId = item.contentValue[0];
-                            request.MaxResults = 25;
-                            request.PageToken = "";
-
-                            PlaylistItemListResponse response = await request.ExecuteAsync();
-
-                            if (response.Items.Count < 10)
-                                break;
-
-                            foreach (var ytItem in response.Items)
+                            try
                             {
-                                if (ytItem.Snippet.Title != "[Deleted video]" && ytItem.Snippet.Title != "Private video" && ytItem.Snippet.Title != "Deleted video")
-                                {
-                                    Song song = new Song(ytItem.Snippet.Title, ytItem.Snippet.ChannelTitle, ytItem.Snippet.Thumbnails.High.Url, ytItem.ContentDetails.VideoId, -1, -1, ytItem.ContentDetails.VideoId, true, false);
-                                    contentValue.Add(song);
+                                YouTubeService youtube = YoutubeEngine.youtubeService;
 
-                                    if (instance == null)
-                                        return;
+                                PlaylistItemsResource.ListRequest request = youtube.PlaylistItems.List("snippet, contentDetails");
+                                request.PlaylistId = item.contentValue[0];
+                                request.MaxResults = 25;
+                                request.PageToken = "";
+
+                                PlaylistItemListResponse response = await request.ExecuteAsync();
+
+                                if (response.Items.Count < 10)
+                                    break;
+
+                                foreach (var ytItem in response.Items)
+                                {
+                                    if (ytItem.Snippet.Title != "[Deleted video]" && ytItem.Snippet.Title != "Private video" && ytItem.Snippet.Title != "Deleted video")
+                                    {
+                                        Song song = new Song(ytItem.Snippet.Title, ytItem.Snippet.ChannelTitle, ytItem.Snippet.Thumbnails.High.Url, ytItem.ContentDetails.VideoId, -1, -1, ytItem.ContentDetails.VideoId, true, false);
+                                        contentValue.Add(song);
+
+                                        if (instance == null)
+                                            return;
+                                    }
                                 }
+                            }
+                            catch (System.Net.Http.HttpRequestException)
+                            {
+                                MainActivity.instance.Timout();
                             }
 
                             HomeSection section = new HomeSection(item.SectionTitle, item.contentType, contentValue);
@@ -233,7 +247,7 @@ namespace MusicApp.Resources.Portable_Class
                             {
                                 try
                                 {
-                                    youtube = YoutubeEngine.youtubeService;
+                                    YouTubeService youtube = YoutubeEngine.youtubeService;
 
                                     ChannelsResource.ListRequest req = youtube.Channels.List("snippet");
                                     req.Id = channelID;
@@ -249,7 +263,10 @@ namespace MusicApp.Resources.Portable_Class
                                             return;
                                     }
                                 }
-                                catch { }
+                                catch (System.Net.Http.HttpRequestException)
+                                {
+                                    MainActivity.instance.Timout();
+                                }
                             }
 
                             section = new HomeSection(item.SectionTitle, item.contentType, contentValue);
@@ -258,21 +275,28 @@ namespace MusicApp.Resources.Portable_Class
                         case SectionType.PlaylistList:
                             foreach (string playlistID in item.contentValue)
                             {
-                                youtube = YoutubeEngine.youtubeService;
-
-                                PlaylistsResource.ListRequest reques = youtube.Playlists.List("snippet, contentDetails");
-                                reques.Id = playlistID;
-
-                                PlaylistListResponse respon = await reques.ExecuteAsync();
-
-
-                                foreach (var playlist in respon.Items)
+                                try
                                 {
-                                    Song song = new Song(playlist.Snippet.Title, playlist.Snippet.ChannelTitle, playlist.Snippet.Thumbnails.Default__.Url, playlist.Id, -1, -1, playlist.Id, true);
-                                    contentValue.Add(song);
+                                    YouTubeService youtube = YoutubeEngine.youtubeService;
 
-                                    if (instance == null)
-                                        return;
+                                    PlaylistsResource.ListRequest request = youtube.Playlists.List("snippet, contentDetails");
+                                    request.Id = playlistID;
+
+                                    PlaylistListResponse response = await request.ExecuteAsync();
+
+
+                                    foreach (var playlist in response.Items)
+                                    {
+                                        Song song = new Song(playlist.Snippet.Title, playlist.Snippet.ChannelTitle, playlist.Snippet.Thumbnails.Default__.Url, playlist.Id, -1, -1, playlist.Id, true);
+                                        contentValue.Add(song);
+
+                                        if (instance == null)
+                                            return;
+                                    }
+                                }
+                                catch (System.Net.Http.HttpRequestException)
+                                {
+                                    MainActivity.instance.Timout();
                                 }
                             }
 

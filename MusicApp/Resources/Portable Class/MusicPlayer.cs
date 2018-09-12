@@ -402,6 +402,17 @@ namespace MusicApp.Resources.Portable_Class
                 catch (YoutubeExplode.Exceptions.ParseException)
                 {
                     MainActivity.instance.YoutubeEndPointChanged();
+                    parsing = false;
+                    if (MainActivity.instance != null)
+                        MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
+                    return;
+                }
+                catch (System.Net.Http.HttpRequestException)
+                {
+                    MainActivity.instance.Timout();
+                    parsing = false;
+                    if (MainActivity.instance != null)
+                        MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
                     return;
                 }
 
@@ -673,6 +684,11 @@ namespace MusicApp.Resources.Portable_Class
                     MainActivity.instance.YoutubeEndPointChanged();
                     return;
                 }
+                catch (System.Net.Http.HttpRequestException)
+                {
+                    MainActivity.instance.Timout();
+                    return;
+                }
             }
 
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
@@ -842,6 +858,13 @@ namespace MusicApp.Resources.Portable_Class
                 catch (YoutubeExplode.Exceptions.ParseException)
                 {
                     MainActivity.instance.YoutubeEndPointChanged();
+                    parsing = false;
+                    return;
+                }
+                catch (System.Net.Http.HttpRequestException)
+                {
+                    MainActivity.instance.Timout();
+                    parsing = false;
                     return;
                 }
             }

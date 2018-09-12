@@ -129,14 +129,21 @@ namespace MusicApp.Resources.Portable_Class
         {
             if(playlistId == 0)
             {
-                Google.Apis.YouTube.v3.Data.Playlist playlist = new Google.Apis.YouTube.v3.Data.Playlist
+                try
                 {
-                    Snippet = new PlaylistSnippet()
-                };
-                playlist.Snippet.Title = newName;
-                playlist.Id = ytID;
+                    Google.Apis.YouTube.v3.Data.Playlist playlist = new Google.Apis.YouTube.v3.Data.Playlist
+                    {
+                        Snippet = new PlaylistSnippet()
+                    };
+                    playlist.Snippet.Title = newName;
+                    playlist.Id = ytID;
 
-                await YoutubeEngine.youtubeService.Playlists.Update(playlist, "snippet").ExecuteAsync();
+                    await YoutubeEngine.youtubeService.Playlists.Update(playlist, "snippet").ExecuteAsync();
+                }
+                catch (System.Net.Http.HttpRequestException)
+                {
+                    MainActivity.instance.Timout();
+                }
             }
             else
             {
@@ -160,23 +167,37 @@ namespace MusicApp.Resources.Portable_Class
             {
                 if (hasWriteAcess)
                 {
-                    PlaylistsResource.DeleteRequest deleteRequest = YoutubeEngine.youtubeService.Playlists.Delete(ytID);
-                    await deleteRequest.ExecuteAsync();
+                    try
+                    {
+                        PlaylistsResource.DeleteRequest deleteRequest = YoutubeEngine.youtubeService.Playlists.Delete(ytID);
+                        await deleteRequest.ExecuteAsync();
+                    }
+                    catch (System.Net.Http.HttpRequestException)
+                    {
+                        MainActivity.instance.Timout();
+                    }
                 }
                 else
                 {
-                    ChannelSectionsResource.ListRequest forkedRequest = YoutubeEngine.youtubeService.ChannelSections.List("snippet,contentDetails");
-                    forkedRequest.Mine = true;
-                    ChannelSectionListResponse forkedResponse = await forkedRequest.ExecuteAsync();
-
-                    foreach (ChannelSection section in forkedResponse.Items)
+                    try
                     {
-                        if (section.Snippet.Title == "Saved Playlists")
+                        ChannelSectionsResource.ListRequest forkedRequest = YoutubeEngine.youtubeService.ChannelSections.List("snippet,contentDetails");
+                        forkedRequest.Mine = true;
+                        ChannelSectionListResponse forkedResponse = await forkedRequest.ExecuteAsync();
+
+                        foreach (ChannelSection section in forkedResponse.Items)
                         {
-                            section.ContentDetails.Playlists.Remove(ytID);
-                            ChannelSectionsResource.UpdateRequest request = YoutubeEngine.youtubeService.ChannelSections.Update(section, "snippet,contentDetails");
-                            ChannelSection response = await request.ExecuteAsync();
+                            if (section.Snippet.Title == "Saved Playlists")
+                            {
+                                section.ContentDetails.Playlists.Remove(ytID);
+                                ChannelSectionsResource.UpdateRequest request = YoutubeEngine.youtubeService.ChannelSections.Update(section, "snippet,contentDetails");
+                                ChannelSection response = await request.ExecuteAsync();
+                            }
                         }
+                    }
+                    catch (System.Net.Http.HttpRequestException)
+                    {
+                        MainActivity.instance.Timout();
                     }
                 }
             }
@@ -395,32 +416,39 @@ namespace MusicApp.Resources.Portable_Class
             }
             else if (ytID != null)
             {
-                tracks = new List<Song>();
-                var ytPlaylistRequest = YoutubeEngine.youtubeService.PlaylistItems.List("snippet, contentDetails");
-                ytPlaylistRequest.PlaylistId = ytID;
-                ytPlaylistRequest.MaxResults = 50;
-
-                var ytPlaylist = await ytPlaylistRequest.ExecuteAsync();
-
-                foreach (var item in ytPlaylist.Items)
+                try
                 {
-                    if (item.Snippet.Title != "[Deleted video]" && item.Snippet.Title != "Private video" && item.Snippet.Title != "Deleted video")
+                    tracks = new List<Song>();
+                    var ytPlaylistRequest = YoutubeEngine.youtubeService.PlaylistItems.List("snippet, contentDetails");
+                    ytPlaylistRequest.PlaylistId = ytID;
+                    ytPlaylistRequest.MaxResults = 50;
+
+                    var ytPlaylist = await ytPlaylistRequest.ExecuteAsync();
+
+                    foreach (var item in ytPlaylist.Items)
                     {
-                        Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
-                        tracks.Add(song);
-                        ytTracksIDs.Add(item.Id);
+                        if (item.Snippet.Title != "[Deleted video]" && item.Snippet.Title != "Private video" && item.Snippet.Title != "Deleted video")
+                        {
+                            Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
+                            tracks.Add(song);
+                            ytTracksIDs.Add(item.Id);
+                        }
                     }
+
+                    nextPageToken = ytPlaylist.NextPageToken;
+                    adapter = new PlaylistTrackAdapter(tracks);
+                    adapter.ItemClick += ListView_ItemClick;
+                    adapter.ItemLongClick += ListView_ItemLongClick;
+                    ListView.SetAdapter(adapter);
+
+                    Android.Support.V7.Widget.Helper.ItemTouchHelper.Callback callback = new ItemTouchCallback(adapter);
+                    itemTouchHelper = new Android.Support.V7.Widget.Helper.ItemTouchHelper(callback);
+                    itemTouchHelper.AttachToRecyclerView(ListView);
                 }
-
-                nextPageToken = ytPlaylist.NextPageToken;
-                adapter = new PlaylistTrackAdapter(tracks);
-                adapter.ItemClick += ListView_ItemClick;
-                adapter.ItemLongClick += ListView_ItemLongClick;
-                ListView.SetAdapter(adapter);
-
-                Android.Support.V7.Widget.Helper.ItemTouchHelper.Callback callback = new ItemTouchCallback(adapter);
-                itemTouchHelper = new Android.Support.V7.Widget.Helper.ItemTouchHelper(callback);
-                itemTouchHelper.AttachToRecyclerView(ListView);
+                catch (System.Net.Http.HttpRequestException)
+                {
+                    MainActivity.instance.Timout();
+                }
             }
             else if(tracks.Count != 0)
             {
@@ -443,27 +471,37 @@ namespace MusicApp.Resources.Portable_Class
                 return;
 
             loading = true;
-            var ytPlaylistRequest = YoutubeEngine.youtubeService.PlaylistItems.List("snippet, contentDetails");
-            ytPlaylistRequest.PlaylistId = ytID;
-            ytPlaylistRequest.MaxResults = 50;
-            ytPlaylistRequest.PageToken = nextPageToken;
-
-            var ytPlaylist = await ytPlaylistRequest.ExecuteAsync();
-
-            if (instance == null)
-                return;
-
-            foreach (var item in ytPlaylist.Items)
+            try
             {
-                Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
-                tracks.Add(song);
-                ytTracksIDs.Add(item.Id);
-            }
+                var ytPlaylistRequest = YoutubeEngine.youtubeService.PlaylistItems.List("snippet, contentDetails");
+                ytPlaylistRequest.PlaylistId = ytID;
+                ytPlaylistRequest.MaxResults = 50;
+                ytPlaylistRequest.PageToken = nextPageToken;
 
-            nextPageToken = ytPlaylist.NextPageToken;
-            if (nextPageToken == null)
-                fullyLoadded = true;
-            adapter.NotifyDataSetChanged();
+                var ytPlaylist = await ytPlaylistRequest.ExecuteAsync();
+
+                if (instance == null)
+                    return;
+
+                foreach (var item in ytPlaylist.Items)
+                {
+                    if (item.Snippet.Title != "[Deleted video]" && item.Snippet.Title != "Private video" && item.Snippet.Title != "Deleted video")
+                    {
+                        Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
+                        tracks.Add(song);
+                        ytTracksIDs.Add(item.Id);
+                    }
+                }
+
+                nextPageToken = ytPlaylist.NextPageToken;
+                if (nextPageToken == null)
+                    fullyLoadded = true;
+                adapter.NotifyDataSetChanged();
+            }
+            catch (System.Net.Http.HttpRequestException)
+            {
+                MainActivity.instance.Timout();
+            }
             loading = false;
         }
 
@@ -494,7 +532,7 @@ namespace MusicApp.Resources.Portable_Class
 
         private void ListView_ItemClick(object sender, int Position)
         {
-            if (useHeader)
+            if (!useHeader)
                 Position--;
 
             PlayInOrder(Position, true);
@@ -638,25 +676,28 @@ namespace MusicApp.Resources.Portable_Class
 
         public async void PlayInOrder(int fromPosition, bool useTransition)
         {
-            List<Song> songs = tracks.GetRange(fromPosition, tracks.Count - fromPosition);
-            if (result != null && result.Count - 1 >= fromPosition)
-                songs = result.GetRange(fromPosition, result.Count - fromPosition);
-
-            MusicPlayer.queue.Clear();
+            MusicPlayer.queue?.Clear();
             MusicPlayer.currentID = -1;
+
+            if (ytID != null)
+            {
+                if (result != null && result.Count > fromPosition)
+                    YoutubeEngine.Play(result[fromPosition].youtubeID, result[fromPosition].Title, result[fromPosition].Artist, result[0].Album);
+                else
+                    YoutubeEngine.Play(tracks[fromPosition].youtubeID, tracks[fromPosition].Title, tracks[fromPosition].Artist, tracks[0].Album);
+
+                while (nextPageToken != null)
+                    await LoadMore();
+            }
+
+            List<Song> songs = tracks.GetRange(fromPosition, tracks.Count - fromPosition);
+            if (result != null && result.Count > fromPosition)
+                songs = result.GetRange(fromPosition, result.Count - fromPosition);
 
             if (!songs[0].IsYt)
             {
                 Browse.act = Activity;
                 Browse.Play(songs[0], useTransition ? ListView.GetChildAt(fromPosition - ((Android.Support.V7.Widget.LinearLayoutManager)ListView.GetLayoutManager()).FindFirstVisibleItemPosition()).FindViewById<ImageView>(Resource.Id.albumArt) : null);
-            }
-            else
-                YoutubeEngine.Play(songs[0].youtubeID, songs[0].Title, songs[0].Artist, songs[0].Album);
-
-            if(ytID != null)
-            {
-                while(nextPageToken != null)
-                    await LoadMore();
             }
 
             songs.RemoveAt(0);

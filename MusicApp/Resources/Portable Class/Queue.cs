@@ -159,8 +159,15 @@ namespace MusicApp.Resources.Portable_Class
                 intent.SetAction("Pause");
                 StartService(intent);
             }
-            else
+            else if(MusicPlayer.instance != null)
                 MusicPlayer.instance.SwitchQueue(item);
+            else
+            {
+                Intent intent = new Intent(this, typeof(MusicPlayer));
+                intent.SetAction("SwitchQueue");
+                intent.PutExtra("queueSlot", item.queueSlot);
+                StartService(intent);
+            }
         }
 
         private void ListView_ItemLongCLick(object sender, int e)

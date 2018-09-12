@@ -111,7 +111,6 @@ namespace MusicApp
                 MusicPlayer.RetrieveQueueFromDataBase();
 
             SupportFragmentManager.BeginTransaction().Replace(Resource.Id.playerFrame, Player.instance ?? new Player()).Commit();
-            YoutubeEndPointChanged();
 
             if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
             {
@@ -1001,7 +1000,6 @@ namespace MusicApp
 
         public async void QuickPlay(object sender, EventArgs e)
         {
-            YoutubeEndPointChanged();
             FloatingActionButton quickPlay = FindViewById<FloatingActionButton>(Resource.Id.quickPlay);
             if (QuickPlayOpenned)
             {
@@ -1159,9 +1157,13 @@ namespace MusicApp
                     }
                 }
             }
-            catch (YoutubeExplode.Exceptions.ParseException)
+            catch (Exception ex)
             {
-                YoutubeEndPointChanged();
+                if (ex is YoutubeExplode.Exceptions.ParseException)
+                    MainActivity.instance.YoutubeEndPointChanged();
+                else if (ex is System.Net.Http.HttpRequestException)
+                    MainActivity.instance.Timout();
+
                 return;
             }
 
@@ -1184,6 +1186,12 @@ namespace MusicApp
         {
             FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
             Snackbar.Make(FindViewById(Resource.Id.snackBar), "The way youtube play video has changed, the app can't play this video now. Wait for the next update.", (int)ToastLength.Short).Show();
+        }
+
+        public void Timout()
+        {
+            Console.WriteLine("&Timout");
+            Snackbar.Make(FindViewById(Resource.Id.snackBar), "Timout exception, check if you're still connected to internet.", (int)ToastLength.Short).Show();
         }
 
         public int DpToPx(int dx)
