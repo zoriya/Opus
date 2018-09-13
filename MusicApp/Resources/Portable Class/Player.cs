@@ -7,9 +7,7 @@ using Android.Graphics.Drawables;
 using Android.OS;
 using Android.Support.Design.Widget;
 using Android.Support.V4.Widget;
-using Android.Support.V7.App;
 using Android.Support.V7.Graphics;
-using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
@@ -52,28 +50,29 @@ namespace MusicApp.Resources.Portable_Class
             TextView title = MainActivity.instance.FindViewById<TextView>(Resource.Id.playerTitle);
             TextView artist = MainActivity.instance.FindViewById<TextView>(Resource.Id.playerArtist);
             imgView = MainActivity.instance.FindViewById<ImageView>(Resource.Id.playerAlbum);
-
-            MainActivity.instance.FindViewById<ImageButton>(Resource.Id.lastButton).Click += Last_Click;
-            MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton).Click += Play_Click;
-            MainActivity.instance.FindViewById<ImageButton>(Resource.Id.nextButton).Click += Next_Click;
-            MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playerSleep).Click += SleepButton_Click;
-            MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playerPlaylistAdd).Click += AddToPlaylist_Click;
-            MainActivity.instance.FindViewById<FloatingActionButton>(Resource.Id.downFAB).Click += Fab_Click;
-            MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playerDownload).Click += Download_Click;
-            MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playerYoutube).Click += Youtube_Click;
-
-            title.Selected = true;
-            title.SetMarqueeRepeatLimit(3);
-            artist.Selected = true;
-            artist.SetMarqueeRepeatLimit(3);
-
             TextView NextTitle = MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle);
             TextView NextAlbum = MainActivity.instance.FindViewById<TextView>(Resource.Id.nextArtist);
             Button ShowQueue = MainActivity.instance.FindViewById<Button>(Resource.Id.showQueue);
             ImageButton smallQueue = MainActivity.instance.FindViewById<ImageButton>(Resource.Id.smallQueue);
 
-            ShowQueue.Click += ShowQueue_Click;
-            smallQueue.Click += ShowQueue_Click;
+            if (!MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton).HasOnClickListeners)
+            {
+                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.lastButton).Click += Last_Click;
+                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton).Click += Play_Click;
+                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.nextButton).Click += Next_Click;
+                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playerSleep).Click += SleepButton_Click;
+                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playerPlaylistAdd).Click += AddToPlaylist_Click;
+                MainActivity.instance.FindViewById<FloatingActionButton>(Resource.Id.downFAB).Click += Fab_Click;
+                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playerDownload).Click += Download_Click;
+                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playerYoutube).Click += Youtube_Click;
+                ShowQueue.Click += ShowQueue_Click;
+                smallQueue.Click += ShowQueue_Click;
+            }
+
+            title.Selected = true;
+            title.SetMarqueeRepeatLimit(3);
+            artist.Selected = true;
+            artist.SetMarqueeRepeatLimit(3);
 
             ((GradientDrawable)ShowQueue.Background).SetStroke(5, ColorStateList.ValueOf(Color.Argb(255, 21, 183, 237)));
             ShowQueue.SetTextColor(Color.Argb(255, 21, 183, 237));
@@ -526,6 +525,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 sheet.Alpha = 1;
                 bottomView.TranslationY = (int)((56 * context.Resources.DisplayMetrics.Density + 0.5f) * slideOffset);
+                sheet.TranslationY = -(int)((56 * context.Resources.DisplayMetrics.Density + 0.5f) * (1 - slideOffset));
 
                 playerView.Alpha = Math.Max(0, (slideOffset - 0.5f) * 2.5f);
                 smallPlayer.Alpha = Math.Max(0, 1 - slideOffset * 2);

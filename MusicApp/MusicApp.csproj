@@ -526,11 +526,6 @@
     <AndroidResource Include="Resources\values\attars.xml" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\layout\PreferenceContent.xml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
-  </ItemGroup>
-  <ItemGroup>
     <AndroidResource Include="Resources\menu\metaData_items.xml" />
   </ItemGroup>
   <ItemGroup>

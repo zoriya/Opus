@@ -22,9 +22,10 @@ namespace MusicApp.Resources.Portable_Class
         public event EventHandler<int> ItemClick;
         public event EventHandler<int> ItemLongCLick;
 
-        public YtAdapter(List<YtFile> items)
+        public YtAdapter(List<YtFile> items, List<string> selectedTopicsID)
         {
             this.items = items;
+            this.selectedTopicsID = selectedTopicsID;
         }
 
         public override int ItemCount => items.Count;

@@ -33,6 +33,7 @@ namespace MusicApp.Resources.Portable_Class
                 SetTheme(Resource.Style.DarkPreferences);
 
             instance = this;
+            Window.SetStatusBarColor(Android.Graphics.Color.Argb(255, 33, 33, 33));
             LinearLayout root = (LinearLayout)FindViewById(Android.Resource.Id.List).Parent.Parent.Parent;
             toolbar = (Toolbar)LayoutInflater.From(this).Inflate(Resource.Layout.PreferenceToolbar, root, false);
             AddContentView(toolbar, toolbar.LayoutParameters);
@@ -76,6 +77,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             base.OnDestroy();
             instance = null;
+            Window.SetStatusBarColor(Android.Graphics.Color.Transparent);
         }
 
         protected override void OnActivityResult(int requestCode, [GeneratedEnum] Result resultCode, Intent data)

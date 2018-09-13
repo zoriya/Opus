@@ -9,4 +9,5 @@
     android:background="?attr/colorPrimary"
     app:navigationIcon="?attr/homeAsUpIndicator"
     android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-    app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+    app:popupTheme="@style/ThemeOverlay.AppCompat.Light" 
+    android:fitsSystemWindows="true" />

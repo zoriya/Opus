@@ -155,14 +155,9 @@ namespace MusicApp
         {
             if (lateSetup)
             {
-                await Task.Delay(100);
-                //Console.WriteLine("&Root height: " + FindViewById(Resource.Id.rootCoordinator).Height);
-                ////((View)FindViewById(Resource.Id.playerSheet).Parent.Parent).LayoutParameters.Height = FindViewById(Resource.Id.rootCoordinator).Height;
-                //((View)FindViewById(Resource.Id.playerSheet).Parent).LayoutParameters.Height = FindViewById(Resource.Id.rootCoordinator).Height + DpToPx(56);
-                //FindViewById(Resource.Id.playerSheet).LayoutParameters.Height = FindViewById(Resource.Id.rootCoordinator).Height;
-                //FindViewById(Resource.Id.playerSheet).Invalidate();
-                //FindViewById(Resource.Id.playerSheet).RequestLayout();
-                //Console.WriteLine("&Player height: " + FindViewById(Resource.Id.playerSheet).Height);
+                await Task.Delay(1000);
+                FindViewById(Resource.Id.playerFrame).LayoutParameters.Height = FindViewById(Resource.Id.playerSheet).Height;
+                FindViewById(Resource.Id.playerSheet).TranslationY = -DpToPx(56);
                 SheetBehavior = BottomSheetBehavior.From(FindViewById(Resource.Id.playerSheet));
                 SheetBehavior.State = BottomSheetBehavior.StateCollapsed;
                 SheetBehavior.Hideable = true;

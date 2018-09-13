@@ -28,6 +28,7 @@ namespace MusicApp.Resources.Portable_Class
         public static YouTubeService youtubeService;
         public static string searchKeyWorld;
         public static bool error = false;
+        private bool isEmpty = false;
         public string querryType;
 
         public bool focused = false;
@@ -65,7 +66,30 @@ namespace MusicApp.Resources.Portable_Class
                 rootView.RemoveView(loadingView);
                 loadingView = LayoutInflater.Inflate(Resource.Layout.EmptyLoadingLayout, null);
                 Activity.AddContentView(loadingView, ListView.LayoutParameters);
+            }
+            if (isEmpty)
+            {
+                emptyView = LayoutInflater.Inflate(Resource.Layout.EmptyYoutubeSearch, null);
 
+                switch (querryType)
+                {
+                    case "All":
+                        ((TextView)emptyView).Text = "No result for " + searchKeyWorld;
+                        break;
+                    case "Tracks":
+                        ((TextView)emptyView).Text = "No track for " + searchKeyWorld;
+                        break;
+                    case "Playlists":
+                        ((TextView)emptyView).Text = "No Playlist for " + searchKeyWorld;
+                        break;
+                    case "Channels":
+                        ((TextView)emptyView).Text = "No channel for " + searchKeyWorld;
+                        break;
+                    default:
+                        break;
+                }
+
+                Activity.AddContentView(emptyView, ListView.LayoutParameters);
             }
         }
 
@@ -75,6 +99,11 @@ namespace MusicApp.Resources.Portable_Class
             {
                 ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
                 rootView.RemoveView(loadingView);
+            }
+            if (isEmpty)
+            {
+                ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
+                rootView.RemoveView(emptyView);
             }
         }
 
@@ -184,6 +213,7 @@ namespace MusicApp.Resources.Portable_Class
                     case "youtube#playlist":
                         kind = YtKind.Playlist;
                         videoInfo.youtubeID = video.Id.PlaylistId;
+                        Console.WriteLine("&Playlist ID: " + video.Id.PlaylistId);
                         break;
                     case "youtube#channel":
                         kind = YtKind.Channel;
@@ -206,7 +236,7 @@ namespace MusicApp.Resources.Portable_Class
             List<string> topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
             List<string> selectedTopics = topics.ConvertAll(x => x.Substring(x.IndexOf("/#-#/") + 5));
 
-            adapter = new YtAdapter(result);
+            adapter = new YtAdapter(result, selectedTopics);
             adapter.ItemClick += ListView_ItemClick;
             adapter.ItemLongCLick += ListView_ItemLongClick;
             ListView.SetAdapter(adapter);
@@ -214,27 +244,32 @@ namespace MusicApp.Resources.Portable_Class
 
             if (adapter == null || adapter.ItemCount == 0)
             {
-                emptyView = LayoutInflater.Inflate(Resource.Layout.EmptyYoutubeSearch, null);
+                isEmpty = true;
 
-                switch (querryType)
+                if (focused)
                 {
-                    case "All":
-                        ((TextView)emptyView).Text = "No result for " + search;
-                        break;
-                    case "Tracks":
-                        ((TextView)emptyView).Text = "No tracks for " + search;
-                        break;
-                    case "Playlists":
-                        ((TextView)emptyView).Text = "No Playlist for " + search;
-                        break;
-                    case "Channels":
-                        ((TextView)emptyView).Text = "No channel for " + search;
-                        break;
-                    default:
-                        break;
-                }
+                    emptyView = LayoutInflater.Inflate(Resource.Layout.EmptyYoutubeSearch, null);
 
-                Activity.AddContentView(emptyView, ListView.LayoutParameters);
+                    switch (querryType)
+                    {
+                        case "All":
+                            ((TextView)emptyView).Text = "No result for " + search;
+                            break;
+                        case "Tracks":
+                            ((TextView)emptyView).Text = "No tracks for " + search;
+                            break;
+                        case "Playlists":
+                            ((TextView)emptyView).Text = "No Playlist for " + search;
+                            break;
+                        case "Channels":
+                            ((TextView)emptyView).Text = "No channel for " + search;
+                            break;
+                        default:
+                            break;
+                    }
+
+                    Activity.AddContentView(emptyView, ListView.LayoutParameters);
+                }
             }
         }
 
