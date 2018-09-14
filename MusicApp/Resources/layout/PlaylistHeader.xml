@@ -3,13 +3,15 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_height="wrap_content"
   android:layout_width="fill_parent"
-  android:id="@+id/playlistHeader">
+  android:id="@+id/playlistHeader"
+  android:fitsSystemWindows="true">
   <ImageView
     android:layout_height="wrap_content"
     android:layout_width="fill_parent"
     android:src="@drawable/noAlbum"
     android:id="@+id/headerArt"
-    android:adjustViewBounds="true" />
+    android:adjustViewBounds="true"
+    android:fitsSystemWindows="true"/>
   <ImageView
     android:src="@drawable/darkRectangle"
     android:layout_width="fill_parent"

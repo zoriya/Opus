@@ -676,14 +676,6 @@ namespace MusicApp
             TabLayout tabs = FindViewById<TabLayout>(Resource.Id.tabs);
             ((AppBarLayout.LayoutParams)FindViewById<CollapsingToolbarLayout>(Resource.Id.collapsingToolbar).LayoutParameters).ScrollFlags = AppBarLayout.LayoutParams.ScrollFlagScroll | AppBarLayout.LayoutParams.ScrollFlagEnterAlways | AppBarLayout.LayoutParams.ScrollFlagSnap;
 
-            //if (Browse.instance != null)
-            //{
-            //    pager.CurrentItem = selectedTab;
-            //    tabs.SetScrollPosition(selectedTab, 0f, true);
-            //    CanSwitchDelay();
-            //    return;
-            //}
-
             tabs.RemoveAllTabs();
             tabs.Visibility = ViewStates.Visible;
             tabs.AddTab(tabs.NewTab().SetText("Songs"));

@@ -1,6 +1,7 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.Graphics;
+using Android.Support.Design.Widget;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
@@ -230,8 +231,16 @@ namespace MusicApp.Resources.Portable_Class
 
         public void ItemDismissed(int position)
         {
-            Queue.RemoveFromQueue(songList[position]);
+            Song song = songList[position];
+            Queue.RemoveFromQueue(song);
             NotifyItemRemoved(position);
+            Snackbar.Make(Queue.instance.FindViewById(Resource.Id.recycler), (song.Title.Length > 20 ? song.Title.Substring(0, 17) + "..." : song.Title) + " has been removed from the playlist.", Snackbar.LengthShort)
+                .SetAction("Undo", (view) => 
+                {
+                    Queue.InsertToQueue(position, song);
+                    NotifyItemInserted(position);
+                })
+                .Show();
         }
     }
 }

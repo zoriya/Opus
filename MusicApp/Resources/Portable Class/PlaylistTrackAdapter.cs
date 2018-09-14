@@ -2,7 +2,6 @@
 using Android.Content;
 using Android.Content.Res;
 using Android.Graphics;
-using Android.Support.Design.Widget;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
@@ -32,6 +31,12 @@ namespace MusicApp.Resources.Portable_Class
             int positionStart = this.songList.Count;
             this.songList.AddRange(songList);
             NotifyItemRangeInserted(positionStart, songList.Count);
+        }
+
+        public void Insert(int position, Song item)
+        {
+            songList.Add(item);
+            NotifyItemInserted(position);
         }
 
         public void Remove(Song song)

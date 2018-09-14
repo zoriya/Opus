@@ -41,6 +41,7 @@ namespace MusicApp.Resources.Portable_Class
             SetSupportActionBar(FindViewById<Toolbar>(Resource.Id.toolbar));
             SupportActionBar.SetHomeAsUpIndicator(Resource.Drawable.Close);
             SupportActionBar.SetDisplayHomeAsUpEnabled(true);
+            Window.SetStatusBarColor(Color.Argb(255, 33, 33, 33));
 
             ListView = FindViewById<RecyclerView>(Resource.Id.recycler);
             ListView.SetLayoutManager(new LinearLayoutManager(Application.Context));
@@ -69,11 +70,12 @@ namespace MusicApp.Resources.Portable_Class
                 LoadMore();
         }
 
-        protected override void OnDestroy()
+        protected override void OnStop()
         {
             Player.instance?.UpdateNext();
             MusicPlayer.ParseNextSong();
-            base.OnDestroy();
+            Window.SetStatusBarColor(Color.Transparent);
+            base.OnStop();
             instance = null;
         }
 
@@ -197,19 +199,23 @@ namespace MusicApp.Resources.Portable_Class
             builder.Show();
         }
 
+        public static void InsertToQueue(int position, Song item)
+        {
+            if (MusicPlayer.CurrentID() > position)
+                MusicPlayer.currentID--;
+
+            item.queueSlot = position;
+            MusicPlayer.queue.Insert(position, item);
+            MusicPlayer.instance?.UpdateQueueSlots();
+        }
+
         public static void RemoveFromQueue(Song item)
         {
-            if(item == MusicPlayer.queue[MusicPlayer.CurrentID()])
-            {
-                Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), "You are trying to remove the current music from the queue.", Snackbar.LengthShort).Show();
-                return;
-            }
-
             if (MusicPlayer.CurrentID() > item.queueSlot)
                 MusicPlayer.currentID--;
 
             MusicPlayer.queue.Remove(item);
-            MusicPlayer.instance.UpdateQueueSlots();
+            MusicPlayer.instance?.UpdateQueueSlots();
 
         }
 

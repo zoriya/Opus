@@ -73,9 +73,9 @@ namespace MusicApp.Resources.Portable_Class
             FragmentManager.BeginTransaction().Replace(Android.Resource.Id.Content, new PreferencesFragment()).Commit();
         }
 
-        protected override void OnDestroy()
+        protected override void OnStop()
         {
-            base.OnDestroy();
+            base.OnStop();
             instance = null;
             Window.SetStatusBarColor(Android.Graphics.Color.Transparent);
         }

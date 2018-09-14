@@ -774,13 +774,48 @@ namespace MusicApp.Resources.Portable_Class
                 .SetTitle("Remove " + song.Title + " from playlist ?")
                 .SetPositiveButton("Yes", (sender, e) =>
                 {
-                    if (ytID != null)
+                    SnackbarCallback callback = null;
+                    if(ytID != null)
+                        callback = new SnackbarCallback(position, ytID, (ytTracksIdsResult != null && ytTracksIdsResult.Count > position) ? ytTracksIdsResult[position] : ytTracksIDs[position]);
+                    else if(playlistId != 0)
+                        callback = new SnackbarCallback(position, song, playlistId);
+
+                    ((Snackbar)Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), (song.Title.Length > 20 ? song.Title.Substring(0, 17) + "..." : song.Title )+ " has been removed from the playlist.", Snackbar.LengthShort)
+                        .AddCallback(callback))
+                        .SetAction("Undo", (v) => 
+                        {
+                            callback.canceled = true;
+                            if (ytID != null)
+                            {
+                                ytTracksIDs.Insert(position, song.youtubeID);
+                                if(result != null && result.Count >= position)
+                                {
+                                    result?.Insert(position, song);
+                                    ytTracksIdsResult?.Insert(position, song.youtubeID);
+                                }
+                                adapter.Insert(position, song);
+                                tracks.Insert(position, song);
+                            }
+                            else if (playlistId != 0)
+                            {
+                                adapter.Insert(position, song);
+                                tracks.Insert(position, song);
+                                if(result != null && result.Count >= position)
+                                    result?.Insert(position, song);
+                            }
+                        })
+                        .Show();
+
+                    if(ytID != null)
                     {
-                        YoutubeEngine.RemoveFromPlaylist((ytTracksIdsResult != null && ytTracksIdsResult.Count > position) ? ytTracksIdsResult[position] : ytTracksIDs[position]);
                         RemoveFromYtPlaylist(song, (ytTracksIdsResult != null && ytTracksIdsResult.Count > position) ? ytTracksIdsResult[position] : ytTracksIDs[position]);
                     }
-                    else if (playlistId != 0)
-                        RemoveFromPlaylist(song);
+                    else
+                    {
+                        adapter.Remove(song);
+                        tracks.Remove(song);
+                        result?.Remove(song);
+                    }
                 })
                 .SetNegativeButton("No", (sender, e) => { adapter.NotifyItemChanged(position); })
                 .Create();

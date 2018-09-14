@@ -255,6 +255,12 @@ namespace MusicApp.Resources.Portable_Class
 
         public void Play(Song song, bool addToQueue = true, long progress = -1)
         {
+            if (!song.isParsed)
+            {
+                ParseAndPlay("Play", song.youtubeID, song.Title, song.Artist, song.Album);
+                return;
+            }
+
             isRunning = true;
             if (player == null)
                 InitializeService();
