@@ -8,6 +8,7 @@
     <item name="android:windowActivityTransitions">true</item>
     <item name="android:windowContentTransitions">true</item>
     <item name="android:statusBarColor">@android:color/transparent</item>
+    <item name="android:navigationBarColor">#212121</item>
     <item name="android:dropDownListViewStyle">@style/LightDropDown</item>
     <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
     <item name="colorAccent">#15b7ed</item>
@@ -21,6 +22,7 @@
     <item name="android:windowActivityTransitions">true</item>
     <item name="android:windowContentTransitions">true</item>
     <item name="android:statusBarColor">@android:color/transparent</item>
+    <item name="android:navigationBarColor">#212121</item>
     <item name="preferenceTheme">@style/DarkPreferences</item>
     <item name="colorAccent">#15b7ed</item>
     <item name="android:textColor">#ffffff</item>

@@ -258,17 +258,6 @@ namespace MusicApp.Resources.Portable_Class
 
             MainActivity.instance.ShowSmallPlayer();
             MainActivity.instance.ShowPlayer();
-            //if(albumArt != null)
-            //{
-            //    Intent inten = new Intent(context, typeof(Player));
-            //    ActivityOptionsCompat options = ActivityOptionsCompat.MakeSceneTransitionAnimation(MainActivity.instance, albumArt, "albumArt");
-            //    MainActivity.instance.StartActivity(inten, options.ToBundle());
-            //}
-            //else
-            //{
-            //    Intent inten = new Intent(context, typeof(Player));
-            //    MainActivity.instance.StartActivity(inten);
-            //}
         }
 
         public static void PlayNext(Song item)

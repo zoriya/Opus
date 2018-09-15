@@ -250,6 +250,7 @@ namespace MusicApp.Resources.Portable_Class
 
             SaveQueueSlot();
             Player.instance?.RefreshPlayer();
+            Home.instance?.AddQueue();
             ParseNextSong();
         }
 
@@ -341,10 +342,11 @@ namespace MusicApp.Resources.Portable_Class
 
             SaveQueueSlot();
             Player.instance?.RefreshPlayer();
+            Home.instance?.AddQueue();
             ParseNextSong();
         }
 
-        public void UpdateQueueSlots()
+        public static void UpdateQueueSlots()
         {
             for (int i = 0; i < queue.Count; i++)
             {

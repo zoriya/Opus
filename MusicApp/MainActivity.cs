@@ -8,6 +8,7 @@ using Android.Gms.Auth.Api;
 using Android.Gms.Auth.Api.SignIn;
 using Android.Gms.Common;
 using Android.Gms.Common.Apis;
+using Android.Graphics;
 using Android.Graphics.Drawables;
 using Android.Net;
 using Android.OS;
@@ -107,7 +108,7 @@ namespace MusicApp
 
             playToCross = GetDrawable(Resource.Drawable.PlayToCross);
             crossToPlay = GetDrawable(Resource.Drawable.CrossToPlay);
-            if (!MusicPlayer.isRunning)
+            if (MusicPlayer.queue == null || MusicPlayer.queue.Count == 0)
                 MusicPlayer.RetrieveQueueFromDataBase();
 
             SupportFragmentManager.BeginTransaction().Replace(Resource.Id.playerFrame, Player.instance ?? new Player()).Commit();

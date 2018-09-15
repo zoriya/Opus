@@ -218,7 +218,10 @@ namespace MusicApp.Resources.Portable_Class
             if (MusicPlayer.CurrentID() == fromPosition)
                 MusicPlayer.currentID = toPosition;
 
-            MusicPlayer.instance?.UpdateQueueSlots();
+            if (MusicPlayer.CurrentID() > fromPosition && MusicPlayer.CurrentID() <= toPosition)
+                MusicPlayer.currentID--;
+
+            MusicPlayer.UpdateQueueSlots();
         }
 
         List<T> Swap<T>(List<T> list, int fromPosition, int toPosition)

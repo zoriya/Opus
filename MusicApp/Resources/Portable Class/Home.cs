@@ -361,7 +361,6 @@ namespace MusicApp.Resources.Portable_Class
 
         public async void AddHomeTopics()
         {
-            Console.WriteLine("Adding home topics");
             List<Song> channelLits = new List<Song>();
 
             string nextPageToken = "";
@@ -394,14 +393,22 @@ namespace MusicApp.Resources.Portable_Class
                 }
             }
 
-            Console.WriteLine("Add channels are loaded");
-
             Random r = new Random();
             List<Song> channels = channelLits.OrderBy(x => r.Next()).ToList();
             channels.RemoveAll(x => selectedTopics.Contains(x.Title));
 
             HomeSection TopicSelector = new HomeSection("Music Genres", SectionType.TopicSelector, channels);
             adapter.AddToList(new List<HomeSection> { TopicSelector });
+        }
+
+        public void AddQueue()
+        {
+            if (adapterItems[0].SectionTitle != "Queue")
+            {
+                HomeSection queue = new HomeSection("Queue", SectionType.SinglePlaylist, MusicPlayer.queue);
+                adapterItems.Insert(0, queue);
+                adapter.Insert(0, queue);
+            }
         }
 
         public static Fragment NewInstance()

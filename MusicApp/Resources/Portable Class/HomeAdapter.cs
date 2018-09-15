@@ -36,6 +36,12 @@ namespace MusicApp.Resources.Portable_Class
             NotifyItemRangeInserted(positionStart, items.Count);
         }
 
+        public void Insert(int position, HomeSection item)
+        {
+            //items.Insert(0, item);
+            NotifyItemInserted(0);
+        }
+
         public override int ItemCount { get { return items.Count; } }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)

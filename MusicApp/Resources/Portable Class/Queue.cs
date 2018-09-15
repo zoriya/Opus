@@ -35,8 +35,8 @@ namespace MusicApp.Resources.Portable_Class
 
             SetContentView(Resource.Layout.ListPopupLayout);
             instance = this;
-            if (!MusicPlayer.isRunning)
-                MusicPlayer.RetrieveQueueFromDataBase();
+            //if (MusicPlayer.queue == null)
+            //    MusicPlayer.RetrieveQueueFromDataBase();
 
             SetSupportActionBar(FindViewById<Toolbar>(Resource.Id.toolbar));
             SupportActionBar.SetHomeAsUpIndicator(Resource.Drawable.Close);
@@ -206,7 +206,7 @@ namespace MusicApp.Resources.Portable_Class
 
             item.queueSlot = position;
             MusicPlayer.queue.Insert(position, item);
-            MusicPlayer.instance?.UpdateQueueSlots();
+            MusicPlayer.UpdateQueueSlots();
         }
 
         public static void RemoveFromQueue(Song item)
@@ -215,8 +215,7 @@ namespace MusicApp.Resources.Portable_Class
                 MusicPlayer.currentID--;
 
             MusicPlayer.queue.Remove(item);
-            MusicPlayer.instance?.UpdateQueueSlots();
-
+            MusicPlayer.UpdateQueueSlots();
         }
 
         protected override void OnResume()

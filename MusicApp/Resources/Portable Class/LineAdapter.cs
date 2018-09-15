@@ -78,7 +78,6 @@ namespace MusicApp.Resources.Portable_Class
                     MainActivity.instance.ShowSmallPlayer();
                     MainActivity.instance.ShowPlayer();
                 }
-
             }
             else if (!songList[position].IsYt)
                 Browse.Play(songList[position], recycler.GetLayoutManager().FindViewByPosition(position).FindViewById<ImageView>(Resource.Id.albumArt));
