@@ -3,29 +3,30 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
-  android:fitsSystemWindows="true"
   android:layout_width="match_parent"
-  android:layout_height="fill_parent" >
-  <android.support.design.widget.CoordinatorLayout
-    android:layout_width="fill_parent"
+  android:layout_height="fill_parent"
+  android:fitsSystemWindows="true" >
+  <android.support.design.widget.CoordinatorLayout 
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:fitsSystemWindows="true">
+    android:id="@+id/contentLayout"
+    android:paddingTop="@*android:dimen/status_bar_height"
+    android:background="#212121">
     <android.support.design.widget.AppBarLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:fitsSystemWindows="true"
       android:id="@+id/appbar" >
       <android.support.design.widget.CollapsingToolbarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_scrollFlags="scroll"
-        android:fitsSystemWindows="true"
         android:id="@+id/collapsingToolbar"
+        android:fitsSystemWindows="true"
         app:titleEnabled="false" >
         <include
-          android:fitsSystemWindows="true"
           layout="@layout/PlaylistHeader"
           android:id="@+id/playlistHeader"
+          android:fitsSystemWindows="true"
           android:visibility="gone" />
         <android.support.v7.widget.Toolbar
           android:layout_width="match_parent"
@@ -33,6 +34,7 @@
           android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
           app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
           app:layout_collapseMode="pin"
+          android:fitsSystemWindows="true"
           android:id="@+id/toolbar" />
       </android.support.design.widget.CollapsingToolbarLayout>
       <android.support.design.widget.TabLayout
@@ -59,9 +61,12 @@
       app:layout_behavior="@string/appbar_scrolling_view_behavior"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
+      android:background="?android:colorBackground"
       android:layout_marginBottom="56dp">
       <FrameLayout
         android:id="@+id/contentView"
+        android:nestedScrollingEnabled="true"
+        android:fillViewport="true"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
@@ -82,9 +87,9 @@
 
   <android.support.v4.widget.NestedScrollView
     android:id="@+id/playerSheet"
+    android:fitsSystemWindows="true"
     android:layout_width="wrap_content"
     android:layout_height="fill_parent"
-    android:fitsSystemWindows="true"
     android:elevation="6dp"
     android:visibility="gone"
     app:layout_behavior="android.support.design.widget.BottomSheetBehavior" >

@@ -4,7 +4,6 @@ using Android.Content.PM;
 using Android.Database;
 using Android.OS;
 using Android.Provider;
-using Android.Support.Design.Widget;
 using Android.Support.V4.App;
 using Android.Support.V7.App;
 using Android.Views;

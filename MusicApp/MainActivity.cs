@@ -103,6 +103,7 @@ namespace MusicApp
             ToolBar = (Android.Support.V7.Widget.Toolbar)FindViewById(Resource.Id.toolbar);
             SetSupportActionBar(ToolBar);
             SupportActionBar.Title = "MusicApp";
+            ((CoordinatorLayout.LayoutParams)FindViewById(Resource.Id.contentLayout).LayoutParameters).TopMargin = -Resources.GetDimensionPixelSize(Resources.GetIdentifier("status_bar_height", "dimen", "android"));
 
             contentRefresh = FindViewById<SwipeRefreshLayout>(Resource.Id.contentRefresh);
 

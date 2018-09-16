@@ -56,6 +56,12 @@ namespace MusicApp.Resources.Portable_Class
             base.OnActivityCreated(savedInstanceState);
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
             MainActivity.instance.DisplaySearch(1);
+
+            int statusHeight = Resources.GetDimensionPixelSize(Resources.GetIdentifier("status_bar_height", "dimen", "android"));
+            MainActivity.instance.FindViewById(Resource.Id.contentLayout).SetPadding(0, 0, 0, 0);
+            ((CoordinatorLayout.LayoutParams)MainActivity.instance.FindViewById(Resource.Id.contentLayout).LayoutParameters).BottomMargin = -statusHeight;
+            MainActivity.instance.FindViewById(Resource.Id.toolbar).SetPadding(0, statusHeight, 0, 0);
+            MainActivity.instance.FindViewById(Resource.Id.toolbar).LayoutParameters.Height += statusHeight;
         }
 
         public bool OnMenuItemClick(IMenuItem item)
@@ -214,6 +220,13 @@ namespace MusicApp.Resources.Portable_Class
         {
             if (!MainActivity.instance.StateSaved)
             {
+                int statusHeight = Resources.GetDimensionPixelSize(Resources.GetIdentifier("status_bar_height", "dimen", "android"));
+                MainActivity.instance.FindViewById(Resource.Id.toolbar).SetPadding(0, 0, 0, 0);
+                MainActivity.instance.FindViewById(Resource.Id.toolbar).LayoutParameters.Height -= statusHeight;
+                MainActivity.instance.FindViewById(Resource.Id.toolbar).RequestLayout();
+                MainActivity.instance.FindViewById(Resource.Id.contentLayout).SetPadding(0, statusHeight, 0, 0);
+                ((CoordinatorLayout.LayoutParams)MainActivity.instance.FindViewById(Resource.Id.contentLayout).LayoutParameters).BottomMargin = 0;
+
                 MainActivity.instance.HideSearch();
                 MainActivity.instance.SupportActionBar.SetHomeButtonEnabled(false);
                 MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(false);

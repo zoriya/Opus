@@ -560,6 +560,8 @@ namespace MusicApp.Resources.Portable_Class
                 intent.SetAction("Stop");
                 context.StartService(intent);
                 sheet.Alpha = 1;
+                MusicPlayer.queue = new List<Song>();
+                MusicPlayer.UpdateQueueDataBase();
                 Home.instance?.adapter.NotifyItemRemoved(0);
                 Home.adapterItems.RemoveAt(0);
             }
