@@ -74,9 +74,6 @@ namespace MusicApp.Resources.Portable_Class
                     intent.SetAction("SwitchQueue");
                     intent.PutExtra("queueSlot", position);
                     MainActivity.instance.StartService(intent);
-
-                    MainActivity.instance.ShowSmallPlayer();
-                    MainActivity.instance.ShowPlayer();
                 }
             }
             else if (!songList[position].IsYt)

@@ -295,7 +295,6 @@
     <Compile Include="Resources\Portable Class\Sleeper.cs" />
     <Compile Include="Resources\Portable Class\SnackbarCallback.cs" />
     <Compile Include="Resources\Portable Class\SuggestionAdapter.cs" />
-    <Compile Include="Resources\Portable Class\TimerTransformer.cs" />
     <Compile Include="Resources\Portable Class\TopicSelector.cs" />
     <Compile Include="Resources\Portable Class\TwoLineAdapter.cs" />
     <Compile Include="Resources\Portable Class\UslessHolder.cs" />
@@ -688,6 +687,12 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\ArrowDown.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\splashScreen.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\values\colors.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Android.Support.Animated.Vector.Drawable.25.4.0.2\build\MonoAndroid70\Xamarin.Android.Support.Animated.Vector.Drawable.targets" Condition="Exists('..\packages\Xamarin.Android.Support.Animated.Vector.Drawable.25.4.0.2\build\MonoAndroid70\Xamarin.Android.Support.Animated.Vector.Drawable.targets')" />

@@ -21,6 +21,8 @@ namespace MusicApp.Resources.Portable_Class
     {
         public static Playlist instance;
         public RecyclerView ListView;
+        private PlaylistAdapter adapter;
+        private bool populating = false;
 
         //Local playlists
         private List<string> playList = new List<string>();
@@ -31,7 +33,6 @@ namespace MusicApp.Resources.Portable_Class
         private List<Song> ytPlaylists = new List<Song>();
         private List<Google.Apis.YouTube.v3.Data.Playlist> YtPlaylists = new List<Google.Apis.YouTube.v3.Data.Playlist>();
 
-        private PlaylistAdapter adapter;
 
         public override void OnActivityCreated(Bundle savedInstanceState)
         {
@@ -59,145 +60,151 @@ namespace MusicApp.Resources.Portable_Class
 
         public async Task PopulateView()
         {
-            //Local playlists
-            playList.Clear();
-            playlistId.Clear();
-
-            playList.Add("Header");
-            playlistId.Add(-1);
-            playListCount.Add(-1);
-
-            Android.Net.Uri uri = Playlists.ExternalContentUri;
-            CursorLoader loader = new CursorLoader(Android.App.Application.Context, uri, null, null, null, null);
-            ICursor cursor = (ICursor)loader.LoadInBackground();
-
-            if (cursor != null && cursor.MoveToFirst())
+            if (!populating)
             {
-                int nameID = cursor.GetColumnIndex(Playlists.InterfaceConsts.Name);
-                int listID = cursor.GetColumnIndex(Playlists.InterfaceConsts.Id);
-                do
-                {
-                    string name = cursor.GetString(nameID);
-                    long id = cursor.GetLong(listID);
-                    playList.Add(name);
-                    playlistId.Add(id);
+                populating = true;
 
-                    Android.Net.Uri musicUri = Playlists.Members.GetContentUri("external", id);
-                    CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
-                    ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
+                //Local playlists
+                playList.Clear();
+                playlistId.Clear();
 
-                    playListCount.Add(musicCursor.Count);
-                }
-                while (cursor.MoveToNext());
-                cursor.Close();
-            }
-
-            if(playList.Count == 1)
-            {
-                playList.Add("EMPTY - You don't have any playlist on your device.");
+                playList.Add("Header");
                 playlistId.Add(-1);
                 playListCount.Add(-1);
-            }
 
-            adapter = new PlaylistAdapter(playList, playListCount, new List<Song>());
-            ListView.SetAdapter(adapter);
-            adapter.ItemClick += ListView_ItemClick;
-            adapter.ItemLongCLick += ListView_ItemLongClick;
-            ListView.SetItemAnimator(new DefaultItemAnimator());
-            ListView.ScrollChange += MainActivity.instance.Scroll;
+                Android.Net.Uri uri = Playlists.ExternalContentUri;
+                CursorLoader loader = new CursorLoader(Android.App.Application.Context, uri, null, null, null, null);
+                ICursor cursor = (ICursor)loader.LoadInBackground();
 
-            //Youtube playlists
-            ytPlaylists = new List<Song>
-            {
-                new Song("Header", null, null, null, -1, -1, null),
-                new Song("Loading", null, null, null, -1, -1, null)
-            };
-            adapter.SetYtPlaylists(ytPlaylists, false);
-
-            if (!await MainActivity.instance.WaitForYoutube())
-            {
-                ytPlaylists[1] = new Song("Error", null, null, null, -1, -1, null);
-                adapter.SetYtPlaylists(ytPlaylists, false);
-                return;
-            }
-
-            try
-            {
-                YouTubeService youtube = YoutubeEngine.youtubeService;
-
-                if (instance == null)
-                    return;
-
-                PlaylistsResource.ListRequest request = youtube.Playlists.List("snippet,contentDetails");
-                request.Mine = true;
-                request.MaxResults = 25;
-                PlaylistListResponse response = await request.ExecuteAsync();
-
-                if (instance == null)
-                    return;
-
-                for (int i = 0; i < response.Items.Count; i++)
+                if (cursor != null && cursor.MoveToFirst())
                 {
-                    Google.Apis.YouTube.v3.Data.Playlist playlist = response.Items[i];
-                    YtPlaylists.Add(playlist);
-                    Song song = new Song(playlist.Snippet.Title, playlist.Snippet.ChannelTitle, playlist.Snippet.Thumbnails.High.Url, playlist.Id, -1, -1, playlist.Id, true, true, (int)playlist.ContentDetails.ItemCount);
-                    ytPlaylists.Add(song);
+                    int nameID = cursor.GetColumnIndex(Playlists.InterfaceConsts.Name);
+                    int listID = cursor.GetColumnIndex(Playlists.InterfaceConsts.Id);
+                    do
+                    {
+                        string name = cursor.GetString(nameID);
+                        long id = cursor.GetLong(listID);
+                        playList.Add(name);
+                        playlistId.Add(id);
+
+                        Android.Net.Uri musicUri = Playlists.Members.GetContentUri("external", id);
+                        CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
+                        ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
+
+                        playListCount.Add(musicCursor.Count);
+                    }
+                    while (cursor.MoveToNext());
+                    cursor.Close();
                 }
 
+                if (playList.Count == 1)
+                {
+                    playList.Add("EMPTY - You don't have any playlist on your device.");
+                    playlistId.Add(-1);
+                    playListCount.Add(-1);
+                }
 
-                ytPlaylists.RemoveAt(1);
-                Song loading = new Song("Loading", null, null, null, -1, -1, null);
-                ytPlaylists.Add(loading);
+                adapter = new PlaylistAdapter(playList, playListCount, new List<Song>());
+                ListView.SetAdapter(adapter);
+                adapter.ItemClick += ListView_ItemClick;
+                adapter.ItemLongCLick += ListView_ItemLongClick;
+                ListView.SetItemAnimator(new DefaultItemAnimator());
+                ListView.ScrollChange += MainActivity.instance.Scroll;
 
+                //Youtube playlists
+                ytPlaylists = new List<Song>
+                {
+                    new Song("Header", null, null, null, -1, -1, null),
+                    new Song("Loading", null, null, null, -1, -1, null)
+                };
                 adapter.SetYtPlaylists(ytPlaylists, false);
 
-                //Saved playlists
-                ChannelSectionsResource.ListRequest forkedRequest = youtube.ChannelSections.List("snippet,contentDetails");
-                forkedRequest.Mine = true;
-                ChannelSectionListResponse forkedResponse = await forkedRequest.ExecuteAsync();
-                if (instance == null)
-                    return;
-
-                foreach (ChannelSection section in forkedResponse.Items)
+                if (!await MainActivity.instance.WaitForYoutube())
                 {
-                    if (section.Snippet.Title == "Saved Playlists")
+                    ytPlaylists[1] = new Song("Error", null, null, null, -1, -1, null);
+                    adapter.SetYtPlaylists(ytPlaylists, false);
+                    return;
+                }
+
+                try
+                {
+                    YouTubeService youtube = YoutubeEngine.youtubeService;
+
+                    if (instance == null)
+                        return;
+
+                    PlaylistsResource.ListRequest request = youtube.Playlists.List("snippet,contentDetails");
+                    request.Mine = true;
+                    request.MaxResults = 25;
+                    PlaylistListResponse response = await request.ExecuteAsync();
+
+                    if (instance == null)
+                        return;
+
+                    for (int i = 0; i < response.Items.Count; i++)
                     {
-                        for (int i = 0; i < section.ContentDetails.Playlists.Count; i++)
+                        Google.Apis.YouTube.v3.Data.Playlist playlist = response.Items[i];
+                        YtPlaylists.Add(playlist);
+                        Song song = new Song(playlist.Snippet.Title, playlist.Snippet.ChannelTitle, playlist.Snippet.Thumbnails.High.Url, playlist.Id, -1, -1, playlist.Id, true, true, (int)playlist.ContentDetails.ItemCount);
+                        ytPlaylists.Add(song);
+                    }
+
+
+                    ytPlaylists.RemoveAt(1);
+                    Song loading = new Song("Loading", null, null, null, -1, -1, null);
+                    ytPlaylists.Add(loading);
+
+                    adapter.SetYtPlaylists(ytPlaylists, false);
+
+                    //Saved playlists
+                    ChannelSectionsResource.ListRequest forkedRequest = youtube.ChannelSections.List("snippet,contentDetails");
+                    forkedRequest.Mine = true;
+                    ChannelSectionListResponse forkedResponse = await forkedRequest.ExecuteAsync();
+                    if (instance == null)
+                        return;
+
+                    foreach (ChannelSection section in forkedResponse.Items)
+                    {
+                        if (section.Snippet.Title == "Saved Playlists")
                         {
-                            PlaylistsResource.ListRequest plRequest = youtube.Playlists.List("snippet, contentDetails");
-                            plRequest.Id = section.ContentDetails.Playlists[i];
+                            for (int i = 0; i < section.ContentDetails.Playlists.Count; i++)
+                            {
+                                PlaylistsResource.ListRequest plRequest = youtube.Playlists.List("snippet, contentDetails");
+                                plRequest.Id = section.ContentDetails.Playlists[i];
 
-                            if (instance == null)
-                                return;
+                                if (instance == null)
+                                    return;
 
-                            PlaylistListResponse plResponse = await plRequest.ExecuteAsync();
+                                PlaylistListResponse plResponse = await plRequest.ExecuteAsync();
 
-                            if (instance == null)
-                                return;
+                                if (instance == null)
+                                    return;
 
-                            Google.Apis.YouTube.v3.Data.Playlist playlist = plResponse.Items[0];
-                            playlist.Kind = "youtube#saved";
-                            YtPlaylists.Add(playlist);
-                            Song song = new Song(playlist.Snippet.Title, playlist.Snippet.ChannelTitle, playlist.Snippet.Thumbnails.High.Url, playlist.Id, -1, -1, playlist.Id, true, false, (int)playlist.ContentDetails.ItemCount);
-                            ytPlaylists.Add(song);
+                                Google.Apis.YouTube.v3.Data.Playlist playlist = plResponse.Items[0];
+                                playlist.Kind = "youtube#saved";
+                                YtPlaylists.Add(playlist);
+                                Song song = new Song(playlist.Snippet.Title, playlist.Snippet.ChannelTitle, playlist.Snippet.Thumbnails.High.Url, playlist.Id, -1, -1, playlist.Id, true, false, (int)playlist.ContentDetails.ItemCount);
+                                ytPlaylists.Add(song);
+                            }
                         }
                     }
+
+                    ytPlaylists.Remove(loading);
+
+                    if (ytPlaylists.Count == 1)
+                    {
+                        ytPlaylists.Add(new Song("EMPTY", "You don't have any youtube playlist on your account. \nWarning: Only playlist from your google account are displayed", null, null, -1, -1, null));
+                    }
+
+                    adapter.SetYtPlaylists(ytPlaylists, true);
                 }
-
-                ytPlaylists.Remove(loading);
-
-                if (ytPlaylists.Count == 1)
+                catch (System.Net.Http.HttpRequestException)
                 {
-                    ytPlaylists.Add(new Song("EMPTY", "You don't have any youtube playlist on your account. \nWarning: Only playlist from your google account are displayed", null, null, -1, -1, null));
+                    ytPlaylists[1] = new Song("Error", null, null, null, -1, -1, null);
+                    adapter.SetYtPlaylists(ytPlaylists, false);
+                    MainActivity.instance.Timout();
                 }
-
-                adapter.SetYtPlaylists(ytPlaylists, true);
-            }
-            catch (System.Net.Http.HttpRequestException)
-            {
-                ytPlaylists[1] = new Song("Error", null, null, null, -1, -1, null);
-                adapter.SetYtPlaylists(ytPlaylists, false);
-                MainActivity.instance.Timout();
+                populating = false;
             }
         }
 

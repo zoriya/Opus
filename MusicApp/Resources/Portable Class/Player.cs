@@ -26,8 +26,9 @@ namespace MusicApp.Resources.Portable_Class
         public static Player instance;
         public Handler handler = new Handler();
 
-        private DiscreteSeekBar bar;
+        private SeekBar bar;
         private ProgressBar spBar;
+        private TextView timerStart;
         private ImageView imgView;
         private readonly int[] timers = new int[] { 0, 1, 10, 30, 60, 120 };
         private readonly string[] items = new string[] { "Off", "1 minute", "10 minutes", "30 minutes", "1 hour", "2 hours" };
@@ -97,8 +98,12 @@ namespace MusicApp.Resources.Portable_Class
                 ShowQueue.Visibility = ViewStates.Gone;
             }
 
-            bar = MainActivity.instance.FindViewById<DiscreteSeekBar>(Resource.Id.songTimer);
-            bar.LayoutParameters.Width = (int)(MainActivity.instance.Resources.DisplayMetrics.WidthPixels * 1.2f);
+            bar = MainActivity.instance.FindViewById<SeekBar>(Resource.Id.songTimer);
+            bar.ProgressChanged += (sender, e) =>
+            {
+                timerStart.Text = DurationToTimer(e.Progress);
+            };
+            timerStart = MainActivity.instance.FindViewById<TextView>(Resource.Id.timerStart);
 
             spBar = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.spProgress);
         }
@@ -246,8 +251,9 @@ namespace MusicApp.Resources.Portable_Class
                     await Task.Delay(100);
 
                 bar.Max = (int)MusicPlayer.player.Duration;
-                bar.SetNumericTransformer(new TimerTransformer());
                 MusicPlayer.SetSeekBar(bar);
+                timerStart.Text = DurationToTimer(MusicPlayer.CurrentPosition);
+                MainActivity.instance.FindViewById<TextView>(Resource.Id.timerEnd).Text = DurationToTimer((int)MusicPlayer.player.Duration);
                 spBar.Max = MusicPlayer.Duration;
                 spBar.Progress = MusicPlayer.CurrentPosition;
 
@@ -339,10 +345,28 @@ namespace MusicApp.Resources.Portable_Class
                 handler.RemoveCallbacks(UpdateSeekBar);
                 return;
             }
-
-            bar.Progress = MusicPlayer.CurrentPosition;
+            if(MusicPlayer.autoUpdateSeekBar)
+            {
+                bar.Progress = MusicPlayer.CurrentPosition;
+                timerStart.Text = DurationToTimer(MusicPlayer.CurrentPosition);
+            }
             spBar.Progress = MusicPlayer.CurrentPosition;
             handler.PostDelayed(UpdateSeekBar, 1000);
+        }
+
+        private string DurationToTimer(int duration)
+        {
+            int minutes = duration / 60000;
+            int seconds = duration / 1000 % 60;
+
+            string min = minutes.ToString();
+            string sec = seconds.ToString();
+            if (min.Length == 1)
+                min = "0" + min;
+            if (sec.Length == 1)
+                sec = "0" + sec;
+
+            return min + ":" + sec;
         }
 
         private void Fab_Click(object sender, EventArgs e)
@@ -448,15 +472,16 @@ namespace MusicApp.Resources.Portable_Class
             MainActivity.instance.FindViewById<FloatingActionButton>(Resource.Id.downFAB).RippleColor = accent.Rgb;
 
             if(bar == null)
-                bar = MainActivity.instance.FindViewById<DiscreteSeekBar>(Resource.Id.songTimer);
+                bar = MainActivity.instance.FindViewById<SeekBar>(Resource.Id.songTimer);
 
             if(spBar == null)
                 spBar = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.spProgress);
 
-            bar.SetThumbColor(accent.Rgb, accent.Rgb);
-            bar.SetScrubberColor(accent.Rgb);
-            bar.SetRippleColor(accent.Rgb);
+            bar.ProgressTintList = ColorStateList.ValueOf(accentColor);
+            bar.ThumbTintList = ColorStateList.ValueOf(accentColor);
+            bar.ProgressBackgroundTintList = ColorStateList.ValueOf(Color.Argb(87, accentColor.R, accentColor.G, accentColor.B));
             spBar.ProgressTintList = ColorStateList.ValueOf(accentColor);
+            spBar.ProgressBackgroundTintList = ColorStateList.ValueOf(Color.Argb(87, accentColor.R, accentColor.G, accentColor.B));
 
             if (IsColorDark(accent.Rgb))
             {
@@ -550,7 +575,12 @@ namespace MusicApp.Resources.Portable_Class
         public override void OnStateChanged(View bottomSheet, int newState)
         {
             if (newState == BottomSheetBehavior.StateExpanded)
+            {
+                sheet.Alpha = 1;
+                playerView.Alpha = 1;
+                smallPlayer.Alpha = 0;
                 movement = SheetMovement.Unknow;
+            }
             else if (newState == BottomSheetBehavior.StateCollapsed)
                 movement = SheetMovement.Unknow;
             else if(newState == BottomSheetBehavior.StateHidden)

@@ -62,7 +62,7 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:background="?android:colorBackground"
-      android:layout_marginBottom="56dp">
+      android:layout_marginBottom="56dp" >
       <FrameLayout
         android:id="@+id/contentView"
         android:nestedScrollingEnabled="true"

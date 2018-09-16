@@ -47,8 +47,10 @@ namespace MusicApp.Resources.Portable_Class
         private static bool parsing = false;
         private bool generating = false;
         public static int currentID = -1;
+        public static bool autoUpdateSeekBar = true;
         public static bool repeat = false;
         public static bool useAutoPlay = false;
+        private static bool ShouldResumePlayback;
 
         private Notification notification;
         private const int notificationID = 1000;
@@ -132,7 +134,7 @@ namespace MusicApp.Resources.Portable_Class
                     break;
 
                 case "SwitchQueue":
-                    SwitchQueue(queue[intent.GetIntExtra("queueSlot", -1)]);
+                    SwitchQueue(queue[intent.GetIntExtra("queueSlot", -1)], true);
                     break;
             }
 
@@ -194,6 +196,7 @@ namespace MusicApp.Resources.Portable_Class
                 AudioFocusRequestClass focusRequest = new AudioFocusRequestClass.Builder(AudioFocus.Gain)
                     .SetAudioAttributes(attributes)
                     .SetAcceptsDelayedFocusGain(true)
+                    .SetWillPauseWhenDucked(true)
                     .SetOnAudioFocusChangeListener(this)
                     .Build();
                 AudioFocusRequest audioFocus = audioManager.RequestAudioFocus(focusRequest);
@@ -289,6 +292,7 @@ namespace MusicApp.Resources.Portable_Class
                 AudioFocusRequestClass focusRequest = new AudioFocusRequestClass.Builder(AudioFocus.Gain)
                     .SetAudioAttributes(attributes)
                     .SetAcceptsDelayedFocusGain(true)
+                    .SetWillPauseWhenDucked(true)
                     .SetOnAudioFocusChangeListener(this)
                     .Build();
                 AudioFocusRequest audioFocus = audioManager.RequestAudioFocus(focusRequest);
@@ -659,10 +663,16 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
-        public async void SwitchQueue(Song song)
+        public async void SwitchQueue(Song song, bool showPlayer = false)
         {
             if (!song.isParsed)
             {
+                if (MainActivity.instance != null && showPlayer)
+                {
+                    ProgressBar parseProgress = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress);
+                    parseProgress.Visibility = ViewStates.Visible;
+                    parseProgress.ScaleY = 6;
+                }
                 try
                 {
                     YoutubeClient client = new YoutubeClient();
@@ -697,6 +707,12 @@ namespace MusicApp.Resources.Portable_Class
                     MainActivity.instance.Timout();
                     return;
                 }
+
+                if (MainActivity.instance != null && showPlayer)
+                {
+                    ProgressBar parseProgress = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress);
+                    parseProgress.Visibility = ViewStates.Gone;
+                }
             }
 
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
@@ -706,6 +722,12 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             Play(song, false);
+
+            if (showPlayer)
+            {
+                MainActivity.instance.ShowSmallPlayer();
+                MainActivity.instance.ShowPlayer();
+            }
 
             Player.instance?.RefreshPlayer();
             Queue.instance?.RefreshCurrent();
@@ -718,20 +740,25 @@ namespace MusicApp.Resources.Portable_Class
             return currentID;
         }
 
-        public static void SetSeekBar(DiscreteSeekBar bar)
+        public static void SetSeekBar(SeekBar bar)
         {
             bar.Max = (int) player.Duration;
             bar.Progress = (int) player.CurrentPosition;
             bar.ProgressChanged += (sender, e) =>
             {
-                bool FromUser = e.FromUser;
-                int Progress = e.Value;
-
-                if (player != null && FromUser)
-                    player.SeekTo(Progress);
+                int Progress = e.Progress;
 
                 if (player != null && player.Duration - Progress <= 1500 && player.Duration - Progress > 0)
                     ParseNextSong();
+            };
+            bar.StartTrackingTouch += (sender, e) =>
+            {
+                autoUpdateSeekBar = false;
+            };
+            bar.StopTrackingTouch += (sender, e) =>
+            {
+                autoUpdateSeekBar = true;
+                player.SeekTo(e.SeekBar.Progress);
             };
         }
 
@@ -1044,6 +1071,8 @@ namespace MusicApp.Resources.Portable_Class
         {
             if(player != null && !isRunning)
             {
+                ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
+                player.Volume = prefManager.GetInt("volumeMultiplier", 100) / 100f;
                 isRunning = true;
                 Intent tmpPauseIntent = new Intent(Application.Context, typeof(MusicPlayer));
                 tmpPauseIntent.SetAction("Pause");
@@ -1075,6 +1104,7 @@ namespace MusicApp.Resources.Portable_Class
                     AudioFocusRequestClass focusRequest = new AudioFocusRequestClass.Builder(AudioFocus.Gain)
                         .SetAudioAttributes(attributes)
                         .SetAcceptsDelayedFocusGain(true)
+                        .SetWillPauseWhenDucked(true)
                         .SetOnAudioFocusChangeListener(this)
                         .Build();
                     AudioFocusRequest audioFocus = audioManager.RequestAudioFocus(focusRequest);
@@ -1134,29 +1164,36 @@ namespace MusicApp.Resources.Portable_Class
 
         public void OnAudioFocusChange(AudioFocus focusChange)
         {
+            Console.WriteLine("&AudioFocus Changed: " + focusChange.ToString());
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
             switch (focusChange)
             {
                 case AudioFocus.Gain:
-                    if (player == null)
-                        InitializeService();
+                    if (ShouldResumePlayback)
+                    {
+                        if (player == null)
+                            InitializeService();
 
-                    if (!isRunning)
-                        player.PlayWhenReady = true;
+                        Resume();
+                    }
 
-                    player.Volume = prefManager.GetInt("volumeMultiplier", 100) / 100;
+                    if (player != null)
+                        player.Volume = prefManager.GetInt("volumeMultiplier", 100) / 100f;
                     break;
 
                 case AudioFocus.Loss:
                     Pause();
+                    ShouldResumePlayback = false;
                     break;
 
                 case AudioFocus.LossTransient:
                     Pause();
+                    ShouldResumePlayback = true;
                     break;
 
                 case AudioFocus.LossTransientCanDuck:
-                    Pause();
+                    player.Volume = prefManager.GetInt("volumeMultiplier", 100) / 160;
+                    ShouldResumePlayback = true;
                     break;
 
                 default:

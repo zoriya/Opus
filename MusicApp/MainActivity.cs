@@ -45,7 +45,7 @@ using SearchView = Android.Support.V7.Widget.SearchView;
 
 namespace MusicApp
 {
-    [Activity(Label = "MusicApp", MainLauncher = true, Icon = "@drawable/launcher_icon", Theme = "@style/Theme", ScreenOrientation = ScreenOrientation.Portrait, LaunchMode = LaunchMode.SingleTop)]
+    [Activity(Label = "MusicApp", MainLauncher = true, Icon = "@drawable/launcher_icon", Theme = "@style/SplashScreen", ScreenOrientation = ScreenOrientation.Portrait, LaunchMode = LaunchMode.SingleTop)]
     [IntentFilter(new[] {Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, DataHost = "www.youtube.com", DataMimeType = "text/*")]
     [IntentFilter(new[] {Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, DataHost = "m.youtube.com", DataMimeType = "text/plain")]
     [IntentFilter(new[] { Intent.ActionView }, Categories = new[] { Intent.CategoryDefault }, DataMimeTypes = new[] { "audio/*", "application/ogg", "application/x-ogg", "application/itunes" })]
@@ -85,7 +85,6 @@ namespace MusicApp
         public GoogleApiClient googleClient;
         private bool canAsk;
         public bool waitingForYoutube;
-        private bool resuming = false;
         public bool ResumeKiller;
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -168,6 +167,9 @@ namespace MusicApp
                     HideSmallPlayer();
                     Navigate(Resource.Id.musicLayout);
                 }
+
+                FindViewById(Resource.Id.contentRefresh).Invalidate();
+                FindViewById(Resource.Id.contentView).RequestLayout();
             }
 
             if(intent.Action == "Sleep")
@@ -616,7 +618,7 @@ namespace MusicApp
             switch (layout)
             {
                 case Resource.Id.musicLayout:
-                    if (Home.instance != null && !resuming)
+                    if (Home.instance != null)
                     {
                         Home.instance.Refresh();
                         return;
@@ -639,12 +641,11 @@ namespace MusicApp
                     tab = "Browse";
                     DisplaySearch();
                     HideQuickPlay();
-                    fragment = Pager.NewInstance(0, resuming ? 1 : 0);
-                    resuming = false;
+                    fragment = Pager.NewInstance(0, 0);
                     break;
 
                 case Resource.Id.playlistLayout:
-                    if (Playlist.instance != null && !resuming)
+                    if (Playlist.instance != null)
                     {
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                         Playlist.instance.Refresh();
