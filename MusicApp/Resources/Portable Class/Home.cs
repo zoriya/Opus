@@ -490,9 +490,12 @@ namespace MusicApp.Resources.Portable_Class
                 MainActivity.parcelableSender = null;
             }
 
-            adapterItems[0].recycler?.GetAdapter()?.NotifyDataSetChanged();
-            if (MusicPlayer.CurrentID() != -1 && MusicPlayer.CurrentID() <= MusicPlayer.queue.Count)
-                adapterItems[0].recycler?.ScrollToPosition(MusicPlayer.CurrentID());
+            if(adapterItems.Count > 0)
+            {
+                adapterItems[0].recycler?.GetAdapter()?.NotifyDataSetChanged();
+                if (MusicPlayer.CurrentID() != -1 && MusicPlayer.CurrentID() <= MusicPlayer.queue.Count)
+                    adapterItems[0].recycler?.ScrollToPosition(MusicPlayer.CurrentID());
+            }
         }
     }
 }

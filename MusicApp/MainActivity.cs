@@ -127,11 +127,6 @@ namespace MusicApp
                 notificationManager.CreateNotificationChannel(channel);
             }
 
-            if (MusicPlayer.queue.Count > 0)
-                ReCreateSmallPlayer();
-            else
-                Navigate(Resource.Id.musicLayout);
-
             if (Intent.Action == Intent.ActionSend)
             {
                 if (YoutubeClient.TryParseVideoId(Intent.GetStringExtra(Intent.ExtraText), out string videoID))
@@ -157,7 +152,7 @@ namespace MusicApp
         {
             if (lateSetup)
             {
-                await Task.Delay(1000);
+                await Task.Delay(500);
                 FindViewById(Resource.Id.playerFrame).LayoutParameters.Height = FindViewById(Resource.Id.playerSheet).Height;
                 FindViewById(Resource.Id.playerSheet).TranslationY = -DpToPx(56);
                 SheetBehavior = BottomSheetBehavior.From(FindViewById(Resource.Id.playerSheet));
@@ -165,6 +160,14 @@ namespace MusicApp
                 SheetBehavior.Hideable = true;
                 SheetBehavior.SetBottomSheetCallback(new PlayerCallback(this));
                 SheetBehavior.PeekHeight = DpToPx(70);
+
+                if (MusicPlayer.queue.Count > 0)
+                    ReCreateSmallPlayer();
+                else
+                {
+                    HideSmallPlayer();
+                    Navigate(Resource.Id.musicLayout);
+                }
             }
 
             if(intent.Action == "Sleep")
@@ -958,15 +961,14 @@ namespace MusicApp
         public void HideSmallPlayer()
         {
             FindViewById<FrameLayout>(Resource.Id.contentView).SetPadding(0, 0, 0, 0);
-            FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Invisible;
             FindViewById<NestedScrollView>(Resource.Id.playerSheet).Alpha = 1;
+            SheetBehavior.State = BottomSheetBehavior.StateHidden;
         }
 
         public void ShowSmallPlayer()
         {
             FindViewById(Resource.Id.playerView).Alpha = 0;
             Player.instance.RefreshPlayer();
-            FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Visible;
             FindViewById<FrameLayout>(Resource.Id.contentView).SetPadding(0, 0, 0, DpToPx(70));
         }
 

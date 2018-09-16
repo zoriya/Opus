@@ -562,8 +562,11 @@ namespace MusicApp.Resources.Portable_Class
                 sheet.Alpha = 1;
                 MusicPlayer.queue = new List<Song>();
                 MusicPlayer.UpdateQueueDataBase();
-                Home.instance?.adapter.NotifyItemRemoved(0);
-                Home.adapterItems.RemoveAt(0);
+                if (Home.adapterItems.Count > 0 && Home.adapterItems[0].SectionTitle == "Queue")
+                {
+                    Home.instance?.adapter.NotifyItemRemoved(0);
+                    Home.adapterItems.RemoveAt(0);
+                }
             }
         }
     }
