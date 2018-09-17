@@ -577,6 +577,7 @@ namespace MusicApp.Resources.Portable_Class
             SaveQueueSlot();
             Player.instance?.UpdateNext();
             Queue.instance?.Refresh();
+            Queue.instance?.ListView.ScrollToPosition(0);
         }
 
         public void AddToQueue(string filePath, string title = null, string artist = null, string youtubeID = null, string thumbnailURI = null)

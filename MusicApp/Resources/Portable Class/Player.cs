@@ -245,14 +245,15 @@ namespace MusicApp.Resources.Portable_Class
                 Picasso.With(MainActivity.instance).Load(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
             }
 
-            if(MusicPlayer.player != null)
+            if (MusicPlayer.player != null)
             {
                 while (MusicPlayer.player.Duration < 1)
                     await Task.Delay(100);
 
                 bar.Max = (int)MusicPlayer.player.Duration;
                 MusicPlayer.SetSeekBar(bar);
-                timerStart.Text = DurationToTimer(MusicPlayer.CurrentPosition);
+                if(timerStart != null)
+                    timerStart.Text = DurationToTimer(MusicPlayer.CurrentPosition);
                 MainActivity.instance.FindViewById<TextView>(Resource.Id.timerEnd).Text = DurationToTimer((int)MusicPlayer.player.Duration);
                 spBar.Max = MusicPlayer.Duration;
                 spBar.Progress = MusicPlayer.CurrentPosition;
@@ -538,6 +539,12 @@ namespace MusicApp.Resources.Portable_Class
 
         public override void OnSlide(View bottomSheet, float slideOffset)
         {
+            if(playerView == null)
+            {
+                playerView = context.FindViewById(Resource.Id.playerView);
+                return;
+            }
+
             if(movement == SheetMovement.Unknow)
             {
                 if (slideOffset > 0)
@@ -577,7 +584,8 @@ namespace MusicApp.Resources.Portable_Class
             if (newState == BottomSheetBehavior.StateExpanded)
             {
                 sheet.Alpha = 1;
-                playerView.Alpha = 1;
+                if(playerView != null)
+                    playerView.Alpha = 1;
                 smallPlayer.Alpha = 0;
                 movement = SheetMovement.Unknow;
             }

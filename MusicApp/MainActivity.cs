@@ -126,23 +126,6 @@ namespace MusicApp
                 notificationManager.CreateNotificationChannel(channel);
             }
 
-            if (Intent.Action == Intent.ActionSend)
-            {
-                if (YoutubeClient.TryParseVideoId(Intent.GetStringExtra(Intent.ExtraText), out string videoID))
-                {
-                    Intent intent = new Intent(this, typeof(MusicPlayer));
-                    intent.SetAction("YoutubePlay");
-                    intent.PutExtra("action", "Play");
-                    intent.PutExtra("file", videoID);
-                    StartService(intent);
-                }
-                else
-                {
-                    Toast.MakeText(this, "Can't play non youtube video.", ToastLength.Short).Show();
-                    Finish();
-                }
-            }
-
             CheckForUpdate(this, false);
             OnLateCreate(Intent);
         }
@@ -162,9 +145,10 @@ namespace MusicApp
 
                 if (MusicPlayer.queue.Count > 0)
                     ReCreateSmallPlayer();
-                else
+                else 
                 {
-                    HideSmallPlayer();
+                    if (intent.Action != "Sleep" && intent.Action != "Player" && intent.Action != Intent.ActionView && Intent.Action != Intent.ActionSend)
+                        HideSmallPlayer();
                     Navigate(Resource.Id.musicLayout);
                 }
 
@@ -190,6 +174,22 @@ namespace MusicApp
 
                 ShowSmallPlayer();
                 ShowPlayer();
+            }
+            else if (Intent.Action == Intent.ActionSend)
+            {
+                if (YoutubeClient.TryParseVideoId(Intent.GetStringExtra(Intent.ExtraText), out string videoID))
+                {
+                    Intent inten = new Intent(this, typeof(MusicPlayer));
+                    inten.SetAction("YoutubePlay");
+                    inten.PutExtra("action", "Play");
+                    inten.PutExtra("file", videoID);
+                    StartService(inten);
+                }
+                else
+                {
+                    Toast.MakeText(this, "Can't play non youtube video.", ToastLength.Short).Show();
+                    Finish();
+                }
             }
         }
 
@@ -910,7 +910,8 @@ namespace MusicApp
         public void ShowPlayer()
         {
             FindViewById<BottomNavigationView>(Resource.Id.bottomView).TranslationY = (int)(56 * Resources.DisplayMetrics.Density + 0.5f);
-            FindViewById(Resource.Id.playerView).Alpha = 1;
+            if(FindViewById(Resource.Id.playerView) != null)
+                FindViewById(Resource.Id.playerView).Alpha = 1;
             FindViewById(Resource.Id.smallPlayer).Alpha = 0;
             FindViewById(Resource.Id.quickPlayLinear).ScaleX = 0;
             FindViewById(Resource.Id.quickPlayLinear).ScaleY = 0;
@@ -968,8 +969,9 @@ namespace MusicApp
 
         public void ShowSmallPlayer()
         {
-            FindViewById(Resource.Id.playerView).Alpha = 0;
-            Player.instance.RefreshPlayer();
+            if (FindViewById(Resource.Id.playerView) != null)
+                FindViewById(Resource.Id.playerView).Alpha = 0;
+            Player.instance?.RefreshPlayer();
             FindViewById<FrameLayout>(Resource.Id.contentView).SetPadding(0, 0, 0, DpToPx(70));
         }
 

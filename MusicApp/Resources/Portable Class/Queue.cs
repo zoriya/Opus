@@ -35,8 +35,6 @@ namespace MusicApp.Resources.Portable_Class
 
             SetContentView(Resource.Layout.ListPopupLayout);
             instance = this;
-            //if (MusicPlayer.queue == null)
-            //    MusicPlayer.RetrieveQueueFromDataBase();
 
             SetSupportActionBar(FindViewById<Toolbar>(Resource.Id.toolbar));
             SupportActionBar.SetHomeAsUpIndicator(Resource.Drawable.Close);
