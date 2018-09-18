@@ -90,6 +90,7 @@
     android:fitsSystemWindows="true"
     android:layout_width="wrap_content"
     android:layout_height="fill_parent"
+    android:visibility="gone"
     android:elevation="6dp"
     app:layout_behavior="android.support.design.widget.BottomSheetBehavior" >
     <RelativeLayout

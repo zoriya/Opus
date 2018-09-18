@@ -154,6 +154,7 @@ namespace MusicApp
 
                 FindViewById(Resource.Id.contentRefresh).Invalidate();
                 FindViewById(Resource.Id.contentView).RequestLayout();
+                FindViewById(Resource.Id.playerSheet).Visibility = ViewStates.Visible;
             }
 
             if (intent.Action == "Sleep")
