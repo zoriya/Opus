@@ -1312,6 +1312,9 @@ namespace MusicApp
                 }
                 else
                 {
+                    if(PlaylistTracks.instance != null)
+                        SupportFragmentManager.BeginTransaction().Remove(PlaylistTracks.instance).CommitNow();
+
                     SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(1, 0)).AddToBackStack(null).Commit();
                 }
                 SearchableActivity.instance = null;

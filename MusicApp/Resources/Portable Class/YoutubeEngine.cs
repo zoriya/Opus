@@ -213,7 +213,6 @@ namespace MusicApp.Resources.Portable_Class
                     case "youtube#playlist":
                         kind = YtKind.Playlist;
                         videoInfo.youtubeID = video.Id.PlaylistId;
-                        Console.WriteLine("&Playlist ID: " + video.Id.PlaylistId);
                         break;
                     case "youtube#channel":
                         kind = YtKind.Channel;
@@ -742,7 +741,6 @@ namespace MusicApp.Resources.Portable_Class
             {
                 if (section.Snippet.Title == "Saved Playlists")
                 {
-                    Console.WriteLine("&Section found");
                     //AddToSection
                     if (section.ContentDetails.Playlists.Contains(playlistID))
                     {

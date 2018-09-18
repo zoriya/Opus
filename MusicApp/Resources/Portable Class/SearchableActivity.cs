@@ -28,6 +28,7 @@ namespace MusicApp.Resources.Portable_Class
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
+            instance = this;
             base.OnCreate(savedInstanceState);
             if (MainActivity.Theme == 1)
                 SetTheme(Resource.Style.DarkTheme);
@@ -38,7 +39,6 @@ namespace MusicApp.Resources.Portable_Class
             SetSupportActionBar(ToolBar);
             SupportActionBar.Title = "";
             ListView = FindViewById<ListView>(Resource.Id.searchSuggestions);
-            instance = this;
 
             ListView.Divider = null;
             ListView.DividerHeight = 0;
