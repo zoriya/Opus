@@ -76,7 +76,6 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             string file = intent.GetStringExtra("file");
-            Console.WriteLine("&File " + file);
 
             switch (intent.Action)
             {

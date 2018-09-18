@@ -483,11 +483,13 @@ namespace MusicApp.Resources.Portable_Class
             }
             else
             {
-                Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), "Download Path Not Set.", Snackbar.LengthShort).SetAction("Set Path", (v) =>
+                Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), "Download Path Not Set.", Snackbar.LengthLong).SetAction("Set Path", (v) =>
                 {
                     Intent intent = new Intent(Android.App.Application.Context, typeof(Preferences));
                     MainActivity.instance.StartActivity(intent);
-                }).Show();
+                });
+                snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+                snackBar.Show();
             }
         }
 
@@ -511,11 +513,13 @@ namespace MusicApp.Resources.Portable_Class
             }
             else
             {
-                Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), "Download Path Not Set.", Snackbar.LengthShort).SetAction("Set Path", (v) =>
+                Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), "Download Path Not Set.", Snackbar.LengthLong).SetAction("Set Path", (v) =>
                 {
                     Intent intent = new Intent(Android.App.Application.Context, typeof(Preferences));
                     MainActivity.instance.StartActivity(intent);
-                }).Show();
+                });
+                snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+                snackBar.Show();
             }
         }
 
@@ -742,7 +746,9 @@ namespace MusicApp.Resources.Portable_Class
                     //AddToSection
                     if (section.ContentDetails.Playlists.Contains(playlistID))
                     {
-                        Snackbar.Make(MainActivity.instance.FindViewById<CoordinatorLayout>(Resource.Id.snackBar), "You've already added this playlist.", 1).Show();
+                        Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById<CoordinatorLayout>(Resource.Id.snackBar), "You've already added this playlist.", Snackbar.LengthLong);
+                        snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Android.Graphics.Color.White);
+                        snackBar.Show();
                         return;
                     }
                     else

@@ -794,15 +794,14 @@ namespace MusicApp.Resources.Portable_Class
                     else if(playlistId != 0)
                         callback = new SnackbarCallback(position, song, playlistId);
 
-                    ((Snackbar)Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), (song.Title.Length > 20 ? song.Title.Substring(0, 17) + "..." : song.Title )+ " has been removed from the playlist.", Snackbar.LengthShort)
-                        .AddCallback(callback))
-                        .SetAction("Undo", (v) => 
+                    Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), (song.Title.Length > 20 ? song.Title.Substring(0, 17) + "..." : song.Title) + " has been removed from the playlist.", Snackbar.LengthLong)
+                        .SetAction("Undo", (v) =>
                         {
                             callback.canceled = true;
                             if (ytID != null)
                             {
                                 ytTracksIDs.Insert(position, song.youtubeID);
-                                if(result != null && result.Count >= position)
+                                if (result != null && result.Count >= position)
                                 {
                                     result?.Insert(position, song);
                                     ytTracksIdsResult?.Insert(position, song.youtubeID);
@@ -814,11 +813,13 @@ namespace MusicApp.Resources.Portable_Class
                             {
                                 adapter.Insert(position, song);
                                 tracks.Insert(position, song);
-                                if(result != null && result.Count >= position)
+                                if (result != null && result.Count >= position)
                                     result?.Insert(position, song);
                             }
-                        })
-                        .Show();
+                        });
+                    snackBar.AddCallback(callback);
+                    snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Android.Graphics.Color.White);
+                    snackBar.Show();
 
                     if(ytID != null)
                     {

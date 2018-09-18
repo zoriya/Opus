@@ -9,6 +9,7 @@ using Android.OS;
 using Android.Provider;
 using Android.Support.Design.Widget;
 using Android.Support.V4.App;
+using Android.Widget;
 using MusicApp.Resources.values;
 using System.Collections.Generic;
 using System.IO;
@@ -90,11 +91,13 @@ namespace MusicApp.Resources.Portable_Class
 
             if (YoutubeEngine.FileIsAlreadyDownloaded(file.videoID) && !file.skipCheck)
             {
-                Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), file.name + " is already on your device.", Snackbar.LengthShort).SetAction("Download Anyway", (v) =>
+                Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), file.name + " is already on your device.", Snackbar.LengthShort).SetAction("Download Anyway", (v) =>
                 {
                     file.skipCheck = true;
                     Download(file);
-                }).Show();
+                });
+                snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Android.Graphics.Color.White);
+                snackBar.Show();
             }
 
             try

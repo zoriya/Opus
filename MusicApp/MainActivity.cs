@@ -156,7 +156,7 @@ namespace MusicApp
                 FindViewById(Resource.Id.contentView).RequestLayout();
             }
 
-            if(intent.Action == "Sleep")
+            if (intent.Action == "Sleep")
             {
                 ShowPlayer();
                 Player.instance.SleepButton_Click("", null);
@@ -939,9 +939,10 @@ namespace MusicApp
                         PremissionAuthorized();
                     else
                     {
-                        Snackbar.Make(FindViewById<CoordinatorLayout>(Resource.Id.snackBar), "Permission denied, can't list musics.", Snackbar.LengthLong)
-                            .SetAction("Ask Again", (v) => { GetStoragePermission(); })
-                            .Show();
+                        Snackbar snackBar = Snackbar.Make(FindViewById<CoordinatorLayout>(Resource.Id.snackBar), "Permission denied, can't list musics.", Snackbar.LengthLong)
+                            .SetAction("Ask Again", (v) => { GetStoragePermission(); });
+                        snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+                        snackBar.Show();
                     }
                 }
             }
@@ -1059,8 +1060,9 @@ namespace MusicApp
                 
                 if(paths.Count == 0)
                 {
-                    Snackbar.Make(FindViewById<CoordinatorLayout>(Resource.Id.snackBar), "No music file found on this device. Can't create a mix.", Snackbar.LengthLong)
-                        .Show();
+                    Snackbar snackBar = Snackbar.Make(FindViewById<CoordinatorLayout>(Resource.Id.snackBar), "No music file found on this device. Can't create a mix.", Snackbar.LengthLong);
+                    snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+                    snackBar.Show();
                     return;
                 }
 
@@ -1083,13 +1085,16 @@ namespace MusicApp
                     ShowPlayer();
                 }
                 else
-                    Snackbar.Make(FindViewById<View>(Resource.Id.snackBar), "No playlist set on setting.", Snackbar.LengthLong)
-                        .SetAction("Set it now", (v) => 
+                {
+                    Snackbar snackBar = Snackbar.Make(FindViewById<View>(Resource.Id.snackBar), "No playlist set on setting.", Snackbar.LengthLong)
+                        .SetAction("Set it now", (v) =>
                         {
                             Intent intent = new Intent(Application.Context, typeof(Preferences));
                             StartActivity(intent);
-                        })
-                        .Show();
+                        });
+                    snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+                    snackBar.Show();
+                }
             }
         }
 
@@ -1111,7 +1116,9 @@ namespace MusicApp
                 }
 
                 QuickPlay(this, e);
-                Snackbar.Make(FindViewById(Resource.Id.snackBar), "You need to be playing a youtube song in order to create a mix.", Snackbar.LengthLong).Show();
+                Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), "You need to be playing a youtube song in order to create a mix.", Snackbar.LengthLong);
+                snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Android.Graphics.Color.White);
+                snackBar.Show();
                 return;
             }
 
@@ -1124,7 +1131,9 @@ namespace MusicApp
 
             if(!await WaitForYoutube())
             {
-                Snackbar.Make(FindViewById(Resource.Id.snackBar), "Error while loading. Check your internet connection and check if your logged in.", Snackbar.LengthShort).Show();
+                Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), "Error while loading. Check your internet connection and check if your logged in.", Snackbar.LengthLong);
+                snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Android.Graphics.Color.White);
+                snackBar.Show();
                 return;
             }
 
@@ -1177,12 +1186,16 @@ namespace MusicApp
         public void YoutubeEndPointChanged()
         {
             FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
-            Snackbar.Make(FindViewById(Resource.Id.snackBar), "The way youtube play video has changed, the app can't play this video now. Wait for the next update.", Snackbar.LengthShort).Show();
+            Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), "The way youtube play video has changed, the app can't play this video now. Wait for the next update.", Snackbar.LengthLong);
+            snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Android.Graphics.Color.White);
+            snackBar.Show();
         }
 
         public void Timout()
         {
-            Snackbar.Make(FindViewById(Resource.Id.snackBar), "Timout exception, check if you're still connected to internet.", Snackbar.LengthShort).Show();
+            Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), "Timout exception, check if you're still connected to internet.", Snackbar.LengthLong);
+            snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Android.Graphics.Color.White);
+            snackBar.Show();
         }
 
         public int DpToPx(int dx)
@@ -1208,7 +1221,11 @@ namespace MusicApp
                 if (displayToast)
                 {
                     if (instance != null)
-                        Snackbar.Make(instance.FindViewById(Resource.Id.snackBar), "You are not connected to internet, can't check for updates.", Snackbar.LengthShort).Show();
+                    {
+                        Snackbar snackBar = Snackbar.Make(instance.FindViewById(Resource.Id.snackBar), "You are not connected to internet, can't check for updates.", Snackbar.LengthLong);
+                        snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+                        snackBar.Show();
+                    }
                     else
                         Toast.MakeText(Application.Context, "You are not connected to internet, can't check for updates.", ToastLength.Short).Show();
                 }
@@ -1254,7 +1271,11 @@ namespace MusicApp
             else if(displayToast)
             {
                 if (instance != null)
-                    Snackbar.Make(instance.FindViewById(Resource.Id.snackBar), "Your app is up to date.", Snackbar.LengthShort).Show();
+                {
+                    Snackbar snackBar = Snackbar.Make(instance.FindViewById(Resource.Id.snackBar), "Your app is up to date.", Snackbar.LengthLong);
+                    snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Android.Graphics.Color.White);
+                    snackBar.Show();
+                }
                 else
                     Toast.MakeText(Application.Context, "Your app is up to date.", ToastLength.Short).Show();
             }
