@@ -76,6 +76,7 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             string file = intent.GetStringExtra("file");
+            Console.WriteLine("&File " + file);
 
             switch (intent.Action)
             {
@@ -141,7 +142,7 @@ namespace MusicApp.Resources.Portable_Class
             if (intent.Action != null)
                 return StartCommandResult.Sticky;
 
-            if (file != null)
+            if (file != null && file != "")
                 Play(file);
 
             return StartCommandResult.Sticky;

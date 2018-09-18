@@ -45,7 +45,7 @@ using SearchView = Android.Support.V7.Widget.SearchView;
 
 namespace MusicApp
 {
-    [Activity(Label = "MusicApp", MainLauncher = true, Icon = "@drawable/launcher_icon", Theme = "@style/SplashScreen", ScreenOrientation = ScreenOrientation.Portrait, LaunchMode = LaunchMode.SingleTop)]
+    [Activity(Label = "MusicApp", MainLauncher = true, Icon = "@drawable/launcher_icon", Theme = "@style/SplashScreen", ScreenOrientation = ScreenOrientation.Portrait, LaunchMode = LaunchMode.SingleTask)]
     [IntentFilter(new[] {Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, DataHost = "www.youtube.com", DataMimeType = "text/*")]
     [IntentFilter(new[] {Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, DataHost = "m.youtube.com", DataMimeType = "text/plain")]
     [IntentFilter(new[] { Intent.ActionView }, Categories = new[] { Intent.CategoryDefault }, DataMimeTypes = new[] { "audio/*", "application/ogg", "application/x-ogg", "application/itunes" })]
@@ -166,18 +166,18 @@ namespace MusicApp
                 ShowPlayer();
                 Player.instance.RefreshPlayer();
             }
-            else if (intent.Action == Intent.ActionView)
+            else if (intent.Action == Intent.ActionView && intent.Data != null)
             {
                 Intent inte = new Intent(this, typeof(MusicPlayer));
-                inte.PutExtra("file", Intent.Data.ToString());
+                inte.PutExtra("file", intent.Data.ToString());
                 StartService(inte);
 
                 ShowSmallPlayer();
                 ShowPlayer();
             }
-            else if (Intent.Action == Intent.ActionSend)
+            else if (intent.Action == Intent.ActionSend)
             {
-                if (YoutubeClient.TryParseVideoId(Intent.GetStringExtra(Intent.ExtraText), out string videoID))
+                if (YoutubeClient.TryParseVideoId(intent.GetStringExtra(Intent.ExtraText), out string videoID))
                 {
                     Intent inten = new Intent(this, typeof(MusicPlayer));
                     inten.SetAction("YoutubePlay");
@@ -910,8 +910,7 @@ namespace MusicApp
         public void ShowPlayer()
         {
             FindViewById<BottomNavigationView>(Resource.Id.bottomView).TranslationY = (int)(56 * Resources.DisplayMetrics.Density + 0.5f);
-            if(FindViewById(Resource.Id.playerView) != null)
-                FindViewById(Resource.Id.playerView).Alpha = 1;
+            FindViewById(Resource.Id.playerView).Alpha = 1;
             FindViewById(Resource.Id.smallPlayer).Alpha = 0;
             FindViewById(Resource.Id.quickPlayLinear).ScaleX = 0;
             FindViewById(Resource.Id.quickPlayLinear).ScaleY = 0;
@@ -969,8 +968,7 @@ namespace MusicApp
 
         public void ShowSmallPlayer()
         {
-            if (FindViewById(Resource.Id.playerView) != null)
-                FindViewById(Resource.Id.playerView).Alpha = 0;
+            FindViewById(Resource.Id.playerView).Alpha = 0;
             Player.instance?.RefreshPlayer();
             FindViewById<FrameLayout>(Resource.Id.contentView).SetPadding(0, 0, 0, DpToPx(70));
         }

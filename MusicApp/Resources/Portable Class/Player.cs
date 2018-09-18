@@ -252,8 +252,7 @@ namespace MusicApp.Resources.Portable_Class
 
                 bar.Max = (int)MusicPlayer.player.Duration;
                 MusicPlayer.SetSeekBar(bar);
-                if(timerStart != null)
-                    timerStart.Text = DurationToTimer(MusicPlayer.CurrentPosition);
+                timerStart.Text = DurationToTimer(MusicPlayer.CurrentPosition);
                 MainActivity.instance.FindViewById<TextView>(Resource.Id.timerEnd).Text = DurationToTimer((int)MusicPlayer.player.Duration);
                 spBar.Max = MusicPlayer.Duration;
                 spBar.Progress = MusicPlayer.CurrentPosition;
@@ -539,12 +538,6 @@ namespace MusicApp.Resources.Portable_Class
 
         public override void OnSlide(View bottomSheet, float slideOffset)
         {
-            if(playerView == null)
-            {
-                playerView = context.FindViewById(Resource.Id.playerView);
-                return;
-            }
-
             if(movement == SheetMovement.Unknow)
             {
                 if (slideOffset > 0)
