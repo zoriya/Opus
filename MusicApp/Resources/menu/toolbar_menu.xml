@@ -16,7 +16,7 @@
     app:actionViewClass="android.support.v7.widget.SearchView" />
   <item
     android:id="@+id/settings"
-    android:icon="@drawable/settings"
+    android:icon="@drawable/account"
     app:showAsAction="always"
     android:title="Settings" />
 </menu>

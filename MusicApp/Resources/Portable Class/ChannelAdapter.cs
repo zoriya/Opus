@@ -1,5 +1,6 @@
 ﻿using Android.App;
 using Android.Content;
+using Android.Content.Res;
 using Android.Graphics;
 using Android.Views;
 using Android.Widget;
@@ -50,6 +51,8 @@ namespace MusicApp.Resources.Portable_Class
                 holder.Artist.SetTextColor(Color.White);
                 holder.Artist.Alpha = 0.7f;
             }
+            else
+                holder.CheckBox.ButtonTintList = ColorStateList.ValueOf(Color.Argb(255, 117, 117, 117));
 
             if (TopicSelector.instance.selectedTopics.Contains(channelList[position].Title))
                 holder.CheckBox.Checked = true;

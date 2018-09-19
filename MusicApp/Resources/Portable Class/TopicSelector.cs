@@ -3,6 +3,7 @@ using Android.Content;
 using Android.Graphics;
 using Android.OS;
 using Android.Support.V7.Preferences;
+using Android.Util;
 using Android.Views;
 using Android.Widget;
 using Google.Apis.YouTube.v3;
@@ -28,7 +29,6 @@ namespace MusicApp.Resources.Portable_Class
         {
             base.OnActivityCreated(savedInstanceState);
             ListView.SetPadding(0, Preferences.instance.toolbar.Height, 0, 0);
-
             if (!await MainActivity.instance.WaitForYoutube())
             {
                 System.Console.WriteLine("&Youtube awaited");
@@ -148,6 +148,13 @@ namespace MusicApp.Resources.Portable_Class
             }
             base.OnStop();
             Preferences.instance.toolbar.Title = "Settings";
+        }
+
+        public override void OnViewCreated(View view, Bundle savedInstanceState)
+        {
+            if (MainActivity.Theme == 1)
+                view.SetBackgroundColor(Color.Argb(225, 33, 33, 33));
+            base.OnViewCreated(view, savedInstanceState);
         }
     }
 }

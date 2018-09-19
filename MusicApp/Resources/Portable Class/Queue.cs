@@ -71,6 +71,7 @@ namespace MusicApp.Resources.Portable_Class
         protected override void OnStop()
         {
             Player.instance?.UpdateNext();
+            Home.instance?.RefreshQueue();
             MusicPlayer.ParseNextSong();
             Window.SetStatusBarColor(Color.Transparent);
             base.OnStop();
@@ -219,6 +220,7 @@ namespace MusicApp.Resources.Portable_Class
         protected override void OnResume()
         {
             base.OnResume();
+            Window.SetStatusBarColor(Color.Argb(255, 33, 33, 33));
             instance = this;
             if (MainActivity.parcelableSender == "Queue" && !MainActivity.instance.ResumeKiller)
             {

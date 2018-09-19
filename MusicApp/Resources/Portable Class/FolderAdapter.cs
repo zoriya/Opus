@@ -12,6 +12,7 @@ using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
 using Android.Graphics;
+using Android.Content.Res;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -68,6 +69,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 holder.Name.SetTextColor(Color.White);
                 holder.expandChild.SetColorFilter(Color.White);
+                holder.used.ButtonTintList = ColorStateList.ValueOf(Color.White);
             }
             else
             {

@@ -1,4 +1,5 @@
 ﻿using Android.App;
+using Android.Graphics;
 using Android.OS;
 using Android.Views;
 using Android.Widget;
@@ -194,6 +195,13 @@ namespace MusicApp.Resources.Portable_Class
         {
             base.OnStop();
             Preferences.instance.toolbar.Title = "Settings";
+        }
+
+        public override void OnViewCreated(View view, Bundle savedInstanceState)
+        {
+            if (MainActivity.Theme == 1)
+                view.SetBackgroundColor(Color.Argb(225, 33, 33, 33));
+            base.OnViewCreated(view, savedInstanceState);
         }
     }
 }

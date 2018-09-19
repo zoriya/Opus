@@ -97,6 +97,12 @@ namespace MusicApp.Resources.Portable_Class
                 }
             }
         }
+
+        protected override void OnResume()
+        {
+            base.OnResume();
+            Window.SetStatusBarColor(Android.Graphics.Color.Argb(255, 33, 33, 33));
+        }
     }
 
     public class PreferencesFragment : PreferenceFragment
@@ -196,6 +202,8 @@ namespace MusicApp.Resources.Portable_Class
         {
             view = base.OnCreateView(inflater, container, savedInstanceState);
             view.SetPadding(0, MainActivity.instance.SupportActionBar.Height, 0, 0);
+            if (MainActivity.Theme == 1)
+                view.SetBackgroundColor(Android.Graphics.Color.Argb(225, 33, 33, 33));
             return view;
         }
 

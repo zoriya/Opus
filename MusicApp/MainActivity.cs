@@ -31,6 +31,7 @@ using MusicApp.Resources.Portable_Class;
 using MusicApp.Resources.values;
 using Newtonsoft.Json.Linq;
 using Square.OkHttp;
+using Square.Picasso;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -40,7 +41,9 @@ using System.Threading.Tasks;
 using TagLib;
 using YoutubeExplode;
 using YoutubeExplode.Models;
+using ICallback = Square.OkHttp.ICallback;
 using Playlist = MusicApp.Resources.Portable_Class.Playlist;
+using Request = Square.OkHttp.Request;
 using SearchView = Android.Support.V7.Widget.SearchView;
 
 namespace MusicApp
@@ -128,6 +131,7 @@ namespace MusicApp
 
             CheckForUpdate(this, false);
             OnLateCreate(Intent);
+            Login();
         }
 
         private async void OnLateCreate(Intent intent, bool lateSetup = true)
@@ -245,6 +249,7 @@ namespace MusicApp
                     if (result.IsSuccess)
                     {
                         account = result.SignInAccount;
+                        RunOnUiThread(() => { Picasso.With(this).Load(account.PhotoUrl).Transform(new CircleTransformation()).Into(new AccountTarget()); });
                         CreateYoutube();
                     }
                 }
@@ -274,10 +279,10 @@ namespace MusicApp
             if(requestCode == 1598)
             {
                 GoogleSignInResult result = Auth.GoogleSignInApi.GetSignInResultFromIntent(data);
-                Console.WriteLine("&Result: " + result.IsSuccess);
                 if (result.IsSuccess)
                 {
                     account = result.SignInAccount;
+                    RunOnUiThread(() => { Picasso.With(this).Load(account.PhotoUrl).Transform(new CircleTransformation()).Into(new AccountTarget()); });
                     CreateYoutube();
                 }
                 else
@@ -292,6 +297,7 @@ namespace MusicApp
             account = ((GoogleSignInResult)result).SignInAccount;
             if(account != null)
             {
+                RunOnUiThread(() => { Picasso.With(this).Load(account.PhotoUrl).Transform(new CircleTransformation()).Into(new AccountTarget()); });
                 CreateYoutube();
             }
             else if(canAsk)
@@ -312,7 +318,7 @@ namespace MusicApp
                 .Add("code", account.ServerAuthCode)
                 .Add("id_token", account.IdToken)
                 .Build();
-            Square.OkHttp.Request request = new Square.OkHttp.Request.Builder()
+            Request request = new Square.OkHttp.Request.Builder()
                 .Url("https://www.googleapis.com/oauth2/v4/token")
                 .Post(body)
                 .Build();
@@ -339,7 +345,7 @@ namespace MusicApp
             Console.WriteLine("&Youtube created");
         }
 
-        public void OnFailure(Square.OkHttp.Request request, Java.IO.IOException iOException)
+        public void OnFailure(Request request, Java.IO.IOException iOException)
         {
             Console.WriteLine("&Failure");
         }
@@ -387,13 +393,7 @@ namespace MusicApp
         {
             if(Home.instance != null)
             {
-                //if (!Home.instance.adapter.RefreshDisabled())
-                    contentRefresh.SetEnabled(((LinearLayoutManager)Home.instance.ListView.GetLayoutManager()).FindFirstCompletelyVisibleItemPosition() == 0);
-
-                //if (((LinearLayoutManager)Home.instance.ListView.GetLayoutManager()).FindLastCompletelyVisibleItemPosition() == Home.instance.adapter.songList.Count)
-                //{
-                //    Home.instance.LoadMore();
-                //}
+                contentRefresh.SetEnabled(((LinearLayoutManager)Home.instance.ListView.GetLayoutManager()).FindFirstCompletelyVisibleItemPosition() == 0);
             }
         }
 
@@ -1075,6 +1075,8 @@ namespace MusicApp
                 StartService(intent);
                 ShowSmallPlayer();
                 ShowPlayer();
+                Player.instance?.UpdateNext();
+                Home.instance?.RefreshQueue();
             }
             else
             {
@@ -1162,9 +1164,9 @@ namespace MusicApp
             catch (Exception ex)
             {
                 if (ex is YoutubeExplode.Exceptions.ParseException)
-                    MainActivity.instance.YoutubeEndPointChanged();
+                    instance.YoutubeEndPointChanged();
                 else if (ex is System.Net.Http.HttpRequestException)
-                    MainActivity.instance.Timout();
+                    instance.Timout();
 
                 return;
             }
@@ -1180,7 +1182,10 @@ namespace MusicApp
             foreach (Song song in tracks)
                 MusicPlayer.instance.AddToQueue(song);
 
+            ShowSmallPlayer();
+            ShowPlayer();
             Player.instance?.UpdateNext();
+            Home.instance?.RefreshQueue();
             parseProgress.Visibility = ViewStates.Gone;
         }
 

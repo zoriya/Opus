@@ -2,6 +2,7 @@
 using Android.Gms.Auth.Api;
 using Android.Gms.Auth.Api.SignIn;
 using Android.Gms.Common.Apis;
+using Android.Graphics;
 using Android.Preferences;
 using Android.Runtime;
 using Android.Util;
@@ -58,17 +59,19 @@ public class AccountPreference : Preference, IResultCallback
         Button log = (Button)view.FindViewById(Resource.Id.logButton);
         log.Text = "Log Out";
         Picasso.With(Android.App.Application.Context).Load(MainActivity.account.PhotoUrl).Transform(new CircleTransformation()).Into(view.FindViewById<ImageView>(Android.Resource.Id.Icon));
-        log.SetTextColor(Android.Graphics.Color.Red);
+        view.FindViewById<ImageView>(Android.Resource.Id.Icon).ClearColorFilter();
+        log.SetTextColor(Color.Red);
         log.Click -= logIn;
     }
 
     public void OnResult(Java.Lang.Object result)
     {
         Button log = (Button)view.FindViewById(Resource.Id.logButton);
-        log.SetTextColor(Android.Graphics.Color.DarkBlue);
+        log.SetTextColor(Color.DarkBlue);
         log.Text = "Log In";
         Summary = "";
-        Picasso.With(Android.App.Application.Context).Load(Resource.Drawable.ic_account_circle_black_24dp).Into(view.FindViewById<ImageView>(Android.Resource.Id.Icon));
+        Picasso.With(Android.App.Application.Context).Load(Resource.Drawable.account).Into(view.FindViewById<ImageView>(Android.Resource.Id.Icon));
+        view.FindViewById<ImageView>(Android.Resource.Id.Icon).SetColorFilter(Color.White);
         log.Click -= logOut;
     }
 

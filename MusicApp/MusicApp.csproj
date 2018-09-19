@@ -257,6 +257,7 @@
     <Compile Include="MainActivity.cs" />
     <Compile Include="Resources\Fragments\EmptyFragment.cs" />
     <Compile Include="Resources\Portable Class\AccountPreference.cs" />
+    <Compile Include="Resources\Portable Class\AccountTarget.cs" />
     <Compile Include="Resources\Portable Class\Adapter.cs" />
     <Compile Include="Resources\Portable Class\AudioStopper.cs" />
     <Compile Include="Resources\Portable Class\Browse.cs" />
@@ -366,9 +367,6 @@
     <AndroidResource Include="Resources\menu\toolbar_menu.xml">
       <SubType>Designer</SubType>
     </AndroidResource>
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable\settings.png" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\search.png" />
@@ -548,9 +546,6 @@
     <AndroidResource Include="Resources\drawable\FlatButtonBorder.xml" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\drawable\ic_account_circle_black_24dp.png" />
-  </ItemGroup>
-  <ItemGroup>
     <AndroidResource Include="Resources\layout\LogOutButton.xml" />
   </ItemGroup>
   <ItemGroup>
@@ -693,6 +688,9 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\colors.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\account.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Android.Support.Animated.Vector.Drawable.25.4.0.2\build\MonoAndroid70\Xamarin.Android.Support.Animated.Vector.Drawable.targets" Condition="Exists('..\packages\Xamarin.Android.Support.Animated.Vector.Drawable.25.4.0.2\build\MonoAndroid70\Xamarin.Android.Support.Animated.Vector.Drawable.targets')" />

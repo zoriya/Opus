@@ -55,6 +55,7 @@ namespace MusicApp.Resources.Portable_Class
         private Notification notification;
         private const int notificationID = 1000;
         private static long progress;
+        private bool volumeDuked;
 
         public override IBinder OnBind(Intent intent)
         {
@@ -164,7 +165,7 @@ namespace MusicApp.Resources.Portable_Class
         public void ChangeVolume(float volume)
         {
             if(player != null)
-                player.Volume = volume;
+                player.Volume = volume * (volumeDuked ? 0.2f : 1);
         }
 
         public void Play(string filePath, string title = null, string artist = null, string youtubeID = null, string thumbnailURI = null, bool addToQueue = true)
@@ -1180,6 +1181,7 @@ namespace MusicApp.Resources.Portable_Class
 
                     if (player != null)
                         player.Volume = prefManager.GetInt("volumeMultiplier", 100) / 100f;
+                    volumeDuked = false;
                     break;
 
                 case AudioFocus.Loss:
@@ -1193,7 +1195,8 @@ namespace MusicApp.Resources.Portable_Class
                     break;
 
                 case AudioFocus.LossTransientCanDuck:
-                    player.Volume = prefManager.GetInt("volumeMultiplier", 100) / 160;
+                    volumeDuked = true;
+                    player.Volume = prefManager.GetInt("volumeMultiplier", 100) / 500f;
                     ShouldResumePlayback = true;
                     break;
 

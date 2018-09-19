@@ -436,54 +436,19 @@ namespace MusicApp.Resources.Portable_Class
 
         public void LoadMore()
         {
-            //List<Song> songList = MusicPlayer.queue.Except(adapter.songList).ToList(); //Load more
         }
 
-        private void ListView_ItemClick(object sender, int position)
+        public void RefreshQueue()
         {
-            //int pos = adapter.GetItemPosition(position, out int ContainerID);
-            //HomeSection section = adapterItems[ContainerID];
-            //Song item = section.contentValue[pos];
-
-            //if(pos == 0)
-            //{
-            //    if (section.contentType == SectionType.SinglePlaylist)
-            //    {
-            //        MainActivity.parcelableSender = "Home";
-            //        MainActivity.parcelable = ListView.GetLayoutManager().OnSaveInstanceState();
-
-            //        AppCompatActivity act = (AppCompatActivity)Activity;
-            //        act.SupportActionBar.SetHomeButtonEnabled(true);
-            //        act.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
-            //        act.SupportActionBar.Title = section.SectionTitle;
-
-            //        MainActivity.instance.HideTabs();
-            //        MainActivity.instance.HomeDetails = true;
-            //        MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(section.data, item.GetName(), false, item.GetArtist(), -1, item.GetAlbum()), true);
-            //    }
-            //}
-            //else
-            //{
-            //    if (section.contentType == SectionType.SinglePlaylist)
-            //    {
-            //        YoutubeEngine.Play(item.youtubeID, item.GetName(), item.GetArtist(), item.GetAlbum());
-            //    }
-            //    else if (section.contentType == SectionType.PlaylistList)
-            //    {
-            //        MainActivity.parcelableSender = "Home";
-            //        MainActivity.parcelable = ListView.GetLayoutManager().OnSaveInstanceState();
-
-            //        AppCompatActivity act = (AppCompatActivity)Activity;
-            //        act.SupportActionBar.SetHomeButtonEnabled(true);
-            //        act.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
-            //        act.SupportActionBar.Title = section.SectionTitle;
-
-            //        MainActivity.instance.HideTabs();
-            //        MainActivity.instance.HomeDetails = true;
-            //        MainActivity.instance.Transition(Resource.Id.contentView, PlaylistTracks.NewInstance(item.youtubeID, item.GetName(), false, item.GetArtist(), -1, item.GetAlbum()), true);
-            //    }
-            //}
+            if (adapterItems.Count > 0)
+            {
+                adapterItems[0].recycler?.GetAdapter()?.NotifyDataSetChanged();
+                if (MusicPlayer.CurrentID() != -1 && MusicPlayer.CurrentID() <= MusicPlayer.queue.Count)
+                    adapterItems[0].recycler?.ScrollToPosition(MusicPlayer.CurrentID());
+            }
         }
+
+        private void ListView_ItemClick(object sender, int position) { }
 
         public override void OnResume()
         {
