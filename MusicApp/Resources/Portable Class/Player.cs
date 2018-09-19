@@ -577,9 +577,11 @@ namespace MusicApp.Resources.Portable_Class
             if (newState == BottomSheetBehavior.StateExpanded)
             {
                 sheet.Alpha = 1;
-                if(playerView != null)
-                    playerView.Alpha = 1;
+                playerView.Alpha = 1;
                 smallPlayer.Alpha = 0;
+                bottomSheet.TranslationY = (int)(56 * context.Resources.DisplayMetrics.Density + 0.5f);
+                sheet.TranslationY = 0;
+                snackBar.TranslationY = (int)(90 * context.Resources.DisplayMetrics.Density + 0.5f);
                 movement = SheetMovement.Unknow;
             }
             else if (newState == BottomSheetBehavior.StateCollapsed)

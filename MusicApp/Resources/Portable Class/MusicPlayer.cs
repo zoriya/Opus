@@ -262,7 +262,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             if (!song.isParsed)
             {
-                ParseAndPlay("Play", song.youtubeID, song.Title, song.Artist, song.Album);
+                ParseAndPlay("Play", song.youtubeID, song.Title, song.Artist, song.Album, addToQueue);
                 return;
             }
 
@@ -360,7 +360,7 @@ namespace MusicApp.Resources.Portable_Class
             UpdateQueueDataBase();
         }
 
-        private async void ParseAndPlay(string action, string videoID, string title, string artist, string thumbnailURL)
+        private async void ParseAndPlay(string action, string videoID, string title, string artist, string thumbnailURL, bool addToQueue = true)
         {
             if (!parsing)
             {
@@ -390,7 +390,7 @@ namespace MusicApp.Resources.Portable_Class
                     switch (action)
                     {
                         case "Play":
-                            Play(streamInfo.Url, title, artist, videoID, thumbnailURL);
+                            Play(streamInfo.Url, title, artist, videoID, thumbnailURL, addToQueue);
                             break; //Crash chez celia, make a return here and check if the app keep on crashing
 
                         case "PlayNext":
@@ -403,7 +403,8 @@ namespace MusicApp.Resources.Portable_Class
                             parsing = false;
                             return;
                     }
-
+                    DateTimeOffset? expireDate = streamInfo.GetUrlExpiryDate();
+                    queue[CurrentID()].expireDate = expireDate;
                     Video info = await client.GetVideoAsync(videoID);
                     thumbnailURL = info.Thumbnails.HighResUrl;
                     if (artist == null || artist == "")
@@ -695,9 +696,13 @@ namespace MusicApp.Resources.Portable_Class
                         }
                     }
 
+                    DateTimeOffset? expireDate = streamInfo.GetUrlExpiryDate();
+                    song.expireDate = expireDate;
+
                     Video info = await client.GetVideoAsync(song.youtubeID);
                     song.Album = info.Thumbnails.HighResUrl;
                     song.Artist = info.Author;
+                    UpdateQueueItemDB(song);
                 }
                 catch (YoutubeExplode.Exceptions.ParseException)
                 {
@@ -834,6 +839,9 @@ namespace MusicApp.Resources.Portable_Class
         {
             if (song.IsYt && song.isParsed)
             {
+                if (song.expireDate != null && song.expireDate.Value.Subtract(DateTimeOffset.UtcNow) > TimeSpan.Zero)
+                    return song;
+
                 song.isParsed = false;
                 song.Path = song.youtubeID;
             }
@@ -877,6 +885,8 @@ namespace MusicApp.Resources.Portable_Class
                     song.Album = info.Thumbnails.HighResUrl;
                     song.Artist = info.Author;
 
+                    DateTimeOffset? expireDate = streamInfo.GetUrlExpiryDate();
+                    song.expireDate = expireDate;
                     instance.UpdateQueueItemDB(song);
                     parsing = false;
                     if (Queue.instance != null)

@@ -910,6 +910,7 @@ namespace MusicApp
 
         public void ShowPlayer()
         {
+            FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Visible;
             FindViewById<BottomNavigationView>(Resource.Id.bottomView).TranslationY = (int)(56 * Resources.DisplayMetrics.Density + 0.5f);
             FindViewById(Resource.Id.playerView).Alpha = 1;
             FindViewById(Resource.Id.smallPlayer).Alpha = 0;
@@ -966,10 +967,12 @@ namespace MusicApp
             FindViewById<FrameLayout>(Resource.Id.contentView).SetPadding(0, 0, 0, 0);
             FindViewById<NestedScrollView>(Resource.Id.playerSheet).Alpha = 1;
             SheetBehavior.State = BottomSheetBehavior.StateHidden;
+            FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Invisible;
         }
 
         public void ShowSmallPlayer()
         {
+            FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Visible;
             FindViewById(Resource.Id.playerView).Alpha = 0;
             Player.instance?.RefreshPlayer();
             FindViewById<FrameLayout>(Resource.Id.contentView).SetPadding(0, 0, 0, DpToPx(70));
@@ -1135,7 +1138,7 @@ namespace MusicApp
             if(!await WaitForYoutube())
             {
                 Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), "Error while loading. Check your internet connection and check if your logged in.", Snackbar.LengthLong);
-                snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Android.Graphics.Color.White);
+                snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
                 snackBar.Show();
                 return;
             }

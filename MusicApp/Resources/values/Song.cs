@@ -17,6 +17,7 @@ namespace MusicApp.Resources.values
         [PrimaryKey, Unique]
         public int queueSlot { get; set; }
         public bool IsYt { get; set; }
+        public DateTimeOffset? expireDate { get; set;}
 
         public Song() { }
 
