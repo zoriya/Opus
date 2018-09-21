@@ -216,7 +216,9 @@ namespace MusicApp
 
         public void Login(bool canAsk = true, bool skipSilentLog = false)
         {
-            if(account != null)
+            waitingForYoutube = true;
+
+            if (account != null)
             {
                 CreateYoutube();
                 return;
@@ -619,6 +621,7 @@ namespace MusicApp
             switch (layout)
             {
                 case Resource.Id.musicLayout:
+                    ShowQuickPlay();
                     if (Home.instance != null)
                     {
                         Home.instance.Refresh();
@@ -628,7 +631,6 @@ namespace MusicApp
                     tab = "Home";
                     HideTabs();
                     HideSearch();
-                    ShowQuickPlay();
                     fragment = Home.NewInstance();
                     break;
 
@@ -1326,6 +1328,7 @@ namespace MusicApp
 
                     SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(1, 0)).AddToBackStack(null).Commit();
                 }
+                HideQuickPlay();
                 SearchableActivity.instance = null;
             }
         }

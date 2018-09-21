@@ -442,6 +442,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             if (adapterItems.Count > 0)
             {
+                Console.WriteLine("&Refresh home queue"); //This is called
                 adapterItems[0].recycler?.GetAdapter()?.NotifyDataSetChanged();
                 if (MusicPlayer.CurrentID() != -1 && MusicPlayer.CurrentID() <= MusicPlayer.queue.Count)
                     adapterItems[0].recycler?.ScrollToPosition(MusicPlayer.CurrentID());

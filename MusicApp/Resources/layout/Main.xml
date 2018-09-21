@@ -8,8 +8,9 @@
   android:fitsSystemWindows="true" >
   <android.support.design.widget.CoordinatorLayout 
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:id="@+id/contentLayout"
+    android:layout_marginBottom="56dp"
     android:paddingTop="@*android:dimen/status_bar_height"
     android:background="#212121">
     <android.support.design.widget.AppBarLayout
@@ -59,16 +60,14 @@
     <android.support.v4.widget.SwipeRefreshLayout
       android:id="@+id/contentRefresh"
       app:layout_behavior="@string/appbar_scrolling_view_behavior"
-      android:layout_width="wrap_content"
+      android:layout_width="wrap_content" 
       android:layout_height="wrap_content"
-      android:background="?android:colorBackground"
-      android:layout_marginBottom="56dp" >
+      android:background="?android:colorBackground" >
       <FrameLayout
         android:id="@+id/contentView"
         android:nestedScrollingEnabled="true"
-        android:fillViewport="true"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:layout_height="wrap_content"
+        android:layout_height="fill_parent"
         android:layout_width="match_parent"
         android:clipToPadding="false" />
     </android.support.v4.widget.SwipeRefreshLayout>

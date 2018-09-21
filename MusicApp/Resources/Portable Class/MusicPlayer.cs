@@ -840,7 +840,10 @@ namespace MusicApp.Resources.Portable_Class
             if (song.IsYt && song.isParsed)
             {
                 if (song.expireDate != null && song.expireDate.Value.Subtract(DateTimeOffset.UtcNow) > TimeSpan.Zero)
+                {
+                    Console.WriteLine("&" + song.Title + " is already parsed");
                     return song;
+                }
 
                 song.isParsed = false;
                 song.Path = song.youtubeID;
