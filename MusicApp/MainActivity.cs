@@ -474,7 +474,18 @@ namespace MusicApp
 
         public bool OnMenuItemActionCollapse(IMenuItem item) //Youtube search collapse
         {
-            if (YoutubeEngine.instances != null && !PlaylistTracks.openned)
+            if(Browse.instance != null)
+            {
+                ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
+                foreach (YoutubeEngine instance in YoutubeEngine.instances)
+                {
+                    rootView.RemoveView(instance.emptyView);
+                }
+                rootView.RemoveView(YoutubeEngine.loadingView);
+                YoutubeEngine.instances = null;
+                SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(0, 0)).Commit();
+            }
+            else if (YoutubeEngine.instances != null && !PlaylistTracks.openned)
             {
                 ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
                 foreach (YoutubeEngine instance in YoutubeEngine.instances)
@@ -635,6 +646,7 @@ namespace MusicApp
                     break;
 
                 case Resource.Id.browseLayout:
+                    Console.WriteLine("&Navigating to browse with browse instance value " + Browse.instance + " and with youtubeSwitch set to " + youtubeSwitch);
                     if (Browse.instance != null && !youtubeSwitch)
                     {
                         Browse.instance.Refresh();
@@ -859,6 +871,9 @@ namespace MusicApp
             ViewPagerAdapter adapter = (ViewPagerAdapter)viewPager.Adapter;
             if (adapter != null)
             {
+                Browse.instance = null;
+                FolderBrowse.instance = null;
+
                 for (int i = 0; i < adapter.Count; i++)
                     SupportFragmentManager.BeginTransaction().Remove(adapter.GetItem(i)).Commit();
 
@@ -1130,14 +1145,14 @@ namespace MusicApp
                 return;
             }
 
-        YtMix:
+            YtMix:
 
             ProgressBar parseProgress = FindViewById<ProgressBar>(Resource.Id.ytProgress);
             parseProgress.Visibility = ViewStates.Visible;
             parseProgress.ScaleY = 6;
             QuickPlay(this, e);
 
-            if(!await WaitForYoutube())
+            if (!await WaitForYoutube())
             {
                 Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), "Error while loading. Check your internet connection and check if your logged in.", Snackbar.LengthLong);
                 snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
@@ -1176,6 +1191,7 @@ namespace MusicApp
                 return;
             }
 
+
             Song current = MusicPlayer.queue[MusicPlayer.CurrentID()];
             current.queueSlot = 0;
             MusicPlayer.queue.Clear();
@@ -1184,6 +1200,20 @@ namespace MusicApp
 
             Random r = new Random();
             tracks = tracks.OrderBy(x => r.Next()).ToList();
+            if(MusicPlayer.instance == null)
+            {
+                if(!current.isParsed)
+                    YoutubeEngine.Play(current.youtubeID, current.Title, current.Artist, current.Album, false, false);
+                else
+                {
+                    Intent intent = new Intent(this, typeof(MusicPlayer));
+                    intent.PutExtra("file", current.Path);
+                    StartService(intent);
+                }
+
+                while (MusicPlayer.instance == null)
+                    await Task.Delay(10);
+            }
             foreach (Song song in tracks)
                 MusicPlayer.instance.AddToQueue(song);
 
@@ -1332,95 +1362,6 @@ namespace MusicApp
                 SearchableActivity.instance = null;
             }
         }
-
-        //public void SaveInstance()
-        //{
-        //    if (Queue.instance != null)
-        //        return;
-
-        //    if (Home.instance != null)
-        //    {
-        //        parcelableSender = "Home";
-        //        parcelable = Home.instance.ListView.GetLayoutManager().OnSaveInstanceState();
-        //    }
-        //    else if (Browse.instance != null && Browse.instance.focused)
-        //    {
-        //        parcelableSender = "Browse";
-        //        parcelable = Browse.instance.ListView.OnSaveInstanceState();
-        //    }
-        //    else if (FolderBrowse.instance != null && FolderBrowse.instance.focused)
-        //    {
-        //        parcelableSender = "FolderBrowse";
-        //        parcelable = FolderBrowse.instance.ListView.OnSaveInstanceState();
-        //    }
-        //    else if (Playlist.instance != null)
-        //    {
-        //        parcelableSender = "Playlist";
-        //        parcelable = Playlist.instance.ListView.GetLayoutManager().OnSaveInstanceState();
-        //    }
-        //    //Artist instance
-        //    else if (PlaylistTracks.instance != null)
-        //    {
-        //        parcelableSender = "PlaylistTracks";
-        //        parcelable = PlaylistTracks.instance.ListView.OnSaveInstanceState();
-        //    }
-        //    else if(FolderTracks.instance != null)
-        //    {
-        //        parcelableSender = "FolderTracks";
-        //        parcelable = FolderTracks.instance.ListView.OnSaveInstanceState();
-        //    }
-        //    else
-        //    {
-        //        parcelableSender = "Home";
-        //        parcelable = null;
-        //    }
-        //}
-
-        //public void ResumeInstance()
-        //{
-        //    switch (parcelableSender)
-        //    {
-        //        case "Home":
-        //            FindViewById<BottomNavigationView>(Resource.Id.bottomView).SelectedItemId = Resource.Id.musicLayout;
-        //            break;
-        //        case "Browse":
-        //            FindViewById<BottomNavigationView>(Resource.Id.bottomView).SelectedItemId = Resource.Id.browseLayout;
-        //            break;
-        //        case "FolderBrowse":
-        //            resuming = true;
-        //            FindViewById<BottomNavigationView>(Resource.Id.bottomView).SelectedItemId = Resource.Id.browseLayout;
-        //            break;
-        //        case "Playlist":
-        //            FindViewById<BottomNavigationView>(Resource.Id.bottomView).SelectedItemId = Resource.Id.playlistLayout;
-        //            break;
-        //        case "YoutubeEngine-All":
-        //            SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(2, 0)).Commit();
-        //            break;
-        //        case "YoutubeEngine-Tracks":
-        //            SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(2, 1)).Commit();
-        //            break;
-        //        case "YoutubeEngine-Playlists":
-        //            SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(2, 2)).Commit();
-        //            break;
-        //        case "YoutubeEngine-Channels":
-        //            SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(2, 3)).Commit();
-        //            break;
-        //        case "PlaylistTracks":
-        //            SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.instance).Commit();
-        //            SupportActionBar.SetHomeButtonEnabled(true);
-        //            SupportActionBar.SetDisplayHomeAsUpEnabled(true);
-        //            SupportActionBar.Title = PlaylistTracks.instance.playlistName;
-        //            break;
-        //        case "FolderTracks":
-        //            SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, FolderTracks.instance).Commit();
-        //            SupportActionBar.SetHomeButtonEnabled(true);
-        //            SupportActionBar.SetDisplayHomeAsUpEnabled(true);
-        //            SupportActionBar.Title = FolderTracks.instance.folderName;
-        //            break;
-        //        default:
-        //            break;
-        //    }
-        //}
 
         protected override void OnDestroy()
         {

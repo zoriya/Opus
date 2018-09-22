@@ -201,7 +201,10 @@ namespace MusicApp.Resources.Portable_Class
         public static void InsertToQueue(int position, Song item)
         {
             if (MusicPlayer.CurrentID() > position)
+            {
                 MusicPlayer.currentID--;
+                MusicPlayer.SaveQueueSlot();
+            }
 
             item.queueSlot = position;
             MusicPlayer.queue.Insert(position, item);
@@ -211,7 +214,10 @@ namespace MusicApp.Resources.Portable_Class
         public static void RemoveFromQueue(Song item)
         {
             if (MusicPlayer.CurrentID() > item.queueSlot)
+            {
                 MusicPlayer.currentID--;
+                MusicPlayer.SaveQueueSlot();
+            }
 
             MusicPlayer.queue.Remove(item);
             MusicPlayer.UpdateQueueSlots();

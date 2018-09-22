@@ -223,7 +223,7 @@ namespace MusicApp.Resources.Portable_Class
 
             MusicPlayer.UpdateQueueSlots();
         }
-
+        
         List<T> Swap<T>(List<T> list, int fromPosition, int toPosition)
         {
             T item = list[fromPosition];
@@ -237,7 +237,7 @@ namespace MusicApp.Resources.Portable_Class
             Song song = songList[position];
             Queue.RemoveFromQueue(song);
             NotifyItemRemoved(position);
-            Snackbar.Make(Queue.instance.FindViewById(Resource.Id.recycler), (song.Title.Length > 20 ? song.Title.Substring(0, 17) + "..." : song.Title) + " has been removed from the playlist.", Snackbar.LengthShort)
+            Snackbar.Make(Queue.instance.FindViewById(Resource.Id.recycler), (song.Title.Length > 20 ? song.Title.Substring(0, 17) + "..." : song.Title) + " has been removed from the queue.", Snackbar.LengthShort)
                 .SetAction("Undo", (view) => 
                 {
                     Queue.InsertToQueue(position, song);

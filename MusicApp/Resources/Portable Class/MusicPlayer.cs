@@ -85,7 +85,9 @@ namespace MusicApp.Resources.Portable_Class
                     string title = intent.GetStringExtra("title");
                     string artist = intent.GetStringExtra("artist");
                     string thumbnailURL = intent.GetStringExtra("thumbnailURI");
-                    ParseAndPlay(action, file, title, artist, thumbnailURL);
+                    bool addToQueue = intent.GetBooleanExtra("addToQueue", true);
+                    bool showPlayer = intent.GetBooleanExtra("showPlayer", true);
+                    ParseAndPlay(action, file, title, artist, thumbnailURL, addToQueue, showPlayer);
                     break;
 
                 case "Previus":
@@ -360,7 +362,7 @@ namespace MusicApp.Resources.Portable_Class
             UpdateQueueDataBase();
         }
 
-        private async void ParseAndPlay(string action, string videoID, string title, string artist, string thumbnailURL, bool addToQueue = true)
+        private async void ParseAndPlay(string action, string videoID, string title, string artist, string thumbnailURL, bool addToQueue = true, bool showPlayer = true)
         {
             if (!parsing)
             {
@@ -432,7 +434,6 @@ namespace MusicApp.Resources.Portable_Class
 
                 UpdateQueueItemDB(queue[CurrentID()]);
                 Player.instance?.RefreshPlayer();
-                MainActivity.instance?.ShowSmallPlayer();
 
                 if (MainActivity.instance != null)
                 {
@@ -811,7 +812,7 @@ namespace MusicApp.Resources.Portable_Class
             });
         }
 
-        void SaveQueueSlot()
+        public static void SaveQueueSlot()
         {
             ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
             ISharedPreferencesEditor editor = pref.Edit();
@@ -841,12 +842,14 @@ namespace MusicApp.Resources.Portable_Class
             {
                 if (song.expireDate != null && song.expireDate.Value.Subtract(DateTimeOffset.UtcNow) > TimeSpan.Zero)
                 {
-                    Console.WriteLine("&" + song.Title + " is already parsed");
                     return song;
                 }
-
-                song.isParsed = false;
-                song.Path = song.youtubeID;
+                else
+                {
+                    song.isParsed = false;
+                    song.Path = song.youtubeID;
+                    song.expireDate = null;
+                }
             }
             return song;
         }

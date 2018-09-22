@@ -376,7 +376,7 @@ namespace MusicApp.Resources.Portable_Class
             builder.Show();
         }
 
-        public static void Play(string videoID, string title, string artist, string thumbnailURL)
+        public static void Play(string videoID, string title, string artist, string thumbnailURL, bool addToQueue = true, bool showPlayer = true)
         {
             MusicPlayer.queue?.Clear();
             MusicPlayer.UpdateQueueDataBase();
@@ -389,6 +389,8 @@ namespace MusicApp.Resources.Portable_Class
             intent.PutExtra("title", title);
             intent.PutExtra("artist", artist);
             intent.PutExtra("thumbnailURI", thumbnailURL);
+            intent.PutExtra("addToQueue", addToQueue);
+            intent.PutExtra("showPlayer", showPlayer);
             Android.App.Application.Context.StartService(intent);
             ShowRecomandations(videoID);
         }
