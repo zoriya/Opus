@@ -26,6 +26,10 @@ namespace MusicApp.Resources.Portable_Class
             folders = ListFolders();
             ListView.SetPadding(0, Preferences.instance.toolbar.Height, 0, 0);
             adapter = new FolderAdapter(Application.Context, Resource.Layout.folderList, folders);
+            if (path != null)
+                adapter.selectedPosition = folders.FindIndex(x => x.uri == path);
+            else
+                adapter.selectedPosition = -1;
             ListView.Divider = null;
             ListView.ItemClick += ListView_ItemClick;
             ListView.TextFilterEnabled = true;
@@ -33,9 +37,10 @@ namespace MusicApp.Resources.Portable_Class
             ListAdapter = adapter;
         }
 
-        public static Fragment NewInstance()
+        public static Fragment NewInstance(string path)
         {
             instance = new DownloadFragment { Arguments = new Bundle() };
+            instance.path = path;
             return instance;
         }
 

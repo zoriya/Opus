@@ -50,6 +50,10 @@ namespace MusicApp.Resources.Portable_Class
                         ISharedPreferencesEditor editor = prefManager.Edit();
                         editor.PutString("downloadPath", DownloadFragment.instance.path);
                         editor.Apply();
+                        Preference downloadPref = PreferencesFragment.instance.PreferenceScreen.FindPreference("downloadPath");
+                        downloadPref.Summary = DownloadFragment.instance.path ?? "not set";
+                        PreferencesFragment.instance.path = DownloadFragment.instance.path;
+
                         DownloadFragment.instance = null;
                         FragmentManager.PopBackStack();
                     }
@@ -66,6 +70,18 @@ namespace MusicApp.Resources.Portable_Class
                         editor.Apply();
                         TopicSelector.instance = null;
                         FragmentManager.PopBackStack();
+
+                        Preference topicPreference = PreferencesFragment.instance.PreferenceScreen.FindPreference("topics");
+                        if (topics.Count == 0)
+                            topicPreference.Summary = "Actually nothing";
+                        else if (topics.Count == 1)
+                            topicPreference.Summary = topics[0].Substring(0, topics[0].IndexOf("/#-#/"));
+                        else if (topics.Count == 2)
+                            topicPreference.Summary = topics[0].Substring(0, topics[0].IndexOf("/#-#/")) + " and " + topics[1].Substring(0, topics[1].IndexOf("/#-#/"));
+                        else if (topics.Count == 3)
+                            topicPreference.Summary = topics[0].Substring(0, topics[0].IndexOf("/#-#/")) + ", " + topics[1].Substring(0, topics[1].IndexOf("/#-#/")) + " and " + topics[2].Substring(0, topics[2].IndexOf("/#-#/"));
+                        else if (topics.Count > 3)
+                            topicPreference.Summary = topics[0].Substring(0, topics[0].IndexOf("/#-#/")) + ", " + topics[1].Substring(0, topics[1].IndexOf("/#-#/")) + ", " + topics[2].Substring(0, topics[2].IndexOf("/#-#/")) + " and more.";
                     }
                 }
             };
@@ -108,6 +124,7 @@ namespace MusicApp.Resources.Portable_Class
     public class PreferencesFragment : PreferenceFragment
     {
         public static PreferencesFragment instance;
+        public string path;
         private View view;
 
         //Local Shortcut
@@ -142,6 +159,7 @@ namespace MusicApp.Resources.Portable_Class
             Preference downloadPref = PreferenceScreen.FindPreference("downloadPath");
             downloadPref.PreferenceClick += DownloadClick;
             downloadPref.Summary = prefManager.GetString("downloadPath", "not set");
+            path = prefManager.GetString("downloadPath", null);
 
             //Skip Exist Verification
             Preference skipExistVerification = PreferenceScreen.FindPreference("skipExistVerification");
@@ -219,7 +237,6 @@ namespace MusicApp.Resources.Portable_Class
         private void TopicPreference(object sender, Preference.PreferenceClickEventArgs e)
         {
             FragmentManager.BeginTransaction().Replace(Android.Resource.Id.Content, TopicSelector.NewInstance()).AddToBackStack(null).Commit();
-            instance = null;
             Preferences.instance.toolbar.Title = "Music Genres";
         }
         #endregion
@@ -227,8 +244,7 @@ namespace MusicApp.Resources.Portable_Class
         #region Download location
         private void DownloadClick(object sender, Preference.PreferenceClickEventArgs e)
         {
-            FragmentManager.BeginTransaction().Replace(Android.Resource.Id.Content, DownloadFragment.NewInstance()).AddToBackStack(null).Commit();
-            instance = null;
+            FragmentManager.BeginTransaction().Replace(Android.Resource.Id.Content, DownloadFragment.NewInstance(path)).AddToBackStack(null).Commit();
             Preferences.instance.toolbar.Title = "Download Location";
         }
         #endregion

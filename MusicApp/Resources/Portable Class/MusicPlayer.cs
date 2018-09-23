@@ -1159,7 +1159,6 @@ namespace MusicApp.Resources.Portable_Class
         {
             isRunning = false;
             title = null;
-            queue?.Clear();
             parsing = false;
             currentID = -1;
             progress = 0;

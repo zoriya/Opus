@@ -474,6 +474,9 @@ namespace MusicApp
 
         public bool OnMenuItemActionCollapse(IMenuItem item) //Youtube search collapse
         {
+            if (YoutubeEngine.instances == null)
+                return true;
+
             if(Browse.instance != null)
             {
                 ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
@@ -494,7 +497,10 @@ namespace MusicApp
                 }
                 rootView.RemoveView(YoutubeEngine.loadingView);
                 YoutubeEngine.instances = null;
+                HideTabs();
                 SupportFragmentManager.PopBackStack();
+                if (Home.instance != null)
+                    ShowQuickPlay();
             }
             return true;
         }
