@@ -66,6 +66,9 @@ namespace MusicApp.Resources.Portable_Class
 
                     SubscriptionListResponse response = await request.ExecuteAsync();
 
+                    if (instance == null)
+                        return;
+
                     foreach (var item in response.Items)
                     {
                         Song channel = new Song(item.Snippet.Title.Substring(0, item.Snippet.Title.IndexOf(" - Topic")), item.Snippet.Description, item.Snippet.Thumbnails.Default__.Url, item.Snippet.ResourceId.ChannelId, -1, -1, null, true);
@@ -92,6 +95,9 @@ namespace MusicApp.Resources.Portable_Class
 
                     ChannelListResponse resp = await req.ExecuteAsync();
 
+                    if (instance == null)
+                        return;
+
                     foreach (var ytItem in resp.Items)
                     {
                         Song channel = new Song(ytItem.Snippet.Title.Contains(" - Topic") ? ytItem.Snippet.Title.Substring(0, ytItem.Snippet.Title.IndexOf(" - Topic")) : ytItem.Snippet.Title, "", ytItem.Snippet.Thumbnails.Default__.Url, channelID, -1, -1, null, true);
@@ -106,6 +112,10 @@ namespace MusicApp.Resources.Portable_Class
                     MainActivity.instance.Timout();
                 }
             }
+
+            if (instance == null)
+                return;
+
             channels = channelList.OrderBy(x => x.Title).ToList();
 
             adapter = new ChannelAdapter(Application.Context, Resource.Layout.ChannelList, channels);

@@ -38,6 +38,7 @@ namespace MusicApp.Resources.Portable_Class
     {
         public static MusicPlayer instance;
         public static SimpleExoPlayer player;
+        private static AudioStopper noisyReceiver;
         public static List<Song> queue = new List<Song>();
         public MediaSessionCompat mediaSession;
         public AudioManager audioManager;
@@ -50,6 +51,7 @@ namespace MusicApp.Resources.Portable_Class
         public static bool autoUpdateSeekBar = true;
         public static bool repeat = false;
         public static bool useAutoPlay = false;
+        public static bool sleepStopped = false;
         private static bool ShouldResumePlayback;
 
         private Notification notification;
@@ -162,6 +164,11 @@ namespace MusicApp.Resources.Portable_Class
             player.PlayWhenReady = true;
             player.Volume = prefManager.GetInt("volumeMultiplier", 100) / 100f;
             player.AddListener(this);
+
+            if (noisyReceiver == null)
+                noisyReceiver = new AudioStopper();
+
+            RegisterReceiver(noisyReceiver, new IntentFilter(AudioManager.ActionAudioBecomingNoisy));
         }
 
         public void ChangeVolume(float volume)
@@ -1077,6 +1084,8 @@ namespace MusicApp.Resources.Portable_Class
                 player.PlayWhenReady = false;
                 StopForeground(false);
 
+                UnregisterReceiver(noisyReceiver);
+
                 FrameLayout smallPlayer = MainActivity.instance.FindViewById<FrameLayout>(Resource.Id.smallPlayer);
                 smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
 
@@ -1100,6 +1109,11 @@ namespace MusicApp.Resources.Portable_Class
 
                 player.PlayWhenReady = true;
                 StartForeground(notificationID, notification);
+
+                if (noisyReceiver == null)
+                    noisyReceiver = new AudioStopper();
+
+                RegisterReceiver(noisyReceiver, new IntentFilter(AudioManager.ActionAudioBecomingNoisy));
 
                 FrameLayout smallPlayer = MainActivity.instance.FindViewById<FrameLayout>(Resource.Id.smallPlayer);
                 smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
@@ -1176,6 +1190,7 @@ namespace MusicApp.Resources.Portable_Class
 
         private void SleepPause()
         {
+            sleepStopped = true;
             Stop();
         }
 

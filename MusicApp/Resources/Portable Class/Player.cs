@@ -593,12 +593,16 @@ namespace MusicApp.Resources.Portable_Class
                 intent.SetAction("Stop");
                 context.StartService(intent);
                 sheet.Alpha = 1;
-                MusicPlayer.queue = new List<Song>();
-                MusicPlayer.UpdateQueueDataBase();
-                if (Home.adapterItems.Count > 0 && Home.adapterItems[0].SectionTitle == "Queue")
+                if (!MusicPlayer.sleepStopped)
                 {
-                    Home.instance?.adapter.NotifyItemRemoved(0);
-                    Home.adapterItems.RemoveAt(0);
+                    MusicPlayer.queue = new List<Song>();
+                    MusicPlayer.UpdateQueueDataBase();
+                    if (Home.adapterItems.Count > 0 && Home.adapterItems[0].SectionTitle == "Queue")
+                    {
+                        Home.instance?.adapter.NotifyItemRemoved(0);
+                        Home.adapterItems.RemoveAt(0);
+                    }
+                    MusicPlayer.sleepStopped = false;
                 }
             }
         }

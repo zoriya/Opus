@@ -353,8 +353,6 @@ namespace MusicApp.Resources.Portable_Class
 
                 MainActivity.instance.SwitchTheme(args.Which);
                 MainActivity.instance.Recreate();
-                //MainActivity.Theme = args.Which;
-                //MainActivity.dialogTheme = args.Which == 0 ? Resource.Style.AppCompatAlertDialogStyle : Resource.Style.AppCompatDarkAlertDialogStyle;
                 Activity.Recreate();
             });
             builder.Show();

@@ -297,7 +297,7 @@ namespace MusicApp
         public void OnResult(Java.Lang.Object result) //Silent log result
         {
             account = ((GoogleSignInResult)result).SignInAccount;
-            if(account != null)
+            if (account != null)
             {
                 RunOnUiThread(() => { Picasso.With(this).Load(account.PhotoUrl).Transform(new CircleTransformation()).Into(new AccountTarget()); });
                 CreateYoutube();
@@ -417,6 +417,9 @@ namespace MusicApp
 
             MenuInflater.Inflate(Resource.Menu.toolbar_menu, menu);
             this.menu = menu;
+
+            if(account != null)
+                Picasso.With(this).Load(account.PhotoUrl).Transform(new CircleTransformation()).Into(new AccountTarget());
 
             var item = menu.FindItem(Resource.Id.filter);
             var filterView = item.ActionView.JavaCast<SearchView>();
