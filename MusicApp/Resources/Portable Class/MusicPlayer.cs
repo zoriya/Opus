@@ -551,15 +551,15 @@ namespace MusicApp.Resources.Portable_Class
         public async void RandomPlay(List<string> filePath, bool clearQueue)
         {
             currentID = -1;
-            if(clearQueue)
+            if (clearQueue)
                 queue.Clear();
 
             Random r = new Random();
             filePath = filePath.OrderBy(x => r.Next()).ToList();
-            if(clearQueue)
+            if (clearQueue)
                 Play(filePath[0]);
-            
-            while(instance == null)
+
+            while (instance == null)
                 await Task.Delay(10);
 
             for (int i = clearQueue ? 1 : 0; i < filePath.Count; i++)
@@ -569,6 +569,7 @@ namespace MusicApp.Resources.Portable_Class
                 queue.Add(song);
                 await Task.Delay(10);
             }
+
             UpdateQueueDataBase();
         }
 
@@ -587,6 +588,7 @@ namespace MusicApp.Resources.Portable_Class
             SaveQueueSlot();
             Player.instance?.UpdateNext();
             Queue.instance?.Refresh();
+            Home.instance?.RefreshQueue();
             Queue.instance?.ListView.ScrollToPosition(0);
         }
 
@@ -602,6 +604,7 @@ namespace MusicApp.Resources.Portable_Class
                 song.queueSlot = CurrentID() + 1;
             queue.Insert(song.queueSlot, song);
             UpdateQueueSlots();
+            Home.instance?.RefreshQueue();
         }
 
         public void AddToQueue(Song song)
@@ -610,6 +613,7 @@ namespace MusicApp.Resources.Portable_Class
                 song.queueSlot = CurrentID() + 1;
             queue.Insert(song.queueSlot, song);
             UpdateQueueSlots();
+            Home.instance?.RefreshQueue();
         }
 
         public void PlayLastInQueue(string filePath)
@@ -619,6 +623,8 @@ namespace MusicApp.Resources.Portable_Class
 
             queue.Add(song);
             UpdateQueueItemDB(song);
+
+            Home.instance?.RefreshQueue();
         }
 
         public void PlayLastInQueue(Song song)
@@ -626,6 +632,7 @@ namespace MusicApp.Resources.Portable_Class
             song.queueSlot = queue.Count;
             queue.Add(song);
             UpdateQueueItemDB(song);
+            Home.instance?.RefreshQueue();
         }
 
         public void PlayLastInQueue(string filePath, string title, string artist, string youtubeID, string thumbnailURI)
@@ -637,6 +644,7 @@ namespace MusicApp.Resources.Portable_Class
 
             queue.Add(song);
             UpdateQueueItemDB(song);
+            Home.instance?.RefreshQueue();
         }
 
         public void PlayPrevious()
