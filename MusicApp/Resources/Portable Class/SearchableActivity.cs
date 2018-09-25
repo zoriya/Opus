@@ -83,7 +83,7 @@ namespace MusicApp.Resources.Portable_Class
                         {
                             using (WebClient client = new WebClient { Encoding = System.Text.Encoding.UTF7 })
                             {
-*                                string json = client.DownloadString("http://suggestqueries.google.com/complete/search?client=youtube&ds=yt&client=firefox&q=" + /*WebUtility.HtmlEncode(*/e.NewText/*)*/);
+                                string json = client.DownloadString("http://suggestqueries.google.com/complete/search?client=youtube&ds=yt&client=firefox&q=" + /*WebUtility.HtmlEncode(*/e.NewText/*)*/);
                                 json = json.Substring(json.IndexOf(",") + 1);
                                 json = json.Remove(json.Length - 1);
                                 List<string> items = JsonConvert.DeserializeObject<List<string>>(json);

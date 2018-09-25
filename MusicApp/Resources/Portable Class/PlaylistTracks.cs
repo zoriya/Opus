@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 using static Android.Provider.MediaStore.Audio;
 using RecyclerView = Android.Support.V7.Widget.RecyclerView;
 using PopupMenu = Android.Support.V7.Widget.PopupMenu;
-
+using Android.Util;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -58,6 +58,7 @@ namespace MusicApp.Resources.Portable_Class
             MainActivity.instance.DisplaySearch(1);
 
             int statusHeight = Resources.GetDimensionPixelSize(Resources.GetIdentifier("status_bar_height", "dimen", "android"));
+            MainActivity.instance.FindViewById(Resource.Id.collapsingToolbar).LayoutParameters.Height = ViewGroup.LayoutParams.WrapContent;
             MainActivity.instance.FindViewById(Resource.Id.contentLayout).SetPadding(0, 0, 0, 0);
             MainActivity.instance.FindViewById(Resource.Id.toolbar).SetPadding(0, statusHeight, 0, 0);
             MainActivity.instance.FindViewById(Resource.Id.toolbar).LayoutParameters.Height += statusHeight;
@@ -221,9 +222,14 @@ namespace MusicApp.Resources.Portable_Class
             {
                 int statusHeight = Resources.GetDimensionPixelSize(Resources.GetIdentifier("status_bar_height", "dimen", "android"));
                 MainActivity.instance.FindViewById(Resource.Id.toolbar).SetPadding(0, 0, 0, 0);
-                MainActivity.instance.FindViewById(Resource.Id.toolbar).LayoutParameters.Height -= statusHeight;
+                TypedValue tv = new TypedValue();
+                Activity.Theme.ResolveAttribute(Resource.Attribute.actionBarSize, tv, true);
+                int actionBarHeight = Resources.GetDimensionPixelSize(tv.ResourceId);
+                MainActivity.instance.FindViewById(Resource.Id.toolbar).LayoutParameters.Height = actionBarHeight;
                 MainActivity.instance.FindViewById(Resource.Id.toolbar).RequestLayout();
                 MainActivity.instance.FindViewById(Resource.Id.contentLayout).SetPadding(0, statusHeight, 0, 0);
+                Activity.FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Gone;
+                MainActivity.instance.FindViewById(Resource.Id.collapsingToolbar).LayoutParameters.Height = actionBarHeight;
 
                 MainActivity.instance.HideSearch();
                 MainActivity.instance.SupportActionBar.SetHomeButtonEnabled(false);
@@ -233,7 +239,6 @@ namespace MusicApp.Resources.Portable_Class
 
                 MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
                 Activity.FindViewById<AppBarLayout>(Resource.Id.appbar).RemoveOnOffsetChangedListener(this);
-                Activity.FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Gone;
 
 
                 if (YoutubeEngine.instances != null)
