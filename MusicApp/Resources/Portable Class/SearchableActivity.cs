@@ -81,13 +81,11 @@ namespace MusicApp.Resources.Portable_Class
                     {
                         try
                         {
-                            using (WebClient client = new WebClient { Encoding = System.Text.Encoding.Unicode })
+                            using (WebClient client = new WebClient { Encoding = System.Text.Encoding.UTF7 })
                             {
-                                client.Headers.Add(HttpRequestHeader.AcceptCharset, "UTF-8");
-                                string json = client.DownloadString("http://suggestqueries.google.com/complete/search?client=youtube&ds=yt&client=firefox&q=" + WebUtility.HtmlEncode(e.NewText));
-                                json = json.Substring(4 + e.NewText.Length);
+*                                string json = client.DownloadString("http://suggestqueries.google.com/complete/search?client=youtube&ds=yt&client=firefox&q=" + /*WebUtility.HtmlEncode(*/e.NewText/*)*/);
+                                json = json.Substring(json.IndexOf(",") + 1);
                                 json = json.Remove(json.Length - 1);
-                                System.Console.WriteLine("&" + json);
                                 List<string> items = JsonConvert.DeserializeObject<List<string>>(json);
                                 suggestions = items.ConvertAll(StringToSugest);
                                 suggestions.InsertRange(0, History.Where(x => x.Text.StartsWith(e.NewText)));

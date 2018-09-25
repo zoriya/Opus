@@ -12,6 +12,7 @@ namespace MusicApp.Resources.Portable_Class
             if (intent.Action != AudioManager.ActionAudioBecomingNoisy)
                 return;
 
+            MusicPlayer.ShouldResumePlayback = false;
             Intent musicIntent = new Intent(Application.Context, typeof(MusicPlayer));
             musicIntent.SetAction("ForcePause");
             Application.Context.StartService(musicIntent);

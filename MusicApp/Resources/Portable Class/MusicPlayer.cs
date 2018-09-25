@@ -52,7 +52,7 @@ namespace MusicApp.Resources.Portable_Class
         public static bool repeat = false;
         public static bool useAutoPlay = false;
         public static bool sleepStopped = false;
-        private static bool ShouldResumePlayback;
+        public static bool ShouldResumePlayback;
 
         private Notification notification;
         private const int notificationID = 1000;
