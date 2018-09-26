@@ -168,15 +168,18 @@ namespace MusicApp.Resources.Portable_Class
         public void OnScanCompleted(string path, Uri uri)
         {
             long id = long.Parse(uri.ToString().Substring(uri.ToString().IndexOf("audio/media/") + 12, uri.ToString().Length - uri.ToString().IndexOf("audio/media/") - 12));
-            string playlist = path.Substring(downloadPath.Length + 1, path.IndexOf("/", downloadPath.Length) - downloadPath.Length + 1);
+            string playlist = path.Substring(downloadPath.Length + 1, path.IndexOf("/", downloadPath.Length) - downloadPath.Length);
 
-            Browse.act = MainActivity.instance;
-            long playlistID = Browse.GetPlaylistID(playlist);
+            if(playlist != "")
+            {
+                Browse.act = MainActivity.instance;
+                long playlistID = Browse.GetPlaylistID(playlist);
 
-            ContentValues value = new ContentValues();
-            value.Put(MediaStore.Audio.Playlists.Members.AudioId, id);
-            value.Put(MediaStore.Audio.Playlists.Members.PlayOrder, 0);
-            ContentResolver.Insert(MediaStore.Audio.Playlists.Members.GetContentUri("external", playlistID), value);
+                ContentValues value = new ContentValues();
+                value.Put(MediaStore.Audio.Playlists.Members.AudioId, id);
+                value.Put(MediaStore.Audio.Playlists.Members.PlayOrder, 0);
+                ContentResolver.Insert(MediaStore.Audio.Playlists.Members.GetContentUri("external", playlistID), value);
+            }
         }
 
         void CreateNotification(string title)
