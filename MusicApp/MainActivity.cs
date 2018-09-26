@@ -1270,9 +1270,15 @@ namespace MusicApp
             {
                 if (displayToast)
                 {
-                    if (instance != null)
+                    if (instance != null && !instance.StateSaved)
                     {
                         Snackbar snackBar = Snackbar.Make(instance.FindViewById(Resource.Id.snackBar), "You are not connected to internet, can't check for updates.", Snackbar.LengthLong);
+                        snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+                        snackBar.Show();
+                    }
+                    else if(Preferences.instance != null)
+                    {
+                        Snackbar snackBar = Snackbar.Make(Preferences.instance.FindViewById(Android.Resource.Id.Content), "You are not connected to internet, can't check for updates.", Snackbar.LengthLong);
                         snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
                         snackBar.Show();
                     }
@@ -1320,10 +1326,16 @@ namespace MusicApp
             }
             else if(displayToast)
             {
-                if (instance != null)
+                if (instance != null && !instance.StateSaved)
                 {
                     Snackbar snackBar = Snackbar.Make(instance.FindViewById(Resource.Id.snackBar), "Your app is up to date.", Snackbar.LengthLong);
-                    snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Android.Graphics.Color.White);
+                    snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+                    snackBar.Show();
+                }
+                else if(Preferences.instance != null)
+                {
+                    Snackbar snackBar = Snackbar.Make(Preferences.instance.FindViewById(Android.Resource.Id.Content), "Your app is up to date.", Snackbar.LengthLong);
+                    snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
                     snackBar.Show();
                 }
                 else

@@ -30,7 +30,10 @@ namespace MusicApp.Resources.Portable_Class
             base.OnCreate(savedInstanceState);
 
             if(MainActivity.Theme == 1)
+            {
                 SetTheme(Resource.Style.DarkPreferences);
+                Window.SetNavigationBarColor(Android.Graphics.Color.Argb(255, 33, 33, 33));
+            }              
 
             instance = this;
             Window.SetStatusBarColor(Android.Graphics.Color.Argb(255, 33, 33, 33));
@@ -231,6 +234,7 @@ namespace MusicApp.Resources.Portable_Class
             accountPreference.Title = "Logged in as:";
             accountPreference.Summary = MainActivity.account.DisplayName;
             accountPreference.OnSignedIn();
+            MainActivity.instance.InvalidateOptionsMenu();
         }
 
         #region Topic Preference

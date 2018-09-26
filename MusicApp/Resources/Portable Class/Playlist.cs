@@ -52,7 +52,6 @@ namespace MusicApp.Resources.Portable_Class
             View view = inflater.Inflate(Resource.Layout.RecyclerFragment, container, false);
             ListView = view.FindViewById<RecyclerView>(Resource.Id.recycler);
             ListView.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
-            System.Console.WriteLine("&Creating view");
             instance = this;
 
 #pragma warning disable CS4014

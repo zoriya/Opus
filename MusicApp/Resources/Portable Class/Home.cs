@@ -14,6 +14,7 @@ using MusicApp.Resources.values;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -336,7 +337,7 @@ namespace MusicApp.Resources.Portable_Class
 
                     r = new Random();
                     if (r.Next(0, 100) > 90)
-                        AddHomeTopics();
+                        await AddHomeTopics();
 
                     for (int i = 0; i < adapter.items.Count; i++)
                     {
@@ -359,13 +360,13 @@ namespace MusicApp.Resources.Portable_Class
                 }
                 else
                 {
-                    AddHomeTopics();
+                    await AddHomeTopics();
                 }
                 populating = false;
             }
         }
 
-        public async void AddHomeTopics()
+        public async Task AddHomeTopics()
         {
             List<Song> channelLits = new List<Song>();
 
