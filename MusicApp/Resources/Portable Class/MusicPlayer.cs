@@ -1094,7 +1094,7 @@ namespace MusicApp.Resources.Portable_Class
                 player.PlayWhenReady = false;
                 StopForeground(false);
 
-                if (!ShouldResumePlayback)
+                if (!ShouldResumePlayback && noisyRegistered)
                 {
                     UnregisterReceiver(noisyReceiver);
                     noisyRegistered = false;

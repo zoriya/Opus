@@ -467,6 +467,10 @@ namespace MusicApp
                     SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(0, 1)).Commit();
                 }
             }
+            else if(item.ItemId == Resource.Id.search)
+            {
+                menu.FindItem(Resource.Id.filter).CollapseActionView();
+            }
             else if(item.ItemId == Resource.Id.settings)
             {
                 Intent intent = new Intent(Application.Context, typeof(Preferences));
