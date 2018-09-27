@@ -43,6 +43,7 @@ namespace MusicApp.Resources.Portable_Class
         public MediaSessionCompat mediaSession;
         public AudioManager audioManager;
         public NotificationManager notificationManager;
+        private bool noisyRegistered;
         public static bool isRunning = false;
         public static string title;
         private static bool parsing = false;
@@ -169,6 +170,7 @@ namespace MusicApp.Resources.Portable_Class
                 noisyReceiver = new AudioStopper();
 
             RegisterReceiver(noisyReceiver, new IntentFilter(AudioManager.ActionAudioBecomingNoisy));
+            noisyRegistered = true;
         }
 
         public void ChangeVolume(float volume)
@@ -1092,7 +1094,11 @@ namespace MusicApp.Resources.Portable_Class
                 player.PlayWhenReady = false;
                 StopForeground(false);
 
-                UnregisterReceiver(noisyReceiver);
+                if (!ShouldResumePlayback)
+                {
+                    UnregisterReceiver(noisyReceiver);
+                    noisyRegistered = false;
+                }
 
                 FrameLayout smallPlayer = MainActivity.instance.FindViewById<FrameLayout>(Resource.Id.smallPlayer);
                 smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
@@ -1122,6 +1128,7 @@ namespace MusicApp.Resources.Portable_Class
                     noisyReceiver = new AudioStopper();
 
                 RegisterReceiver(noisyReceiver, new IntentFilter(AudioManager.ActionAudioBecomingNoisy));
+                noisyRegistered = true;
 
                 FrameLayout smallPlayer = MainActivity.instance.FindViewById<FrameLayout>(Resource.Id.smallPlayer);
                 smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
@@ -1179,6 +1186,10 @@ namespace MusicApp.Resources.Portable_Class
 
         public void Stop()
         {
+            if(noisyRegistered)
+                UnregisterReceiver(noisyReceiver);
+
+            noisyRegistered = false;
             isRunning = false;
             title = null;
             parsing = false;
