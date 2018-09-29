@@ -44,6 +44,11 @@ public class AccountPreference : Preference, IResultCallback
             log.SetTextColor(Color.DarkBlue);
             log.Text = "Log In";
             log.Click += logIn;
+
+            if (MainActivity.Theme == 1)
+                view.FindViewById<ImageView>(Android.Resource.Id.Icon).SetColorFilter(Color.White);
+            else
+                view.FindViewById<ImageView>(Android.Resource.Id.Icon).SetColorFilter(Color.Gray);
         }
         else
         {
@@ -71,7 +76,10 @@ public class AccountPreference : Preference, IResultCallback
         log.Text = "Log In";
         Summary = "";
         Picasso.With(Android.App.Application.Context).Load(Resource.Drawable.account).Into(view.FindViewById<ImageView>(Android.Resource.Id.Icon));
-        view.FindViewById<ImageView>(Android.Resource.Id.Icon).SetColorFilter(Color.White);
+        if(MainActivity.Theme == 1)
+            view.FindViewById<ImageView>(Android.Resource.Id.Icon).SetColorFilter(Color.White);
+        else
+            view.FindViewById<ImageView>(Android.Resource.Id.Icon).SetColorFilter(Color.Gray);
         log.Click -= logOut;
         MainActivity.instance.InvalidateOptionsMenu();
     }
