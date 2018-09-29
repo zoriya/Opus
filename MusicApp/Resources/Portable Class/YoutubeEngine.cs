@@ -527,39 +527,39 @@ namespace MusicApp.Resources.Portable_Class
 
         public static bool FileIsAlreadyDownloaded(string youtubeID)
         {
-            Android.Net.Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
+            //Android.Net.Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
 
-            CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
-            ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
+            //CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
+            //ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
 
-            if (musicCursor != null && musicCursor.MoveToFirst())
-            {
-                int pathKey = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
-                do
-                {
-                    string path = musicCursor.GetString(pathKey);
+            //if (musicCursor != null && musicCursor.MoveToFirst())
+            //{
+            //    int pathKey = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
+            //    do
+            //    {
+            //        string path = musicCursor.GetString(pathKey);
 
-                    try
-                    {
-                        Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
-                        var meta = TagLib.File.Create(new StreamFileAbstraction(path, stream, stream));
-                        string ytID = meta.Tag.Comment;
-                        stream.Dispose();
+            //        try
+            //        {
+            //            Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
+            //            var meta = TagLib.File.Create(new StreamFileAbstraction(path, stream, stream));
+            //            string ytID = meta.Tag.Comment;
+            //            stream.Dispose();
 
-                        if (ytID == youtubeID)
-                        {
-                            musicCursor.Close();
-                            return true;
-                        }
-                    }
-                    catch (CorruptFileException)
-                    {
-                        continue;
-                    }
-                }
-                while (musicCursor.MoveToNext());
-                musicCursor.Close();
-            }
+            //            if (ytID == youtubeID)
+            //            {
+            //                musicCursor.Close();
+            //                return true;
+            //            }
+            //        }
+            //        catch (CorruptFileException)
+            //        {
+            //            continue;
+            //        }
+            //    }
+            //    while (musicCursor.MoveToNext());
+            //    musicCursor.Close();
+            //}
 
             return false;
         }
