@@ -58,7 +58,7 @@ namespace MusicApp.Resources.Portable_Class
         }
         public void OnFocus()
         {
-            if (searching && !error)
+            if (searching && !error && !isEmpty)
             {
                 adapter = null;
                 ListView.SetAdapter(null);
@@ -80,7 +80,7 @@ namespace MusicApp.Resources.Portable_Class
                         ((TextView)emptyView).Text = "No track for " + searchKeyWorld;
                         break;
                     case "Playlists":
-                        ((TextView)emptyView).Text = "No Playlist for " + searchKeyWorld;
+                        ((TextView)emptyView).Text = "No playlist for " + searchKeyWorld;
                         break;
                     case "Channels":
                         ((TextView)emptyView).Text = "No channel for " + searchKeyWorld;
@@ -247,7 +247,8 @@ namespace MusicApp.Resources.Portable_Class
 
                 if (focused)
                 {
-                    emptyView = LayoutInflater.Inflate(Resource.Layout.EmptyYoutubeSearch, null);
+                    if(emptyView == null)
+                        emptyView = LayoutInflater.Inflate(Resource.Layout.EmptyYoutubeSearch, null);
 
                     switch (querryType)
                     {
@@ -258,7 +259,7 @@ namespace MusicApp.Resources.Portable_Class
                             ((TextView)emptyView).Text = "No tracks for " + search;
                             break;
                         case "Playlists":
-                            ((TextView)emptyView).Text = "No Playlist for " + search;
+                            ((TextView)emptyView).Text = "No playlist for " + search;
                             break;
                         case "Channels":
                             ((TextView)emptyView).Text = "No channel for " + search;

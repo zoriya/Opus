@@ -102,6 +102,8 @@ namespace MusicApp
             var bottomNavigation = FindViewById<BottomNavigationView>(Resource.Id.bottomView);
             bottomNavigation.NavigationItemSelected += PreNavigate;
 
+            int statusHeight = Resources.GetDimensionPixelSize(Resources.GetIdentifier("status_bar_height", "dimen", "android"));
+            FindViewById(Resource.Id.contentLayout).SetPadding(0, statusHeight, 0, 0);
             ToolBar = (Android.Support.V7.Widget.Toolbar)FindViewById(Resource.Id.toolbar);
             SetSupportActionBar(ToolBar);
             SupportActionBar.Title = "MusicApp";
@@ -466,6 +468,10 @@ namespace MusicApp
                     FolderTracks.instance = null;
                     SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(0, 1)).Commit();
                 }
+            }
+            else if(item.ItemId == Resource.Id.search)
+            {
+                menu.FindItem(Resource.Id.filter).CollapseActionView();
             }
             else if(item.ItemId == Resource.Id.settings)
             {
