@@ -81,6 +81,7 @@ namespace MusicApp
         public BottomSheetBehavior SheetBehavior;
 
         private const int RequestCode = 8539;
+        public const int NotifUpdateID = 4626;
         private const string versionURI = "https://raw.githubusercontent.com/AnonymusRaccoon/MusicApp/master/MusicApp/Assets/Version.txt";
 
         private const string clientID = "112086459272-8m4do6aehtdg4a7nffd0a84jk94c64e8.apps.googleusercontent.com";
@@ -1282,7 +1283,7 @@ namespace MusicApp
                         snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
                         snackBar.Show();
                     }
-                    else if(Preferences.instance != null)
+                    if(Preferences.instance != null)
                     {
                         Snackbar snackBar = Snackbar.Make(Preferences.instance.FindViewById(Android.Resource.Id.Content), "You are not connected to internet, can't check for updates.", Snackbar.LengthLong);
                         snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
@@ -1313,16 +1314,13 @@ namespace MusicApp
             {
                 string GitVersion = await client.DownloadStringTaskAsync(new System.Uri(versionURI));
                 gitVersionID = GitVersion.Substring(9, 5);
-                gitVersionID = gitVersionID.Remove(1, 1);
-                gitVersion = int.Parse(gitVersionID.Remove(2, 1));
-                downloadPath = GitVersion.Substring(18);
+                string gitID = gitVersionID.Remove(1, 1);
+                gitVersion = int.Parse(gitID.Remove(2, 1));
+                downloadPath = GitVersion.Substring(GitVersion.IndexOf("Link: ") + 6);
             }
-
-            Console.WriteLine("&Version: " + version + " GitVersion: " + gitVersion);
 
             if(gitVersion > version)
             {
-                Console.WriteLine("&An update is available");
                 Android.Support.V7.App.AlertDialog.Builder builder = new Android.Support.V7.App.AlertDialog.Builder(activity, dialogTheme);
                 builder.SetTitle(string.Format("The version {0} is available", gitVersionID));
                 builder.SetMessage("An update is available, do you want to download it now ?");
@@ -1352,10 +1350,23 @@ namespace MusicApp
         public async static void InstallUpdate(string version, string downloadPath)
         {
             Toast.MakeText(Application.Context, "Downloading update, you will be prompt for the installation soon.", ToastLength.Short).Show();
+
+            NotificationCompat.Builder notification = new NotificationCompat.Builder(Application.Context, "MusicApp.Channel")
+                .SetVisibility(NotificationCompat.VisibilityPublic)
+                .SetSmallIcon(Resource.Drawable.MusicIcon)
+                .SetContentTitle("Updating app...")
+                .SetOngoing(true);
+
+            NotificationManager notificationManager = (NotificationManager)Application.Context.GetSystemService(NotificationService);
+            notificationManager.Notify(NotifUpdateID, notification.Build());
+
             using (WebClient client = new WebClient())
             {
                 await client.DownloadFileTaskAsync(downloadPath, Android.OS.Environment.ExternalStorageDirectory + "/download/" + "MusicApp-v" + version + ".apk");
             }
+
+            notificationManager.Cancel(NotifUpdateID);
+
             Intent intent = new Intent(Intent.ActionView);
             intent.SetDataAndType(Android.Net.Uri.FromFile(new Java.IO.File(Android.OS.Environment.ExternalStorageDirectory + "/download/" + "MusicApp-v" + version + ".apk")), "application/vnd.android.package-archive");
             intent.SetFlags(ActivityFlags.NewTask);

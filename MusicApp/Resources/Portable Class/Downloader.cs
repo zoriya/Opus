@@ -89,16 +89,17 @@ namespace MusicApp.Resources.Portable_Class
             currentStrike++;
             CreateNotification(file.name);
 
-            if (YoutubeEngine.FileIsAlreadyDownloaded(file.videoID) && !file.skipCheck)
-            {
-                Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), file.name + " is already on your device.", Snackbar.LengthShort).SetAction("Download Anyway", (v) =>
-                {
-                    file.skipCheck = true;
-                    Download(file);
-                });
-                snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Android.Graphics.Color.White);
-                snackBar.Show();
-            }
+            //if (YoutubeEngine.FileIsAlreadyDownloaded(file.videoID) && !file.skipCheck)
+            //{
+            //    Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), file.name + " is already on your device.", Snackbar.LengthShort).SetAction("Download Anyway", (v) =>
+            //    {
+            //        file.skipCheck = true;
+            //        Download(file);
+            //    });
+            //    snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Android.Graphics.Color.White);
+            //    snackBar.Show();
+            //    return;
+            //}
 
             try
             {

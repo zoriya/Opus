@@ -740,11 +740,11 @@ namespace MusicApp.Resources.Portable_Class
                 }
             }
 
-            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
-            if (YoutubeEngine.FileIsAlreadyDownloaded(song.Path) && !prefManager.GetBoolean("skipExistVerification", false))
-            {
-                GetTrackSong(YoutubeEngine.GetLocalPathFromYTID(song.Path), out song);
-            }
+            //ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
+            //if (!prefManager.GetBoolean("skipExistVerification", false) && YoutubeEngine.FileIsAlreadyDownloaded(song.Path))
+            //{
+            //    GetTrackSong(YoutubeEngine.GetLocalPathFromYTID(song.Path), out song);
+            //}
 
             Play(song, false);
 
