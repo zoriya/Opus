@@ -102,6 +102,8 @@ namespace MusicApp
             var bottomNavigation = FindViewById<BottomNavigationView>(Resource.Id.bottomView);
             bottomNavigation.NavigationItemSelected += PreNavigate;
 
+            int statusHeight = Resources.GetDimensionPixelSize(Resources.GetIdentifier("status_bar_height", "dimen", "android"));
+            FindViewById(Resource.Id.contentLayout).SetPadding(0, statusHeight, 0, 0);
             ToolBar = (Android.Support.V7.Widget.Toolbar)FindViewById(Resource.Id.toolbar);
             SetSupportActionBar(ToolBar);
             SupportActionBar.Title = "MusicApp";
