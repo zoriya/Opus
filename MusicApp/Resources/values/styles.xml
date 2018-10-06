@@ -29,6 +29,10 @@
     <item name="defaultColor">#212121</item>
   </style>
 
+  <style name="Buffer" parent="DarkTheme">
+    <item name="colorAccent">#ffffff</item>
+  </style>
+
   <style name="SplashScreen" parent="DarkTheme">
     <item name="android:windowBackground">@drawable/splashScreen</item>
   </style>

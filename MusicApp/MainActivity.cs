@@ -616,7 +616,7 @@ namespace MusicApp
         {
             contentRefresh.Refreshing = false;
 
-            bool youtubeSwitch = false;
+            bool specialSwitch = false;
             if(YoutubeEngine.instances != null)
             {
                 YoutubeEngine.error = false;
@@ -635,13 +635,14 @@ namespace MusicApp
                 SupportActionBar.SetDisplayHomeAsUpEnabled(false);
                 FindViewById(Resource.Id.tabs).Visibility = ViewStates.Gone;
                 YoutubeEngine.instances = null;
-                youtubeSwitch = true;
+                specialSwitch = true;
             }
 
             if(PlaylistTracks.instance != null)
             {
                 PlaylistTracks.instance.navigating = true;
                 SupportFragmentManager.BeginTransaction().Remove(PlaylistTracks.instance).Commit();
+                specialSwitch = true;
             }
 
             Android.Support.V4.App.Fragment fragment = null;
@@ -649,7 +650,7 @@ namespace MusicApp
             {
                 case Resource.Id.musicLayout:
                     ShowQuickPlay();
-                    if (Home.instance != null)
+                    if (Home.instance != null && !specialSwitch)
                     {
                         Home.instance.Refresh();
                         return;
@@ -662,8 +663,8 @@ namespace MusicApp
                     break;
 
                 case Resource.Id.browseLayout:
-                    Console.WriteLine("&Navigating to browse with browse instance value " + Browse.instance + " and with youtubeSwitch set to " + youtubeSwitch);
-                    if (Browse.instance != null && !youtubeSwitch)
+                    Console.WriteLine("&Navigating to browse with browse instance value " + Browse.instance + " and with youtubeSwitch set to " + specialSwitch);
+                    if (Browse.instance != null && !specialSwitch)
                     {
                         Browse.instance.Refresh();
                         return;
@@ -676,7 +677,7 @@ namespace MusicApp
                     break;
 
                 case Resource.Id.playlistLayout:
-                    if (Playlist.instance != null)
+                    if (Playlist.instance != null && !specialSwitch)
                     {
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                         Playlist.instance.Refresh();
@@ -1203,6 +1204,8 @@ namespace MusicApp
                     instance.YoutubeEndPointChanged();
                 else if (ex is System.Net.Http.HttpRequestException)
                     instance.Timout();
+                else
+                    instance.Unknow();
 
                 return;
             }
@@ -1244,14 +1247,21 @@ namespace MusicApp
         {
             FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
             Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), "The way youtube play video has changed, the app can't play this video now. Wait for the next update.", Snackbar.LengthLong);
-            snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Android.Graphics.Color.White);
+            snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
             snackBar.Show();
         }
 
         public void Timout()
         {
             Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), "Timout exception, check if you're still connected to internet.", Snackbar.LengthLong);
-            snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Android.Graphics.Color.White);
+            snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+            snackBar.Show();
+        }
+
+        public void Unknow()
+        {
+            Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), "An unknown error has occured.", Snackbar.LengthLong);
+            snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
             snackBar.Show();
         }
 

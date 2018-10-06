@@ -18,7 +18,6 @@ using Com.Google.Android.Exoplayer2.Source;
 using Com.Google.Android.Exoplayer2.Trackselection;
 using Com.Google.Android.Exoplayer2.Upstream;
 using MusicApp.Resources.values;
-using Org.Adw.Library.Widgets.Discreteseekbar;
 using SQLite;
 using Square.Picasso;
 using System;
@@ -99,14 +98,14 @@ namespace MusicApp.Resources.Portable_Class
 
                 case "Pause":
                     if(isRunning)
-                        Pause();
+                        Pause(true);
                     else
                         Resume();
                     break;
 
                 case "ForcePause":
                     if (isRunning)
-                        Pause();
+                        Pause(true);
                     break;
 
                 case "Next":
@@ -440,6 +439,14 @@ namespace MusicApp.Resources.Portable_Class
                         MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
                     return;
                 }
+                catch
+                {
+                    MainActivity.instance.Unknow();
+                    parsing = false;
+                    if (MainActivity.instance != null)
+                        MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
+                    return;
+                }
 
                 UpdateQueueItemDB(queue[CurrentID()]);
                 Player.instance?.RefreshPlayer();
@@ -670,7 +677,7 @@ namespace MusicApp.Resources.Portable_Class
                 }
                 else
                 {
-                    Pause();
+                    Pause(true);
                     return;
                 }
             }
@@ -730,6 +737,11 @@ namespace MusicApp.Resources.Portable_Class
                 catch (System.Net.Http.HttpRequestException)
                 {
                     MainActivity.instance.Timout();
+                    return;
+                }
+                catch
+                {
+                    MainActivity.instance.Unknow();
                     return;
                 }
 
@@ -937,6 +949,12 @@ namespace MusicApp.Resources.Portable_Class
                     parsing = false;
                     return;
                 }
+                catch
+                {
+                    MainActivity.instance.Unknow();
+                    parsing = false;
+                    return;
+                }
             }
         }
 
@@ -1079,9 +1097,12 @@ namespace MusicApp.Resources.Portable_Class
             StartForeground(notificationID, notification);
         }
 
-        public void Pause()
+        public void Pause(bool userRequested)
         {
-            if(player != null && isRunning)
+            if (userRequested)
+                ShouldResumePlayback = false;
+
+            if (player != null && isRunning)
             {
                 isRunning = false;
                 Intent tmpPauseIntent = new Intent(Application.Context, typeof(MusicPlayer));
@@ -1234,12 +1255,12 @@ namespace MusicApp.Resources.Portable_Class
                     break;
 
                 case AudioFocus.Loss:
-                    Pause();
+                    Pause(false);
                     ShouldResumePlayback = false;
                     break;
 
                 case AudioFocus.LossTransient:
-                    Pause();
+                    Pause(false);
                     ShouldResumePlayback = true;
                     break;
 
@@ -1275,6 +1296,14 @@ namespace MusicApp.Resources.Portable_Class
             if (state == Com.Google.Android.Exoplayer2.Player.StateEnded)
             {
                 PlayNext();
+            }
+            if(state == Com.Google.Android.Exoplayer2.Player.StateBuffering)
+            {
+                Player.instance?.Buffering();
+            }
+            if(state == Com.Google.Android.Exoplayer2.Player.StateReady)
+            {
+                Player.instance?.Ready();
             }
         }
 

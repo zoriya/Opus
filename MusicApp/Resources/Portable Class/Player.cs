@@ -11,7 +11,6 @@ using Android.Support.V7.Graphics;
 using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
-using Org.Adw.Library.Widgets.Discreteseekbar;
 using Square.Picasso;
 using System;
 using System.Collections.Generic;
@@ -311,6 +310,34 @@ namespace MusicApp.Resources.Portable_Class
                 ImageView nextArt = MainActivity.instance.FindViewById<ImageView>(Resource.Id.nextArt);
                 Picasso.With(MainActivity.instance).Load(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
             }
+        }
+
+        public void Buffering()
+        {
+            ImageButton play = MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton);
+            ProgressBar buffer = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.playerBuffer);
+            buffer.Visibility = ViewStates.Visible;
+            buffer.SetY(play.GetY());
+            play.Visibility = ViewStates.Gone;
+
+            ProgressBar smallBuffer = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.spBuffer);
+            ImageButton smallPlay = MainActivity.instance.FindViewById<ImageButton>(Resource.Id.spPlay);
+            smallBuffer.Visibility = ViewStates.Visible;
+            smallPlay.Visibility = ViewStates.Invisible;
+        }
+
+        public void Ready()
+        {
+            ImageButton play = MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton);
+            ProgressBar buffer = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.playerBuffer);
+            buffer.Visibility = ViewStates.Gone;
+            play.Visibility = ViewStates.Visible;
+
+            ProgressBar smallBuffer = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.spBuffer);
+            ImageButton smallPlay = MainActivity.instance.FindViewById<ImageButton>(Resource.Id.spPlay);
+            smallBuffer.Visibility = ViewStates.Gone;
+            smallPlay.Visibility = ViewStates.Visible;
+
         }
 
         private void Download_Click(object sender, EventArgs e)
