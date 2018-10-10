@@ -1288,7 +1288,10 @@ namespace MusicApp.Resources.Portable_Class
 
         public void OnPlayerError(ExoPlaybackException args)
         {
+            Console.WriteLine("&Type: " + args.Type);
             Console.WriteLine("Error in playback resetting: " + args.Cause);
+
+            Player.instance?.Error();
         }
 
         public void OnPlayerStateChanged(bool playWhenReady, int state)

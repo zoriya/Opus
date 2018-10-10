@@ -24,6 +24,7 @@ namespace MusicApp.Resources.Portable_Class
     {
         public static Player instance;
         public Handler handler = new Handler();
+        public bool errorState = false;
 
         private SeekBar bar;
         private ProgressBar spBar;
@@ -138,15 +139,18 @@ namespace MusicApp.Resources.Portable_Class
             title.Text = current.Title;
             artist.Text = current.Artist;
 
-            if (MusicPlayer.isRunning)
+            if (!errorState)
             {
-                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
-                smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
-            }
-            else
-            {
-                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
-                smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
+                if (MusicPlayer.isRunning)
+                {
+                    MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
+                    smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
+                }
+                else
+                {
+                    MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
+                    smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
+                }
             }
 
             Bitmap icon = null;
@@ -326,13 +330,35 @@ namespace MusicApp.Resources.Portable_Class
             smallPlay.Visibility = ViewStates.Invisible;
         }
 
+        public void Error()
+        {
+            ImageButton play = MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton);
+            ProgressBar buffer = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.playerBuffer);
+            buffer.Visibility = ViewStates.Gone;
+            play.Visibility = ViewStates.Visible;
+            play.SetImageResource(Resource.Drawable.Error);
+
+            ProgressBar smallBuffer = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.spBuffer);
+            ImageButton smallPlay = MainActivity.instance.FindViewById<ImageButton>(Resource.Id.spPlay);
+            smallBuffer.Visibility = ViewStates.Gone;
+            smallPlay.Visibility = ViewStates.Visible;
+            smallPlay.SetImageResource(Resource.Drawable.Error);
+
+            errorState = true;
+        }
+
         public void Ready()
         {
             ImageButton play = MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton);
             ProgressBar buffer = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.playerBuffer);
             buffer.Visibility = ViewStates.Gone;
             play.Visibility = ViewStates.Visible;
+            if(MusicPlayer.isRunning)
+                play.SetImageResource(Resource.Drawable.ic_pause_black_24dp);
+            else
+                play.SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
 
+            errorState = false;
             ProgressBar smallBuffer = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.spBuffer);
             ImageButton smallPlay = MainActivity.instance.FindViewById<ImageButton>(Resource.Id.spPlay);
             smallBuffer.Visibility = ViewStates.Gone;
@@ -417,6 +443,13 @@ namespace MusicApp.Resources.Portable_Class
 
         private void Play_Click(object sender, EventArgs e)
         {
+            if (errorState)
+            {
+                MusicPlayer.instance?.Resume();
+                errorState = false;
+                return;
+            }
+
             Intent intent = new Intent(MainActivity.instance, typeof(MusicPlayer));
             intent.SetAction("Pause");
             MainActivity.instance.StartService(intent);

@@ -924,6 +924,13 @@ namespace MusicApp
 
         private void Play_Click(object sender, EventArgs e)
         {
+            if (Player.instance?.errorState == true)
+            {
+                MusicPlayer.instance?.Resume();
+                Player.instance.errorState = false;
+                return;
+            }
+
             Intent intent = new Intent(Application.Context, typeof(MusicPlayer));
             intent.SetAction("Pause");
             StartService(intent);

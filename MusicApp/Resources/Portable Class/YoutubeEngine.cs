@@ -171,103 +171,118 @@ namespace MusicApp.Resources.Portable_Class
                 return;
             }
 
-            SearchResource.ListRequest searchResult = youtubeService.Search.List("snippet");
-            searchResult.Fields = "items(id/videoId,id/playlistId,id/channelId,id/kind,snippet/title,snippet/thumbnails/high/url,snippet/channelTitle)";
-            searchResult.Q = search.Replace(" ", "+-");
-            searchResult.TopicId = "/m/04rlf";
-            switch (querryType)
+            try
             {
-                case "All":
-                    searchResult.Type = "video,channel,playlist";
-                    break;
-                case "Tracks":
-                    searchResult.Type = "video";
-                    break;
-                case "Playlists":
-                    searchResult.Type = "playlist";
-                    break;
-                case "Channels":
-                    searchResult.Type = "channel";
-                    break;
-                default:
-                    searchResult.Type = "video";
-                    break;
-            }
-            searchResult.MaxResults = 20;
-
-            var searchReponse = await searchResult.ExecuteAsync();
-
-            result = new List<YtFile>();
-
-            foreach (var video in searchReponse.Items)
-            {
-                Song videoInfo = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.High.Url, null, -1, -1, null, true, false);
-                YtKind kind = YtKind.Null;
-
-                switch (video.Id.Kind)
+                SearchResource.ListRequest searchResult = youtubeService.Search.List("snippet");
+                searchResult.Fields = "items(id/videoId,id/playlistId,id/channelId,id/kind,snippet/title,snippet/thumbnails/high/url,snippet/channelTitle)";
+                searchResult.Q = search.Replace(" ", "+-");
+                searchResult.TopicId = "/m/04rlf";
+                switch (querryType)
                 {
-                    case "youtube#video":
-                        kind = YtKind.Video;
-                        videoInfo.youtubeID = video.Id.VideoId;
+                    case "All":
+                        searchResult.Type = "video,channel,playlist";
                         break;
-                    case "youtube#playlist":
-                        kind = YtKind.Playlist;
-                        videoInfo.youtubeID = video.Id.PlaylistId;
+                    case "Tracks":
+                        searchResult.Type = "video";
                         break;
-                    case "youtube#channel":
-                        kind = YtKind.Channel;
-                        videoInfo.youtubeID = video.Id.ChannelId;
+                    case "Playlists":
+                        searchResult.Type = "playlist";
+                        break;
+                    case "Channels":
+                        searchResult.Type = "channel";
                         break;
                     default:
-                        Console.WriteLine("&Kind = " + video.Id.Kind);
+                        searchResult.Type = "video";
                         break;
                 }
-                result.Add(new YtFile(videoInfo, kind));
-            }
+                searchResult.MaxResults = 20;
 
-            if (loadingBar && focused)
-            {
-                ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
-                rootView.RemoveView(loadingView);
-            }
+                var searchReponse = await searchResult.ExecuteAsync();
 
-            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(MainActivity.instance);
-            List<string> topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
-            List<string> selectedTopics = topics.ConvertAll(x => x.Substring(x.IndexOf("/#-#/") + 5));
+                result = new List<YtFile>();
 
-            adapter = new YtAdapter(result, selectedTopics);
-            adapter.ItemClick += ListView_ItemClick;
-            adapter.ItemLongCLick += ListView_ItemLongClick;
-            ListView.SetAdapter(adapter);
-            searching = false;
-
-            if (adapter == null || adapter.ItemCount == 0)
-            {
-                isEmpty = true;
-
-                if (focused)
+                foreach (var video in searchReponse.Items)
                 {
-                    if(emptyView == null)
-                        emptyView = LayoutInflater.Inflate(Resource.Layout.EmptyYoutubeSearch, null);
+                    Song videoInfo = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.High.Url, null, -1, -1, null, true, false);
+                    YtKind kind = YtKind.Null;
 
-                    switch (querryType)
+                    switch (video.Id.Kind)
                     {
-                        case "All":
-                            ((TextView)emptyView).Text = "No result for " + search;
+                        case "youtube#video":
+                            kind = YtKind.Video;
+                            videoInfo.youtubeID = video.Id.VideoId;
                             break;
-                        case "Tracks":
-                            ((TextView)emptyView).Text = "No tracks for " + search;
+                        case "youtube#playlist":
+                            kind = YtKind.Playlist;
+                            videoInfo.youtubeID = video.Id.PlaylistId;
                             break;
-                        case "Playlists":
-                            ((TextView)emptyView).Text = "No playlist for " + search;
-                            break;
-                        case "Channels":
-                            ((TextView)emptyView).Text = "No channel for " + search;
+                        case "youtube#channel":
+                            kind = YtKind.Channel;
+                            videoInfo.youtubeID = video.Id.ChannelId;
                             break;
                         default:
+                            Console.WriteLine("&Kind = " + video.Id.Kind);
                             break;
                     }
+                    result.Add(new YtFile(videoInfo, kind));
+                }
 
+                if (loadingBar && focused)
+                {
+                    ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
+                    rootView.RemoveView(loadingView);
+                }
+
+                ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(MainActivity.instance);
+                List<string> topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
+                List<string> selectedTopics = topics.ConvertAll(x => x.Substring(x.IndexOf("/#-#/") + 5));
+
+                adapter = new YtAdapter(result, selectedTopics);
+                adapter.ItemClick += ListView_ItemClick;
+                adapter.ItemLongCLick += ListView_ItemLongClick;
+                ListView.SetAdapter(adapter);
+                searching = false;
+
+                if (adapter == null || adapter.ItemCount == 0)
+                {
+                    isEmpty = true;
+
+                    if (focused)
+                    {
+                        if (emptyView == null)
+                            emptyView = LayoutInflater.Inflate(Resource.Layout.EmptyYoutubeSearch, null);
+
+                        switch (querryType)
+                        {
+                            case "All":
+                                ((TextView)emptyView).Text = "No result for " + search;
+                                break;
+                            case "Tracks":
+                                ((TextView)emptyView).Text = "No tracks for " + search;
+                                break;
+                            case "Playlists":
+                                ((TextView)emptyView).Text = "No playlist for " + search;
+                                break;
+                            case "Channels":
+                                ((TextView)emptyView).Text = "No channel for " + search;
+                                break;
+                            default:
+                                break;
+                        }
+
+                        Activity.AddContentView(emptyView, ListView.LayoutParameters);
+                    }
+                }
+            }
+            catch (System.Net.Http.HttpRequestException)
+            {
+                MainActivity.instance.Timout();
+                if (focused)
+                {
+                    if (emptyView == null)
+                        emptyView = LayoutInflater.Inflate(Resource.Layout.EmptyYoutubeSearch, null);
+
+                    ((TextView)emptyView).Text = "Timout exception, check if you're still connected to internet.";
                     Activity.AddContentView(emptyView, ListView.LayoutParameters);
                 }
             }
