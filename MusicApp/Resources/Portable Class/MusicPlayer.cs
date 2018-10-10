@@ -51,12 +51,11 @@ namespace MusicApp.Resources.Portable_Class
         public static bool autoUpdateSeekBar = true;
         public static bool repeat = false;
         public static bool useAutoPlay = false;
-        public static bool sleepStopped = false;
+        public static bool userStopped = false;
         public static bool ShouldResumePlayback;
 
         private Notification notification;
         private const int notificationID = 1000;
-        private static long progress;
         private bool volumeDuked;
 
         public override IBinder OnBind(Intent intent)
@@ -139,7 +138,7 @@ namespace MusicApp.Resources.Portable_Class
                     break;
 
                 case "SwitchQueue":
-                    SwitchQueue(queue[intent.GetIntExtra("queueSlot", -1)], true);
+                    SwitchQueue(queue[intent.GetIntExtra("queueSlot", -1)], intent.GetBooleanExtra("showPlayer", true), intent.GetBooleanExtra("startPlaying", true));
                     break;
             }
 
@@ -161,7 +160,6 @@ namespace MusicApp.Resources.Portable_Class
             AdaptiveTrackSelection.Factory trackSelectionFactory = new AdaptiveTrackSelection.Factory(bandwithMeter);
             TrackSelector trackSelector = new DefaultTrackSelector(trackSelectionFactory);
             player = ExoPlayerFactory.NewSimpleInstance(Application.Context, trackSelector);
-            player.PlayWhenReady = true;
             player.Volume = prefManager.GetInt("volumeMultiplier", 100) / 100f;
             player.AddListener(this);
 
@@ -268,8 +266,9 @@ namespace MusicApp.Resources.Portable_Class
             ParseNextSong();
         }
 
-        public void Play(Song song, bool addToQueue = true, long progress = -1)
+        public void Play(Song song, bool addToQueue = true, long progress = -1, bool startPlaying = true)
         {
+            Android.Util.Log.Debug("MusicApp", " & Playing " + song.Title + " will add to queue ? " + addToQueue + " starting from " + progress + " will start playing ? " + startPlaying);
             if (!song.isParsed)
             {
                 ParseAndPlay("Play", song.youtubeID, song.Title, song.Artist, song.Album, addToQueue);
@@ -330,12 +329,13 @@ namespace MusicApp.Resources.Portable_Class
 #pragma warning restore CS0618
             }
 
-            player.PlayWhenReady = true;
+            player.PlayWhenReady = startPlaying;
             player.Prepare(mediaSource, true, true);
-            CreateNotification(song.Title, song.Artist, song.AlbumArt, song.Album);
+            if(startPlaying)
+                CreateNotification(song.Title, song.Artist, song.AlbumArt, song.Album);
 
-            isRunning = true;
-            player.PlayWhenReady = true;
+            isRunning = startPlaying;
+            player.PlayWhenReady = startPlaying;
 
             if (addToQueue)
             {
@@ -661,8 +661,8 @@ namespace MusicApp.Resources.Portable_Class
             if (CurrentID() - 1 < 0)
                 return;
 
-            Song privous = queue[CurrentID() - 1];
-            SwitchQueue(privous);
+            Song previous = queue[CurrentID() - 1];
+            SwitchQueue(previous);
         }
 
         public void PlayNext()
@@ -691,7 +691,7 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
-        public async void SwitchQueue(Song song, bool showPlayer = false)
+        public async void SwitchQueue(Song song, bool showPlayer = false, bool startPlaying = true)
         {
             if (!song.isParsed)
             {
@@ -758,7 +758,13 @@ namespace MusicApp.Resources.Portable_Class
             //    GetTrackSong(YoutubeEngine.GetLocalPathFromYTID(song.Path), out song);
             //}
 
-            Play(song, false);
+            //if (!startPlaying)
+            //{P
+            //    Play(song, false, RetrieveTimer(), false);
+            //}
+            //else
+            if(startPlaying)
+                Play(song, false);
 
             if (showPlayer)
             {
@@ -860,7 +866,12 @@ namespace MusicApp.Resources.Portable_Class
                 if (queue != null && queue.Count > 0)
                 {
                     currentID = RetrieveQueueSlot();
-                    MainActivity.instance.RunOnUiThread(() => { MainActivity.instance.ShowSmallPlayer(); });
+                    Intent intent = new Intent(Application.Context, typeof(MusicPlayer));
+                    intent.SetAction("SwitchQueue");
+                    intent.PutExtra("queueSlot", currentID);
+                    intent.PutExtra("showPlayer", false);
+                    intent.PutExtra("startPlaying", false);
+                    Application.Context.StartService(intent);
                 }
             });
         }
@@ -887,6 +898,20 @@ namespace MusicApp.Resources.Portable_Class
         {
             ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
             return pref.GetInt("currentID", -1);
+        }
+
+        public static long RetrieveTimer()
+        {
+            ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
+            return pref.GetLong("playerProgress", 0);
+        }
+
+        public static void SaveTimer(long currentProgress)
+        {
+            ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
+            ISharedPreferencesEditor editor = pref.Edit();
+            editor.PutLong("playerProgress", currentProgress);
+            editor.Apply();
         }
 
         public static async void ParseNextSong()
@@ -958,19 +983,19 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
-        public static int Duration
+        public static long Duration
         {
             get
             {
-                return player == null ? 1 : (int) player.Duration;
+                return player == null ? 1 : player.Duration;
             }
         }
 
-        public static int CurrentPosition
+        public static long CurrentPosition
         {
             get
             {
-                return player == null ? 0 : (int)player.CurrentPosition;
+                return player == null ? 0 : player.CurrentPosition;
             }
         }
 
@@ -1104,6 +1129,7 @@ namespace MusicApp.Resources.Portable_Class
 
             if (player != null && isRunning)
             {
+                SaveTimer(CurrentPosition);
                 isRunning = false;
                 Intent tmpPauseIntent = new Intent(Application.Context, typeof(MusicPlayer));
                 tmpPauseIntent.SetAction("Pause");
@@ -1201,7 +1227,7 @@ namespace MusicApp.Resources.Portable_Class
             }
             else
             {
-                Play(queue[CurrentID()], false, progress);
+                Play(queue[CurrentID()], false, RetrieveTimer());
             }
         }
 
@@ -1210,13 +1236,14 @@ namespace MusicApp.Resources.Portable_Class
             if(noisyRegistered)
                 UnregisterReceiver(noisyReceiver);
 
+            SaveTimer(CurrentPosition);
             noisyRegistered = false;
             isRunning = false;
             title = null;
             parsing = false;
             currentID = -1;
-            progress = 0;
-            MainActivity.instance.HideSmallPlayer();
+            userStopped = false;
+            MainActivity.instance?.HideSmallPlayer();
             if (player != null)
             {
                 if (isRunning)
@@ -1230,7 +1257,6 @@ namespace MusicApp.Resources.Portable_Class
 
         private void SleepPause()
         {
-            sleepStopped = true;
             Stop();
         }
 

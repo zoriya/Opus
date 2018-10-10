@@ -114,8 +114,6 @@ namespace MusicApp
 
             playToCross = GetDrawable(Resource.Drawable.PlayToCross);
             crossToPlay = GetDrawable(Resource.Drawable.CrossToPlay);
-            if (MusicPlayer.queue == null || MusicPlayer.queue.Count == 0)
-                MusicPlayer.RetrieveQueueFromDataBase();
 
             SupportFragmentManager.BeginTransaction().Replace(Resource.Id.playerFrame, Player.instance ?? new Player()).Commit();
 
@@ -152,7 +150,7 @@ namespace MusicApp
 
                 if (MusicPlayer.queue.Count > 0)
                     ReCreateSmallPlayer();
-                else 
+                else
                 {
                     if (intent.Action != "Sleep" && intent.Action != "Player" && intent.Action != Intent.ActionView && Intent.Action != Intent.ActionSend)
                         HideSmallPlayer();
@@ -163,6 +161,9 @@ namespace MusicApp
                 FindViewById(Resource.Id.contentView).RequestLayout();
                 FindViewById(Resource.Id.playerSheet).Visibility = ViewStates.Visible;
             }
+
+            if (MusicPlayer.queue == null || MusicPlayer.queue.Count == 0)
+                MusicPlayer.RetrieveQueueFromDataBase();
 
             if (intent.Action == "Sleep")
             {

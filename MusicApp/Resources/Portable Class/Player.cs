@@ -250,15 +250,15 @@ namespace MusicApp.Resources.Portable_Class
 
             if (MusicPlayer.player != null)
             {
-                while (MusicPlayer.player.Duration < 1)
+                while (MusicPlayer.Duration < 1)
                     await Task.Delay(100);
 
-                bar.Max = (int)MusicPlayer.player.Duration;
+                bar.Max = (int)MusicPlayer.Duration;
                 MusicPlayer.SetSeekBar(bar);
-                timerStart.Text = DurationToTimer(MusicPlayer.CurrentPosition);
+                timerStart.Text = DurationToTimer((int)MusicPlayer.CurrentPosition);
                 MainActivity.instance.FindViewById<TextView>(Resource.Id.timerEnd).Text = DurationToTimer((int)MusicPlayer.player.Duration);
-                spBar.Max = MusicPlayer.Duration;
-                spBar.Progress = MusicPlayer.CurrentPosition;
+                spBar.Max = (int)MusicPlayer.Duration;
+                spBar.Progress = (int)MusicPlayer.CurrentPosition;
 
                 handler.PostDelayed(UpdateSeekBar, 1000);
             }
@@ -351,6 +351,8 @@ namespace MusicApp.Resources.Portable_Class
         {
             ImageButton play = MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton);
             ProgressBar buffer = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.playerBuffer);
+            if (buffer == null || play == null)
+                return;
             buffer.Visibility = ViewStates.Gone;
             play.Visibility = ViewStates.Visible;
             if(MusicPlayer.isRunning)
@@ -400,10 +402,10 @@ namespace MusicApp.Resources.Portable_Class
             }
             if(MusicPlayer.autoUpdateSeekBar)
             {
-                bar.Progress = MusicPlayer.CurrentPosition;
-                timerStart.Text = DurationToTimer(MusicPlayer.CurrentPosition);
+                bar.Progress = (int)MusicPlayer.CurrentPosition;
+                timerStart.Text = DurationToTimer((int)MusicPlayer.CurrentPosition);
             }
-            spBar.Progress = MusicPlayer.CurrentPosition;
+            spBar.Progress = (int)MusicPlayer.CurrentPosition;
             handler.PostDelayed(UpdateSeekBar, 1000);
         }
 
@@ -653,7 +655,7 @@ namespace MusicApp.Resources.Portable_Class
                 intent.SetAction("Stop");
                 context.StartService(intent);
                 sheet.Alpha = 1;
-                if (!MusicPlayer.sleepStopped)
+                if (MusicPlayer.userStopped)
                 {
                     MusicPlayer.queue = new List<Song>();
                     MusicPlayer.UpdateQueueDataBase();
@@ -662,8 +664,8 @@ namespace MusicApp.Resources.Portable_Class
                         Home.instance?.adapter.NotifyItemRemoved(0);
                         Home.adapterItems.RemoveAt(0);
                     }
-                    MusicPlayer.sleepStopped = false;
                 }
+                MusicPlayer.userStopped = true;
             }
         }
     }
