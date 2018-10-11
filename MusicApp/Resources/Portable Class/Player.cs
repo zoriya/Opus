@@ -651,10 +651,6 @@ namespace MusicApp.Resources.Portable_Class
             else if(newState == BottomSheetBehavior.StateHidden)
             {
                 movement = SheetMovement.Unknow;
-                Intent intent = new Intent(context, typeof(MusicPlayer));
-                intent.SetAction("Stop");
-                context.StartService(intent);
-                sheet.Alpha = 1;
                 if (MusicPlayer.userStopped)
                 {
                     MusicPlayer.queue = new List<Song>();
@@ -665,6 +661,10 @@ namespace MusicApp.Resources.Portable_Class
                         Home.adapterItems.RemoveAt(0);
                     }
                 }
+                Intent intent = new Intent(context, typeof(MusicPlayer));
+                intent.SetAction("Stop");
+                context.StartService(intent);
+                sheet.Alpha = 1;
                 MusicPlayer.userStopped = true;
             }
         }

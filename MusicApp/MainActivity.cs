@@ -116,6 +116,7 @@ namespace MusicApp
             crossToPlay = GetDrawable(Resource.Drawable.CrossToPlay);
 
             SupportFragmentManager.BeginTransaction().Replace(Resource.Id.playerFrame, Player.instance ?? new Player()).Commit();
+            Navigate(Resource.Id.musicLayout);
 
             if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
             {
@@ -147,15 +148,6 @@ namespace MusicApp
                 SheetBehavior.Hideable = true;
                 SheetBehavior.SetBottomSheetCallback(new PlayerCallback(this));
                 SheetBehavior.PeekHeight = DpToPx(70);
-
-                if (MusicPlayer.queue.Count > 0)
-                    ReCreateSmallPlayer();
-                else
-                {
-                    if (intent.Action != "Sleep" && intent.Action != "Player" && intent.Action != Intent.ActionView && Intent.Action != Intent.ActionSend)
-                        HideSmallPlayer();
-                    Navigate(Resource.Id.musicLayout);
-                }
 
                 FindViewById(Resource.Id.contentRefresh).Invalidate();
                 FindViewById(Resource.Id.contentView).RequestLayout();
@@ -227,8 +219,6 @@ namespace MusicApp
                 CreateYoutube();
                 return;
             }
-
-            Console.WriteLine("&Loggin");
 
             if(googleClient == null)
             {
@@ -401,14 +391,6 @@ namespace MusicApp
             {
                 contentRefresh.SetEnabled(((LinearLayoutManager)Home.instance.ListView.GetLayoutManager()).FindFirstCompletelyVisibleItemPosition() == 0);
             }
-        }
-
-        private async void ReCreateSmallPlayer()
-        {
-            await Task.Delay(100);
-            PrepareSmallPlayer();
-            ShowSmallPlayer();
-            Navigate(Resource.Id.musicLayout);
         }
 
         public override bool OnCreateOptionsMenu(IMenu menu)
@@ -1399,6 +1381,9 @@ namespace MusicApp
             instance = this;
             StateSaved = false;
 
+            if (MusicPlayer.CurrentID() == -1)
+                MusicPlayer.currentID = MusicPlayer.RetrieveQueueSlot();
+
             if(SearchableActivity.instance != null && SearchableActivity.instance.searched)
             {
                 if (YoutubeEngine.instances != null)
@@ -1421,13 +1406,13 @@ namespace MusicApp
 
         protected override void OnDestroy()
         {
-            base.OnDestroy();
-            if(MusicPlayer.instance != null && !MusicPlayer.isRunning && Preferences.instance == null && Queue.instance == null && EditMetaData.instance == null)
+            if (MusicPlayer.instance != null && !MusicPlayer.isRunning && Preferences.instance == null && Queue.instance == null && EditMetaData.instance == null)
             {
                 Intent intent = new Intent(this, typeof(MusicPlayer));
                 intent.SetAction("Stop");
                 StartService(intent);
             }
+            base.OnDestroy();
         }
 
         protected override void OnPause()
