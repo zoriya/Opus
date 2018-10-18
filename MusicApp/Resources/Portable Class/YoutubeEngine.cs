@@ -116,11 +116,13 @@ namespace MusicApp.Resources.Portable_Class
                 new YoutubeEngine { Arguments = new Bundle() },
                 new YoutubeEngine { Arguments = new Bundle() },
                 new YoutubeEngine { Arguments = new Bundle() },
+                new YoutubeEngine { Arguments = new Bundle() },
             };
             instances[0].querryType = "All";
             instances[1].querryType = "Tracks";
             instances[2].querryType = "Playlists";
-            instances[3].querryType = "Channels";
+            instances[3].querryType = "Lives";
+            instances[4].querryType = "Channels";
             return instances;
         }
 
@@ -151,6 +153,9 @@ namespace MusicApp.Resources.Portable_Class
                 ListView.SetAdapter(null);
                 ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
                 rootView.RemoveView(loadingView);
+                if(emptyView != null)
+                    rootView.RemoveView(emptyView);
+                emptyView = null;
                 loadingView = LayoutInflater.Inflate(Resource.Layout.EmptyLoadingLayout, null);
                 Activity.AddContentView(loadingView, ListView.LayoutParameters);
             }
@@ -174,25 +179,34 @@ namespace MusicApp.Resources.Portable_Class
             try
             {
                 SearchResource.ListRequest searchResult = youtubeService.Search.List("snippet");
-                searchResult.Fields = "items(id/videoId,id/playlistId,id/channelId,id/kind,snippet/title,snippet/thumbnails/high/url,snippet/channelTitle)";
+                searchResult.Fields = "items(id/videoId,id/playlistId,id/channelId,id/kind,snippet/title,snippet/thumbnails/high/url,snippet/channelTitle,snippet/liveBroadcastContent)";
                 searchResult.Q = search.Replace(" ", "+-");
                 searchResult.TopicId = "/m/04rlf";
                 switch (querryType)
                 {
                     case "All":
                         searchResult.Type = "video,channel,playlist";
+                        searchResult.EventType = null;
                         break;
                     case "Tracks":
                         searchResult.Type = "video";
+                        searchResult.EventType = null;
                         break;
                     case "Playlists":
                         searchResult.Type = "playlist";
+                        searchResult.EventType = null;
+                        break;
+                    case "Lives":
+                        searchResult.Type = "video";
+                        searchResult.EventType = SearchResource.ListRequest.EventTypeEnum.Live;
                         break;
                     case "Channels":
                         searchResult.Type = "channel";
+                        searchResult.EventType = null;
                         break;
                     default:
                         searchResult.Type = "video";
+                        searchResult.EventType = null;
                         break;
                 }
                 searchResult.MaxResults = 20;
@@ -205,6 +219,9 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     Song videoInfo = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.High.Url, null, -1, -1, null, true, false);
                     YtKind kind = YtKind.Null;
+
+                    if (video.Snippet.LiveBroadcastContent == "live")
+                        videoInfo.IsLiveStream = true;
 
                     switch (video.Id.Kind)
                     {
@@ -500,8 +517,10 @@ namespace MusicApp.Resources.Portable_Class
             }
             else
             {
-                Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), "Download Path Not Set.", Snackbar.LengthLong).SetAction("Set Path", (v) =>
+                Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), "Download Path Not Set.", Snackbar.LengthIndefinite);
+                snackBar.SetAction("Set Path", (v) =>
                 {
+                    snackBar.Dismiss();
                     Intent intent = new Intent(Android.App.Application.Context, typeof(Preferences));
                     MainActivity.instance.StartActivity(intent);
                 });

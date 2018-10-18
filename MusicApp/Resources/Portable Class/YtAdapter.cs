@@ -43,7 +43,7 @@ namespace MusicApp.Resources.Portable_Class
                 holder.reorder.Visibility = ViewStates.Gone;
 
                 var songAlbumArtUri = Android.Net.Uri.Parse(song.Album);
-                Picasso.With(Android.App.Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400 * 16 / 9, 400).CenterCrop().Into(holder.AlbumArt);
+                Picasso.With(Android.App.Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
 
                 holder.more.Tag = position;
                 if (!holder.more.HasOnClickListeners)
@@ -54,6 +54,11 @@ namespace MusicApp.Resources.Portable_Class
                         YoutubeEngine.instances[0].More(items[tagPosition].item);
                     };
                 }
+
+                if (song.IsLiveStream)
+                    holder.Live.Visibility = ViewStates.Visible;
+                else
+                    holder.Live.Visibility = ViewStates.Gone;
 
                 if (MainActivity.Theme == 1)
                 {

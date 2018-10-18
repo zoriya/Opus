@@ -143,6 +143,11 @@ namespace MusicApp.Resources.Portable_Class
                 Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
             }
 
+            if (songList[position].IsLiveStream)
+                holder.Live.Visibility = ViewStates.Visible;
+            else
+                holder.Live.Visibility = ViewStates.Gone;
+
             holder.more.Tag = position;
             if (!holder.more.HasOnClickListeners)
             {

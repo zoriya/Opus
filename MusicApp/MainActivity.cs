@@ -722,8 +722,6 @@ namespace MusicApp
 
         public async void SetYtTabs(ViewPager pager, string querry, int selectedTab = 0)
         {
-            Console.WriteLine("&Setting yt tabs");
-
             while (!canSwitch)
                 await Task.Delay(10);
 
@@ -758,6 +756,7 @@ namespace MusicApp
             tabs.AddTab(tabs.NewTab().SetText("All"));
             tabs.AddTab(tabs.NewTab().SetText("Tracks"));
             tabs.AddTab(tabs.NewTab().SetText("Playlists"));
+            tabs.AddTab(tabs.NewTab().SetText("Lives"));
             tabs.AddTab(tabs.NewTab().SetText("Channels"));
 
             ViewPagerAdapter adapter = new ViewPagerAdapter(SupportFragmentManager);
@@ -765,7 +764,8 @@ namespace MusicApp
             adapter.AddFragment(fragment[0], "All");
             adapter.AddFragment(fragment[1], "Tracks");
             adapter.AddFragment(fragment[2], "Playlists");
-            adapter.AddFragment(fragment[3], "Channels");
+            adapter.AddFragment(fragment[3], "Lives");
+            adapter.AddFragment(fragment[4], "Channels");
 
             pager.Adapter = adapter;
             pager.AddOnPageChangeListener(this);
@@ -907,10 +907,10 @@ namespace MusicApp
 
         private void Play_Click(object sender, EventArgs e)
         {
-            if (Player.instance?.errorState == true)
+            if (Player.errorState == true)
             {
                 MusicPlayer.instance?.Resume();
-                Player.instance.errorState = false;
+                Player.errorState = false;
                 return;
             }
 
@@ -1250,7 +1250,8 @@ namespace MusicApp
 
         public void Unknow()
         {
-            Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), "An unknown error has occured.", Snackbar.LengthLong);
+            Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), "An unknown error has occured.", Snackbar.LengthIndefinite);
+            snackBar.SetAction("Dismiss", (sender) => { snackBar.Dismiss(); });
             snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
             snackBar.Show();
         }
@@ -1402,6 +1403,9 @@ namespace MusicApp
                 HideQuickPlay();
                 SearchableActivity.instance = null;
             }
+
+            if(SheetBehavior != null && SheetBehavior.State == BottomSheetBehavior.StateExpanded)
+                FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Visible;
         }
 
         protected override void OnDestroy()

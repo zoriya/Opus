@@ -204,6 +204,7 @@
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
     app:layout_anchor="@id/playerSheet"
+    android:elevation="12dp"
     app:layout_anchorGravity="top"
     android:layout_gravity="top"
     android:padding="10dp" />

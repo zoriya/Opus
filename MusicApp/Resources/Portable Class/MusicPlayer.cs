@@ -15,6 +15,7 @@ using Android.Widget;
 using Com.Google.Android.Exoplayer2;
 using Com.Google.Android.Exoplayer2.Extractor;
 using Com.Google.Android.Exoplayer2.Source;
+using Com.Google.Android.Exoplayer2.Source.Hls;
 using Com.Google.Android.Exoplayer2.Trackselection;
 using Com.Google.Android.Exoplayer2.Upstream;
 using MusicApp.Resources.values;
@@ -108,6 +109,11 @@ namespace MusicApp.Resources.Portable_Class
                         Pause(true);
                     break;
 
+                case "ForceResume":
+                    Resume();
+                    Player.errorState = false;
+                    break;
+
                 case "Next":
                     PlayNext();
                     break;
@@ -157,8 +163,7 @@ namespace MusicApp.Resources.Portable_Class
             audioManager = (AudioManager)Application.Context.GetSystemService(AudioService);
             notificationManager = (NotificationManager)Application.Context.GetSystemService(NotificationService);
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
-            DefaultBandwidthMeter bandwithMeter = new DefaultBandwidthMeter();
-            AdaptiveTrackSelection.Factory trackSelectionFactory = new AdaptiveTrackSelection.Factory(bandwithMeter);
+            AdaptiveTrackSelection.Factory trackSelectionFactory = new AdaptiveTrackSelection.Factory(new DefaultBandwidthMeter());
             TrackSelector trackSelector = new DefaultTrackSelector(trackSelectionFactory);
             player = ExoPlayerFactory.NewSimpleInstance(Application.Context, trackSelector);
             player.Volume = prefManager.GetInt("volumeMultiplier", 100) / 100f;
@@ -178,7 +183,7 @@ namespace MusicApp.Resources.Portable_Class
                 player.Volume = volume * (volumeDuked ? 0.2f : 1);
         }
 
-        public void Play(string filePath, string title = null, string artist = null, string youtubeID = null, string thumbnailURI = null, bool addToQueue = true)
+        public void Play(string filePath, string title = null, string artist = null, string youtubeID = null, string thumbnailURI = null, bool addToQueue = true, bool isLive = false)
         {
             isRunning = true;
             if (player == null)
@@ -196,7 +201,13 @@ namespace MusicApp.Resources.Portable_Class
             DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(Application.Context, "MusicApp");
             IExtractorsFactory extractorFactory = new DefaultExtractorsFactory();
             Handler handler = new Handler();
-            IMediaSource mediaSource = new ExtractorMediaSource(Uri.Parse(filePath), dataSourceFactory, extractorFactory, handler, null);
+
+            IMediaSource mediaSource = null;
+            if (isLive)
+                mediaSource = new HlsMediaSource(Uri.Parse(filePath), dataSourceFactory, handler, null);
+            else
+                mediaSource = new ExtractorMediaSource(Uri.Parse(filePath), dataSourceFactory, extractorFactory, handler, null);
+            
             AudioAttributes attributes = new AudioAttributes.Builder()
                 .SetUsage(AudioUsageKind.Media)
                 .SetContentType(AudioContentType.Music)
@@ -270,8 +281,6 @@ namespace MusicApp.Resources.Portable_Class
 
         public void Play(Song song, bool addToQueue = true, long progress = -1)
         {
-            Android.Util.Log.Debug("MusiApp", "&Progress: " + progress);
-
             if (!song.isParsed)
             {
                 ParseAndPlay("Play", song.youtubeID, song.Title, song.Artist, song.Album, addToQueue);
@@ -390,6 +399,14 @@ namespace MusicApp.Resources.Portable_Class
                     YoutubeClient client = new YoutubeClient();
                     var mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(videoID);
                     AudioStreamInfo streamInfo = mediaStreamInfo.Audio.OrderBy(s => s.Bitrate).Last();
+                    bool isLive = false;
+                    string streamURL = streamInfo.Url;     
+                    if(mediaStreamInfo.HlsLiveStreamUrl != null)
+                    {
+                        streamURL = mediaStreamInfo.HlsLiveStreamUrl;
+                        isLive = true;
+                    }
+
 
                     if (title == null)
                     {
@@ -402,21 +419,28 @@ namespace MusicApp.Resources.Portable_Class
                     switch (action)
                     {
                         case "Play":
-                            Play(streamInfo.Url, title, artist, videoID, thumbnailURL, addToQueue);
-                            break; //Crash chez celia, make a return here and check if the app keep on crashing
+                            Play(streamURL, title, artist, videoID, thumbnailURL, addToQueue, isLive);
+                            break;
 
                         case "PlayNext":
-                            AddToQueue(streamInfo.Url, title, artist, videoID, thumbnailURL);
+                            AddToQueue(streamURL, title, artist, videoID, thumbnailURL/*, isLive*/);
                             parsing = false;
                             return;
 
                         case "PlayLast":
-                            PlayLastInQueue(streamInfo.Url, title, artist, videoID, thumbnailURL);
+                            PlayLastInQueue(streamURL, title, artist, videoID, thumbnailURL/*, isLive*/);
                             parsing = false;
                             return;
                     }
-                    DateTimeOffset? expireDate = streamInfo.GetUrlExpiryDate();
-                    queue[CurrentID()].expireDate = expireDate;
+
+                    if (!isLive)
+                    {
+                        DateTimeOffset? expireDate = streamInfo.GetUrlExpiryDate();
+                        queue[CurrentID()].expireDate = expireDate;
+                    }
+                    else
+                        queue[CurrentID()].IsLiveStream = true;
+
                     Video info = await client.GetVideoAsync(videoID);
                     thumbnailURL = info.Thumbnails.HighResUrl;
                     if (artist == null || artist == "")
@@ -771,7 +795,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public static int CurrentID()
         {
-            if (queue.Count < currentID)
+            if (queue.Count <= currentID)
                 currentID = -1;
             return currentID;
         }
@@ -794,7 +818,8 @@ namespace MusicApp.Resources.Portable_Class
             bar.StopTrackingTouch += (sender, e) =>
             {
                 autoUpdateSeekBar = true;
-                player.SeekTo(e.SeekBar.Progress);
+                if(!queue[CurrentID()].IsLiveStream)
+                    player.SeekTo(e.SeekBar.Progress);
             };
         }
 
@@ -1317,9 +1342,15 @@ namespace MusicApp.Resources.Portable_Class
         public void OnPlayerError(ExoPlaybackException args)
         {
             Console.WriteLine("&Type: " + args.Type);
-            Console.WriteLine("Error in playback resetting: " + args.Cause);
-
             Player.instance?.Error();
+
+
+            Intent tmpErrorIntent = new Intent(Application.Context, typeof(MusicPlayer));
+            tmpErrorIntent.SetAction("ForceResume");
+            PendingIntent errorIntent = PendingIntent.GetService(Application.Context, 0, tmpErrorIntent, PendingIntentFlags.UpdateCurrent);
+
+            notification.Actions[1] = new Notification.Action(Resource.Drawable.Error, "Error", errorIntent);
+            notificationManager.Notify(notificationID, notification);
         }
 
         public void OnPlayerStateChanged(bool playWhenReady, int state)

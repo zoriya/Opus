@@ -10,6 +10,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:gravity="center"
+    android:id="@+id/leftButtons"
     android:layout_alignParentLeft="true">
     <ImageView
       android:id="@+id/reorder"
@@ -28,23 +29,40 @@
   </LinearLayout>
   <LinearLayout
     android:orientation="vertical"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_width="fill_parent"
+    android:layout_height="90dp"
+    android:paddingLeft="10dp"
     android:id="@+id/textLayout"
-    android:paddingLeft="100dp">
+    android:layout_toRightOf="@id/leftButtons"
+    android:layout_toLeftOf="@+id/rightButtons" >
     <TextView
       android:id="@+id/title"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:textSize="16dip"
       android:textColor="#000"
+      android:ellipsize="end"
+      android:maxLines="2"
       android:textStyle="bold" />
     <TextView
       android:id="@+id/artist"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:textSize="14dip"
+      android:maxLines="1"
       android:textColor="#000" />
+    <TextView
+      android:id="@+id/isLive"
+      android:layout_width="wrap_content"
+      android:layout_height="fill_parent"
+      android:visibility="gone"
+      android:text="🔴 LIVE"
+      android:textSize="14dip"
+      android:textStyle="bold"
+      android:layout_marginLeft="10dp"
+      android:paddingBottom="7dp"
+      android:gravity="bottom"
+      android:textColor="#ff0000" />
   </LinearLayout>
   <TextView
     android:layout_width="wrap_content"
@@ -63,7 +81,8 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_centerVertical="true"
-    android:layout_alignParentRight="true" >
+    android:layout_alignParentRight="true"
+    android:id="@+id/rightButtons">
     <ImageView
       android:id="@+id/youtubeIcon"
       android:layout_width="30dp"

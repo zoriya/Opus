@@ -90,6 +90,12 @@ namespace MusicApp.Resources.Portable_Class
                     };
                 }
 
+                if (songList[position].IsLiveStream)
+                    holder.Live.Visibility = ViewStates.Visible;
+                else
+                    holder.Live.Visibility = ViewStates.Gone;
+
+
                 if (!holder.reorder.HasOnClickListeners)
                 {
                     holder.reorder.Touch += (sender, e) =>
@@ -98,7 +104,6 @@ namespace MusicApp.Resources.Portable_Class
                         MainActivity.instance.contentRefresh.SetEnabled(false);
                     };
                 }
-
 
                 if (songList[position].queueSlot == MusicPlayer.CurrentID())
                 {
@@ -109,11 +114,6 @@ namespace MusicApp.Resources.Portable_Class
                 if (Queue.instance != null)
                 {
                     holder.reorder.Visibility = ViewStates.Visible;
-
-                    int padding = 135;
-                    padding = (int)(padding * scale + 0.5f);
-                    holder.textLayout.SetPadding(padding, 0, 0, 0);
-
                     if (!songList[position].isParsed && songList[position].IsYt)
                     {
                         holder.youtubeIcon.SetImageResource(Resource.Drawable.needProcessing);

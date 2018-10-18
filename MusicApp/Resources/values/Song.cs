@@ -18,6 +18,7 @@ namespace MusicApp.Resources.values
         public int queueSlot { get; set; }
         public bool IsYt { get; set; }
         public DateTimeOffset? expireDate { get; set;}
+        public bool IsLiveStream = false;
 
         public Song() { }
 

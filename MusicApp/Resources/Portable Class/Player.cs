@@ -24,7 +24,7 @@ namespace MusicApp.Resources.Portable_Class
     {
         public static Player instance;
         public Handler handler = new Handler();
-        public bool errorState = false;
+        public static bool errorState = false;
 
         private SeekBar bar;
         private ProgressBar spBar;
@@ -101,7 +101,8 @@ namespace MusicApp.Resources.Portable_Class
             bar = MainActivity.instance.FindViewById<SeekBar>(Resource.Id.songTimer);
             bar.ProgressChanged += (sender, e) =>
             {
-                timerStart.Text = DurationToTimer(e.Progress);
+                if(!MusicPlayer.queue[MusicPlayer.CurrentID()].IsLiveStream)
+                    timerStart.Text = DurationToTimer(e.Progress);
             };
             timerStart = MainActivity.instance.FindViewById<TextView>(Resource.Id.timerStart);
 
@@ -253,14 +254,26 @@ namespace MusicApp.Resources.Portable_Class
                 while (MusicPlayer.Duration < 1)
                     await Task.Delay(100);
 
-                bar.Max = (int)MusicPlayer.Duration;
-                MusicPlayer.SetSeekBar(bar);
-                timerStart.Text = DurationToTimer((int)MusicPlayer.CurrentPosition);
-                MainActivity.instance.FindViewById<TextView>(Resource.Id.timerEnd).Text = DurationToTimer((int)MusicPlayer.player.Duration);
-                spBar.Max = (int)MusicPlayer.Duration;
-                spBar.Progress = (int)MusicPlayer.CurrentPosition;
+                if (current.IsLiveStream)
+                {
+                    bar.Max = 1;
+                    bar.Progress = 1;
+                    spBar.Max = 1;
+                    spBar.Progress = 1;
+                    timerStart.Text = "";
+                    MainActivity.instance.FindViewById<TextView>(Resource.Id.timerEnd).Text = "🔴 LIVE";
+                }
+                else
+                {
+                    bar.Max = (int)MusicPlayer.Duration;
+                    MusicPlayer.SetSeekBar(bar);
+                    timerStart.Text = DurationToTimer((int)MusicPlayer.CurrentPosition);
+                    MainActivity.instance.FindViewById<TextView>(Resource.Id.timerEnd).Text = DurationToTimer((int)MusicPlayer.player.Duration);
+                    spBar.Max = (int)MusicPlayer.Duration;
+                    spBar.Progress = (int)MusicPlayer.CurrentPosition;
 
-                handler.PostDelayed(UpdateSeekBar, 1000);
+                    handler.PostDelayed(UpdateSeekBar, 1000);
+                }
             }
         }
 
@@ -618,7 +631,7 @@ namespace MusicApp.Resources.Portable_Class
                 smallPlayer.Alpha = Math.Max(0, 1 - slideOffset * 2);
                 quickPlay.ScaleX = Math.Max(0, 1 - slideOffset * 2);
                 quickPlay.ScaleY = Math.Max(0, 1 - slideOffset * 2);
-                snackBar.TranslationY = (int)((90 * context.Resources.DisplayMetrics.Density + 0.5f) * slideOffset);
+                snackBar.TranslationY = (int)((50 * context.Resources.DisplayMetrics.Density + 0.5f) * slideOffset);
 
                 if (!Refreshed && slideOffset > .3)
                 {
@@ -643,7 +656,7 @@ namespace MusicApp.Resources.Portable_Class
                 smallPlayer.Alpha = 0;
                 bottomSheet.TranslationY = (int)(56 * context.Resources.DisplayMetrics.Density + 0.5f);
                 sheet.TranslationY = 0;
-                snackBar.TranslationY = (int)(90 * context.Resources.DisplayMetrics.Density + 0.5f);
+                snackBar.TranslationY = (int)(50 * context.Resources.DisplayMetrics.Density + 0.5f);
                 movement = SheetMovement.Unknow;
             }
             else if (newState == BottomSheetBehavior.StateCollapsed)

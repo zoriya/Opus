@@ -12,6 +12,7 @@ namespace MusicApp.Resources.Portable_Class
         public LinearLayout textLayout;
         public TextView Title;
         public TextView Artist;
+        public TextView Live;
         public ImageView AlbumArt;
         public ImageView edit;
         public ImageView youtubeIcon;
@@ -26,6 +27,7 @@ namespace MusicApp.Resources.Portable_Class
             textLayout = itemView.FindViewById<LinearLayout>(Resource.Id.textLayout);
             Title = itemView.FindViewById<TextView>(Resource.Id.title);
             Artist = itemView.FindViewById<TextView>(Resource.Id.artist);
+            Live = itemView.FindViewById<TextView>(Resource.Id.isLive);
             AlbumArt = itemView.FindViewById<ImageView>(Resource.Id.albumArt);
             edit = itemView.FindViewById<ImageView>(Resource.Id.edit);
             youtubeIcon = itemView.FindViewById<ImageView>(Resource.Id.youtubeIcon);

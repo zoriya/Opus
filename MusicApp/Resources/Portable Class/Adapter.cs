@@ -73,7 +73,7 @@ namespace MusicApp.Resources.Portable_Class
                 Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
             }
 
-            if(MainActivity.Theme == 1)
+            if (MainActivity.Theme == 1)
             {
                 holder.more.SetColorFilter(Color.White);
                 holder.Title.SetTextColor(Color.White);
