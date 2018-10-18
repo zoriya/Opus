@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using AlertDialog = Android.Support.V7.App.AlertDialog;
 using SearchView = Android.Support.V7.Widget.SearchView;
 using Toolbar = Android.Support.V7.Widget.Toolbar;
 
@@ -23,6 +24,7 @@ namespace MusicApp.Resources.Portable_Class
         public SearchView searchView;
         public bool searched = false;
         private ListView ListView;
+        private SuggestionAdapter adapter;
         private List<Suggestion> History = new List<Suggestion>();
         private List<Suggestion> suggestions = new List<Suggestion>();
 
@@ -47,6 +49,30 @@ namespace MusicApp.Resources.Portable_Class
                 searched = true;
                 searchView.SetQuery(suggestions[e.Position].Text, true);
             };
+            ListView.ItemLongClick += (sender, e) =>
+            {
+                Suggestion toRemove = suggestions[e.Position];
+                if (History.Contains(toRemove))
+                {
+                    AlertDialog dialog = new AlertDialog.Builder(this, MainActivity.dialogTheme)
+                        .SetTitle(suggestions[e.Position].Text)
+                        .SetMessage("Remove from search histroy?")
+                        .SetPositiveButton("Remove", (send, eventArg) =>
+                        {
+                            History.Remove(toRemove);
+                            adapter.Remove(toRemove);
+                            suggestions.Remove(toRemove);
+                            Task.Run(() =>
+                            {
+                                SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "RecentSearch.sqlite"));
+                                db.Delete(db.Table<Suggestion>().ToList().Find(x => x.Text == toRemove.Text));
+                            });
+                        })
+                        .SetNegativeButton("Cancel", (send, eventArg) => { })
+                        .Create();
+                    dialog.Show();
+                }
+            };
 
             Task.Run(() => 
             {
@@ -70,7 +96,8 @@ namespace MusicApp.Resources.Portable_Class
             IMenuItem searchItem = menu.FindItem(Resource.Id.search);
             searchItem.ExpandActionView();
             searchView = searchItem.ActionView.JavaCast<SearchView>();
-            ListView.Adapter = ListView.Adapter = new SuggestionAdapter(instance, Resource.Layout.SuggestionLayout, suggestions);
+            adapter = new SuggestionAdapter(instance, Resource.Layout.SuggestionLayout, suggestions);
+            ListView.Adapter = adapter;
             searchView.MaxWidth = int.MaxValue;
             searchView.QueryHint = "Search Youtube";
             searchView.QueryTextChange += (s, e) =>
@@ -100,7 +127,8 @@ namespace MusicApp.Resources.Portable_Class
                 else
                 {
                     suggestions = History;
-                    ListView.Adapter = new SuggestionAdapter(instance, Resource.Layout.SuggestionLayout, suggestions);
+                    adapter = new SuggestionAdapter(instance, Resource.Layout.SuggestionLayout, suggestions);
+                    ListView.Adapter = adapter;
                 }
             };
             searchView.QueryTextSubmit += (s, e) =>

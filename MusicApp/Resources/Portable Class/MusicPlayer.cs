@@ -392,6 +392,7 @@ namespace MusicApp.Resources.Portable_Class
                     ProgressBar parseProgress = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress);
                     parseProgress.Visibility = ViewStates.Visible;
                     parseProgress.ScaleY = 6;
+                    Player.instance.Buffering();
                 }
 
                 try
@@ -423,12 +424,12 @@ namespace MusicApp.Resources.Portable_Class
                             break;
 
                         case "PlayNext":
-                            AddToQueue(streamURL, title, artist, videoID, thumbnailURL/*, isLive*/);
+                            AddToQueue(streamURL, title, artist, videoID, thumbnailURL, isLive);
                             parsing = false;
                             return;
 
                         case "PlayLast":
-                            PlayLastInQueue(streamURL, title, artist, videoID, thumbnailURL/*, isLive*/);
+                            PlayLastInQueue(streamURL, title, artist, videoID, thumbnailURL, isLive);
                             parsing = false;
                             return;
                     }
@@ -627,7 +628,7 @@ namespace MusicApp.Resources.Portable_Class
             Queue.instance?.ListView.ScrollToPosition(0);
         }
 
-        public void AddToQueue(string filePath, string title = null, string artist = null, string youtubeID = null, string thumbnailURI = null)
+        public void AddToQueue(string filePath, string title = null, string artist = null, string youtubeID = null, string thumbnailURI = null, bool isLive = false)
         {
             Song song = null;
             if(title == null)
@@ -637,6 +638,7 @@ namespace MusicApp.Resources.Portable_Class
 
             if (song.queueSlot == -1)
                 song.queueSlot = CurrentID() + 1;
+            song.IsLiveStream = isLive;
             queue.Insert(song.queueSlot, song);
             UpdateQueueSlots();
             Home.instance?.RefreshQueue();
@@ -670,11 +672,12 @@ namespace MusicApp.Resources.Portable_Class
             Home.instance?.RefreshQueue();
         }
 
-        public void PlayLastInQueue(string filePath, string title, string artist, string youtubeID, string thumbnailURI)
+        public void PlayLastInQueue(string filePath, string title, string artist, string youtubeID, string thumbnailURI, bool isLive = false)
         {
             Song song = new Song(title, artist, thumbnailURI, youtubeID, -1, -1, filePath, true)
             {
-                queueSlot = queue.Count
+                queueSlot = queue.Count,
+                IsLiveStream = isLive
             };
 
             queue.Add(song);
@@ -963,15 +966,26 @@ namespace MusicApp.Resources.Portable_Class
                     YoutubeClient client = new YoutubeClient();
                     MediaStreamInfoSet mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(song.youtubeID);
                     AudioStreamInfo streamInfo = mediaStreamInfo.Audio.Where(x => x.Container == Container.M4A).OrderBy(s => s.Bitrate).Last();
-                    song.Path = streamInfo.Url;
                     song.isParsed = true;
+                    bool isLive = false;
+                    string streamURL = streamInfo.Url;
+                    if (mediaStreamInfo.HlsLiveStreamUrl != null)
+                    {
+                        streamURL = mediaStreamInfo.HlsLiveStreamUrl;
+                        isLive = true;
+                    }
+                    song.Path = streamURL;
 
                     Video info = await client.GetVideoAsync(song.youtubeID);
                     song.Album = info.Thumbnails.HighResUrl;
                     song.Artist = info.Author;
 
-                    DateTimeOffset? expireDate = streamInfo.GetUrlExpiryDate();
-                    song.expireDate = expireDate;
+                    if(!isLive)
+                    {
+                        DateTimeOffset? expireDate = streamInfo.GetUrlExpiryDate();
+                        song.expireDate = expireDate;
+                    }
+
                     instance.UpdateQueueItemDB(song);
                     parsing = false;
                     if (Queue.instance != null)

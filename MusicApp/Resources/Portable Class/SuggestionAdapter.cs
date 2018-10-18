@@ -3,6 +3,7 @@ using Android.Content;
 using Android.Graphics;
 using Android.Views;
 using Android.Widget;
+using Java.Lang;
 using MusicApp.Resources.values;
 using System.Collections.Generic;
 
@@ -22,6 +23,12 @@ namespace MusicApp.Resources.Portable_Class
             this.context = context;
             this.resource = resource;
             this.objects = objects;
+        }
+
+        public void Remove(Suggestion item)
+        {
+            objects.Remove(item);
+            NotifyDataSetChanged();
         }
 
         public override View GetView(int position, View convertView, ViewGroup parent)
