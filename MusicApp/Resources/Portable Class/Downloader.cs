@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using TagLib;
 using YoutubeExplode;
@@ -34,6 +35,7 @@ namespace MusicApp.Resources.Portable_Class
         private int currentStrike = 0;
         private static bool isDownloading = false;
         private NotificationCompat.Builder notification;
+        private CancellationTokenSource cancellation = new CancellationTokenSource();
         private const int notificationID = 1001;
         private const int RequestCode = 5465;
 
@@ -63,7 +65,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             queue.Add(file);
             if (!isDownloading)
-                DownloadAudio(file, downloadPath);
+                Task.Run(() => { DownloadAudio(file, downloadPath); }, cancellation.Token);
             else
                 SetNotificationCount();
         }
@@ -119,11 +121,10 @@ namespace MusicApp.Resources.Portable_Class
                 }
 
                 string filePath = Path.Combine(outpath, fileName);
-
                 MediaStream input = await client.GetMediaStreamAsync(streamInfo);
 
                 FileStream output = File.Create(filePath);
-                await input.CopyToAsync(output);
+                await input.CopyToAsync(output, 4096, cancellation.Token);
                 output.Dispose();
 
                 SetMetaData(filePath, videoInfo.Title, videoInfo.Author, videoInfo.Thumbnails.HighResUrl, file.videoID, file.playlist);
@@ -185,11 +186,16 @@ namespace MusicApp.Resources.Portable_Class
 
         void CreateNotification(string title)
         {
+            Intent intent = new Intent(MainActivity.instance, typeof(Downloader));
+            intent.SetAction("Cancel");
+            PendingIntent cancelIntent = PendingIntent.GetService(Application.Context, 471, intent, PendingIntentFlags.OneShot); 
+
             notification = new NotificationCompat.Builder(Application.Context, "MusicApp.Channel")
                 .SetVisibility(NotificationCompat.VisibilityPublic)
                 .SetSmallIcon(Resource.Drawable.MusicIcon)
                 .SetContentTitle("Downloading: ")
-                .SetContentText(title);
+                .SetContentText(title)
+                .AddAction(Resource.Drawable.Cancel, "Cancel", cancelIntent);
             if(queue.Count > 1)
                 notification.SetSubText(currentStrike + "/" + queue.Count);
 
