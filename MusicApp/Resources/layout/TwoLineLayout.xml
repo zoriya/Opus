@@ -29,7 +29,7 @@
     android:padding="5dp"
     android:clickable="true"
     android:background="@null"
-    android:src="@drawable/ic_more_vert_black_24dp"
+    android:src="@drawable/More"
     android:layout_alignParentRight="true"
     android:layout_centerVertical="true" />
 </RelativeLayout>

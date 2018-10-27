@@ -2,14 +2,11 @@
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
-using Android.Database;
 using Android.Media;
 using Android.Net;
 using Android.OS;
 using Android.Provider;
-using Android.Support.Design.Widget;
 using Android.Support.V4.App;
-using Android.Widget;
 using MusicApp.Resources.values;
 using System.Collections.Generic;
 using System.IO;
@@ -30,10 +27,12 @@ namespace MusicApp.Resources.Portable_Class
     {
         public static Downloader instance;
         public string downloadPath;
+        public int maxDownload = 3;
+        public static List<DownloadFile> queue = new List<DownloadFile>();
 
-        private static List<DownloadFile> queue = new List<DownloadFile>();
         private int currentStrike = 0;
-        private static bool isDownloading = false;
+        private static int downloadCount = 0;
+        private static string filePath;
         private NotificationCompat.Builder notification;
         private CancellationTokenSource cancellation = new CancellationTokenSource();
         private const int notificationID = 1001;
@@ -57,21 +56,37 @@ namespace MusicApp.Resources.Portable_Class
 
         public override StartCommandResult OnStartCommand(Intent intent, StartCommandFlags flags, int startId)
         {
+            if(intent.Action == "Cancel")
+            {
+                cancellation.Cancel(true);
+                queue = new List<DownloadFile>();
+                SetCancelNotification();
+                DownloadQueue.instance?.Finish();
+                CleanDownload();
+                return StartCommandResult.NotSticky;
+            }
+
             instance = this;
             return StartCommandResult.Sticky;
         }
 
-        public void Download(DownloadFile file)
+        public async void StartDownload()
         {
-            queue.Add(file);
-            if (!isDownloading)
-                Task.Run(() => { DownloadAudio(file, downloadPath); }, cancellation.Token);
-            else
-                SetNotificationCount();
+            while(downloadCount < maxDownload && queue.Count(x => x.State == DownloadState.None) > 0)
+            {
+#pragma warning disable CS4014
+                Task.Run(() => { DownloadAudio(queue.FindIndex(x => x.State == DownloadState.None), downloadPath); }, cancellation.Token);
+                await Task.Delay(10);
+            }
         }
 
-        private async void DownloadAudio(DownloadFile file, string path)
+        private async void DownloadAudio(int position, string path)
         {
+            if (position < 0 || position > queue.Count || queue[position].State != DownloadState.None)
+                return;
+
+            queue[position].State = DownloadState.Initialization;
+            UpdateList(position);
             const string permission = Manifest.Permission.WriteExternalStorage;
             if (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(this, permission) != (int)Permission.Granted)
             {
@@ -83,55 +98,59 @@ namespace MusicApp.Resources.Portable_Class
                     await Task.Delay(500);
             }
 
-            while (isDownloading)
+            while (downloadCount >= maxDownload)
                 await Task.Delay(1000);
 
-            isDownloading = true;
-            queue.Remove(file);
+            downloadCount++;
             currentStrike++;
-            CreateNotification(file.name);
-
-            //if (YoutubeEngine.FileIsAlreadyDownloaded(file.videoID) && !file.skipCheck)
-            //{
-            //    Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), file.name + " is already on your device.", Snackbar.LengthShort).SetAction("Download Anyway", (v) =>
-            //    {
-            //        file.skipCheck = true;
-            //        Download(file);
-            //    });
-            //    snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Android.Graphics.Color.White);
-            //    snackBar.Show();
-            //    return;
-            //}
+            CreateNotification(queue[position].name);
 
             try
             {
                 YoutubeClient client = new YoutubeClient();
-                Video videoInfo = await client.GetVideoAsync(file.videoID);
-                MediaStreamInfoSet mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(file.videoID);
+                Video videoInfo = await client.GetVideoAsync(queue[position].videoID);
+                MediaStreamInfoSet mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(queue[position].videoID);
                 AudioStreamInfo streamInfo = mediaStreamInfo.Audio.Where(x => x.Container == Container.M4A).OrderBy(s => s.Bitrate).Last();
 
+                queue[position].State = DownloadState.Downloading;
+                UpdateList(position);
                 string fileExtension = streamInfo.Container.GetFileExtension();
                 string fileName = $"{videoInfo.Title}.{fileExtension}";
 
                 string outpath = path;
-                if (file.playlist != null)
+                if (queue[position].playlist != null)
                 {
-                    outpath = Path.Combine(path, file.playlist);
+                    outpath = Path.Combine(path, queue[position].playlist);
                     Directory.CreateDirectory(outpath);
                 }
 
-                string filePath = Path.Combine(outpath, fileName);
+                filePath = Path.Combine(outpath, fileName);
+
+                if (File.Exists(filePath))
+                {
+                    int i = 1;
+                    string defaultPath = filePath;
+                    do
+                    {
+                        filePath = defaultPath + "(" + i + ")";
+                        i++;
+                    }
+                    while (File.Exists(filePath));
+                }
+
                 MediaStream input = await client.GetMediaStreamAsync(streamInfo);
 
                 FileStream output = File.Create(filePath);
                 await input.CopyToAsync(output, 4096, cancellation.Token);
                 output.Dispose();
 
-                SetMetaData(filePath, videoInfo.Title, videoInfo.Author, videoInfo.Thumbnails.HighResUrl, file.videoID, file.playlist);
-                isDownloading = false;
+                queue[position].State = DownloadState.MetaData;
+                UpdateList(position);
+                SetMetaData(position, filePath, videoInfo.Title, videoInfo.Author, videoInfo.Thumbnails.HighResUrl, queue[position].videoID, queue[position].playlist);
+                downloadCount--;
 
                 if (queue.Count != 0)
-                    DownloadAudio(queue[0], path);
+                    DownloadAudio(queue.FindIndex(x => x.State == DownloadState.None), path);
             }
             catch (System.Exception ex)
             {
@@ -144,7 +163,7 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
-        private void SetMetaData(string filePath, string title, string artist, string album, string youtubeID, string playlist)
+        private void SetMetaData(int position, string filePath, string title, string artist, string album, string youtubeID, string playlist)
         {
             System.IO.Stream stream = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite);
             var meta = TagLib.File.Create(new StreamFileAbstraction(filePath, stream, stream));
@@ -163,7 +182,10 @@ namespace MusicApp.Resources.Portable_Class
             stream.Dispose();
             MediaScannerConnection.ScanFile(this, new string[] { filePath }, null, this);
 
-            if (queue.Count == 0)
+            queue[position].State = DownloadState.Completed;
+            UpdateList(position);
+
+            if (!queue.Exists(x => x.State != DownloadState.Completed))
                 StopForeground(true);
         }
 
@@ -184,29 +206,69 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
+        void UpdateList(int position)
+        {
+            DownloadQueue.instance?.ListView.GetAdapter().NotifyItemChanged(position);
+        }
+
+        void CleanDownload()
+        {
+            if(File.Exists(filePath))
+                File.Delete(filePath);
+
+            downloadCount--;
+            StopForeground(true);
+        }
+
         void CreateNotification(string title)
         {
-            Intent intent = new Intent(MainActivity.instance, typeof(Downloader));
+            Intent intent = new Intent(MainActivity.instance, typeof(DownloadQueue));
+            PendingIntent queueIntent = PendingIntent.GetActivity(Application.Context, 471, intent, PendingIntentFlags.OneShot);
+
+            intent = new Intent(MainActivity.instance, typeof(Downloader));
             intent.SetAction("Cancel");
-            PendingIntent cancelIntent = PendingIntent.GetService(Application.Context, 471, intent, PendingIntentFlags.OneShot); 
+            PendingIntent cancelIntent = PendingIntent.GetService(Application.Context, 471, intent, PendingIntentFlags.OneShot);
 
             notification = new NotificationCompat.Builder(Application.Context, "MusicApp.Channel")
                 .SetVisibility(NotificationCompat.VisibilityPublic)
                 .SetSmallIcon(Resource.Drawable.MusicIcon)
                 .SetContentTitle("Downloading: ")
-                .SetContentText(title)
+                .SetContentText(downloadCount > 1 ? "Tap for more details" : title)
+                .SetContentIntent(queueIntent)
                 .AddAction(Resource.Drawable.Cancel, "Cancel", cancelIntent);
-            if(queue.Count > 1)
-                notification.SetSubText(currentStrike + "/" + queue.Count);
 
+            if(queue.Count > 1)
+            {
+                notification.SetSubText(currentStrike + "/" + (currentStrike + queue.Count));
+                notification.SetProgress(currentStrike + queue.Count, currentStrike, false);
+            }
+                
             StartForeground(notificationID, notification.Build());
         }
 
         void SetNotificationCount()
         {
-            notification.SetSubText(currentStrike + "/" + queue.Count);
+            notification.SetSubText(currentStrike + "/" + (currentStrike + queue.Count));
+            notification.SetProgress(currentStrike + queue.Count, currentStrike, false);
             StartForeground(notificationID, notification.Build());
         }
+
+        void SetCancelNotification()
+        {
+            notification.SetContentTitle("Cancelling...")
+                .SetSubText((string)null);
+              
+            StartForeground(notificationID, notification.Build());
+        }
+    }
+
+    public enum DownloadState
+    {
+        Initialization,
+        Downloading,
+        MetaData,
+        Completed,
+        None
     }
 }
  

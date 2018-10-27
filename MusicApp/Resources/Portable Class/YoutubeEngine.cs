@@ -82,6 +82,9 @@ namespace MusicApp.Resources.Portable_Class
                     case "Playlists":
                         ((TextView)emptyView).Text = "No playlist for " + searchKeyWorld;
                         break;
+                    case "Lives":
+                        ((TextView)emptyView).Text = "No lives for " + searchKeyWorld;
+                        break;
                     case "Channels":
                         ((TextView)emptyView).Text = "No channel for " + searchKeyWorld;
                         break;
@@ -279,6 +282,9 @@ namespace MusicApp.Resources.Portable_Class
                                 break;
                             case "Playlists":
                                 ((TextView)emptyView).Text = "No playlist for " + search;
+                                break;
+                            case "Lives":
+                                ((TextView)emptyView).Text = "No lives for " + searchKeyWorld;
                                 break;
                             case "Channels":
                                 ((TextView)emptyView).Text = "No channel for " + search;
@@ -513,7 +519,8 @@ namespace MusicApp.Resources.Portable_Class
                     await Task.Delay(10);
 
                 Downloader.instance.downloadPath = prefManager.GetString("downloadPath", null);
-                Downloader.instance.Download(new DownloadFile(name, videoID, null));
+                Downloader.queue.Add(new DownloadFile(name, videoID, null));
+                Downloader.instance.StartDownload();
             }
             else
             {
@@ -542,10 +549,15 @@ namespace MusicApp.Resources.Portable_Class
                 while (Downloader.instance == null)
                     await Task.Delay(10);
 
-                Downloader.instance.downloadPath = prefManager.GetString("downloadPath", null);
+                List<DownloadFile> files = new List<DownloadFile>();
+                for (int i = 0; i < names.Length; i++)
+                {
+                    files.Add(new DownloadFile(names[i], videoIDs[i], playlist));
+                }
 
-                for(int i = 0; i < names.Length; i++)
-                    Downloader.instance.Download(new DownloadFile(names[i], videoIDs[i], playlist));
+                Downloader.instance.downloadPath = prefManager.GetString("downloadPath", null);
+                Downloader.queue.AddRange(files);
+                Downloader.instance.StartDownload();
             }
             else
             {

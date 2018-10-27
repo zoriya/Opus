@@ -169,6 +169,7 @@ namespace MusicApp
             }
             else if (intent.Action == Intent.ActionView && intent.Data != null)
             {
+                MusicPlayer.queue.Clear();
                 Intent inte = new Intent(this, typeof(MusicPlayer));
                 inte.PutExtra("file", intent.Data.ToString());
                 StartService(inte);

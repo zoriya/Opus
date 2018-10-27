@@ -38,6 +38,7 @@ namespace MusicApp.Resources.Portable_Class
     {
         public static MusicPlayer instance;
         public static SimpleExoPlayer player;
+        public float volume;
         private static AudioStopper noisyReceiver;
         public static List<Song> queue = new List<Song>();
         public MediaSessionCompat mediaSession;
@@ -166,7 +167,8 @@ namespace MusicApp.Resources.Portable_Class
             AdaptiveTrackSelection.Factory trackSelectionFactory = new AdaptiveTrackSelection.Factory(new DefaultBandwidthMeter());
             TrackSelector trackSelector = new DefaultTrackSelector(trackSelectionFactory);
             player = ExoPlayerFactory.NewSimpleInstance(Application.Context, trackSelector);
-            player.Volume = prefManager.GetInt("volumeMultiplier", 100) / 100f;
+            volume = prefManager.GetInt("volumeMultiplier", 100) / 100f;
+            player.Volume = volume;
             player.PlayWhenReady = true;
             player.AddListener(this);
 
@@ -732,6 +734,7 @@ namespace MusicApp.Resources.Portable_Class
                     ProgressBar parseProgress = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress);
                     parseProgress.Visibility = ViewStates.Visible;
                     parseProgress.ScaleY = 6;
+                    Player.instance?.Buffering();
                 }
                 try
                 {

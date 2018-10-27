@@ -9,10 +9,6 @@
       android:title="Music genres your interesed in"
       android:summary="Actualy nothing"/>
     <Preference
-      android:key="downloadPath"
-      android:title="Download directory"
-      android:summary="test"/>
-    <Preference
       android:key="localPlay"
       android:title="Local Play Shortcut"
       android:summary="Shuffle All Audio Files" />
@@ -23,6 +19,16 @@
     <SeekbarPreference
       android:title="Volume"
       android:key="volumeMultipler" />
+  </PreferenceCategory>
+  <PreferenceCategory android:title="Behavior">
+    <Preference
+      android:key="downloadPath"
+      android:title="Download directory"
+      android:summary="test"/>
+    <Preference
+      android:key="maxDownload"
+      android:title="Maximum current download"
+      android:summary="2"/>
   </PreferenceCategory>
   <PreferenceCategory android:title="Appearances">
     <Preference

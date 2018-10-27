@@ -644,6 +644,7 @@ namespace MusicApp.Resources.Portable_Class
             else if(movement == SheetMovement.Hidding && - 1 <= slideOffset && slideOffset < 0)
             {
                 sheet.Alpha = 1 + slideOffset;
+                MusicPlayer.instance?.ChangeVolume(MusicPlayer.instance.volume * (1 + slideOffset));
             }
         }
 
@@ -678,6 +679,7 @@ namespace MusicApp.Resources.Portable_Class
                 intent.SetAction("Stop");
                 context.StartService(intent);
                 sheet.Alpha = 1;
+                MusicPlayer.instance?.ChangeVolume(MusicPlayer.instance.volume);
                 MusicPlayer.userStopped = true;
             }
         }

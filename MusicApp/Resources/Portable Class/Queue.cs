@@ -108,6 +108,7 @@ namespace MusicApp.Resources.Portable_Class
             this.menu = menu;
             if(MusicPlayer.repeat)
                 menu.FindItem(Resource.Id.repeat).Icon.SetColorFilter(Color.Argb(255, 62, 80, 180), PorterDuff.Mode.Multiply);
+            
             return base.OnCreateOptionsMenu(menu);
         }
 

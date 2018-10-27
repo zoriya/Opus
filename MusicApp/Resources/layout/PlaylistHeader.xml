@@ -76,7 +76,7 @@
       android:layout_width="60dp"
       android:layout_height="60dp"
       android:tint="#ffffff"
-      android:src="@drawable/ic_more_vert_black_24dp"
+      android:src="@drawable/More"
       android:background="@null" />
   </LinearLayout>
 </RelativeLayout>

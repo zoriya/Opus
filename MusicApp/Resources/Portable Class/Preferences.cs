@@ -158,11 +158,6 @@ namespace MusicApp.Resources.Portable_Class
             else if(topics.Length > 3)
                 topicPreference.Summary = topics[0].Substring(0, topics[0].IndexOf("/#-#/")) + ", " + topics[1].Substring(0, topics[1].IndexOf("/#-#/")) + ", " + topics[2].Substring(0, topics[2].IndexOf("/#-#/")) + " and more.";
 
-            //Download Path
-            Preference downloadPref = PreferenceScreen.FindPreference("downloadPath");
-            downloadPref.PreferenceClick += DownloadClick;
-            downloadPref.Summary = prefManager.GetString("downloadPath", "not set");
-            path = prefManager.GetString("downloadPath", null);
 
             //Skip Exist Verification
             Preference skipExistVerification = PreferenceScreen.FindPreference("skipExistVerification");
@@ -173,6 +168,17 @@ namespace MusicApp.Resources.Portable_Class
             Preference localShortcutPreference = PreferenceScreen.FindPreference("localPlay");
             localShortcutPreference.PreferenceClick += LocalShortcut;
             localShortcutPreference.Summary = prefManager.GetString("localPlay", "Shuffle All Audio Files");
+
+            //Download Path
+            Preference downloadPref = PreferenceScreen.FindPreference("downloadPath");
+            downloadPref.PreferenceClick += DownloadClick;
+            downloadPref.Summary = prefManager.GetString("downloadPath", "not set");
+            path = prefManager.GetString("downloadPath", null);
+
+            //Maximum Download
+            Preference maxDlPref = PreferenceScreen.FindPreference("maxDownload");
+            maxDlPref.PreferenceClick += MaxDownloadClick;
+            maxDlPref.Summary = prefManager.GetInt("maxDownload", 2).ToString();
 
             //Theme
             Preference themePreference = PreferenceScreen.FindPreference("theme");
@@ -242,14 +248,6 @@ namespace MusicApp.Resources.Portable_Class
         {
             FragmentManager.BeginTransaction().Replace(Android.Resource.Id.Content, TopicSelector.NewInstance()).AddToBackStack(null).Commit();
             Preferences.instance.toolbar.Title = "Music Genres";
-        }
-        #endregion
-
-        #region Download location
-        private void DownloadClick(object sender, Preference.PreferenceClickEventArgs e)
-        {
-            FragmentManager.BeginTransaction().Replace(Android.Resource.Id.Content, DownloadFragment.NewInstance(path)).AddToBackStack(null).Commit();
-            Preferences.instance.toolbar.Title = "Download Location";
         }
         #endregion
 
@@ -337,6 +335,33 @@ namespace MusicApp.Resources.Portable_Class
 
             Preference prefButton = FindPreference("localPlay");
             prefButton.Summary = "Shuffle " + playlist;
+        }
+        #endregion
+
+        #region Download location
+        private void DownloadClick(object sender, Preference.PreferenceClickEventArgs e)
+        {
+            FragmentManager.BeginTransaction().Replace(Android.Resource.Id.Content, DownloadFragment.NewInstance(path)).AddToBackStack(null).Commit();
+            Preferences.instance.toolbar.Title = "Download Location";
+        }
+        #endregion
+
+        #region Maximum Download
+        private void MaxDownloadClick(object sender, Preference.PreferenceClickEventArgs e)
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
+            builder.SetTitle("Choose a theme :");
+            builder.SetItems(new[] { "White Theme", "Dark Theme" }, (s, args) =>
+            {
+                ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
+                ISharedPreferencesEditor editor = pref.Edit();
+                editor.PutInt("maxDownload", args.Which);
+                editor.Apply();
+
+                Preference prefButton = FindPreference("maxDownload");
+                prefButton.Summary = pref.GetInt("maxDownload", 2).ToString();
+            });
+            builder.Show();
         }
         #endregion
 
