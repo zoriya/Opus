@@ -519,6 +519,7 @@ namespace MusicApp.Resources.Portable_Class
                     await Task.Delay(10);
 
                 Downloader.instance.downloadPath = prefManager.GetString("downloadPath", null);
+                Downloader.instance.maxDownload = prefManager.GetInt("maxDownload", 2);
                 Downloader.queue.Add(new DownloadFile(name, videoID, null));
                 Downloader.instance.StartDownload();
             }
@@ -556,6 +557,7 @@ namespace MusicApp.Resources.Portable_Class
                 }
 
                 Downloader.instance.downloadPath = prefManager.GetString("downloadPath", null);
+                Downloader.instance.maxDownload = prefManager.GetInt("maxDownload", 2);
                 Downloader.queue.AddRange(files);
                 Downloader.instance.StartDownload();
             }

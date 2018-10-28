@@ -10,17 +10,20 @@
     android:src="@drawable/More"
     android:background="@null"
     android:layout_alignParentRight="true"
+    android:paddingBottom="10dp"
     android:id="@+id/more" />
   <TextView
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_toLeftOf="@id/more"
     android:textColor="#757575"
+    android:paddingBottom="10dp"
     android:id="@+id/downloadStatus"/>
   <TextView
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:maxLines="1"
+    android:paddingBottom="10dp"
     android:layout_toLeftOf="@id/downloadStatus"
     android:layout_alignParentLeft="true"
     android:id="@+id/fileName "/>

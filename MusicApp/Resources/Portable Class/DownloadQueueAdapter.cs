@@ -1,4 +1,5 @@
-﻿using Android.Support.V7.Widget;
+﻿using Android.Graphics;
+using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 
@@ -47,6 +48,10 @@ namespace MusicApp.Resources.Portable_Class
                     DownloadQueue.instance.More(tagPosition);
                 };
             }
+
+            if (MainActivity.Theme == 1)
+                holder.more.SetColorFilter(Color.White);
+
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)

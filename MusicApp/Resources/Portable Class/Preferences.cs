@@ -349,18 +349,32 @@ namespace MusicApp.Resources.Portable_Class
         #region Maximum Download
         private void MaxDownloadClick(object sender, Preference.PreferenceClickEventArgs e)
         {
+            View pickerView = LayoutInflater.Inflate(Resource.Layout.NumberPicker, null);
             AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
-            builder.SetTitle("Choose a theme :");
-            builder.SetItems(new[] { "White Theme", "Dark Theme" }, (s, args) =>
+            builder.SetTitle("Choose the maximum number of current download :");
+            builder.SetView(pickerView);
+            NumberPicker picker = (NumberPicker)pickerView;
+            picker.MinValue = 1;
+            picker.MaxValue = 10;
+            picker.Value = int.Parse(FindPreference("maxDownload").Summary);
+
+            builder.SetPositiveButton("Apply", (s, eventArg) => 
             {
                 ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
                 ISharedPreferencesEditor editor = pref.Edit();
-                editor.PutInt("maxDownload", args.Which);
+                editor.PutInt("maxDownload", picker.Value);
                 editor.Apply();
 
                 Preference prefButton = FindPreference("maxDownload");
                 prefButton.Summary = pref.GetInt("maxDownload", 2).ToString();
+
+                if(Downloader.instance != null && Downloader.queue.Count > 0)
+                {
+                    Downloader.instance.maxDownload = pref.GetInt("maxDownload", 2);
+                    Downloader.instance.StartDownload();
+                } 
             });
+            builder.SetNegativeButton("Cancel", (s, eventArg) => { });
             builder.Show();
         }
         #endregion

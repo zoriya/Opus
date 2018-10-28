@@ -7,6 +7,7 @@ using Android.Net;
 using Android.OS;
 using Android.Provider;
 using Android.Support.V4.App;
+using Android.Widget;
 using MusicApp.Resources.values;
 using System.Collections.Generic;
 using System.IO;
@@ -58,11 +59,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             if(intent.Action == "Cancel")
             {
-                cancellation.Cancel(true);
-                queue = new List<DownloadFile>();
-                SetCancelNotification();
-                DownloadQueue.instance?.Finish();
-                CleanDownload();
+                Cancel();
                 return StartCommandResult.NotSticky;
             }
 
@@ -72,6 +69,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public async void StartDownload()
         {
+            System.Console.WriteLine("&Start Downloading with " + downloadCount + " items already downloading and a queue of " + queue.Count);
             while(downloadCount < maxDownload && queue.Count(x => x.State == DownloadState.None) > 0)
             {
 #pragma warning disable CS4014
@@ -118,6 +116,7 @@ namespace MusicApp.Resources.Portable_Class
                 string fileName = $"{videoInfo.Title}.{fileExtension}";
 
                 string outpath = path;
+
                 if (queue[position].playlist != null)
                 {
                     outpath = Path.Combine(path, queue[position].playlist);
@@ -128,22 +127,27 @@ namespace MusicApp.Resources.Portable_Class
 
                 if (File.Exists(filePath))
                 {
+                    System.Console.WriteLine("&File Exist");
                     int i = 1;
                     string defaultPath = filePath;
                     do
                     {
                         filePath = defaultPath + "(" + i + ")";
                         i++;
+                        System.Console.WriteLine("&File Still Exist");
                     }
                     while (File.Exists(filePath));
                 }
 
                 MediaStream input = await client.GetMediaStreamAsync(streamInfo);
 
+                System.Console.WriteLine("&Creating file at " + filePath);
                 FileStream output = File.Create(filePath);
+                System.Console.WriteLine("&Copying data");
                 await input.CopyToAsync(output, 4096, cancellation.Token);
                 output.Dispose();
 
+                System.Console.WriteLine("&Data copyed");
                 queue[position].State = DownloadState.MetaData;
                 UpdateList(position);
                 SetMetaData(position, filePath, videoInfo.Title, videoInfo.Author, videoInfo.Thumbnails.HighResUrl, queue[position].videoID, queue[position].playlist);
@@ -152,14 +156,21 @@ namespace MusicApp.Resources.Portable_Class
                 if (queue.Count != 0)
                     DownloadAudio(queue.FindIndex(x => x.State == DownloadState.None), path);
             }
-            catch (System.Exception ex)
+            catch (YoutubeExplode.Exceptions.ParseException)
             {
-                if (ex is YoutubeExplode.Exceptions.ParseException)
-                    MainActivity.instance.YoutubeEndPointChanged();
-                else if (ex is System.Net.Http.HttpRequestException)
-                    MainActivity.instance.Timout();
-
-                return;
+                MainActivity.instance.YoutubeEndPointChanged();
+                Cancel();
+            }
+            catch (System.Net.Http.HttpRequestException)
+            {
+                MainActivity.instance.Timout();
+                Cancel();
+            }
+            catch (DirectoryNotFoundException)
+            {
+                Handler handler = new Handler(Looper.MainLooper);
+                handler.Post(() => { Toast.MakeText(Application.Context, "Download path do not exist anymore, please change it in the settings", ToastLength.Long).Show(); });
+                Cancel();
             }
         }
 
@@ -206,6 +217,15 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
+        void Cancel()
+        {
+            cancellation.Cancel(true);
+            queue = new List<DownloadFile>();
+            SetCancelNotification();
+            DownloadQueue.instance?.Finish();
+            CleanDownload();
+        }
+
         void UpdateList(int position)
         {
             DownloadQueue.instance?.ListView.GetAdapter().NotifyItemChanged(position);
@@ -216,8 +236,10 @@ namespace MusicApp.Resources.Portable_Class
             if(File.Exists(filePath))
                 File.Delete(filePath);
 
-            downloadCount--;
+            downloadCount = 0;
+            currentStrike = 0;
             StopForeground(true);
+            cancellation = new CancellationTokenSource();
         }
 
         void CreateNotification(string title)
