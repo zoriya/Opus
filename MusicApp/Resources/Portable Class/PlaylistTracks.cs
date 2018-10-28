@@ -167,53 +167,61 @@ namespace MusicApp.Resources.Portable_Class
             System.Console.WriteLine("Deleting " + song.Title);
         }
 
-        async void Delete()
+        void Delete()
         {
-            if(playlistId == 0)
-            {
-                if (hasWriteAcess)
+            AlertDialog dialog = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme)
+                .SetTitle("Do you want to delete the playlist \"" + playlistName + "\" ?")
+                .SetPositiveButton("Yes", async (sender, e) =>
                 {
-                    try
+                    if (playlistId == 0)
                     {
-                        PlaylistsResource.DeleteRequest deleteRequest = YoutubeEngine.youtubeService.Playlists.Delete(ytID);
-                        await deleteRequest.ExecuteAsync();
-                    }
-                    catch (System.Net.Http.HttpRequestException)
-                    {
-                        MainActivity.instance.Timout();
-                    }
-                }
-                else
-                {
-                    try
-                    {
-                        ChannelSectionsResource.ListRequest forkedRequest = YoutubeEngine.youtubeService.ChannelSections.List("snippet,contentDetails");
-                        forkedRequest.Mine = true;
-                        ChannelSectionListResponse forkedResponse = await forkedRequest.ExecuteAsync();
-
-                        foreach (ChannelSection section in forkedResponse.Items)
+                        if (hasWriteAcess)
                         {
-                            if (section.Snippet.Title == "Saved Playlists")
+                            try
                             {
-                                section.ContentDetails.Playlists.Remove(ytID);
-                                ChannelSectionsResource.UpdateRequest request = YoutubeEngine.youtubeService.ChannelSections.Update(section, "snippet,contentDetails");
-                                ChannelSection response = await request.ExecuteAsync();
+                                PlaylistsResource.DeleteRequest deleteRequest = YoutubeEngine.youtubeService.Playlists.Delete(ytID);
+                                await deleteRequest.ExecuteAsync();
+                            }
+                            catch (System.Net.Http.HttpRequestException)
+                            {
+                                MainActivity.instance.Timout();
+                            }
+                        }
+                        else
+                        {
+                            try
+                            {
+                                ChannelSectionsResource.ListRequest forkedRequest = YoutubeEngine.youtubeService.ChannelSections.List("snippet,contentDetails");
+                                forkedRequest.Mine = true;
+                                ChannelSectionListResponse forkedResponse = await forkedRequest.ExecuteAsync();
+
+                                foreach (ChannelSection section in forkedResponse.Items)
+                                {
+                                    if (section.Snippet.Title == "Saved Playlists")
+                                    {
+                                        section.ContentDetails.Playlists.Remove(ytID);
+                                        ChannelSectionsResource.UpdateRequest request = YoutubeEngine.youtubeService.ChannelSections.Update(section, "snippet,contentDetails");
+                                        ChannelSection response = await request.ExecuteAsync();
+                                    }
+                                }
+                            }
+                            catch (System.Net.Http.HttpRequestException)
+                            {
+                                MainActivity.instance.Timout();
                             }
                         }
                     }
-                    catch (System.Net.Http.HttpRequestException)
+                    else
                     {
-                        MainActivity.instance.Timout();
+                        ContentResolver resolver = Activity.ContentResolver;
+                        Uri uri = Playlists.ExternalContentUri;
+                        resolver.Delete(Playlists.ExternalContentUri, Playlists.InterfaceConsts.Id + "=?", new string[] { playlistId.ToString() });
                     }
-                }
-            }
-            else
-            {
-                ContentResolver resolver = Activity.ContentResolver;
-                Uri uri = Playlists.ExternalContentUri;
-                resolver.Delete(Playlists.ExternalContentUri, Playlists.InterfaceConsts.Id + "=?", new string[] { playlistId.ToString() });
-            }
-            MainActivity.instance.SupportFragmentManager.PopBackStack();
+                    MainActivity.instance.SupportFragmentManager.PopBackStack();
+                })
+                .SetNegativeButton("No", (sender, e) => { })
+                .Create();
+            dialog.Show();
         }
 
         public override void OnStop()

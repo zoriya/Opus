@@ -9,6 +9,8 @@ namespace MusicApp.Resources.values
         public string videoID;
         public string playlist;
         public DownloadState State = DownloadState.None;
+        public int progress = 0;
+        public string path;
         public bool skipCheck = false;
 
         public DownloadFile(string name, string videoID, string playlist)

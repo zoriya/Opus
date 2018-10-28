@@ -20,22 +20,45 @@ namespace MusicApp.Resources.Portable_Class
             switch (Downloader.queue[position].State)
             {
                 case DownloadState.Initialization:
-                case DownloadState.Downloading:
                 case DownloadState.MetaData:
                     holder.Status.Visibility = ViewStates.Visible;
                     holder.Progress.Visibility = ViewStates.Visible;
                     holder.Progress.Indeterminate = true;
                     holder.Title.Alpha = 1f;
+                    if (MainActivity.Theme == 1)
+                        holder.Title.SetTextColor(Color.White);
+                    else
+                        holder.Title.SetTextColor(Color.Black);
+                    break;
+                case DownloadState.Downloading:
+                    holder.Status.Visibility = ViewStates.Visible;
+                    holder.Progress.Visibility = ViewStates.Visible;
+                    holder.Title.Alpha = 1f;
+                    holder.Progress.Indeterminate = false;
+                    holder.Progress.Progress = Downloader.queue[position].progress;
+                    if (MainActivity.Theme == 1)
+                        holder.Title.SetTextColor(Color.White);
+                    else
+                        holder.Title.SetTextColor(Color.Black);
                     break;
                 case DownloadState.None:
                     holder.Progress.Visibility = ViewStates.Invisible;
                     holder.Status.Visibility = ViewStates.Gone;
                     holder.Title.Alpha = 1f;
+                    if (MainActivity.Theme == 1)
+                        holder.Title.SetTextColor(Color.White);
+                    else
+                        holder.Title.SetTextColor(Color.Black);
                     break;
                 case DownloadState.Completed:
                     holder.Status.Visibility = ViewStates.Gone;
                     holder.Progress.Visibility = ViewStates.Invisible;
-                    holder.Title.Alpha = 0.8f;
+                    holder.Title.SetTextColor(Color.Argb(255, 117, 117, 117));
+                    break;
+                case DownloadState.Canceled:
+                    holder.Status.Visibility = ViewStates.Gone;
+                    holder.Progress.Visibility = ViewStates.Invisible;
+                    holder.Title.SetTextColor(Color.Red);
                     break;
             }
 

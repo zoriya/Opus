@@ -1,5 +1,6 @@
 ﻿using Android.Content;
 using Android.Database;
+using Android.Graphics;
 using Android.OS;
 using Android.Provider;
 using Android.Support.Design.Widget;
@@ -278,6 +279,12 @@ namespace MusicApp.Resources.Portable_Class
                         catch (System.Net.Http.HttpRequestException)
                         {
                             MainActivity.instance.Timout();
+                        }
+                        catch (Google.GoogleApiException)
+                        {
+                            Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), "No playlist exist with this id or link.", Snackbar.LengthLong);
+                            snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+                            snackBar.Show();
                         }
 
                         if (ytPlaylists.Count == 3 && ytPlaylists[1].Title == "EMPTY")
@@ -656,20 +663,28 @@ namespace MusicApp.Resources.Portable_Class
 
         void RemovePlaylist(int position, long playlistID)
         {
-            ContentResolver resolver = Activity.ContentResolver;
-            Android.Net.Uri uri = Playlists.ExternalContentUri;
-            resolver.Delete(Playlists.ExternalContentUri, Playlists.InterfaceConsts.Id + "=?", new string[] { playlistID.ToString() });
-            adapter.Remove(position);
-            playList.RemoveAt(position);
-            playListCount.RemoveAt(position);
-            playlistId.RemoveAt(position);
+            AlertDialog dialog = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme)
+                .SetTitle("Do you want to delete the playlist \"" + playList[position] + "\" ?")
+                .SetPositiveButton("Yes", (sender, e) =>
+                {
+                    ContentResolver resolver = Activity.ContentResolver;
+                    Android.Net.Uri uri = Playlists.ExternalContentUri;
+                    resolver.Delete(Playlists.ExternalContentUri, Playlists.InterfaceConsts.Id + "=?", new string[] { playlistID.ToString() });
+                    adapter.Remove(position);
+                    playList.RemoveAt(position);
+                    playListCount.RemoveAt(position);
+                    playlistId.RemoveAt(position);
 
-            if (playList.Count == 1)
-            {
-                playList.Add("EMPTY - You don't have any playlist on your device.");
-                playlistId.Add(-1);
-                playListCount.Add(-1);
-            }
+                    if (playList.Count == 1)
+                    {
+                        playList.Add("EMPTY - You don't have any playlist on your device.");
+                        playlistId.Add(-1);
+                        playListCount.Add(-1);
+                    }
+                })
+                .SetNegativeButton("No", (sender, e) => { })
+                .Create();
+            dialog.Show();
         }
 
         public void RenameYoutubePlaylist(int position, string playlistID)
@@ -709,25 +724,33 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
-        async void RemoveYoutubePlaylist(int position, string playlistID)
+        void RemoveYoutubePlaylist(int position, string playlistID)
         {
-            try
-            {
-                PlaylistsResource.DeleteRequest deleteRequest = YoutubeEngine.youtubeService.Playlists.Delete(playlistID);
-                await deleteRequest.ExecuteAsync();
-
-                adapter.Remove(position);
-                YtPlaylists.RemoveAt(position - playList.Count - 1);
-
-                if (ytPlaylists.Count == 1)
+            AlertDialog dialog = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme)
+                .SetTitle("Do you want to delete the playlist \"" + ytPlaylists[position].Title + "\" ?")
+                .SetPositiveButton("Yes", async (sender, e) =>
                 {
-                    ytPlaylists.Add(new Song("EMPTY", "You don't have any youtube playlist on your account. \nWarning: Only playlist from your google account are displayed", null, null, -1, -1, null));
-                }
-            }
-            catch (System.Net.Http.HttpRequestException)
-            {
-                MainActivity.instance.Timout();
-            }
+                    try
+                    {
+                        PlaylistsResource.DeleteRequest deleteRequest = YoutubeEngine.youtubeService.Playlists.Delete(playlistID);
+                        await deleteRequest.ExecuteAsync();
+
+                        adapter.Remove(position);
+                        YtPlaylists.RemoveAt(position - playList.Count - 1);
+
+                        if (ytPlaylists.Count == 1)
+                        {
+                            ytPlaylists.Add(new Song("EMPTY", "You don't have any youtube playlist on your account. \nWarning: Only playlist from your google account are displayed", null, null, -1, -1, null));
+                        }
+                    }
+                    catch (System.Net.Http.HttpRequestException)
+                    {
+                        MainActivity.instance.Timout();
+                    }
+                })
+                .SetNegativeButton("No", (sender, e) => {  })
+                .Create();
+            dialog.Show();
         }
 
         async void Unfork(int position, string playlistID)

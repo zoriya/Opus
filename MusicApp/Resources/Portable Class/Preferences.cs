@@ -178,7 +178,7 @@ namespace MusicApp.Resources.Portable_Class
             //Maximum Download
             Preference maxDlPref = PreferenceScreen.FindPreference("maxDownload");
             maxDlPref.PreferenceClick += MaxDownloadClick;
-            maxDlPref.Summary = prefManager.GetInt("maxDownload", 2).ToString();
+            maxDlPref.Summary = prefManager.GetInt("maxDownload", 4).ToString();
 
             //Theme
             Preference themePreference = PreferenceScreen.FindPreference("theme");
@@ -370,7 +370,7 @@ namespace MusicApp.Resources.Portable_Class
 
                 if(Downloader.instance != null && Downloader.queue.Count > 0)
                 {
-                    Downloader.instance.maxDownload = pref.GetInt("maxDownload", 2);
+                    Downloader.instance.maxDownload = pref.GetInt("maxDownload", 4);
                     Downloader.instance.StartDownload();
                 } 
             });

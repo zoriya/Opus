@@ -7,6 +7,8 @@ using Android.Net;
 using Android.OS;
 using Android.Provider;
 using Android.Support.V4.App;
+using Android.Support.V7.Widget;
+using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
 using System.Collections.Generic;
@@ -28,12 +30,12 @@ namespace MusicApp.Resources.Portable_Class
     {
         public static Downloader instance;
         public string downloadPath;
-        public int maxDownload = 3;
+        public int maxDownload = 4;
         public static List<DownloadFile> queue = new List<DownloadFile>();
 
-        private int currentStrike = 0;
+        public int currentStrike = 0;
         private static int downloadCount = 0;
-        private static string filePath;
+        private static List<string> files = new List<string>();
         private NotificationCompat.Builder notification;
         private CancellationTokenSource cancellation = new CancellationTokenSource();
         private const int notificationID = 1001;
@@ -69,7 +71,6 @@ namespace MusicApp.Resources.Portable_Class
 
         public async void StartDownload()
         {
-            System.Console.WriteLine("&Start Downloading with " + downloadCount + " items already downloading and a queue of " + queue.Count);
             while(downloadCount < maxDownload && queue.Count(x => x.State == DownloadState.None) > 0)
             {
 #pragma warning disable CS4014
@@ -123,34 +124,44 @@ namespace MusicApp.Resources.Portable_Class
                     Directory.CreateDirectory(outpath);
                 }
 
-                filePath = Path.Combine(outpath, fileName);
+                string filePath = Path.Combine(outpath, fileName);
 
                 if (File.Exists(filePath))
                 {
-                    System.Console.WriteLine("&File Exist");
                     int i = 1;
                     string defaultPath = filePath;
                     do
                     {
                         filePath = defaultPath + "(" + i + ")";
                         i++;
-                        System.Console.WriteLine("&File Still Exist");
                     }
                     while (File.Exists(filePath));
                 }
 
                 MediaStream input = await client.GetMediaStreamAsync(streamInfo);
 
-                System.Console.WriteLine("&Creating file at " + filePath);
+                queue[position].path = filePath;
+                files.Add(filePath);
                 FileStream output = File.Create(filePath);
-                System.Console.WriteLine("&Copying data");
-                await input.CopyToAsync(output, 4096, cancellation.Token);
+
+                byte[] buffer = new byte[4096];
+                int byteReaded = 0;
+                while (byteReaded < input.Length)
+                {
+                    int read = await input.ReadAsync(buffer, 0, 4096);
+                    await output.WriteAsync(buffer, 0, read);
+                    byteReaded += read;
+                    UpdateProgressBar(position, byteReaded / input.Length);
+                }
                 output.Dispose();
 
-                System.Console.WriteLine("&Data copyed");
                 queue[position].State = DownloadState.MetaData;
                 UpdateList(position);
+                if (queue.Count == 1)
+                    SetNotificationProgress(100, true);
+
                 SetMetaData(position, filePath, videoInfo.Title, videoInfo.Author, videoInfo.Thumbnails.HighResUrl, queue[position].videoID, queue[position].playlist);
+                files.Remove(filePath);
                 downloadCount--;
 
                 if (queue.Count != 0)
@@ -226,20 +237,43 @@ namespace MusicApp.Resources.Portable_Class
             CleanDownload();
         }
 
-        void UpdateList(int position)
-        {
-            DownloadQueue.instance?.ListView.GetAdapter().NotifyItemChanged(position);
-        }
-
         void CleanDownload()
         {
-            if(File.Exists(filePath))
-                File.Delete(filePath);
+            Task.Run(() =>
+            {
+                foreach (string filePath in files)
+                {
+                    if (File.Exists(filePath))
+                        File.Delete(filePath);
+                }
+            });
 
             downloadCount = 0;
             currentStrike = 0;
             StopForeground(true);
             cancellation = new CancellationTokenSource();
+        }
+
+        void UpdateList(int position)
+        {
+            DownloadQueue.instance?.RunOnUiThread(() => { DownloadQueue.instance?.ListView.GetAdapter().NotifyItemChanged(position); });
+        }
+
+        void UpdateProgressBar(int position, long progress)
+        {
+            queue[position].progress = (int)(progress * 100);
+            DownloadQueue.instance.RunOnUiThread(() =>
+            {
+                LinearLayoutManager LayoutManager = (LinearLayoutManager)DownloadQueue.instance.ListView.GetLayoutManager();
+                if (position >= LayoutManager.FindFirstVisibleItemPosition() && position <= LayoutManager.FindLastVisibleItemPosition())
+                {
+                    View view = DownloadQueue.instance.ListView.GetChildAt(position - LayoutManager.FindFirstVisibleItemPosition());
+                    DownloadHolder holder = (DownloadHolder)DownloadQueue.instance.ListView.GetChildViewHolder(view);
+                    holder.Progress.Progress = (int)(progress * 100);
+                }
+            });
+            if (queue.Count == 1)
+                SetNotificationProgress((int)(progress * 100));
         }
 
         void CreateNotification(string title)
@@ -264,15 +298,17 @@ namespace MusicApp.Resources.Portable_Class
                 notification.SetSubText(currentStrike + "/" + (currentStrike + queue.Count));
                 notification.SetProgress(currentStrike + queue.Count, currentStrike, false);
             }
+            else
+            {
+                notification.SetProgress(100, 0, true);
+            }
                 
             StartForeground(notificationID, notification.Build());
         }
 
-        void SetNotificationCount()
+        void SetNotificationProgress(int progress, bool indeterminate = false)
         {
-            notification.SetSubText(currentStrike + "/" + (currentStrike + queue.Count));
-            notification.SetProgress(currentStrike + queue.Count, currentStrike, false);
-            StartForeground(notificationID, notification.Build());
+            notification.SetProgress(100, progress, indeterminate);
         }
 
         void SetCancelNotification()
@@ -290,6 +326,7 @@ namespace MusicApp.Resources.Portable_Class
         Downloading,
         MetaData,
         Completed,
+        Canceled,
         None
     }
 }

@@ -3,7 +3,8 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="fill_parent"
   android:layout_height="wrap_content"
-  android:padding="15dp">
+  android:paddingLeft="15dp"
+  android:paddingRight="15dp">
   <ImageButton
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
@@ -33,6 +34,7 @@
     android:layout_alignParentBottom="true"
     android:gravity="bottom"
     android:layout_gravity="bottom"
+    android:max="100"
     android:id="@+id/progress"
     style="?android:attr/progressBarStyleHorizontal"
     android:visibility="invisible" />

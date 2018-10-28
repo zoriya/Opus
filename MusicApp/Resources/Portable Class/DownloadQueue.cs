@@ -4,6 +4,7 @@ using Android.OS;
 using Android.Support.V7.App;
 using Android.Support.V7.Widget;
 using Android.Views;
+using System.Threading.Tasks;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -12,6 +13,7 @@ namespace MusicApp.Resources.Portable_Class
     {
         public static DownloadQueue instance;
         public RecyclerView ListView;
+        private int morePosition;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -32,7 +34,7 @@ namespace MusicApp.Resources.Portable_Class
 
 
             ListView = FindViewById<RecyclerView>(Resource.Id.list);
-            ListView.SetLayoutManager(new LinearLayoutManager(this));
+            ListView.SetLayoutManager(new FixedLinearLayoutManager(this));
             ListView.SetAdapter(new DownloadQueueAdapter());
         }
 
@@ -52,9 +54,10 @@ namespace MusicApp.Resources.Portable_Class
             return true;
         }
 
-            public void More(int position)
+        public void More(int position)
         {
-            PopupMenu menu = new PopupMenu(this, ListView.GetChildAt(position).FindViewById<Android.Widget.ImageButton>(Resource.Id.more));
+            morePosition = position;
+            PopupMenu menu = new PopupMenu(this, ListView.GetChildAt(position - ((LinearLayoutManager)ListView.GetLayoutManager()).FindFirstVisibleItemPosition()).FindViewById<Android.Widget.ImageButton>(Resource.Id.more));
             menu.Inflate(Resource.Menu.download_more);
             menu.SetOnMenuItemClickListener(this);
             menu.Show();
@@ -65,6 +68,23 @@ namespace MusicApp.Resources.Portable_Class
             switch (item.ItemId)
             {
                 case Resource.Id.delete:
+                    if(Downloader.queue[morePosition].State == DownloadState.Completed)
+                    {
+                        System.IO.File.Delete(Downloader.queue[morePosition].path);
+                        Downloader.queue[morePosition].name = "Deleted file";
+                        Downloader.queue[morePosition].State = DownloadState.Canceled;
+                    }
+                    else if(Downloader.queue[morePosition].State == DownloadState.None)
+                    {
+                        Downloader.queue[morePosition].name = "Deleted file";
+                        Downloader.queue[morePosition].State = DownloadState.Canceled;
+                    }
+                    else
+                    {
+                        Android.Widget.Toast.MakeText(this, "Can't delete this file for now, try again later.", Android.Widget.ToastLength.Short).Show();
+                    }
+                    ListView.GetAdapter().NotifyItemChanged(morePosition);
+                    morePosition = 0;
                     break;
                 default:
                     break;
