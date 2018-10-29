@@ -671,8 +671,6 @@ namespace MusicApp.Resources.Portable_Class
                     Android.Net.Uri uri = Playlists.ExternalContentUri;
                     resolver.Delete(Playlists.ExternalContentUri, Playlists.InterfaceConsts.Id + "=?", new string[] { playlistID.ToString() });
                     adapter.Remove(position);
-                    playList.RemoveAt(position);
-                    playListCount.RemoveAt(position);
                     playlistId.RemoveAt(position);
 
                     if (playList.Count == 1)
@@ -680,6 +678,7 @@ namespace MusicApp.Resources.Portable_Class
                         playList.Add("EMPTY - You don't have any playlist on your device.");
                         playlistId.Add(-1);
                         playListCount.Add(-1);
+                        adapter.NotifyItemInserted(2);
                     }
                 })
                 .SetNegativeButton("No", (sender, e) => { })

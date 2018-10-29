@@ -81,6 +81,7 @@ namespace MusicApp.Resources.Portable_Class
 
         private async void DownloadAudio(int position, string path)
         {
+            System.Console.WriteLine("&Downloading item " + position + "/" + queue.Count);
             if (position < 0 || position > queue.Count || queue[position].State != DownloadState.None)
                 return;
 
@@ -113,8 +114,8 @@ namespace MusicApp.Resources.Portable_Class
 
                 queue[position].State = DownloadState.Downloading;
                 UpdateList(position);
+                string title = videoInfo.Title;
                 string fileExtension = streamInfo.Container.GetFileExtension();
-                string fileName = $"{videoInfo.Title}.{fileExtension}";
 
                 string outpath = path;
 
@@ -124,7 +125,7 @@ namespace MusicApp.Resources.Portable_Class
                     Directory.CreateDirectory(outpath);
                 }
 
-                string filePath = Path.Combine(outpath, fileName);
+                string filePath = Path.Combine(outpath, title + "." + fileExtension);
 
                 if (File.Exists(filePath))
                 {
@@ -132,7 +133,7 @@ namespace MusicApp.Resources.Portable_Class
                     string defaultPath = filePath;
                     do
                     {
-                        filePath = defaultPath + "(" + i + ")";
+                        filePath = Path.Combine(outpath, title + " (" + i + ")." + fileExtension);
                         i++;
                     }
                     while (File.Exists(filePath));
@@ -214,17 +215,17 @@ namespace MusicApp.Resources.Portable_Class
         public void OnScanCompleted(string path, Uri uri)
         {
             long id = long.Parse(uri.ToString().Substring(uri.ToString().IndexOf("audio/media/") + 12, uri.ToString().Length - uri.ToString().IndexOf("audio/media/") - 12));
-            string playlist = path.Substring(downloadPath.Length + 1, path.IndexOf("/", downloadPath.Length) - downloadPath.Length);
+            string playlist = path.Substring(downloadPath.Length + 1, path.IndexOf("/", downloadPath.Length + 1) - (downloadPath.Length + 1));
 
-            if(playlist != "")
+            if (playlist != "")
             {
-                Browse.act = MainActivity.instance;
-                long playlistID = Browse.GetPlaylistID(playlist);
+                Handler handler = new Handler(MainActivity.instance.MainLooper);
+                handler.Post(() =>
+                {
 
-                ContentValues value = new ContentValues();
-                value.Put(MediaStore.Audio.Playlists.Members.AudioId, id);
-                value.Put(MediaStore.Audio.Playlists.Members.PlayOrder, 0);
-                ContentResolver.Insert(MediaStore.Audio.Playlists.Members.GetContentUri("external", playlistID), value);
+                    Browse.act = MainActivity.instance;
+                    Browse.AddToPlaylist(Browse.GetSong(path), playlist, -1);
+                });
             }
         }
 
@@ -262,7 +263,7 @@ namespace MusicApp.Resources.Portable_Class
         void UpdateProgressBar(int position, long progress)
         {
             queue[position].progress = (int)(progress * 100);
-            DownloadQueue.instance.RunOnUiThread(() =>
+            DownloadQueue.instance?.RunOnUiThread(() =>
             {
                 LinearLayoutManager LayoutManager = (LinearLayoutManager)DownloadQueue.instance.ListView.GetLayoutManager();
                 if (position >= LayoutManager.FindFirstVisibleItemPosition() && position <= LayoutManager.FindLastVisibleItemPosition())
@@ -295,8 +296,8 @@ namespace MusicApp.Resources.Portable_Class
 
             if(queue.Count > 1)
             {
-                notification.SetSubText(currentStrike + "/" + (currentStrike + queue.Count));
-                notification.SetProgress(currentStrike + queue.Count, currentStrike, false);
+                notification.SetSubText(currentStrike + "/" + queue.Count);
+                notification.SetProgress(queue.Count, currentStrike, false);
             }
             else
             {

@@ -252,7 +252,7 @@ namespace MusicApp.Resources.Portable_Class
 
             Song song = null;
             if(title == null)
-                GetTrackSong(filePath, out song);
+                song = Browse.GetSong(filePath);
             else
             {
                 song = new Song(title, artist, thumbnailURI, youtubeID, -1, -1, filePath, true);
@@ -602,7 +602,7 @@ namespace MusicApp.Resources.Portable_Class
 
             for (int i = clearQueue ? 1 : 0; i < filePath.Count; i++)
             {
-                GetTrackSong(filePath[i], out Song song);
+                Song song = Browse.GetSong(filePath[i]);
                 song.queueSlot = queue.Count;
                 queue.Add(song);
                 await Task.Delay(10);
@@ -635,7 +635,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             Song song = null;
             if(title == null)
-                GetTrackSong(filePath, out song);
+                song = Browse.GetSong(filePath);
             else
                 song = new Song(title, artist, thumbnailURI, youtubeID, -1, -1, filePath, true);
 
@@ -658,7 +658,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public void PlayLastInQueue(string filePath)
         {
-            GetTrackSong(filePath, out Song song);
+            Song song = Browse.GetSong(filePath);
             song.queueSlot = queue.Count;
 
             queue.Add(song);
@@ -1040,50 +1040,6 @@ namespace MusicApp.Resources.Portable_Class
             {
                 return player == null ? 0 : player.CurrentPosition;
             }
-        }
-
-        void GetTrackSong(string filePath, out Song song)
-        {
-            string Title = "Unknow";
-            string Artist = "Unknow";
-            long AlbumArt = 0;
-            long id = 0;
-            string path;
-            Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
-
-            if (filePath.StartsWith("content://"))
-                musicUri = Uri.Parse(filePath);
-
-            Android.Content.CursorLoader cursorLoader = new Android.Content.CursorLoader(Application.Context, musicUri, null, null, null, null);
-            ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
-            if (musicCursor != null && musicCursor.MoveToFirst())
-            {
-                int titleID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Title);
-                int artistID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Artist);
-                int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
-                int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
-                do
-                {
-                    path = musicCursor.GetString(pathID);
-
-                    if (path == filePath || filePath.StartsWith("content://"))
-                    {
-                        Artist = musicCursor.GetString(artistID);
-                        Title = musicCursor.GetString(titleID);
-                        AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
-                        id = musicCursor.GetLong(thisID);
-
-                        if (Title == null)
-                            Title = "Unknown Title";
-                        if (Artist == null)
-                            Artist = "Unknow Artist";
-                        break;
-                    }
-                }
-                while (musicCursor.MoveToNext());
-                musicCursor.Close();
-            }
-            song = new Song(Title, Artist, null, null, AlbumArt, id, filePath);
         }
 
         async void CreateNotification(string title, string artist, long albumArt = 0, string imageURI = "")

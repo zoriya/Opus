@@ -2,6 +2,7 @@
 using Android.Content;
 using Android.Content.PM;
 using Android.Database;
+using Android.Net;
 using Android.OS;
 using Android.Provider;
 using Android.Support.V4.App;
@@ -233,7 +234,7 @@ namespace MusicApp.Resources.Portable_Class
             builder.Show();
         }
 
-        public Song CompleteItem(Song item)
+        public static Song CompleteItem(Song item)
         {
             Stream stream = new FileStream(item.Path, FileMode.Open, FileAccess.Read);
 
@@ -242,6 +243,50 @@ namespace MusicApp.Resources.Portable_Class
             stream.Dispose();
 
             return new Song(item.Title, item.Artist, item.Album, ytID, item.AlbumArt, item.Id, item.Path, item.IsYt, item.isParsed, item.queueSlot);
+        }
+
+        public static Song GetSong(string filePath)
+        {
+            string Title = "Unknow";
+            string Artist = "Unknow";
+            long AlbumArt = 0;
+            long id = 0;
+            string path;
+            Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
+
+            if (filePath.StartsWith("content://"))
+                musicUri = Uri.Parse(filePath);
+
+            CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
+            ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
+            if (musicCursor != null && musicCursor.MoveToFirst())
+            {
+                int titleID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Title);
+                int artistID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Artist);
+                int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
+                int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
+                do
+                {
+                    path = musicCursor.GetString(pathID);
+
+                    if (path == filePath || filePath.StartsWith("content://"))
+                    {
+                        Artist = musicCursor.GetString(artistID);
+                        Title = musicCursor.GetString(titleID);
+                        AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
+                        id = musicCursor.GetLong(thisID);
+
+                        if (Title == null)
+                            Title = "Unknown Title";
+                        if (Artist == null)
+                            Artist = "Unknow Artist";
+                        break;
+                    }
+                }
+                while (musicCursor.MoveToNext());
+                musicCursor.Close();
+            }
+            return new Song(Title, Artist, null, null, AlbumArt, id, filePath);
         }
 
         public static void Play(Song item, View albumArt)
@@ -284,7 +329,7 @@ namespace MusicApp.Resources.Portable_Class
             playList.Add("Create a playlist");
             playListId.Add(0);
 
-            Android.Net.Uri uri = MediaStore.Audio.Playlists.ExternalContentUri;
+            Uri uri = MediaStore.Audio.Playlists.ExternalContentUri;
             CursorLoader loader = new CursorLoader(Android.App.Application.Context, uri, null, null, null, null);
             ICursor cursor = (ICursor)loader.LoadInBackground();
 
@@ -312,57 +357,6 @@ namespace MusicApp.Resources.Portable_Class
             builder.Show();
         }
 
-        public static long GetPlaylistID(string playlistName)
-        {
-            Android.Net.Uri uri = MediaStore.Audio.Playlists.ExternalContentUri;
-            Looper.Prepare();
-            CursorLoader loader = new CursorLoader(Android.App.Application.Context, uri, null, null, null, null);
-            ICursor cursor = (ICursor)loader.LoadInBackground();
-
-            if (cursor != null && cursor.MoveToFirst())
-            {
-                int nameID = cursor.GetColumnIndex(MediaStore.Audio.Playlists.InterfaceConsts.Name);
-                int plID = cursor.GetColumnIndex(MediaStore.Audio.Playlists.InterfaceConsts.Id);
-                do
-                {
-                    string name = cursor.GetString(nameID);
-
-                    if (name != playlistName)
-                        continue;
-
-                    return cursor.GetLong(plID);
-                }
-                while (cursor.MoveToNext());
-                cursor.Close();
-            }
-
-            //Playlist do not exist, create it
-            ContentResolver resolver = act.ContentResolver;
-            ContentValues value = new ContentValues();
-            value.Put(MediaStore.Audio.Playlists.InterfaceConsts.Name, playlistName);
-            resolver.Insert(uri, value);
-
-            CursorLoader loaderBis = new CursorLoader(Android.App.Application.Context, uri, null, null, null, null);
-            ICursor cursorBis = (ICursor)loader.LoadInBackground();
-
-            if (cursorBis != null && cursorBis.MoveToFirst())
-            {
-                int nameID = cursorBis.GetColumnIndex(MediaStore.Audio.Playlists.InterfaceConsts.Name);
-                int getplaylistID = cursorBis.GetColumnIndex(MediaStore.Audio.Playlists.InterfaceConsts.Id);
-                do
-                {
-                    string name = cursorBis.GetString(nameID);
-                    long id = cursorBis.GetLong(getplaylistID);
-
-                    if (playlistName == name)
-                        return id;
-                }
-                while (cursorBis.MoveToNext());
-                cursorBis.Close();
-            }
-            return -1;
-        }
-
         public async static Task CheckWritePermission()
         {
             const string permission = Manifest.Permission.WriteExternalStorage;
@@ -380,13 +374,22 @@ namespace MusicApp.Resources.Portable_Class
 
         public async static void AddToPlaylist(Song item, string playList, long playlistID)
         {
-            if (playList == "Create a playlist")
+            if (playList == "Create a playlist" && playlistID == 0)
                 CreatePlalistDialog(item);
 
+            else if(playlistID == -1)
+            {
+                playlistID = GetPlaylistID(playList);
+                if (playlistID == -1)
+                    CreatePlaylist(playList, item);
+                else
+                    AddToPlaylist(item, playList, playlistID);
+            }
             else
             {
                 await CheckWritePermission();
 
+                System.Console.WriteLine("&Adding " + item.Title + " to playlist " + playList + "(" + playlistID + ")");
                 ContentResolver resolver = act.ContentResolver;
                 ContentValues value = new ContentValues();
                 value.Put(MediaStore.Audio.Playlists.Members.AudioId, item.Id);
@@ -414,12 +417,11 @@ namespace MusicApp.Resources.Portable_Class
             await CheckWritePermission();
 
             ContentResolver resolver = act.ContentResolver;
-            Android.Net.Uri uri = MediaStore.Audio.Playlists.ExternalContentUri;
+            Uri uri = MediaStore.Audio.Playlists.ExternalContentUri;
             ContentValues value = new ContentValues();
             value.Put(MediaStore.Audio.Playlists.InterfaceConsts.Name, name);
             resolver.Insert(uri, value);
 
-            string playList = "foo";
             long playlistID = 0;
 
             CursorLoader loader = new CursorLoader(Android.App.Application.Context, uri, null, null, null, null);
@@ -441,7 +443,36 @@ namespace MusicApp.Resources.Portable_Class
                 cursor.Close();
             }
 
-            AddToPlaylist(item, playList, playlistID);
+            System.Console.WriteLine("&Playlist created with name: " + name + " and with id: " + playlistID);
+            AddToPlaylist(item, name, playlistID);
+        }
+
+        public static long GetPlaylistID(string playlistName)
+        {
+            System.Console.WriteLine("&Checking if playlist exist with name: " + playlistName);
+
+            Uri uri = MediaStore.Audio.Playlists.ExternalContentUri;
+            CursorLoader loader = new CursorLoader(Android.App.Application.Context, uri, null, null, null, null);
+            ICursor cursor = (ICursor)loader.LoadInBackground();
+
+            if (cursor != null && cursor.MoveToFirst())
+            {
+                int nameID = cursor.GetColumnIndex(MediaStore.Audio.Playlists.InterfaceConsts.Name);
+                int plID = cursor.GetColumnIndex(MediaStore.Audio.Playlists.InterfaceConsts.Id);
+                do
+                {
+                    string name = cursor.GetString(nameID);
+
+                    if (name != playlistName)
+                        continue;
+
+                    System.Console.WriteLine("&Playlist exist");
+                    return cursor.GetLong(plID);
+                }
+                while (cursor.MoveToNext());
+                cursor.Close();
+            }
+            return -1;
         }
 
         public static void EditMetadata(Song item, string sender, IParcelable parcelable)

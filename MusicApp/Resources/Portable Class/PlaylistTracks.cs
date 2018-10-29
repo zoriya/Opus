@@ -226,6 +226,8 @@ namespace MusicApp.Resources.Portable_Class
 
         public override void OnStop()
         {
+            Activity.FindViewById<ImageButton>(Resource.Id.headerMore).Click -= PlaylistMore;
+
             if (!MainActivity.instance.StateSaved)
             {
                 int statusHeight = Resources.GetDimensionPixelSize(Resources.GetIdentifier("status_bar_height", "dimen", "android"));
@@ -305,29 +307,19 @@ namespace MusicApp.Resources.Portable_Class
                 ((AppBarLayout.LayoutParams)Activity.FindViewById<CollapsingToolbarLayout>(Resource.Id.collapsingToolbar).LayoutParameters).ScrollFlags = AppBarLayout.LayoutParams.ScrollFlagScroll | AppBarLayout.LayoutParams.ScrollFlagExitUntilCollapsed;
                 Activity.FindViewById<AppBarLayout>(Resource.Id.appbar).AddOnOffsetChangedListener(this);
                 Activity.FindViewById<TextView>(Resource.Id.headerTitle).Text = playlistName;
-                Activity.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { PlayInOrder(0, false); };
-                Activity.FindViewById<ImageButton>(Resource.Id.headerShuffle).Click += (sender, e0) =>
+                if(!Activity.FindViewById<ImageButton>(Resource.Id.headerPlay).HasOnClickListeners)
+                    Activity.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { PlayInOrder(0, false); };
+                if(!Activity.FindViewById<ImageButton>(Resource.Id.headerShuffle).HasOnClickListeners)
                 {
-                    if (playlistId != 0)
-                        Playlist.RandomPlay(playlistId, Activity);
-                    else
-                        YoutubeEngine.RandomPlay(ytID);
-                };
-                Activity.FindViewById<ImageButton>(Resource.Id.headerMore).Click += (sender, e0) =>
-                {
-                    PopupMenu menu = new PopupMenu(MainActivity.instance, MainActivity.instance.FindViewById<ImageButton>(Resource.Id.headerMore));
-                    if (playlistId == 0 && hasWriteAcess)
-                        menu.Inflate(Resource.Menu.ytplaylist_header_more);
-                    else if (playlistId == 0 && forked)
-                        menu.Inflate(Resource.Menu.ytplaylistnowrite_header_more);
-                    else if (playlistId == 0)
-                        menu.Inflate(Resource.Menu.ytplaylist_nowrite_nofork_header_more);
-                    else
-                        menu.Inflate(Resource.Menu.playlist_header_more);
-                    menu.SetOnMenuItemClickListener(this);
-                    menu.Show();
-                };
-
+                    Activity.FindViewById<ImageButton>(Resource.Id.headerShuffle).Click += (sender, e0) =>
+                    {
+                        if (playlistId != 0)
+                            Playlist.RandomPlay(playlistId, Activity);
+                        else
+                            YoutubeEngine.RandomPlay(ytID);
+                    };
+                }
+                Activity.FindViewById<ImageButton>(Resource.Id.headerMore).Click += PlaylistMore;
 
                 if (playlistId != 0)
                 {
@@ -344,6 +336,21 @@ namespace MusicApp.Resources.Portable_Class
                 }
                 Activity.FindViewById(Resource.Id.playlistDark).LayoutParameters.Height = Activity.FindViewById<ImageView>(Resource.Id.headerArt).Height / 2;
             }
+        }
+
+        void PlaylistMore(object sender,  System.EventArgs eventArgs)
+        {
+            PopupMenu menu = new PopupMenu(MainActivity.instance, MainActivity.instance.FindViewById<ImageButton>(Resource.Id.headerMore));
+            if (playlistId == 0 && hasWriteAcess)
+                menu.Inflate(Resource.Menu.ytplaylist_header_more);
+            else if (playlistId == 0 && forked)
+                menu.Inflate(Resource.Menu.ytplaylistnowrite_header_more);
+            else if (playlistId == 0)
+                menu.Inflate(Resource.Menu.ytplaylist_nowrite_nofork_header_more);
+            else
+                menu.Inflate(Resource.Menu.playlist_header_more);
+            menu.SetOnMenuItemClickListener(this);
+            menu.Show();
         }
 
         public static Fragment NewInstance(List<Song> songs, string playlistName)
