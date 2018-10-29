@@ -49,7 +49,7 @@ namespace MusicApp.Resources.Portable_Class
         public static string title;
         private static bool parsing = false;
         private bool generating = false;
-        public static int currentID = -1;
+        public static int currentID = 0;
         public static bool autoUpdateSeekBar = true;
         public static bool repeat = false;
         public static bool useAutoPlay = false;
