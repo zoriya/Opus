@@ -365,7 +365,7 @@ namespace MusicApp.Resources.Portable_Class
             if (progress != -1)
             {
                 player.SeekTo(progress);
-                MainActivity.instance?.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
+                MainActivity.instance?.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.Pause);
             }
 
             SaveQueueSlot();
@@ -730,12 +730,12 @@ namespace MusicApp.Resources.Portable_Class
         {
             if (!song.isParsed)
             {
+                Player.instance?.Buffering();
                 if (MainActivity.instance != null && showPlayer)
                 {
                     ProgressBar parseProgress = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress);
                     parseProgress.Visibility = ViewStates.Visible;
                     parseProgress.ScaleY = 6;
-                    Player.instance?.Buffering();
                 }
                 try
                 {
@@ -1103,9 +1103,9 @@ namespace MusicApp.Resources.Portable_Class
                 .SetVisibility(NotificationCompat.VisibilityPublic)
                 .SetSmallIcon(Resource.Drawable.MusicIcon)
 
-                .AddAction(Resource.Drawable.ic_skip_previous_black_24dp, "Previous", previousIntent)
-                .AddAction(Resource.Drawable.ic_pause_black_24dp, "Pause", pauseIntent)
-                .AddAction(Resource.Drawable.ic_skip_next_black_24dp, "Next", nextIntent)
+                .AddAction(Resource.Drawable.SkipPrevious, "Previous", previousIntent)
+                .AddAction(Resource.Drawable.Pause, "Pause", pauseIntent)
+                .AddAction(Resource.Drawable.SkipNext, "Next", nextIntent)
 
                 .SetStyle(new MediaStyle()
                     .SetShowActionsInCompactView(1)
@@ -1134,7 +1134,7 @@ namespace MusicApp.Resources.Portable_Class
                 tmpPauseIntent.SetAction("Pause");
                 PendingIntent pauseIntent = PendingIntent.GetService(Application.Context, 0, tmpPauseIntent, PendingIntentFlags.UpdateCurrent);
 
-                notification.Actions[1] = new Notification.Action(Resource.Drawable.ic_play_arrow_black_24dp, "Play", pauseIntent);
+                notification.Actions[1] = new Notification.Action(Resource.Drawable.Play, "Play", pauseIntent);
                 notificationManager.Notify(notificationID, notification);
 
                 player.PlayWhenReady = false;
@@ -1147,9 +1147,9 @@ namespace MusicApp.Resources.Portable_Class
                 }
 
                 FrameLayout smallPlayer = MainActivity.instance.FindViewById<FrameLayout>(Resource.Id.smallPlayer);
-                smallPlayer?.FindViewById<ImageButton>(Resource.Id.spPlay)?.SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
+                smallPlayer?.FindViewById<ImageButton>(Resource.Id.spPlay)?.SetImageResource(Resource.Drawable.Play);
 
-                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton)?.SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
+                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton)?.SetImageResource(Resource.Drawable.Play);
                 Queue.instance?.RefreshCurrent();
             }
         }
@@ -1165,7 +1165,7 @@ namespace MusicApp.Resources.Portable_Class
                 tmpPauseIntent.SetAction("Pause");
                 PendingIntent pauseIntent = PendingIntent.GetService(Application.Context, 0, tmpPauseIntent, PendingIntentFlags.UpdateCurrent);
 
-                notification.Actions[1] = new Notification.Action(Resource.Drawable.ic_pause_black_24dp, "Pause", pauseIntent);
+                notification.Actions[1] = new Notification.Action(Resource.Drawable.Pause, "Pause", pauseIntent);
 
                 player.PlayWhenReady = true;
                 StartForeground(notificationID, notification);
@@ -1177,11 +1177,11 @@ namespace MusicApp.Resources.Portable_Class
                 noisyRegistered = true;
 
                 FrameLayout smallPlayer = MainActivity.instance.FindViewById<FrameLayout>(Resource.Id.smallPlayer);
-                smallPlayer?.FindViewById<ImageButton>(Resource.Id.spPlay)?.SetImageResource(Resource.Drawable.ic_pause_black_24dp);
+                smallPlayer?.FindViewById<ImageButton>(Resource.Id.spPlay)?.SetImageResource(Resource.Drawable.Pause);
 
                 if (Player.instance != null)
                 {
-                    MainActivity.instance?.FindViewById<ImageButton>(Resource.Id.playButton)?.SetImageResource(Resource.Drawable.ic_pause_black_24dp);
+                    MainActivity.instance?.FindViewById<ImageButton>(Resource.Id.playButton)?.SetImageResource(Resource.Drawable.Pause);
                     Player.instance.handler?.PostDelayed(Player.instance.UpdateSeekBar, 1000);
                 }
 

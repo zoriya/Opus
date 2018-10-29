@@ -70,6 +70,7 @@ namespace MusicApp.Resources.Portable_Class
                 //Local playlists
                 playList.Clear();
                 playlistId.Clear();
+                playListCount.Clear();
 
                 playList.Add("Header");
                 playlistId.Add(-1);
@@ -664,7 +665,7 @@ namespace MusicApp.Resources.Portable_Class
         void RemovePlaylist(int position, long playlistID)
         {
             AlertDialog dialog = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme)
-                .SetTitle("Do you want to delete the playlist \"" + playList[position] + "\" ?")
+                .SetTitle("Do you want to delete the playlist \"" + playList[position] + "\"?")
                 .SetPositiveButton("Yes", (sender, e) =>
                 {
                     ContentResolver resolver = Activity.ContentResolver;
@@ -726,7 +727,7 @@ namespace MusicApp.Resources.Portable_Class
         void RemoveYoutubePlaylist(int position, string playlistID)
         {
             AlertDialog dialog = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme)
-                .SetTitle("Do you want to delete the playlist \"" + ytPlaylists[position].Title + "\" ?")
+                .SetTitle("Do you want to delete the playlist \"" + ytPlaylists[position].Title + "\"?")
                 .SetPositiveButton("Yes", async (sender, e) =>
                 {
                     try
@@ -752,44 +753,52 @@ namespace MusicApp.Resources.Portable_Class
             dialog.Show();
         }
 
-        async void Unfork(int position, string playlistID)
+        void Unfork(int position, string playlistID)
         {
-            try
-            {
-                ChannelSectionsResource.ListRequest forkedRequest = YoutubeEngine.youtubeService.ChannelSections.List("snippet,contentDetails");
-                forkedRequest.Mine = true;
-                ChannelSectionListResponse forkedResponse = await forkedRequest.ExecuteAsync();
-
-                foreach (ChannelSection section in forkedResponse.Items)
+            AlertDialog dialog = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme)
+                .SetTitle("Do you want to remove  \"" + ytPlaylists[position].Title + "\" from your playlists?")
+                .SetPositiveButton("Yes", async (sender, e) =>
                 {
-                    if (section.Snippet.Title == "Saved Playlists")
+                    try
                     {
-                        if (section.ContentDetails.Playlists.Count > 1)
+                        ChannelSectionsResource.ListRequest forkedRequest = YoutubeEngine.youtubeService.ChannelSections.List("snippet,contentDetails");
+                        forkedRequest.Mine = true;
+                        ChannelSectionListResponse forkedResponse = await forkedRequest.ExecuteAsync();
+
+                        foreach (ChannelSection section in forkedResponse.Items)
                         {
-                            section.ContentDetails.Playlists.Remove(playlistID);
-                            ChannelSectionsResource.UpdateRequest request = YoutubeEngine.youtubeService.ChannelSections.Update(section, "snippet,contentDetails");
-                            ChannelSection response = await request.ExecuteAsync();
+                            if (section.Snippet.Title == "Saved Playlists")
+                            {
+                                if (section.ContentDetails.Playlists.Count > 1)
+                                {
+                                    section.ContentDetails.Playlists.Remove(playlistID);
+                                    ChannelSectionsResource.UpdateRequest request = YoutubeEngine.youtubeService.ChannelSections.Update(section, "snippet,contentDetails");
+                                    ChannelSection response = await request.ExecuteAsync();
+                                }
+                                else
+                                {
+                                    ChannelSectionsResource.DeleteRequest delete = YoutubeEngine.youtubeService.ChannelSections.Delete(section.Id);
+                                    await delete.ExecuteAsync();
+                                }
+                            }
                         }
-                        else
+
+                        YtPlaylists.RemoveAt(position - playList.Count - 1);
+                        adapter.Remove(position);
+
+                        if (ytPlaylists.Count == 1)
                         {
-                            ChannelSectionsResource.DeleteRequest delete = YoutubeEngine.youtubeService.ChannelSections.Delete(section.Id);
-                            await delete.ExecuteAsync();
+                            ytPlaylists.Add(new Song("EMPTY", "You don't have any youtube playlist on your account. \nWarning: Only playlist from your google account are displayed", null, null, -1, -1, null));
                         }
                     }
-                }
-
-                YtPlaylists.RemoveAt(position - playList.Count - 1);
-                adapter.Remove(position);
-
-                if (ytPlaylists.Count == 1)
-                {
-                    ytPlaylists.Add(new Song("EMPTY", "You don't have any youtube playlist on your account. \nWarning: Only playlist from your google account are displayed", null, null, -1, -1, null));
-                }
-            }
-            catch (System.Net.Http.HttpRequestException)
-            {
-                MainActivity.instance.Timout();
-            }
+                    catch (System.Net.Http.HttpRequestException)
+                    {
+                        MainActivity.instance.Timout();
+                    }
+                })
+                .SetNegativeButton("No", (sender, e) => { })
+                .Create();
+            dialog.Show();
         }
 
         public override void OnResume()

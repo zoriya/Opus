@@ -234,17 +234,6 @@ namespace MusicApp.Resources.Portable_Class
             builder.Show();
         }
 
-        public static Song CompleteItem(Song item)
-        {
-            Stream stream = new FileStream(item.Path, FileMode.Open, FileAccess.Read);
-
-            var meta = TagLib.File.Create(new StreamFileAbstraction(item.Path, stream, stream));
-            string ytID = meta.Tag.Comment;
-            stream.Dispose();
-
-            return new Song(item.Title, item.Artist, item.Album, ytID, item.AlbumArt, item.Id, item.Path, item.IsYt, item.isParsed, item.queueSlot);
-        }
-
         public static Song GetSong(string filePath)
         {
             string Title = "Unknow";
@@ -287,6 +276,21 @@ namespace MusicApp.Resources.Portable_Class
                 musicCursor.Close();
             }
             return new Song(Title, Artist, null, null, AlbumArt, id, filePath);
+        }
+
+        public static Song CompleteItem(Song item)
+        {
+            item.youtubeID = GetYtID(item.Path);
+            return item;
+        }
+
+        public static string GetYtID(string path)
+        {
+            Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
+            var meta = TagLib.File.Create(new StreamFileAbstraction(path, stream, stream));
+            string ytID = meta.Tag.Comment;
+            stream.Dispose();
+            return ytID;
         }
 
         public static void Play(Song item, View albumArt)
@@ -389,7 +393,6 @@ namespace MusicApp.Resources.Portable_Class
             {
                 await CheckWritePermission();
 
-                System.Console.WriteLine("&Adding " + item.Title + " to playlist " + playList + "(" + playlistID + ")");
                 ContentResolver resolver = act.ContentResolver;
                 ContentValues value = new ContentValues();
                 value.Put(MediaStore.Audio.Playlists.Members.AudioId, item.Id);
@@ -443,14 +446,11 @@ namespace MusicApp.Resources.Portable_Class
                 cursor.Close();
             }
 
-            System.Console.WriteLine("&Playlist created with name: " + name + " and with id: " + playlistID);
             AddToPlaylist(item, name, playlistID);
         }
 
         public static long GetPlaylistID(string playlistName)
         {
-            System.Console.WriteLine("&Checking if playlist exist with name: " + playlistName);
-
             Uri uri = MediaStore.Audio.Playlists.ExternalContentUri;
             CursorLoader loader = new CursorLoader(Android.App.Application.Context, uri, null, null, null, null);
             ICursor cursor = (ICursor)loader.LoadInBackground();

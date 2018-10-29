@@ -20,7 +20,7 @@
       android:title="Volume"
       android:key="volumeMultipler" />
   </PreferenceCategory>
-  <PreferenceCategory android:title="Behavior">
+  <PreferenceCategory android:title="Download">
     <Preference
       android:key="downloadPath"
       android:title="Download directory"
@@ -28,7 +28,11 @@
     <Preference
       android:key="maxDownload"
       android:title="Maximum current download"
-      android:summary="2"/>
+      android:summary="4"/>
+    <Preference
+      android:key="keepDeleted"
+      android:title="Delete song when removing them from a synced playlist"
+      android:summary="true"/>
   </PreferenceCategory>
   <PreferenceCategory android:title="Appearances">
     <Preference

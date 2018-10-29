@@ -38,11 +38,17 @@ namespace MusicApp.Resources.Portable_Class
             ListView.SetAdapter(new DownloadQueueAdapter());
         }
 
+        protected override void OnResume()
+        {
+            base.OnResume();
+            instance = this;
+        }
+
         protected override void OnStop()
         {
+            instance = null;
             Window.SetStatusBarColor(Color.Transparent);
             base.OnStop();
-            instance = null;
         }
 
         public override bool OnOptionsItemSelected(IMenuItem item)

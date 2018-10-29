@@ -44,7 +44,7 @@
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:padding="20dp"
-            android:src="@drawable/ic_skip_previous_black_24dp"
+            android:src="@drawable/SkipPrevious"
             android:background="@drawable/GradientShape" />
           <ImageButton
             android:id="@+id/playButton"
@@ -55,7 +55,7 @@
             android:layout_marginRight="50dp"
             android:layout_gravity="center"
             android:tint="#ffffff"
-            android:src="@drawable/ic_pause_black_24dp"
+            android:src="@drawable/Pause"
             android:background="@drawable/GradientShape" />
           <ProgressBar
             android:layout_width="wrap_content"
@@ -73,7 +73,7 @@
             android:layout_height="80dp"
             android:padding="20dp"
             android:tint="#ffffff"
-            android:src="@drawable/ic_skip_next_black_24dp"
+            android:src="@drawable/SkipNext"
             android:background="@drawable/GradientShape" />
         </LinearLayout>
         <LinearLayout 

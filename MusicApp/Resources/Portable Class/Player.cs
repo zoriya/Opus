@@ -119,7 +119,7 @@ namespace MusicApp.Resources.Portable_Class
             FrameLayout smallPlayer = MainActivity.instance.FindViewById<FrameLayout>(Resource.Id.smallPlayer);
             smallPlayer.FindViewById<TextView>(Resource.Id.spTitle).Text = current.Title;
             smallPlayer.FindViewById<TextView>(Resource.Id.spArtist).Text = current.Artist;
-            smallPlayer.FindViewById<ImageView>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
+            smallPlayer.FindViewById<ImageView>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.Pause);
             ImageView art = smallPlayer.FindViewById<ImageView>(Resource.Id.spArt);
 
             if (!current.IsYt)
@@ -144,13 +144,13 @@ namespace MusicApp.Resources.Portable_Class
             {
                 if (MusicPlayer.isRunning)
                 {
-                    MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
-                    smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_pause_black_24dp);
+                    MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.Pause);
+                    smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.Pause);
                 }
                 else
                 {
-                    MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
-                    smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
+                    MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.Play);
+                    smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).SetImageResource(Resource.Drawable.Play);
                 }
             }
 
@@ -369,9 +369,9 @@ namespace MusicApp.Resources.Portable_Class
             buffer.Visibility = ViewStates.Gone;
             play.Visibility = ViewStates.Visible;
             if(MusicPlayer.isRunning)
-                play.SetImageResource(Resource.Drawable.ic_pause_black_24dp);
+                play.SetImageResource(Resource.Drawable.Pause);
             else
-                play.SetImageResource(Resource.Drawable.ic_play_arrow_black_24dp);
+                play.SetImageResource(Resource.Drawable.Play);
 
             errorState = false;
             ProgressBar smallBuffer = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.spBuffer);

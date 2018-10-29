@@ -62,7 +62,7 @@
       android:layout_width="60dp"
       android:layout_height="60dp"
       android:tint="#ffffff"
-      android:src="@drawable/ic_play_arrow_black_24dp"
+      android:src="@drawable/Play"
       android:background="@null" />
     <ImageButton
       android:id="@+id/headerShuffle"

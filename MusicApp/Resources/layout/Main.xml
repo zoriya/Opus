@@ -151,7 +151,7 @@
             android:layout_height="40dp"
             android:background="@null"
             android:layout_alignParentRight="true"
-            android:src="@drawable/ic_skip_next_black_24dp"/>
+            android:src="@drawable/SkipNext"/>
           <ImageButton
             android:id="@+id/spPlay"
             android:layout_alignParentBottom="true"
@@ -161,7 +161,7 @@
             android:layout_toLeftOf="@id/spNext"
             android:background="@null"
             android:layout_marginRight="3dp"
-            android:src="@drawable/ic_pause_black_24dp"/>
+            android:src="@drawable/Pause"/>
           <ProgressBar
             android:layout_alignParentBottom="true"
             android:layout_width="40dp"
@@ -180,7 +180,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_toLeftOf="@id/spPlay"
-            android:src="@drawable/ic_skip_previous_black_24dp"/>
+            android:src="@drawable/SkipPrevious"/>
         </RelativeLayout>
         <ProgressBar
           android:id="@+id/spProgress"

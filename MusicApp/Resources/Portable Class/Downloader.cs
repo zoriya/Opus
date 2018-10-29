@@ -2,6 +2,7 @@
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
+using Android.Database;
 using Android.Media;
 using Android.Net;
 using Android.OS;
@@ -21,6 +22,7 @@ using TagLib;
 using YoutubeExplode;
 using YoutubeExplode.Models;
 using YoutubeExplode.Models.MediaStreams;
+using static Android.Provider.MediaStore.Audio;
 using File = System.IO.File;
 
 namespace MusicApp.Resources.Portable_Class
@@ -81,7 +83,6 @@ namespace MusicApp.Resources.Portable_Class
 
         private async void DownloadAudio(int position, string path)
         {
-            System.Console.WriteLine("&Downloading item " + position + "/" + queue.Count);
             if (position < 0 || position > queue.Count || queue[position].State != DownloadState.None)
                 return;
 
@@ -208,8 +209,11 @@ namespace MusicApp.Resources.Portable_Class
             queue[position].State = DownloadState.Completed;
             UpdateList(position);
 
-            if (!queue.Exists(x => x.State != DownloadState.Completed))
+            if (!queue.Exists(x => x.State == DownloadState.None || x.State == DownloadState.Downloading || x.State == DownloadState.Initialization || x.State == DownloadState.MetaData))
+            {
                 StopForeground(true);
+                DownloadQueue.instance?.Finish();
+            }
         }
 
         public void OnScanCompleted(string path, Uri uri)
@@ -226,6 +230,77 @@ namespace MusicApp.Resources.Portable_Class
                     Browse.act = MainActivity.instance;
                     Browse.AddToPlaylist(Browse.GetSong(path), playlist, -1);
                 });
+            }
+        }
+
+        public void SyncWithPlaylist(string playlistName, bool keepDeleted)
+        {
+            long localPlaylistID = Browse.GetPlaylistID(playlistName);
+            if (localPlaylistID != -1)
+            {
+                Toast.MakeText(Application.Context, "Playlist already downloaded, syncing changes.", ToastLength.Short).Show();
+
+                Uri musicUri = Playlists.Members.GetContentUri("external", localPlaylistID);
+
+                CursorLoader cursorLoader = new CursorLoader(Application.Context, musicUri, null, null, null, null);
+                ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
+
+                List<string> paths = new List<string>();
+                List<string> localIDs = new List<string>();
+                List<string> videoIDs = new List<string>();
+
+                if (musicCursor != null && musicCursor.MoveToFirst())
+                {
+                    int pathID = musicCursor.GetColumnIndex(Media.InterfaceConsts.Data);
+                    do
+                    {
+                        string path = musicCursor.GetString(pathID);
+                        paths.Add(path);
+                        videoIDs.Add(Browse.GetYtID(path));
+                    }
+                    while (musicCursor.MoveToNext());
+                    musicCursor.Close();
+
+                    var duplicates = videoIDs.Select((s, i) => new { Index = i, Text = s }).GroupBy(x => x.Text).Where(x => x.Count() > 1);
+                    foreach(var duplicate in duplicates)
+                    {
+                        int i = 0; //Count duplicate of duplicate.Key
+                        foreach(var index in duplicate)
+                        {
+                            i++;
+                            if(i != 1)
+                            {
+                                paths.RemoveAt(index.Index);
+                                videoIDs.RemoveAt(index.Index);
+                            }
+                        }
+                    }
+
+                    for (int i = 0; i < queue.Count; i++)
+                    {
+                        if (videoIDs.Contains(queue[i].videoID))
+                        {
+                            //Video is already downloaded:
+                            if(queue[i].State == DownloadState.None)
+                                queue[i].State = DownloadState.UpToDate;
+
+                            int pathIndex = videoIDs.FindIndex(x => x == queue[i].videoID);
+                            paths.RemoveAt(pathIndex);
+                            videoIDs.RemoveAt(pathIndex);
+                        }
+                    }
+
+                    for (int i = 0; i < paths.Count; i++)
+                    {
+                        //Video has been removed from the playlist but still exist on local storage
+                        ContentResolver resolver = Application.ContentResolver;
+                        Uri uri = Playlists.Members.GetContentUri("external", localPlaylistID);
+                        resolver.Delete(uri, Playlists.Members.Id + "=?", new string[] { localIDs[i] });
+
+                        if(!keepDeleted)
+                            File.Delete(paths[i]);
+                    }
+                }
             }
         }
 
@@ -265,8 +340,8 @@ namespace MusicApp.Resources.Portable_Class
             queue[position].progress = (int)(progress * 100);
             DownloadQueue.instance?.RunOnUiThread(() =>
             {
-                LinearLayoutManager LayoutManager = (LinearLayoutManager)DownloadQueue.instance.ListView.GetLayoutManager();
-                if (position >= LayoutManager.FindFirstVisibleItemPosition() && position <= LayoutManager.FindLastVisibleItemPosition())
+                LinearLayoutManager LayoutManager = (LinearLayoutManager)DownloadQueue.instance?.ListView?.GetLayoutManager();
+                if (LayoutManager != null && position >= LayoutManager.FindFirstVisibleItemPosition() && position <= LayoutManager.FindLastVisibleItemPosition())
                 {
                     View view = DownloadQueue.instance.ListView.GetChildAt(position - LayoutManager.FindFirstVisibleItemPosition());
                     DownloadHolder holder = (DownloadHolder)DownloadQueue.instance.ListView.GetChildViewHolder(view);
@@ -280,7 +355,7 @@ namespace MusicApp.Resources.Portable_Class
         void CreateNotification(string title)
         {
             Intent intent = new Intent(MainActivity.instance, typeof(DownloadQueue));
-            PendingIntent queueIntent = PendingIntent.GetActivity(Application.Context, 471, intent, PendingIntentFlags.OneShot);
+            PendingIntent queueIntent = PendingIntent.GetActivity(Application.Context, 471, intent, PendingIntentFlags.UpdateCurrent);
 
             intent = new Intent(MainActivity.instance, typeof(Downloader));
             intent.SetAction("Cancel");
@@ -328,6 +403,7 @@ namespace MusicApp.Resources.Portable_Class
         MetaData,
         Completed,
         Canceled,
+        UpToDate,
         None
     }
 }

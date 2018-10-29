@@ -180,6 +180,11 @@ namespace MusicApp.Resources.Portable_Class
             maxDlPref.PreferenceClick += MaxDownloadClick;
             maxDlPref.Summary = prefManager.GetInt("maxDownload", 4).ToString();
 
+            //Keep Deleted
+            Preference keepDeletedPref = PreferenceScreen.FindPreference("keepDeleted");
+            keepDeletedPref.PreferenceClick += KeepDeletedClick;
+            keepDeletedPref.Summary = (!prefManager.GetBoolean("keepDeleted", true)).ToString();
+
             //Theme
             Preference themePreference = PreferenceScreen.FindPreference("theme");
             themePreference.PreferenceClick += ChangeTheme;
@@ -351,7 +356,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             View pickerView = LayoutInflater.Inflate(Resource.Layout.NumberPicker, null);
             AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
-            builder.SetTitle("Choose the maximum number of current download :");
+            builder.SetTitle("Choose the maximum number of current download:");
             builder.SetView(pickerView);
             NumberPicker picker = (NumberPicker)pickerView;
             picker.MinValue = 1;
@@ -375,6 +380,25 @@ namespace MusicApp.Resources.Portable_Class
                 } 
             });
             builder.SetNegativeButton("Cancel", (s, eventArg) => { });
+            builder.Show();
+        }
+        #endregion
+
+        #region Keep Deleted
+        private void KeepDeletedClick(object sender, Preference.PreferenceClickEventArgs e)
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
+            builder.SetTitle("Delete song when removing them from a synced playlist:");
+            builder.SetItems(new string[] { "True", "False" }, (s, args) => 
+            {
+                ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
+                ISharedPreferencesEditor editor = pref.Edit();
+                editor.PutBoolean("keepDeleted", args.Which == 1);
+                editor.Apply();
+
+                Preference prefButton = FindPreference("keepDeleted");
+                prefButton.Summary = args.Which == 0 ? "True" : "False";
+            });
             builder.Show();
         }
         #endregion

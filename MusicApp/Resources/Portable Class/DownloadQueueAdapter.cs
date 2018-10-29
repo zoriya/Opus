@@ -55,6 +55,11 @@ namespace MusicApp.Resources.Portable_Class
                     holder.Progress.Visibility = ViewStates.Invisible;
                     holder.Title.SetTextColor(Color.Argb(255, 117, 117, 117));
                     break;
+                case DownloadState.UpToDate:
+                    holder.Status.Visibility = ViewStates.Visible;
+                    holder.Progress.Visibility = ViewStates.Invisible;
+                    holder.Title.SetTextColor(Color.Argb(255, 76, 175, 80));
+                    break;
                 case DownloadState.Canceled:
                     holder.Status.Visibility = ViewStates.Gone;
                     holder.Progress.Visibility = ViewStates.Invisible;

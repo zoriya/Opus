@@ -542,7 +542,6 @@ namespace MusicApp.Resources.Portable_Class
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Android.App.Application.Context);
             if (prefManager.GetString("downloadPath", null) != null)
             {
-                Toast.MakeText(Android.App.Application.Context, "Downloading...", ToastLength.Short).Show();
                 Context context = Android.App.Application.Context;
                 Intent intent = new Intent(context, typeof(Downloader));
                 context.StartService(intent);
@@ -559,6 +558,10 @@ namespace MusicApp.Resources.Portable_Class
                 Downloader.instance.downloadPath = prefManager.GetString("downloadPath", null);
                 Downloader.instance.maxDownload = prefManager.GetInt("maxDownload", 4);
                 Downloader.queue.AddRange(files);
+
+                if (playlist != null)
+                    Downloader.instance.SyncWithPlaylist(playlist, prefManager.GetBoolean("keepDeleted", true));
+
                 Downloader.instance.StartDownload();
             }
             else
@@ -872,6 +875,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public static async void DownloadPlaylist(string playlist, string playlistID)
         {
+            Toast.MakeText(Android.App.Application.Context, "Downloading...", ToastLength.Short).Show();
             List<string> names = new List<string>();
             List<string> videoIDs = new List<string>();
             string nextPageToken = "";
@@ -892,6 +896,7 @@ namespace MusicApp.Resources.Portable_Class
 
                 nextPageToken = ytPlaylist.NextPageToken;
             }
+
             DownloadFiles(names.ToArray(), videoIDs.ToArray(), playlist);
         }
     }
