@@ -588,7 +588,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public async void RandomPlay(List<string> filePath, bool clearQueue)
         {
-            currentID = -1;
+            currentID = 0;
             if (clearQueue)
                 queue.Clear();
 
@@ -609,6 +609,7 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             UpdateQueueDataBase();
+            Home.instance.RefreshQueue();
         }
 
         private void RandomizeQueue()

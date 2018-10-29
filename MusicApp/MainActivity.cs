@@ -1124,14 +1124,10 @@ namespace MusicApp
 
             Intent intent = new Intent(this, typeof(MusicPlayer));
             intent.PutStringArrayListExtra("files", paths);
-            if (sender == null)
-                intent.PutExtra("clearQueue", false);
             intent.SetAction("RandomPlay");
             StartService(intent);
             ShowSmallPlayer();
             ShowPlayer();
-            Player.instance?.UpdateNext();
-            Home.instance?.RefreshQueue();
         }
 
         private async void YtPlay(object sender, EventArgs e)
