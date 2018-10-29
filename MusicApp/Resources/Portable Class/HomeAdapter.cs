@@ -1,6 +1,7 @@
 ﻿using Android.Content;
 using Android.Graphics;
 using Android.Graphics.Drawables;
+using Android.Support.V4.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
 using MusicApp.Resources.values;
@@ -61,20 +62,25 @@ namespace MusicApp.Resources.Portable_Class
             //    View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.HomePlaylists, parent, false);
             //    return new LineSongHolder(itemView, OnClick, OnLongClick);
             //}
-            else
+            else if(viewType == 3)
             {
                 View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.HomeTopic, parent, false);
                 return new LineSongHolder(itemView, OnClick, OnLongClick);
+            }
+            else
+            {
+                View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.HomeShuffle, parent, false);
+                return new UslessHolder(itemView, OnClick);
             }
         }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position)
         {
-            LineSongHolder holder = (LineSongHolder)viewHolder;
-            items[position].recycler = holder.recycler;
-
             if (items[position].contentType == SectionType.SinglePlaylist)
             {
+                LineSongHolder holder = (LineSongHolder)viewHolder;
+                items[position].recycler = holder.recycler;
+
                 holder.title.Text = items[position].SectionTitle;
                 holder.recycler.SetLayoutManager(new LinearLayoutManager(MainActivity.instance, LinearLayoutManager.Horizontal, false));
                 if (items[position].SectionTitle == "Queue")
@@ -107,6 +113,9 @@ namespace MusicApp.Resources.Portable_Class
             }
             else if(items[position].contentType == SectionType.ChannelList)
             {
+                LineSongHolder holder = (LineSongHolder)viewHolder;
+                items[position].recycler = holder.recycler;
+
                 holder.title.Text = items[position].SectionTitle;
                 holder.recycler.SetLayoutManager(new LinearLayoutManager(MainActivity.instance, LinearLayoutManager.Vertical, false));
                 holder.recycler.SetAdapter(new HomeChannelAdapter(items[position].contentValue.GetRange(0, items[position].contentValue.Count > 4 ? 4 : items[position].contentValue.Count), holder.recycler) { allItems = items[position].contentValue.GetRange(4, items[position].contentValue.Count - 4) });
@@ -147,6 +156,9 @@ namespace MusicApp.Resources.Portable_Class
             //}
             else if(items[position].contentType == SectionType.TopicSelector)
             {
+                LineSongHolder holder = (LineSongHolder)viewHolder;
+                items[position].recycler = holder.recycler;
+
                 holder.title.Text = items[position].SectionTitle;
                 holder.recycler.SetLayoutManager(new LinearLayoutManager(MainActivity.instance, LinearLayoutManager.Vertical, false));
                 holder.recycler.SetAdapter(new HomeChannelAdapter(items[position].contentValue));
@@ -158,6 +170,11 @@ namespace MusicApp.Resources.Portable_Class
 
                 if (MainActivity.Theme == 1)
                     holder.ItemView.SetBackgroundColor(Color.Argb(255, 62, 62, 62));
+            }
+            else if (items[position].contentType == SectionType.Shuffle)
+            {
+                UslessHolder holder = (UslessHolder)viewHolder;
+                ((GradientDrawable)holder.ItemView.Background).SetStroke(5, Android.Content.Res.ColorStateList.ValueOf(Color.Argb(255, 21, 183, 237)));
             }
         }
 
@@ -189,8 +206,10 @@ namespace MusicApp.Resources.Portable_Class
                 return 1;
             else if (items[position].contentType == SectionType.PlaylistList)
                 return 2;
-            else
+            else if (items[position].contentType == SectionType.TopicSelector)
                 return 3;
+            else
+                return 4;
         }
     }
 }

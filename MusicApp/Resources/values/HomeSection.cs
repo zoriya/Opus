@@ -25,6 +25,7 @@ namespace MusicApp.Resources.values
         ChannelList,
         PlaylistList,
         SinglePlaylist,
-        TopicSelector
+        TopicSelector,
+        Shuffle
     };
 }

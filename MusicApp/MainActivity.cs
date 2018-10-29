@@ -1070,41 +1070,7 @@ namespace MusicApp
             string shortcut = prefManager.GetString("localPlay", "Shuffle All Audio Files");
             if (shortcut == "Shuffle All Audio Files")
             {
-                List<string> paths = new List<string>();
-                Android.Net.Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
-
-                CursorLoader cursorLoader = new CursorLoader(this, musicUri, null, null, null, null);
-                ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
-
-                if (musicCursor != null && musicCursor.MoveToFirst())
-                {
-                    int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
-                    do
-                    {
-                        paths.Add(musicCursor.GetString(pathID));
-                    }
-                    while (musicCursor.MoveToNext());
-                    musicCursor.Close();
-                }
-                
-                if(paths.Count == 0)
-                {
-                    Snackbar snackBar = Snackbar.Make(FindViewById<CoordinatorLayout>(Resource.Id.snackBar), "No music file found on this device. Can't create a mix.", Snackbar.LengthLong);
-                    snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
-                    snackBar.Show();
-                    return;
-                }
-
-                Intent intent = new Intent(this, typeof(MusicPlayer));
-                intent.PutStringArrayListExtra("files", paths);
-                if (sender == null)
-                    intent.PutExtra("clearQueue", false);
-                intent.SetAction("RandomPlay");
-                StartService(intent);
-                ShowSmallPlayer();
-                ShowPlayer();
-                Player.instance?.UpdateNext();
-                Home.instance?.RefreshQueue();
+                ShuffleAll();
             }
             else
             {
@@ -1127,6 +1093,45 @@ namespace MusicApp
                     snackBar.Show();
                 }
             }
+        }
+
+        public void ShuffleAll()
+        {
+            List<string> paths = new List<string>();
+            Android.Net.Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
+
+            CursorLoader cursorLoader = new CursorLoader(this, musicUri, null, null, null, null);
+            ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
+
+            if (musicCursor != null && musicCursor.MoveToFirst())
+            {
+                int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
+                do
+                {
+                    paths.Add(musicCursor.GetString(pathID));
+                }
+                while (musicCursor.MoveToNext());
+                musicCursor.Close();
+            }
+
+            if (paths.Count == 0)
+            {
+                Snackbar snackBar = Snackbar.Make(FindViewById<CoordinatorLayout>(Resource.Id.snackBar), "No music file found on this device. Can't create a mix.", Snackbar.LengthLong);
+                snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+                snackBar.Show();
+                return;
+            }
+
+            Intent intent = new Intent(this, typeof(MusicPlayer));
+            intent.PutStringArrayListExtra("files", paths);
+            if (sender == null)
+                intent.PutExtra("clearQueue", false);
+            intent.SetAction("RandomPlay");
+            StartService(intent);
+            ShowSmallPlayer();
+            ShowPlayer();
+            Player.instance?.UpdateNext();
+            Home.instance?.RefreshQueue();
         }
 
         private async void YtPlay(object sender, EventArgs e)

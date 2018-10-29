@@ -101,7 +101,7 @@ namespace MusicApp.Resources.Portable_Class
             bar = MainActivity.instance.FindViewById<SeekBar>(Resource.Id.songTimer);
             bar.ProgressChanged += (sender, e) =>
             {
-                if(!MusicPlayer.queue[MusicPlayer.CurrentID()].IsLiveStream)
+                if(MusicPlayer.CurrentID() > 0 && MusicPlayer.CurrentID() < MusicPlayer.queue.Count && !MusicPlayer.queue[MusicPlayer.CurrentID()].IsLiveStream)
                     timerStart.Text = DurationToTimer(e.Progress);
             };
             timerStart = MainActivity.instance.FindViewById<TextView>(Resource.Id.timerStart);

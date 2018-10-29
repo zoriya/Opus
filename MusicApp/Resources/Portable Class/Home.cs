@@ -72,6 +72,9 @@ namespace MusicApp.Resources.Portable_Class
                     adapterItems.Add(queue);
                 }
 
+                HomeSection shuffle = new HomeSection("Shuffle", SectionType.Shuffle, null);
+                adapterItems.Add(shuffle);
+
                 Android.Net.Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
 
                 List<Song> allSongs = new List<Song>();
@@ -449,7 +452,13 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
-        private void ListView_ItemClick(object sender, int position) { }
+        private void ListView_ItemClick(object sender, int position)
+        {
+            if(adapterItems[position].contentType == SectionType.Shuffle)
+            {
+                MainActivity.instance.ShuffleAll();
+            }
+        }
 
         public override void OnResume()
         {

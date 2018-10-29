@@ -9,7 +9,7 @@
     app:showAsAction="always" />
   <item
     android:id="@+id/repeat"
-    android:icon="@drawable/Loop"
+    android:icon="@drawable/Repeat"
     android:title="Repeat"
     android:checkable="true"
     app:showAsAction="always" />

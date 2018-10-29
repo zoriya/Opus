@@ -106,8 +106,9 @@ namespace MusicApp.Resources.Portable_Class
         {
             MenuInflater.Inflate(Resource.Menu.QueueItems, menu);
             this.menu = menu;
-            if(MusicPlayer.repeat)
-                menu.FindItem(Resource.Id.repeat).Icon.SetColorFilter(Color.Argb(255, 62, 80, 180), PorterDuff.Mode.Multiply);
+            menu.FindItem(Resource.Id.shuffle).Icon.SetColorFilter(Color.White, PorterDuff.Mode.Multiply);
+            if (MusicPlayer.repeat)
+                menu.FindItem(Resource.Id.repeat).Icon.SetColorFilter(Color.Argb(255, 21, 183, 237), PorterDuff.Mode.Multiply);
             
             return base.OnCreateOptionsMenu(menu);
         }
@@ -141,7 +142,7 @@ namespace MusicApp.Resources.Portable_Class
             MusicPlayer.repeat = !MusicPlayer.repeat;
 
             if (MusicPlayer.repeat)
-                item.Icon.SetColorFilter(Color.Argb(255, 62, 80, 180), PorterDuff.Mode.Multiply);
+                item.Icon.SetColorFilter(Color.Argb(255, 21, 183, 237), PorterDuff.Mode.Multiply);
             else
                 item.Icon.ClearColorFilter();
         }
