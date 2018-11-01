@@ -118,7 +118,7 @@ namespace MusicApp.Resources.Portable_Class
                 string title = videoInfo.Title;
                 foreach(char c in Path.GetInvalidFileNameChars()) //Make the title a valid filename (remove /, \, : etc).
                 {
-                    title.Replace(c, ' ');
+                    title = title.Replace(c, ' ');
                 }
 
                 string fileExtension = streamInfo.Container.GetFileExtension();
