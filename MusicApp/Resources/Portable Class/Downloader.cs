@@ -116,6 +116,11 @@ namespace MusicApp.Resources.Portable_Class
                 queue[position].State = DownloadState.Downloading;
                 UpdateList(position);
                 string title = videoInfo.Title;
+                foreach(char c in Path.GetInvalidFileNameChars()) //Make the title a valid filename (remove /, \, : etc).
+                {
+                    title.Replace(c, ' ');
+                }
+
                 string fileExtension = streamInfo.Container.GetFileExtension();
 
                 string outpath = path;
@@ -218,11 +223,13 @@ namespace MusicApp.Resources.Portable_Class
 
         public void OnScanCompleted(string path, Uri uri)
         {
+            Android.Util.Log.Debug("MusisApp", "Scan Completed with path = " + path + " and uri = " + uri.ToString());
             long id = long.Parse(uri.ToString().Substring(uri.ToString().IndexOf("audio/media/") + 12, uri.ToString().Length - uri.ToString().IndexOf("audio/media/") - 12));
-            string playlist = path.Substring(downloadPath.Length + 1, path.IndexOf("/", downloadPath.Length + 1) - (downloadPath.Length + 1));
+            string playlist = path.Substring(downloadPath.Length + 1);
 
-            if (playlist != "")
+            if (playlist.IndexOf('/') != -1)
             {
+                playlist = playlist.Substring(0, playlist.IndexOf("/"));
                 Handler handler = new Handler(MainActivity.instance.MainLooper);
                 handler.Post(() =>
                 {
@@ -284,6 +291,7 @@ namespace MusicApp.Resources.Portable_Class
                             if(queue[i].State == DownloadState.None)
                                 queue[i].State = DownloadState.UpToDate;
 
+                            currentStrike++;
                             int pathIndex = videoIDs.FindIndex(x => x == queue[i].videoID);
                             paths.RemoveAt(pathIndex);
                             videoIDs.RemoveAt(pathIndex);

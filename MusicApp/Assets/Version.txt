@@ -1,2 +1,2 @@
-Version: 2.0.6
-Link: https://github.com/AnonymusRaccoon/MusicApp/releases/download/2.0.6/MusicApp.v2.0.6.apk
+Version: 2.0.7
+Link: https://github.com/AnonymusRaccoon/MusicApp/releases/download/2.0.7/MusicApp.v2.0.7.apk
