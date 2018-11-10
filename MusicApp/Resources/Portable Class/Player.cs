@@ -1,4 +1,5 @@
-﻿using Android.App;
+﻿using Android.Animation;
+using Android.App;
 using Android.Content;
 using Android.Content.PM;
 using Android.Content.Res;
@@ -431,17 +432,21 @@ namespace MusicApp.Resources.Portable_Class
 
         private string DurationToTimer(int duration)
         {
-            int minutes = duration / 60000;
+            int hours = duration / 600000;
+            int minutes = duration / 60000 % 60;
             int seconds = duration / 1000 % 60;
 
+            string hour = hours.ToString();
             string min = minutes.ToString();
             string sec = seconds.ToString();
+            if (hour.Length == 1)
+                hour = "0" + hour;
             if (min.Length == 1)
                 min = "0" + min;
             if (sec.Length == 1)
                 sec = "0" + sec;
 
-            return min + ":" + sec;
+            return (hours == 0) ? (min + ":" + sec) : (hour + ":" + min + ":" + sec);
         }
 
         private void Fab_Click(object sender, EventArgs e)
@@ -548,12 +553,28 @@ namespace MusicApp.Resources.Portable_Class
             MainActivity.instance.FindViewById<TextView>(Resource.Id.playerArtist).SetTextColor(text);
             MainActivity.instance.FindViewById<TextView>(Resource.Id.spTitle).SetTextColor(text);
             MainActivity.instance.FindViewById<TextView>(Resource.Id.spArtist).SetTextColor(text);
-            MainActivity.instance.FindViewById<LinearLayout>(Resource.Id.infoPanel).SetBackgroundColor(background);
-            MainActivity.instance.FindViewById<NestedScrollView>(Resource.Id.playerSheet).SetBackgroundColor(background);
             MainActivity.instance.FindViewById<FloatingActionButton>(Resource.Id.downFAB).BackgroundTintList = ColorStateList.ValueOf(accentColor);
             MainActivity.instance.FindViewById<FloatingActionButton>(Resource.Id.downFAB).RippleColor = accent.Rgb;
 
-            if(bar == null)
+            //Reveal for the player
+            View reveal = MainActivity.instance.FindViewById<View>(Resource.Id.reveal);
+            Animator anim = ViewAnimationUtils.CreateCircularReveal(reveal, reveal.Width / 2, reveal.Height, 0, reveal.Width / 1.5f);
+            anim.AnimationStart += (sender, e) => { reveal.SetBackgroundColor(background); };
+            anim.AnimationEnd += (sender, e) => { MainActivity.instance.FindViewById<RelativeLayout>(Resource.Id.infoPanel).SetBackgroundColor(background); };
+            anim.SetDuration(500);
+            anim.StartDelay = 200;
+            anim.Start();
+
+            //Reveal for the smallPlayer
+            View spReveal = MainActivity.instance.FindViewById<View>(Resource.Id.spReveal);
+            Animator spAnim = ViewAnimationUtils.CreateCircularReveal(spReveal, 0, spReveal.Height / 2, 0, spReveal.Width);
+            spAnim.AnimationStart += (sender, e) => { spReveal.SetBackgroundColor(background); };
+            spAnim.AnimationEnd += (sender, e) => { MainActivity.instance.FindViewById<NestedScrollView>(Resource.Id.playerSheet).SetBackgroundColor(background); };
+            spAnim.SetDuration(500);
+            spAnim.StartDelay = 200;
+            spAnim.Start();
+
+            if (bar == null)
                 bar = MainActivity.instance.FindViewById<SeekBar>(Resource.Id.songTimer);
 
             if(spBar == null)

@@ -53,7 +53,7 @@ namespace MusicApp.Resources.Portable_Class
         public static bool autoUpdateSeekBar = true;
         public static bool repeat = false;
         public static bool useAutoPlay = false;
-        public static bool userStopped = false;
+        public static bool userStopped = true;
         public static bool ShouldResumePlayback;
 
         private static long LastTimer = -1;
@@ -790,7 +790,6 @@ namespace MusicApp.Resources.Portable_Class
 
             Play(song, false, (currentID == song.queueSlot ? LastTimer : 0));
 
-            MainActivity.instance.ShowSmallPlayer();
             if (showPlayer)
             {
                 MainActivity.instance.ShowPlayer();

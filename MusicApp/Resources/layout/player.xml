@@ -149,22 +149,25 @@
         android:layout_gravity="bottom|right"
         android:padding="10dp" />
     </FrameLayout>
-    <LinearLayout
+    <RelativeLayout
       android:orientation="vertical"
       android:layout_width="fill_parent"
       android:layout_height="wrap_content"
-      android:layout_alignParentBottom="true"
-      android:layout_alignParentStart="true"
-      android:paddingTop="15dp"
       android:id="@+id/infoPanel"
-      android:paddingBottom="20dp"
-      android:background="#2b5568">
+      android:background="#2b5568" >
+      <View
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/playerTitle"
+        android:layout_alignBottom="@+id/playerArtist"
+        android:id="@+id/reveal" />
       <TextView
         android:text="Title"
         android:id="@+id/playerTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:singleLine="true"
+        android:paddingTop="15dp"
         android:scrollHorizontally="true"
         android:ellipsize="marquee"
         android:marqueeRepeatLimit ="marquee_forever"
@@ -174,27 +177,25 @@
         android:textColor="#FFFFFF"
         android:alpha="1"
         android:textStyle="bold"
-        android:paddingLeft="60dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"/>
+        android:paddingLeft="60dp" />
       <TextView
         android:text="Artist"
         android:id="@+id/playerArtist"
         android:singleLine="true"
         android:scrollHorizontally="true"
         android:ellipsize="marquee"
+        android:paddingBottom="20dp"
         android:marqueeRepeatLimit ="marquee_forever"
         android:focusable="true"
         android:focusableInTouchMode="true" 
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
         android:paddingLeft="60dp"
         android:alpha=".92"
+        android:layout_below="@id/playerTitle"
         android:textSize="20sp"
         android:textColor="#FFFFFF"/>
-    </LinearLayout>
+    </RelativeLayout>
     <RelativeLayout
      android:layout_width="fill_parent"
      android:layout_height="wrap_content"
