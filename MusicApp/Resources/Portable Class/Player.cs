@@ -249,7 +249,7 @@ namespace MusicApp.Resources.Portable_Class
                 Picasso.With(MainActivity.instance).Load(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
             }
 
-            if (MusicPlayer.player != null)
+            if (MusicPlayer.player != null && bar != null)
             {
                 while (MusicPlayer.Duration < 1)
                     await Task.Delay(100);
