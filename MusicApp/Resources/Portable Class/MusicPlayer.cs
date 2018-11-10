@@ -609,7 +609,7 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             UpdateQueueDataBase();
-            Home.instance.RefreshQueue();
+            Home.instance?.RefreshQueue();
         }
 
         private void RandomizeQueue()

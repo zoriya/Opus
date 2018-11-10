@@ -401,9 +401,16 @@ namespace MusicApp.Resources.Portable_Class
 
         private void AddToPlaylist_Click(object sender, EventArgs e)
         {
-            Browse.act = MainActivity.instance;
-            Browse.inflater = LayoutInflater;
-            Browse.GetPlaylist(MusicPlayer.queue[MusicPlayer.CurrentID()]);
+            if (MusicPlayer.queue[MusicPlayer.CurrentID()].IsYt)
+            {
+                YoutubeEngine.GetPlaylists(MusicPlayer.queue[MusicPlayer.CurrentID()].youtubeID, MainActivity.instance);
+            }
+            else
+            {
+                Browse.act = MainActivity.instance;
+                Browse.inflater = LayoutInflater;
+                Browse.GetPlaylist(MusicPlayer.queue[MusicPlayer.CurrentID()]);
+            }
         }
 
         public void UpdateSeekBar()

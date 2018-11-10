@@ -307,19 +307,13 @@ namespace MusicApp.Resources.Portable_Class
                 ((AppBarLayout.LayoutParams)Activity.FindViewById<CollapsingToolbarLayout>(Resource.Id.collapsingToolbar).LayoutParameters).ScrollFlags = AppBarLayout.LayoutParams.ScrollFlagScroll | AppBarLayout.LayoutParams.ScrollFlagExitUntilCollapsed;
                 Activity.FindViewById<AppBarLayout>(Resource.Id.appbar).AddOnOffsetChangedListener(this);
                 Activity.FindViewById<TextView>(Resource.Id.headerTitle).Text = playlistName;
+
                 if(!Activity.FindViewById<ImageButton>(Resource.Id.headerPlay).HasOnClickListeners)
                     Activity.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { PlayInOrder(0, false); };
                 if(!Activity.FindViewById<ImageButton>(Resource.Id.headerShuffle).HasOnClickListeners)
-                {
-                    Activity.FindViewById<ImageButton>(Resource.Id.headerShuffle).Click += (sender, e0) =>
-                    {
-                        if (playlistId != 0)
-                            Playlist.RandomPlay(playlistId, Activity);
-                        else
-                            YoutubeEngine.RandomPlay(ytID);
-                    };
-                }
-                Activity.FindViewById<ImageButton>(Resource.Id.headerMore).Click += PlaylistMore;
+                    Activity.FindViewById<ImageButton>(Resource.Id.headerShuffle).Click += (sender, e0) => { RandomPlay(); };
+                if (!Activity.FindViewById<ImageButton>(Resource.Id.headerMore).HasOnClickListeners)
+                    Activity.FindViewById<ImageButton>(Resource.Id.headerMore).Click += PlaylistMore;
 
                 if (playlistId != 0)
                 {
@@ -336,6 +330,14 @@ namespace MusicApp.Resources.Portable_Class
                 }
                 Activity.FindViewById(Resource.Id.playlistDark).LayoutParameters.Height = Activity.FindViewById<ImageView>(Resource.Id.headerArt).Height / 2;
             }
+        }
+
+        void RandomPlay()
+        {
+            if (instance.playlistId != 0)
+                Playlist.RandomPlay(instance.playlistId, MainActivity.instance);
+            else
+                YoutubeEngine.RandomPlay(instance.ytID);
         }
 
         void PlaylistMore(object sender,  System.EventArgs eventArgs)

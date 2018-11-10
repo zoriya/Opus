@@ -1241,6 +1241,8 @@ namespace MusicApp
             Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), "The way youtube play video has changed, the app can't play this video now. Wait for the next update.", Snackbar.LengthLong);
             snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
             snackBar.Show();
+
+            Player.instance.Ready();
         }
 
         public void Timout()

@@ -190,6 +190,11 @@ namespace MusicApp.Resources.Portable_Class
                 handler.Post(() => { Toast.MakeText(Application.Context, "Download path do not exist anymore, please change it in the settings", ToastLength.Long).Show(); });
                 Cancel();
             }
+            catch
+            {
+                MainActivity.instance.Unknow();
+                Cancel();
+            }
         }
 
         private void SetMetaData(int position, string filePath, string title, string artist, string album, string youtubeID, string playlist)
