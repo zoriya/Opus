@@ -9,7 +9,7 @@
     android:orientation="horizontal"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:gravity="center"
+    android:gravity="center_vertical"
     android:id="@+id/leftButtons"
     android:layout_alignParentLeft="true">
     <ImageView
@@ -19,18 +19,19 @@
       android:padding="5dp"
       android:clickable="true"
       android:visibility="gone"
-      android:src="@drawable/ic_reorder_black_24dp" />
+      android:src="@drawable/Reorder" />
     <ImageView
       android:id="@+id/albumArt"
-      android:layout_width="90dp"
-      android:layout_height="90dp"
+      android:layout_width="70dp"
+      android:layout_height="70dp"
       android:padding="5dp"
       android:src="@drawable/MusicIcon" />
   </LinearLayout>
   <LinearLayout
     android:orientation="vertical"
     android:layout_width="fill_parent"
-    android:layout_height="90dp"
+    android:layout_height="70dp"
+    android:gravity="center_vertical"
     android:paddingLeft="10dp"
     android:id="@+id/textLayout"
     android:layout_toRightOf="@id/leftButtons"
@@ -39,16 +40,16 @@
       android:id="@+id/title"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:textSize="16dip"
+      android:textSize="14dip"
       android:textColor="#000"
       android:ellipsize="end"
-      android:maxLines="2"
+      android:maxLines="1"
       android:textStyle="bold" />
     <TextView
       android:id="@+id/artist"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:textSize="14dip"
+      android:textSize="12dip"
       android:maxLines="1"
       android:textColor="#000" />
     <TextView
