@@ -12,9 +12,10 @@ namespace MusicApp.Resources.Portable_Class
         public string YoutubeID { get; set; }
         public int Count;
         public Google.Apis.YouTube.v3.Data.Playlist Snippet;
-        public string Owner;
-        public string ImageURL;
-        public bool HasWritePermission;
+        public string Owner { get; set; }
+        public string ImageURL { get; set; }
+        public bool HasWritePermission { get; set; }
+        public SyncState SyncState = SyncState.False;
 
         public PlaylistItem() { }
 
@@ -39,5 +40,13 @@ namespace MusicApp.Resources.Portable_Class
             this.LocalID = LocalID;
             this.YoutubeID = YoutubeID;
         }
+    }
+
+    public enum SyncState
+    {
+        False,
+        True,
+        Loading,
+        Error
     }
 }

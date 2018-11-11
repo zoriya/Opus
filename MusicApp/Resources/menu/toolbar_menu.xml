@@ -4,13 +4,13 @@
   xmlns:app="http://schemas.android.com/apk/res-auto">
   <item
     android:id="@+id/search"
-    android:icon="@drawable/search"
+    android:icon="@drawable/Search"
     android:title="Search On Youtube"
     app:showAsAction="always|collapseActionView"
     app:actionViewClass="android.support.v7.widget.SearchView" />
   <item
     android:id="@+id/filter"
-    android:icon="@drawable/ic_filter_list_white_24dp"
+    android:icon="@drawable/Filter"
     android:title="Filter"
     app:showAsAction="always|collapseActionView"
     app:actionViewClass="android.support.v7.widget.SearchView" />

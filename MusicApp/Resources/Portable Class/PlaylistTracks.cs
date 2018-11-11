@@ -376,6 +376,21 @@ namespace MusicApp.Resources.Portable_Class
             return instance;
         }
 
+        public static Fragment NewInstance(string ytID, long LocalID, string playlistName, bool hasWriteAcess, bool forked, string author, int count, string thumbnailURI)
+        {
+            instance = new PlaylistTracks { Arguments = new Bundle() };
+            instance.ytID = ytID;
+            instance.playlistId = LocalID;
+            instance.hasWriteAcess = hasWriteAcess;
+            instance.forked = forked;
+            instance.playlistName = playlistName;
+            instance.author = author;
+            instance.count = count;
+            instance.thumnailURI = Uri.Parse(thumbnailURI);
+            instance.fullyLoadded = false;
+            return instance;
+        }
+
         public static Fragment NewInstance(string ytID, string playlistName, bool hasWriteAcess, bool forked, string author, int count, string thumbnailURI)
         {
             instance = new PlaylistTracks { Arguments = new Bundle() };

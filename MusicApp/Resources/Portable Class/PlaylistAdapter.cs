@@ -116,7 +116,7 @@ namespace MusicApp.Resources.Portable_Class
                     holder.ItemView.SetPadding((int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f));
             }
             else if(position >= LocalPlaylists.Count && YoutubePlaylists[position - LocalPlaylists.Count].Name == "Loading" && YoutubePlaylists[position - LocalPlaylists.Count].YoutubeID == null) { }
-            else if(position - LocalPlaylists.Count == 1 && YoutubePlaylists[1].Name == "Error" && YoutubePlaylists[1].YoutubeID == null)
+            else if(position >= LocalPlaylists.Count && YoutubePlaylists[position - LocalPlaylists.Count].Name == "Error" && YoutubePlaylists[position - LocalPlaylists.Count].YoutubeID == null)
             {
                 EmptyHolder holder = (EmptyHolder)viewHolder;
                 holder.text.Text = "Error while loading.\nCheck your internet connection and check if your logged in.";
@@ -138,6 +138,17 @@ namespace MusicApp.Resources.Portable_Class
                     };
                 }
 
+                if (LocalPlaylists[position].SyncState == SyncState.Error)
+                {
+                    holder.sync.Visibility = ViewStates.Visible;
+                    if (MainActivity.Theme == 1)
+                        holder.sync.SetColorFilter(Color.White);
+                }
+                else
+                {
+                    holder.sync.Visibility = ViewStates.Gone;
+                }
+
                 if (MainActivity.Theme == 1)
                 {
                     holder.more.SetColorFilter(Color.White);
@@ -145,30 +156,14 @@ namespace MusicApp.Resources.Portable_Class
                     holder.Line2.SetTextColor(Color.White);
                     holder.Line2.Alpha = 0.7f;
                 }
-
-                float scale = MainActivity.instance.Resources.DisplayMetrics.Density;
-                if (position + 1 == LocalPlaylists.Count && YoutubePlaylists.Count == 2 && YoutubePlaylists[1]?.Name == "EMPTY")
-                {
-                    holder.ItemView.SetPadding(0, 0, 0, listPadding);
-                    RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)holder.more.LayoutParameters;
-                    layoutParams.SetMargins(0, 0, 0, listPadding);
-                    holder.more.LayoutParameters = layoutParams;
-                }
-                else
-                {
-                    holder.ItemView.SetPadding(0, 0, 0, 0);
-                    RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)holder.more.LayoutParameters;
-                    layoutParams.SetMargins(0, 0, 0, 0);
-                    holder.more.LayoutParameters = layoutParams;
-                }
             }
             else if (position > LocalPlaylists.Count && YoutubePlaylists.Count >= position - LocalPlaylists.Count)
             {
-                RecyclerHolder holder = (RecyclerHolder)viewHolder;
+                PlaylistHolder holder = (PlaylistHolder)viewHolder;
                 PlaylistItem playlist = YoutubePlaylists[position - LocalPlaylists.Count];
 
                 holder.Title.Text = playlist.Name;
-                holder.Artist.Text = playlist.Owner;
+                holder.Owner.Text = playlist.Owner;
                 Picasso.With(Application.Context).Load(playlist.ImageURL).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
 
                 if (playlist.HasWritePermission)
@@ -179,6 +174,30 @@ namespace MusicApp.Resources.Portable_Class
                 }
                 else
                     holder.edit.Visibility = ViewStates.Gone;
+
+                if (playlist.SyncState == SyncState.True)
+                {
+                    holder.sync.SetImageResource(Resource.Drawable.Sync);
+                    holder.sync.Visibility = ViewStates.Visible;
+                    if (MainActivity.Theme == 1)
+                        holder.sync.SetColorFilter(Color.White);
+                }
+                else if (playlist.SyncState == SyncState.Error)
+                {
+                    holder.sync.SetImageResource(Resource.Drawable.SyncError);
+                    holder.sync.Visibility = ViewStates.Visible;
+                    if (MainActivity.Theme == 1)
+                        holder.sync.SetColorFilter(Color.White);
+                }
+                else if (playlist.SyncState == SyncState.Loading)
+                {
+                    //holder.sync.SetImageResource(Resource.Drawable);
+                    //holder.sync.Visibility = ViewStates.Visible;
+                }
+                else if (playlist.SyncState == SyncState.False)
+                {
+                    holder.sync.Visibility = ViewStates.Gone;
+                }
 
                 holder.more.Tag = position;
                 if (!holder.more.HasOnClickListeners)
@@ -194,8 +213,8 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     holder.more.SetColorFilter(Color.White);
                     holder.Title.SetTextColor(Color.White);
-                    holder.Artist.SetTextColor(Color.White);
-                    holder.Artist.Alpha = 0.7f;
+                    holder.Owner.SetTextColor(Color.White);
+                    holder.Owner.Alpha = 0.7f;
                 }
             }
         }
@@ -219,8 +238,8 @@ namespace MusicApp.Resources.Portable_Class
             }
             else if(viewType == 3)
             {
-                View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.SongList, parent, false);
-                return new RecyclerHolder(itemView, OnClick, OnLongClick);
+                View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.PlaylistItem, parent, false);
+                return new PlaylistHolder(itemView, OnClick, OnLongClick);
             }
             else if (viewType == 4)
             {
@@ -242,11 +261,11 @@ namespace MusicApp.Resources.Portable_Class
                 return 1;
             else if (position == LocalPlaylists.Count + YoutubePlaylists.Count)
                 return 4;
-            else if (position >= LocalPlaylists.Count && YoutubePlaylists[position - LocalPlaylists.Count].Name == "Loading" && LocalPlaylists[position - LocalPlaylists.Count].YoutubeID == null)
+            else if (position >= LocalPlaylists.Count && YoutubePlaylists[position - LocalPlaylists.Count].Name == "Loading" && YoutubePlaylists[position - LocalPlaylists.Count].YoutubeID == null)
                 return 2;
-            else if (position == LocalPlaylists.Count + 1 && LocalPlaylists[1].Name == "Error" && LocalPlaylists[1].YoutubeID == null)
+            else if (position >= LocalPlaylists.Count && YoutubePlaylists[position - LocalPlaylists.Count].Name == "Error" && YoutubePlaylists[position - LocalPlaylists.Count].YoutubeID == null)
                 return 5;
-            else if (position > LocalPlaylists.Count && position < LocalPlaylists.Count + LocalPlaylists.Count && (LocalPlaylists.Count > 2 || LocalPlaylists[1].Name != "EMPTY"))
+            else if (position > LocalPlaylists.Count && position < LocalPlaylists.Count + YoutubePlaylists.Count)
                 return 3;
             else
                 return 5;

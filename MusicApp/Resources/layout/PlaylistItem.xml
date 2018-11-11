@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout  
+<RelativeLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="fill_parent"
   android:layout_height="wrap_content"
@@ -11,15 +11,7 @@
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
     android:id="@+id/leftButtons"
-    android:layout_alignParentLeft="true">
-    <ImageView
-      android:id="@+id/reorder"
-      android:layout_width="30dp"
-      android:layout_height="30dp"
-      android:padding="5dp"
-      android:clickable="true"
-      android:visibility="gone"
-      android:src="@drawable/Reorder" />
+    android:layout_alignParentLeft="true" >
     <ImageView
       android:id="@+id/albumArt"
       android:layout_width="70dp"
@@ -52,45 +44,29 @@
       android:textSize="12dip"
       android:maxLines="1"
       android:textColor="#000" />
-    <TextView
-      android:id="@+id/isLive"
-      android:layout_width="wrap_content"
-      android:layout_height="fill_parent"
-      android:visibility="gone"
-      android:text="LIVE"
-      android:textSize="14dip"
-      android:textStyle="bold"
-      android:layout_marginLeft="10dp"
-      android:paddingBottom="7dp"
-      android:gravity="bottom"
-      android:textColor="#ff0000" />
   </LinearLayout>
-  <TextView
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Playing"
-    android:textSize="11dp"
-    android:id="@+id/status"
-    android:layout_alignParentRight="true"
-    android:layout_alignParentBottom="true"
-    android:textColor="#f4511e"
-    android:visibility="gone"
-    android:paddingRight="55dp"
-    android:paddingBottom="15dp" />
   <LinearLayout
     android:orientation="horizontal"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_centerVertical="true"
     android:layout_alignParentRight="true"
-    android:id="@+id/rightButtons">
+    android:id="@+id/rightButtons" >
     <ImageView
-      android:id="@+id/youtubeIcon"
+      android:id="@+id/edit"
       android:layout_width="30dp"
       android:layout_height="30dp"
       android:padding="5dp"
       android:background="@null"
-      android:src="@drawable/youtubeIcon"
+      android:src="@drawable/Edit"
+      android:visibility="gone" />
+    <ImageView
+      android:id="@+id/sync"
+      android:layout_width="30dp"
+      android:layout_height="30dp"
+      android:padding="5dp"
+      android:background="@null"
+      android:src="@drawable/Sync"
       android:visibility="gone" />
     <ImageView
       android:id="@+id/moreButton"
@@ -101,5 +77,5 @@
       android:background="@null"
       android:src="@drawable/More"
       android:gravity="center_vertical"/>
-    </LinearLayout>
+  </LinearLayout>
 </RelativeLayout >

@@ -266,6 +266,7 @@
     <Compile Include="Resources\Portable Class\DownloadQueue.cs" />
     <Compile Include="Resources\Portable Class\DownloadQueueAdapter.cs" />
     <Compile Include="Resources\Portable Class\FixedLinearLayoutManager.cs" />
+    <Compile Include="Resources\Portable Class\PlaylistHolder.cs" />
     <Compile Include="Resources\Portable Class\PlaylistTrackAdapter.cs" />
     <Compile Include="Resources\Portable Class\SearchableActivity.cs" />
     <Compile Include="Resources\Portable Class\Downloader.cs" />
@@ -371,9 +372,6 @@
     <AndroidResource Include="Resources\menu\toolbar_menu.xml">
       <SubType>Designer</SubType>
     </AndroidResource>
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable\search.png" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\layout\search_layout.xml" />
@@ -519,9 +517,6 @@
     <AndroidResource Include="Resources\layout\ChannelList.xml">
       <SubType>Designer</SubType>
     </AndroidResource>
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable\ic_filter_list_white_24dp.png" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\FlatButtonBorder.xml" />
@@ -723,6 +718,21 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\Reorder.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\PlaylistItem.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\Sync.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\SyncError.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\Search.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\Filter.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Android.Support.Animated.Vector.Drawable.25.4.0.2\build\MonoAndroid70\Xamarin.Android.Support.Animated.Vector.Drawable.targets" Condition="Exists('..\packages\Xamarin.Android.Support.Animated.Vector.Drawable.25.4.0.2\build\MonoAndroid70\Xamarin.Android.Support.Animated.Vector.Drawable.targets')" />
