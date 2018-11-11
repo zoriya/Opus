@@ -10,6 +10,7 @@ using Android.Support.V7.App;
 using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
+using SQLite;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -376,7 +377,7 @@ namespace MusicApp.Resources.Portable_Class
             return;
         }
 
-        public async static void AddToPlaylist(Song item, string playList, long playlistID)
+        public async static void AddToPlaylist(Song item, string playList, long playlistID, bool saveAsSynced = false)
         {
             if (playList == "Create a playlist" && playlistID == 0)
                 CreatePlalistDialog(item);
@@ -385,7 +386,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 playlistID = GetPlaylistID(playList);
                 if (playlistID == -1)
-                    CreatePlaylist(playList, item);
+                    CreatePlaylist(playList, item, saveAsSynced);
                 else
                     AddToPlaylist(item, playList, playlistID);
             }
@@ -415,7 +416,7 @@ namespace MusicApp.Resources.Portable_Class
             builder.Show();
         }
 
-        public async static void CreatePlaylist(string name, Song item)
+        public async static void CreatePlaylist(string name, Song item, bool syncedPlaylist = false)
         {
             await CheckWritePermission();
 
@@ -447,6 +448,16 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             AddToPlaylist(item, name, playlistID);
+
+            if (syncedPlaylist)
+            {
+                await Task.Run(() =>
+                {
+                    SQLiteConnection db = new SQLiteConnection(Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "SyncedPlaylists.sqlite"));
+                    db.CreateTable<PlaylistItem>();
+                    db.InsertOrReplace(new PlaylistItem(name, playlistID, null));
+                });
+            }
         }
 
         public static long GetPlaylistID(string playlistName)

@@ -13,72 +13,65 @@ namespace MusicApp.Resources.Portable_Class
 {
     public class PlaylistAdapter : RecyclerView.Adapter
     {
-        private List<string> playlistsName;
-        private List<int> playlistCount;
-        private List<Song> ytPlaylists;
+        private List<PlaylistItem> LocalPlaylists = new List<PlaylistItem>();
+        private List<PlaylistItem> YoutubePlaylists = new List<PlaylistItem>();
         private bool? forkSaved = false;
         public int listPadding;
         public event EventHandler<int> ItemClick;
         public event EventHandler<int> ItemLongCLick;
 
-        public PlaylistAdapter(List<string> playlistsName, List<int> playlistCount, List<Song> ytPlaylists)
+        public PlaylistAdapter(List<PlaylistItem> LocalPlaylists, List<PlaylistItem> YoutubePlaylists)
         {
-            this.playlistsName = playlistsName;
-            this.playlistCount = playlistCount;
-            this.ytPlaylists = ytPlaylists;
+            this.LocalPlaylists = LocalPlaylists;
+            this.YoutubePlaylists = YoutubePlaylists;
         }
 
-        public void UpdateElement(int position, Song newPlaylist)
+        public void UpdateElement(int position, PlaylistItem newPlaylist)
         {
-            if(position < playlistsName.Count)
-            {
-                playlistsName[position] = newPlaylist.Title;
-                playlistCount[position] = int.Parse(newPlaylist.Album);
-            }
+            if(position < LocalPlaylists.Count)
+                LocalPlaylists[position] = newPlaylist;
             else
-                ytPlaylists[position] = newPlaylist;
+                YoutubePlaylists[position] = newPlaylist;
 
             NotifyItemChanged(position);
         }
 
         public void Remove(int position)
         {
-            if (position < playlistsName.Count)
+            if (position < LocalPlaylists.Count)
             {
-                playlistsName.RemoveAt(position);
-                playlistCount.RemoveAt(position);
+                LocalPlaylists.RemoveAt(position);
 
-                if (playlistsName.Count == 1)
+                if (LocalPlaylists.Count == 1)
                 {
-                    playlistsName.Add("EMPTY - You don't have any playlist on your device.");
-                    playlistCount.Add(-1);
+                    LocalPlaylists.Add(new PlaylistItem("EMPTY - You don't have any playlist on your device.", null));
                 }
             }
             else
             {
-                ytPlaylists.RemoveAt(position - playlistsName.Count);
+                YoutubePlaylists.RemoveAt(position - LocalPlaylists.Count);
 
-                if (ytPlaylists.Count == 1)
+                if (YoutubePlaylists.Count == 1)
                 {
-                    ytPlaylists.Add(new Song("EMPTY", "You don't have any youtube playlist on your account. \nWarning: Only playlist from your google account are displayed", null, null, -1, -1, null));
+                    YoutubePlaylists.Add(new PlaylistItem("EMPTY", "You don't have any youtube playlist on your account. \nWarning: Only playlist from your google account are displayed", null));
                 }
             }
             NotifyDataSetChanged();
         }
 
-        public void SetYtPlaylists(List<Song> ytPlaylists, bool forkSaved)
+        public void SetYtPlaylists(List<PlaylistItem> YoutubePlaylists, bool forkSaved)
         {
             this.forkSaved = forkSaved;
 
-            if (this.ytPlaylists.Count > 0)
-                NotifyItemRangeRemoved(playlistsName.Count + 1, this.ytPlaylists.Count);
+            if (this.YoutubePlaylists.Count > 0)
+                NotifyItemRangeRemoved(LocalPlaylists.Count + 1, this.YoutubePlaylists.Count);
 
-            this.ytPlaylists = ytPlaylists;
-            if (ytPlaylists.Count > 0)
-                NotifyItemRangeInserted(playlistsName.Count + 1, ytPlaylists.Count);
+            this.YoutubePlaylists = YoutubePlaylists;
+            if (YoutubePlaylists.Count > 0)
+                NotifyItemRangeInserted(LocalPlaylists.Count + 1, YoutubePlaylists.Count);
         }
 
-        public override int ItemCount => playlistsName.Count + ytPlaylists.Count + (forkSaved == true ? 1 : 0);
+        public override int ItemCount => LocalPlaylists.Count + YoutubePlaylists.Count + (forkSaved == true ? 1 : 0);
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position)
         {
@@ -87,22 +80,22 @@ namespace MusicApp.Resources.Portable_Class
                 HeaderHolder holder = (HeaderHolder)viewHolder;
                 holder.headerText.Text = "Local Playlists";
             }
-            else if (position - playlistsName.Count == 0)
+            else if (position - LocalPlaylists.Count == 0)
             {
                 HeaderHolder holder = (HeaderHolder)viewHolder;
                 holder.headerText.Text = "Youtube Playlists";
             }
-            else if (position == 1 && playlistsName[1].StartsWith("EMPTY - "))
+            else if (position == 1 && LocalPlaylists[1].Name.StartsWith("EMPTY - "))
             {
                 EmptyHolder holder = (EmptyHolder)viewHolder;
-                holder.text.Text = playlistsName[1].Substring(8);
+                holder.text.Text = LocalPlaylists[1].Name.Substring(8);
             }
-            else if (position - playlistsName.Count == 1 && ytPlaylists[1].Title == "EMPTY")
+            else if (position - LocalPlaylists.Count == 1 && YoutubePlaylists[1].Name == "EMPTY")
             {
                 EmptyHolder holder = (EmptyHolder)viewHolder;
-                holder.text.Text = ytPlaylists[1].Artist;
+                holder.text.Text = YoutubePlaylists[1].Owner;
             }
-            else if (position == playlistsName.Count + ytPlaylists.Count)
+            else if (position == LocalPlaylists.Count + YoutubePlaylists.Count)
             {
                 ButtonHolder holder = (ButtonHolder)viewHolder;
                 if (MainActivity.Theme == 1)
@@ -117,23 +110,23 @@ namespace MusicApp.Resources.Portable_Class
                 }
 
                 float scale = MainActivity.instance.Resources.DisplayMetrics.Density;
-                if (position + 1 == ytPlaylists.Count + playlistsName.Count)
+                if (position + 1 == YoutubePlaylists.Count + LocalPlaylists.Count)
                     holder.ItemView.SetPadding((int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f), listPadding);
                 else
                     holder.ItemView.SetPadding((int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f));
             }
-            else if(position >= playlistsName.Count && ytPlaylists[position - playlistsName.Count].Title == "Loading" && ytPlaylists[position - playlistsName.Count].youtubeID == null) { }
-            else if(position - playlistsName.Count == 1 && ytPlaylists[1].Title == "Error" && ytPlaylists[1].youtubeID == null)
+            else if(position >= LocalPlaylists.Count && YoutubePlaylists[position - LocalPlaylists.Count].Name == "Loading" && YoutubePlaylists[position - LocalPlaylists.Count].YoutubeID == null) { }
+            else if(position - LocalPlaylists.Count == 1 && YoutubePlaylists[1].Name == "Error" && YoutubePlaylists[1].YoutubeID == null)
             {
                 EmptyHolder holder = (EmptyHolder)viewHolder;
                 holder.text.Text = "Error while loading.\nCheck your internet connection and check if your logged in.";
                 holder.text.SetTextColor(Color.Red);
             }
-            else if (playlistsName.Count >= position)
+            else if (LocalPlaylists.Count >= position)
             {
                 TwoLineHolder holder = (TwoLineHolder) viewHolder;
-                holder.Line1.Text = playlistsName[position];
-                holder.Line2.Text = playlistCount[position].ToString() + ((playlistCount[position] > 1) ? " elements" : " element");
+                holder.Line1.Text = LocalPlaylists[position].Name;
+                holder.Line2.Text = LocalPlaylists[position].Count.ToString() + ((LocalPlaylists[position].Count > 1) ? " elements" : " element");
 
                 holder.more.Tag = position;
                 if (!holder.more.HasOnClickListeners)
@@ -154,7 +147,7 @@ namespace MusicApp.Resources.Portable_Class
                 }
 
                 float scale = MainActivity.instance.Resources.DisplayMetrics.Density;
-                if (position + 1 == playlistsName.Count && ytPlaylists.Count == 2 && ytPlaylists[1]?.Title == "EMPTY")
+                if (position + 1 == LocalPlaylists.Count && YoutubePlaylists.Count == 2 && YoutubePlaylists[1]?.Name == "EMPTY")
                 {
                     holder.ItemView.SetPadding(0, 0, 0, listPadding);
                     RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)holder.more.LayoutParameters;
@@ -169,18 +162,16 @@ namespace MusicApp.Resources.Portable_Class
                     holder.more.LayoutParameters = layoutParams;
                 }
             }
-            else if (position > playlistsName.Count && ytPlaylists.Count >= position - playlistsName.Count)
+            else if (position > LocalPlaylists.Count && YoutubePlaylists.Count >= position - LocalPlaylists.Count)
             {
                 RecyclerHolder holder = (RecyclerHolder)viewHolder;
-                Song song = ytPlaylists[position - playlistsName.Count];
+                PlaylistItem playlist = YoutubePlaylists[position - LocalPlaylists.Count];
 
-                holder.Title.Text = song.Title;
-                holder.Artist.Text = song.Artist;
+                holder.Title.Text = playlist.Name;
+                holder.Artist.Text = playlist.Owner;
+                Picasso.With(Application.Context).Load(playlist.ImageURL).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
 
-                var songAlbumArtUri = Android.Net.Uri.Parse(song.Album);
-                Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
-
-                if (song.isParsed)
+                if (playlist.HasWritePermission)
                 {
                     holder.edit.Visibility = ViewStates.Visible;
                     if (MainActivity.Theme == 1)
@@ -245,17 +236,17 @@ namespace MusicApp.Resources.Portable_Class
 
         public override int GetItemViewType(int position)
         {
-            if (position == 0 || position - playlistsName.Count == 0)
+            if (position == 0 || position - LocalPlaylists.Count == 0)
                 return 0;
-            else if (playlistsName.Count >= position && (playlistsName.Count > 2 || !playlistsName[1].StartsWith("EMPTY - ")))
+            else if (LocalPlaylists.Count >= position && (LocalPlaylists.Count > 2 || !LocalPlaylists[1].Name.StartsWith("EMPTY - ")))
                 return 1;
-            else if (position == playlistsName.Count + ytPlaylists.Count)
+            else if (position == LocalPlaylists.Count + YoutubePlaylists.Count)
                 return 4;
-            else if (position >= playlistsName.Count && ytPlaylists[position - playlistsName.Count].Title == "Loading" && ytPlaylists[position - playlistsName.Count].youtubeID == null)
+            else if (position >= LocalPlaylists.Count && YoutubePlaylists[position - LocalPlaylists.Count].Name == "Loading" && LocalPlaylists[position - LocalPlaylists.Count].YoutubeID == null)
                 return 2;
-            else if (position == playlistsName.Count + 1 && ytPlaylists[1].Title == "Error" && ytPlaylists[1].youtubeID == null)
+            else if (position == LocalPlaylists.Count + 1 && LocalPlaylists[1].Name == "Error" && LocalPlaylists[1].YoutubeID == null)
                 return 5;
-            else if (position > playlistsName.Count && position < playlistsName.Count + ytPlaylists.Count && (ytPlaylists.Count > 2 || ytPlaylists[1].Title != "EMPTY"))
+            else if (position > LocalPlaylists.Count && position < LocalPlaylists.Count + LocalPlaylists.Count && (LocalPlaylists.Count > 2 || LocalPlaylists[1].Name != "EMPTY"))
                 return 3;
             else
                 return 5;

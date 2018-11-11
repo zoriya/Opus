@@ -690,6 +690,9 @@ namespace MusicApp.Resources.Portable_Class
 
         public void PlayPrevious()
         {
+            if(CurrentPosition > Duration * 0.2f)
+                Play(queue[CurrentID()], false, 0);
+
             if (CurrentID() - 1 < 0)
             {
                 Play(queue[CurrentID()], false, 0);

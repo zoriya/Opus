@@ -229,18 +229,17 @@ namespace MusicApp.Resources.Portable_Class
         public void OnScanCompleted(string path, Uri uri)
         {
             Android.Util.Log.Debug("MusisApp", "Scan Completed with path = " + path + " and uri = " + uri.ToString());
-            long id = long.Parse(uri.ToString().Substring(uri.ToString().IndexOf("audio/media/") + 12, uri.ToString().Length - uri.ToString().IndexOf("audio/media/") - 12));
+            //long id = long.Parse(uri.ToString().Substring(uri.ToString().IndexOf("audio/media/") + 12, uri.ToString().Length - uri.ToString().IndexOf("audio/media/") - 12));
             string playlist = path.Substring(downloadPath.Length + 1);
 
             if (playlist.IndexOf('/') != -1)
             {
-                playlist = playlist.Substring(0, playlist.IndexOf("/"));
+                playlist = playlist.Substring(0, playlist.IndexOf('/'));
                 Handler handler = new Handler(MainActivity.instance.MainLooper);
                 handler.Post(() =>
                 {
-
                     Browse.act = MainActivity.instance;
-                    Browse.AddToPlaylist(Browse.GetSong(path), playlist, -1);
+                    Browse.AddToPlaylist(Browse.GetSong(path), playlist, -1, true);
                 });
             }
         }

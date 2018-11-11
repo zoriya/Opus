@@ -725,7 +725,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 try
                 {
-                    PlaylistItem playlistItem = new PlaylistItem();
+                    Google.Apis.YouTube.v3.Data.PlaylistItem playlistItem = new Google.Apis.YouTube.v3.Data.PlaylistItem();
                     PlaylistItemSnippet snippet = new PlaylistItemSnippet
                     {
                         PlaylistId = playlistID
@@ -763,7 +763,7 @@ namespace MusicApp.Resources.Portable_Class
                 Google.Apis.YouTube.v3.Data.Playlist response = await createRequest.ExecuteAsync();
 
 
-                PlaylistItem playlistItem = new PlaylistItem();
+                Google.Apis.YouTube.v3.Data.PlaylistItem playlistItem = new Google.Apis.YouTube.v3.Data.PlaylistItem();
                 PlaylistItemSnippet snippetItem = new PlaylistItemSnippet
                 {
                     PlaylistId = response.Id
