@@ -12,6 +12,7 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
+using SQLite;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -57,6 +58,7 @@ namespace MusicApp.Resources.Portable_Class
         public override void OnDestroy()
         {
             instance = null;
+            queue.Clear();
         }
 
         public override StartCommandResult OnStartCommand(Intent intent, StartCommandFlags flags, int startId)
@@ -173,6 +175,8 @@ namespace MusicApp.Resources.Portable_Class
 
                 if (queue.Count != 0)
                     DownloadAudio(queue.FindIndex(x => x.State == DownloadState.None), path);
+
+                Playlist.instance?.CheckForSync();
             }
             catch (YoutubeExplode.Exceptions.ParseException)
             {
@@ -223,6 +227,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 StopForeground(true);
                 DownloadQueue.instance?.Finish();
+                queue.Clear();
             }
         }
 
@@ -244,14 +249,27 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
-        public void SyncWithPlaylist(string playlistName, bool keepDeleted)
+        public async void SyncWithPlaylist(string playlistName, bool keepDeleted)
         {
-            long localPlaylistID = Browse.GetPlaylistID(playlistName);
-            if (localPlaylistID != -1)
+            Playlist.instance?.StartSyncing(playlistName);
+            long LocalID = Browse.GetPlaylistID(playlistName);
+            SyncWithPlaylist(LocalID, keepDeleted);
+
+            await Task.Run(() =>
+            {
+                SQLiteConnection db = new SQLiteConnection(Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "SyncedPlaylists.sqlite"));
+                db.CreateTable<PlaylistItem>();
+                db.InsertOrReplace(new PlaylistItem(playlistName, LocalID, null));
+            });
+        }
+
+        public void SyncWithPlaylist(long LocalID, bool keepDeleted)
+        {
+            if (LocalID != -1)
             {
                 Toast.MakeText(Application.Context, "Playlist already downloaded, syncing changes.", ToastLength.Short).Show();
 
-                Uri musicUri = Playlists.Members.GetContentUri("external", localPlaylistID);
+                Uri musicUri = Playlists.Members.GetContentUri("external", LocalID);
 
                 CursorLoader cursorLoader = new CursorLoader(Application.Context, musicUri, null, null, null, null);
                 ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
@@ -306,7 +324,7 @@ namespace MusicApp.Resources.Portable_Class
                     {
                         //Video has been removed from the playlist but still exist on local storage
                         ContentResolver resolver = Application.ContentResolver;
-                        Uri uri = Playlists.Members.GetContentUri("external", localPlaylistID);
+                        Uri uri = Playlists.Members.GetContentUri("external", LocalID);
                         resolver.Delete(uri, Playlists.Members.Id + "=?", new string[] { localIDs[i] });
 
                         if(!keepDeleted)
@@ -314,6 +332,7 @@ namespace MusicApp.Resources.Portable_Class
                     }
                 }
             }
+            Playlist.instance?.CheckForSync();
         }
 
         void Cancel()
@@ -340,6 +359,7 @@ namespace MusicApp.Resources.Portable_Class
             currentStrike = 0;
             StopForeground(true);
             cancellation = new CancellationTokenSource();
+            Playlist.instance?.SyncCanceled();
         }
 
         void UpdateList(int position)

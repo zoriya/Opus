@@ -16,7 +16,7 @@ namespace MusicApp.Resources.Portable_Class
     {
         private List<PlaylistItem> LocalPlaylists = new List<PlaylistItem>();
         private List<PlaylistItem> YoutubePlaylists = new List<PlaylistItem>();
-        private bool? forkSaved = false;
+        public bool forkSaved = false;
         public int listPadding;
         public event EventHandler<int> ItemClick;
         public event EventHandler<int> ItemLongCLick;
@@ -37,42 +37,7 @@ namespace MusicApp.Resources.Portable_Class
             NotifyItemChanged(position);
         }
 
-        public void Remove(int position)
-        {
-            if (position < LocalPlaylists.Count)
-            {
-                LocalPlaylists.RemoveAt(position);
-
-                if (LocalPlaylists.Count == 1)
-                {
-                    LocalPlaylists.Add(new PlaylistItem("EMPTY - You don't have any playlist on your device.", null));
-                }
-            }
-            else
-            {
-                YoutubePlaylists.RemoveAt(position - LocalPlaylists.Count);
-
-                if (YoutubePlaylists.Count == 1)
-                {
-                    YoutubePlaylists.Add(new PlaylistItem("EMPTY", "You don't have any youtube playlist on your account. \nWarning: Only playlist from your google account are displayed", null));
-                }
-            }
-            NotifyDataSetChanged();
-        }
-
-        public void SetYtPlaylists(List<PlaylistItem> YoutubePlaylists, bool forkSaved)
-        {
-            this.forkSaved = forkSaved;
-
-            if (this.YoutubePlaylists.Count > 0)
-                NotifyItemRangeRemoved(LocalPlaylists.Count + 1, this.YoutubePlaylists.Count);
-
-            this.YoutubePlaylists = YoutubePlaylists;
-            if (YoutubePlaylists.Count > 0)
-                NotifyItemRangeInserted(LocalPlaylists.Count + 1, YoutubePlaylists.Count);
-        }
-
-        public override int ItemCount => LocalPlaylists.Count + YoutubePlaylists.Count + (forkSaved == true ? 1 : 0);
+        public override int ItemCount => LocalPlaylists.Count + YoutubePlaylists.Count + (forkSaved ? 1 : 0);
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position)
         {
@@ -176,7 +141,7 @@ namespace MusicApp.Resources.Portable_Class
                 else
                     holder.edit.Visibility = ViewStates.Gone;
 
-                if (playlist.SyncState == SyncState.Loading || Downloader.queue.Find(x => x.playlist == playlist.Name) != null)
+                if (playlist.SyncState == SyncState.Loading || Downloader.queue.Find(x => x.playlist == playlist.Name && (x.State == DownloadState.Downloading || x.State == DownloadState.Initialization || x.State == DownloadState.MetaData || x.State == DownloadState.None)) != null)
                 {
                     holder.sync.Visibility = ViewStates.Gone;
                     holder.SyncLoading.Visibility = ViewStates.Visible;

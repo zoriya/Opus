@@ -692,7 +692,10 @@ namespace MusicApp.Resources.Portable_Class
         {
             Player.instance.playNext = false;
             if(CurrentPosition > Duration * 0.2f)
+            {
                 Play(queue[CurrentID()], false, 0);
+                return;
+            }
 
             if (CurrentID() - 1 < 0)
             {

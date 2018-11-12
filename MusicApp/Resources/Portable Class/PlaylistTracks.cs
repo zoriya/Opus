@@ -381,8 +381,9 @@ namespace MusicApp.Resources.Portable_Class
             instance.playlistName = playlistName;
             instance.author = author;
             instance.count = count;
-            instance.thumnailURI = Uri.Parse(thumbnailURI);
-            instance.fullyLoadded = false;
+            if(thumbnailURI != null)
+                instance.thumnailURI = Uri.Parse(thumbnailURI);
+            instance.fullyLoadded = true;
             return instance;
         }
 
@@ -501,7 +502,7 @@ namespace MusicApp.Resources.Portable_Class
                     if (newFiles.Count > 0)
                     {
                         Toast.MakeText(MainActivity.instance, "Downloading missing tracks", ToastLength.Short).Show();
-                        YoutubeEngine.DownloadFiles(newFiles.ConvertAll(SongToName).ToArray(), newFiles.ConvertAll(SongToYtID).ToArray(), playlistName);
+                        //YoutubeEngine.DownloadFiles(newFiles.ConvertAll(SongToName).ToArray(), newFiles.ConvertAll(SongToYtID).ToArray(), playlistName);
                     }
 
                     //Set yt id to local songs
