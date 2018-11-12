@@ -26,15 +26,16 @@ namespace MusicApp.Resources.Portable_Class
         public static Player instance;
         public Handler handler = new Handler();
         public static bool errorState = false;
+        public bool? playNext = true;
 
         private SeekBar bar;
         private ProgressBar spBar;
         private TextView timerStart;
         private ImageView imgView;
+        private bool prepared = false;
         private readonly int[] timers = new int[] { 0, 1, 10, 30, 60, 120 };
         private readonly string[] items = new string[] { "Off", "1 minute", "10 minutes", "30 minutes", "1 hour", "2 hours" };
         private int checkedItem = 0;
-
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
@@ -558,7 +559,28 @@ namespace MusicApp.Resources.Portable_Class
 
             //Reveal for the player
             View reveal = MainActivity.instance.FindViewById<View>(Resource.Id.reveal);
-            Animator anim = ViewAnimationUtils.CreateCircularReveal(reveal, reveal.Width / 2, reveal.Height, 0, reveal.Width / 1.5f);
+            int centerX, centerY;
+            float endRadius;
+            Console.WriteLine("&PlayNext: " + playNext);
+            if (playNext == true)
+            {
+                centerX = 0;
+                centerY = reveal.Height / 2;
+                endRadius = reveal.Width * 1.3f;
+            }
+            else if(playNext == null)
+            {
+                centerX = reveal.Width / 2;
+                centerY = reveal.Height;
+                endRadius = reveal.Width / 1.5f;
+            }
+            else
+            {
+                centerX = reveal.Width;
+                centerY = reveal.Height / 2;
+                endRadius = reveal.Width * 1.3f;
+            }
+            Animator anim = ViewAnimationUtils.CreateCircularReveal(reveal, centerX, centerY, 0, endRadius);
             anim.AnimationStart += (sender, e) => { reveal.SetBackgroundColor(background); };
             anim.AnimationEnd += (sender, e) => { MainActivity.instance.FindViewById<RelativeLayout>(Resource.Id.infoPanel).SetBackgroundColor(background); };
             anim.SetDuration(500);
@@ -566,13 +588,22 @@ namespace MusicApp.Resources.Portable_Class
             anim.Start();
 
             //Reveal for the smallPlayer
-            View spReveal = MainActivity.instance.FindViewById<View>(Resource.Id.spReveal);
-            Animator spAnim = ViewAnimationUtils.CreateCircularReveal(spReveal, 0, spReveal.Height / 2, 0, spReveal.Width);
-            spAnim.AnimationStart += (sender, e) => { spReveal.SetBackgroundColor(background); };
-            spAnim.AnimationEnd += (sender, e) => { MainActivity.instance.FindViewById<NestedScrollView>(Resource.Id.playerSheet).SetBackgroundColor(background); };
-            spAnim.SetDuration(500);
-            spAnim.StartDelay = 200;
-            spAnim.Start();
+            if (prepared)
+            {
+                View spReveal = MainActivity.instance.FindViewById<View>(Resource.Id.spReveal);
+                Animator spAnim = ViewAnimationUtils.CreateCircularReveal(spReveal, playNext == false ? spReveal.Width : 0, spReveal.Height / 2, 0, spReveal.Width);
+                spAnim.AnimationStart += (sender, e) => { spReveal.SetBackgroundColor(background); };
+                spAnim.AnimationEnd += (sender, e) => { MainActivity.instance.FindViewById<NestedScrollView>(Resource.Id.playerSheet).SetBackgroundColor(background); };
+                spAnim.SetDuration(500);
+                spAnim.StartDelay = 10;
+                spAnim.Start();
+            }
+            else
+            {
+                prepared = true;
+                MainActivity.instance.FindViewById<NestedScrollView>(Resource.Id.playerSheet).SetBackgroundColor(background);
+            }
+            playNext = null;
 
             if (bar == null)
                 bar = MainActivity.instance.FindViewById<SeekBar>(Resource.Id.songTimer);

@@ -690,6 +690,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public void PlayPrevious()
         {
+            Player.instance.playNext = false;
             if(CurrentPosition > Duration * 0.2f)
                 Play(queue[CurrentID()], false, 0);
 
@@ -705,6 +706,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public void PlayNext()
         {
+            Player.instance.playNext = true;
             if (CurrentID() + 1 > queue.Count - 1 || CurrentID() == -1)
             {
                 if (repeat)
@@ -797,9 +799,6 @@ namespace MusicApp.Resources.Portable_Class
             {
                 MainActivity.instance.ShowPlayer();
             }
-
-            Player.instance?.RefreshPlayer();
-            Queue.instance?.RefreshCurrent();
         }
 
         public static int CurrentID()

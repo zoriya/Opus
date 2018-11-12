@@ -19,6 +19,7 @@ namespace MusicApp.Resources.values
         public bool IsYt { get; set; }
         public DateTimeOffset? expireDate { get; set;}
         public bool IsLiveStream = false;
+        public string TrackID;
 
         public Song() { }
 

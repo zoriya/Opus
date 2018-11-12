@@ -87,10 +87,10 @@ namespace MusicApp.Resources.Portable_Class
             }
             else if (items[position].Kind == YtKind.Playlist)
             {
-                RecyclerHolder holder = (RecyclerHolder)viewHolder;
+                PlaylistHolder holder = (PlaylistHolder)viewHolder;
 
                 holder.Title.Text = song.Title;
-                holder.Artist.Text = song.Artist;
+                holder.Owner.Text = song.Artist;
 
                 var songAlbumArtUri = Android.Net.Uri.Parse(song.Album);
                 Picasso.With(Android.App.Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
@@ -109,8 +109,8 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     holder.more.SetColorFilter(Color.White);
                     holder.Title.SetTextColor(Color.White);
-                    holder.Artist.SetTextColor(Color.White);
-                    holder.Artist.Alpha = 0.7f;
+                    holder.Owner.SetTextColor(Color.White);
+                    holder.Owner.Alpha = 0.7f;
                 }
             }
             else
@@ -181,8 +181,8 @@ namespace MusicApp.Resources.Portable_Class
             }
             else if(viewType == 1)
             {
-                View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.SongList, parent, false);
-                return new RecyclerHolder(itemView, OnClick, OnLongClick);
+                View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.PlaylistItem, parent, false);
+                return new PlaylistHolder(itemView, OnClick, OnLongClick);
             }
             else
             {

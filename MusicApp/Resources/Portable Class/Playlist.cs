@@ -395,7 +395,7 @@ namespace MusicApp.Resources.Portable_Class
 
             if (local)
                 MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.LocalID, playlist.Name)).AddToBackStack(null).Commit();
-            else if(playlist.SyncState == SyncState.True)
+            else if(playlist.SyncState == SyncState.True || playlist.SyncState == SyncState.Loading)
                 MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.YoutubeID, playlist.LocalID, playlist.Name, playlist.HasWritePermission, true, playlist.Owner, playlist.Count, playlist.ImageURL)).AddToBackStack(null).Commit();
             else
                 MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.YoutubeID, playlist.Name, playlist.HasWritePermission, true, playlist.Owner, playlist.Count, playlist.ImageURL)).AddToBackStack(null).Commit();

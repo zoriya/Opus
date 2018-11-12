@@ -5,20 +5,14 @@
   android:layout_height="wrap_content"
   android:background="?android:colorBackground"
   android:padding="8dp" >
-  <LinearLayout
-    android:orientation="horizontal"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+  <ImageView
+    android:id="@+id/albumArt"
+    android:layout_width="90dp"
+    android:layout_height="90dp"
+    android:padding="5dp"
+    android:layout_alignParentLeft="true"
     android:gravity="center_vertical"
-    android:id="@+id/leftButtons"
-    android:layout_alignParentLeft="true" >
-    <ImageView
-      android:id="@+id/albumArt"
-      android:layout_width="70dp"
-      android:layout_height="70dp"
-      android:padding="5dp"
-      android:src="@drawable/MusicIcon" />
-  </LinearLayout>
+    android:src="@drawable/MusicIcon" />
   <LinearLayout
     android:orientation="vertical"
     android:layout_width="fill_parent"
@@ -26,7 +20,7 @@
     android:gravity="center_vertical"
     android:paddingLeft="10dp"
     android:id="@+id/textLayout"
-    android:layout_toRightOf="@id/leftButtons"
+    android:layout_toRightOf="@id/albumArt"
     android:layout_toLeftOf="@+id/rightButtons" >
     <TextView
       android:id="@+id/title"
@@ -59,6 +53,16 @@
       android:padding="5dp"
       android:background="@null"
       android:src="@drawable/Edit"
+      android:visibility="gone" />
+    <ProgressBar
+      android:id="@+id/syncLoading"
+      android:layout_width="30dp"
+      android:layout_height="30dp"
+      android:padding="5dp"
+      android:background="@null"
+      android:src="@drawable/Sync"
+      android:indeterminate="true"
+      android:indeterminateTint="@android:color/black"
       android:visibility="gone" />
     <ImageView
       android:id="@+id/sync"

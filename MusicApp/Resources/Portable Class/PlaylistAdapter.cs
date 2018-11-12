@@ -1,4 +1,5 @@
 ﻿using Android.App;
+using Android.Content.Res;
 using Android.Graphics;
 using Android.Graphics.Drawables;
 using Android.Support.V7.Widget;
@@ -175,10 +176,18 @@ namespace MusicApp.Resources.Portable_Class
                 else
                     holder.edit.Visibility = ViewStates.Gone;
 
-                if (playlist.SyncState == SyncState.True)
+                if (playlist.SyncState == SyncState.Loading || Downloader.queue.Find(x => x.playlist == playlist.Name) != null)
+                {
+                    holder.sync.Visibility = ViewStates.Gone;
+                    holder.SyncLoading.Visibility = ViewStates.Visible;
+                    if (MainActivity.Theme == 1)
+                        holder.SyncLoading.IndeterminateTintList = ColorStateList.ValueOf(Color.White);
+                }
+                else if (playlist.SyncState == SyncState.True)
                 {
                     holder.sync.SetImageResource(Resource.Drawable.Sync);
                     holder.sync.Visibility = ViewStates.Visible;
+                    holder.SyncLoading.Visibility = ViewStates.Gone;
                     if (MainActivity.Theme == 1)
                         holder.sync.SetColorFilter(Color.White);
                 }
@@ -186,17 +195,14 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     holder.sync.SetImageResource(Resource.Drawable.SyncError);
                     holder.sync.Visibility = ViewStates.Visible;
+                    holder.SyncLoading.Visibility = ViewStates.Gone;
                     if (MainActivity.Theme == 1)
                         holder.sync.SetColorFilter(Color.White);
-                }
-                else if (playlist.SyncState == SyncState.Loading)
-                {
-                    //holder.sync.SetImageResource(Resource.Drawable);
-                    //holder.sync.Visibility = ViewStates.Visible;
                 }
                 else if (playlist.SyncState == SyncState.False)
                 {
                     holder.sync.Visibility = ViewStates.Gone;
+                    holder.SyncLoading.Visibility = ViewStates.Gone;
                 }
 
                 holder.more.Tag = position;

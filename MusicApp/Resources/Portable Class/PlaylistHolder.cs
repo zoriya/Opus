@@ -13,6 +13,7 @@ namespace MusicApp.Resources.Portable_Class
         public ImageView AlbumArt;
         public ImageView edit;
         public ImageView sync;
+        public ProgressBar SyncLoading;
         public ImageView more;
 
         public PlaylistHolder(View itemView, Action<int> listener, Action<int> longListener) : base(itemView)
@@ -22,6 +23,7 @@ namespace MusicApp.Resources.Portable_Class
             AlbumArt = itemView.FindViewById<ImageView>(Resource.Id.albumArt);
             edit = itemView.FindViewById<ImageView>(Resource.Id.edit);
             sync = itemView.FindViewById<ImageView>(Resource.Id.sync);
+            SyncLoading = itemView.FindViewById<ProgressBar>(Resource.Id.syncLoading);
             more = itemView.FindViewById<ImageView>(Resource.Id.moreButton);
 
             itemView.Click += (sender, e) => listener(AdapterPosition);
