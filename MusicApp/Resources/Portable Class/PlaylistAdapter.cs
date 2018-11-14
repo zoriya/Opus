@@ -170,13 +170,11 @@ namespace MusicApp.Resources.Portable_Class
                     holder.SyncLoading.Visibility = ViewStates.Gone;
                 }
 
-                holder.more.Tag = position;
                 if (!holder.more.HasOnClickListeners)
                 {
                     holder.more.Click += (sender, e) =>
                     {
-                        int tagPosition = (int)((ImageView)sender).Tag;
-                        Playlist.instance.More(tagPosition);
+                        Playlist.instance.More(holder.AdapterPosition);
                     };
                 }
 

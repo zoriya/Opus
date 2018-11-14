@@ -261,6 +261,9 @@ namespace MusicApp.Resources.Portable_Class
                 db.CreateTable<PlaylistItem>();
                 db.InsertOrReplace(new PlaylistItem(playlistName, LocalID, null));
             });
+
+            await Task.Delay(1000);
+            Playlist.instance?.CheckForSync();
         }
 
         public void SyncWithPlaylist(long LocalID, bool keepDeleted)
@@ -275,57 +278,48 @@ namespace MusicApp.Resources.Portable_Class
                 ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
 
                 List<string> paths = new List<string>();
-                List<string> localIDs = new List<string>();
+                List<long> localIDs = new List<long>();
                 List<string> videoIDs = new List<string>();
 
                 if (musicCursor != null && musicCursor.MoveToFirst())
                 {
+                    int songID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
                     int pathID = musicCursor.GetColumnIndex(Media.InterfaceConsts.Data);
                     do
                     {
                         string path = musicCursor.GetString(pathID);
+                        long id = musicCursor.GetLong(songID);
                         paths.Add(path);
+                        localIDs.Add(id);
                         videoIDs.Add(Browse.GetYtID(path));
                     }
                     while (musicCursor.MoveToNext());
                     musicCursor.Close();
 
-                    var duplicates = videoIDs.Select((s, i) => new { Index = i, Text = s }).GroupBy(x => x.Text).Where(x => x.Count() > 1);
-                    foreach(var duplicate in duplicates)
-                    {
-                        int i = 0; //Count duplicate of duplicate.Key
-                        foreach(var index in duplicate)
-                        {
-                            i++;
-                            if(i != 1)
-                            {
-                                paths.RemoveAt(index.Index);
-                                videoIDs.RemoveAt(index.Index);
-                            }
-                        }
-                    }
 
                     for (int i = 0; i < queue.Count; i++)
                     {
                         if (videoIDs.Contains(queue[i].videoID))
                         {
                             //Video is already downloaded:
-                            if(queue[i].State == DownloadState.None)
+                            if (queue[i].State == DownloadState.None)
                                 queue[i].State = DownloadState.UpToDate;
 
                             currentStrike++;
-                            int pathIndex = videoIDs.FindIndex(x => x == queue[i].videoID);
-                            paths.RemoveAt(pathIndex);
-                            videoIDs.RemoveAt(pathIndex);
+                            int Index = videoIDs.FindIndex(x => x == queue[i].videoID);
+                            paths.RemoveAt(Index);
+                            localIDs.RemoveAt(Index);
+                            videoIDs.RemoveAt(Index);
                         }
                     }
+
 
                     for (int i = 0; i < paths.Count; i++)
                     {
                         //Video has been removed from the playlist but still exist on local storage
                         ContentResolver resolver = Application.ContentResolver;
                         Uri uri = Playlists.Members.GetContentUri("external", LocalID);
-                        resolver.Delete(uri, Playlists.Members.Id + "=?", new string[] { localIDs[i] });
+                        resolver.Delete(uri, Playlists.Members.Id + "=?", new string[] { localIDs[i].ToString() });
 
                         if(!keepDeleted)
                             File.Delete(paths[i]);

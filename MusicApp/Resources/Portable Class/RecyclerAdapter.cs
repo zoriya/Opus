@@ -78,15 +78,12 @@ namespace MusicApp.Resources.Portable_Class
                     Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
                 }
 
-                holder.more.Tag = position;
                 if (!holder.more.HasOnClickListeners)
                 {
                     holder.more.Click += (sender, e) =>
                     {
-                        int tagPosition = (int)((ImageView)sender).Tag;
-
                         if (Queue.instance != null)
-                            Queue.instance.More(songList[tagPosition]);
+                            Queue.instance.More(songList[holder.AdapterPosition]);
                     };
                 }
 

@@ -451,7 +451,7 @@ namespace MusicApp.Resources.Portable_Class
             builder.SetTitle("Pick an action");
             if(playlist.SyncState == SyncState.True)
             {
-                string[] actions = new string[] { "Play in order", "Random play", "Add To Queue", "Rename", "Stop Syncing" };
+                string[] actions = new string[] { "Play in order", "Random play", "Add To Queue", "Sync Now", "Rename", "Stop Syncing" };
                 builder.SetItems(actions, (senderAlert, args) =>
                 {
                     switch (args.Which)
@@ -466,9 +466,12 @@ namespace MusicApp.Resources.Portable_Class
                             AddToQueue(playlist.LocalID);
                             break;
                         case 3:
-                            RenameYoutubePlaylist(Position, playlist.YoutubeID, playlist.LocalID);
+                            YoutubeEngine.DownloadPlaylist(playlist.Name, playlist.YoutubeID);
                             break;
                         case 4:
+                            RenameYoutubePlaylist(Position, playlist.YoutubeID, playlist.LocalID);
+                            break;
+                        case 5:
                             StopSyncing(Position, playlist.LocalID);
                             break;
                         default:
@@ -478,7 +481,7 @@ namespace MusicApp.Resources.Portable_Class
             }
             else if (local)
             {
-                builder.SetItems(new string[] { "Play in order", "Random play", "Add To Queue", "Rename", "Delete" }, (senderAlert, args) =>
+                builder.SetItems(new string[] { "Play in order", "Random play", "Add To Queue", "Rename", "Sync Playlist" }, (senderAlert, args) =>
                 {
                     switch (args.Which)
                     {
@@ -503,7 +506,7 @@ namespace MusicApp.Resources.Portable_Class
                 });
             }
             else if (playlist.HasWritePermission)
-                builder.SetItems(new string[] { "Play in order", "Random play", "Add To Queue", "Rename", "Delete", "Download" }, (senderAlert, args) =>
+                builder.SetItems(new string[] { "Play in order", "Random play", "Add To Queue", "Rename", "Delete", "Sync Playlist" }, (senderAlert, args) =>
                 {
                     switch (args.Which)
                     {
@@ -530,7 +533,7 @@ namespace MusicApp.Resources.Portable_Class
                     }
                 });
             else
-                builder.SetItems(new string[] { "Play in order", "Random play", "Add To Queue", "Unfork", "Download" }, (senderAlert, args) =>
+                builder.SetItems(new string[] { "Play in order", "Random play", "Add To Queue", "Unfork", "Sync Playlist" }, (senderAlert, args) =>
                 {
                     switch (args.Which)
                     {

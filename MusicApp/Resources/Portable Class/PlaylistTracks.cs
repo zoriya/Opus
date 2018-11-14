@@ -310,7 +310,7 @@ namespace MusicApp.Resources.Portable_Class
                 if (!Activity.FindViewById<ImageButton>(Resource.Id.headerMore).HasOnClickListeners)
                     Activity.FindViewById<ImageButton>(Resource.Id.headerMore).Click += PlaylistMore;
 
-                if (playlistId != 0)
+                if (playlistId != 0 && thumnailURI == null)
                 {
                     Activity.FindViewById<TextView>(Resource.Id.headerAuthor).Text = MainActivity.account == null ? "by me" : "by " + MainActivity.account.DisplayName;
                 }
@@ -383,7 +383,10 @@ namespace MusicApp.Resources.Portable_Class
             instance.count = count;
             if(thumbnailURI != null)
                 instance.thumnailURI = Uri.Parse(thumbnailURI);
-            instance.fullyLoadded = true;
+            if (LocalID != 0 && LocalID != -1)
+                instance.fullyLoadded = true;
+            else
+                instance.fullyLoadded = false;
             return instance;
         }
 
@@ -462,7 +465,8 @@ namespace MusicApp.Resources.Portable_Class
                 var songCover = Uri.Parse("content://media/external/audio/albumart");
                 var songAlbumArtUri = ContentUris.WithAppendedId(songCover, tracks[0].AlbumArt);
 
-                Picasso.With(Android.App.Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(1080, 1080).CenterCrop().Into(Activity.FindViewById<ImageView>(Resource.Id.headerArt));
+                if(thumnailURI == null)
+                    Picasso.With(Android.App.Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(1080, 1080).CenterCrop().Into(Activity.FindViewById<ImageView>(Resource.Id.headerArt));
 
                 if(Synced && ytID != null)
                 {
