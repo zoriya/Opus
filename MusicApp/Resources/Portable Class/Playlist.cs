@@ -111,7 +111,6 @@ namespace MusicApp.Resources.Portable_Class
                             else
                                 ytPlaylist.SyncState = SyncState.True;
 
-                            System.Console.WriteLine("&SyncedPlaylist found: " + ytPlaylist.Name + ", state: " + ytPlaylist.SyncState.ToString() + " VideoID: " + ytPlaylist.YoutubeID);
                             YoutubePlaylists.Add(ytPlaylist);
                         }
                     }
@@ -134,8 +133,22 @@ namespace MusicApp.Resources.Portable_Class
                 if (!await MainActivity.instance.WaitForYoutube())
                 {
                     YoutubePlaylists.Remove(Loading);
+                    adapter.NotifyItemRemoved(LocalPlaylists.Count + YoutubePlaylists.Count);
+
+                    for (int i = 1; i < YoutubePlaylists.Count; i++)
+                    {
+                        YoutubePlaylists[i].SyncState = SyncState.Error;
+                        PlaylistHolder holder = (PlaylistHolder)ListView.GetChildViewHolder(ListView.GetChildAt(LocalPlaylists.Count + i));
+                        holder.sync.SetImageResource(Resource.Drawable.SyncError);
+                        holder.sync.Visibility = ViewStates.Visible;
+                        holder.SyncLoading.Visibility = ViewStates.Gone;
+                        if (MainActivity.Theme == 1)
+                            holder.sync.SetColorFilter(Color.White);
+                    }
+
                     YoutubePlaylists.Add(new PlaylistItem("Error", null));
                     adapter.NotifyItemInserted(LocalPlaylists.Count + YoutubePlaylists.Count);
+                    populating = false;
                     return;
                 }
                 int YtCount = YoutubePlaylists.Count;
@@ -309,9 +322,22 @@ namespace MusicApp.Resources.Portable_Class
                 }
                 catch (System.Net.Http.HttpRequestException)
                 {
+                    YoutubePlaylists.Remove(Loading);
+                    adapter.NotifyItemRemoved(LocalPlaylists.Count + YoutubePlaylists.Count);
+
+                    for (int i = 1; i < YoutubePlaylists.Count; i++)
+                    {
+                        YoutubePlaylists[i].SyncState = SyncState.Error;
+                        PlaylistHolder holder = (PlaylistHolder)ListView.GetChildViewHolder(ListView.GetChildAt(LocalPlaylists.Count + i));
+                        holder.sync.SetImageResource(Resource.Drawable.SyncError);
+                        holder.sync.Visibility = ViewStates.Visible;
+                        holder.SyncLoading.Visibility = ViewStates.Gone;
+                        if (MainActivity.Theme == 1)
+                            holder.sync.SetColorFilter(Color.White);
+                    }
+
                     YoutubePlaylists.Add(new PlaylistItem("Error", null));
                     adapter.NotifyItemInserted(LocalPlaylists.Count + YoutubePlaylists.Count);
-                    MainActivity.instance.Timout();
                 }
                 populating = false;
             }
@@ -413,9 +439,10 @@ namespace MusicApp.Resources.Portable_Class
                 LocalPlaylists[Position] :
                 YoutubePlaylists[Position - LocalPlaylists.Count];
 
-            if(playlist.SyncState == SyncState.Error)
+            if(playlist.SyncState == SyncState.Error && local)
             {
                 //Handle sync errors
+                /*Shouldn't do this but for now, will do this.*/MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.LocalID, playlist.Name)).AddToBackStack(null).Commit();
                 return;
             }
 
@@ -427,10 +454,11 @@ namespace MusicApp.Resources.Portable_Class
             MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
             MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
 
-            if (local)
-                MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.LocalID, playlist.Name)).AddToBackStack(null).Commit();
-            else if(playlist.SyncState == SyncState.True || playlist.SyncState == SyncState.Loading)
+
+            if (playlist.SyncState == SyncState.True || playlist.SyncState == SyncState.Loading)
                 MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.YoutubeID, playlist.LocalID, playlist.Name, playlist.HasWritePermission, true, playlist.Owner, playlist.Count, playlist.ImageURL)).AddToBackStack(null).Commit();
+            else if (local || (playlist.SyncState == SyncState.Error && playlist.LocalID != 0 && playlist.LocalID != -1))
+                MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.LocalID, playlist.Name)).AddToBackStack(null).Commit();
             else
                 MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.YoutubeID, playlist.Name, playlist.HasWritePermission, true, playlist.Owner, playlist.Count, playlist.ImageURL)).AddToBackStack(null).Commit();
         }
