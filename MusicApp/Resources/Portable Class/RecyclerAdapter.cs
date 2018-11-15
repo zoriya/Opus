@@ -103,9 +103,9 @@ namespace MusicApp.Resources.Portable_Class
                 }
 
                 if (songList[position].queueSlot == MusicPlayer.CurrentID())
-                {
                     holder.Title.SetTextSize(Android.Util.ComplexUnitType.Dip, 18);
-                }
+                else
+                    holder.Title.SetTextSize(Android.Util.ComplexUnitType.Dip, 14);
 
                 float scale = MainActivity.instance.Resources.DisplayMetrics.Density;
                 if (Queue.instance != null)

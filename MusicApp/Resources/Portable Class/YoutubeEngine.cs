@@ -13,6 +13,7 @@ using Android.Widget;
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
 using MusicApp.Resources.values;
+using SQLite;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -372,7 +373,7 @@ namespace MusicApp.Resources.Portable_Class
                         PlayLast(item.youtubeID, item.Title, item.Artist, item.Album);
                         break;
                     case 3:
-                        GetPlaylists(item.youtubeID, Activity);
+                        GetPlaylists(item, Activity);
                         break;
                     case 4:
                         Download(item.Title, item.youtubeID);
@@ -505,7 +506,7 @@ namespace MusicApp.Resources.Portable_Class
             //}
         }
 
-        public async static void Download(string name, string videoID)
+        public async static void Download(string name, string videoID, string playlist = null)
         {
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Android.App.Application.Context);
             if (prefManager.GetString("downloadPath", null) != null)
@@ -520,7 +521,7 @@ namespace MusicApp.Resources.Portable_Class
 
                 Downloader.instance.downloadPath = prefManager.GetString("downloadPath", null);
                 Downloader.instance.maxDownload = prefManager.GetInt("maxDownload", 4);
-                Downloader.queue.Add(new DownloadFile(name, videoID, null));
+                Downloader.queue.Add(new DownloadFile(name, videoID, playlist));
                 Downloader.instance.StartDownload();
             }
             else
@@ -651,7 +652,7 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             return null;
-        }
+        } 
 
         public static async void RemoveFromPlaylist(string videoID)
         {
@@ -665,7 +666,7 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
-        public static async void GetPlaylists(string videoID, Context context)
+        public static async void GetPlaylists(Song item, Context context)
         {
             if(!await MainActivity.instance.WaitForYoutube())
             {
@@ -701,14 +702,14 @@ namespace MusicApp.Resources.Portable_Class
             builder.SetTitle("Add to a playlist");
             builder.SetItems(playList.ToArray(), (senderAlert, args) =>
             {
-                AddToPlaylist(videoID, playListId[args.Which], context);
+                AddToPlaylist(item, playList[args.Which], playListId[args.Which], context);
             });
             builder.Show();
         }
 
-        public static void AddToPlaylist(string videoID, string playlistID, Context context)
+        public async static void AddToPlaylist(Song item, string playlistName, string YoutubeID, Context context, bool SyncBehave = true)
         {
-            if(playlistID == "newPlaylist")
+            if(YoutubeID == "newPlaylist")
             {
                 AlertDialog.Builder builder = new AlertDialog.Builder(context, MainActivity.dialogTheme);
                 builder.SetTitle("Playlist name");
@@ -717,7 +718,7 @@ namespace MusicApp.Resources.Portable_Class
                 builder.SetNegativeButton("Cancel", (senderAlert, args) => { });
                 builder.SetPositiveButton("Create", (senderAlert, args) =>
                 {
-                    NewPlaylist(view.FindViewById<EditText>(Resource.Id.playlistName).Text, videoID);
+                    NewPlaylist(view.FindViewById<EditText>(Resource.Id.playlistName).Text, item.youtubeID);
                 });
                 builder.Show();
             }
@@ -728,12 +729,12 @@ namespace MusicApp.Resources.Portable_Class
                     Google.Apis.YouTube.v3.Data.PlaylistItem playlistItem = new Google.Apis.YouTube.v3.Data.PlaylistItem();
                     PlaylistItemSnippet snippet = new PlaylistItemSnippet
                     {
-                        PlaylistId = playlistID
+                        PlaylistId = YoutubeID
                     };
                     ResourceId resourceId = new ResourceId
                     {
                         Kind = "youtube#video",
-                        VideoId = videoID
+                        VideoId = item.youtubeID
                     };
                     snippet.ResourceId = resourceId;
                     playlistItem.Snippet = snippet;
@@ -744,6 +745,24 @@ namespace MusicApp.Resources.Portable_Class
                 catch (System.Net.Http.HttpRequestException)
                 {
                     MainActivity.instance.Timout();
+                }
+
+                //Check if this playlist is synced, if it his, add the song to the local playlist
+                if (SyncBehave)
+                {
+                    PlaylistItem SyncedPlaylist = null;
+                    await Task.Run(() =>
+                    {
+                        SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "SyncedPlaylists.sqlite"));
+                        db.CreateTable<PlaylistItem>();
+
+                        SyncedPlaylist = db.Table<PlaylistItem>().ToList().Find(x => x.YoutubeID == YoutubeID);
+                    });
+
+                    if (SyncedPlaylist != null)
+                    {
+                        Download(item.Title, item.youtubeID, playlistName);
+                    }
                 }
             }
         }

@@ -405,7 +405,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             if (MusicPlayer.queue[MusicPlayer.CurrentID()].IsYt)
             {
-                YoutubeEngine.GetPlaylists(MusicPlayer.queue[MusicPlayer.CurrentID()].youtubeID, MainActivity.instance);
+                YoutubeEngine.GetPlaylists(MusicPlayer.queue[MusicPlayer.CurrentID()], MainActivity.instance);
             }
             else
             {

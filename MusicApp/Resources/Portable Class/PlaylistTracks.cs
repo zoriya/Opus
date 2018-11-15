@@ -19,6 +19,7 @@ using static Android.Provider.MediaStore.Audio;
 using RecyclerView = Android.Support.V7.Widget.RecyclerView;
 using PopupMenu = Android.Support.V7.Widget.PopupMenu;
 using Android.Util;
+using SQLite;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -31,8 +32,8 @@ namespace MusicApp.Resources.Portable_Class
         private Android.Support.V7.Widget.Helper.ItemTouchHelper itemTouchHelper;
         public List<Song> result = null;
         private bool Synced = false;
-        public long playlistId;
-        public string ytID;
+        public long LocalID;
+        public string YoutubeID;
         private string author;
         private int count;
         private Uri thumnailURI;
@@ -69,19 +70,19 @@ namespace MusicApp.Resources.Portable_Class
             switch (item.ItemId)
             {
                 case Resource.Id.download:
-                    YoutubeEngine.DownloadPlaylist(playlistName, ytID);
+                    YoutubeEngine.DownloadPlaylist(playlistName, YoutubeID);
                     break;
 
                 case Resource.Id.fork:
 #pragma warning disable CS4014
-                    YoutubeEngine.ForkPlaylist(ytID);
+                    YoutubeEngine.ForkPlaylist(YoutubeID);
                     break;
 
                 case Resource.Id.addToQueue:
-                    if (ytID != null)
-                        Playlist.AddToQueue(ytID);
-                    else if (playlistId != 0)
-                        Playlist.AddToQueue(playlistId);
+                    if (LocalID != 0)
+                        Playlist.AddToQueue(LocalID);
+                    else if (YoutubeID != null)
+                        Playlist.AddToQueue(YoutubeID);
                     else
                         AddToQueue();
                     break;
@@ -97,6 +98,10 @@ namespace MusicApp.Resources.Portable_Class
                         Rename(view.FindViewById<EditText>(Resource.Id.playlistName).Text);
                     });
                     builder.Show();
+                    break;
+
+                case Resource.Id.sync:
+                    StopSyncing();
                     break;
 
                 case Resource.Id.delete:
@@ -133,7 +138,7 @@ namespace MusicApp.Resources.Portable_Class
 
         async void Rename(string newName)
         {
-            if(playlistId == 0)
+            if(YoutubeID != null)
             {
                 try
                 {
@@ -142,7 +147,7 @@ namespace MusicApp.Resources.Portable_Class
                         Snippet = new PlaylistSnippet()
                     };
                     playlist.Snippet.Title = newName;
-                    playlist.Id = ytID;
+                    playlist.Id = YoutubeID;
 
                     await YoutubeEngine.youtubeService.Playlists.Update(playlist, "snippet").ExecuteAsync();
                 }
@@ -151,16 +156,36 @@ namespace MusicApp.Resources.Portable_Class
                     MainActivity.instance.Timout();
                 }
             }
-            else
+            if(LocalID != 0)
             {
                 ContentValues value = new ContentValues();
                 value.Put(Playlists.InterfaceConsts.Name, newName);
-                Activity.ContentResolver.Update(Playlists.ExternalContentUri, value, Playlists.InterfaceConsts.Id + "=?", new string[] { playlistId.ToString() });
+                Activity.ContentResolver.Update(Playlists.ExternalContentUri, value, Playlists.InterfaceConsts.Id + "=?", new string[] { LocalID.ToString() });
             }
 
             playlistName = newName;
             Activity.FindViewById<TextView>(Resource.Id.headerTitle).Text = playlistName;
         }
+
+        void StopSyncing()
+        {
+            AlertDialog dialog = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme)
+                .SetTitle("Do you want to stop syncing the playlist \"" + playlistName + "\" ?")
+                .SetPositiveButton("Yes", async (sender, e) =>
+                {
+                    await Task.Run(() =>
+                    {
+                        SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "SyncedPlaylists.sqlite"));
+                        db.CreateTable<PlaylistItem>();
+
+                        db.Delete(db.Table<PlaylistItem>().ToList().Find(x => x.LocalID == LocalID));
+                    });
+                    MainActivity.instance.SupportFragmentManager.PopBackStack();
+                })
+                .SetNegativeButton("No", (sender, e) => { })
+                .Create();
+            dialog.Show();
+        }   
 
         void Delete()
         {
@@ -168,13 +193,13 @@ namespace MusicApp.Resources.Portable_Class
                 .SetTitle("Do you want to delete the playlist \"" + playlistName + "\" ?")
                 .SetPositiveButton("Yes", async (sender, e) =>
                 {
-                    if (playlistId == 0)
+                    if (YoutubeID != null)
                     {
                         if (hasWriteAcess)
                         {
                             try
                             {
-                                PlaylistsResource.DeleteRequest deleteRequest = YoutubeEngine.youtubeService.Playlists.Delete(ytID);
+                                PlaylistsResource.DeleteRequest deleteRequest = YoutubeEngine.youtubeService.Playlists.Delete(YoutubeID);
                                 await deleteRequest.ExecuteAsync();
                             }
                             catch (System.Net.Http.HttpRequestException)
@@ -194,7 +219,7 @@ namespace MusicApp.Resources.Portable_Class
                                 {
                                     if (section.Snippet.Title == "Saved Playlists")
                                     {
-                                        section.ContentDetails.Playlists.Remove(ytID);
+                                        section.ContentDetails.Playlists.Remove(YoutubeID);
                                         ChannelSectionsResource.UpdateRequest request = YoutubeEngine.youtubeService.ChannelSections.Update(section, "snippet,contentDetails");
                                         ChannelSection response = await request.ExecuteAsync();
                                     }
@@ -206,11 +231,11 @@ namespace MusicApp.Resources.Portable_Class
                             }
                         }
                     }
-                    else
+                    if(LocalID != 0)
                     {
                         ContentResolver resolver = Activity.ContentResolver;
                         Uri uri = Playlists.ExternalContentUri;
-                        resolver.Delete(Playlists.ExternalContentUri, Playlists.InterfaceConsts.Id + "=?", new string[] { playlistId.ToString() });
+                        resolver.Delete(Playlists.ExternalContentUri, Playlists.InterfaceConsts.Id + "=?", new string[] { LocalID.ToString() });
                     }
                     MainActivity.instance.SupportFragmentManager.PopBackStack();
                 })
@@ -310,11 +335,11 @@ namespace MusicApp.Resources.Portable_Class
                 if (!Activity.FindViewById<ImageButton>(Resource.Id.headerMore).HasOnClickListeners)
                     Activity.FindViewById<ImageButton>(Resource.Id.headerMore).Click += PlaylistMore;
 
-                if (playlistId != 0 && thumnailURI == null)
+                if (LocalID != 0 && thumnailURI == null)
                 {
                     Activity.FindViewById<TextView>(Resource.Id.headerAuthor).Text = MainActivity.account == null ? "by me" : "by " + MainActivity.account.DisplayName;
                 }
-                else if (ytID != null && ytID != "")
+                else if (YoutubeID != null && YoutubeID != "")
                 {
                     Activity.FindViewById<TextView>(Resource.Id.headerAuthor).Text = author;
                     Activity.FindViewById<TextView>(Resource.Id.headerNumber).Text = count.ToString() + " songs";
@@ -329,23 +354,29 @@ namespace MusicApp.Resources.Portable_Class
 
         void RandomPlay()
         {
-            if (instance.playlistId != 0)
-                Playlist.RandomPlay(instance.playlistId, MainActivity.instance);
+            if (instance.LocalID != 0)
+                Playlist.RandomPlay(instance.LocalID, MainActivity.instance);
             else
-                YoutubeEngine.RandomPlay(instance.ytID);
+                YoutubeEngine.RandomPlay(instance.YoutubeID);
         }
 
         void PlaylistMore(object sender,  System.EventArgs eventArgs)
         {
             PopupMenu menu = new PopupMenu(MainActivity.instance, MainActivity.instance.FindViewById<ImageButton>(Resource.Id.headerMore));
-            if (playlistId == 0 && hasWriteAcess)
+            if (LocalID == 0 && hasWriteAcess)
                 menu.Inflate(Resource.Menu.ytplaylist_header_more);
-            else if (playlistId == 0 && forked)
+            else if (LocalID == 0 && forked)
                 menu.Inflate(Resource.Menu.ytplaylistnowrite_header_more);
-            else if (playlistId == 0)
+            else if (LocalID == 0)
                 menu.Inflate(Resource.Menu.ytplaylist_nowrite_nofork_header_more);
             else
                 menu.Inflate(Resource.Menu.playlist_header_more);
+
+            if (Synced)
+            {
+                menu.Menu.GetItem(0).SetTitle("Sync Now");
+                menu.Menu.Add(Menu.None, Resource.Id.sync, menu.Menu.Size() - 3, "Stop Syncing");
+            }
             menu.SetOnMenuItemClickListener(this);
             menu.Show();
         }
@@ -364,7 +395,7 @@ namespace MusicApp.Resources.Portable_Class
         public static Fragment NewInstance(long playlistId, string playlistName)
         {
             instance = new PlaylistTracks { Arguments = new Bundle() };
-            instance.playlistId = playlistId;
+            instance.LocalID = playlistId;
             instance.playlistName = playlistName;
             instance.fullyLoadded = true;
             instance.hasWriteAcess = true;
@@ -374,8 +405,8 @@ namespace MusicApp.Resources.Portable_Class
         public static Fragment NewInstance(string ytID, long LocalID, string playlistName, bool hasWriteAcess, bool forked, string author, int count, string thumbnailURI)
         {
             instance = new PlaylistTracks { Arguments = new Bundle() };
-            instance.ytID = ytID;
-            instance.playlistId = LocalID;
+            instance.YoutubeID = ytID;
+            instance.LocalID = LocalID;
             instance.hasWriteAcess = hasWriteAcess;
             instance.forked = forked;
             instance.playlistName = playlistName;
@@ -387,6 +418,7 @@ namespace MusicApp.Resources.Portable_Class
                 instance.fullyLoadded = true;
             else
                 instance.fullyLoadded = false;
+            instance.Synced = true;
             return instance;
         }
 
@@ -394,7 +426,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             instance = new PlaylistTracks { Arguments = new Bundle() };
             instance.Synced = true;
-            instance.ytID = ytID;
+            instance.YoutubeID = ytID;
             instance.hasWriteAcess = hasWriteAcess;
             instance.forked = forked;
             instance.playlistName = playlistName;
@@ -407,12 +439,12 @@ namespace MusicApp.Resources.Portable_Class
 
         async Task PopulateList()
         {
-            if (playlistId == 0 && ytID == "" && tracks.Count == 0)
+            if (LocalID == 0 && YoutubeID == "" && tracks.Count == 0)
                 return;
 
-            if (playlistId != 0)
+            if (LocalID != 0)
             {
-                Uri musicUri = Playlists.Members.GetContentUri("external", playlistId);
+                Uri musicUri = Playlists.Members.GetContentUri("external", LocalID);
 
                 CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
                 ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
@@ -468,7 +500,7 @@ namespace MusicApp.Resources.Portable_Class
                 if(thumnailURI == null)
                     Picasso.With(Android.App.Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(1080, 1080).CenterCrop().Into(Activity.FindViewById<ImageView>(Resource.Id.headerArt));
 
-                if(Synced && ytID != null)
+                if(Synced && YoutubeID != null)
                 {
                     SyncedTrack = new List<Song>();
                     try
@@ -477,7 +509,7 @@ namespace MusicApp.Resources.Portable_Class
                         while (nextPageToken != null)
                         {
                             var ytPlaylistRequest = YoutubeEngine.youtubeService.PlaylistItems.List("snippet, contentDetails");
-                            ytPlaylistRequest.PlaylistId = ytID;
+                            ytPlaylistRequest.PlaylistId = YoutubeID;
                             ytPlaylistRequest.MaxResults = 50;
 
                             var ytPlaylist = await ytPlaylistRequest.ExecuteAsync();
@@ -513,13 +545,13 @@ namespace MusicApp.Resources.Portable_Class
                 }
 
             }
-            else if (ytID != null)
+            else if (YoutubeID != null)
             {
                 try
                 {
                     tracks = new List<Song>();
                     var ytPlaylistRequest = YoutubeEngine.youtubeService.PlaylistItems.List("snippet, contentDetails");
-                    ytPlaylistRequest.PlaylistId = ytID;
+                    ytPlaylistRequest.PlaylistId = YoutubeID;
                     ytPlaylistRequest.MaxResults = 50;
 
                     var ytPlaylist = await ytPlaylistRequest.ExecuteAsync();
@@ -585,7 +617,7 @@ namespace MusicApp.Resources.Portable_Class
             try
             {
                 var ytPlaylistRequest = YoutubeEngine.youtubeService.PlaylistItems.List("snippet, contentDetails");
-                ytPlaylistRequest.PlaylistId = ytID;
+                ytPlaylistRequest.PlaylistId = YoutubeID;
                 ytPlaylistRequest.MaxResults = 50;
                 ytPlaylistRequest.PageToken = nextPageToken;
 
@@ -620,7 +652,6 @@ namespace MusicApp.Resources.Portable_Class
 
         public void Search(string search)
         {
-            System.Console.WriteLine("&FullyLoaded: " + fullyLoadded);
             result = new List<Song>();
             for(int i = 0; i < tracks.Count; i++)
             {
@@ -681,7 +712,7 @@ namespace MusicApp.Resources.Portable_Class
 
             AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
             builder.SetTitle("Pick an action");
-            if (hasWriteAcess && ytID != "")
+            if (hasWriteAcess && YoutubeID != "")
             {
                 builder.SetItems(action.ToArray(), (senderAlert, args) =>
                 {
@@ -695,20 +726,25 @@ namespace MusicApp.Resources.Portable_Class
                             if (!item.IsYt)
                                 Browse.PlayNext(item);
                             else
-                                YoutubeEngine.PlayNext(item.Path, item.Title, item.Artist, item.Album);
+                                YoutubeEngine.PlayNext(item.youtubeID, item.Title, item.Artist, item.Album);
                             break;
 
                         case 2:
                             if (!item.IsYt)
                                 Browse.PlayLast(item);
                             else
-                                YoutubeEngine.PlayLast(item.Path, item.Title, item.Artist, item.Album);
+                                YoutubeEngine.PlayLast(item.youtubeID, item.Title, item.Artist, item.Album);
                             break;
 
                         case 3:
-                            if (playlistId != 0)
+                            if(Synced && LocalID != 0 && YoutubeID != null)
+                            {
                                 RemoveFromPlaylist(item);
-                            else if(ytID != null)
+                                YoutubeEngine.RemoveFromPlaylist(item.TrackID);
+                            }
+                            else if (LocalID != 0)
+                                RemoveFromPlaylist(item);
+                            else if(YoutubeID != null)
                             {
                                 YoutubeEngine.RemoveFromPlaylist(item.TrackID);
                                 RemoveFromYtPlaylist(item, item.TrackID);
@@ -717,7 +753,7 @@ namespace MusicApp.Resources.Portable_Class
 
                         case 4:
                             if (item.IsYt)
-                                YoutubeEngine.GetPlaylists(item.Path, Activity);
+                                YoutubeEngine.GetPlaylists(item, Activity);
                             else
                                 Browse.GetPlaylist(item);
                             break;
@@ -749,26 +785,26 @@ namespace MusicApp.Resources.Portable_Class
                             if (!item.IsYt)
                                 Browse.PlayNext(item);
                             else
-                                YoutubeEngine.PlayNext(item.Path, item.Title, item.Artist, item.Album);
+                                YoutubeEngine.PlayNext(item.youtubeID, item.Title, item.Artist, item.Album);
                             break;
 
                         case 2:
                             if (!item.IsYt)
                                 Browse.PlayLast(item);
                             else
-                                YoutubeEngine.PlayLast(item.Path, item.Title, item.Artist, item.Album);
+                                YoutubeEngine.PlayLast(item.youtubeID, item.Title, item.Artist, item.Album);
                             break;
 
                         case 3:
                             if (item.IsYt)
-                                YoutubeEngine.GetPlaylists(item.Path, Activity);
+                                YoutubeEngine.GetPlaylists(item, Activity);
                             else
                                 Browse.GetPlaylist(item);
                             break;
 
                         case 4:
                             if (item.IsYt)
-                                YoutubeEngine.Download(item.Title, item.Path);
+                                YoutubeEngine.Download(item.Title, item.youtubeID);
                             else
                                 Browse.EditMetadata(item, "PlaylistTracks", ListView.GetLayoutManager().OnSaveInstanceState());
                             break;
@@ -786,7 +822,7 @@ namespace MusicApp.Resources.Portable_Class
             MusicPlayer.queue?.Clear();
             MusicPlayer.currentID = -1;
 
-            if (ytID != null)
+            if (YoutubeID != null)
             {
                 if (result != null && result.Count > fromPosition)
                     YoutubeEngine.Play(result[fromPosition].youtubeID, result[fromPosition].Title, result[fromPosition].Artist, result[0].Album);
@@ -830,7 +866,7 @@ namespace MusicApp.Resources.Portable_Class
         void RemoveFromPlaylist(Song item)
         {
             ContentResolver resolver = Activity.ContentResolver;
-            Uri uri = MediaStore.Audio.Playlists.Members.GetContentUri("external", playlistId);
+            Uri uri = MediaStore.Audio.Playlists.Members.GetContentUri("external", LocalID);
             resolver.Delete(uri, MediaStore.Audio.Playlists.Members.Id + "=?", new string[] { item.Id.ToString() });
             adapter.Remove(item);
             tracks.Remove(item);
@@ -847,6 +883,13 @@ namespace MusicApp.Resources.Portable_Class
                 MainActivity.parcelable = null;
                 MainActivity.parcelableSender = null;
             }
+
+            if (!Activity.FindViewById<ImageButton>(Resource.Id.headerPlay).HasOnClickListeners)
+                Activity.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { PlayInOrder(0, false); };
+            if (!Activity.FindViewById<ImageButton>(Resource.Id.headerShuffle).HasOnClickListeners)
+                Activity.FindViewById<ImageButton>(Resource.Id.headerShuffle).Click += (sender, e0) => { RandomPlay(); };
+            if (!Activity.FindViewById<ImageButton>(Resource.Id.headerMore).HasOnClickListeners)
+                Activity.FindViewById<ImageButton>(Resource.Id.headerMore).Click += PlaylistMore;
         }
 
         public void OnOffsetChanged(AppBarLayout appBarLayout, int verticalOffset)
@@ -879,17 +922,19 @@ namespace MusicApp.Resources.Portable_Class
                 .SetTitle("Remove " + song.Title + " from playlist ?")
                 .SetPositiveButton("Yes", (sender, e) =>
                 {
-                    SnackbarCallback callback = null;
-                    if(ytID != null)
-                        callback = new SnackbarCallback(position, ytID, song.TrackID);
-                    else if(playlistId != 0)
-                        callback = new SnackbarCallback(position, song, playlistId);
+                    SnackbarCallback callback;
+                    if(Synced && YoutubeID != null && LocalID != 0)
+                        callback = new SnackbarCallback(position, song, LocalID, YoutubeID, song.TrackID);
+                    else if(YoutubeID != null)
+                        callback = new SnackbarCallback(position, YoutubeID, song.TrackID);
+                    else
+                        callback = new SnackbarCallback(position, song, LocalID);
 
                     Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), (song.Title.Length > 20 ? song.Title.Substring(0, 17) + "..." : song.Title) + " has been removed from the playlist.", Snackbar.LengthLong)
                         .SetAction("Undo", (v) =>
                         {
                             callback.canceled = true;
-                            if (ytID != null)
+                            if (YoutubeID != null)
                             {
                                 if (result != null && result.Count >= position)
                                     result?.Insert(position, song);
@@ -897,7 +942,7 @@ namespace MusicApp.Resources.Portable_Class
                                 adapter.Insert(position, song);
                                 tracks.Insert(position, song);
                             }
-                            if (playlistId != 0)
+                            if (LocalID != 0)
                             {
                                 adapter.Insert(position, song);
                                 tracks.Insert(position, song);
@@ -909,7 +954,7 @@ namespace MusicApp.Resources.Portable_Class
                     snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Android.Graphics.Color.White);
                     snackBar.Show();
 
-                    if(ytID != null)
+                    if(YoutubeID != null)
                     {
                         RemoveFromYtPlaylist(song, song.TrackID);
                     }

@@ -128,7 +128,7 @@ namespace MusicApp.Resources.Portable_Class
 
                     case 3:
                         if (item.IsYt)
-                            YoutubeEngine.GetPlaylists(item.Path, MainActivity.instance);
+                            YoutubeEngine.GetPlaylists(item, MainActivity.instance);
                         else
                             Browse.GetPlaylist(item);
                         break;

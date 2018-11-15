@@ -29,6 +29,15 @@ namespace MusicApp.Resources.Portable_Class
             this.songYtID = songYtID;
         }
 
+        public SnackbarCallback(int position, Song song, long playlistId, string ytID, string songYtID)
+        {
+            this.position = position;
+            this.song = song;
+            this.playlistId = playlistId;
+            this.ytID = ytID;
+            this.songYtID = songYtID;
+        }
+
         public override void OnDismissed(Java.Lang.Object transientBottomBar, int @event)
         {
             base.OnDismissed(transientBottomBar, @event);
@@ -38,7 +47,7 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     YoutubeEngine.RemoveFromPlaylist(songYtID);
                 }
-                else if (playlistId != 0)
+                if (playlistId != 0)
                 {
                     ContentResolver resolver = MainActivity.instance.ContentResolver;
                     Uri uri = MediaStore.Audio.Playlists.Members.GetContentUri("external", playlistId);
