@@ -48,7 +48,6 @@ namespace MusicApp.Resources.Portable_Class
         public bool navigating = false;
 
         public List<Song> tracks = new List<Song>();
-        private List<Song> SyncedTrack;
         private string[] actions = new string[] { "Play", "Play Next", "Play Last", "Remove Track from playlist", "Add To Playlist" };
         private bool loading = false;
 
@@ -300,6 +299,35 @@ namespace MusicApp.Resources.Portable_Class
             base.OnStop();
         }
 
+        private async Task<Song> CompleteItem(Song song)
+        {
+            if (song.youtubeID == null)
+                song = Browse.CompleteItem(song);
+
+            song.TrackID = null;
+            if (await MainActivity.instance.WaitForYoutube())
+            {
+                try
+                {
+                    var request = YoutubeEngine.youtubeService.PlaylistItems.List("snippet");
+                    request.PlaylistId = YoutubeID;
+                    request.VideoId = song.youtubeID;
+                    request.MaxResults = 1;
+
+                    var result = await request.ExecuteAsync();
+                    song.TrackID = result.Items[0].Id;
+                }
+                catch (System.Net.Http.HttpRequestException)
+                {
+                    MainActivity.instance.Timout();
+                }
+            }
+            else
+                MainActivity.instance.Timout();
+
+            return song;
+        }
+
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             View view = inflater.Inflate(Resource.Layout.RecyclerFragment, container, false);
@@ -499,51 +527,6 @@ namespace MusicApp.Resources.Portable_Class
 
                 if(thumnailURI == null)
                     Picasso.With(Android.App.Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(1080, 1080).CenterCrop().Into(Activity.FindViewById<ImageView>(Resource.Id.headerArt));
-
-                if(Synced && YoutubeID != null)
-                {
-                    SyncedTrack = new List<Song>();
-                    try
-                    {
-                        nextPageToken = "";
-                        while (nextPageToken != null)
-                        {
-                            var ytPlaylistRequest = YoutubeEngine.youtubeService.PlaylistItems.List("snippet, contentDetails");
-                            ytPlaylistRequest.PlaylistId = YoutubeID;
-                            ytPlaylistRequest.MaxResults = 50;
-
-                            var ytPlaylist = await ytPlaylistRequest.ExecuteAsync();
-
-                            foreach (var item in ytPlaylist.Items)
-                            {
-                                if (item.Snippet.Title != "[Deleted video]" && item.Snippet.Title != "Private video" && item.Snippet.Title != "Deleted video")
-                                {
-                                    Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false)
-                                    {
-                                        TrackID = item.Id
-                                    };
-                                    SyncedTrack.Add(song);
-                                }
-                            }
-
-                            nextPageToken = ytPlaylist.NextPageToken;
-                        }
-                    }
-                    catch (System.Net.Http.HttpRequestException)
-                    {
-                        MainActivity.instance.Timout();
-                    }
-
-                    List<Song> newFiles = SyncedTrack.FindAll(ytTrack => tracks.Find(track => track.youtubeID == ytTrack.youtubeID) != null);
-                    if (newFiles.Count > 0)
-                    {
-                        Toast.MakeText(MainActivity.instance, "Downloading missing tracks", ToastLength.Short).Show();
-                        //YoutubeEngine.DownloadFiles(newFiles.ConvertAll(SongToName).ToArray(), newFiles.ConvertAll(SongToYtID).ToArray(), playlistName);
-                    }
-
-                    //Set yt id to local songs
-                }
-
             }
             else if (YoutubeID != null)
             {
@@ -714,7 +697,7 @@ namespace MusicApp.Resources.Portable_Class
             builder.SetTitle("Pick an action");
             if (hasWriteAcess && YoutubeID != "")
             {
-                builder.SetItems(action.ToArray(), (senderAlert, args) =>
+                builder.SetItems(action.ToArray(), async (senderAlert, args) =>
                 {
                     switch (args.Which)
                     {
@@ -737,9 +720,11 @@ namespace MusicApp.Resources.Portable_Class
                             break;
 
                         case 3:
-                            if(Synced && LocalID != 0 && YoutubeID != null)
+                            if(Synced && LocalID != 0)
                             {
                                 RemoveFromPlaylist(item);
+                                if (item.TrackID == null)
+                                    item = await CompleteItem(item);
                                 YoutubeEngine.RemoveFromPlaylist(item.TrackID);
                             }
                             else if (LocalID != 0)
@@ -822,7 +807,7 @@ namespace MusicApp.Resources.Portable_Class
             MusicPlayer.queue?.Clear();
             MusicPlayer.currentID = -1;
 
-            if (YoutubeID != null)
+            if (YoutubeID != null && !Synced)
             {
                 if (result != null && result.Count > fromPosition)
                     YoutubeEngine.Play(result[fromPosition].youtubeID, result[fromPosition].Title, result[fromPosition].Artist, result[0].Album);
@@ -920,15 +905,14 @@ namespace MusicApp.Resources.Portable_Class
 
             AlertDialog dialog = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme)
                 .SetTitle("Remove " + song.Title + " from playlist ?")
-                .SetPositiveButton("Yes", (sender, e) =>
+                .SetPositiveButton("Yes", async (sender, e) =>
                 {
-                    SnackbarCallback callback;
                     if(Synced && YoutubeID != null && LocalID != 0)
-                        callback = new SnackbarCallback(position, song, LocalID, YoutubeID, song.TrackID);
-                    else if(YoutubeID != null)
-                        callback = new SnackbarCallback(position, YoutubeID, song.TrackID);
-                    else
-                        callback = new SnackbarCallback(position, song, LocalID);
+                    {
+                        if (song.TrackID == null)
+                            song = await CompleteItem(song);
+                    }
+                    SnackbarCallback callback = new SnackbarCallback(position, song, LocalID);
 
                     Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), (song.Title.Length > 20 ? song.Title.Substring(0, 17) + "..." : song.Title) + " has been removed from the playlist.", Snackbar.LengthLong)
                         .SetAction("Undo", (v) =>

@@ -11,8 +11,6 @@ namespace MusicApp.Resources.Portable_Class
         private int position;
         private Song song;
         private long playlistId;
-        private string ytID;
-        private string songYtID;
         public bool canceled = false;
 
         public SnackbarCallback(int position, Song song, long playlistId)
@@ -22,30 +20,14 @@ namespace MusicApp.Resources.Portable_Class
             this.playlistId = playlistId;
         }
 
-        public SnackbarCallback(int position, string ytID, string songYtID)
-        {
-            this.position = position;
-            this.ytID = ytID;
-            this.songYtID = songYtID;
-        }
-
-        public SnackbarCallback(int position, Song song, long playlistId, string ytID, string songYtID)
-        {
-            this.position = position;
-            this.song = song;
-            this.playlistId = playlistId;
-            this.ytID = ytID;
-            this.songYtID = songYtID;
-        }
-
         public override void OnDismissed(Java.Lang.Object transientBottomBar, int @event)
         {
             base.OnDismissed(transientBottomBar, @event);
             if(!canceled)
             {
-                if (ytID != null)
+                if (song.TrackID != null)
                 {
-                    YoutubeEngine.RemoveFromPlaylist(songYtID);
+                    YoutubeEngine.RemoveFromPlaylist(song.TrackID);
                 }
                 if (playlistId != 0)
                 {

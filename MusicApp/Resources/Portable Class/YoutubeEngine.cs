@@ -654,11 +654,12 @@ namespace MusicApp.Resources.Portable_Class
             return null;
         } 
 
-        public static async void RemoveFromPlaylist(string videoID)
+        public static async void RemoveFromPlaylist(string TrackID)
         {
+            System.Console.WriteLine("&Deleting trackID: " + TrackID);
             try
             {
-                await youtubeService.PlaylistItems.Delete(videoID).ExecuteAsync();
+                await youtubeService.PlaylistItems.Delete(TrackID).ExecuteAsync();
             }
             catch (System.Net.Http.HttpRequestException)
             {
