@@ -18,6 +18,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using TagLib;
+using Color = Android.Graphics.Color;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -350,7 +351,7 @@ namespace MusicApp.Resources.Portable_Class
             return false;
         }
 
-        public static void GetPlaylist(Song item)
+        public static /*async*/ void GetPlaylist(Song item)
         {
             List<PlaylistItem> LocalPlaylists = new List<PlaylistItem>();
 
@@ -381,12 +382,16 @@ namespace MusicApp.Resources.Portable_Class
                 new PlaylistItem("Loading", null)
             };
 
-            View Layout = inflater.Inflate(Resource.Layout.RecyclerFragment, null);
+            View Layout = inflater.Inflate(Resource.Layout.AddToPlaylistLayout, null);
+            if(MainActivity.Theme == 1)
+            {
+                Layout.FindViewById<ImageView>(Resource.Id.leftIcon).SetColorFilter(Color.White);
+                Layout.FindViewById<View>(Resource.Id.divider).SetBackgroundColor(Color.White);
+            }
             AlertDialog.Builder builder = new AlertDialog.Builder(act, MainActivity.dialogTheme);
-            builder.SetTitle("Add to a playlist");
+            builder.SetTitle("Add to playlists");
             builder.SetView(Layout);
             RecyclerView ListView = Layout.FindViewById<RecyclerView>(Resource.Id.recycler);
-            ListView.SetPadding(0, MainActivity.instance.DpToPx(5), 0, 0);
             ListView.SetLayoutManager(new LinearLayoutManager(MainActivity.instance));
             AddToPlaylistAdapter adapter = new AddToPlaylistAdapter(LocalPlaylists, YoutubePlaylists);
             ListView.SetAdapter(adapter);
@@ -415,11 +420,14 @@ namespace MusicApp.Resources.Portable_Class
                     Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), (item.Title.Length > 20 ? item.Title.Substring(0, 17) + "..." : item.Title) + " has been removed from the playlist.", Snackbar.LengthLong)
                         .SetAction("Undo", (v) => { callback.canceled = true; });
                     snackBar.AddCallback(callback);
-                    snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Android.Graphics.Color.White);
+                    snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
                     snackBar.Show();
                 }
             };
-            builder.Show();
+            builder.SetPositiveButton("OK", (sender, e) => { });
+            AlertDialog dialog = builder.Create();
+            Layout.FindViewById<LinearLayout>(Resource.Id.CreatePlaylist).Click += (sender, e) => { dialog.Dismiss(); CreatePlalistDialog(item); };
+            dialog.Show();
         }
 
         public async static Task CheckWritePermission()
@@ -439,10 +447,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public async static void AddToPlaylist(Song item, string playList, long LocalID, int position = -1, bool SyncBehave = true, bool saveAsSynced = false)
         {
-            if (playList == "Create a playlist" && LocalID == 0)
-                CreatePlalistDialog(item);
-
-            else if(LocalID == -1)
+            if(LocalID == -1)
             {
                 LocalID = GetPlaylistID(playList);
                 if (LocalID == -1)

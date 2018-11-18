@@ -54,9 +54,9 @@ namespace MusicApp.Resources.Portable_Class
                 holder.expandChild.Visibility = ViewStates.Invisible;
 
             if(folders[position].isExtended)
-                holder.expandChild.SetImageResource(Resource.Drawable.ic_expand_less_black_24dp);
+                holder.expandChild.SetImageResource(Resource.Drawable.ExpandLess);
             else
-                holder.expandChild.SetImageResource(Resource.Drawable.ic_expand_more_black_24dp);
+                holder.expandChild.SetImageResource(Resource.Drawable.ArrowDown);
 
             convertView.FindViewById<RelativeLayout>(Resource.Id.folderList).SetPadding(folders[position].Padding, 0, 0, 0);
 

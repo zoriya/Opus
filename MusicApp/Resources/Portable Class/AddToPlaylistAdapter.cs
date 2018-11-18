@@ -24,7 +24,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position)
         {
-            if (position >= LocalPlaylists.Count && YoutubePlaylists[position - LocalPlaylists.Count].Name == "Loading" && YoutubePlaylists[position - LocalPlaylists.Count].YoutubeID == null)
+            if (position >= LocalPlaylists.Count && position < LocalPlaylists.Count + YoutubePlaylists.Count && YoutubePlaylists[position - LocalPlaylists.Count].Name == "Loading" && YoutubePlaylists[position - LocalPlaylists.Count].YoutubeID == null)
                 return;
 
             AddToPlaylistHolder holder = (AddToPlaylistHolder)viewHolder;
