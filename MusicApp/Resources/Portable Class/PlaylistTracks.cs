@@ -299,7 +299,7 @@ namespace MusicApp.Resources.Portable_Class
             base.OnStop();
         }
 
-        private async Task<Song> CompleteItem(Song song)
+        public static async Task<Song> CompleteItem(Song song, string YoutubeID)
         {
             if (song.youtubeID == null)
                 song = Browse.CompleteItem(song);
@@ -484,14 +484,15 @@ namespace MusicApp.Resources.Portable_Class
                     int titleID = musicCursor.GetColumnIndex(Media.InterfaceConsts.Title);
                     int artistID = musicCursor.GetColumnIndex(Media.InterfaceConsts.Artist);
                     int albumID = musicCursor.GetColumnIndex(Media.InterfaceConsts.Album);
-                    int thisID = musicCursor.GetColumnIndex(Media.InterfaceConsts.Id);
+                    int albumArtID = musicCursor.GetColumnIndex(Albums.InterfaceConsts.AlbumId);
+                    int thisID = musicCursor.GetColumnIndex(Playlists.Members.AudioId);
                     int pathID = musicCursor.GetColumnIndex(Media.InterfaceConsts.Data);
                     do
                     {
                         string Artist = musicCursor.GetString(artistID);
                         string Title = musicCursor.GetString(titleID);
                         string Album = musicCursor.GetString(albumID);
-                        long AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(Albums.InterfaceConsts.AlbumId));
+                        long AlbumArt = musicCursor.GetLong(albumArtID);
                         long id = musicCursor.GetLong(thisID);
                         string path = musicCursor.GetString(pathID);
 
@@ -697,7 +698,7 @@ namespace MusicApp.Resources.Portable_Class
             builder.SetTitle("Pick an action");
             if (hasWriteAcess && YoutubeID != "")
             {
-                builder.SetItems(action.ToArray(), async (senderAlert, args) =>
+                builder.SetItems(action.ToArray(), (senderAlert, args) =>
                 {
                     switch (args.Which)
                     {
@@ -720,20 +721,7 @@ namespace MusicApp.Resources.Portable_Class
                             break;
 
                         case 3:
-                            if(Synced && LocalID != 0)
-                            {
-                                RemoveFromPlaylist(item);
-                                if (item.TrackID == null)
-                                    item = await CompleteItem(item);
-                                YoutubeEngine.RemoveFromPlaylist(item.TrackID);
-                            }
-                            else if (LocalID != 0)
-                                RemoveFromPlaylist(item);
-                            else if(YoutubeID != null)
-                            {
-                                YoutubeEngine.RemoveFromPlaylist(item.TrackID);
-                                RemoveFromYtPlaylist(item, item.TrackID);
-                            }
+                            DeleteDialog(position);
                             break;
 
                         case 4:
@@ -910,9 +898,9 @@ namespace MusicApp.Resources.Portable_Class
                     if(Synced && YoutubeID != null && LocalID != 0)
                     {
                         if (song.TrackID == null)
-                            song = await CompleteItem(song);
+                            song = await CompleteItem(song, YoutubeID);
                     }
-                    SnackbarCallback callback = new SnackbarCallback(position, song, LocalID);
+                    SnackbarCallback callback = new SnackbarCallback(song, LocalID);
 
                     Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), (song.Title.Length > 20 ? song.Title.Substring(0, 17) + "..." : song.Title) + " has been removed from the playlist.", Snackbar.LengthLong)
                         .SetAction("Undo", (v) =>
@@ -926,7 +914,7 @@ namespace MusicApp.Resources.Portable_Class
                                 adapter.Insert(position, song);
                                 tracks.Insert(position, song);
                             }
-                            if (LocalID != 0)
+                            else if (LocalID != 0)
                             {
                                 adapter.Insert(position, song);
                                 tracks.Insert(position, song);

@@ -5,8 +5,10 @@ using Android.Database;
 using Android.Net;
 using Android.OS;
 using Android.Provider;
+using Android.Support.Design.Widget;
 using Android.Support.V4.App;
 using Android.Support.V7.App;
+using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
@@ -81,7 +83,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             musicList = new List<Song>();
 
-            Android.Net.Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
+            Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
 
             CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
             ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
@@ -327,12 +329,30 @@ namespace MusicApp.Resources.Portable_Class
             context.StartService(intent);
         }
 
+        public static bool SongIsContained(long audioID, long playlistID)
+        {
+            Uri uri = MediaStore.Audio.Playlists.Members.GetContentUri("external", playlistID);
+            CursorLoader loader = new CursorLoader(Android.App.Application.Context, uri, null, null, null, null);
+            ICursor cursor = (ICursor)loader.LoadInBackground();
+
+            if (cursor != null && cursor.MoveToFirst())
+            {
+                int idColumn = cursor.GetColumnIndex(MediaStore.Audio.Playlists.Members.AudioId);
+                do
+                {
+                    long id = cursor.GetLong(idColumn);
+                    if (id == audioID)
+                        return true;
+                }
+                while (cursor.MoveToNext());
+                cursor.Close();
+            }
+            return false;
+        }
+
         public static void GetPlaylist(Song item)
         {
-            List<string> playList = new List<string>();
-            List<long> playListId = new List<long>();
-            playList.Add("Create a playlist");
-            playListId.Add(0);
+            List<PlaylistItem> LocalPlaylists = new List<PlaylistItem>();
 
             Uri uri = MediaStore.Audio.Playlists.ExternalContentUri;
             CursorLoader loader = new CursorLoader(Android.App.Application.Context, uri, null, null, null, null);
@@ -341,24 +361,64 @@ namespace MusicApp.Resources.Portable_Class
             if (cursor != null && cursor.MoveToFirst())
             {
                 int nameID = cursor.GetColumnIndex(MediaStore.Audio.Playlists.InterfaceConsts.Name);
+                int pathID = cursor.GetColumnIndex(MediaStore.Audio.Playlists.InterfaceConsts.Data);
                 int playlistID = cursor.GetColumnIndex(MediaStore.Audio.Playlists.InterfaceConsts.Id);
                 do
                 {
                     string name = cursor.GetString(nameID);
                     long id = cursor.GetLong(playlistID);
-                    playList.Add(name);
-                    playListId.Add(id);
+                    PlaylistItem playlist = new PlaylistItem(name, id)
+                    {
+                        SongContained = SongIsContained(item.Id, id)
+                    };
+                    LocalPlaylists.Add(playlist);
                 }
                 while (cursor.MoveToNext());
                 cursor.Close();
             }
+            List<PlaylistItem> YoutubePlaylists = new List<PlaylistItem>
+            {
+                new PlaylistItem("Loading", null)
+            };
 
+            View Layout = inflater.Inflate(Resource.Layout.RecyclerFragment, null);
             AlertDialog.Builder builder = new AlertDialog.Builder(act, MainActivity.dialogTheme);
             builder.SetTitle("Add to a playlist");
-            builder.SetItems(playList.ToArray(), (senderAlert, args) =>
+            builder.SetView(Layout);
+            RecyclerView ListView = Layout.FindViewById<RecyclerView>(Resource.Id.recycler);
+            ListView.SetPadding(0, MainActivity.instance.DpToPx(5), 0, 0);
+            ListView.SetLayoutManager(new LinearLayoutManager(MainActivity.instance));
+            AddToPlaylistAdapter adapter = new AddToPlaylistAdapter(LocalPlaylists, YoutubePlaylists);
+            ListView.SetAdapter(adapter);
+            adapter.ItemClick += async (sender, position) => 
             {
-                AddToPlaylist(item, playList[args.Which], playListId[args.Which]);
-            });
+                AddToPlaylistHolder holder = (AddToPlaylistHolder)ListView.GetChildViewHolder(ListView.GetChildAt(position));
+                bool add = !holder.Added.Checked;
+                holder.Added.Checked = add;
+
+                bool Local = position < LocalPlaylists.Count;
+                PlaylistItem playlist = Local ? LocalPlaylists[position] : YoutubePlaylists[position - LocalPlaylists.Count];
+                if (add)
+                {
+                    if (Local)
+                        AddToPlaylist(item, playlist.Name, playlist.LocalID);
+                }
+                else
+                {
+                    if (playlist.SyncState == SyncState.True && playlist.YoutubeID != null && playlist.LocalID != 0)
+                    {
+                        if (item.TrackID == null)
+                            item = await PlaylistTracks.CompleteItem(item, playlist.YoutubeID);
+                    }
+                    SnackbarCallback callback = new SnackbarCallback(item, playlist.LocalID);
+
+                    Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), (item.Title.Length > 20 ? item.Title.Substring(0, 17) + "..." : item.Title) + " has been removed from the playlist.", Snackbar.LengthLong)
+                        .SetAction("Undo", (v) => { callback.canceled = true; });
+                    snackBar.AddCallback(callback);
+                    snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Android.Graphics.Color.White);
+                    snackBar.Show();
+                }
+            };
             builder.Show();
         }
 

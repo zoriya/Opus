@@ -259,6 +259,7 @@
     <Compile Include="Resources\Portable Class\AccountPreference.cs" />
     <Compile Include="Resources\Portable Class\AccountTarget.cs" />
     <Compile Include="Resources\Portable Class\Adapter.cs" />
+    <Compile Include="Resources\Portable Class\AddToPlaylistAdapter.cs" />
     <Compile Include="Resources\Portable Class\AudioStopper.cs" />
     <Compile Include="Resources\Portable Class\Browse.cs" />
     <Compile Include="Resources\Portable Class\ChannelAdapter.cs" />
@@ -733,6 +734,12 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\Filter.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\AddToPlaylistItem.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\PublicIcon.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Android.Support.Animated.Vector.Drawable.25.4.0.2\build\MonoAndroid70\Xamarin.Android.Support.Animated.Vector.Drawable.targets" Condition="Exists('..\packages\Xamarin.Android.Support.Animated.Vector.Drawable.25.4.0.2\build\MonoAndroid70\Xamarin.Android.Support.Animated.Vector.Drawable.targets')" />

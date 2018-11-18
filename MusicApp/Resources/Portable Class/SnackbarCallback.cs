@@ -8,14 +8,12 @@ namespace MusicApp.Resources.Portable_Class
 {
     public class SnackbarCallback : BaseTransientBottomBar.BaseCallback
     {
-        private int position;
         private Song song;
         private long playlistId;
         public bool canceled = false;
 
-        public SnackbarCallback(int position, Song song, long playlistId)
+        public SnackbarCallback(Song song, long playlistId)
         {
-            this.position = position;
             this.song = song;
             this.playlistId = playlistId;
         }
@@ -33,7 +31,7 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     ContentResolver resolver = MainActivity.instance.ContentResolver;
                     Uri uri = MediaStore.Audio.Playlists.Members.GetContentUri("external", playlistId);
-                    resolver.Delete(uri, MediaStore.Audio.Playlists.Members.Id + "=?", new string[] { song.Id.ToString() });
+                    resolver.Delete(uri, MediaStore.Audio.Playlists.Members.AudioId + "=?", new string[] { song.Id.ToString() });
                 }
             }
         }

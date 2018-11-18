@@ -16,6 +16,7 @@ namespace MusicApp.Resources.Portable_Class
         public string ImageURL { get; set; }
         public bool HasWritePermission { get; set; }
         public SyncState SyncState = SyncState.False;
+        public bool SongContained; //For AddToPlaylist dialog
 
         public PlaylistItem() { }
 
