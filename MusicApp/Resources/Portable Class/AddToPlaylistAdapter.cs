@@ -10,38 +10,36 @@ namespace MusicApp.Resources.Portable_Class
 {
     public class AddToPlaylistAdapter : RecyclerView.Adapter
     {
-        private List<PlaylistItem> LocalPlaylists = new List<PlaylistItem>();
-        private List<PlaylistItem> YoutubePlaylists = new List<PlaylistItem>();
+        private List<PlaylistItem> Playlists = new List<PlaylistItem>();
         public event EventHandler<int> ItemClick;
 
-        public AddToPlaylistAdapter(List<PlaylistItem> LocalPlaylists, List<PlaylistItem> YoutubePlaylists)
+        public AddToPlaylistAdapter(List<PlaylistItem> Playlists)
         {
-            this.LocalPlaylists = LocalPlaylists;
-            this.YoutubePlaylists = YoutubePlaylists;
+            this.Playlists = Playlists;
         }
 
-        public override int ItemCount => LocalPlaylists.Count + YoutubePlaylists.Count;
+        public override int ItemCount => Playlists.Count;
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position)
         {
-            if (position >= LocalPlaylists.Count && position < LocalPlaylists.Count + YoutubePlaylists.Count && YoutubePlaylists[position - LocalPlaylists.Count].Name == "Loading" && YoutubePlaylists[position - LocalPlaylists.Count].YoutubeID == null)
+            if (position == Playlists.Count - 1 && Playlists[position].Name == "Loading" && Playlists[position].LocalID == 0 && Playlists[position].YoutubeID == null)
                 return;
 
             AddToPlaylistHolder holder = (AddToPlaylistHolder)viewHolder;
-            holder.Title.Text = LocalPlaylists[position].Name;
+            holder.Title.Text = Playlists[position].Name;
 
-            if((LocalPlaylists.Count > position && LocalPlaylists[position].SongContained) || (position > LocalPlaylists.Count && YoutubePlaylists[position - LocalPlaylists.Count].SongContained))
+            if(Playlists[position].SongContained)
                 holder.Added.Checked = true;
             else
                 holder.Added.Checked = false;
 
 
-            if ((LocalPlaylists.Count > position && LocalPlaylists[position].SyncState == SyncState.True) || (position > LocalPlaylists.Count && YoutubePlaylists[position - LocalPlaylists.Count].SyncState == SyncState.True))
+            if (Playlists[position].SyncState == SyncState.True)
             {
                 holder.Status.Visibility = ViewStates.Visible;
                 holder.Status.SetImageResource(Resource.Drawable.Sync);                    
             }
-            else if(position >= LocalPlaylists.Count)
+            else if(Playlists[position].YoutubeID != null)
             {
                 holder.Status.Visibility = ViewStates.Visible;
                 holder.Status.SetImageResource(Resource.Drawable.PublicIcon);
@@ -74,7 +72,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public override int GetItemViewType(int position)
         {
-            if (position == LocalPlaylists.Count + YoutubePlaylists.Count - 1 && YoutubePlaylists[position - LocalPlaylists.Count].Name == "Loading")
+            if (position == Playlists.Count - 1 && Playlists[position].Name == "Loading" && Playlists[position].LocalID == 0 && Playlists[position].YoutubeID == null)
                 return 1;
             else
                 return 0;

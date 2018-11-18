@@ -11,6 +11,7 @@ using Android.Support.V7.App;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
+using Google.Apis.YouTube.v3;
 using MusicApp.Resources.values;
 using SQLite;
 using System.Collections.Generic;
@@ -351,9 +352,9 @@ namespace MusicApp.Resources.Portable_Class
             return false;
         }
 
-        public static /*async*/ void GetPlaylist(Song item)
+        public static async void GetPlaylist(Song item)
         {
-            List<PlaylistItem> LocalPlaylists = new List<PlaylistItem>();
+            List<PlaylistItem> Playlists = new List<PlaylistItem>();
 
             Uri uri = MediaStore.Audio.Playlists.ExternalContentUri;
             CursorLoader loader = new CursorLoader(Android.App.Application.Context, uri, null, null, null, null);
@@ -372,15 +373,13 @@ namespace MusicApp.Resources.Portable_Class
                     {
                         SongContained = SongIsContained(item.Id, id)
                     };
-                    LocalPlaylists.Add(playlist);
+                    Playlists.Add(playlist);
                 }
                 while (cursor.MoveToNext());
                 cursor.Close();
             }
-            List<PlaylistItem> YoutubePlaylists = new List<PlaylistItem>
-            {
-                new PlaylistItem("Loading", null)
-            };
+            PlaylistItem Loading = new PlaylistItem("Loading", null);
+            Playlists.Add(Loading);
 
             View Layout = inflater.Inflate(Resource.Layout.AddToPlaylistLayout, null);
             if(MainActivity.Theme == 1)
@@ -393,7 +392,7 @@ namespace MusicApp.Resources.Portable_Class
             builder.SetView(Layout);
             RecyclerView ListView = Layout.FindViewById<RecyclerView>(Resource.Id.recycler);
             ListView.SetLayoutManager(new LinearLayoutManager(MainActivity.instance));
-            AddToPlaylistAdapter adapter = new AddToPlaylistAdapter(LocalPlaylists, YoutubePlaylists);
+            AddToPlaylistAdapter adapter = new AddToPlaylistAdapter(Playlists);
             ListView.SetAdapter(adapter);
             adapter.ItemClick += async (sender, position) => 
             {
@@ -401,11 +400,10 @@ namespace MusicApp.Resources.Portable_Class
                 bool add = !holder.Added.Checked;
                 holder.Added.Checked = add;
 
-                bool Local = position < LocalPlaylists.Count;
-                PlaylistItem playlist = Local ? LocalPlaylists[position] : YoutubePlaylists[position - LocalPlaylists.Count];
+                PlaylistItem playlist = Playlists[position];
                 if (add)
                 {
-                    if (Local)
+                    if (playlist.LocalID != 0)
                         AddToPlaylist(item, playlist.Name, playlist.LocalID);
                 }
                 else
@@ -428,6 +426,44 @@ namespace MusicApp.Resources.Portable_Class
             AlertDialog dialog = builder.Create();
             Layout.FindViewById<LinearLayout>(Resource.Id.CreatePlaylist).Click += (sender, e) => { dialog.Dismiss(); CreatePlalistDialog(item); };
             dialog.Show();
+
+            if(item.youtubeID == null)
+            {
+                item = CompleteItem(item);
+                if (item.youtubeID == null)
+                {
+                    Toast.MakeText(MainActivity.instance, "Song can't be found on youtube, can't add it to a youtube playlist.", ToastLength.Long).Show();
+                    return;
+                }
+            }
+
+
+            if (!await MainActivity.instance.WaitForYoutube())
+            {
+                Toast.MakeText(MainActivity.instance, "Error while loading.\nCheck your internet connection and check if your logged in.", ToastLength.Long).Show();
+                return;
+            }
+
+            try
+            {
+                PlaylistsResource.ListRequest request = YoutubeEngine.youtubeService.Playlists.List("snippet");
+                request.Mine = true;
+                request.MaxResults = 50;
+                var response = await request.ExecuteAsync();
+
+                foreach(var playlist in response.Items)
+                {
+                    Playlists.Insert(Playlists.Count - 1, new PlaylistItem(playlist.Snippet.Title, playlist.Id));
+                    adapter.NotifyItemInserted(Playlists.Count - 1);
+                }
+            }
+            catch (System.Net.Http.HttpRequestException)
+            {
+                MainActivity.instance.Timout();
+            }
+
+            Playlists.Remove(Loading);
+            adapter.NotifyItemRemoved(Playlists.Count);
         }
 
         public async static Task CheckWritePermission()
