@@ -476,9 +476,6 @@
     <AndroidResource Include="Resources\drawable\needProcessing.png" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\drawable\youtubeIcon.png" />
-  </ItemGroup>
-  <ItemGroup>
     <AndroidResource Include="Resources\layout\RecyclerFragment.xml">
       <SubType>Designer</SubType>
     </AndroidResource>

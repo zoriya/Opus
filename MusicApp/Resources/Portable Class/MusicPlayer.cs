@@ -760,8 +760,7 @@ namespace MusicApp.Resources.Portable_Class
                         if (firstItem < item && item < lastItem)
                         {
                             ImageView youtubeIcon = Queue.instance.ListView.GetChildAt(item - firstItem).FindViewById<ImageView>(Resource.Id.youtubeIcon);
-                            youtubeIcon.SetImageResource(Resource.Drawable.youtubeIcon);
-                            youtubeIcon.ClearColorFilter();
+                            youtubeIcon.SetImageResource(Resource.Drawable.PublicIcon);
                         }
                     }
 
@@ -1004,8 +1003,7 @@ namespace MusicApp.Resources.Portable_Class
                         if (firstItem < item && item < lastItem)
                         {
                             ImageView youtubeIcon = Queue.instance.ListView.GetChildAt(item - firstItem).FindViewById<ImageView>(Resource.Id.youtubeIcon);
-                            youtubeIcon.SetImageResource(Resource.Drawable.youtubeIcon);
-                            youtubeIcon.ClearColorFilter();
+                            youtubeIcon.SetImageResource(Resource.Drawable.PublicIcon);
                         }
                     }
                 }

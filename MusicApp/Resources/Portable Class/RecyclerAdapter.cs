@@ -121,11 +121,11 @@ namespace MusicApp.Resources.Portable_Class
                     }
                     else if (songList[position].IsYt)
                     {
-                        holder.youtubeIcon.SetImageResource(Resource.Drawable.youtubeIcon);
+                        holder.youtubeIcon.SetImageResource(Resource.Drawable.PublicIcon);
                         holder.youtubeIcon.Visibility = ViewStates.Visible;
 
                         if (MainActivity.Theme == 1)
-                            holder.youtubeIcon.ClearColorFilter();
+                            holder.youtubeIcon.SetColorFilter(Color.White);
                     }
                     else
                     {

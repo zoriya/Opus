@@ -90,7 +90,7 @@
       android:layout_height="30dp"
       android:padding="5dp"
       android:background="@null"
-      android:src="@drawable/youtubeIcon"
+      android:src="@drawable/PublicIcon"
       android:visibility="gone" />
     <ImageView
       android:id="@+id/moreButton"
