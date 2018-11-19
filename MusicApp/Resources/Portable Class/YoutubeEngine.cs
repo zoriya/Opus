@@ -373,7 +373,7 @@ namespace MusicApp.Resources.Portable_Class
                         PlayLast(item.youtubeID, item.Title, item.Artist, item.Album);
                         break;
                     case 3:
-                        GetPlaylists(item, Activity);
+                        Browse.GetPlaylist(item);
                         break;
                     case 4:
                         Download(item.Title, item.youtubeID);
@@ -656,7 +656,6 @@ namespace MusicApp.Resources.Portable_Class
 
         public static async void RemoveFromPlaylist(string TrackID)
         {
-            System.Console.WriteLine("&Deleting trackID: " + TrackID);
             try
             {
                 await youtubeService.PlaylistItems.Delete(TrackID).ExecuteAsync();
@@ -667,108 +666,52 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
-        public static async void GetPlaylists(Song item, Context context)
+        public async static void AddToPlaylist(Song item, string YoutubeID)
         {
-            if(!await MainActivity.instance.WaitForYoutube())
-            {
-                Toast.MakeText(context, "Error while loading.\nCheck your internet connection and check if your logged in.", ToastLength.Long).Show();
-                return;
-            }
-
-            List<string> playList = new List<string>();
-            List<string> playListId = new List<string>();
-            playList.Add("Create a playlist");
-            playListId.Add("newPlaylist");
-
             try
             {
-                PlaylistsResource.ListRequest ytPlaylists = youtubeService.Playlists.List("snippet,contentDetails");
-                ytPlaylists.Mine = true;
-                ytPlaylists.MaxResults = 25;
-                PlaylistListResponse response = await ytPlaylists.ExecuteAsync();
-
-                for (int i = 0; i < response.Items.Count; i++)
+                Console.WriteLine("&Adding song: " + item.Title + "(" + item.youtubeID + "), PlaylistID: " + YoutubeID);
+                Google.Apis.YouTube.v3.Data.PlaylistItem playlistItem = new Google.Apis.YouTube.v3.Data.PlaylistItem();
+                PlaylistItemSnippet snippet = new PlaylistItemSnippet
                 {
-                    Google.Apis.YouTube.v3.Data.Playlist playlist = response.Items[i];
-                    playList.Add(playlist.Snippet.Title);
-                    playListId.Add(playlist.Id);
-                }
+                    PlaylistId = YoutubeID
+                };
+                ResourceId resourceId = new ResourceId
+                {
+                    Kind = "youtube#video",
+                    VideoId = item.youtubeID
+                };
+                snippet.ResourceId = resourceId;
+                playlistItem.Snippet = snippet;
+
+                var insertRequest = youtubeService.PlaylistItems.Insert(playlistItem, "snippet");
+                await insertRequest.ExecuteAsync();
             }
             catch (System.Net.Http.HttpRequestException)
             {
                 MainActivity.instance.Timout();
             }
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(context, MainActivity.dialogTheme);
-            builder.SetTitle("Add to a playlist");
-            builder.SetItems(playList.ToArray(), (senderAlert, args) =>
-            {
-                AddToPlaylist(item, playList[args.Which], playListId[args.Which], context);
-            });
-            builder.Show();
+            ////Check if this playlist is synced, if it his, add the song to the local playlist
+            //if (SyncBehave)
+            //{
+            //    PlaylistItem SyncedPlaylist = null;
+            //    await Task.Run(() =>
+            //    {
+            //        SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "SyncedPlaylists.sqlite"));
+            //        db.CreateTable<PlaylistItem>();
+
+            //        SyncedPlaylist = db.Table<PlaylistItem>().ToList().Find(x => x.YoutubeID == YoutubeID);
+            //    });
+
+            //    if (SyncedPlaylist != null)
+            //    {
+            //        Download(item.Title, item.youtubeID, playlistName);
+            //    }
+            //}
         }
 
-        public async static void AddToPlaylist(Song item, string playlistName, string YoutubeID, Context context, bool SyncBehave = true)
-        {
-            if(YoutubeID == "newPlaylist")
-            {
-                AlertDialog.Builder builder = new AlertDialog.Builder(context, MainActivity.dialogTheme);
-                builder.SetTitle("Playlist name");
-                View view = MainActivity.instance.LayoutInflater.Inflate(Resource.Layout.CreatePlaylistDialog, null);
-                builder.SetView(view);
-                builder.SetNegativeButton("Cancel", (senderAlert, args) => { });
-                builder.SetPositiveButton("Create", (senderAlert, args) =>
-                {
-                    NewPlaylist(view.FindViewById<EditText>(Resource.Id.playlistName).Text, item.youtubeID);
-                });
-                builder.Show();
-            }
-            else
-            {
-                try
-                {
-                    Google.Apis.YouTube.v3.Data.PlaylistItem playlistItem = new Google.Apis.YouTube.v3.Data.PlaylistItem();
-                    PlaylistItemSnippet snippet = new PlaylistItemSnippet
-                    {
-                        PlaylistId = YoutubeID
-                    };
-                    ResourceId resourceId = new ResourceId
-                    {
-                        Kind = "youtube#video",
-                        VideoId = item.youtubeID
-                    };
-                    snippet.ResourceId = resourceId;
-                    playlistItem.Snippet = snippet;
-
-                    var insertRequest = youtubeService.PlaylistItems.Insert(playlistItem, "snippet");
-                    insertRequest.Execute();
-                }
-                catch (System.Net.Http.HttpRequestException)
-                {
-                    MainActivity.instance.Timout();
-                }
-
-                //Check if this playlist is synced, if it his, add the song to the local playlist
-                if (SyncBehave)
-                {
-                    PlaylistItem SyncedPlaylist = null;
-                    await Task.Run(() =>
-                    {
-                        SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "SyncedPlaylists.sqlite"));
-                        db.CreateTable<PlaylistItem>();
-
-                        SyncedPlaylist = db.Table<PlaylistItem>().ToList().Find(x => x.YoutubeID == YoutubeID);
-                    });
-
-                    if (SyncedPlaylist != null)
-                    {
-                        Download(item.Title, item.youtubeID, playlistName);
-                    }
-                }
-            }
-        }
-
-        public async static void NewPlaylist(string playlistName, string videoID)
+        public async static void CreatePlaylist(string playlistName, Song item)
         {
             try
             {
@@ -782,22 +725,7 @@ namespace MusicApp.Resources.Portable_Class
                 var createRequest = youtubeService.Playlists.Insert(playlist, "snippet, status");
                 Google.Apis.YouTube.v3.Data.Playlist response = await createRequest.ExecuteAsync();
 
-
-                Google.Apis.YouTube.v3.Data.PlaylistItem playlistItem = new Google.Apis.YouTube.v3.Data.PlaylistItem();
-                PlaylistItemSnippet snippetItem = new PlaylistItemSnippet
-                {
-                    PlaylistId = response.Id
-                };
-                ResourceId resourceId = new ResourceId
-                {
-                    Kind = "youtube#video",
-                    VideoId = videoID
-                };
-                snippetItem.ResourceId = resourceId;
-                playlistItem.Snippet = snippetItem;
-
-                var insertRequest = youtubeService.PlaylistItems.Insert(playlistItem, "snippet");
-                insertRequest.ExecuteAsync();
+                AddToPlaylist(item, playlistName);
             }
             catch (System.Net.Http.HttpRequestException)
             {

@@ -14,4 +14,8 @@
     android:layout_marginRight="8dp"
     android:layout_marginBottom="4dp"
     android:hint="Playlist Name" />
+  <Spinner
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/playlistLocation" />
 </LinearLayout>

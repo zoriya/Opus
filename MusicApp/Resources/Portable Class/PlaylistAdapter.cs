@@ -94,13 +94,11 @@ namespace MusicApp.Resources.Portable_Class
                 holder.Line1.Text = LocalPlaylists[position].Name;
                 holder.Line2.Text = LocalPlaylists[position].Count.ToString() + ((LocalPlaylists[position].Count > 1) ? " elements" : " element");
 
-                holder.more.Tag = position;
                 if (!holder.more.HasOnClickListeners)
                 {
                     holder.more.Click += (sender, e) =>
                     {
-                        int tagPosition = (int)((ImageView)sender).Tag;
-                        Playlist.instance.More(tagPosition);
+                        Playlist.instance.More(holder.AdapterPosition);
                     };
                 }
 

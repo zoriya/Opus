@@ -25,4 +25,14 @@
     android:paddingRight="15dp"
     android:layout_centerVertical="true"
     android:layout_alignParentRight="true" />
+  <ProgressBar
+    android:id="@+id/syncLoading"
+    android:layout_width="29dp"
+    android:layout_height="29dp"
+    android:padding="5dp"
+    android:indeterminate="true"
+    android:indeterminateTint="@android:color/black"
+    android:layout_centerVertical="true"
+    android:layout_alignParentRight="true"
+    android:visibility="gone" />
 </RelativeLayout>

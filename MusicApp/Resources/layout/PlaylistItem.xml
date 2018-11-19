@@ -69,8 +69,6 @@
       android:layout_width="30dp"
       android:layout_height="30dp"
       android:padding="5dp"
-      android:background="@null"
-      android:src="@drawable/Sync"
       android:visibility="gone" />
     <ImageView
       android:id="@+id/moreButton"

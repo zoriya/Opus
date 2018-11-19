@@ -244,7 +244,7 @@ namespace MusicApp.Resources.Portable_Class
                 handler.Post(() =>
                 {
                     Browse.act = MainActivity.instance;
-                    Browse.AddToPlaylist(Browse.GetSong(path), playlist, -1, queue.FindIndex(x => x.path == path), false, true);
+                    Browse.AddToPlaylist(Browse.GetSong(path), playlist, -1, true);
                 });
             }
         }

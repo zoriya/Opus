@@ -725,10 +725,7 @@ namespace MusicApp.Resources.Portable_Class
                             break;
 
                         case 4:
-                            if (item.IsYt)
-                                YoutubeEngine.GetPlaylists(item, Activity);
-                            else
-                                Browse.GetPlaylist(item);
+                            Browse.GetPlaylist(item);
                             break;
 
                         case 5:
@@ -769,10 +766,7 @@ namespace MusicApp.Resources.Portable_Class
                             break;
 
                         case 3:
-                            if (item.IsYt)
-                                YoutubeEngine.GetPlaylists(item, Activity);
-                            else
-                                Browse.GetPlaylist(item);
+                            Browse.GetPlaylist(item);
                             break;
 
                         case 4:

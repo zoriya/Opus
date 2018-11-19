@@ -331,7 +331,7 @@ namespace MusicApp.Resources.Portable_Class
             context.StartService(intent);
         }
 
-        public static bool SongIsContained(long audioID, long playlistID)
+        private static bool SongIsContained(long audioID, long playlistID)
         {
             Uri uri = MediaStore.Audio.Playlists.Members.GetContentUri("external", playlistID);
             CursorLoader loader = new CursorLoader(Android.App.Application.Context, uri, null, null, null, null);
@@ -352,8 +352,37 @@ namespace MusicApp.Resources.Portable_Class
             return false;
         }
 
+        private async static Task<bool> SongIsContained(string audioID, string playlistID)
+        {
+            try
+            {
+                var request = YoutubeEngine.youtubeService.PlaylistItems.List("snippet, contentDetails");
+                request.PlaylistId = playlistID;
+                request.VideoId = audioID;
+                request.MaxResults = 1;
+
+                var response = await request.ExecuteAsync();
+                if (response.Items.Count > 0)
+                    return true;
+            }
+            catch (System.Net.Http.HttpRequestException)
+            {
+                MainActivity.instance.Timout();
+            }
+            return false;
+        }
+
         public static async void GetPlaylist(Song item)
         {
+            List<PlaylistItem> SyncedPlaylists = new List<PlaylistItem>();
+            await Task.Run(() =>
+            {
+                SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "SyncedPlaylists.sqlite"));
+                db.CreateTable<PlaylistItem>();
+
+                SyncedPlaylists = db.Table<PlaylistItem>().ToList();
+            });
+
             List<PlaylistItem> Playlists = new List<PlaylistItem>();
 
             Uri uri = MediaStore.Audio.Playlists.ExternalContentUri;
@@ -373,6 +402,17 @@ namespace MusicApp.Resources.Portable_Class
                     {
                         SongContained = SongIsContained(item.Id, id)
                     };
+                    PlaylistItem synced = SyncedPlaylists.Find(x => x.LocalID == id);
+                    if (synced != null)
+                    {
+                        if (synced.YoutubeID == null)
+                            playlist.SyncState = SyncState.Loading;
+                        else
+                        {
+                            playlist.SyncState = SyncState.True;
+                            playlist.YoutubeID = synced.YoutubeID;
+                        }
+                    }
                     Playlists.Add(playlist);
                 }
                 while (cursor.MoveToNext());
@@ -405,6 +445,8 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     if (playlist.LocalID != 0)
                         AddToPlaylist(item, playlist.Name, playlist.LocalID);
+                    if (playlist.YoutubeID != null)
+                        YoutubeEngine.AddToPlaylist(item, playlist.YoutubeID);
                 }
                 else
                 {
@@ -427,20 +469,24 @@ namespace MusicApp.Resources.Portable_Class
             Layout.FindViewById<LinearLayout>(Resource.Id.CreatePlaylist).Click += (sender, e) => { dialog.Dismiss(); CreatePlalistDialog(item); };
             dialog.Show();
 
+
             if(item.youtubeID == null)
             {
                 item = CompleteItem(item);
                 if (item.youtubeID == null)
                 {
                     Toast.MakeText(MainActivity.instance, "Song can't be found on youtube, can't add it to a youtube playlist.", ToastLength.Long).Show();
+                    Playlists.Remove(Loading);
+                    adapter.NotifyItemRemoved(Playlists.Count);
                     return;
                 }
             }
 
-
             if (!await MainActivity.instance.WaitForYoutube())
             {
                 Toast.MakeText(MainActivity.instance, "Error while loading.\nCheck your internet connection and check if your logged in.", ToastLength.Long).Show();
+                Playlists.Remove(Loading);
+                adapter.NotifyItemRemoved(Playlists.Count);
                 return;
             }
 
@@ -453,8 +499,29 @@ namespace MusicApp.Resources.Portable_Class
 
                 foreach(var playlist in response.Items)
                 {
-                    Playlists.Insert(Playlists.Count - 1, new PlaylistItem(playlist.Snippet.Title, playlist.Id));
-                    adapter.NotifyItemInserted(Playlists.Count - 1);
+                    if (SyncedPlaylists.Find(x => x.Name == playlist.Snippet.Title) != null)
+                    {
+                        int position = Playlists.FindIndex(x => x.Name == playlist.Snippet.Title && x.SyncState == SyncState.Loading);
+                        if(position != -1)
+                        {
+                            Playlists[position].SyncState = SyncState.True;
+                            Playlists[position].YoutubeID = playlist.Id;
+
+                            AddToPlaylistHolder holder = (AddToPlaylistHolder)ListView.GetChildViewHolder(ListView.GetChildAt(position));
+                            holder.SyncLoading.Visibility = ViewStates.Gone;
+                            holder.Status.Visibility = ViewStates.Visible;
+                            holder.Status.SetImageResource(Resource.Drawable.Sync);
+                        }
+                    }
+                    else
+                    {
+                        PlaylistItem YtPlaylist = new PlaylistItem(playlist.Snippet.Title, playlist.Id)
+                        {
+                            SongContained = await SongIsContained(item.youtubeID, playlist.Id)
+                        };
+                        Playlists.Insert(Playlists.Count - 1, YtPlaylist);
+                        adapter.NotifyItemInserted(Playlists.Count - 1);
+                    }
                 }
             }
             catch (System.Net.Http.HttpRequestException)
@@ -481,7 +548,7 @@ namespace MusicApp.Resources.Portable_Class
             return;
         }
 
-        public async static void AddToPlaylist(Song item, string playList, long LocalID, int position = -1, bool SyncBehave = true, bool saveAsSynced = false)
+        public async static void AddToPlaylist(Song item, string playList, long LocalID, bool saveAsSynced = false)
         {
             if(LocalID == -1)
             {
@@ -489,7 +556,7 @@ namespace MusicApp.Resources.Portable_Class
                 if (LocalID == -1)
                     CreatePlaylist(playList, item, saveAsSynced);
                 else
-                    AddToPlaylist(item, playList, LocalID, position);
+                    AddToPlaylist(item, playList, LocalID);
             }
             else
             {
@@ -501,32 +568,32 @@ namespace MusicApp.Resources.Portable_Class
                 value.Put(MediaStore.Audio.Playlists.Members.PlayOrder, 0);
                 resolver.Insert(MediaStore.Audio.Playlists.Members.GetContentUri("external", LocalID), value);
 
-                //Check if this playlist is synced, if it his, add the song to the youtube playlist
-                if (SyncBehave)
-                {
-                    PlaylistItem SyncedPlaylist = null;
-                    await Task.Run(() =>
-                    {
-                        SQLiteConnection db = new SQLiteConnection(Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "SyncedPlaylists.sqlite"));
-                        db.CreateTable<PlaylistItem>();
+                ////Check if this playlist is synced, if it his, add the song to the youtube playlist
+                //if (SyncBehave)
+                //{
+                //    PlaylistItem SyncedPlaylist = null;
+                //    await Task.Run(() =>
+                //    {
+                //        SQLiteConnection db = new SQLiteConnection(Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "SyncedPlaylists.sqlite"));
+                //        db.CreateTable<PlaylistItem>();
 
-                        SyncedPlaylist = db.Table<PlaylistItem>().ToList().Find(x => x.LocalID == LocalID);
-                    });
+                //        SyncedPlaylist = db.Table<PlaylistItem>().ToList().Find(x => x.LocalID == LocalID);
+                //    });
 
-                    if (SyncedPlaylist != null)
-                    {
-                        if (SyncedPlaylist.YoutubeID != null && SyncedPlaylist.HasWritePermission)
-                        {
-                            Song song = CompleteItem(item);
-                            if (song.youtubeID != null)
-                                YoutubeEngine.AddToPlaylist(song, playList, SyncedPlaylist.YoutubeID, MainActivity.instance, false);
-                            else
-                                Toast.MakeText(MainActivity.instance, "Can't find this song on youtube, it has only been added to the local playlist.", ToastLength.Long).Show();
-                        }
-                        else
-                            Toast.MakeText(MainActivity.instance, "Playlist has not finished syncing yet, can't add this song to the youtube playlist (but has been added locally). Please check on the playlist view for more details.", ToastLength.Long).Show();
-                    }
-                }
+                //    if (SyncedPlaylist != null)
+                //    {
+                //        if (SyncedPlaylist.YoutubeID != null && SyncedPlaylist.HasWritePermission)
+                //        {
+                //            Song song = CompleteItem(item);
+                //            if (song.youtubeID != null)
+                //                YoutubeEngine.AddToPlaylist(song, playList, SyncedPlaylist.YoutubeID, MainActivity.instance, false);
+                //            else
+                //                Toast.MakeText(MainActivity.instance, "Can't find this song on youtube, it has only been added to the local playlist.", ToastLength.Long).Show();
+                //        }
+                //        else
+                //            Toast.MakeText(MainActivity.instance, "Playlist has not finished syncing yet, can't add this song to the youtube playlist (but has been added locally). Please check on the playlist view for more details.", ToastLength.Long).Show();
+                //    }
+                //}
             }
         }
 
@@ -536,10 +603,28 @@ namespace MusicApp.Resources.Portable_Class
             builder.SetTitle("Playlist name");
             View view = inflater.Inflate(Resource.Layout.CreatePlaylistDialog, null);
             builder.SetView(view);
+            PlaylistLocationAdapter adapter = new PlaylistLocationAdapter(MainActivity.instance, Android.Resource.Layout.SimpleSpinnerItem, new string[] { "Local playlist", "Youtube playlist", "Synced playlist (both local and youtube)" })
+            {
+                YoutubeWorkflow = item.youtubeID != null
+            };
+            adapter.SetDropDownViewResource(Android.Resource.Layout.SimpleSpinnerDropDownItem);
+            view.FindViewById<Spinner>(Resource.Id.playlistLocation).Adapter = adapter;
             builder.SetNegativeButton("Cancel", (senderAlert, args) => { });
             builder.SetPositiveButton("Create", (senderAlert, args) => 
             {
-                CreatePlaylist(view.FindViewById<EditText>(Resource.Id.playlistName).Text, item);
+                switch (view.FindViewById<Spinner>(Resource.Id.playlistLocation).SelectedItemPosition)
+                {
+                    case 0:
+                        CreatePlaylist(view.FindViewById<EditText>(Resource.Id.playlistName).Text, item);
+                        break;
+                    case 1:
+                        YoutubeEngine.CreatePlaylist(view.FindViewById<EditText>(Resource.Id.playlistName).Text, item);
+                        break;
+                    case 2:
+                        CreatePlaylist(view.FindViewById<EditText>(Resource.Id.playlistName).Text, item, true);
+                        YoutubeEngine.CreatePlaylist(view.FindViewById<EditText>(Resource.Id.playlistName).Text, item);
+                        break;
+                }
             });
             builder.Show();
         }

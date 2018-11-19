@@ -1,4 +1,5 @@
 ﻿using Android.App;
+using Android.Content.Res;
 using Android.Graphics;
 using Android.Support.V7.Widget;
 using Android.Views;
@@ -36,8 +37,16 @@ namespace MusicApp.Resources.Portable_Class
 
             if (Playlists[position].SyncState == SyncState.True)
             {
+                holder.SyncLoading.Visibility = ViewStates.Gone;
                 holder.Status.Visibility = ViewStates.Visible;
                 holder.Status.SetImageResource(Resource.Drawable.Sync);                    
+            }
+            else if(Playlists[position].SyncState == SyncState.Loading)
+            {
+                holder.Status.Visibility = ViewStates.Gone;
+                holder.SyncLoading.Visibility = ViewStates.Visible;
+                if (MainActivity.Theme == 1)
+                    holder.SyncLoading.IndeterminateTintList = ColorStateList.ValueOf(Color.White);
             }
             else if(Playlists[position].YoutubeID != null)
             {
@@ -47,6 +56,7 @@ namespace MusicApp.Resources.Portable_Class
             else
             {
                 holder.Status.Visibility = ViewStates.Gone;
+                holder.SyncLoading.Visibility = ViewStates.Gone;
             }
 
             if (MainActivity.Theme == 1)
@@ -89,12 +99,14 @@ namespace MusicApp.Resources.Portable_Class
         public TextView Title;
         public CheckBox Added;
         public ImageView Status;
+        public ProgressBar SyncLoading;
 
         public AddToPlaylistHolder(View itemView, Action<int> listener) : base(itemView)
         {
             Title = itemView.FindViewById<TextView>(Resource.Id.title);
             Added = itemView.FindViewById<CheckBox>(Resource.Id.added);
             Status = itemView.FindViewById<ImageView>(Resource.Id.status);
+            SyncLoading = itemView.FindViewById<ProgressBar>(Resource.Id.syncLoading);
 
             itemView.Click += (sender, e) => listener(AdapterPosition);
         }
