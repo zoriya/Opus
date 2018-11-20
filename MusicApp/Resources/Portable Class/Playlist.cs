@@ -981,7 +981,6 @@ namespace MusicApp.Resources.Portable_Class
 
         void RemoveYoutubePlaylist(int position, string playlistID)
         {
-            System.Console.WriteLine("&1: Removing playlist at position " + position + " with local playlist count: " + LocalPlaylists.Count + ", playlist name: " + YoutubePlaylists[position - LocalPlaylists.Count].Name);
             AlertDialog dialog = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme)
                 .SetTitle("Do you want to delete the playlist \"" + YoutubePlaylists[position - LocalPlaylists.Count].Name + "\"?")
                 .SetPositiveButton("Yes", async (sender, e) =>
@@ -991,9 +990,11 @@ namespace MusicApp.Resources.Portable_Class
                         PlaylistsResource.DeleteRequest deleteRequest = YoutubeEngine.youtubeService.Playlists.Delete(playlistID);
                         await deleteRequest.ExecuteAsync();
 
-                        System.Console.WriteLine("&2: Removing playlist at position " + position + " with local playlist count: " + LocalPlaylists.Count + ", playlist name: " + YoutubePlaylists[position - LocalPlaylists.Count].Name);
                         YoutubePlaylists.RemoveAt(position - LocalPlaylists.Count);
-                        adapter.NotifyItemRemoved(position - LocalPlaylists.Count);
+                        adapter.NotifyItemRemoved(position);
+
+                        foreach (PlaylistItem item in YoutubePlaylists)
+                            System.Console.WriteLine(item.Name);
 
                         if (YoutubePlaylists.Count == 1)
                         {

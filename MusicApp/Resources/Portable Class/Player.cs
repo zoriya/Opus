@@ -404,7 +404,7 @@ namespace MusicApp.Resources.Portable_Class
         private void AddToPlaylist_Click(object sender, EventArgs e)
         {
             Browse.act = MainActivity.instance;
-            Browse.inflater = LayoutInflater;
+            Browse.inflater = MainActivity.instance.LayoutInflater;
             Browse.GetPlaylist(MusicPlayer.queue[MusicPlayer.CurrentID()]);
         }
 

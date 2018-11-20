@@ -553,6 +553,9 @@ namespace MusicApp.Resources.Portable_Class
                     }
 
                     nextPageToken = ytPlaylist.NextPageToken;
+                    if(nextPageToken == null)
+                        fullyLoadded = true;
+
                     adapter = new PlaylistTrackAdapter(tracks);
                     adapter.ItemClick += ListView_ItemClick;
                     adapter.ItemLongClick += ListView_ItemLongClick;

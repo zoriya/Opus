@@ -444,7 +444,12 @@ namespace MusicApp.Resources.Portable_Class
                 if (add)
                 {
                     if (playlist.LocalID != 0)
-                        AddToPlaylist(item, playlist.Name, playlist.LocalID);
+                    {
+                        if (item.Id == 0 || item.Id == -1)
+                            YoutubeEngine.Download(item.Title, item.youtubeID, playlist.Name);
+                        else
+                            AddToPlaylist(item, playlist.Name, playlist.LocalID);
+                    }
                     if (playlist.YoutubeID != null)
                         YoutubeEngine.AddToPlaylist(item, playlist.YoutubeID);
                 }
@@ -567,33 +572,6 @@ namespace MusicApp.Resources.Portable_Class
                 value.Put(MediaStore.Audio.Playlists.Members.AudioId, item.Id);
                 value.Put(MediaStore.Audio.Playlists.Members.PlayOrder, 0);
                 resolver.Insert(MediaStore.Audio.Playlists.Members.GetContentUri("external", LocalID), value);
-
-                ////Check if this playlist is synced, if it his, add the song to the youtube playlist
-                //if (SyncBehave)
-                //{
-                //    PlaylistItem SyncedPlaylist = null;
-                //    await Task.Run(() =>
-                //    {
-                //        SQLiteConnection db = new SQLiteConnection(Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "SyncedPlaylists.sqlite"));
-                //        db.CreateTable<PlaylistItem>();
-
-                //        SyncedPlaylist = db.Table<PlaylistItem>().ToList().Find(x => x.LocalID == LocalID);
-                //    });
-
-                //    if (SyncedPlaylist != null)
-                //    {
-                //        if (SyncedPlaylist.YoutubeID != null && SyncedPlaylist.HasWritePermission)
-                //        {
-                //            Song song = CompleteItem(item);
-                //            if (song.youtubeID != null)
-                //                YoutubeEngine.AddToPlaylist(song, playList, SyncedPlaylist.YoutubeID, MainActivity.instance, false);
-                //            else
-                //                Toast.MakeText(MainActivity.instance, "Can't find this song on youtube, it has only been added to the local playlist.", ToastLength.Long).Show();
-                //        }
-                //        else
-                //            Toast.MakeText(MainActivity.instance, "Playlist has not finished syncing yet, can't add this song to the youtube playlist (but has been added locally). Please check on the playlist view for more details.", ToastLength.Long).Show();
-                //    }
-                //}
             }
         }
 
@@ -660,7 +638,10 @@ namespace MusicApp.Resources.Portable_Class
                 cursor.Close();
             }
 
-            AddToPlaylist(item, name, playlistID);
+            if (item.Id == 0 || item.Id == -1)
+                YoutubeEngine.Download(item.Title, item.youtubeID, name);
+            else
+                AddToPlaylist(item, name, playlistID);
 
             if (syncedPlaylist)
             {

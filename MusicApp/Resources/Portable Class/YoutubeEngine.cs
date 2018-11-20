@@ -670,7 +670,6 @@ namespace MusicApp.Resources.Portable_Class
         {
             try
             {
-                Console.WriteLine("&Adding song: " + item.Title + "(" + item.youtubeID + "), PlaylistID: " + YoutubeID);
                 Google.Apis.YouTube.v3.Data.PlaylistItem playlistItem = new Google.Apis.YouTube.v3.Data.PlaylistItem();
                 PlaylistItemSnippet snippet = new PlaylistItemSnippet
                 {
@@ -725,7 +724,7 @@ namespace MusicApp.Resources.Portable_Class
                 var createRequest = youtubeService.Playlists.Insert(playlist, "snippet, status");
                 Google.Apis.YouTube.v3.Data.Playlist response = await createRequest.ExecuteAsync();
 
-                AddToPlaylist(item, playlistName);
+                AddToPlaylist(item, response.Id);
             }
             catch (System.Net.Http.HttpRequestException)
             {
