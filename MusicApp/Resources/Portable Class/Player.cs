@@ -554,7 +554,6 @@ namespace MusicApp.Resources.Portable_Class
             View reveal = MainActivity.instance.FindViewById<View>(Resource.Id.reveal);
             int centerX, centerY;
             float endRadius;
-            Console.WriteLine("&PlayNext: " + playNext);
             if (playNext == true)
             {
                 centerX = 0;

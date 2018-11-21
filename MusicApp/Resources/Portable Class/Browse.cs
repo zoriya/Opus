@@ -274,6 +274,9 @@ namespace MusicApp.Resources.Portable_Class
                             Title = "Unknown Title";
                         if (Artist == null)
                             Artist = "Unknow Artist";
+
+                        if (filePath.StartsWith("content://"))
+                            filePath = path;
                         break;
                     }
                 }
@@ -460,13 +463,17 @@ namespace MusicApp.Resources.Portable_Class
                         if (item.TrackID == null)
                             item = await PlaylistTracks.CompleteItem(item, playlist.YoutubeID);
                     }
-                    SnackbarCallback callback = new SnackbarCallback(item, playlist.LocalID);
 
-                    Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), (item.Title.Length > 20 ? item.Title.Substring(0, 17) + "..." : item.Title) + " has been removed from the playlist.", Snackbar.LengthLong)
-                        .SetAction("Undo", (v) => { callback.canceled = true; });
-                    snackBar.AddCallback(callback);
-                    snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
-                    snackBar.Show();
+                    if (item.TrackID != null)
+                    {
+                        YoutubeEngine.RemoveFromPlaylist(item.TrackID);
+                    }
+                    if (playlist.LocalID != 0)
+                    {
+                        ContentResolver resolver = MainActivity.instance.ContentResolver;
+                        Uri plUri = MediaStore.Audio.Playlists.Members.GetContentUri("external", playlist.LocalID);
+                        resolver.Delete(plUri, MediaStore.Audio.Playlists.Members.AudioId + "=?", new string[] { item.Id.ToString() });
+                    }
                 }
             };
             builder.SetPositiveButton("OK", (sender, e) => { });

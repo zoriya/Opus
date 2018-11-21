@@ -200,6 +200,8 @@ namespace MusicApp.Resources.Portable_Class
                 mediaSession.SetCallback(new HeadphonesActions());
             }
 
+            Console.WriteLine("&Playing file at: " + filePath + " Uri: " + Uri.Parse(filePath));
+
             DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(Application.Context, "MusicApp");
             IExtractorsFactory extractorFactory = new DefaultExtractorsFactory();
             Handler handler = new Handler();
@@ -1317,7 +1319,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public void OnPlayerError(ExoPlaybackException args)
         {
-            Console.WriteLine("&Type: " + args.Type);
+            Console.WriteLine("&Type: " + args.Type + " : " +  args.Cause + " : " + args.Data);
             Player.instance?.Error();
 
 
