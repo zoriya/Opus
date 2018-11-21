@@ -30,6 +30,7 @@ using MusicApp.Resources.Fragments;
 using MusicApp.Resources.Portable_Class;
 using MusicApp.Resources.values;
 using Newtonsoft.Json.Linq;
+using SQLite;
 using Square.OkHttp;
 using Square.Picasso;
 using System;
@@ -45,6 +46,7 @@ using ICallback = Square.OkHttp.ICallback;
 using Playlist = MusicApp.Resources.Portable_Class.Playlist;
 using Request = Square.OkHttp.Request;
 using SearchView = Android.Support.V7.Widget.SearchView;
+using TransportType = Android.Net.TransportType;
 
 namespace MusicApp
 {
@@ -193,6 +195,8 @@ namespace MusicApp
                     Finish();
                 }
             }
+
+            SyncPlaylists();
         }
 
         public void SwitchTheme(int themeID)
@@ -1274,6 +1278,46 @@ namespace MusicApp
                 return false;
 
             return true;
+        }
+
+        bool HasWifi()
+        {
+            ConnectivityManager connectivityManager = (ConnectivityManager)Application.Context.GetSystemService(ConnectivityService);
+            NetworkCapabilities network = connectivityManager.GetNetworkCapabilities(connectivityManager.ActiveNetwork);
+
+            if (network.HasTransport(TransportType.Wifi) || network.HasTransport(TransportType.Ethernet))
+                return true;
+
+            return false;
+        }
+
+        private async void SyncPlaylists()
+        {
+            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(this);
+            DateTime lastSync = DateTime.Parse(prefManager.GetString("syncDate", DateTime.MinValue.ToString()));
+
+            if (lastSync.AddHours(1) > DateTime.Now || !HasWifi()) //Make a time check, do not check if the user is downloading or if the user has just started the app two times
+                return;
+
+            ISharedPreferencesEditor editor = prefManager.Edit();
+            editor.PutString("syncDate", DateTime.Now.ToString());
+
+            List<PlaylistItem> SyncedPlaylists = new List<PlaylistItem>();
+            await Task.Run(() =>
+            {
+                SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "SyncedPlaylists.sqlite"));
+                db.CreateTable<PlaylistItem>();
+
+                SyncedPlaylists = db.Table<PlaylistItem>().ToList();
+            });
+
+            foreach (PlaylistItem item in SyncedPlaylists)
+            {
+                if (item.YoutubeID != null)
+                {
+                    YoutubeEngine.DownloadPlaylist(item.Name, item.YoutubeID, false);
+                }
+            }
         }
 
         public async static void CheckForUpdate(Activity activity, bool displayToast)

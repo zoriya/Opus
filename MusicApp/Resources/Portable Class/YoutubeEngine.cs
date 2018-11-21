@@ -509,72 +509,68 @@ namespace MusicApp.Resources.Portable_Class
         public async static void Download(string name, string videoID, string playlist = null)
         {
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Android.App.Application.Context);
-            if (prefManager.GetString("downloadPath", null) != null)
+            if (prefManager.GetString("downloadPath", null) == null)
             {
-                Toast.MakeText(Android.App.Application.Context, "Downloading...", ToastLength.Short).Show();
-                Context context = Android.App.Application.Context;
-                Intent intent = new Intent(context, typeof(Downloader));
-                context.StartService(intent);
-
-                while (Downloader.instance == null)
-                    await Task.Delay(10);
-
-                Downloader.instance.downloadPath = prefManager.GetString("downloadPath", null);
-                Downloader.instance.maxDownload = prefManager.GetInt("maxDownload", 4);
-                Downloader.queue.Add(new DownloadFile(name, videoID, playlist));
-                Downloader.instance.StartDownload();
-            }
-            else
-            {
-                Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), "Download Path Not Set.", Snackbar.LengthIndefinite);
+                Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), "Download Path Not Set, using default one.", Snackbar.LengthIndefinite);
                 snackBar.SetAction("Set Path", (v) =>
                 {
                     snackBar.Dismiss();
-                    Intent intent = new Intent(Android.App.Application.Context, typeof(Preferences));
-                    MainActivity.instance.StartActivity(intent);
+                    Intent prefIntent = new Intent(Android.App.Application.Context, typeof(Preferences));
+                    MainActivity.instance.StartActivity(prefIntent);
                 });
                 snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
                 snackBar.Show();
             }
+
+            Toast.MakeText(Android.App.Application.Context, "Downloading...", ToastLength.Short).Show();
+            Context context = Android.App.Application.Context;
+            Intent intent = new Intent(context, typeof(Downloader));
+            context.StartService(intent);
+
+            while (Downloader.instance == null)
+                await Task.Delay(10);
+
+            Downloader.instance.downloadPath = prefManager.GetString("downloadPath", Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryMusic).ToString());
+            Downloader.instance.maxDownload = prefManager.GetInt("maxDownload", 4);
+            Downloader.queue.Add(new DownloadFile(name, videoID, playlist));
+            Downloader.instance.StartDownload();
         }
 
         public static async void DownloadFiles(string[] names, string[] videoIDs, string playlist)
         {
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Android.App.Application.Context);
-            if (prefManager.GetString("downloadPath", null) != null)
+            if (prefManager.GetString("downloadPath", null) == null)
             {
-                Context context = Android.App.Application.Context;
-                Intent intent = new Intent(context, typeof(Downloader));
-                context.StartService(intent);
-
-                while (Downloader.instance == null)
-                    await Task.Delay(10);
-
-                List<DownloadFile> files = new List<DownloadFile>();
-                for (int i = 0; i < names.Length; i++)
+                Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), "Download Path Not Set, using default one.", Snackbar.LengthLong).SetAction("Set Path", (v) =>
                 {
-                    files.Add(new DownloadFile(names[i], videoIDs[i], playlist));
-                }
-
-                Downloader.instance.downloadPath = prefManager.GetString("downloadPath", null);
-                Downloader.instance.maxDownload = prefManager.GetInt("maxDownload", 4);
-                Downloader.queue.AddRange(files);
-
-                if (playlist != null)
-                    Downloader.instance.SyncWithPlaylist(playlist, prefManager.GetBoolean("keepDeleted", true));
-
-                Downloader.instance.StartDownload();
-            }
-            else
-            {
-                Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), "Download Path Not Set.", Snackbar.LengthLong).SetAction("Set Path", (v) =>
-                {
-                    Intent intent = new Intent(Android.App.Application.Context, typeof(Preferences));
-                    MainActivity.instance.StartActivity(intent);
+                    Intent pref = new Intent(Android.App.Application.Context, typeof(Preferences));
+                    MainActivity.instance.StartActivity(pref);
                 });
                 snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
                 snackBar.Show();
             }
+
+            Context context = Android.App.Application.Context;
+            Intent intent = new Intent(context, typeof(Downloader));
+            context.StartService(intent);
+
+            while (Downloader.instance == null)
+                await Task.Delay(10);
+
+            List<DownloadFile> files = new List<DownloadFile>();
+            for (int i = 0; i < names.Length; i++)
+            {
+                files.Add(new DownloadFile(names[i], videoIDs[i], playlist));
+            }
+
+            Downloader.instance.downloadPath = prefManager.GetString("downloadPath", Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryMusic).ToString());
+            Downloader.instance.maxDownload = prefManager.GetInt("maxDownload", 4);
+            Downloader.queue.AddRange(files);
+
+            if (playlist != null)
+                Downloader.instance.SyncWithPlaylist(playlist, prefManager.GetBoolean("keepDeleted", true));
+
+            Downloader.instance.StartDownload();
         }
 
         public static bool FileIsAlreadyDownloaded(string youtubeID)
@@ -820,9 +816,14 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
-        public static async void DownloadPlaylist(string playlist, string playlistID)
+        public static async void DownloadPlaylist(string playlist, string playlistID, bool showToast = true)
         {
-            Toast.MakeText(Android.App.Application.Context, "Downloading...", ToastLength.Short).Show();
+            if (!await MainActivity.instance.WaitForYoutube())
+                return;
+
+            if (showToast)
+                Toast.MakeText(Android.App.Application.Context, "Syncing...", ToastLength.Short).Show();
+
             List<string> names = new List<string>();
             List<string> videoIDs = new List<string>();
             string nextPageToken = "";

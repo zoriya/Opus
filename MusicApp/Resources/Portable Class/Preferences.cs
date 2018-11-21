@@ -172,8 +172,8 @@ namespace MusicApp.Resources.Portable_Class
             //Download Path
             Preference downloadPref = PreferenceScreen.FindPreference("downloadPath");
             downloadPref.PreferenceClick += DownloadClick;
-            downloadPref.Summary = prefManager.GetString("downloadPath", "not set");
-            path = prefManager.GetString("downloadPath", null);
+            downloadPref.Summary = prefManager.GetString("downloadPath", Environment.GetExternalStoragePublicDirectory(Environment.DirectoryMusic).ToString());
+            path = prefManager.GetString("downloadPath", Environment.GetExternalStoragePublicDirectory(Environment.DirectoryMusic).ToString());
 
             //Maximum Download
             Preference maxDlPref = PreferenceScreen.FindPreference("maxDownload");

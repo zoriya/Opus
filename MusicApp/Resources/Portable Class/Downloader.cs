@@ -270,8 +270,6 @@ namespace MusicApp.Resources.Portable_Class
         {
             if (LocalID != -1)
             {
-                Toast.MakeText(Application.Context, "Playlist already downloaded, syncing changes.", ToastLength.Short).Show();
-
                 Uri musicUri = Playlists.Members.GetContentUri("external", LocalID);
 
                 CursorLoader cursorLoader = new CursorLoader(Application.Context, musicUri, null, null, null, null);
