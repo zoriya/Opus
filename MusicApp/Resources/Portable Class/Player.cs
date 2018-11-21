@@ -574,7 +574,7 @@ namespace MusicApp.Resources.Portable_Class
             }
             Animator anim = ViewAnimationUtils.CreateCircularReveal(reveal, centerX, centerY, 0, endRadius);
             anim.AnimationStart += (sender, e) => { reveal.SetBackgroundColor(background); };
-            anim.AnimationEnd += (sender, e) => { MainActivity.instance.FindViewById<RelativeLayout>(Resource.Id.infoPanel).SetBackgroundColor(background); };
+            anim.AnimationEnd += (sender, e) => { MainActivity.instance?.FindViewById<RelativeLayout>(Resource.Id.infoPanel).SetBackgroundColor(background); };
             anim.SetDuration(500);
             anim.StartDelay = 200;
             anim.Start();
