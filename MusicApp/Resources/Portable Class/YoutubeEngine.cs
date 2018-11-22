@@ -37,8 +37,8 @@ namespace MusicApp.Resources.Portable_Class
         public List<YtFile> result;
 
         private YtAdapter adapter;
-        public View emptyView;
-        public static View loadingView;
+        public TextView EmptyView;
+        public ProgressBar LoadingView;
         private bool searching;
         private readonly string[] actions = new string[] { "Play", "Play Next", "Play Last", "Add To Playlist", "Download" };
 
@@ -57,59 +57,43 @@ namespace MusicApp.Resources.Portable_Class
                 MainActivity.instance.contentRefresh.Refreshing = false;
             }
         }
+
         public void OnFocus()
         {
             if (searching && !error && !isEmpty)
             {
                 adapter = null;
                 ListView.SetAdapter(null);
-                ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
-                rootView.RemoveView(loadingView);
-                loadingView = LayoutInflater.Inflate(Resource.Layout.EmptyLoadingLayout, null);
-                Activity.AddContentView(loadingView, ListView.LayoutParameters);
+                LoadingView.Visibility = ViewStates.Visible;
             }
             if (isEmpty)
             {
-                emptyView = LayoutInflater.Inflate(Resource.Layout.EmptyYoutubeSearch, null);
-
                 switch (querryType)
                 {
                     case "All":
-                        ((TextView)emptyView).Text = "No result for " + searchKeyWorld;
+                        EmptyView.Text = "No result for " + searchKeyWorld;
                         break;
                     case "Tracks":
-                        ((TextView)emptyView).Text = "No track for " + searchKeyWorld;
+                        EmptyView.Text = "No track for " + searchKeyWorld;
                         break;
                     case "Playlists":
-                        ((TextView)emptyView).Text = "No playlist for " + searchKeyWorld;
+                        EmptyView.Text = "No playlist for " + searchKeyWorld;
                         break;
                     case "Lives":
-                        ((TextView)emptyView).Text = "No lives for " + searchKeyWorld;
+                        EmptyView.Text = "No lives for " + searchKeyWorld;
                         break;
                     case "Channels":
-                        ((TextView)emptyView).Text = "No channel for " + searchKeyWorld;
+                        EmptyView.Text = "No channel for " + searchKeyWorld;
                         break;
                     default:
                         break;
                 }
 
-                Activity.AddContentView(emptyView, ListView.LayoutParameters);
+                EmptyView.Visibility = ViewStates.Visible;
             }
         }
 
-        public void OnUnfocus()
-        {
-            if (searching)
-            {
-                ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
-                rootView.RemoveView(loadingView);
-            }
-            if (isEmpty)
-            {
-                ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
-                rootView.RemoveView(emptyView);
-            }
-        }
+        public void OnUnfocus() { }
 
         public static Fragment[] NewInstances(string searchQuery)
         {
@@ -132,7 +116,9 @@ namespace MusicApp.Resources.Portable_Class
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            View view = inflater.Inflate(Resource.Layout.RecyclerFragment, container, false);
+            View view = inflater.Inflate(Resource.Layout.YoutubeSearch, container, false);
+            EmptyView = view.FindViewById<TextView>(Resource.Id.empty);
+            LoadingView = view.FindViewById<ProgressBar>(Resource.Id.loading);
             ListView = view.FindViewById<RecyclerView>(Resource.Id.recycler);
             ListView.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
             ListView.SetItemAnimator(new DefaultItemAnimator());
@@ -151,32 +137,21 @@ namespace MusicApp.Resources.Portable_Class
             searching = true;
             searchKeyWorld = search;
 
-            if (loadingBar && focused)
+            if (loadingBar)
             {
                 adapter = null;
                 ListView.SetAdapter(null);
-                ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
-                rootView.RemoveView(loadingView);
-                if(emptyView != null)
-                    rootView.RemoveView(emptyView);
-                emptyView = null;
-                loadingView = LayoutInflater.Inflate(Resource.Layout.EmptyLoadingLayout, null);
-                Activity.AddContentView(loadingView, ListView.LayoutParameters);
+                EmptyView.Visibility = ViewStates.Gone;
+                LoadingView.Visibility = ViewStates.Visible;
             }
 
             if(!await MainActivity.instance.WaitForYoutube())
             {
                 error = true;
-                if (loadingBar && focused)
-                {
-                    ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
-                    rootView.RemoveView(loadingView);
-                }
                 ListView.SetAdapter(null);
-                emptyView = LayoutInflater.Inflate(Resource.Layout.EmptyYoutubeSearch, null);
-                ((TextView)emptyView).Text = "Error while loading.\nCheck your internet connection and check if your logged in.";
-                ((TextView)emptyView).SetTextColor(Color.Red);
-                Activity.AddContentView(emptyView, ListView.LayoutParameters);
+                EmptyView.Text = "Error while loading.\nCheck your internet connection and check if your logged in.";
+                EmptyView.SetTextColor(Color.Red);
+                EmptyView.Visibility = ViewStates.Visible;
                 return;
             }
 
@@ -248,10 +223,9 @@ namespace MusicApp.Resources.Portable_Class
                     result.Add(new YtFile(videoInfo, kind));
                 }
 
-                if (loadingBar && focused)
+                if (loadingBar /*&& focused*/)
                 {
-                    ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
-                    rootView.RemoveView(loadingView);
+                    LoadingView.Visibility = ViewStates.Gone;
                 }
 
                 ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(MainActivity.instance);
@@ -270,44 +244,40 @@ namespace MusicApp.Resources.Portable_Class
 
                     if (focused)
                     {
-                        if (emptyView == null)
-                            emptyView = LayoutInflater.Inflate(Resource.Layout.EmptyYoutubeSearch, null);
-
                         switch (querryType)
                         {
                             case "All":
-                                ((TextView)emptyView).Text = "No result for " + search;
+                                EmptyView.Text = "No result for " + search;
                                 break;
                             case "Tracks":
-                                ((TextView)emptyView).Text = "No tracks for " + search;
+                                EmptyView.Text = "No tracks for " + search;
                                 break;
                             case "Playlists":
-                                ((TextView)emptyView).Text = "No playlist for " + search;
+                                EmptyView.Text = "No playlist for " + search;
                                 break;
                             case "Lives":
-                                ((TextView)emptyView).Text = "No lives for " + searchKeyWorld;
+                                EmptyView.Text = "No lives for " + searchKeyWorld;
                                 break;
                             case "Channels":
-                                ((TextView)emptyView).Text = "No channel for " + search;
+                                EmptyView.Text = "No channel for " + search;
                                 break;
                             default:
                                 break;
                         }
 
-                        Activity.AddContentView(emptyView, ListView.LayoutParameters);
+                        EmptyView.Visibility = ViewStates.Visible;
                     }
                 }
+                else
+                    EmptyView.Visibility = ViewStates.Gone;
             }
             catch (System.Net.Http.HttpRequestException)
             {
                 MainActivity.instance.Timout();
                 if (focused)
                 {
-                    if (emptyView == null)
-                        emptyView = LayoutInflater.Inflate(Resource.Layout.EmptyYoutubeSearch, null);
-
-                    ((TextView)emptyView).Text = "Timout exception, check if you're still connected to internet.";
-                    Activity.AddContentView(emptyView, ListView.LayoutParameters);
+                    EmptyView.Text = "Timout exception, check if you're still connected to internet.";
+                    EmptyView.Visibility = ViewStates.Visible;
                 }
             }
         }
@@ -322,10 +292,10 @@ namespace MusicApp.Resources.Portable_Class
                     break;
                 case YtKind.Playlist:
                     ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
-                    rootView.RemoveView(loadingView);
+                    rootView.RemoveView(LoadingView);
                     foreach(YoutubeEngine instance in instances)
                     {
-                        rootView.RemoveView(instance.emptyView);
+                        rootView.RemoveView(instance.EmptyView);
                     }
 
                     MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(true);

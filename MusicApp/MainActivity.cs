@@ -433,13 +433,6 @@ namespace MusicApp
                 else if (YoutubeEngine.instances != null)
                 {
                     YoutubeEngine.error = false;
-                    ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
-                    foreach (YoutubeEngine instance in YoutubeEngine.instances)
-                    {
-                        rootView.RemoveView(instance.emptyView);
-                    }
-                    rootView.RemoveView(YoutubeEngine.loadingView);
-
                     var searchView = menu.FindItem(Resource.Id.search).ActionView.JavaCast<SearchView>();
                     menu.FindItem(Resource.Id.search).CollapseActionView();
                     searchView.ClearFocus();
@@ -477,23 +470,11 @@ namespace MusicApp
 
             if(Browse.instance != null)
             {
-                ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
-                foreach (YoutubeEngine instance in YoutubeEngine.instances)
-                {
-                    rootView.RemoveView(instance.emptyView);
-                }
-                rootView.RemoveView(YoutubeEngine.loadingView);
                 YoutubeEngine.instances = null;
                 SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(0, 0)).Commit();
             }
             else if (YoutubeEngine.instances != null && !PlaylistTracks.openned)
             {
-                ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
-                foreach (YoutubeEngine instance in YoutubeEngine.instances)
-                {
-                    rootView.RemoveView(instance.emptyView);
-                }
-                rootView.RemoveView(YoutubeEngine.loadingView);
                 YoutubeEngine.instances = null;
                 HideTabs();
                 SupportFragmentManager.PopBackStack();
@@ -608,12 +589,6 @@ namespace MusicApp
             if(YoutubeEngine.instances != null)
             {
                 YoutubeEngine.error = false;
-                ViewGroup rootView = FindViewById<ViewGroup>(Android.Resource.Id.Content);
-                foreach (YoutubeEngine instance in YoutubeEngine.instances)
-                {
-                    rootView.RemoveView(instance.emptyView);
-                }
-                rootView.RemoveView(YoutubeEngine.loadingView);
 
                 var searchView = menu.FindItem(Resource.Id.search).ActionView.JavaCast<SearchView>();
                 menu.FindItem(Resource.Id.search).CollapseActionView();
