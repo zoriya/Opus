@@ -200,8 +200,6 @@ namespace MusicApp.Resources.Portable_Class
                 mediaSession.SetCallback(new HeadphonesActions());
             }
 
-            Console.WriteLine("&Playing file at: " + filePath + " Uri: " + Uri.Parse(filePath));
-
             DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(Application.Context, "MusicApp");
             IExtractorsFactory extractorFactory = new DefaultExtractorsFactory();
             Handler handler = new Handler();
@@ -209,6 +207,8 @@ namespace MusicApp.Resources.Portable_Class
             IMediaSource mediaSource = null;
             if (isLive)
                 mediaSource = new HlsMediaSource(Uri.Parse(filePath), dataSourceFactory, handler, null);
+            else if (title == null)
+                mediaSource = new ExtractorMediaSource(Uri.FromFile(new Java.IO.File(filePath)), dataSourceFactory, extractorFactory, handler, null);
             else
                 mediaSource = new ExtractorMediaSource(Uri.Parse(filePath), dataSourceFactory, extractorFactory, handler, null);
             
@@ -308,7 +308,13 @@ namespace MusicApp.Resources.Portable_Class
             DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(Application.Context, "MusicApp");
             IExtractorsFactory extractorFactory = new DefaultExtractorsFactory();
             Handler handler = new Handler();
-            IMediaSource mediaSource = new ExtractorMediaSource(Uri.Parse(song.Path), dataSourceFactory, extractorFactory, handler, null);
+            IMediaSource mediaSource;
+
+            if (!song.IsYt)
+                mediaSource = new ExtractorMediaSource(Uri.FromFile(new Java.IO.File(song.Path)), dataSourceFactory, extractorFactory, handler, null);
+            else
+                mediaSource = new ExtractorMediaSource(Uri.Parse(song.Path), dataSourceFactory, extractorFactory, handler, null);
+
             AudioAttributes attributes = new AudioAttributes.Builder()
                 .SetUsage(AudioUsageKind.Media)
                 .SetContentType(AudioContentType.Music)

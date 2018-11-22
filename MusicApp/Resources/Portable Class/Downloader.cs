@@ -63,7 +63,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public override StartCommandResult OnStartCommand(Intent intent, StartCommandFlags flags, int startId)
         {
-            if(intent.Action == "Cancel")
+            if(intent != null && intent.Action == "Cancel")
             {
                 Cancel();
                 return StartCommandResult.NotSticky;

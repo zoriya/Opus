@@ -789,9 +789,6 @@ namespace MusicApp.Resources.Portable_Class
 
         public async void PlayInOrder(int fromPosition, bool useTransition)
         {
-            MusicPlayer.queue?.Clear();
-            MusicPlayer.currentID = -1;
-
             if (YoutubeID != null && !Synced)
             {
                 if (result != null && result.Count > fromPosition)
@@ -809,21 +806,23 @@ namespace MusicApp.Resources.Portable_Class
 
             if (!songs[0].IsYt)
             {
-                Browse.act = Activity;
                 Browse.Play(songs[0], useTransition ? ListView.GetChildAt(fromPosition - ((Android.Support.V7.Widget.LinearLayoutManager)ListView.GetLayoutManager()).FindFirstVisibleItemPosition()).FindViewById<ImageView>(Resource.Id.albumArt) : null);
+                await Task.Delay(1000);
             }
 
             songs.RemoveAt(0);
-            songs.Reverse();
 
             while (MusicPlayer.instance == null)
                 await Task.Delay(10);
 
             foreach (Song song in songs)
             {
-                MusicPlayer.instance.AddToQueue(song);
+                song.queueSlot = MusicPlayer.queue.Count;
+                MusicPlayer.queue.Add(song);
             }
             Player.instance?.UpdateNext();
+            MusicPlayer.UpdateQueueDataBase();
+            Home.instance?.RefreshQueue();
         }
 
         private void RemoveFromYtPlaylist(Song item, string ytTrackID)

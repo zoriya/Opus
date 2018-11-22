@@ -718,6 +718,10 @@ namespace MusicApp.Resources.Portable_Class
                 movement = SheetMovement.Unknow;
                 if (MusicPlayer.userStopped)
                 {
+                    Intent intent = new Intent(context, typeof(MusicPlayer));
+                    intent.SetAction("Stop");
+                    context.StartService(intent);
+
                     MusicPlayer.queue = new List<Song>();
                     MusicPlayer.UpdateQueueDataBase();
                     if (Home.adapterItems.Count > 0 && Home.adapterItems[0].SectionTitle == "Queue")
@@ -726,9 +730,13 @@ namespace MusicApp.Resources.Portable_Class
                         Home.adapterItems.RemoveAt(0);
                     }
                 }
-                Intent intent = new Intent(context, typeof(MusicPlayer));
-                intent.SetAction("Stop");
-                context.StartService(intent);
+                else
+                {
+                    Intent intent = new Intent(context, typeof(MusicPlayer));
+                    intent.SetAction("Stop");
+                    context.StartService(intent);
+                }
+
                 sheet.Alpha = 1;
                 MusicPlayer.instance?.ChangeVolume(MusicPlayer.instance.volume);
                 MusicPlayer.userStopped = true;
