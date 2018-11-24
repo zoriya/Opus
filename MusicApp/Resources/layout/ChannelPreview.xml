@@ -1,25 +1,59 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <RelativeLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
-  android.layout_width="wrap_content"
-  android:layout_height="wrap_content" >
+  android:layout_width="fill_parent"
+  android:layout_height="wrap_content"
+  android:layout_margin="15dp" >
   <RelativeLayout
     android:layout_width="fill_parent"
     android:layout_height="70dp"
-    android:background="#263238">
+    android:background="#141414"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    android:id="@+id/channelHolder" >
     <TextView
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_marginLeft="12dp"
-      android:layout_gravity="center_vertical"
+      android:layout_centerVertical="true"
       android:textSize="18dip"
-      android:id="@+id/title" />
+      android:id="@+id/name" />
     <ImageView
       android:layout_width="40dp"
       android:layout_height="40dp"
-      android:layout_gravity="center_vertical"
       android:layout_alignParentRight="true"
-      android:id="@+id/logo"
-      android:layout_marginRight="12dp" />
+      android:layout_centerVertical="true"
+      android:layout_marginRight="30dp"
+      android:id="@+id/logo" />
+  </RelativeLayout>
+  <RelativeLayout
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    android:id="@+id/mixHolder" >
+    <ImageView
+      android:layout_width="0px"
+      android:layout_weight="1"
+      android:layout_height="match_parent"
+      android:id="@+id/channelLogo" />
+    <LinearLayout
+      android:layout_width="0px"
+      android:layout_weight="1"
+      android:layout_height="match_parent"
+      android:orientation="vertical" >
+      <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        android:layout_weight="1"
+        android:id="@+id/mixOne" />
+      <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        android:layout_weight="1"
+        android:id="@+id/mixTwo" />
+    </LinearLayout>
   </RelativeLayout>
 </RelativeLayout>

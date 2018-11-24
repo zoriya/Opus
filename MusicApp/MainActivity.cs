@@ -1074,26 +1074,43 @@ namespace MusicApp
             }
         }
 
-        public void ShuffleAll()
+        public async void ShuffleAll()
         {
-            List<string> paths = new List<string>();
+            List<Song> songs = new List<Song>();
             Android.Net.Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
 
             CursorLoader cursorLoader = new CursorLoader(this, musicUri, null, null, null, null);
             ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
-
             if (musicCursor != null && musicCursor.MoveToFirst())
             {
+                int titleID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Title);
+                int artistID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Artist);
+                int albumID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Album);
+                int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
                 int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
                 do
                 {
-                    paths.Add(musicCursor.GetString(pathID));
+                    string Artist = musicCursor.GetString(artistID);
+                    string Title = musicCursor.GetString(titleID);
+                    string Album = musicCursor.GetString(albumID);
+                    long AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
+                    long id = musicCursor.GetLong(thisID);
+                    string path = musicCursor.GetString(pathID);
+
+                    if (Title == null)
+                        Title = "Unknown Title";
+                    if (Artist == null)
+                        Artist = "Unknow Artist";
+                    if (Album == null)
+                        Album = "Unknow Album";
+
+                    songs.Add(new Song(Title, Artist, Album, null, AlbumArt, id, path));
                 }
                 while (musicCursor.MoveToNext());
                 musicCursor.Close();
             }
 
-            if (paths.Count == 0)
+            if (songs.Count == 0)
             {
                 Snackbar snackBar = Snackbar.Make(FindViewById<CoordinatorLayout>(Resource.Id.snackBar), "No music file found on this device. Can't create a mix.", Snackbar.LengthLong);
                 snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
@@ -1101,12 +1118,14 @@ namespace MusicApp
                 return;
             }
 
-            Intent intent = new Intent(this, typeof(MusicPlayer));
-            intent.PutStringArrayListExtra("files", paths);
-            intent.SetAction("RandomPlay");
-            StartService(intent);
+            Browse.Play(Browse.GetSong(songs[0].Path), null);
             ShowSmallPlayer();
             ShowPlayer();
+
+            while (MusicPlayer.instance == null)
+                await Task.Delay(10);
+
+            MusicPlayer.instance.RandomPlay(songs, false);
         }
 
         private async void YtPlay(object sender, EventArgs e)

@@ -13,7 +13,6 @@ using Android.Widget;
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
 using MusicApp.Resources.values;
-using SQLite;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -223,14 +222,18 @@ namespace MusicApp.Resources.Portable_Class
                     result.Add(new YtFile(videoInfo, kind));
                 }
 
-                if (loadingBar /*&& focused*/)
-                {
+                if (loadingBar)
                     LoadingView.Visibility = ViewStates.Gone;
-                }
 
                 ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(MainActivity.instance);
                 List<string> topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
                 List<string> selectedTopics = topics.ConvertAll(x => x.Substring(x.IndexOf("/#-#/") + 5));
+
+                if(result[0].Kind == YtKind.Channel)
+                {
+                    YtFile channelPreview = new YtFile(result[0].item, YtKind.ChannelPreview);
+                    result.Insert(0, channelPreview);
+                }
 
                 adapter = new YtAdapter(result, selectedTopics);
                 adapter.ItemClick += ListView_ItemClick;
@@ -784,6 +787,43 @@ namespace MusicApp.Resources.Portable_Class
             {
                 MainActivity.instance.Timout();
             }
+        }
+
+        public async void MixFromChannel(string ChannelID)
+        {
+            if (!await MainActivity.instance.WaitForYoutube())
+                return;
+
+            List<Song> songs = new List<Song>();
+            try
+            {
+                SearchResource.ListRequest searchRequest = youtubeService.Search.List("snippet");
+                searchRequest.Fields = "items(id/videoId,snippet/title,snippet/thumbnails/high/url,snippet/channelTitle)";
+                searchRequest.Type = "video";
+                searchRequest.ChannelId = ChannelID;
+                searchRequest.MaxResults = 50;
+                var searchReponse = await searchRequest.ExecuteAsync();
+
+
+                foreach (var video in searchReponse.Items)
+                {
+                    Song song = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.High.Url, video.Id.VideoId, -1, -1, null, true, false);
+                    songs.Add(song);
+                }
+            }
+            catch (System.Net.Http.HttpRequestException)
+            {
+                MainActivity.instance.Timout();
+            }
+
+            int index = new Random().Next(0, songs.Count);
+            Play(songs[index].youtubeID, songs[index].Title, songs[index].Artist, songs[index].Album);
+            songs.RemoveAt(index);
+
+            while (MusicPlayer.instance == null)
+                await Task.Delay(10);
+
+            MusicPlayer.instance.RandomPlay(songs, false);
         }
 
         public static async void DownloadPlaylist(string playlist, string playlistID, bool showToast = true)

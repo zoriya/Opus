@@ -596,26 +596,56 @@ namespace MusicApp.Resources.Portable_Class
             generating = false;
         }
 
-        public async void RandomPlay(List<string> filePath, bool clearQueue)
+        public async void RandomPlay(List<string> filePaths, bool clearQueue)
         {
             currentID = 0;
             if (clearQueue)
                 queue.Clear();
 
             Random r = new Random();
-            filePath = filePath.OrderBy(x => r.Next()).ToList();
+            filePaths = filePaths.OrderBy(x => r.Next()).ToList();
             if (clearQueue)
-                Play(filePath[0]);
+            {
+                Play(filePaths[0]);
+                filePaths.RemoveAt(0);
+            }
 
             while (instance == null)
                 await Task.Delay(10);
 
-            for (int i = clearQueue ? 1 : 0; i < filePath.Count; i++)
+            foreach (string filePath in filePaths)
             {
-                Song song = Browse.GetSong(filePath[i]);
+                Song song = Browse.GetSong(filePath);
                 song.queueSlot = queue.Count;
                 queue.Add(song);
                 await Task.Delay(10);
+            }
+
+            UpdateQueueDataBase();
+            Home.instance?.RefreshQueue();
+        }
+
+        public async void RandomPlay(List<Song> songs, bool clearQueue)
+        {
+            currentID = 0;
+            if (clearQueue)
+                queue.Clear();
+
+            Random r = new Random();
+            songs = songs.OrderBy(x => r.Next()).ToList();
+            if (clearQueue)
+            {
+                Play(songs[0]);
+                songs.RemoveAt(0);
+            }
+
+            while (instance == null)
+                await Task.Delay(10);
+
+            foreach(Song song in songs)
+            {
+                song.queueSlot = queue.Count;
+                queue.Add(song);
             }
 
             UpdateQueueDataBase();

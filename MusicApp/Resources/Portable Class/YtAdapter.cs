@@ -113,12 +113,12 @@ namespace MusicApp.Resources.Portable_Class
                     holder.Owner.Alpha = 0.7f;
                 }
             }
-            else
+            else if(items[position].Kind == YtKind.Channel)
             {
                 RecyclerChannelHolder holder = (RecyclerChannelHolder)viewHolder;
 
                 holder.Title.Text = song.Title;
-                Picasso.With(Android.App.Application.Context).Load(song.Album).Placeholder(Resource.Drawable.MusicIcon).Transform(new CircleTransformation()).Into(holder.AlbumArt);
+                Picasso.With(Android.App.Application.Context).Load(song.Album).Placeholder(Resource.Drawable.MusicIcon).Transform(new CircleTransformation(false)).Into(holder.AlbumArt);
 
                 holder.action.Visibility = ViewStates.Visible;
                 holder.CheckBox.Visibility = ViewStates.Gone;
@@ -170,6 +170,29 @@ namespace MusicApp.Resources.Portable_Class
                     holder.Title.SetTextColor(Color.White);
                 }
             }
+            else
+            {
+                ChannelPreviewHolder holder = (ChannelPreviewHolder)viewHolder;
+
+                holder.Name.Text = song.Title;
+                Picasso.With(Android.App.Application.Context).Load(song.Album).Placeholder(Resource.Drawable.MusicIcon).Transform(new CircleTransformation(true)).MemoryPolicy(MemoryPolicy.NoCache, MemoryPolicy.NoStore).Into(holder.Logo);
+                Picasso.With(Android.App.Application.Context).Load(song.Album).Placeholder(Resource.Drawable.MusicIcon).Into(holder.ChannelLogo);
+
+
+                List<YtFile> files = items.FindAll(x => x.item.Artist == song.Title);
+                if(files.Count > 0)
+                    Picasso.With(Android.App.Application.Context).Load(files[0].item.Album).Placeholder(Resource.Drawable.MusicIcon).Into(holder.MixOne);
+                if (files.Count > 1)
+                    Picasso.With(Android.App.Application.Context).Load(files[1].item.Album).Placeholder(Resource.Drawable.MusicIcon).Into(holder.MixOne);
+
+                if (!holder.MixHolder.HasOnClickListeners)
+                {
+                    holder.MixHolder.Click += (sender, e) => 
+                    {
+                        YoutubeEngine.instances?[0]?.MixFromChannel(song.youtubeID);
+                    };
+                }
+            }
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
@@ -184,10 +207,15 @@ namespace MusicApp.Resources.Portable_Class
                 View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.PlaylistItem, parent, false);
                 return new PlaylistHolder(itemView, OnClick, OnLongClick);
             }
-            else
+            else if(viewType == 2)
             {
                 View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.ChannelList, parent, false);
                 return new RecyclerChannelHolder(itemView, OnClick, OnLongClick);
+            }
+            else
+            {
+                View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.ChannelPreview, parent, false);
+                return new ChannelPreviewHolder(itemView);
             }
         }
 
@@ -197,13 +225,16 @@ namespace MusicApp.Resources.Portable_Class
                 return 0;
             else if (items[position].Kind == YtKind.Playlist)
                 return 1;
-            else
+            else if (items[position].Kind == YtKind.Channel)
                 return 2;
+            else
+                return 3;
 
             /*
              * 0: Video
              * 1: Playlist
              * 2: Channel
+             * 3: ChannelPreview
              */
         }
 

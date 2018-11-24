@@ -1,22 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
+﻿using Android.Graphics;
 using Square.Picasso;
-using Android.Widget;
-using Android.Graphics;
+using System;
+using static Android.Graphics.Paint;
 
 namespace MusicApp.Resources.Portable_Class
 {
     public class CircleTransformation : Java.Lang.Object, ITransformation
     {
+        private bool UseBorder = false;
         public string Key { get { return "Circle"; } }
+
+        public CircleTransformation() { }
+
+        public CircleTransformation(bool useBorder)
+        {
+            UseBorder = useBorder;
+        }
 
         public Bitmap Transform(Bitmap source)
         {
@@ -25,22 +24,33 @@ namespace MusicApp.Resources.Portable_Class
             int x = (source.Width - size) / 2;
             int y = (source.Height - size) / 2;
 
-            Bitmap squaredBitmap = Bitmap.CreateBitmap(source, x, y, size, size);
+            Bitmap squaredBitmap = Bitmap.CreateBitmap(source, x, y, size , size);
             if (squaredBitmap != source)
             {
                 source.Recycle();
             }
 
             Bitmap bitmap = Bitmap.CreateBitmap(size, size, source.GetConfig());
-
             Canvas canvas = new Canvas(bitmap);
+            float r = size / 2f;
+
+            if (UseBorder)
+            {
+                Paint BorderPaint = new Paint
+                {
+                    Color = Color.White,
+                    AntiAlias = true
+                };
+
+                canvas.DrawCircle(r, r, r, BorderPaint);
+            }
+
             Paint paint = new Paint();
             BitmapShader shader = new BitmapShader(squaredBitmap, Shader.TileMode.Clamp, Shader.TileMode.Clamp);
             paint.SetShader(shader);
             paint.AntiAlias = true;
 
-            float r = size / 2f;
-            canvas.DrawCircle(r, r, r, paint);
+            canvas.DrawCircle(r, r, r - (UseBorder ? 25 : 0), paint);
 
             squaredBitmap.Recycle();
             return bitmap;
