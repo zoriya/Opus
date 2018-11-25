@@ -11,12 +11,13 @@ using Android.Support.V4.App;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
+using Java.Nio;
 using MusicApp.Resources.values;
 using SQLite;
+using Square.Picasso;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using TagLib;
@@ -24,7 +25,9 @@ using YoutubeExplode;
 using YoutubeExplode.Models;
 using YoutubeExplode.Models.MediaStreams;
 using static Android.Provider.MediaStore.Audio;
+using Bitmap = Android.Graphics.Bitmap;
 using File = System.IO.File;
+using Stream = System.IO.Stream;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -201,23 +204,34 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
-        private void SetMetaData(int position, string filePath, string title, string artist, string album, string youtubeID, string playlist)
+        private async void SetMetaData(int position, string filePath, string title, string artist, string album, string youtubeID, string playlist)
         {
-            System.IO.Stream stream = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite);
-            var meta = TagLib.File.Create(new StreamFileAbstraction(filePath, stream, stream));
+            await Task.Run(() => 
+            {
+                Stream stream = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite);
+                var meta = TagLib.File.Create(new StreamFileAbstraction(filePath, stream, stream));
 
-            meta.Tag.Title = title;
-            meta.Tag.Performers = new string[] { artist };
-            meta.Tag.Album = album;
-            meta.Tag.Comment = youtubeID;
+                meta.Tag.Title = title;
+                meta.Tag.Performers = new string[] { artist };
+                meta.Tag.Album = album;
+                meta.Tag.Comment = youtubeID;
 
-            IPicture[] pictures = new IPicture[1];
-            WebClient client = new WebClient();
-            byte[] data = client.DownloadData(album);
-            pictures[0] = new Picture(data);
-            meta.Tag.Pictures = pictures;
-            meta.Save();
-            stream.Dispose();
+                IPicture[] pictures = new IPicture[1];
+                Bitmap bitmap = Picasso.With(Application.Context).Load(album).Transform(new RemoveBlackBorder(true)).Get();
+                byte[] data;
+                using (var MemoryStream = new MemoryStream())
+                {
+                    bitmap.Compress(Bitmap.CompressFormat.Png, 0, MemoryStream);
+                    data = MemoryStream.ToArray();
+                }
+                bitmap.Recycle();
+                pictures[0] = new Picture(data);
+                meta.Tag.Pictures = pictures;
+
+                meta.Save();
+                stream.Dispose();
+            });
+            
             MediaScannerConnection.ScanFile(this, new string[] { filePath }, null, this);
 
             queue[position].State = DownloadState.Completed;

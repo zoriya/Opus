@@ -84,7 +84,7 @@ namespace MusicApp.Resources.Portable_Class
             if (song.AlbumArt == -1 || song.IsYt)
             {
                 var songAlbumArtUri = Android.Net.Uri.Parse(song.Album);
-                Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(albumArt);
+                Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Transform(new RemoveBlackBorder(true)).Into(albumArt);
             }
             else
             {

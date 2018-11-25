@@ -128,7 +128,7 @@ namespace MusicApp.Resources.Portable_Class
 
                 holder.Title.Text = playlist.Name;
                 holder.Owner.Text = playlist.Owner;
-                Picasso.With(Application.Context).Load(playlist.ImageURL).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
+                Picasso.With(Application.Context).Load(playlist.ImageURL).Placeholder(Resource.Drawable.MusicIcon).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
 
                 if (playlist.HasWritePermission)
                 {

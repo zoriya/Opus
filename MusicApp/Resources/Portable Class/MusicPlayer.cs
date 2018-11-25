@@ -1095,7 +1095,7 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     try
                     {
-                        icon = Picasso.With(Application.Context).Load(imageURI).Error(Resource.Drawable.MusicIcon).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Get();
+                        icon = Picasso.With(Application.Context).Load(imageURI).Error(Resource.Drawable.MusicIcon).Placeholder(Resource.Drawable.MusicIcon).Transform(new RemoveBlackBorder(true)).Get();
                     }
                     catch (Exception)
                     {

@@ -43,7 +43,7 @@ namespace MusicApp.Resources.Portable_Class
                 holder.reorder.Visibility = ViewStates.Gone;
 
                 var songAlbumArtUri = Android.Net.Uri.Parse(song.Album);
-                Picasso.With(Android.App.Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
+                Picasso.With(Android.App.Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
 
                 holder.more.Tag = position;
                 if (!holder.more.HasOnClickListeners)
@@ -93,7 +93,7 @@ namespace MusicApp.Resources.Portable_Class
                 holder.Owner.Text = song.Artist;
 
                 var songAlbumArtUri = Android.Net.Uri.Parse(song.Album);
-                Picasso.With(Android.App.Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
+                Picasso.With(Android.App.Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
 
                 holder.more.Tag = position;
                 if (!holder.more.HasOnClickListeners)
@@ -179,9 +179,9 @@ namespace MusicApp.Resources.Portable_Class
 
                 List<YtFile> files = items.FindAll(x => x.item.Artist == song.Title && x.Kind == YtKind.Video);
                 if(files.Count > 0)
-                    Picasso.With(Android.App.Application.Context).Load(files[0].item.Album).Placeholder(Resource.Drawable.MusicIcon).Transform(new RemoveBlackBorder()).Into(holder.MixOne);
+                    Picasso.With(Android.App.Application.Context).Load(files[0].item.Album).Placeholder(Resource.Drawable.MusicIcon).Transform(new RemoveBlackBorder()).MemoryPolicy(MemoryPolicy.NoCache, MemoryPolicy.NoStore).Into(holder.MixOne);
                 if (files.Count > 1)
-                    Picasso.With(Android.App.Application.Context).Load(files[1].item.Album).Placeholder(Resource.Drawable.MusicIcon).Transform(new RemoveBlackBorder()).Into(holder.MixTwo);
+                    Picasso.With(Android.App.Application.Context).Load(files[1].item.Album).Placeholder(Resource.Drawable.MusicIcon).Transform(new RemoveBlackBorder()).MemoryPolicy(MemoryPolicy.NoCache, MemoryPolicy.NoStore).Into(holder.MixTwo);
 
                 Picasso.With(Android.App.Application.Context).Load(song.Album).Placeholder(Resource.Drawable.MusicIcon).Fit().CenterCrop().Into(holder.ChannelLogo);
 
