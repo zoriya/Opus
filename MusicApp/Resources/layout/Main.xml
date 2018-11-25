@@ -174,7 +174,6 @@
             android:layout_marginRight="3dp"
             android:layout_gravity="center"
             android:visibility="gone"
-            android:theme="@style/Buffer"
             android:id="@+id/spBuffer" />
           <ImageButton
             android:id="@+id/spLast"

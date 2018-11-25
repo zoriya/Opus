@@ -5001,11 +5001,11 @@ namespace MusicApp
 			// aapt resource value: 0x7f0b0170
 			public const int Animation_Design_BottomSheetDialog = 2131427696;
 			
-			// aapt resource value: 0x7f0b01a2
-			public const int AppCompatAlertDialogStyle = 2131427746;
+			// aapt resource value: 0x7f0b01a1
+			public const int AppCompatAlertDialogStyle = 2131427745;
 			
-			// aapt resource value: 0x7f0b01a3
-			public const int AppCompatDarkAlertDialogStyle = 2131427747;
+			// aapt resource value: 0x7f0b01a2
+			public const int AppCompatDarkAlertDialogStyle = 2131427746;
 			
 			// aapt resource value: 0x7f0b00ab
 			public const int Base_AlertDialog_AppCompat = 2131427499;
@@ -5499,9 +5499,6 @@ namespace MusicApp
 			// aapt resource value: 0x7f0b0172
 			public const int Base_Widget_Design_TabLayout = 2131427698;
 			
-			// aapt resource value: 0x7f0b019e
-			public const int Buffer = 2131427742;
-			
 			// aapt resource value: 0x7f0b000d
 			public const int CardView = 2131427341;
 			
@@ -5511,11 +5508,11 @@ namespace MusicApp
 			// aapt resource value: 0x7f0b0010
 			public const int CardView_Light = 2131427344;
 			
-			// aapt resource value: 0x7f0b01a0
-			public const int DarkPopup = 2131427744;
+			// aapt resource value: 0x7f0b019f
+			public const int DarkPopup = 2131427743;
 			
-			// aapt resource value: 0x7f0b01a4
-			public const int DarkPreferences = 2131427748;
+			// aapt resource value: 0x7f0b01a3
+			public const int DarkPreferences = 2131427747;
 			
 			// aapt resource value: 0x7f0b019d
 			public const int DarkTheme = 2131427741;
@@ -5544,8 +5541,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f0b0198
 			public const int ExoMediaButton_Shuffle = 2131427736;
 			
-			// aapt resource value: 0x7f0b01a1
-			public const int LightDropDown = 2131427745;
+			// aapt resource value: 0x7f0b01a0
+			public const int LightDropDown = 2131427744;
 			
 			// aapt resource value: 0x7f0b002f
 			public const int Platform_AppCompat = 2131427375;
@@ -5670,8 +5667,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f0b0049
 			public const int RtlUnderlay_Widget_AppCompat_ActionButton_Overflow = 2131427401;
 			
-			// aapt resource value: 0x7f0b019f
-			public const int SplashScreen = 2131427743;
+			// aapt resource value: 0x7f0b019e
+			public const int SplashScreen = 2131427742;
 			
 			// aapt resource value: 0x7f0b00d8
 			public const int TextAppearance_AppCompat = 2131427544;

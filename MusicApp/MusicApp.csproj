@@ -271,6 +271,7 @@
     <Compile Include="Resources\Portable Class\PlaylistHolder.cs" />
     <Compile Include="Resources\Portable Class\PlaylistLocationAdapter.cs" />
     <Compile Include="Resources\Portable Class\PlaylistTrackAdapter.cs" />
+    <Compile Include="Resources\Portable Class\RemoveBlackBorder.cs" />
     <Compile Include="Resources\Portable Class\SearchableActivity.cs" />
     <Compile Include="Resources\Portable Class\Downloader.cs" />
     <Compile Include="Resources\Portable Class\DownloadFragment.cs" />

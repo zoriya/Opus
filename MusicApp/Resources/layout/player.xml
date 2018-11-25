@@ -62,7 +62,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:visibility="gone"
-            android:theme="@style/Buffer"
             android:id="@+id/playerBuffer"
             android:padding="20dp"
             android:layout_marginLeft="50dp"

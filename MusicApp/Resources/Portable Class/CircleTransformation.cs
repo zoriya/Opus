@@ -1,7 +1,6 @@
 ﻿using Android.Graphics;
 using Square.Picasso;
 using System;
-using static Android.Graphics.Paint;
 
 namespace MusicApp.Resources.Portable_Class
 {

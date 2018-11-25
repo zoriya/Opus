@@ -336,11 +336,16 @@ namespace MusicApp.Resources.Portable_Class
             ImageButton play = MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton);
             ProgressBar buffer = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.playerBuffer);
             buffer.Visibility = ViewStates.Visible;
+            buffer.IndeterminateTintList = ColorStateList.ValueOf(Color.White);
             buffer.SetY(play.GetY());
             play.Visibility = ViewStates.Gone;
 
             ProgressBar smallBuffer = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.spBuffer);
             ImageButton smallPlay = MainActivity.instance.FindViewById<ImageButton>(Resource.Id.spPlay);
+            if(MainActivity.Theme == 1)
+                smallBuffer.IndeterminateTintList = ColorStateList.ValueOf(Color.White);
+            else
+                smallBuffer.IndeterminateTintList = ColorStateList.ValueOf(Color.Black);
             smallBuffer.Visibility = ViewStates.Visible;
             smallPlay.Visibility = ViewStates.Invisible;
         }

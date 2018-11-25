@@ -9,7 +9,7 @@ namespace MusicApp.Resources.Portable_Class
         public RelativeLayout ChannelHolder;
         public TextView Name;
         public ImageView Logo;
-        public RelativeLayout MixHolder;
+        public LinearLayout MixHolder;
         public ImageView ChannelLogo;
         public ImageView MixOne;
         public ImageView MixTwo;
@@ -19,7 +19,7 @@ namespace MusicApp.Resources.Portable_Class
             ChannelHolder = itemView.FindViewById<RelativeLayout>(Resource.Id.channelHolder);
             Name = itemView.FindViewById<TextView>(Resource.Id.name);
             Logo = itemView.FindViewById<ImageView>(Resource.Id.logo);
-            MixHolder = itemView.FindViewById<RelativeLayout>(Resource.Id.mixHolder);
+            MixHolder = itemView.FindViewById<LinearLayout>(Resource.Id.mixHolder);
             ChannelLogo = itemView.FindViewById<ImageView>(Resource.Id.channelLogo);
             MixOne = itemView.FindViewById<ImageView>(Resource.Id.mixOne);
             MixTwo = itemView.FindViewById<ImageView>(Resource.Id.mixTwo);
