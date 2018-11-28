@@ -117,7 +117,6 @@ namespace MusicApp
             playToCross = GetDrawable(Resource.Drawable.PlayToCross);
             crossToPlay = GetDrawable(Resource.Drawable.CrossToPlay);
 
-            SupportFragmentManager.BeginTransaction().Replace(Resource.Id.playerFrame, Player.instance ?? new Player()).Commit();
             Navigate(Resource.Id.musicLayout);
 
             if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
@@ -1446,7 +1445,10 @@ namespace MusicApp
                 SearchableActivity.instance = null;
             }
 
-            if(SheetBehavior != null && SheetBehavior.State == BottomSheetBehavior.StateExpanded)
+            if(Player.instance == null || Player.instance.IsDetached)
+                SupportFragmentManager.BeginTransaction().Replace(Resource.Id.playerFrame, Player.instance ?? new Player()).Commit();
+
+            if (SheetBehavior != null && SheetBehavior.State == BottomSheetBehavior.StateExpanded)
                 FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Visible;
         }
 

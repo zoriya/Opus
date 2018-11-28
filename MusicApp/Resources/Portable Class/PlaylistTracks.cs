@@ -640,7 +640,7 @@ namespace MusicApp.Resources.Portable_Class
         public void Search(string search)
         {
             result = new List<Song>();
-            for(int i = 0; i < tracks.Count; i++)
+            for (int i = 0; i < tracks.Count; i++)
             {
                 Song item = tracks[i];
                 if (item.Title.ToLower().Contains(search.ToLower()) || item.Artist.ToLower().Contains(search.ToLower()))
@@ -669,20 +669,17 @@ namespace MusicApp.Resources.Portable_Class
 
         private void ListView_ItemLongClick(object sender, int Position)
         {
-            if (!useHeader)
-                Position--;
-
-            Song item = tracks[Position];
-            if (result != null && result.Count > Position)
-                item = result[Position];
-
-            More(item, Position);
+            More(Position);
         }
 
-        public void More(Song item, int position)
+        public void More(int position)
         {
             if (!useHeader)
                 position--;
+
+            Song item = tracks[position];
+            if (result != null && result.Count > position)
+                item = result[position];
 
             List<string> action = actions.ToList();
 

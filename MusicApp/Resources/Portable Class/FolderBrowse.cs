@@ -363,6 +363,12 @@ namespace MusicApp.Resources.Portable_Class
             builder.SetTitle("Playlist name");
             View view = inflater.Inflate(Resource.Layout.CreatePlaylistDialog, null);
             builder.SetView(view);
+            PlaylistLocationAdapter adapter = new PlaylistLocationAdapter(MainActivity.instance, Android.Resource.Layout.SimpleSpinnerItem, new string[] { "Local playlist", "Youtube playlist", "Synced playlist (both local and youtube)" })
+            {
+                YoutubeWorkflow = false
+            };
+            adapter.SetDropDownViewResource(Android.Resource.Layout.SimpleSpinnerDropDownItem);
+            view.FindViewById<Spinner>(Resource.Id.playlistLocation).Adapter = adapter;
             builder.SetNegativeButton("Cancel", (senderAlert, args) => { });
             builder.SetPositiveButton("Create", (senderAlert, args) =>
             {

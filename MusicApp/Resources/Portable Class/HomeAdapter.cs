@@ -1,7 +1,6 @@
 ﻿using Android.Content;
 using Android.Graphics;
 using Android.Graphics.Drawables;
-using Android.Support.V4.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
 using MusicApp.Resources.values;
@@ -99,6 +98,7 @@ namespace MusicApp.Resources.Portable_Class
                     holder.recycler.SetAdapter(new LineAdapter(items[position].contentValue.GetRange(0, items[position].contentValue.Count > 20 ? 20 : items[position].contentValue.Count), holder.recycler));
                     holder.more.Click += (sender, e) =>
                     {
+                        position = holder.AdapterPosition;
                         MainActivity.instance.SupportActionBar.SetHomeButtonEnabled(true);
                         MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
                         MainActivity.instance.SupportActionBar.Title = items[position].SectionTitle;

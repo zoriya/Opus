@@ -1,6 +1,5 @@
 ﻿using Android.App;
 using Android.Content;
-using Android.Support.Design.Widget;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
@@ -15,7 +14,7 @@ namespace MusicApp.Resources.Portable_Class
     {
         public RecyclerView recycler;
         public int listPadding = 0;
-        private bool useQueue = false;
+        private readonly bool UseQueue = false;
         private List<Song> songList;
 
         private readonly string[] actions = new string[] { "Play", "Play Next", "Play Last", "Add To Playlist" };
@@ -32,7 +31,7 @@ namespace MusicApp.Resources.Portable_Class
         public LineAdapter(RecyclerView recycler)
         {
             this.recycler = recycler;
-            useQueue = true;
+            UseQueue = true;
             songList = MusicPlayer.queue;
         }
 
@@ -64,7 +63,7 @@ namespace MusicApp.Resources.Portable_Class
 
         void OnClick(int position)
         {
-            if (useQueue)
+            if (UseQueue)
             {
                 if(MusicPlayer.instance != null)
                     MusicPlayer.instance.SwitchQueue(songList[position], MusicPlayer.currentID == position);

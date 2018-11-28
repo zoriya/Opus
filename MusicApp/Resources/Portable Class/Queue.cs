@@ -236,6 +236,7 @@ namespace MusicApp.Resources.Portable_Class
                 MainActivity.parcelable = null;
                 MainActivity.parcelableSender = null;
             }
+            RefreshCurrent();
         }
     }
 }

@@ -110,7 +110,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             int position = (int)((ImageView)sender).Tag;
             Browse.instance?.More(songList[position], position);
-            PlaylistTracks.instance?.More(songList[position], position);
+            PlaylistTracks.instance?.More(position);
             FolderTracks.instance?.More(songList[position], position);
         }
     }

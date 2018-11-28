@@ -79,37 +79,40 @@ namespace MusicApp.Resources.Portable_Class
             {
                 View header = viewHolder.ItemView;
                 header.FindViewById<TextView>(Resource.Id.headerNumber).Text = PlaylistTracks.instance.tracks.Count + " songs";
-                header.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { PlaylistTracks.instance.PlayInOrder(0, false); };
-                header.FindViewById<ImageButton>(Resource.Id.headerShuffle).Click += (sender, e0) =>
+                if (header.FindViewById<ImageButton>(Resource.Id.headerPlay).HasOnClickListeners)
                 {
-                    if (PlaylistTracks.instance.tracks[0].IsYt)
+                    header.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { PlaylistTracks.instance.PlayInOrder(0, false); };
+                    header.FindViewById<ImageButton>(Resource.Id.headerShuffle).Click += (sender, e0) =>
                     {
-                        Random r = new Random();
-                        Song[] songs = PlaylistTracks.instance.tracks.OrderBy(x => r.Next()).ToArray();
-                        YoutubeEngine.PlayFiles(songs);
-                    }
-                    else
+                        if (PlaylistTracks.instance.tracks[0].IsYt)
+                        {
+                            Random r = new Random();
+                            Song[] songs = PlaylistTracks.instance.tracks.OrderBy(x => r.Next()).ToArray();
+                            YoutubeEngine.PlayFiles(songs);
+                        }
+                        else
+                        {
+                            List<string> tracksPath = new List<string>();
+                            foreach (Song song in PlaylistTracks.instance.tracks)
+                                tracksPath.Add(song.Path);
+
+                            Intent intent = new Intent(MainActivity.instance, typeof(MusicPlayer));
+                            intent.PutStringArrayListExtra("files", tracksPath);
+                            intent.SetAction("RandomPlay");
+                            MainActivity.instance.StartService(intent);
+
+                            MainActivity.instance.ShowSmallPlayer();
+                            MainActivity.instance.ShowPlayer();
+                        }
+                    };
+                    header.FindViewById<ImageButton>(Resource.Id.headerMore).Click += (sender, e0) =>
                     {
-                        List<string> tracksPath = new List<string>();
-                        foreach (Song song in PlaylistTracks.instance.tracks)
-                            tracksPath.Add(song.Path);
-
-                        Intent intent = new Intent(MainActivity.instance, typeof(MusicPlayer));
-                        intent.PutStringArrayListExtra("files", tracksPath);
-                        intent.SetAction("RandomPlay");
-                        MainActivity.instance.StartService(intent);
-
-                        MainActivity.instance.ShowSmallPlayer();
-                        MainActivity.instance.ShowPlayer();
-                    }
-                };
-                header.FindViewById<ImageButton>(Resource.Id.headerMore).Click += (sender, e0) =>
-                {
-                    Android.Support.V7.Widget.PopupMenu menu = new Android.Support.V7.Widget.PopupMenu(MainActivity.instance, header.FindViewById<ImageButton>(Resource.Id.headerMore));
-                    menu.Inflate(Resource.Menu.playlist_smallheader_more);
-                    menu.SetOnMenuItemClickListener(PlaylistTracks.instance);
-                    menu.Show();
-                };
+                        Android.Support.V7.Widget.PopupMenu menu = new Android.Support.V7.Widget.PopupMenu(MainActivity.instance, header.FindViewById<ImageButton>(Resource.Id.headerMore));
+                        menu.Inflate(Resource.Menu.playlist_smallheader_more);
+                        menu.SetOnMenuItemClickListener(PlaylistTracks.instance);
+                        menu.Show();
+                    };
+                }
 
                 if (MainActivity.Theme != 1)
                 {
@@ -152,7 +155,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 holder.more.Click += (sender, e) =>
                 {
-                    PlaylistTracks.instance.More(songList[holder.AdapterPosition], holder.AdapterPosition);
+                    PlaylistTracks.instance.More(holder.AdapterPosition);
                 };
             }
 
