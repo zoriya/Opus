@@ -170,7 +170,7 @@ namespace MusicApp.Resources.Portable_Class
                     holder.Title.SetTextColor(Color.White);
                 }
             }
-            else
+            else if(items[position].Kind == YtKind.ChannelPreview)
             {
                 ChannelPreviewHolder holder = (ChannelPreviewHolder)viewHolder;
 
@@ -179,11 +179,14 @@ namespace MusicApp.Resources.Portable_Class
 
                 List<YtFile> files = items.FindAll(x => x.item.Artist == song.Title && x.Kind == YtKind.Video);
                 if(files.Count > 0)
-                    Picasso.With(Android.App.Application.Context).Load(files[0].item.Album).Placeholder(Resource.Drawable.MusicIcon).Transform(new RemoveBlackBorder()).MemoryPolicy(MemoryPolicy.NoCache, MemoryPolicy.NoStore).Into(holder.MixOne);
+                    Picasso.With(Android.App.Application.Context).Load(files[0].item.Album).Transform(new RemoveBlackBorder())./*MemoryPolicy(MemoryPolicy.NoCache, MemoryPolicy.NoStore).*/Into(holder.MixOne);
                 if (files.Count > 1)
-                    Picasso.With(Android.App.Application.Context).Load(files[1].item.Album).Placeholder(Resource.Drawable.MusicIcon).Transform(new RemoveBlackBorder()).MemoryPolicy(MemoryPolicy.NoCache, MemoryPolicy.NoStore).Into(holder.MixTwo);
+                    Picasso.With(Android.App.Application.Context).Load(files[1].item.Album).Transform(new RemoveBlackBorder())./*MemoryPolicy(MemoryPolicy.NoCache, MemoryPolicy.NoStore).*/Into(holder.MixTwo);
 
-                Picasso.With(Android.App.Application.Context).Load(song.Album).Placeholder(Resource.Drawable.MusicIcon).Fit().CenterCrop().Into(holder.ChannelLogo);
+                holder.MixOne.ViewTreeObserver.Draw += (sender, e) => 
+                {
+                    Picasso.With(Android.App.Application.Context).Load(song.Album).Placeholder(Resource.Drawable.MusicIcon).Fit().CenterCrop().Into(holder.ChannelLogo);
+                };
 
                 if (!holder.MixHolder.HasOnClickListeners)
                 {
@@ -192,6 +195,7 @@ namespace MusicApp.Resources.Portable_Class
                         YoutubeEngine.instances?[0]?.MixFromChannel(song.youtubeID);
                     };
                 }
+
             }
         }
 
@@ -212,10 +216,15 @@ namespace MusicApp.Resources.Portable_Class
                 View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.ChannelList, parent, false);
                 return new RecyclerChannelHolder(itemView, OnClick, OnLongClick);
             }
-            else
+            else if(viewType == 3)
             {
                 View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.ChannelPreview, parent, false);
                 return new ChannelPreviewHolder(itemView);
+            }
+            else
+            {
+                View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.smallLoading, parent, false);
+                return new UslessHolder(itemView);
             }
         }
 
@@ -227,14 +236,17 @@ namespace MusicApp.Resources.Portable_Class
                 return 1;
             else if (items[position].Kind == YtKind.Channel)
                 return 2;
-            else
+            else if (items[position].Kind == YtKind.ChannelPreview)
                 return 3;
+            else
+                return 4;
 
             /*
              * 0: Video
              * 1: Playlist
              * 2: Channel
              * 3: ChannelPreview
+             * 4: LoadingBar
              */
         }
 

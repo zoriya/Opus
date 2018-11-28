@@ -29,6 +29,7 @@ namespace MusicApp.Resources.Portable_Class
         public static string searchKeyWorld;
         public static bool error = false;
         private bool isEmpty = false;
+        private string nextPageToken = null;
         public string querryType;
 
         public bool focused = false;
@@ -44,7 +45,7 @@ namespace MusicApp.Resources.Portable_Class
         public override void OnActivityCreated(Bundle savedInstanceState)
         {
             base.OnActivityCreated(savedInstanceState);
-            ListView.ScrollChange += MainActivity.instance.Scroll;
+            ListView.ScrollChange += OnScroll;
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
         }
 
@@ -54,6 +55,100 @@ namespace MusicApp.Resources.Portable_Class
             {
                 await Search(searchKeyWorld, querryType, false);
                 MainActivity.instance.contentRefresh.Refreshing = false;
+            }
+        }
+
+        private void OnScroll(object sender, View.ScrollChangeEventArgs e)
+        {
+            if (((LinearLayoutManager)ListView.GetLayoutManager()).FindLastVisibleItemPosition() == result.Count - 1)
+                LoadMore();
+        }
+
+        async void LoadMore()
+        {
+            if(nextPageToken != null && !searching)
+            {
+                try
+                {
+                    searching = true;
+                    SearchResource.ListRequest searchResult = youtubeService.Search.List("snippet");
+                    searchResult.Q = searchKeyWorld.Replace(" ", "+-");
+                    searchResult.TopicId = "/m/04rlf";
+                    switch (querryType)
+                    {
+                        case "All":
+                            searchResult.Type = "video,channel,playlist";
+                            searchResult.EventType = null;
+                            break;
+                        case "Tracks":
+                            searchResult.Type = "video";
+                            searchResult.EventType = null;
+                            break;
+                        case "Playlists":
+                            searchResult.Type = "playlist";
+                            searchResult.EventType = null;
+                            break;
+                        case "Lives":
+                            searchResult.Type = "video";
+                            searchResult.EventType = SearchResource.ListRequest.EventTypeEnum.Live;
+                            break;
+                        case "Channels":
+                            searchResult.Type = "channel";
+                            searchResult.EventType = null;
+                            break;
+                        default:
+                            searchResult.Type = "video";
+                            searchResult.EventType = null;
+                            break;
+                    }
+                    searchResult.MaxResults = 50;
+
+                    var searchReponse = await searchResult.ExecuteAsync();
+                    nextPageToken = searchReponse.NextPageToken;
+
+                    int loadPos = result.Count - 1;
+                    result.RemoveAt(loadPos);
+                    adapter.NotifyItemRemoved(loadPos);
+
+                    foreach (var video in searchReponse.Items)
+                    {
+                        Song videoInfo = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.High.Url, null, -1, -1, null, true, false);
+                        YtKind kind = YtKind.Null;
+
+                        if (video.Snippet.LiveBroadcastContent == "live")
+                            videoInfo.IsLiveStream = true;
+
+                        switch (video.Id.Kind)
+                        {
+                            case "youtube#video":
+                                kind = YtKind.Video;
+                                videoInfo.youtubeID = video.Id.VideoId;
+                                break;
+                            case "youtube#playlist":
+                                kind = YtKind.Playlist;
+                                videoInfo.youtubeID = video.Id.PlaylistId;
+                                break;
+                            case "youtube#channel":
+                                kind = YtKind.Channel;
+                                videoInfo.youtubeID = video.Id.ChannelId;
+                                break;
+                            default:
+                                Console.WriteLine("&Kind = " + video.Id.Kind);
+                                break;
+                        }
+                        result.Add(new YtFile(videoInfo, kind));
+                    }
+
+                    if (nextPageToken != null)
+                        result.Add(new YtFile(new Song(), YtKind.Loading));
+
+                    adapter.NotifyItemRangeInserted(loadPos, result.Count - loadPos);
+                    searching = false;
+                }
+                catch (System.Net.Http.HttpRequestException)
+                {
+                    MainActivity.instance.Timout();
+                }
             }
         }
 
@@ -157,7 +252,6 @@ namespace MusicApp.Resources.Portable_Class
             try
             {
                 SearchResource.ListRequest searchResult = youtubeService.Search.List("snippet");
-                searchResult.Fields = "items(id/videoId,id/playlistId,id/channelId,id/kind,snippet/title,snippet/thumbnails/high/url,snippet/channelTitle,snippet/liveBroadcastContent)";
                 searchResult.Q = search.Replace(" ", "+-");
                 searchResult.TopicId = "/m/04rlf";
                 switch (querryType)
@@ -187,10 +281,10 @@ namespace MusicApp.Resources.Portable_Class
                         searchResult.EventType = null;
                         break;
                 }
-                searchResult.MaxResults = 20;
+                searchResult.MaxResults = 50;
 
                 var searchReponse = await searchResult.ExecuteAsync();
-
+                nextPageToken = searchReponse.NextPageToken;
                 result = new List<YtFile>();
 
                 foreach (var video in searchReponse.Items)
@@ -224,6 +318,9 @@ namespace MusicApp.Resources.Portable_Class
 
                 if (loadingBar)
                     LoadingView.Visibility = ViewStates.Gone;
+
+                if (nextPageToken != null)
+                    result.Add(new YtFile(new Song(), YtKind.Loading));
 
                 ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(MainActivity.instance);
                 List<string> topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();

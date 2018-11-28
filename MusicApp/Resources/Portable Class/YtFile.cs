@@ -15,5 +15,5 @@ namespace MusicApp.Resources.Portable_Class
         }
     }
 
-    public enum YtKind { Null, Video, Playlist, Channel, ChannelPreview }
+    public enum YtKind { Null, Video, Playlist, Channel, ChannelPreview, Loading }
 }
