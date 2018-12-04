@@ -181,11 +181,6 @@ namespace MusicApp.Resources.Portable_Class
 
                 Playlist.instance?.CheckForSync();
             }
-            catch (YoutubeExplode.Exceptions.ParseException)
-            {
-                MainActivity.instance.YoutubeEndPointChanged();
-                Cancel();
-            }
             catch (System.Net.Http.HttpRequestException)
             {
                 MainActivity.instance.Timout();

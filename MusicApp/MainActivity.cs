@@ -1189,9 +1189,7 @@ namespace MusicApp
             }
             catch (Exception ex)
             {
-                if (ex is YoutubeExplode.Exceptions.ParseException)
-                    instance.YoutubeEndPointChanged();
-                else if (ex is System.Net.Http.HttpRequestException)
+                if (ex is System.Net.Http.HttpRequestException)
                     instance.Timout();
                 else
                     instance.Unknow();

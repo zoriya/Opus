@@ -448,7 +448,7 @@ namespace MusicApp.Resources.Portable_Class
 
                     if (!isLive)
                     {
-                        DateTimeOffset? expireDate = streamInfo.GetUrlExpiryDate();
+                        DateTimeOffset expireDate = mediaStreamInfo.ValidUntil;
                         queue[CurrentID()].expireDate = expireDate;
                     }
                     else
@@ -461,14 +461,6 @@ namespace MusicApp.Resources.Portable_Class
 
                     queue[CurrentID()].Album = thumbnailURL;
                     queue[CurrentID()].Artist = artist;
-                }
-                catch (YoutubeExplode.Exceptions.ParseException)
-                {
-                    MainActivity.instance.YoutubeEndPointChanged();
-                    parsing = false;
-                    if (MainActivity.instance != null)
-                        MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
-                    return;
                 }
                 catch (System.Net.Http.HttpRequestException)
                 {
@@ -804,18 +796,13 @@ namespace MusicApp.Resources.Portable_Class
                         }
                     }
 
-                    DateTimeOffset? expireDate = streamInfo.GetUrlExpiryDate();
+                    DateTimeOffset expireDate = mediaStreamInfo.ValidUntil;
                     song.expireDate = expireDate;
 
                     Video info = await client.GetVideoAsync(song.youtubeID);
                     song.Album = info.Thumbnails.HighResUrl;
                     song.Artist = info.Author;
                     UpdateQueueItemDB(song);
-                }
-                catch (YoutubeExplode.Exceptions.ParseException)
-                {
-                    MainActivity.instance.YoutubeEndPointChanged();
-                    return;
                 }
                 catch (System.Net.Http.HttpRequestException)
                 {
@@ -1029,7 +1016,7 @@ namespace MusicApp.Resources.Portable_Class
 
                     if(!isLive)
                     {
-                        DateTimeOffset? expireDate = streamInfo.GetUrlExpiryDate();
+                        DateTimeOffset expireDate = mediaStreamInfo.ValidUntil;
                         song.expireDate = expireDate;
                     }
 
@@ -1046,12 +1033,6 @@ namespace MusicApp.Resources.Portable_Class
                             youtubeIcon.SetImageResource(Resource.Drawable.PublicIcon);
                         }
                     }
-                }
-                catch (YoutubeExplode.Exceptions.ParseException)
-                {
-                    MainActivity.instance.YoutubeEndPointChanged();
-                    parsing = false;
-                    return;
                 }
                 catch (System.Net.Http.HttpRequestException)
                 {
