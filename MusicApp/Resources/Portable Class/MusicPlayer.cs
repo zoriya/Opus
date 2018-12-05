@@ -781,7 +781,7 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     YoutubeClient client = new YoutubeClient();
                     MediaStreamInfoSet mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(song.youtubeID);
-                    AudioStreamInfo streamInfo = mediaStreamInfo.Audio.Where(x => x.Container == Container.M4A).OrderBy(s => s.Bitrate).Last();
+                    AudioStreamInfo streamInfo = mediaStreamInfo.Audio.Where(x => x.Container == Container.Mp4).OrderBy(s => s.Bitrate).Last();
                     song.Path = streamInfo.Url;
                     song.isParsed = true;
                     if (Queue.instance != null)
@@ -999,7 +999,7 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     YoutubeClient client = new YoutubeClient();
                     MediaStreamInfoSet mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(song.youtubeID);
-                    AudioStreamInfo streamInfo = mediaStreamInfo.Audio.Where(x => x.Container == Container.M4A).OrderBy(s => s.Bitrate).Last();
+                    AudioStreamInfo streamInfo = mediaStreamInfo.Audio.Where(x => x.Container == Container.Mp4).OrderBy(s => s.Bitrate).Last();
                     song.isParsed = true;
                     bool isLive = false;
                     string streamURL = streamInfo.Url;

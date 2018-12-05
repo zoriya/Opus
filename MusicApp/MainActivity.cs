@@ -6,6 +6,7 @@ using Android.Content.Res;
 using Android.Database;
 using Android.Gms.Auth.Api;
 using Android.Gms.Auth.Api.SignIn;
+using Android.Gms.Cast.Framework;
 using Android.Gms.Common;
 using Android.Gms.Common.Apis;
 using Android.Graphics;
@@ -93,6 +94,9 @@ namespace MusicApp
         public bool waitingForYoutube;
         public bool ResumeKiller;
 
+        public static CastContext CastContext;
+
+
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -118,6 +122,7 @@ namespace MusicApp
             crossToPlay = GetDrawable(Resource.Drawable.CrossToPlay);
 
             Navigate(Resource.Id.musicLayout);
+            CastContext = CastContext.GetSharedInstance(this);
 
             if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
             {
@@ -418,6 +423,8 @@ namespace MusicApp
             menu.FindItem(Resource.Id.search).SetOnActionExpandListener(this);
             ((SearchView)menu.FindItem(Resource.Id.search).ActionView).SetOnQueryTextFocusChangeListener(this);
             ((SearchView)menu.FindItem(Resource.Id.search).ActionView).QueryHint = "Search Youtube";
+
+            CastButtonFactory.SetUpMediaRouteButton(this, menu, Resource.Id.media_route_menu_item);
             return base.OnCreateOptionsMenu(menu);
         }
 

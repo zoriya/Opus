@@ -71,7 +71,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AngleSharp, Version=0.9.9.0, Culture=neutral, PublicKeyToken=e83494dcdc6d31ea, processorArchitecture=MSIL">
-      <HintPath>..\packages\AngleSharp.0.9.10\lib\portable-windows8+net45+windowsphone8+wpa+monoandroid+monotouch\AngleSharp.dll</HintPath>
+      <HintPath>..\packages\AngleSharp.0.9.11\lib\portable-windows8+net45+windowsphone8+wpa+monoandroid+monotouch\AngleSharp.dll</HintPath>
     </Reference>
     <Reference Include="DiscreteSeekBar, Version=1.0.1.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Karamunting.Android.AnderWeb.DiscreteSeekBar.1.0.1.1\lib\monoandroid81\DiscreteSeekBar.dll</HintPath>
@@ -84,6 +84,9 @@
     </Reference>
     <Reference Include="ExoPlayer.Dash, Version=2.8.8.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Xam.Plugins.Android.ExoPlayer.Dash.2.8.8\lib\monoandroid81\ExoPlayer.Dash.dll</HintPath>
+    </Reference>
+    <Reference Include="ExoPlayer.Ext.Cast, Version=2.8.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xam.Plugins.Android.ExoPlayer.Cast.2.8.8\lib\monoandroid81\ExoPlayer.Ext.Cast.dll</HintPath>
     </Reference>
     <Reference Include="ExoPlayer.Hls, Version=2.8.8.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Xam.Plugins.Android.ExoPlayer.Hls.2.8.8\lib\monoandroid81\ExoPlayer.Hls.dll</HintPath>
@@ -111,8 +114,8 @@
     </Reference>
     <Reference Include="Java.Interop" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\netstandard2.0\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\netstandard2.0\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="PCLCrypto, Version=2.0.0.0, Culture=neutral, PublicKeyToken=d4421c8a4786956c, processorArchitecture=MSIL">
       <HintPath>..\packages\PCLCrypto.2.0.147\lib\MonoAndroid23\PCLCrypto.dll</HintPath>
@@ -218,6 +221,9 @@
     <Reference Include="Xamarin.Android.Support.v7.CardView, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Xamarin.Android.Support.v7.CardView.27.0.2.1\lib\MonoAndroid81\Xamarin.Android.Support.v7.CardView.dll</HintPath>
     </Reference>
+    <Reference Include="Xamarin.Android.Support.v7.MediaRouter, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xamarin.Android.Support.v7.MediaRouter.27.0.2.1\lib\MonoAndroid81\Xamarin.Android.Support.v7.MediaRouter.dll</HintPath>
+    </Reference>
     <Reference Include="Xamarin.Android.Support.v7.Palette, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Xamarin.Android.Support.v7.Palette.27.0.2.1\lib\MonoAndroid81\Xamarin.Android.Support.v7.Palette.dll</HintPath>
     </Reference>
@@ -244,6 +250,12 @@
     </Reference>
     <Reference Include="Xamarin.GooglePlayServices.Basement, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Xamarin.GooglePlayServices.Basement.60.1142.1\lib\MonoAndroid80\Xamarin.GooglePlayServices.Basement.dll</HintPath>
+    </Reference>
+    <Reference Include="Xamarin.GooglePlayServices.Cast, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xamarin.GooglePlayServices.Cast.60.1142.1\lib\MonoAndroid80\Xamarin.GooglePlayServices.Cast.dll</HintPath>
+    </Reference>
+    <Reference Include="Xamarin.GooglePlayServices.Cast.Framework, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xamarin.GooglePlayServices.Cast.Framework.60.1142.1\lib\MonoAndroid80\Xamarin.GooglePlayServices.Cast.Framework.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.GooglePlayServices.Tasks, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Xamarin.GooglePlayServices.Tasks.60.1142.1\lib\MonoAndroid80\Xamarin.GooglePlayServices.Tasks.dll</HintPath>
@@ -797,6 +809,9 @@
     <Error Condition="!Exists('..\packages\Xamarin.Android.Support.Design.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.Design.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Android.Support.Design.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.Design.targets'))" />
     <Error Condition="!Exists('..\packages\Xamarin.Android.Support.v7.Preference.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.v7.Preference.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Android.Support.v7.Preference.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.v7.Preference.targets'))" />
     <Error Condition="!Exists('..\packages\Xamarin.Android.Support.v7.Palette.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.v7.Palette.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Android.Support.v7.Palette.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.v7.Palette.targets'))" />
+    <Error Condition="!Exists('..\packages\Xamarin.Android.Support.v7.MediaRouter.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.v7.MediaRouter.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Android.Support.v7.MediaRouter.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.v7.MediaRouter.targets'))" />
+    <Error Condition="!Exists('..\packages\Xamarin.GooglePlayServices.Cast.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Cast.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.GooglePlayServices.Cast.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Cast.targets'))" />
+    <Error Condition="!Exists('..\packages\Xamarin.GooglePlayServices.Cast.Framework.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Cast.Framework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.GooglePlayServices.Cast.Framework.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Cast.Framework.targets'))" />
   </Target>
   <Import Project="..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.targets')" />
   <Import Project="..\packages\Xamarin.GooglePlayServices.Basement.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Basement.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.Basement.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Basement.targets')" />
@@ -824,6 +839,9 @@
   <Import Project="..\packages\Xamarin.Android.Support.Design.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.Design.targets" Condition="Exists('..\packages\Xamarin.Android.Support.Design.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.Design.targets')" />
   <Import Project="..\packages\Xamarin.Android.Support.v7.Preference.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.v7.Preference.targets" Condition="Exists('..\packages\Xamarin.Android.Support.v7.Preference.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.v7.Preference.targets')" />
   <Import Project="..\packages\Xamarin.Android.Support.v7.Palette.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.v7.Palette.targets" Condition="Exists('..\packages\Xamarin.Android.Support.v7.Palette.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.v7.Palette.targets')" />
+  <Import Project="..\packages\Xamarin.Android.Support.v7.MediaRouter.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.v7.MediaRouter.targets" Condition="Exists('..\packages\Xamarin.Android.Support.v7.MediaRouter.27.0.2.1\build\MonoAndroid81\Xamarin.Android.Support.v7.MediaRouter.targets')" />
+  <Import Project="..\packages\Xamarin.GooglePlayServices.Cast.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Cast.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.Cast.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Cast.targets')" />
+  <Import Project="..\packages\Xamarin.GooglePlayServices.Cast.Framework.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Cast.Framework.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.Cast.Framework.60.1142.1\build\MonoAndroid80\Xamarin.GooglePlayServices.Cast.Framework.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
 		Other similar extension points exist, see Microsoft.Common.targets.
 		<Target Name="BeforeBuild">
