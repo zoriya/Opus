@@ -1,6 +1,7 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.Database;
+using Android.Gms.Cast;
 using Android.Graphics;
 using Android.Media;
 using Android.OS;
@@ -13,11 +14,13 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Com.Google.Android.Exoplayer2;
+using Com.Google.Android.Exoplayer2.Ext.Cast;
 using Com.Google.Android.Exoplayer2.Extractor;
 using Com.Google.Android.Exoplayer2.Source;
 using Com.Google.Android.Exoplayer2.Source.Hls;
 using Com.Google.Android.Exoplayer2.Trackselection;
 using Com.Google.Android.Exoplayer2.Upstream;
+using Com.Google.Android.Exoplayer2.Util;
 using MusicApp.Resources.values;
 using SQLite;
 using Square.Picasso;
@@ -29,15 +32,19 @@ using YoutubeExplode;
 using YoutubeExplode.Models;
 using YoutubeExplode.Models.MediaStreams;
 using static Android.Support.V4.Media.App.NotificationCompat;
+using MediaInfo = Android.Gms.Cast.MediaInfo;
+using MediaMetadata = Android.Gms.Cast.MediaMetadata;
 using Uri = Android.Net.Uri;
 
 namespace MusicApp.Resources.Portable_Class
 {
     [Service]
-    public class MusicPlayer : Service, IPlayerEventListener, AudioManager.IOnAudioFocusChangeListener
+    public class MusicPlayer : Service, IPlayerEventListener, AudioManager.IOnAudioFocusChangeListener, CastPlayer.ISessionAvailabilityListener
     {
         public static MusicPlayer instance;
+        private static bool UseCastPlayer = false;
         public static SimpleExoPlayer player;
+        private static CastPlayer CastPlayer;
         public float volume;
         private static AudioStopper noisyReceiver;
         public static List<Song> queue = new List<Song>();
@@ -169,7 +176,6 @@ namespace MusicApp.Resources.Portable_Class
             player = ExoPlayerFactory.NewSimpleInstance(Application.Context, trackSelector);
             volume = prefManager.GetInt("volumeMultiplier", 100) / 100f;
             player.Volume = volume;
-            player.PlayWhenReady = true;
             player.AddListener(this);
 
             if (noisyReceiver == null)
@@ -177,6 +183,12 @@ namespace MusicApp.Resources.Portable_Class
 
             RegisterReceiver(noisyReceiver, new IntentFilter(AudioManager.ActionAudioBecomingNoisy));
             noisyRegistered = true;
+
+            CastPlayer = new CastPlayer(MainActivity.CastContext);
+            CastPlayer.SetSessionAvailabilityListener(this);
+            CastPlayer.AddListener(this);
+            UseCastPlayer = CastPlayer.IsCastSessionAvailable;
+            player.PlayWhenReady = !UseCastPlayer;
         }
 
         public void ChangeVolume(float volume)
@@ -191,79 +203,84 @@ namespace MusicApp.Resources.Portable_Class
             if (player == null)
                 InitializeService();
 
-            if(mediaSession == null)
-            {
-                mediaSession = new MediaSessionCompat(Application.Context, "MusicApp");
-                mediaSession.SetFlags(MediaSessionCompat.FlagHandlesMediaButtons | MediaSessionCompat.FlagHandlesTransportControls);
-                PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder().SetActions(PlaybackStateCompat.ActionPlay | PlaybackStateCompat.ActionPause | PlaybackStateCompat.ActionSkipToNext | PlaybackStateCompat.ActionSkipToPrevious);
-                mediaSession.SetPlaybackState(builder.Build());
-                mediaSession.SetCallback(new HeadphonesActions());
-            }
-
-            DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(Application.Context, "MusicApp");
-            IExtractorsFactory extractorFactory = new DefaultExtractorsFactory();
-            Handler handler = new Handler();
-
-            IMediaSource mediaSource = null;
-            if (isLive)
-                mediaSource = new HlsMediaSource(Uri.Parse(filePath), dataSourceFactory, handler, null);
-            else if (title == null)
-                mediaSource = new ExtractorMediaSource(Uri.FromFile(new Java.IO.File(filePath)), dataSourceFactory, extractorFactory, handler, null);
-            else
-                mediaSource = new ExtractorMediaSource(Uri.Parse(filePath), dataSourceFactory, extractorFactory, handler, null);
-            
-            AudioAttributes attributes = new AudioAttributes.Builder()
-                .SetUsage(AudioUsageKind.Media)
-                .SetContentType(AudioContentType.Music)
-                .Build();
-
-            if(Build.VERSION.SdkInt >= BuildVersionCodes.O)
-            {
-                AudioFocusRequestClass focusRequest = new AudioFocusRequestClass.Builder(AudioFocus.Gain)
-                    .SetAudioAttributes(attributes)
-                    .SetAcceptsDelayedFocusGain(true)
-                    .SetWillPauseWhenDucked(true)
-                    .SetOnAudioFocusChangeListener(this)
-                    .Build();
-                AudioFocusRequest audioFocus = audioManager.RequestAudioFocus(focusRequest);
-
-                if (audioFocus != AudioFocusRequest.Granted)
-                {
-                    Console.WriteLine("Can't Get Audio Focus");
-                    return;
-                }
-            }
-            else
-            {
-#pragma warning disable CS0618 // Type or member is obsolete
-
-                AudioManager am = (AudioManager)MainActivity.instance.GetSystemService(AudioService);
-
-                AudioFocusRequest audioFocus = am.RequestAudioFocus(this, Stream.Music, AudioFocus.Gain);
-
-                if (audioFocus != AudioFocusRequest.Granted)
-                {
-                    Console.WriteLine("Can't Get Audio Focus");
-                    return;
-                }
-#pragma warning restore CS0618
-            }
-
-            player.PlayWhenReady = true;
-            player.Prepare(mediaSource, true, true);
-
             Song song = null;
-            if(title == null)
+            if (title == null)
                 song = Browse.GetSong(filePath);
             else
             {
                 song = new Song(title, artist, thumbnailURI, youtubeID, -1, -1, filePath, true);
             }
 
-            isRunning = true;
-            player.PlayWhenReady = true;
+            if (!UseCastPlayer)
+            {
+                if (mediaSession == null)
+                {
+                    mediaSession = new MediaSessionCompat(Application.Context, "MusicApp");
+                    mediaSession.SetFlags(MediaSessionCompat.FlagHandlesMediaButtons | MediaSessionCompat.FlagHandlesTransportControls);
+                    PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder().SetActions(PlaybackStateCompat.ActionPlay | PlaybackStateCompat.ActionPause | PlaybackStateCompat.ActionSkipToNext | PlaybackStateCompat.ActionSkipToPrevious);
+                    mediaSession.SetPlaybackState(builder.Build());
+                    mediaSession.SetCallback(new HeadphonesActions());
+                }
 
-            CreateNotification(song.Title, song.Artist, song.AlbumArt, song.Album);
+                DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(Application.Context, "MusicApp");
+                IExtractorsFactory extractorFactory = new DefaultExtractorsFactory();
+                Handler handler = new Handler();
+
+                IMediaSource mediaSource = null;
+                if (isLive)
+                    mediaSource = new HlsMediaSource(Uri.Parse(filePath), dataSourceFactory, handler, null);
+                else if (title == null)
+                    mediaSource = new ExtractorMediaSource(Uri.FromFile(new Java.IO.File(filePath)), dataSourceFactory, extractorFactory, handler, null);
+                else
+                    mediaSource = new ExtractorMediaSource(Uri.Parse(filePath), dataSourceFactory, extractorFactory, handler, null);
+
+                AudioAttributes attributes = new AudioAttributes.Builder()
+                    .SetUsage(AudioUsageKind.Media)
+                    .SetContentType(AudioContentType.Music)
+                    .Build();
+
+                if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
+                {
+                    AudioFocusRequestClass focusRequest = new AudioFocusRequestClass.Builder(AudioFocus.Gain)
+                        .SetAudioAttributes(attributes)
+                        .SetAcceptsDelayedFocusGain(true)
+                        .SetWillPauseWhenDucked(true)
+                        .SetOnAudioFocusChangeListener(this)
+                        .Build();
+                    AudioFocusRequest audioFocus = audioManager.RequestAudioFocus(focusRequest);
+
+                    if (audioFocus != AudioFocusRequest.Granted)
+                    {
+                        Console.WriteLine("Can't Get Audio Focus");
+                        return;
+                    }
+                }
+                else
+                {
+#pragma warning disable CS0618 // Type or member is obsolete
+
+                    AudioManager am = (AudioManager)MainActivity.instance.GetSystemService(AudioService);
+
+                    AudioFocusRequest audioFocus = am.RequestAudioFocus(this, Stream.Music, AudioFocus.Gain);
+
+                    if (audioFocus != AudioFocusRequest.Granted)
+                    {
+                        Console.WriteLine("Can't Get Audio Focus");
+                        return;
+                    }
+#pragma warning restore CS0618
+                }
+
+                player.PlayWhenReady = true;
+                player.Prepare(mediaSource, true, true);
+                CreateNotification(song.Title, song.Artist, song.AlbumArt, song.Album);
+            }
+            else
+            {
+                CastPlayer.LoadItem(GetQueueItem(song), 0);
+            }
+
+            isRunning = true;
 
             if (addToQueue)
             {
@@ -296,68 +313,74 @@ namespace MusicApp.Resources.Portable_Class
             if (player == null)
                 InitializeService();
 
-            if (mediaSession == null)
+            if (!UseCastPlayer)
             {
-                mediaSession = new MediaSessionCompat(Application.Context, "MusicApp");
-                mediaSession.SetFlags(MediaSessionCompat.FlagHandlesMediaButtons | MediaSessionCompat.FlagHandlesTransportControls);
-                PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder().SetActions(PlaybackStateCompat.ActionPlay | PlaybackStateCompat.ActionPause | PlaybackStateCompat.ActionSkipToNext | PlaybackStateCompat.ActionSkipToPrevious);
-                mediaSession.SetPlaybackState(builder.Build());
-                mediaSession.SetCallback(new HeadphonesActions());
-            }
-
-            DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(Application.Context, "MusicApp");
-            IExtractorsFactory extractorFactory = new DefaultExtractorsFactory();
-            Handler handler = new Handler();
-            IMediaSource mediaSource;
-
-            if (!song.IsYt)
-                mediaSource = new ExtractorMediaSource(Uri.FromFile(new Java.IO.File(song.Path)), dataSourceFactory, extractorFactory, handler, null);
-            else
-                mediaSource = new ExtractorMediaSource(Uri.Parse(song.Path), dataSourceFactory, extractorFactory, handler, null);
-
-            AudioAttributes attributes = new AudioAttributes.Builder()
-                .SetUsage(AudioUsageKind.Media)
-                .SetContentType(AudioContentType.Music)
-                .Build();
-
-            if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
-            {
-                AudioFocusRequestClass focusRequest = new AudioFocusRequestClass.Builder(AudioFocus.Gain)
-                    .SetAudioAttributes(attributes)
-                    .SetAcceptsDelayedFocusGain(true)
-                    .SetWillPauseWhenDucked(true)
-                    .SetOnAudioFocusChangeListener(this)
-                    .Build();
-                AudioFocusRequest audioFocus = audioManager.RequestAudioFocus(focusRequest);
-
-                if (audioFocus != AudioFocusRequest.Granted)
+                if (mediaSession == null)
                 {
-                    Console.WriteLine("Can't Get Audio Focus");
-                    return;
+                    mediaSession = new MediaSessionCompat(Application.Context, "MusicApp");
+                    mediaSession.SetFlags(MediaSessionCompat.FlagHandlesMediaButtons | MediaSessionCompat.FlagHandlesTransportControls);
+                    PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder().SetActions(PlaybackStateCompat.ActionPlay | PlaybackStateCompat.ActionPause | PlaybackStateCompat.ActionSkipToNext | PlaybackStateCompat.ActionSkipToPrevious);
+                    mediaSession.SetPlaybackState(builder.Build());
+                    mediaSession.SetCallback(new HeadphonesActions());
                 }
-            }
-            else
-            {
+
+                DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(Application.Context, "MusicApp");
+                IExtractorsFactory extractorFactory = new DefaultExtractorsFactory();
+                Handler handler = new Handler();
+                IMediaSource mediaSource;
+
+                if (!song.IsYt)
+                    mediaSource = new ExtractorMediaSource(Uri.FromFile(new Java.IO.File(song.Path)), dataSourceFactory, extractorFactory, handler, null);
+                else
+                    mediaSource = new ExtractorMediaSource(Uri.Parse(song.Path), dataSourceFactory, extractorFactory, handler, null);
+
+                AudioAttributes attributes = new AudioAttributes.Builder()
+                    .SetUsage(AudioUsageKind.Media)
+                    .SetContentType(AudioContentType.Music)
+                    .Build();
+
+                if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
+                {
+                    AudioFocusRequestClass focusRequest = new AudioFocusRequestClass.Builder(AudioFocus.Gain)
+                        .SetAudioAttributes(attributes)
+                        .SetAcceptsDelayedFocusGain(true)
+                        .SetWillPauseWhenDucked(true)
+                        .SetOnAudioFocusChangeListener(this)
+                        .Build();
+                    AudioFocusRequest audioFocus = audioManager.RequestAudioFocus(focusRequest);
+
+                    if (audioFocus != AudioFocusRequest.Granted)
+                    {
+                        Console.WriteLine("Can't Get Audio Focus");
+                        return;
+                    }
+                }
+                else
+                {
 #pragma warning disable CS0618 // Type or member is obsolete
 
-                AudioManager am = (AudioManager)MainActivity.instance.GetSystemService(AudioService);
+                    AudioManager am = (AudioManager)MainActivity.instance.GetSystemService(AudioService);
 
-                AudioFocusRequest audioFocus = am.RequestAudioFocus(this, Stream.Music, AudioFocus.Gain);
+                    AudioFocusRequest audioFocus = am.RequestAudioFocus(this, Stream.Music, AudioFocus.Gain);
 
-                if (audioFocus != AudioFocusRequest.Granted)
-                {
-                    Console.WriteLine("Can't Get Audio Focus");
-                    return;
-                }
+                    if (audioFocus != AudioFocusRequest.Granted)
+                    {
+                        Console.WriteLine("Can't Get Audio Focus");
+                        return;
+                    }
 #pragma warning restore CS0618
+                }
+
+                player.PlayWhenReady = true;
+                player.Prepare(mediaSource, true, true);
+                CreateNotification(song.Title, song.Artist, song.AlbumArt, song.Album);
+            }
+            else
+            {
+                CastPlayer.LoadItem(GetQueueItem(song), 0);
             }
 
-            player.PlayWhenReady = true;
-            player.Prepare(mediaSource, true, true);
-            CreateNotification(song.Title, song.Artist, song.AlbumArt, song.Album);
-
             isRunning = true;
-            player.PlayWhenReady = true;
 
             if (addToQueue)
             {
@@ -839,25 +862,43 @@ namespace MusicApp.Resources.Portable_Class
 
         public static void SetSeekBar(SeekBar bar)
         {
-            bar.Max = (int) player.Duration;
-            bar.Progress = (int) player.CurrentPosition;
-            bar.ProgressChanged += (sender, e) =>
+            if (!UseCastPlayer)
             {
-                int Progress = e.Progress;
+                bar.Max = (int)player.Duration;
+                bar.Progress = (int)player.CurrentPosition;
+                bar.ProgressChanged += (sender, e) =>
+                {
+                    int Progress = e.Progress;
 
-                if (player != null && player.Duration - Progress <= 1500 && player.Duration - Progress > 0)
-                    ParseNextSong();
-            };
-            bar.StartTrackingTouch += (sender, e) =>
+                    if (player != null && player.Duration - Progress <= 1500 && player.Duration - Progress > 0)
+                        ParseNextSong();
+                };
+                bar.StartTrackingTouch += (sender, e) =>
+                {
+                    autoUpdateSeekBar = false;
+                };
+                bar.StopTrackingTouch += (sender, e) =>
+                {
+                    autoUpdateSeekBar = true;
+                    if (!queue[CurrentID()].IsLiveStream)
+                        player.SeekTo(e.SeekBar.Progress);
+                };
+            }
+            else
             {
-                autoUpdateSeekBar = false;
-            };
-            bar.StopTrackingTouch += (sender, e) =>
-            {
-                autoUpdateSeekBar = true;
-                if(!queue[CurrentID()].IsLiveStream)
-                    player.SeekTo(e.SeekBar.Progress);
-            };
+                bar.Max = (int)CastPlayer.Duration;
+                bar.Progress = (int)CastPlayer.CurrentPosition;
+                bar.StartTrackingTouch += (sender, e) =>
+                {
+                    autoUpdateSeekBar = false;
+                };
+                bar.StopTrackingTouch += (sender, e) =>
+                {
+                    autoUpdateSeekBar = true;
+                    if (!queue[CurrentID()].IsLiveStream)
+                        player.SeekTo(e.SeekBar.Progress);
+                };
+            }
         }
 
         void AddSongToDataBase(Song item)
@@ -1053,7 +1094,10 @@ namespace MusicApp.Resources.Portable_Class
         {
             get
             {
-                return player == null ? 1 : player.Duration;
+                if(!UseCastPlayer)
+                    return player == null ? 1 : player.Duration;
+                else
+                    return CastPlayer == null ? 1 : CastPlayer.Duration;
             }
         }
 
@@ -1061,7 +1105,10 @@ namespace MusicApp.Resources.Portable_Class
         {
             get
             {
-                return player == null ? 0 : player.CurrentPosition;
+                if(!UseCastPlayer)
+                    return player == null ? 0 : player.CurrentPosition;
+                else
+                    return CastPlayer == null ? 0 : CastPlayer.CurrentPosition;
             }
         }
 
@@ -1149,7 +1196,7 @@ namespace MusicApp.Resources.Portable_Class
             if (userRequested)
                 ShouldResumePlayback = false;
 
-            if (player != null && isRunning)
+            if (!UseCastPlayer && player != null && isRunning)
             {
                 SaveTimer(CurrentPosition);
                 isRunning = false;
@@ -1175,11 +1222,30 @@ namespace MusicApp.Resources.Portable_Class
                 MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton)?.SetImageResource(Resource.Drawable.Play);
                 Queue.instance?.RefreshCurrent();
             }
+            else if(UseCastPlayer && CastPlayer != null && isRunning)
+            {
+                SaveTimer(CurrentPosition);
+                isRunning = false;
+                //Intent tmpPauseIntent = new Intent(Application.Context, typeof(MusicPlayer));
+                //tmpPauseIntent.SetAction("Pause");
+                //PendingIntent pauseIntent = PendingIntent.GetService(Application.Context, 0, tmpPauseIntent, PendingIntentFlags.UpdateCurrent);
+
+                //notification.Actions[1] = new Notification.Action(Resource.Drawable.Play, "Play", pauseIntent);
+                //notificationManager.Notify(notificationID, notification);
+
+                //StopForeground(false);
+                CastPlayer.PlayWhenReady = false;
+                FrameLayout smallPlayer = MainActivity.instance.FindViewById<FrameLayout>(Resource.Id.smallPlayer);
+                smallPlayer?.FindViewById<ImageButton>(Resource.Id.spPlay)?.SetImageResource(Resource.Drawable.Play);
+
+                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton)?.SetImageResource(Resource.Drawable.Play);
+                Queue.instance?.RefreshCurrent();
+            }
         }
 
         public void Resume()
         {
-            if(player != null && !isRunning)
+            if(!UseCastPlayer && player != null && !isRunning)
             {
                 ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
                 player.Volume = prefManager.GetInt("volumeMultiplier", 100) / 100f;
@@ -1247,11 +1313,53 @@ namespace MusicApp.Resources.Portable_Class
 #pragma warning restore CS0618
                 }
             }
+            else if(UseCastPlayer && CastPlayer != null && !isRunning)
+            {
+                ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
+                player.Volume = prefManager.GetInt("volumeMultiplier", 100) / 100f;
+                isRunning = true;
+                //Intent tmpPauseIntent = new Intent(Application.Context, typeof(MusicPlayer));
+                //tmpPauseIntent.SetAction("Pause");
+                //PendingIntent pauseIntent = PendingIntent.GetService(Application.Context, 0, tmpPauseIntent, PendingIntentFlags.UpdateCurrent);
+
+                //notification.Actions[1] = new Notification.Action(Resource.Drawable.Pause, "Pause", pauseIntent);
+
+                //StartForeground(notificationID, notification);
+
+                CastPlayer.PlayWhenReady = true;
+
+                FrameLayout smallPlayer = MainActivity.instance.FindViewById<FrameLayout>(Resource.Id.smallPlayer);
+                smallPlayer?.FindViewById<ImageButton>(Resource.Id.spPlay)?.SetImageResource(Resource.Drawable.Pause);
+
+                if (Player.instance != null)
+                {
+                    MainActivity.instance?.FindViewById<ImageButton>(Resource.Id.playButton)?.SetImageResource(Resource.Drawable.Pause);
+                    Player.instance.handler?.PostDelayed(Player.instance.UpdateSeekBar, 1000);
+                }
+
+                Queue.instance?.RefreshCurrent();
+            }
             else
             {
                 Play(queue[CurrentID()], false, RetrieveTimer());
             }
         }
+
+        private MediaQueueItem GetQueueItem(Song song)
+        {
+            MediaMetadata metadata = new MediaMetadata(MediaMetadata.MediaTypeMusicTrack);
+            metadata.PutString(MediaMetadata.KeyTitle, song.Title);
+            metadata.PutString(MediaMetadata.KeyArtist, song.Artist);
+            metadata.AddImage(new Android.Gms.Common.Images.WebImage(Uri.Parse(song.Album), 1000, 1000));
+
+            MediaInfo mediaInfo = new MediaInfo.Builder(song.Path)
+                .SetStreamType(MediaInfo.StreamTypeBuffered)
+                .SetContentType(MimeTypes.AudioMp4)
+                .SetMetadata(metadata)
+                .Build();
+
+            return new MediaQueueItem.Builder(mediaInfo).Build();
+        } 
 
         public void Stop()
         {
@@ -1380,6 +1488,21 @@ namespace MusicApp.Resources.Portable_Class
         public void OnShuffleModeEnabledChanged(bool p0) { }
 
         public void OnTimelineChanged(Timeline p0, Java.Lang.Object p1, int p2) { }
+
+
+        public void OnCastSessionAvailable()
+        {
+            UseCastPlayer = true;
+            if (isRunning)
+            {
+                player.Stop();
+            }
+        }
+
+        public void OnCastSessionUnavailable()
+        {
+            UseCastPlayer = false;
+        }
     }
 }
  

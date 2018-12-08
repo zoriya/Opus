@@ -1281,10 +1281,22 @@ namespace MusicApp
         bool HasWifi()
         {
             ConnectivityManager connectivityManager = (ConnectivityManager)Application.Context.GetSystemService(ConnectivityService);
-            NetworkCapabilities network = connectivityManager.GetNetworkCapabilities(connectivityManager.ActiveNetwork);
-
-            if (network.HasTransport(TransportType.Wifi) || network.HasTransport(TransportType.Ethernet))
-                return true;
+            if(Build.VERSION.SdkInt >= BuildVersionCodes.M)
+            {
+                Network network = connectivityManager.ActiveNetwork;
+                NetworkCapabilities capabilities = connectivityManager.GetNetworkCapabilities(network);
+                if (capabilities.HasTransport(TransportType.Wifi) || capabilities.HasTransport(TransportType.Ethernet))
+                    return true;
+            }
+            else
+            {
+                Network[] allNetworks = connectivityManager.GetAllNetworks();
+                for (int i = 0; i < allNetworks.Length; i++)
+                {
+                    if (allNetworks[i] != null && connectivityManager.GetNetworkInfo(allNetworks[i]).IsConnected && connectivityManager.GetNetworkInfo(allNetworks[i]).Type == ConnectivityType.Wifi)
+                        return true;
+                }
+            }
 
             return false;
         }
@@ -1356,6 +1368,7 @@ namespace MusicApp
             string gitVersionID;
             int gitVersion;
             string downloadPath;
+            bool beta = false;
 
             using(WebClient client = new WebClient())
             {
@@ -1363,38 +1376,59 @@ namespace MusicApp
                 gitVersionID = GitVersion.Substring(9, 5);
                 string gitID = gitVersionID.Remove(1, 1);
                 gitVersion = int.Parse(gitID.Remove(2, 1));
+                bool.TryParse(GitVersion.Substring(GitVersion.IndexOf("Beta: ") + 6, GitVersion.IndexOf("Link: ")), out beta);
                 downloadPath = GitVersion.Substring(GitVersion.IndexOf("Link: ") + 6);
             }
 
-            if(gitVersion > version)
+            if (gitVersion > version && !beta)
             {
                 Android.Support.V7.App.AlertDialog.Builder builder = new Android.Support.V7.App.AlertDialog.Builder(activity, dialogTheme);
                 builder.SetTitle(string.Format("The version {0} is available", gitVersionID));
                 builder.SetMessage("An update is available, do you want to download it now ?");
-                builder.SetPositiveButton("Ok", (sender, e) => { InstallUpdate(gitVersionID, downloadPath); });
+                builder.SetPositiveButton("Ok", (sender, e) => { InstallUpdate(gitVersionID, false, downloadPath); });
                 builder.SetNegativeButton("Later", (sender, e) => { });
                 builder.Show();
             }
-            else if(displayToast)
+            else if (displayToast)
             {
-                if (instance != null && !instance.StateSaved)
+                if (!beta)
                 {
-                    Snackbar snackBar = Snackbar.Make(instance.FindViewById(Resource.Id.snackBar), "Your app is up to date.", Snackbar.LengthLong);
-                    snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
-                    snackBar.Show();
-                }
-                else if(Preferences.instance != null)
-                {
-                    Snackbar snackBar = Snackbar.Make(Preferences.instance.FindViewById(Android.Resource.Id.Content), "Your app is up to date.", Snackbar.LengthLong);
-                    snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
-                    snackBar.Show();
+                    if ((instance != null && !instance.StateSaved) || Preferences.instance != null)
+                    {
+                        Snackbar snackBar;
+                        if (Preferences.instance != null)
+                            snackBar = Snackbar.Make(Preferences.instance.FindViewById(Android.Resource.Id.Content), "Your app is up to date.", Snackbar.LengthLong);
+                        else
+                            snackBar = Snackbar.Make(instance.FindViewById(Resource.Id.snackBar), "Your app is up to date.", Snackbar.LengthLong);
+                        snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+                        snackBar.Show();
+                    }
+                    else
+                        Toast.MakeText(Application.Context, "Your app is up to date.", ToastLength.Short).Show();
                 }
                 else
-                    Toast.MakeText(Application.Context, "Your app is up to date.", ToastLength.Short).Show();
+                {
+                    if ((instance != null && !instance.StateSaved) || Preferences.instance != null)
+                    {
+                        Snackbar snackBar;
+                        if (Preferences.instance != null)
+                            snackBar = Snackbar.Make(Preferences.instance.FindViewById(Android.Resource.Id.Content), "A beta version is available.", Snackbar.LengthLong);
+                        else
+                            snackBar = Snackbar.Make(instance.FindViewById(Resource.Id.snackBar), "A beta version is available.", Snackbar.LengthLong);
+                        snackBar.SetAction("Download", (sender) =>
+                        {
+                            InstallUpdate(gitVersionID, true, downloadPath);
+                        });
+                        snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+                        snackBar.Show();
+                    }
+                    else
+                        Toast.MakeText(Application.Context, "A beta version is available.", ToastLength.Short).Show();
+                }
             }
         }
 
-        public async static void InstallUpdate(string version, string downloadPath)
+        public async static void InstallUpdate(string version, bool beta, string downloadPath)
         {
             Toast.MakeText(Application.Context, "Downloading update, you will be prompt for the installation soon.", ToastLength.Short).Show();
 
@@ -1409,13 +1443,13 @@ namespace MusicApp
 
             using (WebClient client = new WebClient())
             {
-                await client.DownloadFileTaskAsync(downloadPath, Android.OS.Environment.ExternalStorageDirectory + "/download/" + "MusicApp-v" + version + ".apk");
+                await client.DownloadFileTaskAsync(downloadPath, Android.OS.Environment.ExternalStorageDirectory + "/download/" + "MusicApp-v" + version + (beta ? "-beta" : "") + ".apk");
             }
 
             notificationManager.Cancel(NotifUpdateID);
 
             Intent intent = new Intent(Intent.ActionView);
-            intent.SetDataAndType(Android.Net.Uri.FromFile(new Java.IO.File(Android.OS.Environment.ExternalStorageDirectory + "/download/" + "MusicApp-v" + version + ".apk")), "application/vnd.android.package-archive");
+            intent.SetDataAndType(Android.Net.Uri.FromFile(new Java.IO.File(Android.OS.Environment.ExternalStorageDirectory + "/download/" + "MusicApp-v" + version + (beta ? "-beta" : "") + ".apk")), "application/vnd.android.package-archive");
             intent.SetFlags(ActivityFlags.NewTask);
             Application.Context.StartActivity(intent);
         }

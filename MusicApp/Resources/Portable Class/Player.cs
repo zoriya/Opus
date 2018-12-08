@@ -270,7 +270,7 @@ namespace MusicApp.Resources.Portable_Class
                     bar.Max = (int)MusicPlayer.Duration;
                     MusicPlayer.SetSeekBar(bar);
                     timerStart.Text = DurationToTimer((int)MusicPlayer.CurrentPosition);
-                    MainActivity.instance.FindViewById<TextView>(Resource.Id.timerEnd).Text = DurationToTimer((int)MusicPlayer.player.Duration);
+                    MainActivity.instance.FindViewById<TextView>(Resource.Id.timerEnd).Text = DurationToTimer((int)MusicPlayer.Duration);
                     spBar.Max = (int)MusicPlayer.Duration;
                     spBar.Progress = (int)MusicPlayer.CurrentPosition;
 
