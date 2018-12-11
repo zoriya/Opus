@@ -274,6 +274,7 @@
     <Compile Include="Resources\Portable Class\AddToPlaylistAdapter.cs" />
     <Compile Include="Resources\Portable Class\AudioStopper.cs" />
     <Compile Include="Resources\Portable Class\Browse.cs" />
+    <Compile Include="Resources\Portable Class\CastProvider.cs" />
     <Compile Include="Resources\Portable Class\ChannelAdapter.cs" />
     <Compile Include="Resources\Portable Class\ChannelPreviewHolder.cs" />
     <Compile Include="Resources\Portable Class\CircleTransformation.cs" />

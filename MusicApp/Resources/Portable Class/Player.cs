@@ -253,7 +253,7 @@ namespace MusicApp.Resources.Portable_Class
 
             if (MusicPlayer.player != null && bar != null)
             {
-                while (MusicPlayer.Duration < 1)
+                while (MusicPlayer.Duration < 2)
                     await Task.Delay(100);
 
                 if (current.IsLiveStream)
@@ -340,14 +340,8 @@ namespace MusicApp.Resources.Portable_Class
             buffer.SetY(play.GetY());
             play.Visibility = ViewStates.Gone;
 
-            ProgressBar smallBuffer = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.spBuffer);
-            ImageButton smallPlay = MainActivity.instance.FindViewById<ImageButton>(Resource.Id.spPlay);
-            if(MainActivity.Theme == 1)
-                smallBuffer.IndeterminateTintList = ColorStateList.ValueOf(Color.White);
-            else
-                smallBuffer.IndeterminateTintList = ColorStateList.ValueOf(Color.Black);
-            smallBuffer.Visibility = ViewStates.Visible;
-            smallPlay.Visibility = ViewStates.Invisible;
+            MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.spBuffer).Visibility = ViewStates.Visible;
+            MainActivity.instance.FindViewById<ImageButton>(Resource.Id.spPlay).Visibility = ViewStates.Invisible;
         }
 
         public void Error()
@@ -620,6 +614,7 @@ namespace MusicApp.Resources.Portable_Class
                 MainActivity.instance.FindViewById<ImageButton>(Resource.Id.spNext).ImageTintList = ColorStateList.ValueOf(Color.White);
                 MainActivity.instance.FindViewById<ImageButton>(Resource.Id.spPlay).ImageTintList = ColorStateList.ValueOf(Color.White);
                 MainActivity.instance.FindViewById<ImageButton>(Resource.Id.spLast).ImageTintList = ColorStateList.ValueOf(Color.White);
+                MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.spBuffer).IndeterminateTintList = ColorStateList.ValueOf(Color.White);
             }
             else
             {
@@ -627,6 +622,7 @@ namespace MusicApp.Resources.Portable_Class
                 MainActivity.instance.FindViewById<ImageButton>(Resource.Id.spNext).ImageTintList = ColorStateList.ValueOf(Color.Black);
                 MainActivity.instance.FindViewById<ImageButton>(Resource.Id.spPlay).ImageTintList = ColorStateList.ValueOf(Color.Black);
                 MainActivity.instance.FindViewById<ImageButton>(Resource.Id.spLast).ImageTintList = ColorStateList.ValueOf(Color.Black);
+                MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.spBuffer).IndeterminateTintList = ColorStateList.ValueOf(Color.Black);
             }
         }
 
