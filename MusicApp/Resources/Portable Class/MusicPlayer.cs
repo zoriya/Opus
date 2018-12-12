@@ -23,7 +23,6 @@ using Com.Google.Android.Exoplayer2.Source.Hls;
 using Com.Google.Android.Exoplayer2.Trackselection;
 using Com.Google.Android.Exoplayer2.Upstream;
 using Com.Google.Android.Exoplayer2.Util;
-using Java.Lang;
 using MusicApp.Resources.values;
 using SQLite;
 using Square.Picasso;

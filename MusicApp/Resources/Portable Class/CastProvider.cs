@@ -12,12 +12,23 @@ namespace MusicApp
     {
         public CastOptions GetCastOptions(Context appContext)
         {
-            //NotificationOptions notification = new NotificationOptions.Builder()
-            //    .
-            //Customise (or disable) build in notification here.
+            NotificationOptions notification = new NotificationOptions.Builder()
+                .SetActions(new List<string> { MediaIntentReceiver.ActionSkipPrev, MediaIntentReceiver.ActionTogglePlayback, MediaIntentReceiver.ActionSkipNext }, new int[] { 1 })
+                .SetTargetActivityClassName(Java.Lang.Class.FromType(typeof(MainActivity)).Name)
+                .SetSmallIconDrawableResId(Resource.Drawable.MusicIcon)
+                .SetSkipPrevDrawableResId(Resource.Drawable.SkipPrevious)
+                .SetPauseDrawableResId(Resource.Drawable.Pause)
+                .SetPlayDrawableResId(Resource.Drawable.Play)
+                .SetSkipNextDrawableResId(Resource.Drawable.SkipNext)
+                .Build();
+
+            CastMediaOptions media = new CastMediaOptions.Builder()
+                .SetNotificationOptions(notification)
+                .Build();
 
             CastOptions options = new CastOptions.Builder()
                 .SetReceiverApplicationId(CastMediaControlIntent.DefaultMediaReceiverApplicationId)
+                .SetCastMediaOptions(media)
                 .SetStopReceiverApplicationWhenEndingSession(true)
                 .Build();
             return options;
