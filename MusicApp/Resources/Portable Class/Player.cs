@@ -103,7 +103,7 @@ namespace MusicApp.Resources.Portable_Class
             bar = MainActivity.instance.FindViewById<SeekBar>(Resource.Id.songTimer);
             bar.ProgressChanged += (sender, e) =>
             {
-                if(MusicPlayer.CurrentID() > 0 && MusicPlayer.CurrentID() < MusicPlayer.queue.Count && !MusicPlayer.queue[MusicPlayer.CurrentID()].IsLiveStream)
+                if(!MusicPlayer.isLiveStream)
                     timerStart.Text = DurationToTimer(e.Progress);
             };
             timerStart = MainActivity.instance.FindViewById<TextView>(Resource.Id.timerStart);
@@ -251,7 +251,7 @@ namespace MusicApp.Resources.Portable_Class
                 Picasso.With(MainActivity.instance).Load(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(nextArt);
             }
 
-            if (MusicPlayer.player != null && bar != null)
+            if (bar != null)
             {
                 while (MusicPlayer.Duration < 2)
                     await Task.Delay(100);
@@ -425,7 +425,7 @@ namespace MusicApp.Resources.Portable_Class
 
         private string DurationToTimer(int duration)
         {
-            int hours = duration / 600000;
+            int hours = duration / 3600000;
             int minutes = duration / 60000 % 60;
             int seconds = duration / 1000 % 60;
 

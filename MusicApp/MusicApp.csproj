@@ -85,9 +85,6 @@
     <Reference Include="ExoPlayer.Dash, Version=2.8.8.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Xam.Plugins.Android.ExoPlayer.Dash.2.8.8\lib\monoandroid81\ExoPlayer.Dash.dll</HintPath>
     </Reference>
-    <Reference Include="ExoPlayer.Ext.Cast, Version=2.8.8.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Xam.Plugins.Android.ExoPlayer.Cast.2.8.8\lib\monoandroid81\ExoPlayer.Ext.Cast.dll</HintPath>
-    </Reference>
     <Reference Include="ExoPlayer.Hls, Version=2.8.8.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Xam.Plugins.Android.ExoPlayer.Hls.2.8.8\lib\monoandroid81\ExoPlayer.Hls.dll</HintPath>
     </Reference>

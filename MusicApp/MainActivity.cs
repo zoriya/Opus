@@ -7,6 +7,7 @@ using Android.Database;
 using Android.Gms.Auth.Api;
 using Android.Gms.Auth.Api.SignIn;
 using Android.Gms.Cast.Framework;
+using Android.Gms.Cast.Framework.Media;
 using Android.Gms.Common;
 using Android.Gms.Common.Apis;
 using Android.Graphics;
@@ -55,7 +56,7 @@ namespace MusicApp
     [IntentFilter(new[] {Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, DataHost = "www.youtube.com", DataMimeType = "text/*")]
     [IntentFilter(new[] {Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, DataHost = "m.youtube.com", DataMimeType = "text/plain")]
     [IntentFilter(new[] { Intent.ActionView }, Categories = new[] { Intent.CategoryDefault }, DataMimeTypes = new[] { "audio/*", "application/ogg", "application/x-ogg", "application/itunes" })]
-    public class MainActivity : AppCompatActivity, ViewPager.IOnPageChangeListener, GoogleApiClient.IOnConnectionFailedListener, ICallback, IResultCallback, IMenuItemOnActionExpandListener, View.IOnFocusChangeListener
+    public class MainActivity : AppCompatActivity, ViewPager.IOnPageChangeListener, GoogleApiClient.IOnConnectionFailedListener, ICallback, IResultCallback, IMenuItemOnActionExpandListener, View.IOnFocusChangeListener, ISessionManagerListener
     {
         public static MainActivity instance;
         public new static int Theme = 1;
@@ -122,7 +123,6 @@ namespace MusicApp
             crossToPlay = GetDrawable(Resource.Drawable.CrossToPlay);
 
             Navigate(Resource.Id.musicLayout);
-            CastContext = CastContext.GetSharedInstance(this);
 
             if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
             {
@@ -980,8 +980,12 @@ namespace MusicApp
             FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Invisible;
         }
 
-        public void ShowSmallPlayer()
+        public async void ShowSmallPlayer()
         {
+            while (FindViewById(Resource.Id.playerView) == null)
+                await Task.Delay(1000);
+
+            Console.WriteLine("&Showing small player");
             FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Visible;
             FindViewById(Resource.Id.playerView).Alpha = 0;
             Player.instance?.RefreshPlayer();
@@ -1041,6 +1045,15 @@ namespace MusicApp
 
         private void LocalPlay(object sender, EventArgs e)
         {
+            if (MusicPlayer.UseCastPlayer)
+            {
+                Toast.MakeText(this, "Debbugging cast queue", ToastLength.Long).Show();
+                MusicPlayer.GetQueueFromCast();
+                QuickPlay(this, e);
+                return;
+            }
+
+
             if (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(this, Manifest.Permission.ReadExternalStorage) != (int)Permission.Granted)
             {
                 this.sender = sender;
@@ -1454,6 +1467,12 @@ namespace MusicApp
             Application.Context.StartActivity(intent);
         }
 
+        protected override void OnStart()
+        {
+            base.OnStart();
+            CastContext = CastContext.GetSharedInstance(this);
+            CastContext.SessionManager.AddSessionManagerListener(this);
+        }
 
         protected override void OnResume()
         {
@@ -1462,10 +1481,12 @@ namespace MusicApp
             instance = this;
             StateSaved = false;
 
-            if (MusicPlayer.CurrentID() == -1)
+            if (CastContext.SessionManager.CurrentSession == null && MusicPlayer.CurrentID() == -1)
                 MusicPlayer.currentID = MusicPlayer.RetrieveQueueSlot();
+            else if(CastContext.SessionManager.CurrentSession != null)
+                MusicPlayer.GetQueueFromCast();
 
-            if(SearchableActivity.instance != null && SearchableActivity.instance.searched)
+            if (SearchableActivity.instance != null && SearchableActivity.instance.searched)
             {
                 if (YoutubeEngine.instances != null)
                 {
@@ -1526,6 +1547,56 @@ namespace MusicApp
         {
             base.OnNewIntent(intent);
             OnLateCreate(intent, false);
+        }
+
+
+        //SessionManagerListener
+        public void OnSessionEnded(Java.Lang.Object session, int error)
+        {
+            Console.WriteLine("&Session Ended");
+            SwitchRemote(null);
+            MusicPlayer.GetQueueFromCast();
+        }
+
+        public void OnSessionEnding(Java.Lang.Object session) { }
+
+        public void OnSessionResumeFailed(Java.Lang.Object session, int error) { }
+
+        public void OnSessionResumed(Java.Lang.Object session, bool wasSuspended)
+        {
+            Console.WriteLine("&Session Resumed");
+            SwitchRemote(((CastSession)session).RemoteMediaClient);
+            //MusicPlayer.GetQueueFromCast();
+        }
+
+        public void OnSessionResuming(Java.Lang.Object session, string sessionId) { }
+
+        public void OnSessionStartFailed(Java.Lang.Object session, int error) { }
+
+        public void OnSessionStarted(Java.Lang.Object session, string sessionId)
+        {
+            Console.WriteLine("&Session Started");
+            SwitchRemote(((CastSession)session).RemoteMediaClient);
+        }
+
+        public void OnSessionStarting(Java.Lang.Object session) { }
+
+        public void OnSessionSuspended(Java.Lang.Object session, int reason)
+        {
+            Console.WriteLine("&Session Suspended");
+            SwitchRemote(null);
+        }
+
+        private void SwitchRemote(RemoteMediaClient remoteClient)
+        {
+            if (MusicPlayer.instance != null && MusicPlayer.RemotePlayer != null)
+                MusicPlayer.RemotePlayer.RemoveListener(MusicPlayer.instance);
+
+            MusicPlayer.RemotePlayer = remoteClient;
+            if (MusicPlayer.instance != null && MusicPlayer.RemotePlayer != null)
+                MusicPlayer.RemotePlayer.AddListener(MusicPlayer.instance);
+
+            MusicPlayer.UseCastPlayer = MusicPlayer.RemotePlayer != null;
         }
     }
 }
