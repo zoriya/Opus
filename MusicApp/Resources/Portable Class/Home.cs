@@ -46,6 +46,7 @@ namespace MusicApp.Resources.Portable_Class
             instance = null;
         }
 
+#pragma warning disable CS4014
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             view = inflater.Inflate(Resource.Layout.RecyclerFragment, container, false);
@@ -58,8 +59,9 @@ namespace MusicApp.Resources.Portable_Class
                 PopulateSongs();
             return view;
         }
+#pragma warning restore CS4014 
 
-        private async void PopulateSongs()
+        private async Task PopulateSongs()
         {
             if (!populating)
             {
@@ -427,15 +429,15 @@ namespace MusicApp.Resources.Portable_Class
             return instance;
         }
 
-        public void OnRefresh(object sender, EventArgs e)
+        public async void OnRefresh(object sender, EventArgs e)
         {
-            Refresh();
+            await Refresh();
             MainActivity.instance.contentRefresh.Refreshing = false;
         }
 
-        public void Refresh()
+        public async Task Refresh()
         {
-            PopulateSongs();
+            await PopulateSongs();
         }
 
         public void LoadMore()

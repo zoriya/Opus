@@ -113,7 +113,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public async void RefreshPlayer()
         {
-            while (MusicPlayer.CurrentID() == -1)
+            while (MainActivity.instance == null || MusicPlayer.CurrentID() == -1)
                 await Task.Delay(100);
 
             Song current = MusicPlayer.queue[MusicPlayer.CurrentID()];

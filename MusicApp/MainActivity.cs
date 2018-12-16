@@ -621,7 +621,9 @@ namespace MusicApp
                     ShowQuickPlay();
                     if (Home.instance != null && !specialSwitch)
                     {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                         Home.instance.Refresh();
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                         return;
                     }
 
@@ -1219,10 +1221,6 @@ namespace MusicApp
 
 
             Song current = MusicPlayer.queue[MusicPlayer.CurrentID()];
-            current.queueSlot = 0;
-            MusicPlayer.queue.Clear();
-            MusicPlayer.queue.Add(current);
-            MusicPlayer.currentID = 0;
 
             Random r = new Random();
             tracks = tracks.OrderBy(x => r.Next()).ToList();
@@ -1241,7 +1239,7 @@ namespace MusicApp
                     await Task.Delay(10);
             }
             foreach (Song song in tracks)
-                MusicPlayer.instance.AddToQueue(song);
+                MusicPlayer.instance.PlayLastInQueue(song);
 
             ShowSmallPlayer();
             ShowPlayer();
@@ -1514,6 +1512,8 @@ namespace MusicApp
 
         protected override void OnDestroy()
         {
+            YoutubeEngine.instances = null;
+
             if (MusicPlayer.instance != null && !MusicPlayer.isRunning && Preferences.instance == null && Queue.instance == null && EditMetaData.instance == null)
             {
                 Intent intent = new Intent(this, typeof(MusicPlayer));
