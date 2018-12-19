@@ -735,9 +735,6 @@ namespace MusicApp.Resources.Portable_Class
             if (song.queueSlot == -1)
                 song.queueSlot = CurrentID() + 1;
             song.IsLiveStream = isLive;
-            queue.Insert(song.queueSlot, song);
-            UpdateQueueSlots();
-            Home.instance?.RefreshQueue();
 
             if (UseCastPlayer)
             {
@@ -751,6 +748,12 @@ namespace MusicApp.Resources.Portable_Class
                         RemotePlayer.QueueAppendItem(GetQueueItem(song), null);
                 }
             }
+            else
+            {
+                queue.Insert(song.queueSlot, song);
+                UpdateQueueSlots();
+                Home.instance?.RefreshQueue();
+            }
         }
 
         public void AddToQueue(Song song, bool addToRemote = true)
@@ -758,11 +761,13 @@ namespace MusicApp.Resources.Portable_Class
             if (song.queueSlot == -1)
                 song.queueSlot = CurrentID() + 1;
 
-            queue.Insert(song.queueSlot, song);
-            UpdateQueueSlots();
-            Home.instance?.RefreshQueue();
-
-            if (UseCastPlayer && addToRemote)
+            if (!UseCastPlayer)
+            {
+                queue.Insert(song.queueSlot, song);
+                UpdateQueueSlots();
+                Home.instance?.RefreshQueue();
+            }
+            else if (addToRemote)
             {
                 int? currentQueueId = RemotePlayer.MediaStatus?.CurrentItemId;
                 if (currentQueueId != null)
@@ -781,24 +786,29 @@ namespace MusicApp.Resources.Portable_Class
             Song song = Browse.GetSong(filePath);
             song.queueSlot = queue.Count;
 
-            queue.Add(song);
-            UpdateQueueItemDB(song);
-
-            Home.instance?.RefreshQueue();
-
             if (UseCastPlayer)
                 RemotePlayer.QueueAppendItem(GetQueueItem(song), null);
+            else
+            {
+                queue.Add(song);
+                UpdateQueueItemDB(song);
+
+                Home.instance?.RefreshQueue();
+            }
         }
 
         public void PlayLastInQueue(Song song)
         {
             song.queueSlot = queue.Count;
-            queue.Add(song);
-            UpdateQueueItemDB(song);
-            Home.instance?.RefreshQueue();
 
             if (UseCastPlayer)
                 RemotePlayer.QueueAppendItem(GetQueueItem(song), null);
+            else
+            {
+                queue.Add(song);
+                UpdateQueueItemDB(song);
+                Home.instance?.RefreshQueue();
+            }
         }
 
         public void PlayLastInQueue(string filePath, string title, string artist, string youtubeID, string thumbnailURI, bool isLive = false)
@@ -809,12 +819,15 @@ namespace MusicApp.Resources.Portable_Class
                 IsLiveStream = isLive
             };
 
-            queue.Add(song);
-            UpdateQueueItemDB(song);
-            Home.instance?.RefreshQueue();
 
             if (UseCastPlayer)
                 RemotePlayer.QueueAppendItem(GetQueueItem(song), null);
+            else
+            {
+                queue.Add(song);
+                UpdateQueueItemDB(song);
+                Home.instance?.RefreshQueue();
+            }
         }
 
         public void PlayPrevious()
@@ -1445,9 +1458,6 @@ namespace MusicApp.Resources.Portable_Class
             if (UseCastPlayer)
             {
                 Console.WriteLine("&Getting queue from cast");
-
-                Console.WriteLine("&MediaStatus: " + RemotePlayer?.MediaStatus);
-                Console.WriteLine("&QueueItems: " + RemotePlayer?.MediaStatus?.QueueItems);
                 Console.WriteLine("&Count: " + RemotePlayer?.MediaStatus?.QueueItems.Count);
 
                 if (RemotePlayer?.MediaStatus == null)
@@ -1461,6 +1471,7 @@ namespace MusicApp.Resources.Portable_Class
                     return;
                 }
 
+                RemotePlayer.MediaQueue
                 List<Song> list = RemotePlayer?.MediaStatus?.QueueItems?.ToList().ConvertAll(GetSongFromQueueItem);
                 queue = list ?? queue;
 
