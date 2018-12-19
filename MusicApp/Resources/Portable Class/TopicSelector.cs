@@ -83,7 +83,7 @@ namespace MusicApp.Resources.Portable_Class
                 }
             }
 
-            List<string> topicList = channelList.ConvertAll(x => x.youtubeID);
+            List<string> topicList = channelList.ConvertAll(x => x.YoutubeID);
             foreach (string channelID in selectedTopicsID.Except(topicList))
             {
                 try
@@ -139,7 +139,7 @@ namespace MusicApp.Resources.Portable_Class
             if (!Checked)
             {
                 selectedTopics.Add(channel.Title);
-                selectedTopicsID.Add(channel.youtubeID);
+                selectedTopicsID.Add(channel.YoutubeID);
             }
             else
             {

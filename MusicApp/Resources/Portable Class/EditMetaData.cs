@@ -78,7 +78,7 @@ namespace MusicApp.Resources.Portable_Class
             title.Text = song.Title;
             artist.Text = song.Artist;
             album.Text = song.Album;
-            youtubeID.Text = song.youtubeID;
+            youtubeID.Text = song.YoutubeID;
             albumArt.Click += AlbumArt_Click;
 
             if (song.AlbumArt == -1 || song.IsYt)
@@ -171,7 +171,7 @@ namespace MusicApp.Resources.Portable_Class
 
         async Task ValidateChanges()
         {
-            if (song.Title == title.Text && song.Artist == artist.Text && song.youtubeID == youtubeID.Text && song.Album == album.Text && artURI == null)
+            if (song.Title == title.Text && song.Artist == artist.Text && song.YoutubeID == youtubeID.Text && song.Album == album.Text && artURI == null)
                 return;
 
             const string permission = Manifest.Permission.WriteExternalStorage;
@@ -243,7 +243,7 @@ namespace MusicApp.Resources.Portable_Class
 
         async void DownloadMetaDataFromYT()
         {
-            if (song.youtubeID == "")
+            if (song.YoutubeID == "")
             {
                 Toast.MakeText(this, "Can't get meta data on youtube, youtubeID isn't set.", ToastLength.Short).Show();
                 return;
@@ -295,7 +295,7 @@ namespace MusicApp.Resources.Portable_Class
 
         async void DownloadAlbumArtOnYT()
         {
-            if (song.youtubeID == "")
+            if (song.YoutubeID == "")
             {
                 Toast.MakeText(this, "Can't get meta data on youtube, youtubeID isn't set.", ToastLength.Short).Show();
                 return;
@@ -348,7 +348,7 @@ namespace MusicApp.Resources.Portable_Class
             title.Text = song.Title;
             artist.Text = song.Artist;
             album.Text = song.Album;
-            youtubeID.Text = song.youtubeID;
+            youtubeID.Text = song.YoutubeID;
             albumArt.Click += AlbumArt_Click;
 
             if (song.AlbumArt == -1 || song.IsYt)

@@ -320,7 +320,7 @@ namespace MusicApp.Resources.Portable_Class
                                         {
                                             if (section.contentValue.Exists(x => x.Title.Contains(adapter.items[i].contentValue[j].Title)))
                                             {
-                                                adapter.items[i].contentValue[j].Artist = section.contentValue.Find(x => x.Title.Contains(adapter.items[i].contentValue[j].Title)).youtubeID;
+                                                adapter.items[i].contentValue[j].Artist = section.contentValue.Find(x => x.Title.Contains(adapter.items[i].contentValue[j].Title)).YoutubeID;
                                                 removedValues.Add(section.contentValue.Find(x => x.Title.Contains(adapter.items[i].contentValue[j].Title)));
                                                 if (j < 4 && adapter.items[i].recycler != null)
                                                 {

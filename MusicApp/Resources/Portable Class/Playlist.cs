@@ -677,7 +677,7 @@ namespace MusicApp.Resources.Portable_Class
                 if (MusicPlayer.isRunning)
                     MusicPlayer.queue?.Clear();
 
-                YoutubeEngine.Play(songs[0].youtubeID, songs[0].Title, songs[0].Artist, songs[0].Album);
+                YoutubeEngine.Play(songs[0].YoutubeID, songs[0].Title, songs[0].Artist, songs[0].Album);
                 songs.RemoveAt(0);
                 songs.Reverse();
 

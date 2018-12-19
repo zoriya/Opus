@@ -41,15 +41,17 @@ using Uri = Android.Net.Uri;
 namespace MusicApp.Resources.Portable_Class
 {
     [Service]
-    public class MusicPlayer : Service, IPlayerEventListener, AudioManager.IOnAudioFocusChangeListener, RemoteMediaClient.IListener
+    public class MusicPlayer : Service, IPlayerEventListener, AudioManager.IOnAudioFocusChangeListener
     {
         public static MusicPlayer instance;
         public static bool UseCastPlayer = false;
         public static SimpleExoPlayer player;
         public static RemoteMediaClient RemotePlayer;
+        public static CastCallback CastCallback;
         public float volume;
         private static AudioStopper noisyReceiver;
         public static List<Song> queue = new List<Song>();
+        public static List<int> WaitForIndex = new List<int>();
         public MediaSessionCompat mediaSession;
         public AudioManager audioManager;
         public NotificationManager notificationManager;
@@ -160,7 +162,7 @@ namespace MusicApp.Resources.Portable_Class
                     break;
 
                 case "CastListener":
-                    OnStatusUpdated();
+                    CastCallback.OnStatusUpdated();
                     return StartCommandResult.Sticky;
             }
 
@@ -171,6 +173,29 @@ namespace MusicApp.Resources.Portable_Class
                 Play(file);
 
             return StartCommandResult.Sticky;
+        }
+
+        public async static Task<Song> GetItem(int position = -2)
+        {
+            Console.WriteLine("&Getting song at position " + position);
+            Console.WriteLine("&CurerntID: " + CurrentID());
+
+            if (position == -2)
+                position = CurrentID();
+
+            if (position >= queue.Count || position < 0)
+                return null;
+
+            if (queue[position] == null && !WaitForIndex.Contains(position))
+            {
+                RemotePlayer.MediaQueue.GetItemAtIndex(position, true);
+                WaitForIndex.Add(position);
+            }
+
+            while (queue[position] == null)
+                await Task.Delay(100);
+
+            return queue[position];
         }
 
         private void InitializeService()
@@ -192,7 +217,12 @@ namespace MusicApp.Resources.Portable_Class
             noisyRegistered = true;
 
             RemotePlayer = MainActivity.CastContext.SessionManager.CurrentCastSession?.RemoteMediaClient;
-            RemotePlayer?.AddListener(this);
+            if(RemotePlayer != null)
+            {
+                CastCallback = new CastCallback();
+                RemotePlayer.RegisterCallback(CastCallback);
+                RemotePlayer.MediaQueue.RegisterCallback(new CastQueueManager());
+            }
             UseCastPlayer = RemotePlayer != null;
             player.PlayWhenReady = !UseCastPlayer;
         }
@@ -218,8 +248,9 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             if (addToQueue)
-                song.queueSlot = CurrentID() + 1;
+                song.QueueSlot = CurrentID() + 1;
 
+            song.IsLiveStream = isLive;
             isLiveStream = isLive;
 
             if (!UseCastPlayer)
@@ -285,24 +316,27 @@ namespace MusicApp.Resources.Portable_Class
                 player.PlayWhenReady = true;
                 player.Prepare(mediaSource, true, true);
                 CreateNotification(song.Title, song.Artist, song.AlbumArt, song.Album);
+
+                if (addToQueue)
+                {
+                    AddToQueue(song, false);
+
+                    UpdateQueueSlots();
+                    currentID = CurrentID() + 1;
+                }
+                else
+                {
+                    UpdateQueueSlots();
+                    currentID = song.QueueSlot;
+                }
             }
             else
             {
-                RemotePlayer.Load(GetMediaInfo(song), true);
+                RemotePlayer.Load(GetMediaInfo(song), new MediaLoadOptions.Builder().SetAutoplay(true).Build());
                 RemotePlayer.Play();
-            }
-
-            if (addToQueue)
-            {
-                AddToQueue(song, false);
-
-                UpdateQueueSlots();
-                currentID = CurrentID() + 1;
-            }
-            else
-            {
-                UpdateQueueSlots();
-                currentID = song.queueSlot;
+                queue.Insert(song.QueueSlot, song);
+                currentID = song.QueueSlot;
+                Console.WriteLine("&Song inserted in the queue");
             }
 
             SaveQueueSlot();
@@ -314,9 +348,9 @@ namespace MusicApp.Resources.Portable_Class
 
         public void Play(Song song, bool addToQueue = true, long progress = -1)
         {
-            if (!song.isParsed)
+            if (!song.IsParsed)
             {
-                ParseAndPlay("Play", song.youtubeID, song.Title, song.Artist, song.Album, addToQueue);
+                ParseAndPlay("Play", song.YoutubeID, song.Title, song.Artist, song.Album, addToQueue);
                 return;
             }
 
@@ -327,7 +361,7 @@ namespace MusicApp.Resources.Portable_Class
                 InitializeService();
 
             if (addToQueue)
-                song.queueSlot = CurrentID() + 1;
+                song.QueueSlot = CurrentID() + 1;
 
             if (!UseCastPlayer)
             {
@@ -393,7 +427,7 @@ namespace MusicApp.Resources.Portable_Class
             }
             else
             {
-                RemotePlayer.Load(GetMediaInfo(song), true, progress);
+                RemotePlayer.Load(GetMediaInfo(song), new MediaLoadOptions.Builder().SetAutoplay(true).Build());
                 RemotePlayer.Play();
             }
 
@@ -409,8 +443,10 @@ namespace MusicApp.Resources.Portable_Class
             else
             {
                 UpdateQueueSlots();
-                currentID = song.queueSlot;
+                currentID = song.QueueSlot;
             }
+
+            currentID = song.QueueSlot;
 
             if (progress != -1)
             {
@@ -429,7 +465,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             for (int i = 0; i < queue.Count; i++)
             {
-                queue[i].queueSlot = i;
+                queue[i].QueueSlot = i;
             }
             UpdateQueueDataBase();
         }
@@ -487,24 +523,23 @@ namespace MusicApp.Resources.Portable_Class
                             return;
                     }
 
-                    Console.WriteLine("&Queue Count: " + queue.Count);
-                    Console.WriteLine("&CurrentID: " + CurrentID());
-
-                    if (!isLive)
-                    {
-                        DateTimeOffset expireDate = mediaStreamInfo.ValidUntil;
-                        queue[CurrentID()].expireDate = expireDate;
-                    }
-                    else
-                        queue[CurrentID()].IsLiveStream = true;
-
                     Video info = await client.GetVideoAsync(videoID);
                     thumbnailURL = info.Thumbnails.HighResUrl;
                     if (artist == null || artist == "")
                         artist = info.Author;
 
+                    Console.WriteLine("&Parse and play current index edit");
+                    Console.WriteLine("&Queue Count: " + queue.Count);
+                    Console.WriteLine("&CurrentID: " + CurrentID());
+
                     queue[CurrentID()].Album = thumbnailURL;
                     queue[CurrentID()].Artist = artist;
+
+                    if (!isLive)
+                    {
+                        DateTimeOffset expireDate = mediaStreamInfo.ValidUntil;
+                        queue[CurrentID()].ExpireDate = expireDate;
+                    }
                 }
                 catch (System.Net.Http.HttpRequestException)
                 {
@@ -652,7 +687,7 @@ namespace MusicApp.Resources.Portable_Class
             foreach (string filePath in filePaths)
             {
                 Song song = Browse.GetSong(filePath);
-                song.queueSlot = queue.Count;
+                song.QueueSlot = queue.Count;
                 queue.Add(song);
                 await Task.Delay(10);
             }
@@ -685,7 +720,7 @@ namespace MusicApp.Resources.Portable_Class
 
             foreach(Song song in songs)
             {
-                song.queueSlot = queue.Count;
+                song.QueueSlot = queue.Count;
                 queue.Add(song);
             }
 
@@ -711,7 +746,7 @@ namespace MusicApp.Resources.Portable_Class
                 queue.RemoveAt(CurrentID());
                 queue = queue.OrderBy(x => r.Next()).ToList();
 
-                current.queueSlot = 0;
+                current.QueueSlot = 0;
                 currentID = 0;
                 queue.Insert(0, current);
 
@@ -732,8 +767,8 @@ namespace MusicApp.Resources.Portable_Class
             else
                 song = new Song(title, artist, thumbnailURI, youtubeID, -1, -1, filePath, true);
 
-            if (song.queueSlot == -1)
-                song.queueSlot = CurrentID() + 1;
+            if (song.QueueSlot == -1)
+                song.QueueSlot = CurrentID() + 1;
             song.IsLiveStream = isLive;
 
             if (UseCastPlayer)
@@ -750,7 +785,7 @@ namespace MusicApp.Resources.Portable_Class
             }
             else
             {
-                queue.Insert(song.queueSlot, song);
+                queue.Insert(song.QueueSlot, song);
                 UpdateQueueSlots();
                 Home.instance?.RefreshQueue();
             }
@@ -758,12 +793,12 @@ namespace MusicApp.Resources.Portable_Class
 
         public void AddToQueue(Song song, bool addToRemote = true)
         {
-            if (song.queueSlot == -1)
-                song.queueSlot = CurrentID() + 1;
+            if (song.QueueSlot == -1)
+                song.QueueSlot = CurrentID() + 1;
 
+            queue.Insert(song.QueueSlot, song);
             if (!UseCastPlayer)
             {
-                queue.Insert(song.queueSlot, song);
                 UpdateQueueSlots();
                 Home.instance?.RefreshQueue();
             }
@@ -784,7 +819,7 @@ namespace MusicApp.Resources.Portable_Class
         public void PlayLastInQueue(string filePath)
         {
             Song song = Browse.GetSong(filePath);
-            song.queueSlot = queue.Count;
+            song.QueueSlot = queue.Count;
 
             if (UseCastPlayer)
                 RemotePlayer.QueueAppendItem(GetQueueItem(song), null);
@@ -799,7 +834,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public void PlayLastInQueue(Song song)
         {
-            song.queueSlot = queue.Count;
+            song.QueueSlot = queue.Count;
 
             if (UseCastPlayer)
                 RemotePlayer.QueueAppendItem(GetQueueItem(song), null);
@@ -815,7 +850,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             Song song = new Song(title, artist, thumbnailURI, youtubeID, -1, -1, filePath, true)
             {
-                queueSlot = queue.Count,
+                QueueSlot = queue.Count,
                 IsLiveStream = isLive
             };
 
@@ -892,7 +927,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public async void SwitchQueue(Song song, bool showPlayer = false)
         {
-            if (!song.isParsed)
+            if (!song.IsParsed)
             {
                 Player.instance?.Buffering();
                 if (MainActivity.instance != null && showPlayer)
@@ -904,10 +939,10 @@ namespace MusicApp.Resources.Portable_Class
                 try
                 {
                     YoutubeClient client = new YoutubeClient();
-                    MediaStreamInfoSet mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(song.youtubeID);
+                    MediaStreamInfoSet mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(song.YoutubeID);
                     AudioStreamInfo streamInfo = mediaStreamInfo.Audio.Where(x => x.Container == Container.Mp4).OrderBy(s => s.Bitrate).Last();
                     song.Path = streamInfo.Url;
-                    song.isParsed = true;
+                    song.IsParsed = true;
                     if (Queue.instance != null)
                     {
                         int item = queue.IndexOf(song);
@@ -921,9 +956,9 @@ namespace MusicApp.Resources.Portable_Class
                     }
 
                     DateTimeOffset expireDate = mediaStreamInfo.ValidUntil;
-                    song.expireDate = expireDate;
+                    song.ExpireDate = expireDate;
 
-                    Video info = await client.GetVideoAsync(song.youtubeID);
+                    Video info = await client.GetVideoAsync(song.YoutubeID);
                     song.Album = info.Thumbnails.HighResUrl;
                     song.Artist = info.Author;
                     UpdateQueueItemDB(song);
@@ -947,9 +982,9 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             if (UseCastPlayer)
-                RemotePlayer.QueueJumpToItem(RemotePlayer.MediaStatus.GetItemByIndex(song.queueSlot).ItemId, null);
+                RemotePlayer.QueueJumpToItem(RemotePlayer.MediaStatus.GetItemByIndex(song.QueueSlot).ItemId, null);
             else
-                Play(song, false, (currentID == song.queueSlot ? LastTimer : 0));
+                Play(song, false, (currentID == song.QueueSlot ? LastTimer : 0));
 
             if (showPlayer)
             {
@@ -1084,17 +1119,17 @@ namespace MusicApp.Resources.Portable_Class
 
         static Song RemoveParseValues(Song song)
         {
-            if (song.IsYt && song.isParsed)
+            if (song.IsYt && song.IsParsed)
             {
-                if (song.expireDate != null && song.expireDate.Value.Subtract(DateTimeOffset.UtcNow) > TimeSpan.Zero)
+                if (song.ExpireDate != null && song.ExpireDate.Value.Subtract(DateTimeOffset.UtcNow) > TimeSpan.Zero)
                 {
                     return song;
                 }
                 else
                 {
-                    song.isParsed = false;
-                    song.Path = song.youtubeID;
-                    song.expireDate = null;
+                    song.IsParsed = false;
+                    song.Path = song.YoutubeID;
+                    song.ExpireDate = null;
                 }
             }
             return song;
@@ -1134,18 +1169,18 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             Song song = queue[CurrentID() + 1];
-            if (song.isParsed)
+            if (song.IsParsed)
                 return;
 
-            if (!song.isParsed && !parsing)
+            if (!song.IsParsed && !parsing)
             {
                 parsing = true;
                 try
                 {
                     YoutubeClient client = new YoutubeClient();
-                    MediaStreamInfoSet mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(song.youtubeID);
+                    MediaStreamInfoSet mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(song.YoutubeID);
                     AudioStreamInfo streamInfo = mediaStreamInfo.Audio.Where(x => x.Container == Container.Mp4).OrderBy(s => s.Bitrate).Last();
-                    song.isParsed = true;
+                    song.IsParsed = true;
                     bool isLive = false;
                     string streamURL = streamInfo.Url;
                     if (mediaStreamInfo.HlsLiveStreamUrl != null)
@@ -1155,14 +1190,14 @@ namespace MusicApp.Resources.Portable_Class
                     }
                     song.Path = streamURL;
 
-                    Video info = await client.GetVideoAsync(song.youtubeID);
+                    Video info = await client.GetVideoAsync(song.YoutubeID);
                     song.Album = info.Thumbnails.HighResUrl;
                     song.Artist = info.Author;
 
                     if(!isLive)
                     {
                         DateTimeOffset expireDate = mediaStreamInfo.ValidUntil;
-                        song.expireDate = expireDate;
+                        song.ExpireDate = expireDate;
                     }
 
                     instance.UpdateQueueItemDB(song);
@@ -1215,6 +1250,8 @@ namespace MusicApp.Resources.Portable_Class
                     return RemotePlayer == null ? 1 : RemotePlayer.ApproximateStreamPosition;
             }
         }
+
+        
 
         async void CreateNotification(string title, string artist, long albumArt = 0, string imageURI = "")
         {
@@ -1448,68 +1485,59 @@ namespace MusicApp.Resources.Portable_Class
             return new MediaQueueItem.Builder(GetMediaInfo(song)).Build();
         }
 
-        private static Song GetSongFromQueueItem(MediaQueueItem queueItem)
-        {
-            return JsonConvert.DeserializeObject<Song>(queueItem.Media.CustomData.ToString());
-        }
-
         public async static void GetQueueFromCast()
         {
             if (UseCastPlayer)
             {
                 Console.WriteLine("&Getting queue from cast");
-                Console.WriteLine("&Count: " + RemotePlayer?.MediaStatus?.QueueItems.Count);
+                Console.WriteLine("&Count: " + RemotePlayer?.MediaQueue.ItemCount);
 
-                if (RemotePlayer?.MediaStatus == null)
-                {
-                    Toast.MakeText(MainActivity.instance, "MediaStatus == null", ToastLength.Long).Show();
-                    return;
-                }
                 if (RemotePlayer?.MediaStatus?.QueueItems.Count == 0)
                 {
                     Toast.MakeText(MainActivity.instance, "QueueItems count == 0", ToastLength.Long).Show();
                     return;
                 }
 
-                RemotePlayer.MediaQueue
-                List<Song> list = RemotePlayer?.MediaStatus?.QueueItems?.ToList().ConvertAll(GetSongFromQueueItem);
-                queue = list ?? queue;
-
-                foreach (Song song in queue)
-                    Console.WriteLine("&" + song.Title);
-
-                int? id = RemotePlayer?.MediaStatus?.CurrentItemId;
-                if(id != null)
-                {
-                    int? index = (int?)RemotePlayer.MediaStatus.GetIndexById((int)id);
-                    currentID = index ?? -1;
-                }
+                if(RemotePlayer.CurrentItem != null)
+                    currentID = RemotePlayer.MediaQueue.IndexOfItemWithId(RemotePlayer.CurrentItem.ItemId);
                 else
                     currentID = -1;
 
-                Console.WriteLine("&CurrentID: " + currentID);
+                Console.WriteLine("&CurentID: " + currentID);
 
-                while (Player.instance == null)
-                    await Task.Delay(1000);
+                bool showPlayer = queue.Count == 0;
 
-                if(instance != null)
-                    instance.OnStatusUpdated();
-                else
+                queue.Clear();
+                for (int i = 0; i < RemotePlayer.MediaQueue.ItemCount; i++)
+                    queue.Add((Song)RemotePlayer.MediaQueue.GetItemAtIndex(i, i == currentID || i == currentID + 1));
+
+                if(currentID != -1)
                 {
-                    Intent intent = new Intent(MainActivity.instance, typeof(MusicPlayer));
-                    intent.SetAction("CastListener");
-                    MainActivity.instance.StartService(intent);
+                    while (queue[currentID] == null || Player.instance == null)
+                        await Task.Delay(1000);
                 }
 
-                if (queue != null && queue.Count > 0)
+                foreach (Song song in queue)
+                    Console.WriteLine("&Song: " + song?.Title);
+
+                Intent intent = new Intent(MainActivity.instance, typeof(MusicPlayer));
+                intent.SetAction("CastListener");
+                MainActivity.instance.StartService(intent);
+
+                if (queue.Count > 0)
                 {
                     Home.instance?.AddQueue();
                     Home.instance?.RefreshQueue();
                     Queue.instance?.Refresh();
 
-                    MainActivity.instance.FindViewById(Resource.Id.playerSheet).Visibility = ViewStates.Visible;
-                    MainActivity.instance.FindViewById<FrameLayout>(Resource.Id.contentView).SetPadding(0, 0, 0, MainActivity.instance.DpToPx(70));
-                    Player.instance.RefreshPlayer();
+                    if (showPlayer)
+                        MainActivity.instance.ShowSmallPlayer();
+                    else
+                    {
+                        MainActivity.instance.FindViewById(Resource.Id.playerSheet).Visibility = ViewStates.Visible;
+                        MainActivity.instance.FindViewById<FrameLayout>(Resource.Id.contentView).SetPadding(0, 0, 0, MainActivity.instance.DpToPx(70));
+                        Player.instance.RefreshPlayer();
+                    }
                 }
             }
         }
@@ -1642,78 +1670,6 @@ namespace MusicApp.Resources.Portable_Class
         public void OnShuffleModeEnabledChanged(bool p0) { }
 
         public void OnTimelineChanged(Timeline p0, Java.Lang.Object p1, int p2) { }
-
-
-        //Remote media client calls
-        public void OnAdBreakStatusUpdated() { }
-
-        public void OnMetadataUpdated()
-        {
-            Console.WriteLine("&MetaData Updated");
-            int? id = RemotePlayer?.MediaStatus?.CurrentItemId;
-            if (id != null && id != 0)
-            {
-                int? index = (int?)RemotePlayer.MediaStatus.GetIndexById((int)id);
-                currentID = index ?? -1;
-            }
-            else
-                currentID = -1;
-
-            Console.WriteLine("&CurrentID: " + currentID);
-
-            Player.instance?.RefreshPlayer();
-        }
-
-        public void OnPreloadStatusUpdated()
-        {
-            Console.WriteLine("&Preload Status Updated");
-        }
-
-        public void OnQueueStatusUpdated()
-        {
-            Console.WriteLine("&Queue status updated");
-            GetQueueFromCast();
-        }
-
-        public void OnSendingRemoteMediaRequest()
-        {
-            Console.WriteLine("&Sending Remote Media Request");
-        }
-
-        public void OnStatusUpdated()
-        {
-            Console.WriteLine("&Stauts Updated");
-
-            if (RemotePlayer.IsBuffering)
-                Player.instance?.Buffering();
-            else
-                Player.instance?.Ready();
-
-            if (RemotePlayer.IsPaused)
-            {
-                isRunning = false;
-                FrameLayout smallPlayer = MainActivity.instance.FindViewById<FrameLayout>(Resource.Id.smallPlayer);
-                smallPlayer?.FindViewById<ImageButton>(Resource.Id.spPlay)?.SetImageResource(Resource.Drawable.Play);
-
-                if (Player.instance != null)
-                {
-                    MainActivity.instance?.FindViewById<ImageButton>(Resource.Id.playButton)?.SetImageResource(Resource.Drawable.Play);
-                    Player.instance.handler?.PostDelayed(Player.instance.UpdateSeekBar, 1000);
-                }
-            }
-            else
-            {
-                isRunning = true;
-                FrameLayout smallPlayer = MainActivity.instance.FindViewById<FrameLayout>(Resource.Id.smallPlayer);
-                smallPlayer?.FindViewById<ImageButton>(Resource.Id.spPlay)?.SetImageResource(Resource.Drawable.Pause);
-
-                if (Player.instance != null)
-                {
-                    MainActivity.instance?.FindViewById<ImageButton>(Resource.Id.playButton)?.SetImageResource(Resource.Drawable.Pause);
-                    Player.instance.handler?.PostDelayed(Player.instance.UpdateSeekBar, 1000);
-                }
-            }
-        }
     }
 }
  

@@ -288,7 +288,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public static Song CompleteItem(Song item)
         {
-            item.youtubeID = GetYtID(item.Path);
+            item.YoutubeID = GetYtID(item.Path);
             return item;
         }
 
@@ -449,7 +449,7 @@ namespace MusicApp.Resources.Portable_Class
                     if (playlist.LocalID != 0)
                     {
                         if (item.Id == 0 || item.Id == -1)
-                            YoutubeEngine.Download(item.Title, item.youtubeID, playlist.Name);
+                            YoutubeEngine.Download(item.Title, item.YoutubeID, playlist.Name);
                         else
                             AddToPlaylist(item, playlist.Name, playlist.LocalID);
                     }
@@ -482,10 +482,10 @@ namespace MusicApp.Resources.Portable_Class
             dialog.Show();
 
 
-            if(item.youtubeID == null)
+            if(item.YoutubeID == null)
             {
                 item = CompleteItem(item);
-                if (item.youtubeID == null)
+                if (item.YoutubeID == null)
                 {
                     Toast.MakeText(MainActivity.instance, "Song can't be found on youtube, can't add it to a youtube playlist.", ToastLength.Long).Show();
                     Playlists.Remove(Loading);
@@ -529,7 +529,7 @@ namespace MusicApp.Resources.Portable_Class
                     {
                         PlaylistItem YtPlaylist = new PlaylistItem(playlist.Snippet.Title, playlist.Id)
                         {
-                            SongContained = await SongIsContained(item.youtubeID, playlist.Id)
+                            SongContained = await SongIsContained(item.YoutubeID, playlist.Id)
                         };
                         Playlists.Insert(Playlists.Count - 1, YtPlaylist);
                         adapter.NotifyItemInserted(Playlists.Count - 1);
@@ -590,7 +590,7 @@ namespace MusicApp.Resources.Portable_Class
             builder.SetView(view);
             PlaylistLocationAdapter adapter = new PlaylistLocationAdapter(MainActivity.instance, Android.Resource.Layout.SimpleSpinnerItem, new string[] { "Local playlist", "Youtube playlist", "Synced playlist (both local and youtube)" })
             {
-                YoutubeWorkflow = item.youtubeID != null
+                YoutubeWorkflow = item.YoutubeID != null
             };
             adapter.SetDropDownViewResource(Android.Resource.Layout.SimpleSpinnerDropDownItem);
             view.FindViewById<Spinner>(Resource.Id.playlistLocation).Adapter = adapter;
@@ -646,7 +646,7 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             if (item.Id == 0 || item.Id == -1)
-                YoutubeEngine.Download(item.Title, item.youtubeID, name);
+                YoutubeEngine.Download(item.Title, item.YoutubeID, name);
             else
                 AddToPlaylist(item, name, playlistID);
 

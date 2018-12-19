@@ -116,7 +116,7 @@ namespace MusicApp.Resources.Portable_Class
             while (MainActivity.instance == null || MusicPlayer.CurrentID() == -1)
                 await Task.Delay(100);
 
-            Song current = MusicPlayer.queue[MusicPlayer.CurrentID()];
+            Song current = await MusicPlayer.GetItem();
 
             FrameLayout smallPlayer = MainActivity.instance.FindViewById<FrameLayout>(Resource.Id.smallPlayer);
             smallPlayer.FindViewById<TextView>(Resource.Id.spTitle).Text = current.Title;
@@ -206,7 +206,7 @@ namespace MusicApp.Resources.Portable_Class
             bool asNext = MusicPlayer.queue.Count > MusicPlayer.CurrentID() + 1;
             if (asNext)
             {
-                Song next = MusicPlayer.queue[MusicPlayer.CurrentID() + 1];
+                Song next = await MusicPlayer.GetItem(MusicPlayer.CurrentID() + 1);
                 MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle).Text = "Next music:";
                 MainActivity.instance.FindViewById<TextView>(Resource.Id.nextArtist).Text = next.Title;
                 ImageView nextArt = MainActivity.instance.FindViewById<ImageView>(Resource.Id.nextArt);
@@ -225,7 +225,7 @@ namespace MusicApp.Resources.Portable_Class
             }
             else if (MusicPlayer.repeat)
             {
-                Song next = MusicPlayer.queue[0];
+                Song next = await MusicPlayer.GetItem(0);
                 MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle).Text = "Next music:";
                 MainActivity.instance.FindViewById<TextView>(Resource.Id.nextArtist).Text = next.Title;
                 ImageView nextArt = MainActivity.instance.FindViewById<ImageView>(Resource.Id.nextArt);
@@ -285,7 +285,7 @@ namespace MusicApp.Resources.Portable_Class
             bool asNext = MusicPlayer.queue.Count > MusicPlayer.CurrentID() + 1;
             if (asNext)
             {
-                Song next = MusicPlayer.queue[MusicPlayer.CurrentID() + 1];
+                Song next = await MusicPlayer.GetItem(MusicPlayer.CurrentID() + 1);
                 MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle).Text = "Next music:";
                 MainActivity.instance.FindViewById<TextView>(Resource.Id.nextArtist).Text = next.Title;
                 ImageView nextArt = MainActivity.instance.FindViewById<ImageView>(Resource.Id.nextArt);
@@ -304,7 +304,7 @@ namespace MusicApp.Resources.Portable_Class
             }
             else if (MusicPlayer.repeat)
             {
-                Song next = MusicPlayer.queue[0];
+                Song next = await MusicPlayer.GetItem(0);
                 MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle).Text = "Next music:";
                 MainActivity.instance.FindViewById<TextView>(Resource.Id.nextArtist).Text = next.Title;
                 ImageView nextArt = MainActivity.instance.FindViewById<ImageView>(Resource.Id.nextArt);
@@ -385,12 +385,12 @@ namespace MusicApp.Resources.Portable_Class
         private void Download_Click(object sender, EventArgs e)
         {
             Song song = MusicPlayer.queue[MusicPlayer.CurrentID()];
-            YoutubeEngine.Download(song.Title, song.youtubeID);
+            YoutubeEngine.Download(song.Title, song.YoutubeID);
         }
 
         private void Youtube_Click(object sender, EventArgs e)
         {
-            Intent intent = new Intent(Intent.ActionView, Android.Net.Uri.Parse("vnd.youtube://" + MusicPlayer.queue[MusicPlayer.CurrentID()].youtubeID));
+            Intent intent = new Intent(Intent.ActionView, Android.Net.Uri.Parse("vnd.youtube://" + MusicPlayer.queue[MusicPlayer.CurrentID()].YoutubeID));
             StartActivity(intent);
         }
 

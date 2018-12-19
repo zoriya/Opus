@@ -80,7 +80,10 @@ namespace MusicApp.Resources.Portable_Class
 
         public void Refresh()
         {
-            adapter.UpdateList(MusicPlayer.queue);
+            if (!MusicPlayer.UseCastPlayer)
+                adapter.UpdateList(MusicPlayer.queue);
+            else
+                adapter.NotifyDataSetChanged();
         }
 
         public void RefreshCurrent()
@@ -91,7 +94,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 Song song = MusicPlayer.queue[i];
                 RecyclerHolder holder = (RecyclerHolder)ListView.GetChildViewHolder(((LinearLayoutManager)ListView.GetLayoutManager()).FindViewByPosition(i));
-                if (song.queueSlot == MusicPlayer.CurrentID())
+                if (song.QueueSlot == MusicPlayer.CurrentID())
                 {
                     holder.status.Text = MusicPlayer.isRunning ? "Playing" : "Paused";
                     holder.status.SetTextColor(MusicPlayer.isRunning ? Color.Argb(255, 244, 81, 30) : Color.Argb(255, 66, 165, 245));
@@ -156,7 +159,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             Song item = MusicPlayer.queue[Position];
 
-            if (item.queueSlot == MusicPlayer.CurrentID())
+            if (item.QueueSlot == MusicPlayer.CurrentID())
             {
                 Intent intent = new Intent(this, typeof(MusicPlayer));
                 intent.SetAction("Pause");
@@ -168,7 +171,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 Intent intent = new Intent(this, typeof(MusicPlayer));
                 intent.SetAction("SwitchQueue");
-                intent.PutExtra("queueSlot", item.queueSlot);
+                intent.PutExtra("queueSlot", item.QueueSlot);
                 StartService(intent);
             }
         }
@@ -208,14 +211,14 @@ namespace MusicApp.Resources.Portable_Class
                 MusicPlayer.SaveQueueSlot();
             }
 
-            item.queueSlot = position;
+            item.QueueSlot = position;
             MusicPlayer.queue.Insert(position, item);
             MusicPlayer.UpdateQueueSlots();
         }
 
         public static void RemoveFromQueue(Song item)
         {
-            if (MusicPlayer.CurrentID() > item.queueSlot)
+            if (MusicPlayer.CurrentID() > item.QueueSlot)
             {
                 MusicPlayer.currentID--;
                 MusicPlayer.SaveQueueSlot();

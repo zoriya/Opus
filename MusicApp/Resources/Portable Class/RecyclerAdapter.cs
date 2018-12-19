@@ -1,10 +1,10 @@
 ﻿using Android.App;
 using Android.Content;
+using Android.Gms.Cast.Framework.Media;
 using Android.Graphics;
 using Android.Support.Design.Widget;
 using Android.Support.V7.Widget;
 using Android.Views;
-using Android.Widget;
 using MusicApp.Resources.values;
 using Square.Picasso;
 using System;
@@ -22,6 +22,9 @@ namespace MusicApp.Resources.Portable_Class
         public RecyclerAdapter(List<Song> songList)
         {
             this.songList = songList;
+
+            if(MusicPlayer.UseCastPlayer)
+                MusicPlayer.RemotePlayer.MediaQueue.RegisterCallback(new QueueCallback(this));
         }
 
         public void UpdateList(List<Song> songList)
@@ -37,7 +40,7 @@ namespace MusicApp.Resources.Portable_Class
             NotifyItemRangeInserted(positionStart, songList.Count);
         }
 
-        public override int ItemCount => songList.Count + 1;
+        public override int ItemCount => MusicPlayer.UseCastPlayer ? MusicPlayer.RemotePlayer.MediaQueue.ItemCount + 1 : songList.Count + 1;
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position)
         {
@@ -62,18 +65,23 @@ namespace MusicApp.Resources.Portable_Class
             {
                 RecyclerHolder holder = (RecyclerHolder)viewHolder;
 
-                holder.Title.Text = songList[position].queueSlot + " " + songList[position].Title;
-                holder.Artist.Text = songList[position].Artist;
+                Song song = MusicPlayer.UseCastPlayer ? (Song)MusicPlayer.RemotePlayer.MediaQueue.GetItemAtIndex(position) : songList[position];
 
-                if (songList[position].AlbumArt == -1 || songList[position].IsYt)
+                if (song == null)
+                    return;
+
+                holder.Title.Text = song.QueueSlot + " " + song.Title;
+                holder.Artist.Text = song.Artist;
+
+                if (song.AlbumArt == -1 || song.IsYt)
                 {
-                    var songAlbumArtUri = Android.Net.Uri.Parse(songList[position].Album);
+                    var songAlbumArtUri = Android.Net.Uri.Parse(song.Album);
                     Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
                 }
                 else
                 {
                     var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
-                    var songAlbumArtUri = ContentUris.WithAppendedId(songCover, songList[position].AlbumArt);
+                    var songAlbumArtUri = ContentUris.WithAppendedId(songCover, song.AlbumArt);
 
                     Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
                 }
@@ -87,7 +95,7 @@ namespace MusicApp.Resources.Portable_Class
                     };
                 }
 
-                if (songList[position].IsLiveStream)
+                if (song.IsLiveStream)
                     holder.Live.Visibility = ViewStates.Visible;
                 else
                     holder.Live.Visibility = ViewStates.Gone;
@@ -102,7 +110,7 @@ namespace MusicApp.Resources.Portable_Class
                     };
                 }
 
-                if (songList[position].queueSlot == MusicPlayer.CurrentID())
+                if (song.QueueSlot == MusicPlayer.CurrentID())
                     holder.Title.SetTextSize(Android.Util.ComplexUnitType.Dip, 18);
                 else
                     holder.Title.SetTextSize(Android.Util.ComplexUnitType.Dip, 14);
@@ -111,7 +119,7 @@ namespace MusicApp.Resources.Portable_Class
                 if (Queue.instance != null)
                 {
                     holder.reorder.Visibility = ViewStates.Visible;
-                    if (!songList[position].isParsed && songList[position].IsYt)
+                    if (!song.IsParsed && song.IsYt)
                     {
                         holder.youtubeIcon.SetImageResource(Resource.Drawable.needProcessing);
                         holder.youtubeIcon.Visibility = ViewStates.Visible;
@@ -119,7 +127,7 @@ namespace MusicApp.Resources.Portable_Class
                         if (MainActivity.Theme == 1)
                             holder.youtubeIcon.SetColorFilter(Color.White);
                     }
-                    else if (songList[position].IsYt)
+                    else if (song.IsYt)
                     {
                         holder.youtubeIcon.SetImageResource(Resource.Drawable.PublicIcon);
                         holder.youtubeIcon.Visibility = ViewStates.Visible;
@@ -132,7 +140,7 @@ namespace MusicApp.Resources.Portable_Class
                         holder.youtubeIcon.Visibility = ViewStates.Gone;
                     }
 
-                    if (songList[position].queueSlot == MusicPlayer.CurrentID())
+                    if (song.QueueSlot == MusicPlayer.CurrentID())
                     {
                         holder.status.Visibility = ViewStates.Visible;
                         holder.status.Text = MusicPlayer.isRunning ? "Playing" : "Paused";

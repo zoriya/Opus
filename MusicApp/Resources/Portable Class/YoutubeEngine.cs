@@ -122,15 +122,15 @@ namespace MusicApp.Resources.Portable_Class
                         {
                             case "youtube#video":
                                 kind = YtKind.Video;
-                                videoInfo.youtubeID = video.Id.VideoId;
+                                videoInfo.YoutubeID = video.Id.VideoId;
                                 break;
                             case "youtube#playlist":
                                 kind = YtKind.Playlist;
-                                videoInfo.youtubeID = video.Id.PlaylistId;
+                                videoInfo.YoutubeID = video.Id.PlaylistId;
                                 break;
                             case "youtube#channel":
                                 kind = YtKind.Channel;
-                                videoInfo.youtubeID = video.Id.ChannelId;
+                                videoInfo.YoutubeID = video.Id.ChannelId;
                                 break;
                             default:
                                 Console.WriteLine("&Kind = " + video.Id.Kind);
@@ -299,15 +299,15 @@ namespace MusicApp.Resources.Portable_Class
                     {
                         case "youtube#video":
                             kind = YtKind.Video;
-                            videoInfo.youtubeID = video.Id.VideoId;
+                            videoInfo.YoutubeID = video.Id.VideoId;
                             break;
                         case "youtube#playlist":
                             kind = YtKind.Playlist;
-                            videoInfo.youtubeID = video.Id.PlaylistId;
+                            videoInfo.YoutubeID = video.Id.PlaylistId;
                             break;
                         case "youtube#channel":
                             kind = YtKind.Channel;
-                            videoInfo.youtubeID = video.Id.ChannelId;
+                            videoInfo.YoutubeID = video.Id.ChannelId;
                             break;
                         default:
                             Console.WriteLine("&Kind = " + video.Id.Kind);
@@ -388,7 +388,7 @@ namespace MusicApp.Resources.Portable_Class
             switch (result[position].Kind)
             {
                 case YtKind.Video:
-                    Play(item.youtubeID, item.Title, item.Artist, item.Album);
+                    Play(item.YoutubeID, item.Title, item.Artist, item.Album);
                     break;
                 case YtKind.Playlist:
                     ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
@@ -403,7 +403,7 @@ namespace MusicApp.Resources.Portable_Class
                     PlaylistTracks.openned = true;
                     MainActivity.instance.menu.FindItem(Resource.Id.search).CollapseActionView();
                     MainActivity.instance.FindViewById<TabLayout>(Resource.Id.tabs).Visibility = ViewStates.Gone;
-                    MainActivity.instance.SupportFragmentManager.BeginTransaction().Add(Resource.Id.contentView, PlaylistTracks.NewInstance(item.youtubeID, item.Title, false, false, item.Artist, -1, item.Album)).Commit();
+                    MainActivity.instance.SupportFragmentManager.BeginTransaction().Add(Resource.Id.contentView, PlaylistTracks.NewInstance(item.YoutubeID, item.Title, false, false, item.Artist, -1, item.Album)).Commit();
                     MainActivity.instance.SupportFragmentManager.BeginTransaction().Detach(this).Commit();
                     break;
                 default:
@@ -434,19 +434,19 @@ namespace MusicApp.Resources.Portable_Class
                 switch (args.Which)
                 {
                     case 0:
-                        Play(item.youtubeID, item.Title, item.Artist, item.Album);
+                        Play(item.YoutubeID, item.Title, item.Artist, item.Album);
                         break;
                     case 1:
-                        PlayNext(item.youtubeID, item.Title, item.Artist, item.Album);
+                        PlayNext(item.YoutubeID, item.Title, item.Artist, item.Album);
                         break;
                     case 2:
-                        PlayLast(item.youtubeID, item.Title, item.Artist, item.Album);
+                        PlayLast(item.YoutubeID, item.Title, item.Artist, item.Album);
                         break;
                     case 3:
                         Browse.GetPlaylist(item);
                         break;
                     case 4:
-                        Download(item.Title, item.youtubeID);
+                        Download(item.Title, item.YoutubeID);
                         break;
                     default:
                         break;
@@ -464,20 +464,20 @@ namespace MusicApp.Resources.Portable_Class
                 switch (args.Which)
                 {
                     case 0:
-                        Playlist.PlayInOrder(playlist.youtubeID);
+                        Playlist.PlayInOrder(playlist.YoutubeID);
                         break;
                     case 1:
-                        RandomPlay(playlist.youtubeID);
+                        RandomPlay(playlist.YoutubeID);
                         break;
                     case 2:
-                        Playlist.AddToQueue(playlist.youtubeID);
+                        Playlist.AddToQueue(playlist.YoutubeID);
                         break;
                     case 3:
 #pragma warning disable CS4014
-                        ForkPlaylist(playlist.youtubeID);
+                        ForkPlaylist(playlist.YoutubeID);
                         break;
                     case 4:
-                        DownloadPlaylist(playlist.Title, playlist.youtubeID);
+                        DownloadPlaylist(playlist.Title, playlist.YoutubeID);
                         break;
                     default:
                         break;
@@ -744,7 +744,7 @@ namespace MusicApp.Resources.Portable_Class
                 ResourceId resourceId = new ResourceId
                 {
                     Kind = "youtube#video",
-                    VideoId = item.youtubeID
+                    VideoId = item.YoutubeID
                 };
                 snippet.ResourceId = resourceId;
                 playlistItem.Snippet = snippet;
@@ -914,7 +914,7 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             int index = new Random().Next(0, songs.Count);
-            Play(songs[index].youtubeID, songs[index].Title, songs[index].Artist, songs[index].Album);
+            Play(songs[index].YoutubeID, songs[index].Title, songs[index].Artist, songs[index].Album);
             songs.RemoveAt(index);
 
             while (MusicPlayer.instance == null)

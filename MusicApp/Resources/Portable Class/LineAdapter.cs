@@ -1,5 +1,6 @@
 ﻿using Android.App;
 using Android.Content;
+using Android.Gms.Cast.Framework.Media;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
@@ -18,7 +19,7 @@ namespace MusicApp.Resources.Portable_Class
         private List<Song> songList;
 
         private readonly string[] actions = new string[] { "Play", "Play Next", "Play Last", "Add To Playlist" };
-        public override int ItemCount => songList.Count;
+        public override int ItemCount => UseQueue && MusicPlayer.UseCastPlayer ? MusicPlayer.RemotePlayer.MediaQueue.ItemCount : songList.Count;
 
         public LineAdapter(List<Song> songList, RecyclerView recycler)
         {
@@ -32,24 +33,36 @@ namespace MusicApp.Resources.Portable_Class
         {
             this.recycler = recycler;
             UseQueue = true;
+
+            System.Console.WriteLine("&Use cast: " + MusicPlayer.UseCastPlayer);
+
+            if (MusicPlayer.UseCastPlayer)
+                MusicPlayer.RemotePlayer.MediaQueue.RegisterCallback(new QueueCallback(this));
+
             songList = MusicPlayer.queue;
+
         }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position)
         {
             RecyclerHolder holder = (RecyclerHolder)viewHolder;
 
-            holder.Title.Text = songList[position].Title;
+            Song song = UseQueue && MusicPlayer.UseCastPlayer ? (Song)MusicPlayer.RemotePlayer.MediaQueue.GetItemAtIndex(position) : songList[position];
 
-            if (songList[position].AlbumArt == -1 || songList[position].IsYt)
+            if (song == null)
+                return;
+
+            holder.Title.Text = song.Title;
+
+            if (song.AlbumArt == -1 || song.IsYt)
             {
-                var songAlbumArtUri = Android.Net.Uri.Parse(songList[position].Album);
+                var songAlbumArtUri = Android.Net.Uri.Parse(song.Album);
                 Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
             }
             else
             {
                 var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
-                var songAlbumArtUri = ContentUris.WithAppendedId(songCover, songList[position].AlbumArt);
+                var songAlbumArtUri = ContentUris.WithAppendedId(songCover, song.AlbumArt);
 
                 Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
             }
@@ -78,7 +91,7 @@ namespace MusicApp.Resources.Portable_Class
             else if (!songList[position].IsYt)
                 Browse.Play(songList[position], recycler.GetLayoutManager().FindViewByPosition(position).FindViewById<ImageView>(Resource.Id.albumArt));
             else
-                YoutubeEngine.Play(songList[position].youtubeID, songList[position].Title, songList[position].Artist, songList[position].Album);
+                YoutubeEngine.Play(songList[position].YoutubeID, songList[position].Title, songList[position].Artist, songList[position].Album);
         }
 
         void OnLongClick(int position)
@@ -108,7 +121,7 @@ namespace MusicApp.Resources.Portable_Class
                         if (!item.IsYt)
                             Browse.Play(item, recycler.GetLayoutManager().FindViewByPosition(position).FindViewById<ImageView>(Resource.Id.albumArt));
                         else
-                            YoutubeEngine.Play(item.youtubeID, item.Title, item.Artist, item.Album);
+                            YoutubeEngine.Play(item.YoutubeID, item.Title, item.Artist, item.Album);
                         break;
 
                     case 1:

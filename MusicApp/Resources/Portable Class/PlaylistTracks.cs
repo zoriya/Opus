@@ -122,7 +122,7 @@ namespace MusicApp.Resources.Portable_Class
                     Browse.Play(first, null);
                 }
                 else
-                    YoutubeEngine.Play(first.youtubeID, first.Title, first.Artist, first.Album);
+                    YoutubeEngine.Play(first.YoutubeID, first.Title, first.Artist, first.Album);
 
                 songs.RemoveAt(0);
             }
@@ -301,7 +301,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public static async Task<Song> CompleteItem(Song song, string YoutubeID)
         {
-            if (song.youtubeID == null)
+            if (song.YoutubeID == null)
                 song = Browse.CompleteItem(song);
 
             song.TrackID = null;
@@ -311,7 +311,7 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     var request = YoutubeEngine.youtubeService.PlaylistItems.List("snippet");
                     request.PlaylistId = YoutubeID;
-                    request.VideoId = song.youtubeID;
+                    request.VideoId = song.YoutubeID;
                     request.MaxResults = 1;
 
                     var result = await request.ExecuteAsync();
@@ -586,7 +586,7 @@ namespace MusicApp.Resources.Portable_Class
 
         string SongToYtID(Song song)
         {
-            return song.youtubeID;
+            return song.YoutubeID;
         }
 
         public async void OnRefresh(object sender, System.EventArgs e)
@@ -710,14 +710,14 @@ namespace MusicApp.Resources.Portable_Class
                             if (!item.IsYt)
                                 Browse.PlayNext(item);
                             else
-                                YoutubeEngine.PlayNext(item.youtubeID, item.Title, item.Artist, item.Album);
+                                YoutubeEngine.PlayNext(item.YoutubeID, item.Title, item.Artist, item.Album);
                             break;
 
                         case 2:
                             if (!item.IsYt)
                                 Browse.PlayLast(item);
                             else
-                                YoutubeEngine.PlayLast(item.youtubeID, item.Title, item.Artist, item.Album);
+                                YoutubeEngine.PlayLast(item.YoutubeID, item.Title, item.Artist, item.Album);
                             break;
 
                         case 3:
@@ -755,14 +755,14 @@ namespace MusicApp.Resources.Portable_Class
                             if (!item.IsYt)
                                 Browse.PlayNext(item);
                             else
-                                YoutubeEngine.PlayNext(item.youtubeID, item.Title, item.Artist, item.Album);
+                                YoutubeEngine.PlayNext(item.YoutubeID, item.Title, item.Artist, item.Album);
                             break;
 
                         case 2:
                             if (!item.IsYt)
                                 Browse.PlayLast(item);
                             else
-                                YoutubeEngine.PlayLast(item.youtubeID, item.Title, item.Artist, item.Album);
+                                YoutubeEngine.PlayLast(item.YoutubeID, item.Title, item.Artist, item.Album);
                             break;
 
                         case 3:
@@ -771,7 +771,7 @@ namespace MusicApp.Resources.Portable_Class
 
                         case 4:
                             if (item.IsYt)
-                                YoutubeEngine.Download(item.Title, item.youtubeID);
+                                YoutubeEngine.Download(item.Title, item.YoutubeID);
                             else
                                 Browse.EditMetadata(item, "PlaylistTracks", ListView.GetLayoutManager().OnSaveInstanceState());
                             break;
@@ -789,9 +789,9 @@ namespace MusicApp.Resources.Portable_Class
             if (YoutubeID != null && !Synced)
             {
                 if (result != null && result.Count > fromPosition)
-                    YoutubeEngine.Play(result[fromPosition].youtubeID, result[fromPosition].Title, result[fromPosition].Artist, result[0].Album);
+                    YoutubeEngine.Play(result[fromPosition].YoutubeID, result[fromPosition].Title, result[fromPosition].Artist, result[0].Album);
                 else
-                    YoutubeEngine.Play(tracks[fromPosition].youtubeID, tracks[fromPosition].Title, tracks[fromPosition].Artist, tracks[0].Album);
+                    YoutubeEngine.Play(tracks[fromPosition].YoutubeID, tracks[fromPosition].Title, tracks[fromPosition].Artist, tracks[0].Album);
 
                 while (nextPageToken != null)
                     await LoadMore();
@@ -814,7 +814,7 @@ namespace MusicApp.Resources.Portable_Class
 
             foreach (Song song in songs)
             {
-                song.queueSlot = MusicPlayer.queue.Count;
+                song.QueueSlot = MusicPlayer.queue.Count;
                 MusicPlayer.queue.Add(song);
             }
             Player.instance?.UpdateNext();

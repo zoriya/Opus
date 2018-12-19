@@ -987,7 +987,6 @@ namespace MusicApp
             while (FindViewById(Resource.Id.playerView) == null)
                 await Task.Delay(1000);
 
-            Console.WriteLine("&Showing small player");
             FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Visible;
             FindViewById(Resource.Id.playerView).Alpha = 0;
             Player.instance?.RefreshPlayer();
@@ -1151,7 +1150,7 @@ namespace MusicApp
 
         private async void YtPlay(object sender, EventArgs e)
         {
-            if (MusicPlayer.CurrentID() == -1 || MusicPlayer.queue[MusicPlayer.CurrentID()].youtubeID == null || MusicPlayer.queue[MusicPlayer.CurrentID()].youtubeID == "")
+            if (MusicPlayer.CurrentID() == -1 || MusicPlayer.queue[MusicPlayer.CurrentID()].YoutubeID == null || MusicPlayer.queue[MusicPlayer.CurrentID()].YoutubeID == "")
             {
                 if (MusicPlayer.CurrentID() != -1)
                 {
@@ -1161,7 +1160,7 @@ namespace MusicApp
                     string ytID = meta.Tag.Comment;
                     stream.Dispose();
 
-                    MusicPlayer.queue[MusicPlayer.CurrentID()].youtubeID = ytID;
+                    MusicPlayer.queue[MusicPlayer.CurrentID()].YoutubeID = ytID;
                     if (ytID != null && ytID != "")
                         goto YtMix;
                 }
@@ -1192,7 +1191,7 @@ namespace MusicApp
             try
             {
                 YoutubeClient client = new YoutubeClient();
-                Video video = await client.GetVideoAsync(MusicPlayer.queue[MusicPlayer.CurrentID()].youtubeID);
+                Video video = await client.GetVideoAsync(MusicPlayer.queue[MusicPlayer.CurrentID()].YoutubeID);
 
                 var ytPlaylistRequest = YoutubeEngine.youtubeService.PlaylistItems.List("snippet, contentDetails");
                 ytPlaylistRequest.PlaylistId = video.GetVideoMixPlaylistId();
@@ -1202,7 +1201,7 @@ namespace MusicApp
 
                 foreach (var item in ytPlaylist.Items)
                 {
-                    if (item.Snippet.Title != "[Deleted video]" && item.Snippet.Title != "Private video" && item.Snippet.Title != "Deleted video" && item.ContentDetails.VideoId != MusicPlayer.queue[MusicPlayer.CurrentID()].youtubeID)
+                    if (item.Snippet.Title != "[Deleted video]" && item.Snippet.Title != "Private video" && item.Snippet.Title != "Deleted video" && item.ContentDetails.VideoId != MusicPlayer.queue[MusicPlayer.CurrentID()].YoutubeID)
                     {
                         Song song = new Song(item.Snippet.Title, "", item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
                         tracks.Add(song);
@@ -1226,8 +1225,8 @@ namespace MusicApp
             tracks = tracks.OrderBy(x => r.Next()).ToList();
             if(MusicPlayer.instance == null)
             {
-                if(!current.isParsed)
-                    YoutubeEngine.Play(current.youtubeID, current.Title, current.Artist, current.Album, false, false);
+                if(!current.IsParsed)
+                    YoutubeEngine.Play(current.YoutubeID, current.Title, current.Artist, current.Album, false, false);
                 else
                 {
                     Intent intent = new Intent(this, typeof(MusicPlayer));
@@ -1555,7 +1554,6 @@ namespace MusicApp
         {
             Console.WriteLine("&Session Ended");
             SwitchRemote(null);
-            MusicPlayer.GetQueueFromCast();
         }
 
         public void OnSessionEnding(Java.Lang.Object session) { }
@@ -1566,7 +1564,7 @@ namespace MusicApp
         {
             Console.WriteLine("&Session Resumed");
             SwitchRemote(((CastSession)session).RemoteMediaClient);
-            //MusicPlayer.GetQueueFromCast();
+            MusicPlayer.GetQueueFromCast();
         }
 
         public void OnSessionResuming(Java.Lang.Object session, string sessionId) { }
@@ -1590,13 +1588,25 @@ namespace MusicApp
         private void SwitchRemote(RemoteMediaClient remoteClient)
         {
             if (MusicPlayer.instance != null && MusicPlayer.RemotePlayer != null)
-                MusicPlayer.RemotePlayer.RemoveListener(MusicPlayer.instance);
+                MusicPlayer.RemotePlayer.UnregisterCallback(MusicPlayer.CastCallback);
 
             MusicPlayer.RemotePlayer = remoteClient;
+            MusicPlayer.CastCallback = new CastCallback();
             if (MusicPlayer.instance != null && MusicPlayer.RemotePlayer != null)
-                MusicPlayer.RemotePlayer.AddListener(MusicPlayer.instance);
+                MusicPlayer.RemotePlayer.RegisterCallback(MusicPlayer.CastCallback);
 
             MusicPlayer.UseCastPlayer = MusicPlayer.RemotePlayer != null;
+
+            if (MusicPlayer.UseCastPlayer)
+            {
+                if (Queue.instance != null)
+                {
+                    Queue.instance.Refresh();
+                    MusicPlayer.RemotePlayer.MediaQueue.RegisterCallback(new QueueCallback(Queue.instance.adapter));
+                }
+                if (Home.instance != null && Home.adapterItems.Count > 0)
+                    Home.adapterItems[0].recycler?.SetAdapter(new LineAdapter(Home.adapterItems[0].recycler));
+            }
         }
     }
 }

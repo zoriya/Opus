@@ -1,4 +1,6 @@
 ﻿using System;
+using Android.Gms.Cast;
+using Newtonsoft.Json;
 using SQLite;
 
 namespace MusicApp.Resources.values
@@ -10,36 +12,36 @@ namespace MusicApp.Resources.values
         public string Artist { get; set; }
         public string Album { get; set; }
         public long AlbumArt { get; set; }
-        public string youtubeID { get; set; }
+        public string YoutubeID { get; set; }
         public long Id { get; set; }
         public string Path { get; set; }
-        public bool isParsed { get; set; }
+        public bool IsParsed { get; set; }
         [PrimaryKey, Unique]
-        public int queueSlot { get; set; }
+        public int QueueSlot { get; set; }
         public bool IsYt { get; set; }
-        public DateTimeOffset? expireDate { get; set;}
+        public DateTimeOffset? ExpireDate { get; set;}
         public bool IsLiveStream = false;
         public string TrackID;
 
         public Song() { }
 
-        public Song(string Title, string Artist, string Album, string youtubeID, long AlbumArt, long id, string path, bool isYT = false, bool isParsed = true, int queueSlot = -1)
+        public Song(string title, string artist, string album, string youtubeID, long albumArt, long id, string path, bool isYT = false, bool isParsed = true, int queueSlot = -1)
         {
-            this.Title = Title;
-            this.Artist = Artist;
-            this.Album = Album;
-            this.youtubeID = youtubeID;
-            this.AlbumArt = AlbumArt;
+            Title = title;
+            Artist = artist;
+            Album = album;
+            YoutubeID = youtubeID;
+            AlbumArt = albumArt;
             Id = id;
             Path = path;
             IsYt = isYT;
-            this.isParsed = isParsed;
-            this.queueSlot = queueSlot;
+            IsParsed = isParsed;
+            QueueSlot = queueSlot;
         }
 
         public override string ToString()
         {
-            return Title + " Artist: " + Artist + " Album: " + Album + " youtubeID: " + youtubeID + " AlbumArt: " + AlbumArt + " Id: " + Id + " Path: " + Path + " isYT: " + IsYt + " isParsed: " + isParsed + " queueSlot: " + queueSlot;
+            return Title + " Artist: " + Artist + " Album: " + Album + " youtubeID: " + YoutubeID + " AlbumArt: " + AlbumArt + " Id: " + Id + " Path: " + Path + " isYT: " + IsYt + " isParsed: " + IsParsed + " queueSlot: " + QueueSlot;
         }
 
         public static explicit operator Song(string v)
@@ -60,6 +62,14 @@ namespace MusicApp.Resources.values
 
             Song song = new Song(Name, Artist, Album, youtubeID, AlbumArt, id, path, isYT, isParsed, queueSlot);
             return song;
+        }
+
+        public static explicit operator Song(MediaQueueItem v)
+        {
+            if (v == null)
+                return null;
+
+            return JsonConvert.DeserializeObject<Song>(v.Media.CustomData.ToString());
         }
     }
 }

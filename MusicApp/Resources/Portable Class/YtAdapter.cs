@@ -123,7 +123,7 @@ namespace MusicApp.Resources.Portable_Class
                 holder.action.Visibility = ViewStates.Visible;
                 holder.CheckBox.Visibility = ViewStates.Gone;
 
-                if (selectedTopicsID.Contains(song.youtubeID))
+                if (selectedTopicsID.Contains(song.YoutubeID))
                     holder.action.Text = "Unfollow";
                 else
                     holder.action.Text = "Follow";
@@ -135,12 +135,12 @@ namespace MusicApp.Resources.Portable_Class
                         if (holder.action.Text == "Following" || holder.action.Text == "Unfollow")
                         {
                             holder.action.Text = "Unfollowed";
-                            selectedTopicsID.Remove(song.youtubeID);
+                            selectedTopicsID.Remove(song.YoutubeID);
                             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(MainActivity.instance);
                             List<string> topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
 
                             ISharedPreferencesEditor editor = prefManager.Edit();
-                            topics.Remove(song.Title + "/#-#/" + song.youtubeID);
+                            topics.Remove(song.Title + "/#-#/" + song.YoutubeID);
                             editor.PutStringSet("selectedTopics", topics);
                             editor.Apply();
 
@@ -149,12 +149,12 @@ namespace MusicApp.Resources.Portable_Class
                         }
                         else if (holder.action.Text == "Follow")
                         {
-                            selectedTopicsID.Add(song.youtubeID);
+                            selectedTopicsID.Add(song.YoutubeID);
                             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(MainActivity.instance);
                             List<string> topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
 
                             ISharedPreferencesEditor editor = prefManager.Edit();
-                            topics.Add(song.Title + "/#-#/" + song.youtubeID);
+                            topics.Add(song.Title + "/#-#/" + song.YoutubeID);
                             editor.PutStringSet("selectedTopics", topics);
                             editor.Apply();
 
@@ -192,7 +192,7 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     holder.MixHolder.Click += (sender, e) => 
                     {
-                        YoutubeEngine.instances?[0]?.MixFromChannel(song.youtubeID);
+                        YoutubeEngine.instances?[0]?.MixFromChannel(song.YoutubeID);
                     };
                 }
 
