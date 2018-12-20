@@ -984,12 +984,16 @@ namespace MusicApp
 
         public async void ShowSmallPlayer()
         {
+            Console.WriteLine("&Small Player show is waiting for view");
             while (FindViewById(Resource.Id.playerView) == null)
                 await Task.Delay(1000);
 
+            Console.WriteLine("&Showing small player");
+            Console.WriteLine("&Player deteached: " + Player.instance.IsDetached);
+
             FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Visible;
             FindViewById(Resource.Id.playerView).Alpha = 0;
-            Player.instance?.RefreshPlayer();
+            Player.instance.RefreshPlayer();
             FindViewById<FrameLayout>(Resource.Id.contentView).SetPadding(0, 0, 0, DpToPx(70));
         }
 
@@ -1478,9 +1482,11 @@ namespace MusicApp
             instance = this;
             StateSaved = false;
 
+            Console.WriteLine("&Resuming Main Activity");
+
             if (CastContext.SessionManager.CurrentSession == null && MusicPlayer.CurrentID() == -1)
                 MusicPlayer.currentID = MusicPlayer.RetrieveQueueSlot();
-            else if(CastContext.SessionManager.CurrentSession != null)
+            else if(MusicPlayer.UseCastPlayer)
                 MusicPlayer.GetQueueFromCast();
 
             if (SearchableActivity.instance != null && SearchableActivity.instance.searched)
@@ -1564,7 +1570,6 @@ namespace MusicApp
         {
             Console.WriteLine("&Session Resumed");
             SwitchRemote(((CastSession)session).RemoteMediaClient);
-            MusicPlayer.GetQueueFromCast();
         }
 
         public void OnSessionResuming(Java.Lang.Object session, string sessionId) { }
@@ -1585,28 +1590,46 @@ namespace MusicApp
             SwitchRemote(null);
         }
 
-        private void SwitchRemote(RemoteMediaClient remoteClient)
+        private async void SwitchRemote(RemoteMediaClient remoteClient)
         {
+            Console.WriteLine("&Switching to another remote player: (null check)" + (remoteClient == null));
+
             if (MusicPlayer.instance != null && MusicPlayer.RemotePlayer != null)
                 MusicPlayer.RemotePlayer.UnregisterCallback(MusicPlayer.CastCallback);
 
             MusicPlayer.RemotePlayer = remoteClient;
-            MusicPlayer.CastCallback = new CastCallback();
-            if (MusicPlayer.instance != null && MusicPlayer.RemotePlayer != null)
-                MusicPlayer.RemotePlayer.RegisterCallback(MusicPlayer.CastCallback);
+            if (remoteClient != null)
+            {
+                if (MusicPlayer.CastCallback == null)
+                {
+                    MusicPlayer.CastCallback = new CastCallback();
+                    MusicPlayer.RemotePlayer.RegisterCallback(MusicPlayer.CastCallback);
+                }
+                if (MusicPlayer.CastQueueManager == null)
+                {
+                    MusicPlayer.CastQueueManager = new CastQueueManager();
+                    MusicPlayer.RemotePlayer.MediaQueue.RegisterCallback(MusicPlayer.CastQueueManager);
+                }
+            }
+            else
+            {
+                if (MusicPlayer.CastCallback != null)
+                {
+                    MusicPlayer.RemotePlayer.UnregisterCallback(MusicPlayer.CastCallback);
+                    MusicPlayer.CastCallback = null;
+                }
+                if (MusicPlayer.CastQueueManager != null)
+                {
+                    MusicPlayer.RemotePlayer.MediaQueue.UnregisterCallback(MusicPlayer.CastQueueManager);
+                    MusicPlayer.CastQueueManager = null;
+                }
+            }
 
             MusicPlayer.UseCastPlayer = MusicPlayer.RemotePlayer != null;
 
+            await Task.Delay(1000);
             if (MusicPlayer.UseCastPlayer)
-            {
-                if (Queue.instance != null)
-                {
-                    Queue.instance.Refresh();
-                    MusicPlayer.RemotePlayer.MediaQueue.RegisterCallback(new QueueCallback(Queue.instance.adapter));
-                }
-                if (Home.instance != null && Home.adapterItems.Count > 0)
-                    Home.adapterItems[0].recycler?.SetAdapter(new LineAdapter(Home.adapterItems[0].recycler));
-            }
+                MusicPlayer.GetQueueFromCast();
         }
     }
 }

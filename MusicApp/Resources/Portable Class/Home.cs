@@ -80,7 +80,7 @@ namespace MusicApp.Resources.Portable_Class
                 Android.Net.Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
 
                 List<Song> allSongs = new List<Song>();
-                CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
+                CursorLoader cursorLoader = new CursorLoader(MainActivity.instance, musicUri, null, null, null, null);
                 ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
 
                 if (musicCursor != null && musicCursor.MoveToFirst())
@@ -446,7 +446,11 @@ namespace MusicApp.Resources.Portable_Class
 
         public void RefreshQueue()
         {
-            if (adapterItems.Count > 0)
+            if (MusicPlayer.UseCastPlayer && adapterItems.Count > 0)
+            {
+                adapterItems[0].recycler?.SetAdapter(new LineAdapter(adapterItems[0].recycler));
+            }
+            else if (adapterItems.Count > 0)
             {
                 adapterItems[0].recycler?.GetAdapter()?.NotifyDataSetChanged();
                 if (MusicPlayer.CurrentID() != -1 && MusicPlayer.CurrentID() <= MusicPlayer.queue.Count)

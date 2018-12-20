@@ -8,6 +8,7 @@ namespace MusicApp.Resources.Portable_Class
         public override void ItemsUpdatedAtIndexes(int[] indexes)
         {
             base.ItemsUpdatedAtIndexes(indexes);
+            System.Console.WriteLine("&Index has come");
             foreach (int index in indexes)
             {
                 if (MusicPlayer.queue.Count > index)

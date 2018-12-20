@@ -80,10 +80,14 @@ namespace MusicApp.Resources.Portable_Class
 
         public void Refresh()
         {
+
             if (!MusicPlayer.UseCastPlayer)
                 adapter.UpdateList(MusicPlayer.queue);
             else
+            {
                 adapter.NotifyDataSetChanged();
+                MusicPlayer.RemotePlayer.MediaQueue.RegisterCallback(new QueueCallback(adapter));
+            }
         }
 
         public void RefreshCurrent()

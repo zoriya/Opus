@@ -9,28 +9,20 @@ namespace MusicApp.Resources.Portable_Class
         public override void OnMetadataUpdated()
         {
             base.OnMetadataUpdated();
-            //Console.WriteLine("&MetaData Updated");
-            //if (MusicPlayer.RemotePlayer.CurrentItem != null)
-            //    MusicPlayer.currentID = MusicPlayer.RemotePlayer.MediaQueue.IndexOfItemWithId(MusicPlayer.RemotePlayer.CurrentItem.ItemId);
-            //else
-            //    MusicPlayer.currentID = -1;
+            Console.WriteLine("&MetaData Updated");
+            if (MusicPlayer.RemotePlayer.CurrentItem != null)
+                MusicPlayer.currentID = MusicPlayer.RemotePlayer.MediaQueue.IndexOfItemWithId(MusicPlayer.RemotePlayer.CurrentItem.ItemId);
 
-            //Console.WriteLine("&CurrentID: " + MusicPlayer.currentID);
+            Console.WriteLine("&CurrentID: " + MusicPlayer.currentID);
 
             Player.instance?.RefreshPlayer();
-        }
-
-        public override void OnPreloadStatusUpdated()
-        {
-            base.OnPreloadStatusUpdated();
-            Console.WriteLine("&Preload Status Updated");
         }
 
         public override void OnQueueStatusUpdated()
         {
             base.OnQueueStatusUpdated();
             Console.WriteLine("&Queue status updated");
-            //MusicPlayer.GetQueueFromCast();
+            MusicPlayer.GetQueueFromCast();
         }
 
         public override void OnSendingRemoteMediaRequest()
