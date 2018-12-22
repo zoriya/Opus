@@ -721,13 +721,18 @@ namespace MusicApp.Resources.Portable_Class
 
         private void RandomizeQueue()
         {
+            Random r = new Random();
             if (UseCastPlayer)
             {
-                RemotePlayer.QueueSetRepeatMode(MediaStatus.RepeatModeRepeatAllAndShuffle, null);
+                for (int i = 0; i < RemotePlayer.MediaQueue.ItemCount; i++)
+                {
+                    int itemID = RemotePlayer.MediaQueue.ItemIdAtIndex(i);
+                    if (itemID != MediaQueueItem.InvalidItemId)
+                        RemotePlayer.QueueMoveItemToNewIndex(itemID, r.Next(0, RemotePlayer.MediaQueue.ItemCount), null);
+                }
             }
             else
             {
-                Random r = new Random();
                 Song current = queue[CurrentID()];
                 queue.RemoveAt(CurrentID());
                 queue = queue.OrderBy(x => r.Next()).ToList();
@@ -797,6 +802,26 @@ namespace MusicApp.Resources.Portable_Class
                 else
                     RemotePlayer.QueueAppendItem(GetQueueItem(song), null);
             }
+        }
+
+        public static void InsertToQueue(int position, Song song)
+        {
+            queue.Insert(position, song);
+
+            if(UseCastPlayer)
+                RemotePlayer.QueueInsertItems(new MediaQueueItem[] { GetQueueItem(song) }, RemotePlayer.MediaQueue.ItemIdAtIndex(position + 1), null);
+
+            UpdateQueueSlots();
+        }
+
+        public static void RemoveFromQueue(int position)
+        {
+            queue.RemoveAt(position);
+
+            if (UseCastPlayer)
+                RemotePlayer.QueueRemoveItem(RemotePlayer.MediaQueue.ItemIdAtIndex(position), null);
+
+            UpdateQueueSlots();
         }
 
         public void PlayLastInQueue(string filePath)
@@ -948,7 +973,7 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             if (UseCastPlayer)
-                RemotePlayer.QueueJumpToItem(RemotePlayer.MediaStatus.GetItemByIndex(position).ItemId, null);
+                RemotePlayer.QueueJumpToItem(RemotePlayer.MediaQueue.ItemIdAtIndex(position), null);
             else
             {
                 isLiveStream = song.IsLiveStream;
@@ -1485,7 +1510,7 @@ namespace MusicApp.Resources.Portable_Class
 #pragma warning restore CS0618
                 }
             }
-            else if(UseCastPlayer && RemotePlayer != null && player != null && !isRunning) //Maybe check that the session is initialised.
+            else if(UseCastPlayer && RemotePlayer != null && !isRunning) //Maybe check that the session is initialised.
             {
                 isRunning = true;
                 RemotePlayer.Play();
@@ -1508,7 +1533,7 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
-        private MediaInfo GetMediaInfo(Song song)
+        private static MediaInfo GetMediaInfo(Song song)
         {
             MediaMetadata metadata = new MediaMetadata(MediaMetadata.MediaTypeMusicTrack);
             metadata.PutString(MediaMetadata.KeyTitle, song.Title);
@@ -1525,7 +1550,7 @@ namespace MusicApp.Resources.Portable_Class
             return mediaInfo;
         }
 
-        private MediaQueueItem GetQueueItem(Song song)
+        private static MediaQueueItem GetQueueItem(Song song)
         {
             return new MediaQueueItem.Builder(GetMediaInfo(song)).Build();
         }
@@ -1542,6 +1567,8 @@ namespace MusicApp.Resources.Portable_Class
 
                 if(RemotePlayer.CurrentItem != null)
                     currentID = RemotePlayer.MediaQueue.IndexOfItemWithId(RemotePlayer.CurrentItem.ItemId);
+
+                bool showPlayer = queue.Count == 0;
 
                 queue.Clear();
                 for (int i = 0; i < RemotePlayer.MediaQueue.ItemCount; i++)
@@ -1569,7 +1596,9 @@ namespace MusicApp.Resources.Portable_Class
                     Home.instance?.AddQueue();
                     Home.instance?.RefreshQueue();
                     Queue.instance?.Refresh();
-                    MainActivity.instance.ShowSmallPlayer();
+
+                    if(showPlayer)
+                        MainActivity.instance.ShowSmallPlayer();
                 }
             }
         }

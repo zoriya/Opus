@@ -397,11 +397,6 @@
     <AndroidResource Include="Resources\layout\search_layout.xml" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\layout\NoQueue.xml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
-  </ItemGroup>
-  <ItemGroup>
     <AndroidResource Include="Resources\layout\NoSong.xml">
       <SubType>Designer</SubType>
     </AndroidResource>
@@ -536,7 +531,7 @@
     <AndroidResource Include="Resources\layout\EmptyListCategory.xml" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\layout\EmptyYoutubeSearch.xml" />
+    <AndroidResource Include="Resources\layout\EmptyView.xml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\layout\BorderlessButton.xml" />
@@ -648,9 +643,6 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\Delete.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\layout\EmptyView.xml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\ArrowDown.xml" />

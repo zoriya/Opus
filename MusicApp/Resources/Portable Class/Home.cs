@@ -68,7 +68,7 @@ namespace MusicApp.Resources.Portable_Class
                 populating = true;
                 adapterItems = new List<HomeSection>();
 
-                if (MusicPlayer.queue != null && MusicPlayer.queue?.Count > 0)
+                if (MusicPlayer.UseCastPlayer || (MusicPlayer.queue != null && MusicPlayer.queue?.Count > 0))
                 {
                     HomeSection queue = new HomeSection("Queue", SectionType.SinglePlaylist, MusicPlayer.queue);
                     adapterItems.Add(queue);

@@ -1,6 +1,7 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.Content.PM;
+using Android.Gms.Cast.Framework.Media;
 using Android.Graphics;
 using Android.OS;
 using Android.Support.Design.Widget;
@@ -148,6 +149,9 @@ namespace MusicApp.Resources.Portable_Class
         {
             MusicPlayer.repeat = !MusicPlayer.repeat;
 
+            if (MusicPlayer.UseCastPlayer)
+                MusicPlayer.RemotePlayer.QueueSetRepeatMode(MusicPlayer.repeat ? 1 : 0, null);
+
             if (MusicPlayer.repeat)
                 item.Icon.SetColorFilter(Color.Argb(255, 21, 183, 237), PorterDuff.Mode.Multiply);
             else
@@ -215,8 +219,7 @@ namespace MusicApp.Resources.Portable_Class
                 MusicPlayer.SaveQueueSlot();
             }
 
-            MusicPlayer.queue.Insert(position, item);
-            MusicPlayer.UpdateQueueSlots();
+            MusicPlayer.InsertToQueue(position, item);
         }
 
         public static void RemoveFromQueue(int position)
@@ -227,8 +230,7 @@ namespace MusicApp.Resources.Portable_Class
                 MusicPlayer.SaveQueueSlot();
             }
 
-            MusicPlayer.queue.RemoveAt(position);
-            MusicPlayer.UpdateQueueSlots();
+            MusicPlayer.RemoveFromQueue(position);
         }
 
         protected override void OnResume()

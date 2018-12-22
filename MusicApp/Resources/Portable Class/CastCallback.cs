@@ -65,6 +65,8 @@ namespace MusicApp.Resources.Portable_Class
                     Player.instance.handler?.PostDelayed(Player.instance.UpdateSeekBar, 1000);
                 }
             }
+
+            Queue.instance?.RefreshCurrent();
         }
     }
 }

@@ -33,7 +33,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 System.Console.WriteLine("&Youtube awaited");
                 ListAdapter = null;
-                emptyView = LayoutInflater.Inflate(Resource.Layout.EmptyYoutubeSearch, null);
+                emptyView = LayoutInflater.Inflate(Resource.Layout.EmptyView, null);
                 ((TextView)emptyView).Text = "Error while loading.\nCheck your internet connection and check if your logged in.";
                 ((TextView)emptyView).SetTextColor(Color.Red);
                 Activity.AddContentView(emptyView, ListView.LayoutParameters);
