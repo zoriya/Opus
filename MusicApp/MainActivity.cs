@@ -918,6 +918,37 @@ namespace MusicApp
             SheetBehavior.State = BottomSheetBehavior.StateExpanded;
         }
 
+        public void ShowSmallPlayer()
+        {
+            Console.WriteLine("&Showing small player");
+            
+            FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Visible;
+            FindViewById(Resource.Id.playerContainer).Alpha = 0;
+            FindViewById(Resource.Id.smallPlayer).Alpha = 1;
+            SheetBehavior.State = BottomSheetBehavior.StateCollapsed;
+            Player.instance.RefreshPlayer();
+            FindViewById<FrameLayout>(Resource.Id.contentView).SetPadding(0, 0, 0, DpToPx(70));
+        }
+
+        public void HideSmallPlayer()
+        {
+            FindViewById<FrameLayout>(Resource.Id.contentView).SetPadding(0, 0, 0, 0);
+            SheetBehavior.State = BottomSheetBehavior.StateHidden;
+            FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Invisible;
+        }
+
+        public void ShowQuickPlay()
+        {
+            LinearLayout quickPlayLayout = FindViewById<LinearLayout>(Resource.Id.quickPlayLinear);
+            quickPlayLayout.FindViewById<LinearLayout>(Resource.Id.quickPlayLinear).Animate().Alpha(1);
+            if (!quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.quickPlay).HasOnClickListeners)
+            {
+                quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.quickPlay).Click += QuickPlay;
+                quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.localPlay).Click += LocalPlay;
+                quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.ytPlay).Click += YtPlay;
+            }
+        }
+
         public void GetStoragePermission()
         {
             const string permission = Manifest.Permission.ReadExternalStorage;
@@ -947,7 +978,7 @@ namespace MusicApp
                     }
                 }
             }
-            else if(requestCode == 2659)
+            else if (requestCode == 2659)
             {
                 Console.WriteLine("&Write permission authorized");
             }
@@ -959,33 +990,6 @@ namespace MusicApp
             Playlist.instance?.PopulateView();
             if (Browse.instance == null && Playlist.instance == null && PreferencesFragment.instance == null && Preferences.instance == null)
                 LocalPlay(sender, new EventArgs());
-        }
-
-        public void HideSmallPlayer()
-        {
-            FindViewById<FrameLayout>(Resource.Id.contentView).SetPadding(0, 0, 0, 0);
-            SheetBehavior.State = BottomSheetBehavior.StateHidden;
-            FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Invisible;
-        }
-
-        public void ShowSmallPlayer()
-        {
-            FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Visible;
-            FindViewById(Resource.Id.playerContainer).Alpha = 0;
-            Player.instance.RefreshPlayer();
-            FindViewById<FrameLayout>(Resource.Id.contentView).SetPadding(0, 0, 0, DpToPx(70));
-        }
-
-        public void ShowQuickPlay()
-        {
-            LinearLayout quickPlayLayout = FindViewById<LinearLayout>(Resource.Id.quickPlayLinear);
-            quickPlayLayout.FindViewById<LinearLayout>(Resource.Id.quickPlayLinear).Animate().Alpha(1);
-            if (!quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.quickPlay).HasOnClickListeners)
-            {
-                quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.quickPlay).Click += QuickPlay;
-                quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.localPlay).Click += LocalPlay;
-                quickPlayLayout.FindViewById<FloatingActionButton>(Resource.Id.ytPlay).Click += YtPlay;
-            }
         }
 
         public void HideQuickPlay()
