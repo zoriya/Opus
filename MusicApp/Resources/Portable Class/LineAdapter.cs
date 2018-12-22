@@ -79,7 +79,7 @@ namespace MusicApp.Resources.Portable_Class
             if (UseQueue)
             {
                 if(MusicPlayer.instance != null)
-                    MusicPlayer.instance.SwitchQueue(songList[position], MusicPlayer.currentID == position);
+                    MusicPlayer.instance.SwitchQueue(position);
                 else
                 {
                     Intent intent = new Intent(MainActivity.instance, typeof(MusicPlayer));

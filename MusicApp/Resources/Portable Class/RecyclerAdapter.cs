@@ -70,7 +70,7 @@ namespace MusicApp.Resources.Portable_Class
                 if (song == null)
                     return;
 
-                holder.Title.Text = song.QueueSlot + " " + song.Title;
+                holder.Title.Text = song.Title;
                 holder.Artist.Text = song.Artist;
 
                 if (song.AlbumArt == -1 || song.IsYt)
@@ -91,7 +91,7 @@ namespace MusicApp.Resources.Portable_Class
                     holder.more.Click += (sender, e) =>
                     {
                         if (Queue.instance != null)
-                            Queue.instance.More(songList[holder.AdapterPosition]);
+                            Queue.instance.More(holder.AdapterPosition);
                     };
                 }
 
@@ -110,7 +110,7 @@ namespace MusicApp.Resources.Portable_Class
                     };
                 }
 
-                if (song.QueueSlot == MusicPlayer.CurrentID())
+                if (position == MusicPlayer.CurrentID())
                     holder.Title.SetTextSize(Android.Util.ComplexUnitType.Dip, 18);
                 else
                     holder.Title.SetTextSize(Android.Util.ComplexUnitType.Dip, 14);
@@ -140,7 +140,7 @@ namespace MusicApp.Resources.Portable_Class
                         holder.youtubeIcon.Visibility = ViewStates.Gone;
                     }
 
-                    if (song.QueueSlot == MusicPlayer.CurrentID())
+                    if (position == MusicPlayer.CurrentID())
                     {
                         holder.status.Visibility = ViewStates.Visible;
                         holder.status.Text = MusicPlayer.isRunning ? "Playing" : "Paused";
@@ -240,7 +240,7 @@ namespace MusicApp.Resources.Portable_Class
         public void ItemDismissed(int position)
         {
             Song song = songList[position];
-            Queue.RemoveFromQueue(song);
+            Queue.RemoveFromQueue(position);
             NotifyItemRemoved(position);
             Snackbar.Make(Queue.instance.FindViewById(Resource.Id.recycler), (song.Title.Length > 20 ? song.Title.Substring(0, 17) + "..." : song.Title) + " has been removed from the queue.", Snackbar.LengthShort)
                 .SetAction("Undo", (view) => 

@@ -1125,14 +1125,13 @@ namespace MusicApp
                 return;
             }
 
-            Browse.Play(Browse.GetSong(songs[0].Path), null);
-            ShowSmallPlayer();
-            ShowPlayer();
+            Intent intent = new Intent(this, typeof(MusicPlayer));
+            StartService(intent);
 
             while (MusicPlayer.instance == null)
                 await Task.Delay(10);
 
-            MusicPlayer.instance.RandomPlay(songs, false);
+            MusicPlayer.instance.RandomPlay(songs, true);
         }
 
         private async void YtPlay(object sender, EventArgs e)
@@ -1465,8 +1464,6 @@ namespace MusicApp
             instance = this;
             StateSaved = false;
 
-            Console.WriteLine("&Resuming Main Activity");
-
             if (CastContext.SessionManager.CurrentSession == null && MusicPlayer.CurrentID() == -1)
                 MusicPlayer.currentID = MusicPlayer.RetrieveQueueSlot();
             else if(MusicPlayer.UseCastPlayer)
@@ -1490,9 +1487,6 @@ namespace MusicApp
                 HideQuickPlay();
                 SearchableActivity.instance = null;
             }
-
-            //if(Player.instance == null || Player.instance.IsDetached)
-            //    SupportFragmentManager.BeginTransaction().Replace(Resource.Id.playerFrame, Player.instance ?? new Player()).Commit();
 
             if (SheetBehavior != null && SheetBehavior.State == BottomSheetBehavior.StateExpanded)
                 FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Visible;

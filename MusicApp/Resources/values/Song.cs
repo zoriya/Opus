@@ -8,6 +8,9 @@ namespace MusicApp.Resources.values
     [Serializable]
     public class Song
     {
+        [PrimaryKey, Unique, AutoIncrement]
+        private int Index { get; set; }
+
         public string Title { get; set; }
         public string Artist { get; set; }
         public string Album { get; set; }
@@ -16,8 +19,6 @@ namespace MusicApp.Resources.values
         public long Id { get; set; }
         public string Path { get; set; }
         public bool IsParsed { get; set; }
-        [PrimaryKey, Unique]
-        public int QueueSlot { get; set; }
         public bool IsYt { get; set; }
         public DateTimeOffset? ExpireDate { get; set;}
         public bool IsLiveStream = false;
@@ -25,7 +26,7 @@ namespace MusicApp.Resources.values
 
         public Song() { }
 
-        public Song(string title, string artist, string album, string youtubeID, long albumArt, long id, string path, bool isYT = false, bool isParsed = true, int queueSlot = -1)
+        public Song(string title, string artist, string album, string youtubeID, long albumArt, long id, string path, bool isYT = false, bool isParsed = true)
         {
             Title = title;
             Artist = artist;
@@ -36,12 +37,11 @@ namespace MusicApp.Resources.values
             Path = path;
             IsYt = isYT;
             IsParsed = isParsed;
-            QueueSlot = queueSlot;
         }
 
         public override string ToString()
         {
-            return Title + " Artist: " + Artist + " Album: " + Album + " youtubeID: " + YoutubeID + " AlbumArt: " + AlbumArt + " Id: " + Id + " Path: " + Path + " isYT: " + IsYt + " isParsed: " + IsParsed + " queueSlot: " + QueueSlot;
+            return Title + " Artist: " + Artist + " Album: " + Album + " youtubeID: " + YoutubeID + " AlbumArt: " + AlbumArt + " Id: " + Id + " Path: " + Path + " isYT: " + IsYt + " isParsed: " + IsParsed;
         }
 
         public static explicit operator Song(string v)
@@ -58,9 +58,8 @@ namespace MusicApp.Resources.values
             string path = v.Substring(v.IndexOf(" Path: ") + 7, v.IndexOf(" isYT: ") - v.IndexOf(" Path: ") - 7);
             bool isYT = bool.Parse(v.Substring(v.IndexOf(" isYT: ") + 7, v.IndexOf(" isParsed: ") - v.IndexOf(" isYT: ") - 7));
             bool isParsed = bool.Parse(v.Substring(v.IndexOf(" isParsed: ") + 11, v.IndexOf(" queueSlot: ") - v.IndexOf(" isParsed: ") - 11));
-            int queueSlot = int.Parse(v.Substring(v.IndexOf(" queueSlot: ") + 12, v.Length - v.IndexOf(" queueSlot: ") - 12));
 
-            Song song = new Song(Name, Artist, Album, youtubeID, AlbumArt, id, path, isYT, isParsed, queueSlot);
+            Song song = new Song(Name, Artist, Album, youtubeID, AlbumArt, id, path, isYT, isParsed);
             return song;
         }
 

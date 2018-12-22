@@ -98,7 +98,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 Song song = MusicPlayer.queue[i];
                 RecyclerHolder holder = (RecyclerHolder)ListView.GetChildViewHolder(((LinearLayoutManager)ListView.GetLayoutManager()).FindViewByPosition(i));
-                if (song.QueueSlot == MusicPlayer.CurrentID())
+                if (MusicPlayer.queue[MusicPlayer.CurrentID()] == song)
                 {
                     holder.status.Text = MusicPlayer.isRunning ? "Playing" : "Paused";
                     holder.status.SetTextColor(MusicPlayer.isRunning ? Color.Argb(255, 244, 81, 30) : Color.Argb(255, 66, 165, 245));
@@ -163,19 +163,19 @@ namespace MusicApp.Resources.Portable_Class
         {
             Song item = MusicPlayer.queue[Position];
 
-            if (item.QueueSlot == MusicPlayer.CurrentID())
+            if (Position == MusicPlayer.CurrentID())
             {
                 Intent intent = new Intent(this, typeof(MusicPlayer));
                 intent.SetAction("Pause");
                 StartService(intent);
             }
             else if(MusicPlayer.instance != null)
-                MusicPlayer.instance.SwitchQueue(item);
+                MusicPlayer.instance.SwitchQueue(Position);
             else
             {
                 Intent intent = new Intent(this, typeof(MusicPlayer));
                 intent.SetAction("SwitchQueue");
-                intent.PutExtra("queueSlot", item.QueueSlot);
+                intent.PutExtra("queueSlot", Position);
                 StartService(intent);
             }
         }
@@ -185,7 +185,7 @@ namespace MusicApp.Resources.Portable_Class
             MainActivity.instance.contentRefresh.SetEnabled(false);
         }
 
-        public void More(Song item)
+        public void More(int position)
         {
             Android.Support.V7.App.AlertDialog.Builder builder = new Android.Support.V7.App.AlertDialog.Builder(this, MainActivity.dialogTheme);
             builder.SetTitle("Pick an action");
@@ -194,11 +194,11 @@ namespace MusicApp.Resources.Portable_Class
                 switch (args.Which)
                 {
                     case 0:
-                        RemoveFromQueue(item);
+                        RemoveFromQueue(position);
                         break;
                     case 1:
-                        if (!item.IsYt)
-                            Browse.EditMetadata(item, "Queue", ListView.GetLayoutManager().OnSaveInstanceState());
+                        if (!MusicPlayer.queue[position].IsYt)
+                            Browse.EditMetadata(MusicPlayer.queue[position], "Queue", ListView.GetLayoutManager().OnSaveInstanceState());
                         break;
                     default:
                         break;
@@ -215,20 +215,19 @@ namespace MusicApp.Resources.Portable_Class
                 MusicPlayer.SaveQueueSlot();
             }
 
-            item.QueueSlot = position;
             MusicPlayer.queue.Insert(position, item);
             MusicPlayer.UpdateQueueSlots();
         }
 
-        public static void RemoveFromQueue(Song item)
+        public static void RemoveFromQueue(int position)
         {
-            if (MusicPlayer.CurrentID() > item.QueueSlot)
+            if (MusicPlayer.CurrentID() > position)
             {
                 MusicPlayer.currentID--;
                 MusicPlayer.SaveQueueSlot();
             }
 
-            MusicPlayer.queue.Remove(item);
+            MusicPlayer.queue.RemoveAt(position);
             MusicPlayer.UpdateQueueSlots();
         }
 

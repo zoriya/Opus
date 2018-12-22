@@ -808,15 +808,11 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             songs.RemoveAt(0);
+            MusicPlayer.queue.AddRange(songs);
 
             while (MusicPlayer.instance == null)
                 await Task.Delay(10);
 
-            foreach (Song song in songs)
-            {
-                song.QueueSlot = MusicPlayer.queue.Count;
-                MusicPlayer.queue.Add(song);
-            }
             Player.instance?.UpdateNext();
             MusicPlayer.UpdateQueueDataBase();
             Home.instance?.RefreshQueue();
