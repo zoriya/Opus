@@ -124,6 +124,13 @@ namespace MusicApp
 
             Navigate(Resource.Id.musicLayout);
 
+            SheetBehavior = BottomSheetBehavior.From(FindViewById(Resource.Id.playerSheet));
+            SheetBehavior.State = BottomSheetBehavior.StateCollapsed;
+            SheetBehavior.SetBottomSheetCallback(new PlayerCallback(this));
+
+            if (MusicPlayer.queue == null || MusicPlayer.queue.Count == 0)
+                MusicPlayer.RetrieveQueueFromDataBase();
+
             if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
             {
                 NotificationManager notificationManager = (NotificationManager)GetSystemService(NotificationService);
@@ -138,31 +145,13 @@ namespace MusicApp
             }
 
             CheckForUpdate(this, false);
-            OnLateCreate(Intent);
+            HandleIntent(Intent);
             Login();
+            SyncPlaylists();
         }
 
-        private async void OnLateCreate(Intent intent, bool lateSetup = true)
+        private void HandleIntent(Intent intent)
         {
-            if (lateSetup)
-            {
-                await Task.Delay(500);
-                FindViewById(Resource.Id.playerFrame).LayoutParameters.Height = FindViewById(Resource.Id.playerSheet).Height;
-                FindViewById(Resource.Id.playerSheet).TranslationY = -DpToPx(56);
-                SheetBehavior = BottomSheetBehavior.From(FindViewById(Resource.Id.playerSheet));
-                SheetBehavior.State = BottomSheetBehavior.StateCollapsed;
-                SheetBehavior.Hideable = true;
-                SheetBehavior.SetBottomSheetCallback(new PlayerCallback(this));
-                SheetBehavior.PeekHeight = DpToPx(70);
-
-                FindViewById(Resource.Id.contentRefresh).Invalidate();
-                FindViewById(Resource.Id.contentView).RequestLayout();
-                FindViewById(Resource.Id.playerSheet).Visibility = ViewStates.Visible;
-            }
-
-            if (MusicPlayer.queue == null || MusicPlayer.queue.Count == 0)
-                MusicPlayer.RetrieveQueueFromDataBase();
-
             if (intent.Action == "Sleep")
             {
                 ShowPlayer();
@@ -199,8 +188,6 @@ namespace MusicApp
                     Finish();
                 }
             }
-
-            SyncPlaylists();
         }
 
         public void SwitchTheme(int themeID)
@@ -924,7 +911,7 @@ namespace MusicApp
         {
             FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Visible;
             FindViewById<BottomNavigationView>(Resource.Id.bottomView).TranslationY = (int)(56 * Resources.DisplayMetrics.Density + 0.5f);
-            FindViewById(Resource.Id.playerView).Alpha = 1;
+            FindViewById(Resource.Id.playerContainer).Alpha = 1;
             FindViewById(Resource.Id.smallPlayer).Alpha = 0;
             FindViewById(Resource.Id.quickPlayLinear).ScaleX = 0;
             FindViewById(Resource.Id.quickPlayLinear).ScaleY = 0;
@@ -977,22 +964,14 @@ namespace MusicApp
         public void HideSmallPlayer()
         {
             FindViewById<FrameLayout>(Resource.Id.contentView).SetPadding(0, 0, 0, 0);
-            FindViewById<NestedScrollView>(Resource.Id.playerSheet).Alpha = 1;
             SheetBehavior.State = BottomSheetBehavior.StateHidden;
             FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Invisible;
         }
 
-        public async void ShowSmallPlayer()
+        public void ShowSmallPlayer()
         {
-            Console.WriteLine("&Small Player show is waiting for view");
-            while (FindViewById(Resource.Id.playerView) == null)
-                await Task.Delay(1000);
-
-            Console.WriteLine("&Showing small player");
-            Console.WriteLine("&Player deteached: " + Player.instance.IsDetached);
-
             FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Visible;
-            FindViewById(Resource.Id.playerView).Alpha = 0;
+            FindViewById(Resource.Id.playerContainer).Alpha = 0;
             Player.instance.RefreshPlayer();
             FindViewById<FrameLayout>(Resource.Id.contentView).SetPadding(0, 0, 0, DpToPx(70));
         }
@@ -1508,8 +1487,8 @@ namespace MusicApp
                 SearchableActivity.instance = null;
             }
 
-            if(Player.instance == null || Player.instance.IsDetached)
-                SupportFragmentManager.BeginTransaction().Replace(Resource.Id.playerFrame, Player.instance ?? new Player()).Commit();
+            //if(Player.instance == null || Player.instance.IsDetached)
+            //    SupportFragmentManager.BeginTransaction().Replace(Resource.Id.playerFrame, Player.instance ?? new Player()).Commit();
 
             if (SheetBehavior != null && SheetBehavior.State == BottomSheetBehavior.StateExpanded)
                 FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Visible;
@@ -1551,7 +1530,7 @@ namespace MusicApp
         protected override void OnNewIntent(Intent intent)
         {
             base.OnNewIntent(intent);
-            OnLateCreate(intent, false);
+            HandleIntent(intent);
         }
 
 

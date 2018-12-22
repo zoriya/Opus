@@ -6,11 +6,14 @@ using Android.Content.Res;
 using Android.Graphics;
 using Android.Graphics.Drawables;
 using Android.OS;
+using Android.Runtime;
 using Android.Support.Design.Widget;
 using Android.Support.V4.Widget;
 using Android.Support.V7.Graphics;
+using Android.Util;
 using Android.Views;
 using Android.Widget;
+using MusicApp.Resources.Portable_Class;
 using MusicApp.Resources.values;
 using Square.Picasso;
 using System;
@@ -18,8 +21,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MusicApp.Resources.Portable_Class
+namespace MusicApp
 {
+    [Register("MusicApp/Player")]
     [Activity(Label = "Player", Theme = "@style/Theme", ScreenOrientation = ScreenOrientation.Portrait, LaunchMode = LaunchMode.SingleTop)]
     public class Player : Android.Support.V4.App.Fragment, Palette.IPaletteAsyncListener
     {
@@ -47,7 +51,13 @@ namespace MusicApp.Resources.Portable_Class
 
         async void CreatePlayer()
         {
-            await Task.Delay(1000);
+            await Task.Delay(300);
+
+            DisplayMetrics metrics = new DisplayMetrics();
+            MainActivity.instance.WindowManager.DefaultDisplay.GetMetrics(metrics);
+            MainActivity.instance.FindViewById(Resource.Id.playerContainer).LayoutParameters.Height = metrics.HeightPixels;
+
+            await Task.Delay(700);
 
             MainActivity.instance.PrepareSmallPlayer();
             TextView title = MainActivity.instance.FindViewById<TextView>(Resource.Id.playerTitle);
@@ -646,7 +656,7 @@ namespace MusicApp.Resources.Portable_Class
         private NestedScrollView sheet;
         private BottomNavigationView bottomView;
         private FrameLayout smallPlayer;
-        private View playerView;
+        private View playerContainer;
         private LinearLayout quickPlay;
         private CoordinatorLayout snackBar;
         private bool Refreshed = false;
@@ -658,14 +668,14 @@ namespace MusicApp.Resources.Portable_Class
             sheet = context.FindViewById<NestedScrollView>(Resource.Id.playerSheet);
             bottomView = context.FindViewById<BottomNavigationView>(Resource.Id.bottomView);
             smallPlayer = context.FindViewById<FrameLayout>(Resource.Id.smallPlayer);
-            playerView = context.FindViewById(Resource.Id.playerView);
+            playerContainer = context.FindViewById(Resource.Id.playerContainer);
             quickPlay = context.FindViewById<LinearLayout>(Resource.Id.quickPlayLinear);
             snackBar = context.FindViewById<CoordinatorLayout>(Resource.Id.snackBar);
         }
 
         public override void OnSlide(View bottomSheet, float slideOffset)
         {
-            if(movement == SheetMovement.Unknow)
+            if (movement == SheetMovement.Unknow)
             {
                 if (slideOffset > 0)
                     movement = SheetMovement.Expanding;
@@ -679,7 +689,7 @@ namespace MusicApp.Resources.Portable_Class
                 bottomView.TranslationY = (int)((56 * context.Resources.DisplayMetrics.Density + 0.5f) * slideOffset);
                 sheet.TranslationY = -(int)((56 * context.Resources.DisplayMetrics.Density + 0.5f) * (1 - slideOffset));
 
-                playerView.Alpha = Math.Max(0, (slideOffset - 0.5f) * 2.5f);
+                playerContainer.Alpha = Math.Max(0, (slideOffset - 0.5f) * 2.5f);
                 smallPlayer.Alpha = Math.Max(0, 1 - slideOffset * 2);
                 quickPlay.ScaleX = Math.Max(0, 1 - slideOffset * 2);
                 quickPlay.ScaleY = Math.Max(0, 1 - slideOffset * 2);
@@ -705,7 +715,7 @@ namespace MusicApp.Resources.Portable_Class
             if (newState == BottomSheetBehavior.StateExpanded)
             {
                 sheet.Alpha = 1;
-                playerView.Alpha = 1;
+                playerContainer.Alpha = 1;
                 smallPlayer.Alpha = 0;
                 bottomSheet.TranslationY = (int)(56 * context.Resources.DisplayMetrics.Density + 0.5f);
                 sheet.TranslationY = 0;

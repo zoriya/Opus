@@ -5126,14 +5126,14 @@ namespace MusicApp
 			// aapt resource value: 0x7f0a0167
 			public const int playerBuffer = 2131362151;
 			
+			// aapt resource value: 0x7f0a012d
+			public const int playerContainer = 2131362093;
+			
 			// aapt resource value: 0x7f0a016d
 			public const int playerDark = 2131362157;
 			
 			// aapt resource value: 0x7f0a016b
 			public const int playerDownload = 2131362155;
-			
-			// aapt resource value: 0x7f0a012d
-			public const int playerFrame = 2131362093;
 			
 			// aapt resource value: 0x7f0a016a
 			public const int playerPlaylistAdd = 2131362154;

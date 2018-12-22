@@ -180,9 +180,6 @@ namespace MusicApp.Resources.Portable_Class
 
         public async static Task<Song> GetItem(int position = -2)
         {
-            Console.WriteLine("&Getting song at position " + position);
-            Console.WriteLine("&CurerntID: " + CurrentID());
-
             if (position == -2)
                 position = CurrentID();
 

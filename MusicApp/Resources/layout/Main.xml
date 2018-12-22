@@ -88,9 +88,12 @@
     android:fitsSystemWindows="true"
     android:layout_width="wrap_content"
     android:layout_height="fill_parent"
-    android:visibility="invisible"
+    android:visibility="gone"
     android:elevation="6dp"
+    android:translationY="-56dp"
     android:background="#2b5568"
+    app:behavior_hideable="true"
+    app:behavior_peekHeight="70dp"
     app:layout_behavior="android.support.design.widget.BottomSheetBehavior" >
     <RelativeLayout
       android:layout_width="fill_parent"
@@ -192,8 +195,9 @@
           android:layout_alignParentTop="true"
           android:progress="0"/>
       </FrameLayout>
-      <FrameLayout
-        android:id="@+id/playerFrame"
+      <fragment
+        android:name="MusicApp.Player"
+        android:id="@+id/playerContainer"
         android:fitsSystemWindows="true"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" />
