@@ -1,10 +1,10 @@
 ﻿using Android.App;
 using Android.Content;
-using Android.Gms.Cast.Framework.Media;
 using Android.Graphics;
 using Android.Support.Design.Widget;
 using Android.Support.V7.Widget;
 using Android.Views;
+using Java.Lang;
 using MusicApp.Resources.values;
 using Square.Picasso;
 using System;
@@ -12,19 +12,16 @@ using System.Collections.Generic;
 
 namespace MusicApp.Resources.Portable_Class
 {
-    public class RecyclerAdapter : RecyclerView.Adapter, IItemTouchAdapter
+    public class QueueAdapter : RecyclerView.Adapter, IItemTouchAdapter
     {
         public List<Song> songList;
         public event EventHandler<int> ItemClick;
         public event EventHandler<int> ItemLongCLick;
         public int listPadding;
 
-        public RecyclerAdapter(List<Song> songList)
+        public QueueAdapter(List<Song> songList)
         {
             this.songList = songList;
-
-            if(MusicPlayer.UseCastPlayer)
-                MusicPlayer.RemotePlayer.MediaQueue.RegisterCallback(new QueueCallback(this));
         }
 
         public void UpdateList(List<Song> songList)
@@ -65,10 +62,52 @@ namespace MusicApp.Resources.Portable_Class
             {
                 RecyclerHolder holder = (RecyclerHolder)viewHolder;
 
-                Song song = MusicPlayer.UseCastPlayer ? (Song)MusicPlayer.RemotePlayer.MediaQueue.GetItemAtIndex(position) : songList[position];
+                if (MainActivity.Theme == 1)
+                {
+                    holder.more.SetColorFilter(Color.White);
+                    holder.reorder.SetColorFilter(Color.White);
+                    holder.Title.SetTextColor(Color.White);
+                    holder.Artist.SetTextColor(Color.White);
+                    holder.Artist.Alpha = 0.7f;
+                    holder.youtubeIcon.SetColorFilter(Color.White);
+                    holder.ItemView.SetBackgroundColor(Color.ParseColor("#424242"));
+                }
+                else
+                    holder.ItemView.SetBackgroundColor(Color.White);
 
+                holder.reorder.Visibility = ViewStates.Visible;
+                if (position == MusicPlayer.CurrentID())
+                {
+                    holder.status.Visibility = ViewStates.Visible;
+                    holder.status.Text = MusicPlayer.isRunning ? "Playing" : "Paused";
+                    holder.status.SetTextColor(MusicPlayer.isRunning ? Color.Argb(255, 244, 81, 30) : Color.Argb(255, 66, 165, 245));
+                }
+                else
+                    holder.status.Visibility = ViewStates.Gone;
+
+
+                Song song = songList.Count <= position ? null : songList[position];
                 if (song == null)
+                {
+                    if (holder.Title.Text.Length == 0)
+                        holder.Title.Text = "aizquruhgqognbq";
+                    if (holder.Artist.Text.Length == 0)
+                        holder.Artist.Text = "ZJKGNZgzn";
+
+                    holder.Title.SetTextColor(Color.Transparent);
+                    holder.Title.SetBackgroundResource(Resource.Color.background_material_dark);
+                    holder.Artist.SetTextColor(Color.Transparent);
+                    holder.Artist.SetBackgroundResource(Resource.Color.background_material_dark);
+                    holder.AlbumArt.SetImageResource(Resource.Color.background_material_dark);
+
+                    MusicPlayer.RemotePlayer.MediaQueue.GetItemAtIndex(position);
                     return;
+                }
+                else
+                {
+                    holder.Title.SetBackgroundResource(0);
+                    holder.Artist.SetBackgroundResource(0);
+                }
 
                 holder.Title.Text = song.Title;
                 holder.Artist.Text = song.Artist;
@@ -115,59 +154,29 @@ namespace MusicApp.Resources.Portable_Class
                 else
                     holder.Title.SetTextSize(Android.Util.ComplexUnitType.Dip, 14);
 
-                float scale = MainActivity.instance.Resources.DisplayMetrics.Density;
-                if (Queue.instance != null)
+                if (!song.IsParsed && song.IsYt)
                 {
-                    holder.reorder.Visibility = ViewStates.Visible;
-                    if (!song.IsParsed && song.IsYt)
-                    {
-                        holder.youtubeIcon.SetImageResource(Resource.Drawable.needProcessing);
-                        holder.youtubeIcon.Visibility = ViewStates.Visible;
-
-                        if (MainActivity.Theme == 1)
-                            holder.youtubeIcon.SetColorFilter(Color.White);
-                    }
-                    else if (song.IsYt)
-                    {
-                        holder.youtubeIcon.SetImageResource(Resource.Drawable.PublicIcon);
-                        holder.youtubeIcon.Visibility = ViewStates.Visible;
-
-                        if (MainActivity.Theme == 1)
-                            holder.youtubeIcon.SetColorFilter(Color.White);
-                    }
-                    else
-                    {
-                        holder.youtubeIcon.Visibility = ViewStates.Gone;
-                    }
-
-                    if (position == MusicPlayer.CurrentID())
-                    {
-                        holder.status.Visibility = ViewStates.Visible;
-                        holder.status.Text = MusicPlayer.isRunning ? "Playing" : "Paused";
-                        holder.status.SetTextColor(MusicPlayer.isRunning ? Color.Argb(255, 244, 81, 30) : Color.Argb(255, 66, 165, 245));
-                    }
-                    else
-                        holder.status.Visibility = ViewStates.Gone;
+                    holder.youtubeIcon.SetImageResource(Resource.Drawable.needProcessing);
+                    holder.youtubeIcon.Visibility = ViewStates.Visible;
+                }
+                else if (song.IsYt)
+                {
+                    holder.youtubeIcon.SetImageResource(Resource.Drawable.PublicIcon);
+                    holder.youtubeIcon.Visibility = ViewStates.Visible;
                 }
                 else
                 {
-                    holder.reorder.Visibility = ViewStates.Gone;
+                    holder.youtubeIcon.Visibility = ViewStates.Gone;
                 }
-
-                if (MainActivity.Theme == 1)
-                {
-                    holder.more.SetColorFilter(Color.White);
-                    holder.reorder.SetColorFilter(Color.White);
-                    holder.Title.SetTextColor(Color.White);
-                    holder.Artist.SetTextColor(Color.White);
-                    holder.Artist.Alpha = 0.7f;
-                }
-
-                if (MainActivity.Theme == 0)
-                    holder.ItemView.SetBackgroundColor(Color.White);
-                else
-                    holder.ItemView.SetBackgroundColor(Color.ParseColor("#424242"));
             }
+        }
+
+        public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position, IList<Java.Lang.Object> payloads)
+        {
+            if (payloads.Count > 0 && payloads[0].ToString() == ((RecyclerHolder)holder).Title.Text)
+                return;
+
+            base.OnBindViewHolder(holder, position, payloads);
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)

@@ -1,5 +1,6 @@
 ﻿using System;
 using Android.Gms.Cast;
+using Java.Lang;
 using Newtonsoft.Json;
 using SQLite;
 

@@ -8,17 +8,24 @@ namespace MusicApp.Resources.Portable_Class
         public override void ItemsUpdatedAtIndexes(int[] indexes)
         {
             base.ItemsUpdatedAtIndexes(indexes);
-            System.Console.WriteLine("&Index has come");
             foreach (int index in indexes)
             {
+                Song song = (Song)MusicPlayer.RemotePlayer.MediaQueue.GetItemAtIndex(index);
+
                 if (MusicPlayer.queue.Count > index)
-                    MusicPlayer.queue[index] = (Song)MusicPlayer.RemotePlayer.MediaQueue.GetItemAtIndex(index);
+                    MusicPlayer.queue[index] = song;
                 else
                 {
                     while (MusicPlayer.queue.Count < index)
                         MusicPlayer.queue.Add(null);
 
-                    MusicPlayer.queue.Add((Song)MusicPlayer.RemotePlayer.MediaQueue.GetItemAtIndex(index));
+                    MusicPlayer.queue.Add(song);
+                }
+
+                if(song != null)
+                {
+                    Queue.instance?.adapter.NotifyItemChanged(index, song.Title);
+                    Home.instance?.QueueAdapter?.NotifyItemChanged(index, song.Title);
                 }
 
                 MusicPlayer.WaitForIndex.Remove(index);

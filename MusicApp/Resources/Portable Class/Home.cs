@@ -23,6 +23,7 @@ namespace MusicApp.Resources.Portable_Class
         public static Home instance;
         public RecyclerView ListView;
         public HomeAdapter adapter;
+        public LineAdapter QueueAdapter;
         public ItemTouchHelper itemTouchHelper;
         public static List<HomeSection> adapterItems = new List<HomeSection>();
         public List<string> selectedTopics = new List<string>();
@@ -446,13 +447,9 @@ namespace MusicApp.Resources.Portable_Class
 
         public void RefreshQueue()
         {
-            if (MusicPlayer.UseCastPlayer && adapterItems.Count > 0)
+            if (adapterItems.Count > 0)
             {
-                adapterItems[0].recycler?.SetAdapter(new LineAdapter(adapterItems[0].recycler));
-            }
-            else if (adapterItems.Count > 0)
-            {
-                adapterItems[0].recycler?.GetAdapter()?.NotifyDataSetChanged();
+                QueueAdapter?.NotifyDataSetChanged();
                 if (MusicPlayer.CurrentID() != -1 && MusicPlayer.CurrentID() <= MusicPlayer.queue.Count)
                     adapterItems[0].recycler?.ScrollToPosition(MusicPlayer.CurrentID());
             }

@@ -1,10 +1,8 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.Content.PM;
-using Android.Gms.Cast.Framework.Media;
 using Android.Graphics;
 using Android.OS;
-using Android.Support.Design.Widget;
 using Android.Support.V7.App;
 using Android.Support.V7.Widget;
 using Android.Support.V7.Widget.Helper;
@@ -20,7 +18,7 @@ namespace MusicApp.Resources.Portable_Class
     {
         public static Queue instance;
         public RecyclerView ListView;
-        public RecyclerAdapter adapter;
+        public QueueAdapter adapter;
         public ItemTouchHelper itemTouchHelper;
         public IMenu menu;
 
@@ -44,12 +42,7 @@ namespace MusicApp.Resources.Portable_Class
 
             ListView = FindViewById<RecyclerView>(Resource.Id.recycler);
             ListView.SetLayoutManager(new LinearLayoutManager(Application.Context));
-
-            if (MusicPlayer.queue != null)
-                adapter = new RecyclerAdapter(MusicPlayer.queue);
-            else
-                adapter = new RecyclerAdapter(new List<Song>());
-
+            adapter = new QueueAdapter(MusicPlayer.queue);
             ListView.SetAdapter(adapter);
             adapter.ItemClick += ListView_ItemClick;
             adapter.ItemLongCLick += ListView_ItemLongCLick;
@@ -65,8 +58,7 @@ namespace MusicApp.Resources.Portable_Class
 
         private void Scroll(object sender, View.ScrollChangeEventArgs e)
         {
-            if (((LinearLayoutManager)ListView.GetLayoutManager()).FindLastCompletelyVisibleItemPosition() == adapter.songList.Count)
-                LoadMore();
+
         }
 
         protected override void OnStop()
@@ -81,14 +73,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public void Refresh()
         {
-
-            if (!MusicPlayer.UseCastPlayer)
-                adapter.UpdateList(MusicPlayer.queue);
-            else
-            {
-                adapter.NotifyDataSetChanged();
-                MusicPlayer.RemotePlayer.MediaQueue.RegisterCallback(new QueueCallback(adapter));
-            }
+            adapter.UpdateList(MusicPlayer.queue);
         }
 
         public void RefreshCurrent()
@@ -156,11 +141,6 @@ namespace MusicApp.Resources.Portable_Class
                 item.Icon.SetColorFilter(Color.Argb(255, 21, 183, 237), PorterDuff.Mode.Multiply);
             else
                 item.Icon.ClearColorFilter();
-        }
-
-        public void LoadMore()
-        {
-            List<Song> songList = MusicPlayer.queue.Except(adapter.songList).ToList();
         }
 
         private void ListView_ItemClick(object sender, int Position)

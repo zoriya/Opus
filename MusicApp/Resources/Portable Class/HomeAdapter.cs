@@ -84,7 +84,9 @@ namespace MusicApp.Resources.Portable_Class
                 holder.recycler.SetLayoutManager(new LinearLayoutManager(MainActivity.instance, LinearLayoutManager.Horizontal, false));
                 if (items[position].SectionTitle == "Queue")
                 {
-                    holder.recycler.SetAdapter(new LineAdapter(holder.recycler));
+                    LineAdapter adapter = new LineAdapter(holder.recycler);
+                    Home.instance.QueueAdapter = adapter;
+                    holder.recycler.SetAdapter(adapter);
                     holder.more.Click += (sender, e) =>
                     {
                         Intent intent = new Intent(MainActivity.instance, typeof(Queue));

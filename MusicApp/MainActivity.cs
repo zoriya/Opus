@@ -1546,7 +1546,7 @@ namespace MusicApp
         public void OnSessionResumed(Java.Lang.Object session, bool wasSuspended)
         {
             Console.WriteLine("&Session Resumed");
-            SwitchRemote(((CastSession)session).RemoteMediaClient);
+            SwitchRemote(((CastSession)session).RemoteMediaClient, false);
         }
 
         public void OnSessionResuming(Java.Lang.Object session, string sessionId) { }
@@ -1556,7 +1556,7 @@ namespace MusicApp
         public void OnSessionStarted(Java.Lang.Object session, string sessionId)
         {
             Console.WriteLine("&Session Started");
-            SwitchRemote(((CastSession)session).RemoteMediaClient);
+            SwitchRemote(((CastSession)session).RemoteMediaClient, true);
         }
 
         public void OnSessionStarting(Java.Lang.Object session) { }
@@ -1567,7 +1567,7 @@ namespace MusicApp
             SwitchRemote(null);
         }
 
-        private async void SwitchRemote(RemoteMediaClient remoteClient)
+        private async void SwitchRemote(RemoteMediaClient remoteClient, bool justStarted = true)
         {
             Console.WriteLine("&Switching to another remote player: (null check)" + (remoteClient == null));
 
@@ -1606,7 +1606,19 @@ namespace MusicApp
 
             await Task.Delay(1000);
             if (MusicPlayer.UseCastPlayer)
-                MusicPlayer.GetQueueFromCast();
+            {
+                if (justStarted)
+                {
+                    Intent intent = new Intent(this, typeof(MusicPlayer));
+                    intent.SetAction("StartCasting");
+                    StartService(intent);
+                }
+                else
+                {
+                    MusicPlayer.Initialized = true;
+                    MusicPlayer.GetQueueFromCast();
+                }
+            }
         }
     }
 }

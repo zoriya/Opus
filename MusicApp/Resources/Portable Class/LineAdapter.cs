@@ -1,6 +1,7 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.Gms.Cast.Framework.Media;
+using Android.Graphics;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
@@ -50,12 +51,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             this.recycler = recycler;
             UseQueue = true;
-
-            if (MusicPlayer.UseCastPlayer)
-                MusicPlayer.RemotePlayer.MediaQueue.RegisterCallback(new QueueCallback(this));
-
             songList = MusicPlayer.queue;
-
         }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position)
@@ -71,10 +67,17 @@ namespace MusicApp.Resources.Portable_Class
             {
                 RecyclerHolder holder = (RecyclerHolder)viewHolder;
 
-                Song song = UseQueue && MusicPlayer.UseCastPlayer ? (Song)MusicPlayer.RemotePlayer.MediaQueue.GetItemAtIndex(position) : songList[position];
+                Song song = songList.Count <= position ? null : songList[position];
 
-                if (song == null)
+
+                if (song == null && UseQueue)
+                {
+                    holder.Title.Text = "";
+                    holder.AlbumArt.SetImageResource(Resource.Color.background_material_dark);
+
+                    MusicPlayer.RemotePlayer.MediaQueue.GetItemAtIndex(position);
                     return;
+                }
 
                 holder.Title.Text = song.Title;
 
@@ -91,6 +94,14 @@ namespace MusicApp.Resources.Portable_Class
                     Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
                 }
             }
+        }
+
+        public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position, IList<Java.Lang.Object> payloads)
+        {
+            if (payloads.Count > 0 && payloads[0].ToString() == ((RecyclerHolder)holder).Title.Text)
+                return;
+
+            base.OnBindViewHolder(holder, position, payloads);
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
