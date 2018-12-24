@@ -173,8 +173,17 @@ namespace MusicApp.Resources.Portable_Class
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position, IList<Java.Lang.Object> payloads)
         {
-            if (payloads.Count > 0 && payloads[0].ToString() == ((RecyclerHolder)holder).Title.Text)
-                return;
+            if (payloads.Count > 0)
+            {
+                if (payloads[0].ToString() == ((RecyclerHolder)holder).Title.Text)
+                    return;
+
+                if(int.TryParse(payloads[0].ToString(), out int payload))
+                {
+                    if (payload == Resource.Drawable.PublicIcon)
+                        ((RecyclerHolder)holder).youtubeIcon.SetImageResource(Resource.Drawable.PublicIcon);
+                }
+            }
 
             base.OnBindViewHolder(holder, position, payloads);
         }
@@ -235,7 +244,7 @@ namespace MusicApp.Resources.Portable_Class
             if (MusicPlayer.CurrentID() > fromPosition && MusicPlayer.CurrentID() <= toPosition)
                 MusicPlayer.currentID--;
 
-            MusicPlayer.UpdateQueueSlots();
+            MusicPlayer.UpdateQueueDataBase();
         }
         
         List<T> Swap<T>(List<T> list, int fromPosition, int toPosition)

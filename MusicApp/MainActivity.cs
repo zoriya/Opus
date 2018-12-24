@@ -1033,15 +1033,6 @@ namespace MusicApp
 
         private void LocalPlay(object sender, EventArgs e)
         {
-            if (MusicPlayer.UseCastPlayer)
-            {
-                Toast.MakeText(this, "Debbugging cast queue", ToastLength.Long).Show();
-                MusicPlayer.GetQueueFromCast();
-                QuickPlay(this, e);
-                return;
-            }
-
-
             if (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(this, Manifest.Permission.ReadExternalStorage) != (int)Permission.Granted)
             {
                 this.sender = sender;
@@ -1209,22 +1200,14 @@ namespace MusicApp
 
             Random r = new Random();
             tracks = tracks.OrderBy(x => r.Next()).ToList();
-            if(MusicPlayer.instance == null)
-            {
-                if(!current.IsParsed)
-                    YoutubeEngine.Play(current.YoutubeID, current.Title, current.Artist, current.Album, false, false);
-                else
-                {
-                    Intent intent = new Intent(this, typeof(MusicPlayer));
-                    intent.PutExtra("file", current.Path);
-                    StartService(intent);
-                }
 
-                while (MusicPlayer.instance == null)
-                    await Task.Delay(10);
-            }
-            foreach (Song song in tracks)
-                MusicPlayer.instance.PlayLastInQueue(song);
+            Intent intent = new Intent(this, typeof(MusicPlayer));
+            StartService(intent);
+
+            while (MusicPlayer.instance == null)
+                await Task.Delay(100);
+
+            MusicPlayer.instance.AddToQueue(tracks.ToArray());
 
             ShowSmallPlayer();
             ShowPlayer();

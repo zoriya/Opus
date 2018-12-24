@@ -12,6 +12,9 @@ namespace MusicApp.Resources.Portable_Class
             {
                 Song song = (Song)MusicPlayer.RemotePlayer.MediaQueue.GetItemAtIndex(index);
 
+                if (song == null && (index == MusicPlayer.currentID || index == MusicPlayer.currentID + 1))
+                    continue;
+
                 if (MusicPlayer.queue.Count > index)
                     MusicPlayer.queue[index] = song;
                 else
