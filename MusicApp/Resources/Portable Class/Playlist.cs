@@ -192,7 +192,7 @@ namespace MusicApp.Resources.Portable_Class
 
                             PlaylistHolder holder = (PlaylistHolder)ListView.GetChildViewHolder(ListView.GetChildAt(LocalPlaylists.Count + position));
                             holder.Owner.Text = item.Owner;
-                            Picasso.With(Android.App.Application.Context).Load(item.ImageURL).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
+                            Picasso.With(Android.App.Application.Context).Load(item.ImageURL).Placeholder(Resource.Color.background_material_dark).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
                             holder.edit.Visibility = ViewStates.Visible;
                             if (MainActivity.Theme == 1)
                                 holder.edit.SetColorFilter(Color.White);
@@ -269,7 +269,7 @@ namespace MusicApp.Resources.Portable_Class
 
                                     PlaylistHolder holder = (PlaylistHolder)ListView.GetChildViewHolder(ListView.GetChildAt(LocalPlaylists.Count + position));
                                     holder.Owner.Text = item.Owner;
-                                    Picasso.With(Android.App.Application.Context).Load(item.ImageURL).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
+                                    Picasso.With(Android.App.Application.Context).Load(item.ImageURL).Placeholder(Resource.Color.background_material_dark).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
                                     holder.edit.Visibility = ViewStates.Gone;
                                     holder.sync.SetImageResource(Resource.Drawable.Sync);
                                     holder.sync.Visibility = ViewStates.Visible;

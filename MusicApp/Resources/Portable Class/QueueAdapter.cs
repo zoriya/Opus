@@ -115,14 +115,14 @@ namespace MusicApp.Resources.Portable_Class
                 if (song.AlbumArt == -1 || song.IsYt)
                 {
                     var songAlbumArtUri = Android.Net.Uri.Parse(song.Album);
-                    Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
+                    Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Color.background_material_dark).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
                 }
                 else
                 {
                     var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
                     var songAlbumArtUri = ContentUris.WithAppendedId(songCover, song.AlbumArt);
 
-                    Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
+                    Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Color.background_material_dark).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
                 }
 
                 if (!holder.more.HasOnClickListeners)
@@ -171,21 +171,29 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
-        public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position, IList<Java.Lang.Object> payloads)
+        public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position, IList<Java.Lang.Object> payloads)
         {
             if (payloads.Count > 0)
             {
-                if (payloads[0].ToString() == ((RecyclerHolder)holder).Title.Text)
+                RecyclerHolder holder = (RecyclerHolder)viewHolder;
+
+                if (payloads[0].ToString() == holder.Title.Text)
                     return;
 
-                if(int.TryParse(payloads[0].ToString(), out int payload))
+                if(int.TryParse(payloads[0].ToString(), out int payload) && payload == Resource.Drawable.PublicIcon)
                 {
-                    if (payload == Resource.Drawable.PublicIcon)
-                        ((RecyclerHolder)holder).youtubeIcon.SetImageResource(Resource.Drawable.PublicIcon);
+                    holder.youtubeIcon.SetImageResource(Resource.Drawable.PublicIcon);
+                    return;
+                }
+
+                if(payloads[0].ToString() != null && holder.Artist.Text == "")
+                {
+                    holder.Artist.Text = payloads[0].ToString();
+                    return;
                 }
             }
 
-            base.OnBindViewHolder(holder, position, payloads);
+            base.OnBindViewHolder(viewHolder, position, payloads);
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
@@ -238,11 +246,14 @@ namespace MusicApp.Resources.Portable_Class
 
         public void ItemMoveEnded(int fromPosition, int toPosition)
         {
-            if (MusicPlayer.CurrentID() == fromPosition)
-                MusicPlayer.currentID = toPosition;
-
             if (MusicPlayer.CurrentID() > fromPosition && MusicPlayer.CurrentID() <= toPosition)
                 MusicPlayer.currentID--;
+
+            else if (MusicPlayer.CurrentID() < fromPosition && MusicPlayer.CurrentID() >= toPosition)
+                MusicPlayer.currentID++;
+
+            else if (MusicPlayer.currentID == fromPosition)
+                MusicPlayer.currentID = toPosition;
 
             MusicPlayer.UpdateQueueDataBase();
         }

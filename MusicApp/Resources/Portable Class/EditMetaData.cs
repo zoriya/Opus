@@ -84,14 +84,14 @@ namespace MusicApp.Resources.Portable_Class
             if (song.AlbumArt == -1 || song.IsYt)
             {
                 var songAlbumArtUri = Android.Net.Uri.Parse(song.Album);
-                Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Transform(new RemoveBlackBorder(true)).Into(albumArt);
+                Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(albumArt);
             }
             else
             {
                 var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
                 var songAlbumArtUri = ContentUris.WithAppendedId(songCover, song.AlbumArt);
 
-                Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(albumArt);
+                Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(albumArt);
             }
         }
 
@@ -131,7 +131,7 @@ namespace MusicApp.Resources.Portable_Class
                 if(resultCode == Result.Ok)
                 {
                     Android.Net.Uri uri = data.Data;
-                    Picasso.With(Application.Context).Load(uri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(albumArt);
+                    Picasso.With(Application.Context).Load(uri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(albumArt);
                     artURI = uri;
                 }
             }
@@ -286,7 +286,7 @@ namespace MusicApp.Resources.Portable_Class
                 System.IO.File.WriteAllBytes(tempArt, e.Result);
 
                 Android.Net.Uri uri = Android.Net.Uri.FromFile(new Java.IO.File(tempArt));
-                Picasso.With(this).Load(uri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(albumArt);
+                Picasso.With(this).Load(uri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(albumArt);
                 artURI = uri;
                 tempFile = true;
             };
@@ -336,7 +336,7 @@ namespace MusicApp.Resources.Portable_Class
                 System.IO.File.WriteAllBytes(tempArt, e.Result);
 
                 Android.Net.Uri uri = Android.Net.Uri.FromFile(new Java.IO.File(tempArt));
-                Picasso.With(this).Load(uri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(albumArt);
+                Picasso.With(this).Load(uri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(albumArt);
                 artURI = uri;
                 tempFile = true;
             };
@@ -354,14 +354,14 @@ namespace MusicApp.Resources.Portable_Class
             if (song.AlbumArt == -1 || song.IsYt)
             {
                 var songAlbumArtUri = Android.Net.Uri.Parse(song.Album);
-                Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(albumArt);
+                Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(albumArt);
             }
             else
             {
                 var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
                 var songAlbumArtUri = ContentUris.WithAppendedId(songCover, song.AlbumArt);
 
-                Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(albumArt);
+                Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(albumArt);
             }
 
             albumArt = null;

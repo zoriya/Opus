@@ -43,7 +43,7 @@ namespace MusicApp.Resources.Portable_Class
                 holder.reorder.Visibility = ViewStates.Gone;
 
                 var songAlbumArtUri = Android.Net.Uri.Parse(song.Album);
-                Picasso.With(Android.App.Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
+                Picasso.With(Android.App.Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Color.background_material_dark).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
 
                 holder.more.Tag = position;
                 if (!holder.more.HasOnClickListeners)
@@ -93,7 +93,7 @@ namespace MusicApp.Resources.Portable_Class
                 holder.Owner.Text = song.Artist;
 
                 var songAlbumArtUri = Android.Net.Uri.Parse(song.Album);
-                Picasso.With(Android.App.Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
+                Picasso.With(Android.App.Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Color.background_material_dark).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
 
                 holder.more.Tag = position;
                 if (!holder.more.HasOnClickListeners)
@@ -118,7 +118,7 @@ namespace MusicApp.Resources.Portable_Class
                 RecyclerChannelHolder holder = (RecyclerChannelHolder)viewHolder;
 
                 holder.Title.Text = song.Title;
-                Picasso.With(Android.App.Application.Context).Load(song.Album).Placeholder(Resource.Drawable.MusicIcon).Transform(new CircleTransformation(false)).Into(holder.AlbumArt);
+                Picasso.With(Android.App.Application.Context).Load(song.Album).Placeholder(Resource.Color.background_material_dark).Transform(new CircleTransformation(false)).Into(holder.AlbumArt);
 
                 holder.action.Visibility = ViewStates.Visible;
                 holder.CheckBox.Visibility = ViewStates.Gone;
@@ -175,7 +175,7 @@ namespace MusicApp.Resources.Portable_Class
                 ChannelPreviewHolder holder = (ChannelPreviewHolder)viewHolder;
 
                 holder.Name.Text = song.Title;
-                Picasso.With(Android.App.Application.Context).Load(song.Album).Placeholder(Resource.Drawable.MusicIcon).Transform(new CircleTransformation(true)).MemoryPolicy(MemoryPolicy.NoCache, MemoryPolicy.NoStore).Into(holder.Logo);
+                Picasso.With(Android.App.Application.Context).Load(song.Album).Placeholder(Resource.Color.background_material_dark).Transform(new CircleTransformation(true)).MemoryPolicy(MemoryPolicy.NoCache, MemoryPolicy.NoStore).Into(holder.Logo);
 
                 List<YtFile> files = items.FindAll(x => x.item.Artist == song.Title && x.Kind == YtKind.Video);
                 if(files.Count > 0)
@@ -185,7 +185,7 @@ namespace MusicApp.Resources.Portable_Class
 
                 holder.MixOne.ViewTreeObserver.Draw += (sender, e) => 
                 {
-                    Picasso.With(Android.App.Application.Context).Load(song.Album).Placeholder(Resource.Drawable.MusicIcon).Fit().CenterCrop().Into(holder.ChannelLogo);
+                    Picasso.With(Android.App.Application.Context).Load(song.Album).Placeholder(Resource.Color.background_material_dark).Fit().CenterCrop().Into(holder.ChannelLogo);
                 };
 
                 if (!holder.MixHolder.HasOnClickListeners)

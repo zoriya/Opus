@@ -84,14 +84,14 @@ namespace MusicApp.Resources.Portable_Class
                 if (song.AlbumArt == -1 || song.IsYt)
                 {
                     var songAlbumArtUri = Android.Net.Uri.Parse(song.Album);
-                    Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
+                    Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Color.background_material_dark).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
                 }
                 else
                 {
                     var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
                     var songAlbumArtUri = ContentUris.WithAppendedId(songCover, song.AlbumArt);
 
-                    Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
+                    Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Color.background_material_dark).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
                 }
             }
         }

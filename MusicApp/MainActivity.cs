@@ -1583,6 +1583,8 @@ namespace MusicApp
                 }
 
                 MusicPlayer.RemotePlayer = remoteClient;
+                MusicPlayer.isRunning = false;
+                Player.instance.RefreshPlayer();
             }
 
             MusicPlayer.UseCastPlayer = MusicPlayer.RemotePlayer != null;

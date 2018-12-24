@@ -40,7 +40,7 @@ namespace MusicApp.Resources.Portable_Class
 
             holder.Title.Text = songList[position].Title;
             var songAlbumArtUri = Android.Net.Uri.Parse(songList[position].Album);
-            Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.MusicIcon).Resize(400, 400).CenterCrop().Transform(new CircleTransformation()).Into(holder.AlbumArt);
+            Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Color.background_material_dark).Resize(400, 400).CenterCrop().Transform(new CircleTransformation()).Into(holder.AlbumArt);
 
             if (!useTopic)
             {

@@ -43,7 +43,7 @@ namespace MusicApp.Resources.Portable_Class
                 Artist = { Text = channelList[position].Artist },
             };
 
-            Picasso.With(Application.Context).Load(channelList[position].Album).Placeholder(Resource.Drawable.MusicIcon).Transform(new CircleTransformation()).Into(holder.AlbumArt);
+            Picasso.With(Application.Context).Load(channelList[position].Album).Placeholder(Resource.Color.background_material_dark).Transform(new CircleTransformation()).Into(holder.AlbumArt);
 
             if (MainActivity.Theme == 1)
             {

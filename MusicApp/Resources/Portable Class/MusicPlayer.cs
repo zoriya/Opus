@@ -470,13 +470,12 @@ namespace MusicApp.Resources.Portable_Class
                     Queue.instance?.adapter.NotifyItemChanged(position, Resource.Drawable.PublicIcon);
 
                 Video video = await client.GetVideoAsync(song.YoutubeID);
+                song.Title = video.Title;
+                song.Artist = video.Author;
+                song.Album = video.Thumbnails.HighResUrl;
 
-                if (song.Title == null)
-                {
-                    song.Title = video.Title;
-                    song.Artist = video.Author;
-                    song.Album = video.Thumbnails.HighResUrl;
-                }
+                if (position != -1)
+                    Queue.instance?.adapter.NotifyItemChanged(position, song.Artist);
 
                 if (!song.IsLiveStream)
                     song.ExpireDate = mediaStreamInfo.ValidUntil;
@@ -488,7 +487,8 @@ namespace MusicApp.Resources.Portable_Class
                 MainActivity.instance.Timout();
                 if (MainActivity.instance != null)
                     MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
-                return null;
+                song.IsParsed = false;
+                return song;
             }
 
             return song;
@@ -1165,13 +1165,14 @@ namespace MusicApp.Resources.Portable_Class
 
         public static async void ParseNextSong()
         {
-            if (CurrentID() == -1 || UseCastPlayer)
+            if (CurrentID() == -1 || UseCastPlayer || queue.Count == CurrentID() + 1)
                 return;
 
             Song song = queue[CurrentID() + 1];
-            if (song.IsParsed)
+            if (song.IsParsed || !song.IsYt)
                 return;
 
+            Console.WriteLine("&Parsing next song");
             queue[currentID + 1] = await ParseSong(song, currentID + 1);
         }
 
@@ -1210,11 +1211,11 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     try
                     {
-                        icon = Picasso.With(Application.Context).Load(imageURI).Error(Resource.Drawable.MusicIcon).Placeholder(Resource.Drawable.MusicIcon).Transform(new RemoveBlackBorder(true)).Get();
+                        icon = Picasso.With(Application.Context).Load(imageURI).Error(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Get();
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
-                        icon = Picasso.With(Application.Context).Load(Resource.Drawable.MusicIcon).Get();
+                        icon = Picasso.With(Application.Context).Load(Resource.Drawable.noAlbum).Get();
                     }
                 });
             }
@@ -1227,11 +1228,11 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     try
                     {
-                        icon = Picasso.With(Application.Context).Load(iconURI).Error(Resource.Drawable.MusicIcon).Placeholder(Resource.Drawable.MusicIcon).NetworkPolicy(NetworkPolicy.Offline).Resize(400, 400).CenterCrop().Get();
+                        icon = Picasso.With(Application.Context).Load(iconURI).Error(Resource.Drawable.noAlbum).NetworkPolicy(NetworkPolicy.Offline).Resize(400, 400).CenterCrop().Get();
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
-                        icon = Picasso.With(Application.Context).Load(Resource.Drawable.MusicIcon).Get();
+                        icon = Picasso.With(Application.Context).Load(Resource.Drawable.noAlbum).Get();
                     }
                 });
             }
@@ -1436,12 +1437,15 @@ namespace MusicApp.Resources.Portable_Class
         {
             if (UseCastPlayer && (RemotePlayer.MediaQueue == null || RemotePlayer.MediaQueue.ItemCount == 0))
             {
+                Toast.MakeText(MainActivity.instance, "Pushing current queue to the cast, please wait...", ToastLength.Long).Show();
+
                 for (int i = 0; i < queue.Count; i++)
                 {
                     if (queue[i].IsYt && !queue[i].IsParsed)
                         queue[i] = await ParseSong(queue[i], i);
                 }
 
+                Toast.MakeText(MainActivity.instance, "Done, start playing!", ToastLength.Short).Show();
                 RemotePlayer.QueueLoad(queue.ConvertAll(GetQueueItem).ToArray(), currentID, 0, CurrentPosition, null);
 
                 if (noisyRegistered)
