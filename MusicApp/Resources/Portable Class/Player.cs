@@ -732,6 +732,8 @@ namespace MusicApp
                     Intent intent = new Intent(context, typeof(MusicPlayer));
                     intent.SetAction("Stop");
                     context.StartService(intent);
+                    if(MusicPlayer.UseCastPlayer)
+                        MusicPlayer.RemotePlayer.Stop();
 
                     MusicPlayer.queue = new List<Song>();
                     MusicPlayer.UpdateQueueDataBase();

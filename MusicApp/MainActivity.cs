@@ -1554,12 +1554,10 @@ namespace MusicApp
         {
             Console.WriteLine("&Switching to another remote player: (null check)" + (remoteClient == null));
 
-            if (MusicPlayer.instance != null && MusicPlayer.RemotePlayer != null)
-                MusicPlayer.RemotePlayer.UnregisterCallback(MusicPlayer.CastCallback);
-
-            MusicPlayer.RemotePlayer = remoteClient;
             if (remoteClient != null)
             {
+                MusicPlayer.RemotePlayer = remoteClient;
+
                 if (MusicPlayer.CastCallback == null)
                 {
                     MusicPlayer.CastCallback = new CastCallback();
@@ -1583,6 +1581,8 @@ namespace MusicApp
                     MusicPlayer.RemotePlayer.MediaQueue.UnregisterCallback(MusicPlayer.CastQueueManager);
                     MusicPlayer.CastQueueManager = null;
                 }
+
+                MusicPlayer.RemotePlayer = remoteClient;
             }
 
             MusicPlayer.UseCastPlayer = MusicPlayer.RemotePlayer != null;

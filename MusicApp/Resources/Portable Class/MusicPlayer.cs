@@ -840,6 +840,7 @@ namespace MusicApp.Resources.Portable_Class
         public void PlayPrevious()
         {
             Player.instance.playNext = false;
+            Player.instance.Buffering();
             if(CurrentPosition > Duration * 0.2f || CurrentID() - 1 < 0)
             {
                 if (player != null)
@@ -858,6 +859,7 @@ namespace MusicApp.Resources.Portable_Class
         public void PlayNext()
         {
             Player.instance.playNext = true;
+            Player.instance.Buffering();
             if (CurrentID() + 1 > queue.Count - 1 || CurrentID() == -1)
             {
                 if (repeat)
