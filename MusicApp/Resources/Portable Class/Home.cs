@@ -445,12 +445,12 @@ namespace MusicApp.Resources.Portable_Class
         {
         }
 
-        public void RefreshQueue()
+        public void RefreshQueue(bool scroll = true)
         {
             if (adapterItems.Count > 0)
             {
                 QueueAdapter?.NotifyDataSetChanged();
-                if (MusicPlayer.CurrentID() != -1 && MusicPlayer.CurrentID() <= MusicPlayer.queue.Count)
+                if (scroll && MusicPlayer.CurrentID() != -1 && MusicPlayer.CurrentID() <= MusicPlayer.queue.Count)
                     adapterItems[0].recycler?.ScrollToPosition(MusicPlayer.CurrentID());
             }
         }

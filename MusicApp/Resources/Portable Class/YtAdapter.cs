@@ -179,9 +179,9 @@ namespace MusicApp.Resources.Portable_Class
 
                 List<YtFile> files = items.FindAll(x => x.item.Artist == song.Title && x.Kind == YtKind.Video);
                 if(files.Count > 0)
-                    Picasso.With(Android.App.Application.Context).Load(files[0].item.Album).Transform(new RemoveBlackBorder())./*MemoryPolicy(MemoryPolicy.NoCache, MemoryPolicy.NoStore).*/Into(holder.MixOne);
+                    Picasso.With(Android.App.Application.Context).Load(files[0].item.Album).Transform(new RemoveBlackBorder()).MemoryPolicy(MemoryPolicy.NoCache, MemoryPolicy.NoStore).Into(holder.MixOne);
                 if (files.Count > 1)
-                    Picasso.With(Android.App.Application.Context).Load(files[1].item.Album).Transform(new RemoveBlackBorder())./*MemoryPolicy(MemoryPolicy.NoCache, MemoryPolicy.NoStore).*/Into(holder.MixTwo);
+                    Picasso.With(Android.App.Application.Context).Load(files[1].item.Album).Transform(new RemoveBlackBorder()).MemoryPolicy(MemoryPolicy.NoCache, MemoryPolicy.NoStore).Into(holder.MixTwo);
 
                 holder.MixOne.ViewTreeObserver.Draw += (sender, e) => 
                 {

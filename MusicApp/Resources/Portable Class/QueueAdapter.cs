@@ -186,7 +186,7 @@ namespace MusicApp.Resources.Portable_Class
                     return;
                 }
 
-                if(payloads[0].ToString() != null && holder.Artist.Text == "")
+                if(payloads[0].ToString() != null && (holder.Artist.Text == "" || holder.Artist.Text == null))
                 {
                     holder.Artist.Text = payloads[0].ToString();
                     return;

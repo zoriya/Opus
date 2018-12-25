@@ -73,6 +73,7 @@ namespace MusicApp.Resources.Portable_Class
                     searching = true;
                     SearchResource.ListRequest searchResult = youtubeService.Search.List("snippet");
                     searchResult.Q = searchKeyWorld.Replace(" ", "+-");
+                    searchResult.PageToken = nextPageToken;
                     searchResult.TopicId = "/m/04rlf";
                     switch (querryType)
                     {

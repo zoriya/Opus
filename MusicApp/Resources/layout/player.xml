@@ -11,6 +11,11 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content" >
+    <View 
+      android:layout_width="fill_parent"
+      android:layout_height="@*android:dimen/status_bar_height"
+      android:background="#2b5568"
+      android:id="@+id/playerStatus" />
     <FrameLayout
       android:orientation="vertical"
       android:layout_width="fill_parent"

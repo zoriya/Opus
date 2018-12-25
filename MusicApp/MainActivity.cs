@@ -919,9 +919,7 @@ namespace MusicApp
         }
 
         public void ShowSmallPlayer()
-        {
-            Console.WriteLine("&Showing small player");
-            
+        {            
             FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Visible;
             FindViewById(Resource.Id.playerContainer).Alpha = 0;
             FindViewById(Resource.Id.smallPlayer).Alpha = 1;
@@ -1123,6 +1121,9 @@ namespace MusicApp
                 await Task.Delay(10);
 
             MusicPlayer.instance.RandomPlay(songs, true);
+
+            ShowSmallPlayer();
+            ShowPlayer();
         }
 
         private async void YtPlay(object sender, EventArgs e)
@@ -1237,6 +1238,13 @@ namespace MusicApp
         {
             Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), "An unknown error has occured.", Snackbar.LengthIndefinite);
             snackBar.SetAction("Dismiss", (sender) => { snackBar.Dismiss(); });
+            snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+            snackBar.Show();
+        }
+
+        public void NotStreamable(string title)
+        {
+            Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), title + " can't be played. No audio streams are availables.", Snackbar.LengthLong);
             snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
             snackBar.Show();
         }
@@ -1554,6 +1562,7 @@ namespace MusicApp
         {
             Console.WriteLine("&Switching to another remote player: (null check)" + (remoteClient == null));
 
+            MusicPlayer.Initialized = false;
             if (remoteClient != null)
             {
                 MusicPlayer.RemotePlayer = remoteClient;
@@ -1592,7 +1601,7 @@ namespace MusicApp
             await Task.Delay(1000);
             if (MusicPlayer.UseCastPlayer)
             {
-                if (justStarted)
+                if (justStarted && MusicPlayer.RemotePlayer.MediaQueue.ItemCount == 0)
                 {
                     Intent intent = new Intent(this, typeof(MusicPlayer));
                     intent.SetAction("StartCasting");

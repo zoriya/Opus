@@ -5,6 +5,23 @@ namespace MusicApp.Resources.Portable_Class
 {
     public class CastQueueManager : MediaQueue.Callback
     {
+        public override void ItemsReloaded()
+        {
+            base.ItemsReloaded();
+            Queue.instance?.adapter.NotifyDataSetChanged();
+            Home.instance?.QueueAdapter?.NotifyDataSetChanged();
+        }
+
+        public override void ItemsRemovedAtIndexes(int[] indexes)
+        {
+            base.ItemsRemovedAtIndexes(indexes);
+            foreach(int index in indexes)
+            {
+                Queue.instance?.adapter.NotifyItemRemoved(index);
+                Home.instance?.QueueAdapter?.NotifyItemRemoved(index);
+            }
+        }
+
         public override void ItemsUpdatedAtIndexes(int[] indexes)
         {
             base.ItemsUpdatedAtIndexes(indexes);

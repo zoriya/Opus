@@ -1,16 +1,15 @@
-﻿using System;
-using Android.Gms.Cast;
-using Java.Lang;
+﻿using Android.Gms.Cast;
 using Newtonsoft.Json;
 using SQLite;
+using System;
 
 namespace MusicApp.Resources.values
 {
     [Serializable]
     public class Song
     {
-        [PrimaryKey, Unique, AutoIncrement]
-        private int Index { get; set; }
+        [PrimaryKey, Unique]
+        public int Index { get; set; }
 
         public string Title { get; set; }
         public string Artist { get; set; }

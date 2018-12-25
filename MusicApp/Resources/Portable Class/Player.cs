@@ -559,6 +559,26 @@ namespace MusicApp
             MainActivity.instance.FindViewById<FloatingActionButton>(Resource.Id.downFAB).BackgroundTintList = ColorStateList.ValueOf(accentColor);
             MainActivity.instance.FindViewById<FloatingActionButton>(Resource.Id.downFAB).RippleColor = accent.Rgb;
 
+            float multiplier = 0.4f;
+            //if(Build.VERSION.SdkInt >= BuildVersionCodes.M && IsColorDark(accentColor))
+            //    multiplier = 1.6f;
+
+            int red = (int)(Color.GetRedComponent(accentColor.ToArgb()) * multiplier);
+            int green = (int)(Color.GetGreenComponent(accentColor.ToArgb()) * multiplier);
+            int blue = (int)(Color.GetBlueComponent(accentColor.ToArgb()) * multiplier);
+            Color toolbar = Color.Rgb(red, green, blue);
+            MainActivity.instance.FindViewById(Resource.Id.playerStatus).SetBackgroundColor(toolbar);
+
+            //if (Build.VERSION.SdkInt >= BuildVersionCodes.M)
+            //{
+            //    int statusBar = (int)MainActivity.instance.Window.DecorView.SystemUiVisibility;
+            //    if (!IsColorDark(toolbar))
+            //        statusBar |= (int)SystemUiFlags.LightStatusBar;
+            //    else
+            //        statusBar ^= (int)SystemUiFlags.LightStatusBar;
+            //    MainActivity.instance.Window.DecorView.SystemUiVisibility = (StatusBarVisibility)statusBar;
+            //}
+
             //Reveal for the player
             View reveal = MainActivity.instance.FindViewById<View>(Resource.Id.reveal);
             int centerX, centerY;
@@ -657,6 +677,7 @@ namespace MusicApp
         private BottomNavigationView bottomView;
         private FrameLayout smallPlayer;
         private View playerContainer;
+        private View playerStatusBar;
         private LinearLayout quickPlay;
         private CoordinatorLayout snackBar;
         private bool Refreshed = false;
