@@ -559,25 +559,25 @@ namespace MusicApp
             MainActivity.instance.FindViewById<FloatingActionButton>(Resource.Id.downFAB).BackgroundTintList = ColorStateList.ValueOf(accentColor);
             MainActivity.instance.FindViewById<FloatingActionButton>(Resource.Id.downFAB).RippleColor = accent.Rgb;
 
-            float multiplier = 0.4f;
-            //if(Build.VERSION.SdkInt >= BuildVersionCodes.M && IsColorDark(accentColor))
-            //    multiplier = 1.6f;
+            //float multiplier = 0.4f;
+            ////if(Build.VERSION.SdkInt >= BuildVersionCodes.M && IsColorDark(accentColor))
+            ////    multiplier = 1.6f;
 
-            int red = (int)(Color.GetRedComponent(accentColor.ToArgb()) * multiplier);
-            int green = (int)(Color.GetGreenComponent(accentColor.ToArgb()) * multiplier);
-            int blue = (int)(Color.GetBlueComponent(accentColor.ToArgb()) * multiplier);
-            Color toolbar = Color.Rgb(red, green, blue);
-            MainActivity.instance.FindViewById(Resource.Id.playerStatus).SetBackgroundColor(toolbar);
+            //int red = (int)(Color.GetRedComponent(accentColor.ToArgb()) * multiplier);
+            //int green = (int)(Color.GetGreenComponent(accentColor.ToArgb()) * multiplier);
+            //int blue = (int)(Color.GetBlueComponent(accentColor.ToArgb()) * multiplier);
+            //Color toolbar = Color.Rgb(red, green, blue);
+            //MainActivity.instance.FindViewById(Resource.Id.playerStatus).SetBackgroundColor(toolbar);
 
-            //if (Build.VERSION.SdkInt >= BuildVersionCodes.M)
-            //{
-            //    int statusBar = (int)MainActivity.instance.Window.DecorView.SystemUiVisibility;
-            //    if (!IsColorDark(toolbar))
-            //        statusBar |= (int)SystemUiFlags.LightStatusBar;
-            //    else
-            //        statusBar ^= (int)SystemUiFlags.LightStatusBar;
-            //    MainActivity.instance.Window.DecorView.SystemUiVisibility = (StatusBarVisibility)statusBar;
-            //}
+            ////if (Build.VERSION.SdkInt >= BuildVersionCodes.M)
+            ////{
+            ////    int statusBar = (int)MainActivity.instance.Window.DecorView.SystemUiVisibility;
+            ////    if (!IsColorDark(toolbar))
+            ////        statusBar |= (int)SystemUiFlags.LightStatusBar;
+            ////    else
+            ////        statusBar ^= (int)SystemUiFlags.LightStatusBar;
+            ////    MainActivity.instance.Window.DecorView.SystemUiVisibility = (StatusBarVisibility)statusBar;
+            ////}
 
             //Reveal for the player
             View reveal = MainActivity.instance.FindViewById<View>(Resource.Id.reveal);
@@ -614,7 +614,7 @@ namespace MusicApp
                 View spReveal = MainActivity.instance.FindViewById<View>(Resource.Id.spReveal);
                 Animator spAnim = ViewAnimationUtils.CreateCircularReveal(spReveal, playNext == false ? spReveal.Width : 0, spReveal.Height / 2, 0, spReveal.Width);
                 spAnim.AnimationStart += (sender, e) => { spReveal.SetBackgroundColor(background); };
-                spAnim.AnimationEnd += (sender, e) => { MainActivity.instance.FindViewById<NestedScrollView>(Resource.Id.playerSheet).SetBackgroundColor(background); };
+                spAnim.AnimationEnd += (sender, e) => { MainActivity.instance.FindViewById(Resource.Id.playersHolder).SetBackgroundColor(background); };
                 spAnim.SetDuration(500);
                 spAnim.StartDelay = 10;
                 spAnim.Start();
@@ -622,7 +622,7 @@ namespace MusicApp
             else
             {
                 prepared = true;
-                MainActivity.instance.FindViewById<NestedScrollView>(Resource.Id.playerSheet).SetBackgroundColor(background);
+                MainActivity.instance.FindViewById(Resource.Id.playersHolder).SetBackgroundColor(background);
             }
             playNext = null;
 
@@ -677,7 +677,7 @@ namespace MusicApp
         private BottomNavigationView bottomView;
         private FrameLayout smallPlayer;
         private View playerContainer;
-        private View playerStatusBar;
+        //private View playerStatusBar;
         private LinearLayout quickPlay;
         private CoordinatorLayout snackBar;
         private bool Refreshed = false;
@@ -690,6 +690,7 @@ namespace MusicApp
             bottomView = context.FindViewById<BottomNavigationView>(Resource.Id.bottomView);
             smallPlayer = context.FindViewById<FrameLayout>(Resource.Id.smallPlayer);
             playerContainer = context.FindViewById(Resource.Id.playerContainer);
+            //playerStatusBar = context.FindViewById(Resource.Id.playerStatus);
             quickPlay = context.FindViewById<LinearLayout>(Resource.Id.quickPlayLinear);
             snackBar = context.FindViewById<CoordinatorLayout>(Resource.Id.snackBar);
         }
@@ -711,6 +712,7 @@ namespace MusicApp
                 sheet.TranslationY = -(int)((56 * context.Resources.DisplayMetrics.Density + 0.5f) * (1 - slideOffset));
 
                 playerContainer.Alpha = Math.Max(0, (slideOffset - 0.5f) * 2.5f);
+                //playerStatusBar.ScaleY = slideOffset;
                 smallPlayer.Alpha = Math.Max(0, 1 - slideOffset * 2);
                 quickPlay.ScaleX = Math.Max(0, 1 - slideOffset * 2);
                 quickPlay.ScaleY = Math.Max(0, 1 - slideOffset * 2);

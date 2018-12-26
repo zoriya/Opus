@@ -6,29 +6,47 @@
   android:layout_marginTop="20dp"
   android:layout_marginBottom="20dp"
   android:gravity="center"
-  android:orientation="vertical" >
+  android:orientation="horizontal" >
   <LinearLayout
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:layout_gravity="center" >
-    <TextView 
+    <LinearLayout
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:textStyle="bold"
-      android:textSize="20sp"
-      android:text="AutoPlay"/>
-    <android.widget.Switch 
+      android:orientation="horizontal"
+      android:layout_gravity="center" >
+      <TextView 
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:text="AutoPlay"/>
+      <android.widget.Switch 
+        android:layout_width="wrap_content"
+        android:layout_height="25dp"
+        android:paddingLeft="10dp"
+        android:layout_centerVertical="true"
+        android:id="@+id/queueSwitch"
+        android:checked="true" />
+    </LinearLayout>
+    <TextView
       android:layout_width="wrap_content"
-      android:layout_height="25dp"
-      android:paddingLeft="10dp"
-      android:layout_centerVertical="true"
-      android:id="@+id/queueSwitch"
-      android:checked="true" />
+      android:layout_height="wrap_content"
+      android:textSize="14sp"
+      android:text="Automatically add similars songs from youtube"/>
   </LinearLayout>
-  <TextView
+  <View
+    android:layout_width="1dp"
+    android:layout_height="match_parent"
+    android:background="@android:color/darker_gray"
+    android:layout_marginStart="5dp"
+    android:layout_marginEnd="5dp"/>
+  <Button
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:textSize="14sp"
-    android:text="Automatically add similars songs from youtube"/>
+    android:background="@drawable/FlatButtonBorder"
+    android:id="@+id/createMix"
+    android:text="Create Mix" />
 </LinearLayout>

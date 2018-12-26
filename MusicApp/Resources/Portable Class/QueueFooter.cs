@@ -7,11 +7,13 @@ namespace MusicApp.Resources.Portable_Class
 {
     public class QueueFooter : RecyclerView.ViewHolder
     {
-        public Switch switchButton;
+        public Switch SwitchButton;
+        public Button MixButton;
 
         public QueueFooter(View itemView) : base(itemView)
         {
-            switchButton = itemView.FindViewById<Switch>(Resource.Id.queueSwitch);
+            SwitchButton = itemView.FindViewById<Switch>(Resource.Id.queueSwitch);
+            MixButton = itemView.FindViewById<Button>(Resource.Id.createMix);
         }
     }
 }

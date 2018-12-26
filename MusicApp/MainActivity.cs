@@ -130,6 +130,8 @@ namespace MusicApp
 
             if (MusicPlayer.queue == null || MusicPlayer.queue.Count == 0)
                 MusicPlayer.RetrieveQueueFromDataBase();
+            else if(SheetBehavior.State != BottomSheetBehavior.StateExpanded)
+                ShowSmallPlayer();
 
             if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
             {
@@ -930,6 +932,7 @@ namespace MusicApp
 
         public void HideSmallPlayer()
         {
+            Console.WriteLine("&Hidding small player");
             FindViewById<FrameLayout>(Resource.Id.contentView).SetPadding(0, 0, 0, 0);
             SheetBehavior.State = BottomSheetBehavior.StateHidden;
             FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Invisible;
@@ -1126,7 +1129,7 @@ namespace MusicApp
             ShowPlayer();
         }
 
-        private async void YtPlay(object sender, EventArgs e)
+        public async void YtPlay(object sender, EventArgs e)
         {
             if (MusicPlayer.CurrentID() == -1 || MusicPlayer.queue[MusicPlayer.CurrentID()].YoutubeID == null || MusicPlayer.queue[MusicPlayer.CurrentID()].YoutubeID == "")
             {
@@ -1143,9 +1146,10 @@ namespace MusicApp
                         goto YtMix;
                 }
 
-                QuickPlay(this, e);
+                if(sender != null)
+                    QuickPlay(this, e);
                 Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), "You need to be playing a youtube song in order to create a mix.", Snackbar.LengthLong);
-                snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Android.Graphics.Color.White);
+                snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
                 snackBar.Show();
                 return;
             }
@@ -1155,7 +1159,9 @@ namespace MusicApp
             ProgressBar parseProgress = FindViewById<ProgressBar>(Resource.Id.ytProgress);
             parseProgress.Visibility = ViewStates.Visible;
             parseProgress.ScaleY = 6;
-            QuickPlay(this, e);
+
+            if (sender != null)
+                QuickPlay(this, e);
 
             if (!await WaitForYoutube())
             {
@@ -1214,6 +1220,7 @@ namespace MusicApp
             ShowPlayer();
             Player.instance?.UpdateNext();
             Home.instance?.RefreshQueue();
+            Queue.instance?.Refresh();
             parseProgress.Visibility = ViewStates.Gone;
         }
 

@@ -44,10 +44,10 @@ namespace MusicApp.Resources.Portable_Class
             if (position + 1 == ItemCount)
             {
                 QueueFooter holder = (QueueFooter)viewHolder;
-                holder.switchButton.Checked = MusicPlayer.useAutoPlay;
-                if (!holder.switchButton.HasOnClickListeners)
+                holder.SwitchButton.Checked = MusicPlayer.useAutoPlay;
+                if (!holder.SwitchButton.HasOnClickListeners)
                 {
-                    holder.switchButton.Click += (sender, e) =>
+                    holder.SwitchButton.Click += (sender, e) =>
                     {
                         MusicPlayer.useAutoPlay = !MusicPlayer.useAutoPlay;
                         if (MusicPlayer.useAutoPlay)
@@ -55,6 +55,11 @@ namespace MusicApp.Resources.Portable_Class
                             MusicPlayer.repeat = false;
                             Queue.instance.menu.FindItem(Resource.Id.repeat).Icon.ClearColorFilter();
                         }
+                    };
+
+                    holder.MixButton.Click += (sender, e) =>
+                    {
+                        MainActivity.instance.YtPlay(null, null);
                     };
                 }
             }

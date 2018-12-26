@@ -323,8 +323,6 @@ namespace MusicApp.Resources.Portable_Class
                 player.Prepare(mediaSource, true, true);
                 CreateNotification(song.Title, song.Artist, song.AlbumArt, song.Album);
                 AddToQueue(song);
-
-                UpdateQueueDataBase();
                 currentID = CurrentID() + 1;
             }
             else
@@ -427,7 +425,6 @@ namespace MusicApp.Resources.Portable_Class
 
             isRunning = true;
             AddToQueue(song);
-            UpdateQueueDataBase();
             currentID = CurrentID() + 1;
 
             if (progress != -1)
@@ -474,8 +471,6 @@ namespace MusicApp.Resources.Portable_Class
                 }
                 song.IsParsed = true;
 
-                Console.WriteLine("&Path: " + song.Path);
-
                 if(position != -1)
                     Queue.instance?.adapter.NotifyItemChanged(position, Resource.Drawable.PublicIcon);
 
@@ -483,8 +478,6 @@ namespace MusicApp.Resources.Portable_Class
                 song.Title = video.Title;
                 song.Artist = video.Author;
                 song.Album = video.Thumbnails.HighResUrl;
-
-                Console.WriteLine("&Metadata got");
 
                 if (position != -1)
                     Queue.instance?.adapter.NotifyItemChanged(position, song.Artist);
@@ -1128,15 +1121,15 @@ namespace MusicApp.Resources.Portable_Class
                     currentID = RetrieveQueueSlot();
                     LastTimer = RetrieveTimer();
 
-                    MainActivity.instance?.RunOnUiThread(() => {
+                    MainActivity.instance.RunOnUiThread(() => {
                         Home.instance?.AddQueue();
-                        MainActivity.instance?.ShowSmallPlayer();
+                        MainActivity.instance.ShowSmallPlayer();
                     });
                 }
                 else
                 {
-                    MainActivity.instance?.RunOnUiThread(() => {
-                        MainActivity.instance?.HideSmallPlayer();
+                    MainActivity.instance.RunOnUiThread(() => {
+                        MainActivity.instance.HideSmallPlayer();
                     });
                 }
             });
