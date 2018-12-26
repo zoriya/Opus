@@ -31,7 +31,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using YoutubeExplode;
 using YoutubeExplode.Models;
-using YoutubeExplode.Models.MediaStreams;
 using static Android.Support.V4.Media.App.NotificationCompat;
 using MediaInfo = Android.Gms.Cast.MediaInfo;
 using MediaMetadata = Android.Gms.Cast.MediaMetadata;
@@ -52,6 +51,7 @@ namespace MusicApp.Resources.Portable_Class
         private static AudioStopper noisyReceiver;
         public static List<Song> queue = new List<Song>();
         public static List<int> WaitForIndex = new List<int>();
+        private List<Song> autoPlay = new List<Song>();
         public MediaSessionCompat mediaSession;
         public AudioManager audioManager;
         public NotificationManager notificationManager;
@@ -324,6 +324,8 @@ namespace MusicApp.Resources.Portable_Class
                 CreateNotification(song.Title, song.Artist, song.AlbumArt, song.Album);
                 AddToQueue(song);
                 currentID = CurrentID() + 1;
+
+
             }
             else
             {
@@ -331,7 +333,6 @@ namespace MusicApp.Resources.Portable_Class
                 RemotePlayer.Play();
                 queue = new List<Song> { song };
                 currentID = 0;
-                Console.WriteLine("&Song inserted in the queue");
             }
 
             SaveQueueSlot();
@@ -539,58 +540,45 @@ namespace MusicApp.Resources.Portable_Class
             UpdateQueueItemDB(await GetItem(), CurrentID());
         }
 
-        /*async*/ void GenerateNext(int number)
+        private async void GenerateAutoPlay(bool switchToNext)
         {
             if (generating == true)
                 return;
 
             generating = true;
 
-            //string youtubeID = null;
-            //if (MainActivity.HasInternet())
-            //{
-            //    int i = 1;
-            //    while (youtubeID == null)
-            //    {
-            //        if (queue.Count >= i)
-            //        {
-            //            youtubeID = queue[queue.Count - i].youtubeID;
-            //            i++;
-            //        }
-            //        else
-            //            youtubeID = "local";
-            //    }
-            //}
-            //else
-            //    youtubeID = "local";
+            string youtubeID = null;
+            if (MainActivity.HasInternet() && queue.Where(x => x.IsYt).Count() > 0)
+                youtubeID = queue.Where(x => x.IsYt).ElementAt(0)?.YoutubeID ?? "local";
+            else
+                youtubeID = "local";
 
-            //if (youtubeID != "local" && !await MainActivity.instance.WaitForYoutube())
-            //{
-            //        YoutubeClient client = new YoutubeClient();
-            //        Video video = await client.GetVideoAsync(youtubeID);
+            if (youtubeID != "local" && await MainActivity.instance.WaitForYoutube())
+            {
+                YoutubeClient client = new YoutubeClient();
+                Video video = await client.GetVideoAsync(youtubeID);
 
-            //        var ytPlaylistRequest = YoutubeEngine.youtubeService.PlaylistItems.List("snippet, contentDetails");
-            //        ytPlaylistRequest.PlaylistId = video.GetVideoMixPlaylistId();
-            //        ytPlaylistRequest.MaxResults = number + 2;
+                var ytPlaylistRequest = YoutubeEngine.youtubeService.PlaylistItems.List("snippet, contentDetails");
+                ytPlaylistRequest.PlaylistId = video.GetVideoMixPlaylistId();
+                ytPlaylistRequest.MaxResults = 15;
 
-            //        var ytPlaylist = await ytPlaylistRequest.ExecuteAsync();
+                var ytPlaylist = await ytPlaylistRequest.ExecuteAsync();
 
-            //        foreach (var item in ytPlaylist.Items)
-            //        {
-            //            if (item.Snippet.Title != "[Deleted video]" && item.Snippet.Title != "Private video" && item.Snippet.Title != "Deleted video" && item.ContentDetails.VideoId != MusicPlayer.queue[MusicPlayer.CurrentID()].youtubeID)
-            //            {
-            //                Song song = new Song(item.Snippet.Title, "", item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
-            //                if(!queue.Exists(x => x.youtubeID == song.youtubeID))
-            //                {
-            //                    PlayLastInQueue(song);
-            //                    break;
-            //                }
-            //            }
-            //        }
-            //    ParseNextSong();
-            //}
-            //else
-            //{
+                foreach (var item in ytPlaylist.Items)
+                {
+                    if (item.Snippet.Title != "[Deleted video]" && item.Snippet.Title != "Private video" && item.Snippet.Title != "Deleted video")
+                    {
+                        Song song = new Song(item.Snippet.Title, "", item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
+                        if (!queue.Exists(x => x.YoutubeID == song.YoutubeID))
+                        {
+                            autoPlay.Add(song);
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            {
                 Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
 
                 List<Song> allSongs = new List<Song>();
@@ -627,12 +615,15 @@ namespace MusicApp.Resources.Portable_Class
                 }
                 Random r = new Random();
                 List<Song> songList = allSongs.OrderBy(x => r.Next()).ToList();
-                for (int i = 0; i < (number > songList.Count ? songList.Count : number); i++)
-                    PlayLastInQueue(songList[i]);
-            //}
+                autoPlay.AddRange(songList.GetRange(0, songList.Count > 15 ? 15 : songList.Count));
+            }
 
-            Queue.instance?.Refresh();
+            Random random = new Random();
+            autoPlay = autoPlay.OrderBy(x => random.Next()).ToList().GetRange(0, autoPlay.Count > 20 ? 20 : autoPlay.Count);
             generating = false;
+
+            if (switchToNext)
+                PlayNext();
         }
 
         public async void RandomPlay(List<string> filePaths, bool clearQueue)
@@ -868,9 +859,22 @@ namespace MusicApp.Resources.Portable_Class
         {
             Player.instance.playNext = true;
             Player.instance.Buffering();
-            if (CurrentID() + 1 > queue.Count - 1 || CurrentID() == -1)
+            if (CurrentID() + 1 >= queue.Count || CurrentID() == -1)
             {
-                if (repeat)
+                if (useAutoPlay)
+                {
+                    if(autoPlay.Count > 0)
+                    {
+                        queue.Add(autoPlay[0]);
+                        autoPlay.RemoveAt(0);
+                    }
+                    else
+                    {
+                        GenerateAutoPlay(true);
+                        return;
+                    }
+                }
+                else if (repeat)
                 {
                     SwitchQueue(0);
                     return;
@@ -886,11 +890,6 @@ namespace MusicApp.Resources.Portable_Class
                 RemotePlayer.QueueNext(null);
             else
                 SwitchQueue(CurrentID() + 1);
-            
-            if (useAutoPlay && CurrentID() + 3 > queue.Count)
-            {
-                GenerateNext(1);
-            }
         }
 
         public async void SwitchQueue(int position, bool showPlayer = false, bool StartFromOldPosition = true)
