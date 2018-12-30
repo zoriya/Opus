@@ -1278,6 +1278,9 @@ namespace MusicApp
             if(Build.VERSION.SdkInt >= BuildVersionCodes.M)
             {
                 Network network = connectivityManager.ActiveNetwork;
+                if (network == null)
+                    return false;
+
                 NetworkCapabilities capabilities = connectivityManager.GetNetworkCapabilities(network);
                 if (capabilities.HasTransport(TransportType.Wifi) || capabilities.HasTransport(TransportType.Ethernet))
                     return true;

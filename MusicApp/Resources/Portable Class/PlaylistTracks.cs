@@ -453,7 +453,7 @@ namespace MusicApp.Resources.Portable_Class
         public static Fragment NewInstance(string ytID, string playlistName, bool hasWriteAcess, bool forked, string author, int count, string thumbnailURI)
         {
             instance = new PlaylistTracks { Arguments = new Bundle() };
-            instance.Synced = true;
+            instance.Synced = false;
             instance.YoutubeID = ytID;
             instance.hasWriteAcess = hasWriteAcess;
             instance.forked = forked;
