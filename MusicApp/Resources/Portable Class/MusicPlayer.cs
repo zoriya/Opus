@@ -51,7 +51,7 @@ namespace MusicApp.Resources.Portable_Class
         private static AudioStopper noisyReceiver;
         public static List<Song> queue = new List<Song>();
         public static List<int> WaitForIndex = new List<int>();
-        private List<Song> autoPlay = new List<Song>();
+        private static List<Song> autoPlay = new List<Song>();
         public MediaSessionCompat mediaSession;
         public AudioManager audioManager;
         public NotificationManager notificationManager;
@@ -185,7 +185,10 @@ namespace MusicApp.Resources.Portable_Class
             if (position == -2)
                 position = CurrentID();
 
-            if (position >= queue.Count || position < 0)
+            if (position >= queue.Count && autoPlay.Count > 0)
+                return autoPlay[0];
+
+            if (position < 0 || position >= queue.Count)
                 return null;
 
             if (queue[position] == null && !WaitForIndex.Contains(position))
@@ -335,6 +338,9 @@ namespace MusicApp.Resources.Portable_Class
                 currentID = 0;
             }
 
+            autoPlay.Clear();
+            GenerateAutoPlay(false);
+
             SaveQueueSlot();
             Player.instance?.RefreshPlayer();
             Home.instance?.AddQueue();
@@ -433,6 +439,9 @@ namespace MusicApp.Resources.Portable_Class
                 player.SeekTo(progress);
                 MainActivity.instance?.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.Pause);
             }
+
+            autoPlay.Clear();
+            GenerateAutoPlay(false);
 
             SaveQueueSlot();
             Player.instance?.RefreshPlayer();
@@ -540,7 +549,7 @@ namespace MusicApp.Resources.Portable_Class
             UpdateQueueItemDB(await GetItem(), CurrentID());
         }
 
-        private async void GenerateAutoPlay(bool switchToNext)
+        public async void GenerateAutoPlay(bool switchToNext)
         {
             if (generating == true)
                 return;
@@ -621,6 +630,7 @@ namespace MusicApp.Resources.Portable_Class
             Random random = new Random();
             autoPlay = autoPlay.OrderBy(x => random.Next()).ToList().GetRange(0, autoPlay.Count > 20 ? 20 : autoPlay.Count);
             generating = false;
+            Player.instance?.UpdateNext();
 
             if (switchToNext)
                 PlayNext();
@@ -858,15 +868,18 @@ namespace MusicApp.Resources.Portable_Class
         public void PlayNext()
         {
             Player.instance.playNext = true;
-            Player.instance.Buffering();
             if (CurrentID() + 1 >= queue.Count || CurrentID() == -1)
             {
                 if (useAutoPlay)
                 {
-                    if(autoPlay.Count > 0)
+                    Player.instance.Buffering();
+                    if (autoPlay.Count > 0)
                     {
                         queue.Add(autoPlay[0]);
                         autoPlay.RemoveAt(0);
+
+                        if (autoPlay.Count < 1)
+                            GenerateAutoPlay(false);
                     }
                     else
                     {
@@ -876,6 +889,7 @@ namespace MusicApp.Resources.Portable_Class
                 }
                 else if (repeat)
                 {
+                    Player.instance.Buffering();
                     SwitchQueue(0);
                     return;
                 }
@@ -886,6 +900,7 @@ namespace MusicApp.Resources.Portable_Class
                 }
             }
 
+            Player.instance.Buffering();
             if (UseCastPlayer)
                 RemotePlayer.QueueNext(null);
             else
@@ -1175,14 +1190,27 @@ namespace MusicApp.Resources.Portable_Class
 
         public static async void ParseNextSong()
         {
-            if (CurrentID() == -1 || UseCastPlayer || queue.Count == CurrentID() + 1)
+            if (CurrentID() == -1 || UseCastPlayer)
                 return;
 
-            Song song = queue[CurrentID() + 1];
-            if (song.IsParsed || !song.IsYt)
-                return;
+            if(queue.Count == CurrentID() + 1)
+            {
+                if(useAutoPlay && autoPlay.Count > 0)
+                {
+                    Song song = autoPlay[0];
+                    if (song.IsParsed || !song.IsYt)
+                        return;
+                    autoPlay[0] = await ParseSong(song);
+                }
+            }
+            else
+            {
+                Song song = queue[CurrentID() + 1];
+                if (song.IsParsed || !song.IsYt)
+                    return;
 
-            queue[currentID + 1] = await ParseSong(song, currentID + 1);
+                queue[currentID + 1] = await ParseSong(song, currentID + 1);
+            }
         }
 
         public static long Duration

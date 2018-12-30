@@ -932,7 +932,6 @@ namespace MusicApp
 
         public void HideSmallPlayer()
         {
-            Console.WriteLine("&Hidding small player");
             FindViewById<FrameLayout>(Resource.Id.contentView).SetPadding(0, 0, 0, 0);
             SheetBehavior.State = BottomSheetBehavior.StateHidden;
             FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Invisible;
@@ -1514,7 +1513,9 @@ namespace MusicApp
 
         public override void OnBackPressed()
         {
-            if (PlaylistTracks.instance != null)
+            if (SheetBehavior.State == BottomSheetBehavior.StateExpanded)
+                SheetBehavior.State = BottomSheetBehavior.StateCollapsed;
+            else if (PlaylistTracks.instance != null)
                 SupportFragmentManager.BeginTransaction().Remove(PlaylistTracks.instance).Commit();
             else
                 base.OnBackPressed();
