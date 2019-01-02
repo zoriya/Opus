@@ -51,7 +51,7 @@ namespace MusicApp.Resources.Portable_Class
         private static AudioStopper noisyReceiver;
         public static List<Song> queue = new List<Song>();
         public static List<int> WaitForIndex = new List<int>();
-        private static List<Song> autoPlay = new List<Song>();
+        public static List<Song> autoPlay = new List<Song>();
         public MediaSessionCompat mediaSession;
         public AudioManager audioManager;
         public NotificationManager notificationManager;
@@ -876,6 +876,7 @@ namespace MusicApp.Resources.Portable_Class
                     if (autoPlay.Count > 0)
                     {
                         queue.Add(autoPlay[0]);
+                        UpdateQueueItemDB(queue.Last(), queue.Count - 1);
                         autoPlay.RemoveAt(0);
 
                         if (autoPlay.Count < 1)

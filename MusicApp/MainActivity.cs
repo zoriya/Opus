@@ -912,6 +912,7 @@ namespace MusicApp
         public void ShowPlayer()
         {
             FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Visible;
+            FindViewById<NestedScrollView>(Resource.Id.playerSheet).TranslationY = 0;
             FindViewById<BottomNavigationView>(Resource.Id.bottomView).TranslationY = (int)(56 * Resources.DisplayMetrics.Density + 0.5f);
             FindViewById(Resource.Id.playerContainer).Alpha = 1;
             FindViewById(Resource.Id.smallPlayer).Alpha = 0;

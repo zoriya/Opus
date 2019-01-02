@@ -45,6 +45,25 @@ namespace MusicApp.Resources.Portable_Class
             {
                 QueueFooter holder = (QueueFooter)viewHolder;
                 holder.SwitchButton.Checked = MusicPlayer.useAutoPlay;
+
+                if (MusicPlayer.CurrentID() == ItemCount - 2 && MusicPlayer.useAutoPlay && MusicPlayer.autoPlay.Count > 0)
+                {
+                    holder.Autoplay.Visibility = ViewStates.Visible;
+                    Song ap = MusicPlayer.autoPlay[0];
+                    holder.NextTitle.Text = ap.Title;
+                    if(ap.IsYt)
+                        Picasso.With(MainActivity.instance).Load(ap.Album).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(holder.NextAlbum);
+                    else
+                    {
+                        var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
+                        var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, ap.AlbumArt);
+
+                        Picasso.With(MainActivity.instance).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(holder.NextAlbum);
+                    }
+                }
+                else
+                    holder.Autoplay.Visibility = ViewStates.Gone;
+
                 if (!holder.SwitchButton.HasOnClickListeners)
                 {
                     holder.SwitchButton.Click += (sender, e) =>

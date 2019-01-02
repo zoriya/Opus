@@ -8,8 +8,6 @@ using Android.Support.V7.Widget;
 using Android.Support.V7.Widget.Helper;
 using Android.Views;
 using MusicApp.Resources.values;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MusicApp.Resources.Portable_Class
 {
