@@ -117,8 +117,7 @@ namespace MusicApp.Resources.Portable_Class
                 Song first = songs[0];
                 if (!first.IsYt)
                 {
-                    Browse.act = Activity;
-                    Browse.Play(first, null);
+                    Browse.Play(first);
                 }
                 else
                     YoutubeEngine.Play(first.YoutubeID, first.Title, first.Artist, first.Album);
@@ -730,8 +729,6 @@ namespace MusicApp.Resources.Portable_Class
 
             if (!item.IsYt)
             {
-                Browse.act = Activity;
-                Browse.inflater = LayoutInflater;
                 actions.Add(new BottomSheetAction(Resource.Drawable.Edit, "Edit Metadata", (sender, eventArg) =>
                 {
                     if (item.IsYt)
@@ -776,7 +773,7 @@ namespace MusicApp.Resources.Portable_Class
 
             if (!songs[0].IsYt)
             {
-                Browse.Play(songs[0], useTransition ? ListView.GetChildAt(fromPosition - ((Android.Support.V7.Widget.LinearLayoutManager)ListView.GetLayoutManager()).FindFirstVisibleItemPosition()).FindViewById<ImageView>(Resource.Id.albumArt) : null);
+                Browse.Play(songs[0]);
                 await Task.Delay(1000);
             }
 

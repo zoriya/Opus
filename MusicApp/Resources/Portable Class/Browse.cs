@@ -27,8 +27,6 @@ namespace MusicApp.Resources.Portable_Class
     public class Browse : ListFragment
     {
         public static Browse instance;
-        public static Context act;
-        public static LayoutInflater inflater;
         public List<Song> musicList = new List<Song>();
         public List<Song> result;
         public Adapter adapter;
@@ -42,8 +40,6 @@ namespace MusicApp.Resources.Portable_Class
         public override void OnActivityCreated(Bundle savedInstanceState)
         {
             base.OnActivityCreated(savedInstanceState);
-            act = Activity;
-            inflater = LayoutInflater;
             emptyView = LayoutInflater.Inflate(Resource.Layout.NoSong, null);
             ListView.EmptyView = emptyView;
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
@@ -64,8 +60,6 @@ namespace MusicApp.Resources.Portable_Class
             }
             base.OnDestroy();
             instance = null;
-            act = null;
-            inflater = null;
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -195,7 +189,7 @@ namespace MusicApp.Resources.Portable_Class
 
             item = CompleteItem(item);
 
-            Play(item, ListView.GetChildAt(e.Position - ListView.FirstVisiblePosition).FindViewById<ImageView>(Resource.Id.albumArt));
+            Play(item);
         }
 
         private void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
@@ -230,7 +224,7 @@ namespace MusicApp.Resources.Portable_Class
 
             bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, new List<BottomSheetAction>
             {
-                new BottomSheetAction(Resource.Drawable.Play, "Play", (sender, eventArg) => { Play(item, ListView.GetChildAt(position - ListView.FirstVisiblePosition).FindViewById<ImageView>(Resource.Id.albumArt)); bottomSheet.Dismiss(); }),
+                new BottomSheetAction(Resource.Drawable.Play, "Play", (sender, eventArg) => { Play(item); bottomSheet.Dismiss(); }),
                 new BottomSheetAction(Resource.Drawable.PlaylistPlay, "Play Next", (sender, eventArg) => { PlayNext(item); bottomSheet.Dismiss(); }),
                 new BottomSheetAction(Resource.Drawable.Queue, "Play Last", (sender, eventArg) => { PlayLast(item); bottomSheet.Dismiss(); }),
                 new BottomSheetAction(Resource.Drawable.PlaylistAdd, "Add To Playlist", (sender, eventArg) => { GetPlaylist(item); bottomSheet.Dismiss(); }),
@@ -301,7 +295,7 @@ namespace MusicApp.Resources.Portable_Class
             return ytID;
         }
 
-        public static void Play(Song item, View albumArt)
+        public static void Play(Song item)
         {
             MusicPlayer.queue?.Clear();
             MusicPlayer.currentID = -1;
@@ -424,13 +418,13 @@ namespace MusicApp.Resources.Portable_Class
             PlaylistItem Loading = new PlaylistItem("Loading", null);
             Playlists.Add(Loading);
 
-            View Layout = inflater.Inflate(Resource.Layout.AddToPlaylistLayout, null);
+            View Layout = MainActivity.instance.LayoutInflater.Inflate(Resource.Layout.AddToPlaylistLayout, null);
             if(MainActivity.Theme == 1)
             {
                 Layout.FindViewById<ImageView>(Resource.Id.leftIcon).SetColorFilter(Color.White);
                 Layout.FindViewById<View>(Resource.Id.divider).SetBackgroundColor(Color.White);
             }
-            AlertDialog.Builder builder = new AlertDialog.Builder(act, MainActivity.dialogTheme);
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme);
             builder.SetTitle("Add to playlists");
             builder.SetView(Layout);
             RecyclerView ListView = Layout.FindViewById<RecyclerView>(Resource.Id.recycler);
@@ -548,13 +542,13 @@ namespace MusicApp.Resources.Portable_Class
         public async static Task CheckWritePermission()
         {
             const string permission = Manifest.Permission.WriteExternalStorage;
-            if (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(act, permission) != (int)Permission.Granted)
+            if (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(MainActivity.instance, permission) != (int)Permission.Granted)
             {
                 string[] permissions = new string[] { permission };
                 MainActivity.instance.RequestPermissions(permissions, 2659);
 
                 await Task.Delay(1000);
-                while (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(act, permission) != (int)Permission.Granted)
+                while (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(MainActivity.instance, permission) != (int)Permission.Granted)
                     await Task.Delay(500);
             }
             return;
@@ -574,7 +568,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 await CheckWritePermission();
 
-                ContentResolver resolver = act.ContentResolver;
+                ContentResolver resolver = MainActivity.instance.ContentResolver;
                 ContentValues value = new ContentValues();
                 value.Put(MediaStore.Audio.Playlists.Members.AudioId, item.Id);
                 value.Put(MediaStore.Audio.Playlists.Members.PlayOrder, 0);
@@ -584,9 +578,9 @@ namespace MusicApp.Resources.Portable_Class
 
         public static void CreatePlalistDialog(Song item)
         {
-            AlertDialog.Builder builder = new AlertDialog.Builder(act, MainActivity.dialogTheme);
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme);
             builder.SetTitle("Playlist name");
-            View view = inflater.Inflate(Resource.Layout.CreatePlaylistDialog, null);
+            View view = MainActivity.instance.LayoutInflater.Inflate(Resource.Layout.CreatePlaylistDialog, null);
             builder.SetView(view);
             PlaylistLocationAdapter adapter = new PlaylistLocationAdapter(MainActivity.instance, Android.Resource.Layout.SimpleSpinnerItem, new string[] { "Local playlist", "Youtube playlist", "Synced playlist (both local and youtube)" })
             {
@@ -618,7 +612,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             await CheckWritePermission();
 
-            ContentResolver resolver = act.ContentResolver;
+            ContentResolver resolver = MainActivity.instance.ContentResolver;
             Uri uri = MediaStore.Audio.Playlists.ExternalContentUri;
             ContentValues value = new ContentValues();
             value.Put(MediaStore.Audio.Playlists.InterfaceConsts.Name, name);

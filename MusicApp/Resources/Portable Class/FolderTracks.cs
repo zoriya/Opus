@@ -169,8 +169,6 @@ namespace MusicApp.Resources.Portable_Class
 
         private async void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
         {
-            Browse.act = Activity;
-
             Song item = tracks[e.Position];
             List<Song> queue = tracks.GetRange(e.Position + 1, tracks.Count - e.Position - 1);
             if (result != null)
@@ -180,7 +178,7 @@ namespace MusicApp.Resources.Portable_Class
             }
             queue.Reverse();
 
-            Browse.Play(item, ListView.GetChildAt(e.Position - ListView.FirstVisiblePosition).FindViewById<ImageView>(Resource.Id.albumArt));
+            Browse.Play(item);
 
             while(MusicPlayer.instance == null)
                 await Task.Delay(10);
@@ -203,9 +201,6 @@ namespace MusicApp.Resources.Portable_Class
 
         public void More(Song item, int position)
         {
-            Browse.act = Activity;
-            Browse.inflater = LayoutInflater;
-
             AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
             builder.SetTitle("Pick an action");
             builder.SetItems(actions, async (senderAlert, args) =>
@@ -213,7 +208,6 @@ namespace MusicApp.Resources.Portable_Class
                 switch (args.Which)
                 {
                     case 0:
-                        Browse.act = Activity;
                         int Position = tracks.IndexOf(item);
 
                         List<Song> queue = tracks.GetRange(Position + 1, tracks.Count - Position - 1);
@@ -223,7 +217,7 @@ namespace MusicApp.Resources.Portable_Class
                         }
                         queue.Reverse();
 
-                        Browse.Play(item, ListView.GetChildAt(position - ListView.FirstVisiblePosition).FindViewById<ImageView>(Resource.Id.albumArt));
+                        Browse.Play(item);
 
                         while (MusicPlayer.instance == null)
                             await Task.Delay(10);

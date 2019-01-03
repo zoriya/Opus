@@ -5,13 +5,13 @@
     android:id="@+id/musicLayout"
     android:enabled="true"
     android:title="Home"
-    android:icon="@drawable/HomeIcon"
+    android:icon="@drawable/Home"
     app:showAsAction="ifRoom" />
   <item
     android:id="@+id/browseLayout"
     android:enabled="true"
     android:title="Browse"
-    android:icon="@drawable/folderIcon"
+    android:icon="@drawable/Folder"
     app:showAsAction="ifRoom" />
   <item
     android:id="@+id/playlistLayout"

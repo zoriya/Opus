@@ -245,7 +245,8 @@
       app:pressedTranslationZ="12dp"
       app:backgroundTint="?colorAccent"
       android:layout_marginBottom="15dp"
-      android:src="@drawable/ic_playlist_play_black_24dp"
+      android:tint="#000"
+      android:src="@drawable/PlaylistPlay"
       android:id="@+id/localPlay"/>
     <android.support.design.widget.FloatingActionButton
       android:layout_height="wrap_content"

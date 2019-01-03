@@ -396,8 +396,6 @@ namespace MusicApp
 
         private void AddToPlaylist_Click(object sender, EventArgs e)
         {
-            Browse.act = MainActivity.instance;
-            Browse.inflater = MainActivity.instance.LayoutInflater;
             Browse.GetPlaylist(MusicPlayer.queue[MusicPlayer.CurrentID()]);
         }
 

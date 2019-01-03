@@ -252,7 +252,6 @@ namespace MusicApp.Resources.Portable_Class
                 Handler handler = new Handler(MainActivity.instance.MainLooper);
                 handler.Post(() =>
                 {
-                    Browse.act = MainActivity.instance;
                     Browse.AddToPlaylist(Browse.GetSong(path), playlist, -1, true);
                 });
             }

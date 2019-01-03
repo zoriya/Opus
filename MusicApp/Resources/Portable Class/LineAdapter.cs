@@ -2,6 +2,8 @@
 using Android.Content;
 using Android.Gms.Cast.Framework.Media;
 using Android.Graphics;
+using Android.Net;
+using Android.Support.Design.Widget;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
@@ -141,7 +143,7 @@ namespace MusicApp.Resources.Portable_Class
                 }
             }
             else if (!songList[position].IsYt)
-                Browse.Play(songList[position], recycler.GetLayoutManager().FindViewByPosition(position).FindViewById<ImageView>(Resource.Id.albumArt));
+                Browse.Play(songList[position]);
             else
                 YoutubeEngine.Play(songList[position].YoutubeID, songList[position].Title, songList[position].Artist, songList[position].Album);
         }
@@ -150,109 +152,119 @@ namespace MusicApp.Resources.Portable_Class
         {
             Song item = songList[position];
 
-            if (!UseQueue)
+            if (UseQueue)
             {
-                List<string> action = actions.ToList();
-
-                if (!item.IsYt)
+                BottomSheetDialog bottomSheet = new BottomSheetDialog(MainActivity.instance);
+                View bottomView = MainActivity.instance.LayoutInflater.Inflate(Resource.Layout.BottomSheet, null);
+                bottomView.FindViewById<TextView>(Resource.Id.bsTitle).Text = item.Title;
+                bottomView.FindViewById<TextView>(Resource.Id.bsArtist).Text = item.Artist;
+                if (item.Album == null)
                 {
-                    action.Add("Edit Metadata");
-                    Browse.act = MainActivity.instance;
-                    Browse.inflater = MainActivity.instance.LayoutInflater;
+                    var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
+                    var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, item.AlbumArt);
+
+                    Picasso.With(MainActivity.instance).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
                 }
                 else
                 {
-                    action.Add("Download");
+                    Picasso.With(MainActivity.instance).Load(item.Album).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
+                }
+                bottomSheet.SetContentView(bottomView);
+
+                List<BottomSheetAction> actions = new List<BottomSheetAction>
+                {
+                    new BottomSheetAction(Resource.Drawable.Play, "Play", (sender, eventArg) => { OnClick(position); bottomSheet.Dismiss(); }),
+                    new BottomSheetAction(Resource.Drawable.Close, "Remove from queue", (sender, eventArg) => { Queue.RemoveFromQueue(position); bottomSheet.Dismiss(); }),
+                    new BottomSheetAction(Resource.Drawable.PlaylistAdd, "Add To Playlist", (sender, eventArg) => { Browse.GetPlaylist(item); bottomSheet.Dismiss(); })
+                };
+
+                if (item.IsYt)
+                {
+                    actions.Add(new BottomSheetAction(Resource.Drawable.Download, "Download", (sender, eventArg) =>
+                    {
+                        YoutubeEngine.Download(item.Title, item.YoutubeID);
+                        bottomSheet.Dismiss();
+                    }));
+                }
+                else
+                {
+                    actions.Add(new BottomSheetAction(Resource.Drawable.Edit, "Edit Metadata", (sender, eventArg) =>
+                    {
+                        Browse.EditMetadata(item, "Home", Home.instance.ListView.GetLayoutManager().OnSaveInstanceState());
+                        bottomSheet.Dismiss();
+                    }));
                 }
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.instance);
-                builder.SetTitle("Pick an action");
-                builder.SetItems(action.ToArray(), (senderAlert, args) =>
-                {
-                    switch (args.Which)
-                    {
-                        case 0:
-                            if (!item.IsYt)
-                                Browse.Play(item, recycler.GetLayoutManager().FindViewByPosition(position).FindViewById<ImageView>(Resource.Id.albumArt));
-                            else
-                                YoutubeEngine.Play(item.YoutubeID, item.Title, item.Artist, item.Album);
-                            break;
-
-                        case 1:
-                            if (!item.IsYt)
-                                Browse.PlayNext(item);
-                            else
-                                YoutubeEngine.PlayNext(item.Path, item.Title, item.Artist, item.Album);
-                            break;
-
-                        case 2:
-                            if (!item.IsYt)
-                                Browse.PlayLast(item);
-                            else
-                                YoutubeEngine.PlayLast(item.Path, item.Title, item.Artist, item.Album);
-                            break;
-
-                        case 3:
-                            Browse.GetPlaylist(item);
-                            break;
-
-                        case 5:
-                            if (item.IsYt)
-                                YoutubeEngine.Download(item.Title, item.Path);
-                            else
-                                Browse.EditMetadata(item, "PlaylistTracks", Home.instance.ListView.GetLayoutManager().OnSaveInstanceState());
-                            break;
-
-                        default:
-                            break;
-                    }
-                });
-                builder.Show();
+                bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, actions);
+                bottomSheet.Show();
             }
             else
             {
-                List<string> action = new List<string> { actions[0], actions[3] };
-
-                if (!item.IsYt)
+                BottomSheetDialog bottomSheet = new BottomSheetDialog(MainActivity.instance);
+                View bottomView = MainActivity.instance.LayoutInflater.Inflate(Resource.Layout.BottomSheet, null);
+                bottomView.FindViewById<TextView>(Resource.Id.bsTitle).Text = item.Title;
+                bottomView.FindViewById<TextView>(Resource.Id.bsArtist).Text = item.Artist;
+                if (item.Album == null)
                 {
-                    action.Add("Edit Metadata");
-                    Browse.act = MainActivity.instance;
-                    Browse.inflater = MainActivity.instance.LayoutInflater;
+                    var songCover = Uri.Parse("content://media/external/audio/albumart");
+                    var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, item.AlbumArt);
+
+                    Picasso.With(MainActivity.instance).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
                 }
                 else
                 {
-                    action.Add("Download");
+                    Picasso.With(MainActivity.instance).Load(item.Album).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
+                }
+                bottomSheet.SetContentView(bottomView);
+
+                List<BottomSheetAction> actions = new List<BottomSheetAction>
+                {
+                    new BottomSheetAction(Resource.Drawable.Play, "Play", (sender, eventArg) => 
+                    {
+                        if (!item.IsYt)
+                            Browse.Play(item);
+                        else
+                            YoutubeEngine.Play(item.YoutubeID, item.Title, item.Artist, item.Album);
+                        bottomSheet.Dismiss();
+                    }),
+                    new BottomSheetAction(Resource.Drawable.PlaylistPlay, "Play Next", (sender, eventArg) =>
+                    {
+                        if (!item.IsYt)
+                            Browse.PlayNext(item);
+                        else
+                            YoutubeEngine.PlayNext(item.YoutubeID, item.Title, item.Artist, item.Album);
+                        bottomSheet.Dismiss();
+                    }),
+                    new BottomSheetAction(Resource.Drawable.Queue, "Play Last", (sender, eventArg) =>
+                    {
+                        if (!item.IsYt)
+                            Browse.PlayLast(item);
+                        else
+                            YoutubeEngine.PlayLast(item.YoutubeID, item.Title, item.Artist, item.Album);
+                        bottomSheet.Dismiss();
+                    }),
+                    new BottomSheetAction(Resource.Drawable.PlaylistAdd, "Add To Playlist", (sender, eventArg) => { Browse.GetPlaylist(item); bottomSheet.Dismiss(); })
+                };
+
+                if (!item.IsYt)
+                {
+                    actions.Add(new BottomSheetAction(Resource.Drawable.Edit, "Edit Metadata", (sender, eventArg) =>
+                    {
+                        Browse.EditMetadata(item, "Home", Home.instance.ListView.GetLayoutManager().OnSaveInstanceState());
+                        bottomSheet.Dismiss();
+                    }));
+                }
+                else
+                {
+                    actions.Add(new BottomSheetAction(Resource.Drawable.Download, "Download", (sender, eventArg) =>
+                    {
+                        YoutubeEngine.Download(item.Title, item.YoutubeID);
+                        bottomSheet.Dismiss();
+                    }));
                 }
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.instance);
-                builder.SetTitle("Pick an action");
-                builder.SetItems(action.ToArray(), (senderAlert, args) =>
-                {
-                    switch (args.Which)
-                    {
-                        case 0:
-                            if (!item.IsYt)
-                                Browse.Play(item, recycler.GetLayoutManager().FindViewByPosition(position).FindViewById<ImageView>(Resource.Id.albumArt));
-                            else
-                                YoutubeEngine.Play(item.YoutubeID, item.Title, item.Artist, item.Album);
-                            break;
-
-                        case 1:
-                            Browse.GetPlaylist(item);
-                            break;
-
-                        case 2:
-                            if (item.IsYt)
-                                YoutubeEngine.Download(item.Title, item.Path);
-                            else
-                                Browse.EditMetadata(item, "PlaylistTracks", Home.instance.ListView.GetLayoutManager().OnSaveInstanceState());
-                            break;
-
-                        default:
-                            break;
-                    }
-                });
-                builder.Show();
+                bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, actions);
+                bottomSheet.Show();
             }
         }
     }

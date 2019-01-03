@@ -176,38 +176,50 @@ namespace MusicApp.Resources.Portable_Class
 
         public void More(int position)
         {
-            Song song = MusicPlayer.queue[position];
+            Song item = MusicPlayer.queue[position];
 
             BottomSheetDialog bottomSheet = new BottomSheetDialog(this);
             View bottomView = LayoutInflater.Inflate(Resource.Layout.BottomSheet, null);
-            bottomView.FindViewById<TextView>(Resource.Id.bsTitle).Text = song.Title;
-            bottomView.FindViewById<TextView>(Resource.Id.bsArtist).Text = song.Artist;
-            if (song.Album == null)
+            bottomView.FindViewById<TextView>(Resource.Id.bsTitle).Text = item.Title;
+            bottomView.FindViewById<TextView>(Resource.Id.bsArtist).Text = item.Artist;
+            if (item.Album == null)
             {
                 var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
-                var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, song.AlbumArt);
+                var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, item.AlbumArt);
 
                 Picasso.With(MainActivity.instance).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
             }
             else
             {
-                Picasso.With(MainActivity.instance).Load(song.Album).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
+                Picasso.With(MainActivity.instance).Load(item.Album).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
             }
             bottomSheet.SetContentView(bottomView);
 
-            bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, new List<BottomSheetAction>
+            List<BottomSheetAction> actions = new List<BottomSheetAction>
             {
+                new BottomSheetAction(Resource.Drawable.Play, "Play", (sender, eventArg) => { ListView_ItemClick(null, position); bottomSheet.Dismiss(); }),
                 new BottomSheetAction(Resource.Drawable.Close, "Remove from queue", (sender, eventArg) => { RemoveFromQueue(position); bottomSheet.Dismiss(); }),
-                new BottomSheetAction(Resource.Drawable.Edit, "Edit Metadata", (sender, eventArg) => 
-                {
-                    if (!song.IsYt)
-                        Browse.EditMetadata(song, "Queue", ListView.GetLayoutManager().OnSaveInstanceState());
-                    else
-                        Toast.MakeText(this, "Can't edit meta data of an online song.",ToastLength.Short).Show();
+                new BottomSheetAction(Resource.Drawable.PlaylistAdd, "Add To Playlist", (sender, eventArg) => { Browse.GetPlaylist(item); bottomSheet.Dismiss(); })
+            };
 
+            if (item.IsYt)
+            {
+                actions.Add(new BottomSheetAction(Resource.Drawable.Download, "Download", (sender, eventArg) =>
+                {
+                    YoutubeEngine.Download(item.Title, item.YoutubeID);
                     bottomSheet.Dismiss();
-                })
-            });
+                }));
+            }
+            else
+            {
+                actions.Add(new BottomSheetAction(Resource.Drawable.Edit, "Edit Metadata", (sender, eventArg) =>
+                {
+                    Browse.EditMetadata(item, "Queue", ListView.GetLayoutManager().OnSaveInstanceState());
+                    bottomSheet.Dismiss();
+                }));
+            }
+
+            bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, actions);
             bottomSheet.Show();
         }
 

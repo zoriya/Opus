@@ -611,8 +611,7 @@ namespace MusicApp.Resources.Portable_Class
                 musicCursor.Close();
 
                 MusicPlayer.queue.Clear();
-                Browse.act = MainActivity.instance;
-                Browse.Play(songs[0], null);
+                Browse.Play(songs[0]);
                 songs.RemoveAt(0);
                 songs.Reverse();
 
