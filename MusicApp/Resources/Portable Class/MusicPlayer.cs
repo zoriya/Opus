@@ -631,6 +631,7 @@ namespace MusicApp.Resources.Portable_Class
             autoPlay = autoPlay.OrderBy(x => random.Next()).ToList().GetRange(0, autoPlay.Count > 20 ? 20 : autoPlay.Count);
             generating = false;
             Player.instance?.UpdateNext();
+            Queue.instance?.RefreshAP();
 
             if (switchToNext)
                 PlayNext();

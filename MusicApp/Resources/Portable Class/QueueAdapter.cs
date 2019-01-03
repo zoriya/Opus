@@ -1,5 +1,6 @@
 ﻿using Android.App;
 using Android.Content;
+using Android.Content.Res;
 using Android.Graphics;
 using Android.Support.Design.Widget;
 using Android.Support.V7.Widget;
@@ -46,19 +47,52 @@ namespace MusicApp.Resources.Portable_Class
                 QueueFooter holder = (QueueFooter)viewHolder;
                 holder.SwitchButton.Checked = MusicPlayer.useAutoPlay;
 
-                if (MusicPlayer.CurrentID() == ItemCount - 2 && MusicPlayer.useAutoPlay && MusicPlayer.autoPlay.Count > 0)
+                if (MusicPlayer.CurrentID() == ItemCount - 2 && MusicPlayer.useAutoPlay)
                 {
                     holder.Autoplay.Visibility = ViewStates.Visible;
-                    Song ap = MusicPlayer.autoPlay[0];
-                    holder.NextTitle.Text = ap.Title;
-                    if(ap.IsYt)
-                        Picasso.With(MainActivity.instance).Load(ap.Album).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(holder.NextAlbum);
+
+                    if (!holder.ItemView.HasOnClickListeners)
+                        holder.ItemView.Click += (sender, eventArg) => 
+                        {
+                            Intent intent = new Intent(Queue.instance, typeof(MusicPlayer));
+                            intent.SetAction("Next");
+                            Queue.instance.StartService(intent);
+                        };
+
+                    if(MusicPlayer.autoPlay.Count > 0)
+                    {
+                        holder.RightIcon.Visibility = ViewStates.Visible;
+
+                        if (MainActivity.Theme != 1)
+                            holder.RightIcon.ImageTintList = ColorStateList.ValueOf(Color.Black);
+
+                        Song ap = MusicPlayer.autoPlay[0];
+                        holder.NextTitle.Text = ap.Title;
+                        if (ap.IsYt)
+                            Picasso.With(MainActivity.instance).Load(ap.Album).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(holder.NextAlbum);
+                        else
+                        {
+                            var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
+                            var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, ap.AlbumArt);
+
+                            Picasso.With(MainActivity.instance).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(holder.NextAlbum);
+                        }
+                    }
                     else
                     {
-                        var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
-                        var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, ap.AlbumArt);
+                        int count = new Random().Next(6, 15);
+                        string title = "a";
+                        while(count > 0)
+                        {
+                            title += "a";
+                            count--;
+                        }
 
-                        Picasso.With(MainActivity.instance).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(holder.NextAlbum);
+                        holder.NextTitle.Text = title;
+                        holder.NextTitle.SetTextColor(Color.Transparent);
+                        holder.NextTitle.SetBackgroundResource(Resource.Color.background_material_dark);
+                        holder.NextAlbum.SetImageResource(Resource.Color.background_material_dark);
+                        holder.RightIcon.Visibility = ViewStates.Gone;
                     }
                 }
                 else

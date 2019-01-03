@@ -95,6 +95,11 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
+        public void RefreshAP()
+        {
+            adapter.NotifyItemChanged(MusicPlayer.queue.Count);
+        }
+
         public override bool OnCreateOptionsMenu(IMenu menu)
         {
             MenuInflater.Inflate(Resource.Menu.QueueItems, menu);

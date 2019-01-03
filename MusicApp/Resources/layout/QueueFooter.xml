@@ -55,37 +55,54 @@
       android:id="@+id/createMix"
       android:text="Create Mix" />
   </LinearLayout>
-  <LinearLayout
-    android:layout_width="wrap_content"
+  <android.support.v7.widget.CardView
+    android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:paddingTop="10dp"
-    android:paddingLeft="25dp"
-    android:paddingRight="25dp"
+    CardView_cardCornerRadius="16dp"
+    android:layout_marginTop="10dp"
+    android:layout_marginLeft="25dp"
+    android:layout_marginRight="25dp"
+    android:layout_gravity="start"
     android:id="@+id/autoplay" >
-    <ImageView
-      android:id="@+id/apAlbum"
-      android:layout_width="70dp"
-      android:layout_height="70dp"
-      android:padding="5dp" />
-    <LinearLayout
+    <RelativeLayout
       android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:orientation="vertical"
-      android:paddingLeft="5dp" >
-      <TextView
+      android:layout_height="wrap_content" >
+      <ImageView
+        android:id="@+id/apAlbum"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:padding="5dp" />
+      <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Up Next:"
-        android:textSize="16dip"
-        android:textStyle="bold" />
-      <TextView
-        android:id="@+id/apTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ellipsize="end"
-        android:maxLines="2"
-        android:textSize="14dip" />
-    </LinearLayout>
-  </LinearLayout>
+        android:orientation="vertical"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@id/apAlbum"
+        android:layout_toLeftOf="@+id/rightIcon"
+        android:paddingLeft="5dp" >
+        <TextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="Up Next:"
+          android:textSize="16dip"
+          android:textStyle="bold" />
+        <TextView
+          android:id="@+id/apTitle"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:ellipsize="end"
+          android:maxLines="2"
+          android:textSize="14dip" />
+      </LinearLayout>
+      <ImageView 
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:padding="5dp"
+        android:layout_marginRight="10dp"
+        android:src="@drawable/PlayCircle"
+        android:id="@id/rightIcon"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true" />
+    </RelativeLayout>
+  </android.support.v7.widget.CardView>
 </LinearLayout>
