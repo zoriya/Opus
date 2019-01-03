@@ -471,120 +471,108 @@ namespace MusicApp.Resources.Portable_Class
         public void More(int Position)
         {
             bool local = Position <= LocalPlaylists.Count;
-            PlaylistItem playlist = local ?
+            PlaylistItem item = local ?
                 LocalPlaylists[Position] :
                 YoutubePlaylists[Position - LocalPlaylists.Count];
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
-            builder.SetTitle("Pick an action");
-            if(playlist.SyncState == SyncState.True)
-            {
-                string[] actions = new string[] { "Play in order", "Random play", "Add To Queue", "Sync Now", "Rename", "Stop Syncing" };
-                builder.SetItems(actions, (senderAlert, args) =>
-                {
-                    switch (args.Which)
-                    {
-                        case 0:
-                            PlayInOrder(playlist.LocalID);
-                            break;
-                        case 1:
-                            RandomPlay(playlist.LocalID, Activity);
-                            break;
-                        case 2:
-                            AddToQueue(playlist.LocalID);
-                            break;
-                        case 3:
-                            YoutubeEngine.DownloadPlaylist(playlist.Name, playlist.YoutubeID);
-                            break;
-                        case 4:
-                            RenameYoutubePlaylist(Position, playlist.YoutubeID, playlist.LocalID);
-                            break;
-                        case 5:
-                            StopSyncing(Position, playlist.LocalID);
-                            break;
-                        default:
-                            break;
-                    }
-                });
-            }
-            else if (local)
-            {
-                builder.SetItems(new string[] { "Play in order", "Random play", "Add To Queue", "Rename", "Delete" }, (senderAlert, args) =>
-                {
-                    switch (args.Which)
-                    {
-                        case 0:
-                            PlayInOrder(playlist.LocalID);
-                            break;
-                        case 1:
-                            RandomPlay(playlist.LocalID, Activity);
-                            break;
-                        case 2:
-                            AddToQueue(playlist.LocalID);
-                            break;
-                        case 3:
-                            Rename(Position, playlist);
-                            break;
-                        case 4:
-                            RemovePlaylist(Position, playlist.LocalID);
-                            break;
-                        default:
-                            break;
-                    }
-                });
-            }
-            else if (playlist.HasWritePermission)
-                builder.SetItems(new string[] { "Play in order", "Random play", "Add To Queue", "Rename", "Delete", "Sync Playlist" }, (senderAlert, args) =>
-                {
-                    switch (args.Which)
-                    {
-                        case 0:
-                            PlayInOrder(playlist.YoutubeID);
-                            break;
-                        case 1:
-                            YoutubeEngine.RandomPlay(playlist.YoutubeID);
-                            break;
-                        case 2:
-                            AddToQueue(playlist.YoutubeID);
-                            break;
-                        case 3:
-                            RenameYoutubePlaylist(Position, playlist.YoutubeID);
-                            break;
-                        case 4:
-                            RemoveYoutubePlaylist(Position, playlist.YoutubeID);
-                            break;
-                        case 5:
-                            YoutubeEngine.DownloadPlaylist(playlist.Name, playlist.YoutubeID);
-                            break;
-                        default:
-                            break;
-                    }
-                });
+            BottomSheetDialog bottomSheet = new BottomSheetDialog(MainActivity.instance);
+            View bottomView = LayoutInflater.Inflate(Resource.Layout.BottomSheet, null);
+            bottomView.FindViewById<TextView>(Resource.Id.bsTitle).Text = item.Name;
+            bottomView.FindViewById<TextView>(Resource.Id.bsArtist).Text = item.Owner;
+            if (!local || item.SyncState != SyncState.False)
+                Picasso.With(MainActivity.instance).Load(item.ImageURL).Placeholder(Resource.Color.background_material_dark).Transform(new RemoveBlackBorder(true)).Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
             else
-                builder.SetItems(new string[] { "Play in order", "Random play", "Add To Queue", "Unfork", "Sync Playlist" }, (senderAlert, args) =>
+            {
+                bottomView.FindViewById<ImageView>(Resource.Id.bsArt).Visibility = ViewStates.Gone;
+            }
+            bottomSheet.SetContentView(bottomView);
+
+            List<BottomSheetAction> actions = new List<BottomSheetAction>
+            {
+                new BottomSheetAction(Resource.Drawable.Play, "Play In Order", (sender, eventArg) =>
                 {
-                    switch (args.Which)
-                    {
-                        case 0:
-                            PlayInOrder(playlist.YoutubeID);
-                            break;
-                        case 1:
-                            YoutubeEngine.RandomPlay(playlist.YoutubeID);
-                            break;
-                        case 2:
-                            AddToQueue(playlist.YoutubeID);
-                            break;
-                        case 3:
-                            Unfork(Position, playlist.YoutubeID);
-                            break;
-                        case 4:
-                            YoutubeEngine.DownloadPlaylist(playlist.Name, playlist.YoutubeID);
-                            break;
-                        default:
-                            break;
-                    }
-                });
-            builder.Show();
+                    if (local || item.SyncState == SyncState.True)
+                        PlayInOrder(item.LocalID);
+                    else
+                        PlayInOrder(item.YoutubeID);
+                    bottomSheet.Dismiss();
+                }),
+                new BottomSheetAction(Resource.Drawable.Shuffle, "Random Play", (sender, eventArg) =>
+                {
+                    if (local || item.SyncState == SyncState.True)
+                        RandomPlay(item.LocalID, Activity);
+                    else
+                        YoutubeEngine.RandomPlay(item.YoutubeID);
+                    bottomSheet.Dismiss();
+                }),
+                new BottomSheetAction(Resource.Drawable.Queue, "Add To Queue", (sender, eventArg) =>
+                {
+                    if (local || item.SyncState == SyncState.True)
+                        AddToQueue(item.LocalID);
+                    else
+                        AddToQueue(item.YoutubeID);
+                    bottomSheet.Dismiss();
+                })
+            };
+
+            if (local || item.HasWritePermission)
+            {
+                actions.AddRange(new BottomSheetAction[]{ new BottomSheetAction(Resource.Drawable.Edit, "Rename", (sender, eventArg) =>
+                {
+                    if (local)
+                        Rename(Position, item);
+                    else
+                        RenameYoutubePlaylist(Position, item.YoutubeID, item.LocalID);
+                    bottomSheet.Dismiss();
+                }),
+                new BottomSheetAction(Resource.Drawable.Delete, "Delete", (sender, eventArg) =>
+                {
+                    if (local)
+                        RemovePlaylist(Position, item.LocalID);
+                    else
+                        RemoveYoutubePlaylist(Position, item.YoutubeID);
+                    bottomSheet.Dismiss();
+                })});
+            }
+            
+
+            if(item.SyncState == SyncState.True)
+            {
+                actions.AddRange(new BottomSheetAction[]{ new BottomSheetAction(Resource.Drawable.Sync, "Sync Now", (sender, eventArg) =>
+                {
+                    YoutubeEngine.DownloadPlaylist(item.Name, item.YoutubeID);
+                    bottomSheet.Dismiss();
+                }),
+                new BottomSheetAction(Resource.Drawable.SyncDisabled, "Stop Syncing", (sender, eventArg) =>
+                {
+                    StopSyncing(Position, item.LocalID);
+                    bottomSheet.Dismiss();
+                })});
+            }
+            else if (!local && item.HasWritePermission)
+            {
+                actions.Add(new BottomSheetAction(Resource.Drawable.Sync, "Sync Playlist", (sender, eventArg) => 
+                {
+                    YoutubeEngine.DownloadPlaylist(item.Name, item.YoutubeID);
+                    bottomSheet.Dismiss();
+                }));
+            }
+            else if(!local)
+            {
+                actions.AddRange(new BottomSheetAction[]{ new BottomSheetAction(Resource.Drawable.Sync, "Sync Playlist", (sender, eventArg) =>
+                {
+                    YoutubeEngine.DownloadPlaylist(item.Name, item.YoutubeID);
+                    bottomSheet.Dismiss();
+                }),
+                new BottomSheetAction(Resource.Drawable.Delete, "Unfork", (sender, eventArg) =>
+                {
+                    Unfork(Position, item.YoutubeID);
+                    bottomSheet.Dismiss();
+                })});
+            }
+
+            bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, actions);
+            bottomSheet.Show();
         }
 
         public static async void PlayInOrder(long playlistID)

@@ -57,7 +57,7 @@ namespace MusicApp.Resources.values
             long id = long.Parse(v.Substring(v.IndexOf(" Id: ") + 5, v.IndexOf(" Path: ") - v.IndexOf(" Id: ") - 5));
             string path = v.Substring(v.IndexOf(" Path: ") + 7, v.IndexOf(" isYT: ") - v.IndexOf(" Path: ") - 7);
             bool isYT = bool.Parse(v.Substring(v.IndexOf(" isYT: ") + 7, v.IndexOf(" isParsed: ") - v.IndexOf(" isYT: ") - 7));
-            bool isParsed = bool.Parse(v.Substring(v.IndexOf(" isParsed: ") + 11, v.IndexOf(" queueSlot: ") - v.IndexOf(" isParsed: ") - 11));
+            bool isParsed = bool.Parse(v.Substring(v.IndexOf(" isParsed: ") + 11));
 
             Song song = new Song(Name, Artist, Album, youtubeID, AlbumArt, id, path, isYT, isParsed);
             return song;

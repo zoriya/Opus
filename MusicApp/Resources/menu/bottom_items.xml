@@ -17,6 +17,6 @@
     android:id="@+id/playlistLayout"
     android:enabled="true"
     android:title="Playlist"
-    android:icon="@drawable/PlaylistPlayIcon"
+    android:icon="@drawable/PlaylistPlay"
     app:showAsAction="ifRoom" />
 </menu>

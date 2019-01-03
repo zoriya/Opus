@@ -1,4 +1,5 @@
 ﻿using Android.Content;
+using Android.Content.Res;
 using Android.Graphics;
 using Android.Graphics.Drawables;
 using Android.Support.V4.Content;
@@ -44,7 +45,10 @@ namespace MusicApp.Resources.Portable_Class
             Drawable icon = MainActivity.instance.GetDrawable(items[position].Ressource);
             icon.Alpha = 178;
             if(MainActivity.Theme != 1)
-                icon.SetColorFilter(Color.Black, PorterDuff.Mode.Multiply);
+                icon.SetTintList(ColorStateList.ValueOf(Color.Black));
+            else
+                icon.SetTintList(ColorStateList.ValueOf(Color.White));
+
             ((TextView)convertView).SetCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
 
             if(!convertView.HasOnClickListeners)

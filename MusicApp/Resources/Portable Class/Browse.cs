@@ -14,6 +14,7 @@ using Android.Widget;
 using Google.Apis.YouTube.v3;
 using MusicApp.Resources.values;
 using SQLite;
+using Square.Picasso;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -35,7 +36,6 @@ namespace MusicApp.Resources.Portable_Class
         public bool focused = true;
 
         private View view;
-        private readonly string[] actions = new string[] { "Play", "Play Next", "Play Last", "Add To Playlist", "Edit Metadata" };
         private bool isEmpty = false;
 
 
@@ -211,32 +211,32 @@ namespace MusicApp.Resources.Portable_Class
         {
             item = CompleteItem(item);
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
-            builder.SetTitle("Pick an action");
-            builder.SetItems(actions, (senderAlert, args) =>
+            BottomSheetDialog bottomSheet = new BottomSheetDialog(MainActivity.instance);
+            View bottomView = LayoutInflater.Inflate(Resource.Layout.BottomSheet, null);
+            bottomView.FindViewById<TextView>(Resource.Id.bsTitle).Text = item.Title;
+            bottomView.FindViewById<TextView>(Resource.Id.bsArtist).Text = item.Artist;
+            if (item.Album == null)
             {
-                switch (args.Which)
-                {
-                    case 0:
-                        Play(item, ListView.GetChildAt(position - ListView.FirstVisiblePosition).FindViewById<ImageView>(Resource.Id.albumArt));
-                        break;
-                    case 1:
-                        PlayNext(item);
-                        break;
-                    case 2:
-                        PlayLast(item);
-                        break;
-                    case 3:
-                        GetPlaylist(item);
-                        break;
-                    case 4:
-                        EditMetadata(item, "Browse", ListView.OnSaveInstanceState());
-                        break;
-                    default:
-                        break;
-                }
+                var songCover = Uri.Parse("content://media/external/audio/albumart");
+                var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, item.AlbumArt);
+
+                Picasso.With(MainActivity.instance).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
+            }
+            else
+            {
+                Picasso.With(MainActivity.instance).Load(item.Album).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
+            }
+            bottomSheet.SetContentView(bottomView);
+
+            bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, new List<BottomSheetAction>
+            {
+                new BottomSheetAction(Resource.Drawable.Play, "Play", (sender, eventArg) => { Play(item, ListView.GetChildAt(position - ListView.FirstVisiblePosition).FindViewById<ImageView>(Resource.Id.albumArt)); bottomSheet.Dismiss(); }),
+                new BottomSheetAction(Resource.Drawable.PlaylistPlay, "Play Next", (sender, eventArg) => { PlayNext(item); bottomSheet.Dismiss(); }),
+                new BottomSheetAction(Resource.Drawable.Queue, "Play Last", (sender, eventArg) => { PlayLast(item); bottomSheet.Dismiss(); }),
+                new BottomSheetAction(Resource.Drawable.PlaylistAdd, "Add To Playlist", (sender, eventArg) => { GetPlaylist(item); bottomSheet.Dismiss(); }),
+                new BottomSheetAction(Resource.Drawable.Edit, "Edit Metadata", (sender, eventArg) => { EditMetadata(item, "Browse", ListView.OnSaveInstanceState()); bottomSheet.Dismiss(); })
             });
-            builder.Show();
+            bottomSheet.Show();
         }
 
         public static Song GetSong(string filePath)

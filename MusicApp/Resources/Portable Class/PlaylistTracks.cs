@@ -48,7 +48,6 @@ namespace MusicApp.Resources.Portable_Class
         public bool navigating = false;
 
         public List<Song> tracks = new List<Song>();
-        private string[] actions = new string[] { "Play", "Play Next", "Play Last", "Remove Track from playlist", "Add To Playlist" };
         private bool loading = false;
 
         public override void OnActivityCreated(Bundle savedInstanceState)
@@ -681,107 +680,81 @@ namespace MusicApp.Resources.Portable_Class
             if (result != null && result.Count > position)
                 item = result[position];
 
-            List<string> action = actions.ToList();
+            BottomSheetDialog bottomSheet = new BottomSheetDialog(MainActivity.instance);
+            View bottomView = LayoutInflater.Inflate(Resource.Layout.BottomSheet, null);
+            bottomView.FindViewById<TextView>(Resource.Id.bsTitle).Text = item.Title;
+            bottomView.FindViewById<TextView>(Resource.Id.bsArtist).Text = item.Artist;
+            if (item.Album == null)
+            {
+                var songCover = Uri.Parse("content://media/external/audio/albumart");
+                var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, item.AlbumArt);
+
+                Picasso.With(MainActivity.instance).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
+            }
+            else
+            {
+                Picasso.With(MainActivity.instance).Load(item.Album).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
+            }
+            bottomSheet.SetContentView(bottomView);
+
+            List<BottomSheetAction> actions = new List<BottomSheetAction>
+            {
+                new BottomSheetAction(Resource.Drawable.Play, "Play", (sender, eventArg) => { PlayInOrder(position, true); bottomSheet.Dismiss(); }),
+                new BottomSheetAction(Resource.Drawable.PlaylistPlay, "Play Next", (sender, eventArg) =>
+                {
+                    if (!item.IsYt)
+                        Browse.PlayNext(item);
+                    else
+                        YoutubeEngine.PlayNext(item.YoutubeID, item.Title, item.Artist, item.Album);
+                    bottomSheet.Dismiss();
+                }),
+                new BottomSheetAction(Resource.Drawable.Queue, "Play Last", (sender, eventArg) =>
+                {
+                    if (!item.IsYt)
+                        Browse.PlayLast(item);
+                    else
+                        YoutubeEngine.PlayLast(item.YoutubeID, item.Title, item.Artist, item.Album);
+                    bottomSheet.Dismiss();
+                }),
+                new BottomSheetAction(Resource.Drawable.PlaylistAdd, "Add To Playlist", (sender, eventArg) => { Browse.GetPlaylist(item); bottomSheet.Dismiss(); })
+            };
+
+            if (hasWriteAcess && YoutubeID != "")
+            {
+                actions.Add(new BottomSheetAction(Resource.Drawable.Close, "Remove Track from playlist", (sender, eventArg) =>
+                {
+                    DeleteDialog(position);
+                    bottomSheet.Dismiss();
+                }));
+            }
 
             if (!item.IsYt)
             {
-                action.Add("Edit Metadata");
                 Browse.act = Activity;
                 Browse.inflater = LayoutInflater;
+                actions.Add(new BottomSheetAction(Resource.Drawable.Edit, "Edit Metadata", (sender, eventArg) =>
+                {
+                    if (item.IsYt)
+                        YoutubeEngine.Download(item.Title, item.YoutubeID);
+                    else
+                        Browse.EditMetadata(item, "PlaylistTracks", ListView.GetLayoutManager().OnSaveInstanceState());
+                    bottomSheet.Dismiss();
+                }));
             }
             else
             {
-                action.Add("Download");
-            }
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
-            builder.SetTitle("Pick an action");
-            if (hasWriteAcess && YoutubeID != "")
-            {
-                builder.SetItems(action.ToArray(), (senderAlert, args) =>
+                actions.Add(new BottomSheetAction(Resource.Drawable.Download, "Download", (sender, eventArg) =>
                 {
-                    switch (args.Which)
-                    {
-                        case 0:
-                            PlayInOrder(position, true);
-                            break;
-
-                        case 1:
-                            if (!item.IsYt)
-                                Browse.PlayNext(item);
-                            else
-                                YoutubeEngine.PlayNext(item.YoutubeID, item.Title, item.Artist, item.Album);
-                            break;
-
-                        case 2:
-                            if (!item.IsYt)
-                                Browse.PlayLast(item);
-                            else
-                                YoutubeEngine.PlayLast(item.YoutubeID, item.Title, item.Artist, item.Album);
-                            break;
-
-                        case 3:
-                            DeleteDialog(position);
-                            break;
-
-                        case 4:
-                            Browse.GetPlaylist(item);
-                            break;
-
-                        case 5:
-                            if (item.IsYt)
-                                YoutubeEngine.Download(item.Title, item.Path);
-                            else
-                                Browse.EditMetadata(item, "PlaylistTracks", ListView.GetLayoutManager().OnSaveInstanceState());
-                            break;
-
-                        default:
-                            break;
-                    }
-                });
+                    if (item.IsYt)
+                        YoutubeEngine.Download(item.Title, item.YoutubeID);
+                    else
+                        Browse.EditMetadata(item, "PlaylistTracks", ListView.GetLayoutManager().OnSaveInstanceState());
+                    bottomSheet.Dismiss();
+                }));
             }
-            else
-            {
-                action.Remove("Remove Track from playlist");
-                builder.SetItems(action.ToArray(), (senderAlert, args) =>
-                {
-                    switch (args.Which)
-                    {
-                        case 0:
-                            PlayInOrder(position, true);
-                            break;
 
-                        case 1:
-                            if (!item.IsYt)
-                                Browse.PlayNext(item);
-                            else
-                                YoutubeEngine.PlayNext(item.YoutubeID, item.Title, item.Artist, item.Album);
-                            break;
-
-                        case 2:
-                            if (!item.IsYt)
-                                Browse.PlayLast(item);
-                            else
-                                YoutubeEngine.PlayLast(item.YoutubeID, item.Title, item.Artist, item.Album);
-                            break;
-
-                        case 3:
-                            Browse.GetPlaylist(item);
-                            break;
-
-                        case 4:
-                            if (item.IsYt)
-                                YoutubeEngine.Download(item.Title, item.YoutubeID);
-                            else
-                                Browse.EditMetadata(item, "PlaylistTracks", ListView.GetLayoutManager().OnSaveInstanceState());
-                            break;
-
-                        default:
-                            break;
-                    }
-                });
-            }
-            builder.Show();
+            bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, actions);
+            bottomSheet.Show();
         }
 
         public async void PlayInOrder(int fromPosition, bool useTransition)
