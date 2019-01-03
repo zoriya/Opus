@@ -3,11 +3,16 @@ using Android.Content;
 using Android.Content.PM;
 using Android.Graphics;
 using Android.OS;
+using Android.Support.Design.Widget;
 using Android.Support.V7.App;
 using Android.Support.V7.Widget;
 using Android.Support.V7.Widget.Helper;
 using Android.Views;
+using Android.Widget;
 using MusicApp.Resources.values;
+using Square.Picasso;
+using System.Collections.Generic;
+using Toolbar = Android.Support.V7.Widget.Toolbar;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -19,9 +24,6 @@ namespace MusicApp.Resources.Portable_Class
         public QueueAdapter adapter;
         public ItemTouchHelper itemTouchHelper;
         public IMenu menu;
-
-        private readonly string[] actions = new string[] { "Remove from queue", "Edit Metadata" };
-
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -169,24 +171,39 @@ namespace MusicApp.Resources.Portable_Class
 
         public void More(int position)
         {
-            Android.Support.V7.App.AlertDialog.Builder builder = new Android.Support.V7.App.AlertDialog.Builder(this, MainActivity.dialogTheme);
-            builder.SetTitle("Pick an action");
-            builder.SetItems(actions, (senderAlert, args) =>
+            Song song = MusicPlayer.queue[position];
+
+            BottomSheetDialog bottomSheet = new BottomSheetDialog(this);
+            View bottomView = LayoutInflater.Inflate(Resource.Layout.BottomSheet, null);
+            bottomView.FindViewById<TextView>(Resource.Id.bsTitle).Text = song.Title;
+            bottomView.FindViewById<TextView>(Resource.Id.bsArtist).Text = song.Artist;
+            if (song.Album == null)
             {
-                switch (args.Which)
+                var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
+                var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, song.AlbumArt);
+
+                Picasso.With(MainActivity.instance).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
+            }
+            else
+            {
+                Picasso.With(MainActivity.instance).Load(song.Album).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
+            }
+            bottomSheet.SetContentView(bottomView);
+
+            bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, new List<BottomSheetAction>
+            {
+                new BottomSheetAction(Resource.Drawable.Close, "Remove from queue", (sender, eventArg) => { RemoveFromQueue(position); bottomSheet.Dismiss(); }),
+                new BottomSheetAction(Resource.Drawable.Edit, "Edit Metadata", (sender, eventArg) => 
                 {
-                    case 0:
-                        RemoveFromQueue(position);
-                        break;
-                    case 1:
-                        if (!MusicPlayer.queue[position].IsYt)
-                            Browse.EditMetadata(MusicPlayer.queue[position], "Queue", ListView.GetLayoutManager().OnSaveInstanceState());
-                        break;
-                    default:
-                        break;
-                }
+                    if (!song.IsYt)
+                        Browse.EditMetadata(song, "Queue", ListView.GetLayoutManager().OnSaveInstanceState());
+                    else
+                        Toast.MakeText(this, "Can't edit meta data of an online song.",ToastLength.Short).Show();
+
+                    bottomSheet.Dismiss();
+                })
             });
-            builder.Show();
+            bottomSheet.Show();
         }
 
         public static void InsertToQueue(int position, Song item)
@@ -209,6 +226,9 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             MusicPlayer.RemoveFromQueue(position);
+
+            if (instance != null)
+                instance.adapter.NotifyItemRemoved(position);
         }
 
         protected override void OnResume()

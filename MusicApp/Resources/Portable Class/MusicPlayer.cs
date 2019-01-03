@@ -62,7 +62,7 @@ namespace MusicApp.Resources.Portable_Class
         public static int currentID = 0;
         public static bool autoUpdateSeekBar = true;
         public static bool repeat = false;
-        public static bool useAutoPlay = false;
+        public static bool useAutoPlay = true;
         public static bool userStopped = true;
         public static bool isLiveStream = false;
         public static bool ShouldResumePlayback;

@@ -272,6 +272,7 @@
     <Compile Include="Resources\Portable Class\Adapter.cs" />
     <Compile Include="Resources\Portable Class\AddToPlaylistAdapter.cs" />
     <Compile Include="Resources\Portable Class\AudioStopper.cs" />
+    <Compile Include="Resources\Portable Class\BottomSheetAdapter.cs" />
     <Compile Include="Resources\Portable Class\Browse.cs" />
     <Compile Include="Resources\Portable Class\CastCallback.cs" />
     <Compile Include="Resources\Portable Class\CastProvider.cs" />
@@ -538,9 +539,6 @@
     <AndroidResource Include="Resources\layout\SaveAPlaylist.xml" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\drawable\Edit.png" />
-  </ItemGroup>
-  <ItemGroup>
     <AndroidResource Include="Resources\layout\SeekbarPreference.xml" />
   </ItemGroup>
   <ItemGroup>
@@ -761,6 +759,18 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\layout\YoutubeSearch.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\BottomSheet.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\BottomSheetText.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\Edit.xml">
+      <Generator>MSBuild:UpdateGeneratedFiles</Generator>
+      <SubType>Designer</SubType>
+    </AndroidResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Android.Support.Animated.Vector.Drawable.25.4.0.2\build\MonoAndroid70\Xamarin.Android.Support.Animated.Vector.Drawable.targets" Condition="Exists('..\packages\Xamarin.Android.Support.Animated.Vector.Drawable.25.4.0.2\build\MonoAndroid70\Xamarin.Android.Support.Animated.Vector.Drawable.targets')" />
