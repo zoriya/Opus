@@ -30,7 +30,6 @@ namespace MusicApp.Resources.Portable_Class
         public bool focused = false;
 
         private View view;
-        private readonly string[] actions = new string[] { "List songs", "Play in order", "Add To Playlist", "Random Play" };
         private bool isEmpty = false;
 
 
@@ -190,29 +189,37 @@ namespace MusicApp.Resources.Portable_Class
             string path = paths[position];
             string displayPath = pathDisplay[position];
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
-            builder.SetTitle("Pick an action");
-            builder.SetItems(actions, (senderAlert, args) =>
+            BottomSheetDialog bottomSheet = new BottomSheetDialog(MainActivity.instance);
+            View bottomView = MainActivity.instance.LayoutInflater.Inflate(Resource.Layout.BottomSheet, null);
+            bottomView.FindViewById<TextView>(Resource.Id.bsTitle).Text = displayPath;
+            bottomView.FindViewById<TextView>(Resource.Id.bsArtist).Text = path;
+            bottomView.FindViewById<ImageView>(Resource.Id.bsArt).Visibility = ViewStates.Gone;
+            bottomSheet.SetContentView(bottomView);
+
+            bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, new List<BottomSheetAction>
             {
-                switch (args.Which)
+                new BottomSheetAction(Resource.Drawable.Folder, "List songs", (sender, eventArg) =>
                 {
-                    case 0:
-                        ListSongs(displayPath, path);
-                        break;
-                    case 1:
-                        PlayInOrder(path);
-                        break;
-                    case 2:
-                        GetPlaylist(path);
-                        break;
-                    case 3:
-                        RandomPlay(path);
-                        break;
-                    default:
-                        break;
-                }
+                    ListSongs(displayPath, path);
+                    bottomSheet.Dismiss();
+                }),
+                new BottomSheetAction(Resource.Drawable.Play, "Play in order", (sender, eventArg) =>
+                {
+                    PlayInOrder(path);
+                    bottomSheet.Dismiss();
+                }),
+                new BottomSheetAction(Resource.Drawable.Shuffle, "Random play", (sender, eventArg) =>
+                {
+                    RandomPlay(path);
+                    bottomSheet.Dismiss();
+                }),
+                new BottomSheetAction(Resource.Drawable.PlaylistAdd, "Add to playlist", (sender, eventArg) =>
+                {
+                    GetPlaylist(path);
+                    bottomSheet.Dismiss();
+                })
             });
-            builder.Show();
+            bottomSheet.Show();
         }
 
         void ListSongs(string displayPath, string path)

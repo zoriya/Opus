@@ -7,7 +7,7 @@ namespace MusicApp.Resources.Portable_Class
     public class CircleTransformation : Java.Lang.Object, ITransformation
     {
         private bool UseBorder = false;
-        public string Key { get { return "Circle"; } }
+        public string Key => "Circle-" + UseBorder;
 
         public CircleTransformation() { }
 

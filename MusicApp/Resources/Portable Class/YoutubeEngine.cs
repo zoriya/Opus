@@ -6,13 +6,13 @@ using Android.Preferences;
 using Android.Provider;
 using Android.Support.Design.Widget;
 using Android.Support.V4.App;
-using Android.Support.V7.App;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
 using MusicApp.Resources.values;
+using Square.Picasso;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -40,7 +40,6 @@ namespace MusicApp.Resources.Portable_Class
         public TextView EmptyView;
         public ProgressBar LoadingView;
         private bool searching;
-        private readonly string[] actions = new string[] { "Play", "Play Next", "Play Last", "Add To Playlist", "Download" };
 
         public override void OnActivityCreated(Bundle savedInstanceState)
         {
@@ -290,7 +289,7 @@ namespace MusicApp.Resources.Portable_Class
 
                 foreach (var video in searchReponse.Items)
                 {
-                    Song videoInfo = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.High.Url, null, -1, -1, null, true, false);
+                    Song videoInfo = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.High.Url, null, -1, -1, video.Snippet.ChannelId, true, false);
                     YtKind kind = YtKind.Null;
 
                     if (video.Snippet.LiveBroadcastContent == "live")
@@ -327,10 +326,34 @@ namespace MusicApp.Resources.Portable_Class
                 List<string> topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
                 List<string> selectedTopics = topics.ConvertAll(x => x.Substring(x.IndexOf("/#-#/") + 5));
 
-                if(result[0].Kind == YtKind.Channel)
+                if(result[0].Kind == YtKind.Channel && result.Count(x => x.item.Artist == result[0].item.Title && x.Kind == YtKind.Video) > 0)
                 {
                     YtFile channelPreview = new YtFile(result[0].item, YtKind.ChannelPreview);
                     result.Insert(0, channelPreview);
+                }
+                else if(querryType == "All" || querryType == "Channels")
+                {
+                    IEnumerable<string> artist = result.GroupBy(x => x.item.Artist).Where(x => x.Count() > 2).Select(x => x.Key);
+                    if (artist.Count() == 1)
+                    {
+                        Song channel = null;
+                        if (result.Find(x => x.Kind == YtKind.Channel && x.item.Title == artist.First()) != null)
+                            channel = result.Find(x => x.item.Title == artist.First() && x.Kind == YtKind.Channel).item;
+                        else
+                        {
+                            string channelID = result.Find(x => x.item.Artist == artist.First()).item.Path;
+                            ChannelsResource.ListRequest request = youtubeService.Channels.List("snippet");
+                            request.Id = channelID;
+                            ChannelListResponse response = await request.ExecuteAsync();
+                            channel = new Song(response.Items[0].Snippet.Title, null, response.Items[0].Snippet.Thumbnails.High.Url, channelID, -1, -1, null);
+                        }
+
+                        if (channel != null)
+                        {
+                            YtFile channelPreview = new YtFile(channel, YtKind.ChannelPreview);
+                            result.Insert(0, channelPreview);
+                        }
+                    }
                 }
 
                 adapter = new YtAdapter(result, selectedTopics);
@@ -428,63 +451,80 @@ namespace MusicApp.Resources.Portable_Class
 
         public void More(Song item)
         {
-            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
-            builder.SetTitle("Pick an action");
-            builder.SetItems(actions, (senderAlert, args) =>
+            BottomSheetDialog bottomSheet = new BottomSheetDialog(MainActivity.instance);
+            View bottomView = MainActivity.instance.LayoutInflater.Inflate(Resource.Layout.BottomSheet, null);
+            bottomView.FindViewById<TextView>(Resource.Id.bsTitle).Text = item.Title;
+            bottomView.FindViewById<TextView>(Resource.Id.bsArtist).Text = item.Artist;
+            Picasso.With(MainActivity.instance).Load(item.Album).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
+            bottomSheet.SetContentView(bottomView);
+
+            bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, new List<BottomSheetAction>
             {
-                switch (args.Which)
+                new BottomSheetAction(Resource.Drawable.Play, "Play", (sender, eventArg) =>
                 {
-                    case 0:
-                        Play(item.YoutubeID, item.Title, item.Artist, item.Album);
-                        break;
-                    case 1:
-                        PlayNext(item.YoutubeID, item.Title, item.Artist, item.Album);
-                        break;
-                    case 2:
-                        PlayLast(item.YoutubeID, item.Title, item.Artist, item.Album);
-                        break;
-                    case 3:
-                        Browse.GetPlaylist(item);
-                        break;
-                    case 4:
-                        Download(item.Title, item.YoutubeID);
-                        break;
-                    default:
-                        break;
-                }
+                    Play(item.YoutubeID, item.Title, item.Artist, item.Album);
+                    bottomSheet.Dismiss();
+                }),
+                new BottomSheetAction(Resource.Drawable.PlaylistPlay, "Play next", (sender, eventArg) =>
+                {
+                    PlayNext(item.YoutubeID, item.Title, item.Artist, item.Album);
+                    bottomSheet.Dismiss();
+                }),
+                new BottomSheetAction(Resource.Drawable.Queue, "Play last", (sender, eventArg) =>
+                {
+                    PlayLast(item.YoutubeID, item.Title, item.Artist, item.Album);
+                    bottomSheet.Dismiss();
+                }),
+                new BottomSheetAction(Resource.Drawable.PlaylistAdd, "Add to playlist", (sender, eventArg) => { Browse.GetPlaylist(item); bottomSheet.Dismiss(); }),
+                new BottomSheetAction(Resource.Drawable.Download, "Download", (sender, eventArg) =>
+                {
+                    Download(item.Title, item.YoutubeID);
+                    bottomSheet.Dismiss();
+                })
             });
-            builder.Show();
+            bottomSheet.Show();
         }
 
-        public void PlaylistMore(Song playlist)
+        public void PlaylistMore(Song item)
         {
-            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme);
-            builder.SetTitle("Pick an action");
-            builder.SetItems(new string[] { "Play In Order", "Random play", "Add To Queue", "Fork playlist", "Download" }, (senderAlert, args) =>
+            BottomSheetDialog bottomSheet = new BottomSheetDialog(MainActivity.instance);
+            View bottomView = LayoutInflater.Inflate(Resource.Layout.BottomSheet, null);
+            bottomView.FindViewById<TextView>(Resource.Id.bsTitle).Text = item.Title;
+            bottomView.FindViewById<TextView>(Resource.Id.bsArtist).Text = item.Artist;
+            Picasso.With(MainActivity.instance).Load(item.Album).Placeholder(Resource.Color.background_material_dark).Transform(new RemoveBlackBorder(true)).Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
+            bottomSheet.SetContentView(bottomView);
+
+            List<BottomSheetAction> actions = new List<BottomSheetAction>
             {
-                switch (args.Which)
+                new BottomSheetAction(Resource.Drawable.Play, "Play in order", (sender, eventArg) =>
                 {
-                    case 0:
-                        Playlist.PlayInOrder(playlist.YoutubeID);
-                        break;
-                    case 1:
-                        RandomPlay(playlist.YoutubeID);
-                        break;
-                    case 2:
-                        Playlist.AddToQueue(playlist.YoutubeID);
-                        break;
-                    case 3:
-#pragma warning disable CS4014
-                        ForkPlaylist(playlist.YoutubeID);
-                        break;
-                    case 4:
-                        DownloadPlaylist(playlist.Title, playlist.YoutubeID);
-                        break;
-                    default:
-                        break;
-                }
-            });
-            builder.Show();
+                    Playlist.PlayInOrder(item.YoutubeID);
+                    bottomSheet.Dismiss();
+                }),
+                new BottomSheetAction(Resource.Drawable.Shuffle, "Random play", (sender, eventArg) =>
+                {
+                    RandomPlay(item.YoutubeID);
+                    bottomSheet.Dismiss();
+                }),
+                new BottomSheetAction(Resource.Drawable.Queue, "Add to queue", (sender, eventArg) =>
+                {
+                    Playlist.AddToQueue(item.YoutubeID);
+                    bottomSheet.Dismiss();
+                }),
+                new BottomSheetAction(Resource.Drawable.LibraryAdd, "Add playlist to library", (sender, eventArg) =>
+                {
+                    ForkPlaylist(item.YoutubeID);
+                    bottomSheet.Dismiss();
+                }),
+                new BottomSheetAction(Resource.Drawable.Download, "Download", (sender, eventArg) =>
+                {
+                    DownloadPlaylist(item.Title, item.YoutubeID);
+                    bottomSheet.Dismiss();
+                })
+            };
+
+            bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, actions);
+            bottomSheet.Show();
         }
 
         public static void Play(string videoID, string title, string artist, string thumbnailURL, bool addToQueue = true, bool showPlayer = true)

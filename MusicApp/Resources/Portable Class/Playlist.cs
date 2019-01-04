@@ -478,11 +478,14 @@ namespace MusicApp.Resources.Portable_Class
             BottomSheetDialog bottomSheet = new BottomSheetDialog(MainActivity.instance);
             View bottomView = LayoutInflater.Inflate(Resource.Layout.BottomSheet, null);
             bottomView.FindViewById<TextView>(Resource.Id.bsTitle).Text = item.Name;
-            bottomView.FindViewById<TextView>(Resource.Id.bsArtist).Text = item.Owner;
             if (!local || item.SyncState != SyncState.False)
+            {
+                bottomView.FindViewById<TextView>(Resource.Id.bsArtist).Text = item.Owner;
                 Picasso.With(MainActivity.instance).Load(item.ImageURL).Placeholder(Resource.Color.background_material_dark).Transform(new RemoveBlackBorder(true)).Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
+            }
             else
             {
+                bottomView.FindViewById<TextView>(Resource.Id.bsArtist).Text = item.Count + " element" + (item.Count == 1 ? "" : "s");
                 bottomView.FindViewById<ImageView>(Resource.Id.bsArt).Visibility = ViewStates.Gone;
             }
             bottomSheet.SetContentView(bottomView);

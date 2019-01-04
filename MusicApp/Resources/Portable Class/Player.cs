@@ -250,7 +250,7 @@ namespace MusicApp
             if (asNext)
             {
                 Song next = await MusicPlayer.GetItem(MusicPlayer.CurrentID() + 1);
-                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle).Text = "Next music:";
+                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle).Text = "Up next:";
                 MainActivity.instance.FindViewById<TextView>(Resource.Id.nextArtist).Text = next.Title;
                 ImageView nextArt = MainActivity.instance.FindViewById<ImageView>(Resource.Id.nextArt);
 
@@ -268,7 +268,7 @@ namespace MusicApp
             }
             else if (MusicPlayer.useAutoPlay)
             {
-                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle).Text = "Next music:";
+                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle).Text = "Up next:";
                 ImageView nextArt = MainActivity.instance.FindViewById<ImageView>(Resource.Id.nextArt);
 
                 Song next = await MusicPlayer.GetItem(MusicPlayer.CurrentID() + 1);
@@ -299,7 +299,7 @@ namespace MusicApp
             else if (MusicPlayer.repeat)
             {
                 Song next = await MusicPlayer.GetItem(0);
-                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle).Text = "Next music:";
+                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle).Text = "Up next:";
                 MainActivity.instance.FindViewById<TextView>(Resource.Id.nextArtist).Text = next.Title;
                 ImageView nextArt = MainActivity.instance.FindViewById<ImageView>(Resource.Id.nextArt);
 
@@ -317,7 +317,7 @@ namespace MusicApp
             }
             else
             {
-                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle).Text = "Next music:";
+                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle).Text = "Up next:";
                 MainActivity.instance.FindViewById<TextView>(Resource.Id.nextArtist).Text = "Nothing.";
 
                 ImageView nextArt = MainActivity.instance.FindViewById<ImageView>(Resource.Id.nextArt);

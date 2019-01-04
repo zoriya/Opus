@@ -3,11 +3,13 @@ using Android.Database;
 using Android.Net;
 using Android.OS;
 using Android.Provider;
+using Android.Support.Design.Widget;
 using Android.Support.V4.App;
 using Android.Support.V7.App;
 using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
+using Square.Picasso;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -201,47 +203,54 @@ namespace MusicApp.Resources.Portable_Class
 
         public void More(Song item, int position)
         {
-            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
-            builder.SetTitle("Pick an action");
-            builder.SetItems(actions, async (senderAlert, args) =>
+            BottomSheetDialog bottomSheet = new BottomSheetDialog(MainActivity.instance);
+            View bottomView = LayoutInflater.Inflate(Resource.Layout.BottomSheet, null);
+            bottomView.FindViewById<TextView>(Resource.Id.bsTitle).Text = item.Title;
+            bottomView.FindViewById<TextView>(Resource.Id.bsArtist).Text = item.Artist;
+            if (item.Album == null)
             {
-                switch (args.Which)
+                var songCover = Uri.Parse("content://media/external/audio/albumart");
+                var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, item.AlbumArt);
+
+                Picasso.With(MainActivity.instance).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
+            }
+            else
+            {
+                Picasso.With(MainActivity.instance).Load(item.Album).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
+            }
+            bottomSheet.SetContentView(bottomView);
+
+            bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, new List<BottomSheetAction>
+            {
+                new BottomSheetAction(Resource.Drawable.Play, "Play", async (sender, eventArg) => 
                 {
-                    case 0:
-                        int Position = tracks.IndexOf(item);
+                    int Position = tracks.IndexOf(item);
 
-                        List<Song> queue = tracks.GetRange(Position + 1, tracks.Count - Position - 1);
-                        if (result != null)
-                        {
-                            queue = result.GetRange(Position + 1, result.Count - Position - 1);
-                        }
-                        queue.Reverse();
+                    List<Song> queue = tracks.GetRange(Position + 1, tracks.Count - Position - 1);
+                    if (result != null)
+                    {
+                        queue = result.GetRange(Position + 1, result.Count - Position - 1);
+                    }
+                    queue.Reverse();
 
-                        Browse.Play(item);
+                    Browse.Play(item);
 
-                        while (MusicPlayer.instance == null)
-                            await Task.Delay(10);
+                    while (MusicPlayer.instance == null)
+                        await Task.Delay(10);
 
-                        foreach (Song song in queue)
-                        {
-                            MusicPlayer.instance.AddToQueue(song);
-                        }
-                        Player.instance.UpdateNext();
-                        break;
-                    case 1:
-                        Browse.PlayNext(item);
-                        break;
-                    case 2:
-                        Browse.PlayLast(item);
-                        break;
-                    case 3:
-                        Browse.GetPlaylist(item);
-                        break;
-                    default:
-                        break;
-                }
+                    foreach (Song song in queue)
+                    {
+                        MusicPlayer.instance.AddToQueue(song);
+                    }
+                    Player.instance.UpdateNext();
+                    bottomSheet.Dismiss();
+                }),
+                new BottomSheetAction(Resource.Drawable.PlaylistPlay, "Play next", (sender, eventArg) => { Browse.PlayNext(item); bottomSheet.Dismiss(); }),
+                new BottomSheetAction(Resource.Drawable.Queue, "Play last", (sender, eventArg) => { Browse.PlayLast(item); bottomSheet.Dismiss(); }),
+                new BottomSheetAction(Resource.Drawable.PlaylistAdd, "Add to playlist", (sender, eventArg) => { Browse.GetPlaylist(item); bottomSheet.Dismiss(); }),
+                new BottomSheetAction(Resource.Drawable.Edit, "Edit metadata", (sender, eventArg) => { Browse.EditMetadata(item, "Browse", ListView.OnSaveInstanceState()); bottomSheet.Dismiss(); })
             });
-            builder.Show();
+            bottomSheet.Show();
         }
 
         public override void OnResume()

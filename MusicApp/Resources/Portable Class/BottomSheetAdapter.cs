@@ -43,7 +43,6 @@ namespace MusicApp.Resources.Portable_Class
             ((TextView)convertView).Text = items[position].name;
 
             Drawable icon = MainActivity.instance.GetDrawable(items[position].Ressource);
-            icon.Alpha = 178;
             if(MainActivity.Theme != 1)
                 icon.SetTintList(ColorStateList.ValueOf(Color.Black));
             else

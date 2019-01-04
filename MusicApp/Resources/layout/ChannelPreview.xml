@@ -11,7 +11,6 @@
     android:background="#141414"
     android:clickable="true"
     android:focusable="true"
-    android:foreground="?attr/selectableItemBackground"
     android:id="@+id/channelHolder" >
     <TextView
       android:layout_width="wrap_content"
@@ -28,34 +27,54 @@
       android:layout_marginRight="30dp"
       android:id="@+id/logo" />
   </RelativeLayout>
-  <LinearLayout
+  <RelativeLayout 
     android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:clickable="true"
-    android:focusable="true"
-    android:foreground="?attr/selectableItemBackground"
-    android:id="@+id/mixHolder" >
-    <ImageView
-      android:layout_width="0px"
-      android:layout_weight="1"
-      android:layout_height="match_parent"
-      android:id="@+id/channelLogo" />
+    android:layout_height="wrap_content" >
     <LinearLayout
-      android:layout_width="0px"
-      android:layout_weight="1"
-      android:layout_height="match_parent"
-      android:orientation="vertical" >
+      android:layout_width="fill_parent"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal"
+      android:clickable="true"
+      android:focusable="true"
+      android:id="@+id/mixHolder" >
       <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="0px"
+        android:layout_width="0px"
         android:layout_weight="1"
-        android:id="@+id/mixOne" />
-      <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="0px"
+        android:layout_height="match_parent"
+        android:id="@+id/channelLogo" />
+      <LinearLayout
+        android:layout_width="0px"
         android:layout_weight="1"
-        android:id="@+id/mixTwo" />
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+        <ImageView
+          android:layout_width="match_parent"
+          android:layout_height="0px"
+          android:layout_weight="1"
+          android:adjustViewBounds="true"
+          android:id="@+id/mixOne" />
+        <ImageView
+          android:layout_width="match_parent"
+          android:layout_height="0px"
+          android:layout_weight="1"
+          android:adjustViewBounds="true"
+          android:id="@+id/mixTwo" />
+      </LinearLayout>
     </LinearLayout>
-  </LinearLayout>
+    <TextView 
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="Create mix"
+      android:drawableLeft="@drawable/PlayCircle"
+      android:textColor="?colorAccent"
+      android:drawableTint="?colorAccent"
+      android:shadowRadius="1"
+      android:textStyle="bold"
+      android:layout_alignParentBottom="true"
+      android:layout_marginLeft="25dp"
+      android:translationY="-15dp"
+      android:padding="5dp"
+      android:background="@drawable/FlatButtonBorder"
+      android:elevation="16dp" />
+  </RelativeLayout>
 </LinearLayout>

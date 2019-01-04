@@ -5,8 +5,8 @@ namespace MusicApp.Resources.Portable_Class
 {
     public class RemoveBlackBorder : Java.Lang.Object, ITransformation
     {
-        private bool ResultIsSquare = false;
-        public string Key { get { return "NoBorder"; } }
+        private readonly bool ResultIsSquare = false;
+        public string Key => "NoBorder-" + ResultIsSquare;
 
         public RemoveBlackBorder() { }
 
