@@ -272,10 +272,9 @@ namespace MusicApp
                 ImageView nextArt = MainActivity.instance.FindViewById<ImageView>(Resource.Id.nextArt);
 
                 Song next = await MusicPlayer.GetItem(MusicPlayer.CurrentID() + 1);
-                Console.WriteLine("&Using autoplay player next");
                 if(next != null)
                 {
-                    MainActivity.instance.FindViewById<TextView>(Resource.Id.nextArtist).Text = "AP: " + next.Title;
+                    MainActivity.instance.FindViewById<TextView>(Resource.Id.nextArtist).Text = next.Title;
 
                     if (next.Album == null)
                     {

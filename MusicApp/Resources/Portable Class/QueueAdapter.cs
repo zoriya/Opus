@@ -47,7 +47,7 @@ namespace MusicApp.Resources.Portable_Class
                 QueueFooter holder = (QueueFooter)viewHolder;
                 holder.SwitchButton.Checked = MusicPlayer.useAutoPlay;
 
-                if (MusicPlayer.CurrentID() == ItemCount - 2 && MusicPlayer.useAutoPlay)
+                if (MusicPlayer.CurrentID() == ItemCount - 2 || MusicPlayer.CurrentID() == ItemCount - 3 && MusicPlayer.useAutoPlay)
                 {
                     holder.Autoplay.Visibility = ViewStates.Visible;
 
@@ -68,6 +68,13 @@ namespace MusicApp.Resources.Portable_Class
 
                         Song ap = MusicPlayer.autoPlay[0];
                         holder.NextTitle.Text = ap.Title;
+
+                        if (MainActivity.Theme == 1)
+                            holder.NextTitle.SetTextColor(Color.White);
+                        else
+                            holder.NextTitle.SetTextColor(Color.Black);
+
+                        holder.NextTitle.SetBackgroundResource(Android.Resource.Color.Transparent);
                         if (ap.IsYt)
                             Picasso.With(MainActivity.instance).Load(ap.Album).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(holder.NextAlbum);
                         else
@@ -212,12 +219,12 @@ namespace MusicApp.Resources.Portable_Class
                 else
                     holder.Title.SetTextSize(Android.Util.ComplexUnitType.Dip, 14);
 
-                if (!song.IsParsed && song.IsYt)
+                if (song.IsParsed != true && song.IsYt)
                 {
                     holder.youtubeIcon.SetImageResource(Resource.Drawable.needProcessing);
                     holder.youtubeIcon.Visibility = ViewStates.Visible;
                 }
-                else if (song.IsYt)
+                else if (song.IsParsed == true && song.IsYt)
                 {
                     holder.youtubeIcon.SetImageResource(Resource.Drawable.PublicIcon);
                     holder.youtubeIcon.Visibility = ViewStates.Visible;

@@ -56,10 +56,7 @@ namespace MusicApp.Resources.Portable_Class
             ListView.ScrollToPosition(MusicPlayer.CurrentID());
         }
 
-        private void Scroll(object sender, View.ScrollChangeEventArgs e)
-        {
-
-        }
+        private void Scroll(object sender, View.ScrollChangeEventArgs e) { }
 
         protected override void OnStop()
         {

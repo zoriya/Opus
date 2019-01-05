@@ -350,7 +350,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public async void Play(Song song, long progress = -1)
         {
-            if (!song.IsParsed)
+            if (song.IsParsed != true)
             {
                 song = await ParseSong(song);
                 return;
@@ -452,9 +452,17 @@ namespace MusicApp.Resources.Portable_Class
 
         private static async Task<Song> ParseSong(Song song, int position = -1)
         {
-            if (song.IsParsed || !song.IsYt)
+            if (song.IsParsed == true || !song.IsYt)
                 return song;
 
+            if(song.IsParsed == null)
+            {
+                while (song.IsParsed == null)
+                    await Task.Delay(10);
+
+                return song; //Song is a class, the youtube id will be updated with another method
+            }
+                
             try
             {
                 YoutubeClient client = new YoutubeClient();
@@ -912,7 +920,7 @@ namespace MusicApp.Resources.Portable_Class
         public async void SwitchQueue(int position, bool showPlayer = false, bool StartFromOldPosition = true)
         {
             Song song = await GetItem(position);
-            if (!song.IsParsed)
+            if (song.IsParsed != true)
             {
                 Player.instance?.Buffering();
                 if (MainActivity.instance != null && showPlayer)
@@ -1014,6 +1022,7 @@ namespace MusicApp.Resources.Portable_Class
                 Player.instance?.RefreshPlayer();
                 Home.instance?.AddQueue();
                 Queue.instance?.RefreshCurrent();
+                Queue.instance?.RefreshAP();
                 ParseNextSong();
             }
 
@@ -1153,7 +1162,7 @@ namespace MusicApp.Resources.Portable_Class
 
         static Song RemoveParseValues(Song song)
         {
-            if (song.IsYt && song.IsParsed)
+            if (song.IsYt && song.IsParsed != false)
             {
                 if (song.ExpireDate != null && song.ExpireDate.Value.Subtract(DateTimeOffset.UtcNow) > TimeSpan.Zero)
                 {
@@ -1195,20 +1204,22 @@ namespace MusicApp.Resources.Portable_Class
             if (CurrentID() == -1 || UseCastPlayer)
                 return;
 
-            if(queue.Count == CurrentID() + 1)
+            if (queue.Count == CurrentID() + 1)
             {
-                if(useAutoPlay && autoPlay.Count > 0)
+                if (useAutoPlay && autoPlay.Count > 0)
                 {
                     Song song = autoPlay[0];
-                    if (song.IsParsed || !song.IsYt)
+                    if (song.IsParsed != false || !song.IsYt)
                         return;
-                    autoPlay[0] = await ParseSong(song);
+                    song = await ParseSong(song);
+                    if(autoPlay.Count > 0 && autoPlay[0].YoutubeID == song.YoutubeID)
+                        autoPlay[0] = song;
                 }
             }
             else
             {
                 Song song = queue[CurrentID() + 1];
-                if (song.IsParsed || !song.IsYt)
+                if (song.IsParsed != false || !song.IsYt)
                     return;
 
                 queue[currentID + 1] = await ParseSong(song, currentID + 1);
@@ -1485,7 +1496,7 @@ namespace MusicApp.Resources.Portable_Class
 
                 for (int i = 0; i < queue.Count; i++)
                 {
-                    if (queue[i].IsYt && !queue[i].IsParsed)
+                    if (queue[i].IsYt && queue[i].IsParsed != true)
                         queue[i] = await ParseSong(queue[i], i);
                 }
 

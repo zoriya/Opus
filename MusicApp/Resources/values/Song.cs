@@ -18,7 +18,7 @@ namespace MusicApp.Resources.values
         public string YoutubeID { get; set; }
         public long Id { get; set; }
         public string Path { get; set; }
-        public bool IsParsed { get; set; }
+        public bool? IsParsed { get; set; }
         public bool IsYt { get; set; }
         public DateTimeOffset? ExpireDate { get; set;}
         public bool IsLiveStream = false;
