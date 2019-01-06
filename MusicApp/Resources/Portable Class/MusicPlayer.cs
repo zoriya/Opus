@@ -1518,11 +1518,11 @@ namespace MusicApp.Resources.Portable_Class
                     RemotePlayer.Play();
 
                 Initialized = true;
-                GetQueueFromCast();
+                GetQueueFromCast(true);
             }
         }
 
-        public async static void GetQueueFromCast()
+        public async static void GetQueueFromCast(bool forceShowPlayer = false)
         {
             if (UseCastPlayer && Initialized)
             {
@@ -1530,6 +1530,8 @@ namespace MusicApp.Resources.Portable_Class
                     currentID = RemotePlayer.MediaQueue.IndexOfItemWithId(RemotePlayer.CurrentItem.ItemId);
 
                 bool showPlayer = queue.Count == 0;
+                if (forceShowPlayer)
+                    showPlayer = true;
 
                 queue.Clear();
                 for (int i = 0; i < RemotePlayer.MediaQueue.ItemCount; i++)
@@ -1546,9 +1548,6 @@ namespace MusicApp.Resources.Portable_Class
                     }
 
                     Console.WriteLine("&Fetched");
-
-                    foreach (Song song in queue)
-                        Console.WriteLine("&Song: " + song?.Title);
 
                     Intent intent = new Intent(MainActivity.instance, typeof(MusicPlayer));
                     intent.SetAction("CastListener");
@@ -1568,7 +1567,6 @@ namespace MusicApp.Resources.Portable_Class
                 }
             }
         }
-
 
         public void Stop()
         {

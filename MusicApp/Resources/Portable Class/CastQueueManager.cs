@@ -5,11 +5,19 @@ namespace MusicApp.Resources.Portable_Class
 {
     public class CastQueueManager : MediaQueue.Callback
     {
+        public override void ItemsInsertedInRange(int insertIndex, int insertCount)
+        {
+            base.ItemsInsertedInRange(insertIndex, insertCount);
+            if(MusicPlayer.queue.Count == insertCount)
+                MainActivity.instance.ShowSmallPlayer();
+        }
+
         public override void ItemsReloaded()
         {
             base.ItemsReloaded();
             Queue.instance?.adapter.NotifyDataSetChanged();
             Home.instance?.QueueAdapter?.NotifyDataSetChanged();
+            Player.instance?.RefreshPlayer();
         }
 
         public override void ItemsRemovedAtIndexes(int[] indexes)
@@ -19,12 +27,16 @@ namespace MusicApp.Resources.Portable_Class
             {
                 Queue.instance?.adapter.NotifyItemRemoved(index);
                 Home.instance?.QueueAdapter?.NotifyItemRemoved(index);
+
+                if (index == MusicPlayer.CurrentID())
+                    Player.instance.RefreshPlayer();
             }
         }
 
         public override void ItemsUpdatedAtIndexes(int[] indexes)
         {
             base.ItemsUpdatedAtIndexes(indexes);
+            System.Console.WriteLine("&Item Updated at Index");
             foreach (int index in indexes)
             {
                 Song song = (Song)MusicPlayer.RemotePlayer.MediaQueue.GetItemAtIndex(index);
@@ -46,6 +58,9 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     Queue.instance?.adapter.NotifyItemChanged(index, song.Title);
                     Home.instance?.QueueAdapter?.NotifyItemChanged(index, song.Title);
+
+                    if (index == MusicPlayer.CurrentID())
+                        Player.instance.RefreshPlayer();
                 }
 
                 MusicPlayer.WaitForIndex.Remove(index);

@@ -320,6 +320,11 @@ namespace MusicApp.Resources.Portable_Class
             else if (MusicPlayer.currentID == fromPosition)
                 MusicPlayer.currentID = toPosition;
 
+            if (MusicPlayer.UseCastPlayer)
+            {
+                int nextItemID = MusicPlayer.RemotePlayer.MediaQueue.ItemCount > toPosition ? MusicPlayer.RemotePlayer.MediaQueue.ItemIdAtIndex(toPosition + 1) : 0; //0 = InvalidItemID = end of the queue
+                MusicPlayer.RemotePlayer.QueueReorderItems(new int[] { MusicPlayer.RemotePlayer.MediaQueue.ItemIdAtIndex(fromPosition) }, nextItemID, null);
+            }
             MusicPlayer.UpdateQueueDataBase();
         }
         
