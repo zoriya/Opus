@@ -6,20 +6,20 @@ using Android.Provider;
 using Android.Support.Design.Widget;
 using Android.Support.V4.App;
 using Android.Support.V7.App;
+using Android.Util;
 using Android.Views;
 using Android.Widget;
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
 using MusicApp.Resources.values;
+using SQLite;
 using Square.Picasso;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using static Android.Provider.MediaStore.Audio;
-using RecyclerView = Android.Support.V7.Widget.RecyclerView;
+using CursorLoader = Android.Support.V4.Content.CursorLoader;
 using PopupMenu = Android.Support.V7.Widget.PopupMenu;
-using Android.Util;
-using SQLite;
+using RecyclerView = Android.Support.V7.Widget.RecyclerView;
 
 namespace MusicApp.Resources.Portable_Class
 {

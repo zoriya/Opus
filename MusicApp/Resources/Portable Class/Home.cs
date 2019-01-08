@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CursorLoader = Android.Support.V4.Content.CursorLoader;
 
 namespace MusicApp.Resources.Portable_Class
 {

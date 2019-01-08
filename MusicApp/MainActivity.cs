@@ -44,6 +44,7 @@ using System.Threading.Tasks;
 using TagLib;
 using YoutubeExplode;
 using YoutubeExplode.Models;
+using CursorLoader = Android.Support.V4.Content.CursorLoader;
 using ICallback = Square.OkHttp.ICallback;
 using Playlist = MusicApp.Resources.Portable_Class.Playlist;
 using Request = Square.OkHttp.Request;
@@ -372,7 +373,7 @@ namespace MusicApp
 
         public void Scroll(object sender, AbsListView.ScrollEventArgs e)
         {
-            contentRefresh.SetEnabled(e.FirstVisibleItem == 0);
+            contentRefresh.Enabled = e.FirstVisibleItem == 0;
 
             if(PlaylistTracks.instance != null)
             {
@@ -387,7 +388,7 @@ namespace MusicApp
         {
             if(Home.instance != null)
             {
-                contentRefresh.SetEnabled(((LinearLayoutManager)Home.instance.ListView.GetLayoutManager()).FindFirstCompletelyVisibleItemPosition() == 0);
+                contentRefresh.Enabled = ((LinearLayoutManager)Home.instance.ListView.GetLayoutManager()).FindFirstCompletelyVisibleItemPosition() == 0;
             }
         }
 
@@ -789,7 +790,7 @@ namespace MusicApp
 
         public void OnPageScrollStateChanged(int state)
         {
-            contentRefresh.SetEnabled( state == ViewPager.ScrollStateIdle );
+            contentRefresh.Enabled = state == ViewPager.ScrollStateIdle;
         }
 
         public void OnPageScrolled(int position, float positionOffset, int positionOffsetPixels) { }
@@ -1290,7 +1291,9 @@ namespace MusicApp
                 Network[] allNetworks = connectivityManager.GetAllNetworks();
                 for (int i = 0; i < allNetworks.Length; i++)
                 {
+#pragma warning disable CS0618 // Type or member is obsolete
                     if (allNetworks[i] != null && connectivityManager.GetNetworkInfo(allNetworks[i]).IsConnected && connectivityManager.GetNetworkInfo(allNetworks[i]).Type == ConnectivityType.Wifi)
+#pragma warning restore CS0618 // Type or member is obsolete
                         return true;
                 }
             }

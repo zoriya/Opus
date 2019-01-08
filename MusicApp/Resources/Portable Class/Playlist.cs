@@ -3,7 +3,6 @@ using Android.Content.Res;
 using Android.Database;
 using Android.Graphics;
 using Android.OS;
-using Android.Provider;
 using Android.Support.Design.Widget;
 using Android.Support.V4.App;
 using Android.Support.V7.App;
@@ -18,6 +17,7 @@ using Square.Picasso;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using static Android.Provider.MediaStore.Audio;
+using CursorLoader = Android.Support.V4.Content.CursorLoader;
 
 namespace MusicApp.Resources.Portable_Class
 {

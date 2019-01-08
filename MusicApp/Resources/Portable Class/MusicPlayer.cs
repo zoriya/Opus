@@ -32,6 +32,7 @@ using System.Threading.Tasks;
 using YoutubeExplode;
 using YoutubeExplode.Models;
 using static Android.Support.V4.Media.App.NotificationCompat;
+using CursorLoader = Android.Support.V4.Content.CursorLoader;
 using MediaInfo = Android.Gms.Cast.MediaInfo;
 using MediaMetadata = Android.Gms.Cast.MediaMetadata;
 using Uri = Android.Net.Uri;
@@ -599,7 +600,7 @@ namespace MusicApp.Resources.Portable_Class
                 Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
 
                 List<Song> allSongs = new List<Song>();
-                Android.Content.CursorLoader cursorLoader = new Android.Content.CursorLoader(Application.Context, musicUri, null, null, null, null);
+                CursorLoader cursorLoader = new CursorLoader(Application.Context, musicUri, null, null, null, null);
                 ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
 
                 if (musicCursor != null && musicCursor.MoveToFirst())

@@ -3,8 +3,8 @@ using Android.Gms.Auth.Api;
 using Android.Gms.Auth.Api.SignIn;
 using Android.Gms.Common.Apis;
 using Android.Graphics;
-using Android.Preferences;
 using Android.Runtime;
+using Android.Support.V7.Preferences;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
@@ -30,10 +30,11 @@ public class AccountPreference : Preference, IResultCallback
 
     protected AccountPreference(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer) { }
 
-    protected override void OnBindView(View view)
+
+    public override void OnBindViewHolder(PreferenceViewHolder holder)
     {
-        base.OnBindView(view);
-        this.view = view;
+        base.OnBindViewHolder(holder);
+        view = holder.ItemView;
         Button log = (Button)view.FindViewById(Resource.Id.logButton);
 
         logIn = (s, e) => { LogIn(); };

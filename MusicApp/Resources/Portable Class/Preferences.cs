@@ -7,6 +7,8 @@ using Android.Gms.Auth.Api.SignIn;
 using Android.OS;
 using Android.Preferences;
 using Android.Runtime;
+using Android.Support.V7.App;
+using Android.Support.V7.Preferences;
 using Android.Views;
 using Android.Widget;
 using System.Collections.Generic;
@@ -15,12 +17,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using static Android.Provider.MediaStore.Audio;
 using AlertDialog = Android.Support.V7.App.AlertDialog;
+using CursorLoader = Android.Support.V4.Content.CursorLoader;
+using Preference = Android.Support.V7.Preferences.Preference;
+using PreferenceManager = Android.Support.V7.Preferences.PreferenceManager;
 using Toolbar = Android.Support.V7.Widget.Toolbar;
 
 namespace MusicApp.Resources.Portable_Class
 {
     [Activity(Label = "Settings", Theme = "@style/Theme")]
-    public class Preferences : PreferenceActivity
+    public class Preferences : AppCompatActivity
     {
         public static Preferences instance;
         public Toolbar toolbar;
@@ -28,18 +33,17 @@ namespace MusicApp.Resources.Portable_Class
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-
-            if(MainActivity.Theme == 1)
-            {
+            if (MainActivity.Theme == 1)
+                //{
                 SetTheme(Resource.Style.DarkPreferences);
-                Window.SetNavigationBarColor(Android.Graphics.Color.Argb(255, 33, 33, 33));
-            }              
+            //    Window.SetNavigationBarColor(Android.Graphics.Color.Argb(255, 33, 33, 33));
+            //}
+            SetContentView(Resource.Layout.PreferenceRoot);
+            toolbar = FindViewById<Toolbar>(Resource.Id.toolbar);
+            SetSupportActionBar(toolbar);
 
             instance = this;
             Window.SetStatusBarColor(Android.Graphics.Color.Argb(255, 33, 33, 33));
-            LinearLayout root = (LinearLayout)FindViewById(Android.Resource.Id.List).Parent.Parent.Parent;
-            toolbar = (Toolbar)LayoutInflater.From(this).Inflate(Resource.Layout.PreferenceToolbar, root, false);
-            AddContentView(toolbar, toolbar.LayoutParameters);
             toolbar.Title = "Settings";
             toolbar.NavigationClick += (sender, e) =>
             {
@@ -58,7 +62,7 @@ namespace MusicApp.Resources.Portable_Class
                         PreferencesFragment.instance.path = DownloadFragment.instance.path;
 
                         DownloadFragment.instance = null;
-                        FragmentManager.PopBackStack();
+                        SupportFragmentManager.PopBackStack();
                     }
                     else if (TopicSelector.instance != null)
                     {
@@ -72,7 +76,7 @@ namespace MusicApp.Resources.Portable_Class
                         editor.PutStringSet("selectedTopics", topics);
                         editor.Apply();
                         TopicSelector.instance = null;
-                        FragmentManager.PopBackStack();
+                        SupportFragmentManager.PopBackStack();
 
                         Preference topicPreference = PreferencesFragment.instance.PreferenceScreen.FindPreference("topics");
                         if (topics.Count == 0)
@@ -89,7 +93,7 @@ namespace MusicApp.Resources.Portable_Class
                 }
             };
 
-            FragmentManager.BeginTransaction().Replace(Android.Resource.Id.Content, new PreferencesFragment()).Commit();
+            SupportFragmentManager.BeginTransaction().Replace(Resource.Id.PreferenceFragment, new PreferencesFragment()).Commit();
         }
 
         protected override void OnStop()
@@ -124,7 +128,7 @@ namespace MusicApp.Resources.Portable_Class
         }
     }
 
-    public class PreferencesFragment : PreferenceFragment
+    public class PreferencesFragment : PreferenceFragmentCompat
     {
         public static PreferencesFragment instance;
         public string path;
@@ -133,13 +137,12 @@ namespace MusicApp.Resources.Portable_Class
         //Local Shortcut
         private int LSposition;
 
-        public override void OnCreate(Bundle savedInstanceState)
+        public override void OnCreatePreferences(Bundle savedInstanceState, string rootKey)
         {
-            base.OnCreate(savedInstanceState);
             AskForPermission();
 
             instance = this;
-            AddPreferencesFromResource(Resource.Layout.Preferences);
+            SetPreferencesFromResource(Resource.Layout.Preferences, rootKey);
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
 
             //Music Genres
@@ -233,7 +236,6 @@ namespace MusicApp.Resources.Portable_Class
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             view = base.OnCreateView(inflater, container, savedInstanceState);
-            view.SetPadding(0, MainActivity.instance.SupportActionBar.Height, 0, 0);
             if (MainActivity.Theme == 1)
                 view.SetBackgroundColor(Android.Graphics.Color.Argb(225, 33, 33, 33));
             return view;
@@ -251,7 +253,7 @@ namespace MusicApp.Resources.Portable_Class
         #region Topic Preference
         private void TopicPreference(object sender, Preference.PreferenceClickEventArgs e)
         {
-            FragmentManager.BeginTransaction().Replace(Android.Resource.Id.Content, TopicSelector.NewInstance()).AddToBackStack(null).Commit();
+            Preferences.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.PreferenceFragment, TopicSelector.NewInstance()).AddToBackStack(null).Commit();
             Preferences.instance.toolbar.Title = "Music Genres";
         }
         #endregion
@@ -288,7 +290,7 @@ namespace MusicApp.Resources.Portable_Class
 
         void LCShuffleAll()
         {
-            ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
+            ISharedPreferences pref = Android.Support.V7.Preferences.PreferenceManager.GetDefaultSharedPreferences(Application.Context);
             ISharedPreferencesEditor editor = pref.Edit();
             editor.PutString("localPlay", "Shuffle All Audio Files");
             editor.Apply();
@@ -332,7 +334,7 @@ namespace MusicApp.Resources.Portable_Class
 
         void LCSufflePlaylist(string playlist, long playlistID)
         {
-            ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
+            ISharedPreferences pref = Android.Support.V7.Preferences.PreferenceManager.GetDefaultSharedPreferences(Application.Context);
             ISharedPreferencesEditor editor = pref.Edit();
             editor.PutString("localPlay", "Shuffle " + playlist);
             editor.PutLong("localPlaylistID", playlistID);
@@ -346,7 +348,7 @@ namespace MusicApp.Resources.Portable_Class
         #region Download location
         private void DownloadClick(object sender, Preference.PreferenceClickEventArgs e)
         {
-            FragmentManager.BeginTransaction().Replace(Android.Resource.Id.Content, DownloadFragment.NewInstance(path)).AddToBackStack(null).Commit();
+            Preferences.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.PreferenceFragment, DownloadFragment.NewInstance(path)).AddToBackStack(null).Commit();
             Preferences.instance.toolbar.Title = "Download Location";
         }
         #endregion

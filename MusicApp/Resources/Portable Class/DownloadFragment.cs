@@ -1,6 +1,7 @@
-﻿using Android.App;
-using Android.Graphics;
+﻿using Android.Graphics;
 using Android.OS;
+using Android.Runtime;
+using Android.Support.V4.App;
 using Android.Views;
 using Android.Widget;
 using Java.IO;
@@ -11,6 +12,7 @@ using System.Linq;
 
 namespace MusicApp.Resources.Portable_Class
 {
+    [Register("MusicApp/DownloadFragment")]
     public class DownloadFragment : ListFragment
     {
         public static DownloadFragment instance;
@@ -24,8 +26,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             base.OnActivityCreated(savedInstanceState);
             folders = ListFolders();
-            ListView.SetPadding(0, Preferences.instance.toolbar.Height, 0, 0);
-            adapter = new FolderAdapter(Application.Context, Resource.Layout.folderList, folders);
+            adapter = new FolderAdapter(Android.App.Application.Context, Resource.Layout.folderList, folders);
             if (path != null)
                 adapter.selectedPosition = folders.FindIndex(x => x.uri == path);
             else

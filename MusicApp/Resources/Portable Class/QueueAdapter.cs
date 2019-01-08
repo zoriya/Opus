@@ -5,7 +5,6 @@ using Android.Graphics;
 using Android.Support.Design.Widget;
 using Android.Support.V7.Widget;
 using Android.Views;
-using Java.Lang;
 using MusicApp.Resources.values;
 using Square.Picasso;
 using System;
@@ -210,7 +209,7 @@ namespace MusicApp.Resources.Portable_Class
                     holder.reorder.Touch += (sender, e) =>
                     {
                         Queue.instance.itemTouchHelper.StartDrag(viewHolder);
-                        MainActivity.instance.contentRefresh.SetEnabled(false);
+                        MainActivity.instance.contentRefresh.Enabled = false;
                     };
                 }
 

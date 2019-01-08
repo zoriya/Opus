@@ -54,7 +54,11 @@ namespace MusicApp.Resources.Portable_Class
             itemTouchHelper.AttachToRecyclerView(ListView);
 
             ListView.ScrollToPosition(MusicPlayer.CurrentID());
+
+            if (MusicPlayer.UseCastPlayer)
+                Snackbar.Make(FindViewById(Resource.Id.recycler), "Queue management with chromecast is currently in beta, expect some bugs.", (int)ToastLength.Short).Show();
         }
+
 
         private void Scroll(object sender, View.ScrollChangeEventArgs e) { }
 
@@ -168,7 +172,7 @@ namespace MusicApp.Resources.Portable_Class
 
         private void ListView_ItemLongCLick(object sender, int e)
         {
-            MainActivity.instance.contentRefresh.SetEnabled(false);
+            MainActivity.instance.contentRefresh.Enabled = false;
         }
 
         public void More(int position)

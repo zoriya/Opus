@@ -134,10 +134,10 @@ namespace MusicApp.Resources.Portable_Class
             searchView.QueryTextSubmit += (s, e) =>
             {
                 searched = true;
-                AddQueryToHistory(e.Query);
+                AddQueryToHistory(e.NewText);
                 Finish();
                 OverridePendingTransition(Android.Resource.Animation.FadeIn, Android.Resource.Animation.FadeOut);
-                MainActivity.instance.SearchOnYoutube(e.Query);
+                MainActivity.instance.SearchOnYoutube(e.NewText);
                 e.Handled = true;
             };
             searchItem.SetOnActionExpandListener(this);

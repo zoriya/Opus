@@ -11,7 +11,6 @@ using Android.Support.V4.App;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
-using Java.Nio;
 using MusicApp.Resources.values;
 using SQLite;
 using Square.Picasso;
@@ -26,6 +25,7 @@ using YoutubeExplode.Models;
 using YoutubeExplode.Models.MediaStreams;
 using static Android.Provider.MediaStore.Audio;
 using Bitmap = Android.Graphics.Bitmap;
+using CursorLoader = Android.Support.V4.Content.CursorLoader;
 using File = System.IO.File;
 using Stream = System.IO.Stream;
 

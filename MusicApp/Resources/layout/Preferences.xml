@@ -1,50 +1,50 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<PreferenceScreen
+<android.support.v7.preference.PreferenceScreen
   xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android/com/apk/res-auto"
   android:id="@+id/PreferenceScreen">
-  <PreferenceCategory android:title="Behavior">
-    <Preference 
+  <android.support.v7.preference.PreferenceCategory android:title="Behavior">
+    <android.support.v7.preference.Preference
       android:key="topics"
       android:title="Music genres your interesed in"
       android:summary="Actualy nothing"/>
-    <Preference
+    <android.support.v7.preference.Preference
       android:key="localPlay"
       android:title="Local Play Shortcut"
       android:summary="Shuffle All Audio Files" />
-    <Preference
+    <android.support.v7.preference.Preference
       android:key="skipExistVerification"
       android:title="Never play local file instead of youtube one"
       android:summary="Shuffle All Audio Files" />
     <SeekbarPreference
       android:title="Volume"
       android:key="volumeMultipler" />
-  </PreferenceCategory>
-  <PreferenceCategory android:title="Download">
-    <Preference
+  </android.support.v7.preference.PreferenceCategory>
+  <android.support.v7.preference.PreferenceCategory android:title="Download">
+    <android.support.v7.preference.Preference
       android:key="downloadPath"
       android:title="Download directory"
-      android:summary="test"/>
-    <Preference
+      android:summary="test" />
+    <android.support.v7.preference.Preference
       android:key="maxDownload"
       android:title="Maximum current download"
       android:summary="4"/>
-    <Preference
+    <android.support.v7.preference.Preference
       android:key="keepDeleted"
       android:title="Delete song when removing them from a synced playlist"
       android:summary="true"/>
-  </PreferenceCategory>
-  <PreferenceCategory android:title="Appearances">
-    <Preference
+  </android.support.v7.preference.PreferenceCategory>
+  <android.support.v7.preference.PreferenceCategory android:title="Appearances">
+    <android.support.v7.preference.Preference
       android:key="theme"
       android:title="Theme :"
       android:summary="White Theme" />
-  </PreferenceCategory>
-  <PreferenceCategory android:title="Others">
-    <Preference
+  </android.support.v7.preference.PreferenceCategory>
+  <android.support.v7.preference.PreferenceCategory android:title="Others">
+    <android.support.v7.preference.Preference
       android:title="Check for updates"
       android:key="update"/>
-    <Preference
+    <android.support.v7.preference.Preference
       android:title="Version :"
       android:key="version" />
     <AccountPreference
@@ -53,5 +53,5 @@
       android:id="@+id/accountPreference"
       android:widgetLayout="@layout/LogOutButton"
       android:title="Not logged in" />
-  </PreferenceCategory>
-</PreferenceScreen>
+  </android.support.v7.preference.PreferenceCategory>
+</android.support.v7.preference.PreferenceScreen>

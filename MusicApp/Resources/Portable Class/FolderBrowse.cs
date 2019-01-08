@@ -13,6 +13,7 @@ using Android.Widget;
 using MusicApp.Resources.values;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using CursorLoader = Android.Support.V4.Content.CursorLoader;
 
 namespace MusicApp.Resources.Portable_Class
 {

@@ -72,7 +72,7 @@ namespace MusicApp.Resources.Portable_Class
         public override void OnSwiped(RecyclerView.ViewHolder viewHolder, int direction)
         {
             adapter.ItemDismissed(viewHolder.AdapterPosition);
-            MainActivity.instance.contentRefresh.SetEnabled(true);
+            MainActivity.instance.contentRefresh.Enabled = true;
         }
 
         public override void OnChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, bool isCurrentlyActive)
@@ -82,9 +82,9 @@ namespace MusicApp.Resources.Portable_Class
                 viewHolder.ItemView.TranslationX = dX;
 
                 if(isCurrentlyActive)
-                    MainActivity.instance.contentRefresh.SetEnabled(false);
+                    MainActivity.instance.contentRefresh.Enabled = false;
                 else
-                    MainActivity.instance.contentRefresh.SetEnabled(true);
+                    MainActivity.instance.contentRefresh.Enabled = true;
 
                 ColorDrawable background = new ColorDrawable(Color.Red);
                 if (dX < 0)
@@ -121,7 +121,7 @@ namespace MusicApp.Resources.Portable_Class
 
             viewHolder.ItemView.Alpha = 1;
 
-            MainActivity.instance.contentRefresh.SetEnabled(true);
+            MainActivity.instance.contentRefresh.Enabled = true;
 
             if (from != -1 && to != -1 && from != to)
                 adapter.ItemMoveEnded(from, to);

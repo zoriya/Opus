@@ -1,9 +1,8 @@
-﻿using Android.App;
-using Android.Content;
+﻿using Android.Content;
 using Android.Graphics;
 using Android.OS;
+using Android.Support.V4.App;
 using Android.Support.V7.Preferences;
-using Android.Util;
 using Android.Views;
 using Android.Widget;
 using Google.Apis.YouTube.v3;
@@ -28,7 +27,6 @@ namespace MusicApp.Resources.Portable_Class
         public async override void OnActivityCreated(Bundle savedInstanceState)
         {
             base.OnActivityCreated(savedInstanceState);
-            ListView.SetPadding(0, Preferences.instance.toolbar.Height, 0, 0);
             if (!await MainActivity.instance.WaitForYoutube())
             {
                 System.Console.WriteLine("&Youtube awaited");
@@ -45,7 +43,7 @@ namespace MusicApp.Resources.Portable_Class
 
             List<Song> channelList = new List<Song>();
 
-            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
+            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Android.App.Application.Context);
             List<string> topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
             foreach(string topic in topics)
             {
@@ -118,7 +116,7 @@ namespace MusicApp.Resources.Portable_Class
 
             channels = channelList.OrderBy(x => x.Title).ToList();
 
-            adapter = new ChannelAdapter(Application.Context, Resource.Layout.ChannelList, channels);
+            adapter = new ChannelAdapter(Android.App.Application.Context, Resource.Layout.ChannelList, channels);
             ListAdapter = adapter;
             ListView.TextFilterEnabled = true;
             ListView.ItemClick += ListView_ItemClick;
