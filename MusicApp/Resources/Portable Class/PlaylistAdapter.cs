@@ -190,7 +190,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             if (viewType == 0)
             {
-                View itemView = LayoutInflater.From(parent.Context).Inflate(Android.Resource.Layout.PreferenceCategory, parent, false);
+                View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.PreferenceCategory, parent, false);
                 return new HeaderHolder(itemView, null, null);
             }
             else if(viewType == 1)

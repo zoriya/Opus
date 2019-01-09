@@ -3,7 +3,7 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android/com/apk/res-auto"
   android:id="@+id/PreferenceScreen">
-  <android.support.v7.preference.PreferenceCategory android:title="Behavior">
+  <android.support.v7.preference.PreferenceCategory android:title="Behavior" android:id="@+id/behavior" >
     <android.support.v7.preference.Preference
       android:key="topics"
       android:title="Music genres your interesed in"

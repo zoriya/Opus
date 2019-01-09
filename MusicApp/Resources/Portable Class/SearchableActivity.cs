@@ -36,6 +36,7 @@ namespace MusicApp.Resources.Portable_Class
                 SetTheme(Resource.Style.DarkTheme);
 
             SetContentView(Resource.Layout.SearchLayout);
+            Window.SetNavigationBarColor(Android.Graphics.Color.Argb(255, 33, 33, 33));
 
             Toolbar ToolBar = FindViewById<Toolbar>(Resource.Id.toolbar);
             SetSupportActionBar(ToolBar);
@@ -188,7 +189,8 @@ namespace MusicApp.Resources.Portable_Class
         protected override void OnStop()
         {
             base.OnStop();
-            if(!searched && YoutubeEngine.instances == null)
+            Window.SetNavigationBarColor(Android.Graphics.Color.Transparent);
+            if (!searched && YoutubeEngine.instances == null)
                 MainActivity.instance.CancelSearch();
         }
 

@@ -19,6 +19,7 @@ using static Android.Provider.MediaStore.Audio;
 using AlertDialog = Android.Support.V7.App.AlertDialog;
 using CursorLoader = Android.Support.V4.Content.CursorLoader;
 using Preference = Android.Support.V7.Preferences.Preference;
+using PreferenceCategory = Android.Support.V7.Preferences.PreferenceCategory;
 using PreferenceManager = Android.Support.V7.Preferences.PreferenceManager;
 using Toolbar = Android.Support.V7.Widget.Toolbar;
 
@@ -34,10 +35,8 @@ namespace MusicApp.Resources.Portable_Class
         {
             base.OnCreate(savedInstanceState);
             if (MainActivity.Theme == 1)
-                //{
                 SetTheme(Resource.Style.DarkPreferences);
-            //    Window.SetNavigationBarColor(Android.Graphics.Color.Argb(255, 33, 33, 33));
-            //}
+
             SetContentView(Resource.Layout.PreferenceRoot);
             toolbar = FindViewById<Toolbar>(Resource.Id.toolbar);
             SetSupportActionBar(toolbar);
@@ -147,6 +146,7 @@ namespace MusicApp.Resources.Portable_Class
 
             //Music Genres
             Preference topicPreference = PreferenceScreen.FindPreference("topics");
+            topicPreference.IconSpaceReserved = false;
             topicPreference.PreferenceClick += TopicPreference;
             string[] topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToArray();
 
@@ -164,55 +164,70 @@ namespace MusicApp.Resources.Portable_Class
 
             //Skip Exist Verification
             Preference skipExistVerification = PreferenceScreen.FindPreference("skipExistVerification");
+            skipExistVerification.IconSpaceReserved = false;
             skipExistVerification.PreferenceClick += SkipClick;
             skipExistVerification.Summary = prefManager.GetBoolean("skipExistVerification", false) ? "True" : "False";
 
             //Local play shortcut
             Preference localShortcutPreference = PreferenceScreen.FindPreference("localPlay");
+            localShortcutPreference.IconSpaceReserved = false;
             localShortcutPreference.PreferenceClick += LocalShortcut;
             localShortcutPreference.Summary = prefManager.GetString("localPlay", "Shuffle All Audio Files");
 
             //Download Path
             Preference downloadPref = PreferenceScreen.FindPreference("downloadPath");
+            downloadPref.IconSpaceReserved = false;
             downloadPref.PreferenceClick += DownloadClick;
             downloadPref.Summary = prefManager.GetString("downloadPath", Environment.GetExternalStoragePublicDirectory(Environment.DirectoryMusic).ToString());
             path = prefManager.GetString("downloadPath", Environment.GetExternalStoragePublicDirectory(Environment.DirectoryMusic).ToString());
 
             //Maximum Download
             Preference maxDlPref = PreferenceScreen.FindPreference("maxDownload");
+            maxDlPref.IconSpaceReserved = false;
             maxDlPref.PreferenceClick += MaxDownloadClick;
             maxDlPref.Summary = prefManager.GetInt("maxDownload", 4).ToString();
 
             //Keep Deleted
             Preference keepDeletedPref = PreferenceScreen.FindPreference("keepDeleted");
+            keepDeletedPref.IconSpaceReserved = false;
             keepDeletedPref.PreferenceClick += KeepDeletedClick;
             keepDeletedPref.Summary = (!prefManager.GetBoolean("keepDeleted", true)).ToString();
 
             //Theme
             Preference themePreference = PreferenceScreen.FindPreference("theme");
+            themePreference.IconSpaceReserved = false;
             themePreference.PreferenceClick += ChangeTheme;
             themePreference.Summary = prefManager.GetInt("theme", 0) == 0 ? "White Theme" : "Dark Theme";
 
             //Check For Update
             Preference updatePreference = PreferenceScreen.FindPreference("update");
+            updatePreference.IconSpaceReserved = false;
             updatePreference.PreferenceClick += UpdatePreference_PreferenceClick;
 
             //Version Number
             Preference versionPreference = PreferenceScreen.FindPreference("version");
             string VersionAsset;
+            string Beta;
             AssetManager assets = Application.Context.Assets;
             using (StreamReader sr = new StreamReader(assets.Open("Version.txt")))
             {
-                VersionAsset = sr.ReadToEnd();
+                VersionAsset = sr.ReadLine();
+                Beta = sr.ReadLine();
             }
 
             string version = VersionAsset.Substring(9, 5);
             if (version.EndsWith(".0"))
                 version = version.Substring(0, 3);
-            versionPreference.Summary = "V. " + version;
+            bool beta = false;
+            if (Beta.Substring(6, 1) == "T")
+                beta = true;
+
+            versionPreference.Summary = "v" + version + (beta ? "-Beta" : "");
+            versionPreference.IconSpaceReserved = false;
 
             //Account
             Preference accountPreference = PreferenceScreen.FindPreference("account");
+            accountPreference.IconSpaceReserved = false;
 
             if (MainActivity.account != null)
             {
