@@ -334,7 +334,7 @@ namespace MusicApp.Resources.Portable_Class
                 }
                 else if(querryType == "All" || querryType == "Channels")
                 {
-                    IEnumerable<string> artist = result.GroupBy(x => x.item.Artist).Where(x => x.Count() > 2).Select(x => x.Key);
+                    IEnumerable<string> artist = result.GroupBy(x => x.item.Artist).Where(x => x.Count() > 5).Select(x => x.Key);
                     if (artist.Count() == 1)
                     {
                         Song channel = null;
