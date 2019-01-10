@@ -1154,7 +1154,12 @@ namespace MusicApp.Resources.Portable_Class
                 }
                 else
                 {
-                    MainActivity.instance.RunOnUiThread(() => {
+                    MainActivity.instance.RunOnUiThread(async () => {
+                        if (!MainActivity.instance.prepared)
+                        {
+                            MainActivity.instance.FindViewById(Resource.Id.playerSheet).Visibility = ViewStates.Visible;
+                            await Task.Delay(10);
+                        }
                         MainActivity.instance.HideSmallPlayer();
                     });
                 }

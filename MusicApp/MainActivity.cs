@@ -75,7 +75,7 @@ namespace MusicApp
         public bool paused = false;
         public bool StateSaved = false;
 
-        private bool prepared = false;
+        public bool prepared = false;
         private bool searchDisplayed;
         private bool canSwitch = true;
         private string tab;
@@ -936,7 +936,7 @@ namespace MusicApp
         {
             FindViewById<FrameLayout>(Resource.Id.contentView).SetPadding(0, 0, 0, 0);
             SheetBehavior.State = BottomSheetBehavior.StateHidden;
-            FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Invisible;
+            FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Gone;
         }
 
         public void ShowQuickPlay()
