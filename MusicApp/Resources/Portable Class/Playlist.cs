@@ -296,7 +296,7 @@ namespace MusicApp.Resources.Portable_Class
 
                     if (YoutubePlaylists.Count == 1)
                     {
-                        YoutubePlaylists.Add(new PlaylistItem("EMPTY", "You don't have any youtube playlist on your account. \nWarning: Only playlist from your google account are displayed"));
+                        YoutubePlaylists.Add(new PlaylistItem("EMPTY", null) { Owner = "You don't have any youtube playlist on your account. \nWarning: Only playlist from your google account are displayed" });
                     }
                     adapter.NotifyItemRangeInserted(LocalPlaylists.Count + YoutubePlaylists.Count + 1 - YtCount, YoutubePlaylists.Count - YtCount);
                     adapter.forkSaved = true;
@@ -828,27 +828,30 @@ namespace MusicApp.Resources.Portable_Class
             adapter.UpdateElement(position, playlist);
         }
 
-        void RemovePlaylist(int position, long playlistID)
+        async void RemovePlaylist(int position, long playlistID)
         {
-            AlertDialog dialog = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme)
-                .SetTitle("Do you want to delete the playlist \"" + LocalPlaylists[position].Name + "\"?")
-                .SetPositiveButton("Yes", (sender, e) =>
-                {
-                    ContentResolver resolver = Activity.ContentResolver;
-                    Android.Net.Uri uri = Playlists.ExternalContentUri;
-                    resolver.Delete(Playlists.ExternalContentUri, Playlists.InterfaceConsts.Id + "=?", new string[] { playlistID.ToString() });
-                    LocalPlaylists.RemoveAt(position);
-                    adapter.NotifyItemRemoved(position);
-
-                    if (LocalPlaylists.Count == 1)
+            if (await MainActivity.instance.GetWritePermission())
+            {
+                AlertDialog dialog = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme)
+                    .SetTitle("Do you want to delete the playlist \"" + LocalPlaylists[position].Name + "\"?")
+                    .SetPositiveButton("Yes", (sender, e) =>
                     {
-                        LocalPlaylists.Add(new PlaylistItem("EMPTY - You don't have any playlist on your device.", -1));
-                        adapter.NotifyItemInserted(1);
-                    }
-                })
-                .SetNegativeButton("No", (sender, e) => { })
-                .Create();
-            dialog.Show();
+                        ContentResolver resolver = Activity.ContentResolver;
+                        Android.Net.Uri uri = Playlists.ExternalContentUri;
+                        resolver.Delete(Playlists.ExternalContentUri, Playlists.InterfaceConsts.Id + "=?", new string[] { playlistID.ToString() });
+                        LocalPlaylists.RemoveAt(position);
+                        adapter.NotifyItemRemoved(position);
+
+                        if (LocalPlaylists.Count == 1)
+                        {
+                            LocalPlaylists.Add(new PlaylistItem("EMPTY - You don't have any playlist on your device.", -1));
+                            adapter.NotifyItemInserted(1);
+                        }
+                    })
+                    .SetNegativeButton("No", (sender, e) => { })
+                    .Create();
+                dialog.Show();
+            }
         }
 
         public async void StartSyncing(string playlistName)
@@ -986,9 +989,9 @@ namespace MusicApp.Resources.Portable_Class
                         foreach (PlaylistItem item in YoutubePlaylists)
                             System.Console.WriteLine(item.Name);
 
-                        if (YoutubePlaylists.Count == 1)
-                        {
-                            YoutubePlaylists.Add(new PlaylistItem("EMPTY", "You don't have any youtube playlist on your account. \nWarning: Only playlist from your google account are displayed", null));
+                    if (YoutubePlaylists.Count == 1)
+                    {
+                        YoutubePlaylists.Add(new PlaylistItem("EMPTY", null) { Owner = "You don't have any youtube playlist on your account. \nWarning: Only playlist from your google account are displayed" });
                             adapter.NotifyItemInserted(LocalPlaylists.Count + YoutubePlaylists.Count);
                         }
                     }
@@ -1035,9 +1038,9 @@ namespace MusicApp.Resources.Portable_Class
                         YoutubePlaylists.RemoveAt(position - LocalPlaylists.Count - 1);
                         adapter.NotifyItemRemoved(position);
 
-                        if (YoutubePlaylists.Count == 1)
-                        {
-                            YoutubePlaylists.Add(new PlaylistItem("EMPTY", "You don't have any youtube playlist on your account. \nWarning: Only playlist from your google account are displayed", null));
+                    if (YoutubePlaylists.Count == 1)
+                    {
+                        YoutubePlaylists.Add(new PlaylistItem("EMPTY", null) { Owner = "You don't have any youtube playlist on your account. \nWarning: Only playlist from your google account are displayed" });
                             adapter.NotifyItemInserted(LocalPlaylists.Count + YoutubePlaylists.Count);
                         }
                     }

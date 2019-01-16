@@ -77,7 +77,6 @@ namespace MusicApp
 
         public bool prepared = false;
         private bool searchDisplayed;
-        private bool canSwitch = true;
         private string tab;
         private bool QuickPlayOpenned = false;
         private object sender;
@@ -86,6 +85,7 @@ namespace MusicApp
         public BottomSheetBehavior SheetBehavior;
 
         private const int RequestCode = 8539;
+        private const int WriteRequestCode = 2659;
         public const int NotifUpdateID = 4626;
         private const string versionURI = "https://raw.githubusercontent.com/AnonymusRaccoon/MusicApp/master/MusicApp/Assets/Version.txt";
 
@@ -94,6 +94,7 @@ namespace MusicApp
         public GoogleApiClient googleClient;
         private bool canAsk;
         public bool waitingForYoutube;
+        private bool? PermissionGot;
         public bool ResumeKiller;
 
         public static CastContext CastContext;
@@ -660,15 +661,11 @@ namespace MusicApp
             SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, fragment).Commit();
         }
 
-        public async void SetBrowseTabs(ViewPager pager, int selectedTab = 0)
+        public void SetBrowseTabs(ViewPager pager, int selectedTab = 0)
         {
-            while (!canSwitch)
-                await Task.Delay(10);
-
             if (tab != "Browse")
                 return;
 
-            canSwitch = false;
             usePager = true;
 
             viewPager = pager;
@@ -694,16 +691,10 @@ namespace MusicApp
             pager.CurrentItem = selectedTab;
             tabs.TabMode = TabLayout.ModeFixed;
             tabs.SetScrollPosition(selectedTab, 0f, true);
-
-            CanSwitchDelay();
         }
 
-        public async void SetYtTabs(ViewPager pager, string querry, int selectedTab = 0)
+        public void SetYtTabs(ViewPager pager, string querry, int selectedTab = 0)
         {
-            while (!canSwitch)
-                await Task.Delay(10);
-
-            canSwitch = false;
             usePager = true;
 
             viewPager = pager;
@@ -725,7 +716,6 @@ namespace MusicApp
                 YoutubeEngine.instances[selectedTab].focused = true;
                 YoutubeEngine.instances[selectedTab].OnFocus();
                 pager.RefreshDrawableState();
-                CanSwitchDelay();
                 return;
             }
 
@@ -757,8 +747,6 @@ namespace MusicApp
 
             YoutubeEngine.instances[selectedTab].focused = true;
             YoutubeEngine.instances[selectedTab].OnFocus();
-
-            CanSwitchDelay();
         }
 
         private void OnTabReselected(object sender, TabLayout.TabReselectedEventArgs e)
@@ -780,12 +768,6 @@ namespace MusicApp
                     }
                 }
             }
-        }
-
-        async void CanSwitchDelay()
-        {
-            await Task.Delay(350);
-            canSwitch = true;
         }
 
         public void OnPageScrollStateChanged(int state)
@@ -963,6 +945,23 @@ namespace MusicApp
             RequestPermissions(permissions, RequestCode);
         }
 
+        public async Task<bool> GetWritePermission()
+        {
+            const string permission = Manifest.Permission.WriteExternalStorage;
+            if (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(this, permission) == (int)Permission.Granted)
+            {
+                return true;
+            }
+            PermissionGot = null;
+            string[] permissions = new string[] { permission };
+            RequestPermissions(permissions, RequestCode);
+
+            while (PermissionGot == null)
+                await Task.Delay(10);
+
+            return (bool)PermissionGot;
+        }
+
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, Permission[] grantResults)
         {
             if (requestCode == RequestCode)
@@ -980,9 +979,16 @@ namespace MusicApp
                     }
                 }
             }
-            else if (requestCode == 2659)
+            else if (requestCode == WriteRequestCode)
             {
-                Console.WriteLine("&Write permission authorized");
+                if (grantResults[0] == Permission.Granted)
+                    PermissionGot = true;
+                else
+                {
+                    PermissionGot = false;
+                    Snackbar snackBar = Snackbar.Make(FindViewById<CoordinatorLayout>(Resource.Id.snackBar), "Permission denied, can't complete this action.", Snackbar.LengthLong);                    snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+                    snackBar.Show();
+                }
             }
         }
 

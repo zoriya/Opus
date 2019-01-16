@@ -58,6 +58,7 @@ namespace MusicApp.Resources.Portable_Class
             }
             else if (position - LocalPlaylists.Count == 1 && YoutubePlaylists[1].Name == "EMPTY")
             {
+                Console.WriteLine("&Empty holder");
                 EmptyHolder holder = (EmptyHolder)viewHolder;
                 holder.text.Text = YoutubePlaylists[1].Owner;
             }
@@ -230,7 +231,7 @@ namespace MusicApp.Resources.Portable_Class
                 return 4;
             else if (position >= LocalPlaylists.Count && YoutubePlaylists[position - LocalPlaylists.Count].Name == "Loading" && YoutubePlaylists[position - LocalPlaylists.Count].YoutubeID == null)
                 return 2;
-            else if (position >= LocalPlaylists.Count && YoutubePlaylists[position - LocalPlaylists.Count].Name == "Error" && YoutubePlaylists[position - LocalPlaylists.Count].YoutubeID == null)
+            else if (position >= LocalPlaylists.Count && (YoutubePlaylists[position - LocalPlaylists.Count].Name == "Error" || YoutubePlaylists[position - LocalPlaylists.Count].Name == "EMPTY") && YoutubePlaylists[position - LocalPlaylists.Count].YoutubeID == null)
                 return 5;
             else if (position > LocalPlaylists.Count && position < LocalPlaylists.Count + YoutubePlaylists.Count)
                 return 3;
