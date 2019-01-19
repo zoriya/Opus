@@ -734,7 +734,7 @@ namespace MusicApp.Resources.Portable_Class
                     if (item.IsYt)
                         YoutubeEngine.Download(item.Title, item.YoutubeID);
                     else
-                        Browse.EditMetadata(item, "PlaylistTracks", ListView.GetLayoutManager().OnSaveInstanceState());
+                        Browse.EditMetadata(item);
                     bottomSheet.Dismiss();
                 }));
             }
@@ -745,7 +745,7 @@ namespace MusicApp.Resources.Portable_Class
                     if (item.IsYt)
                         YoutubeEngine.Download(item.Title, item.YoutubeID);
                     else
-                        Browse.EditMetadata(item, "PlaylistTracks", ListView.GetLayoutManager().OnSaveInstanceState());
+                        Browse.EditMetadata(item);
                     bottomSheet.Dismiss();
                 }));
             }
@@ -809,12 +809,6 @@ namespace MusicApp.Resources.Portable_Class
         {
             base.OnResume();
             instance = this;
-            if (MainActivity.parcelable != null && MainActivity.parcelableSender == "PlaylistTrack")
-            {
-                ListView.GetLayoutManager().OnRestoreInstanceState(MainActivity.parcelable);
-                MainActivity.parcelable = null;
-                MainActivity.parcelableSender = null;
-            }
 
             if (!Activity.FindViewById<ImageButton>(Resource.Id.headerPlay).HasOnClickListeners)
                 Activity.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { PlayInOrder(0, false); };

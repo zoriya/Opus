@@ -215,7 +215,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 actions.Add(new BottomSheetAction(Resource.Drawable.Edit, "Edit Metadata", (sender, eventArg) =>
                 {
-                    Browse.EditMetadata(item, "Queue", ListView.GetLayoutManager().OnSaveInstanceState());
+                    Browse.EditMetadata(item);
                     bottomSheet.Dismiss();
                 }));
             }
@@ -254,12 +254,6 @@ namespace MusicApp.Resources.Portable_Class
             base.OnResume();
             Window.SetStatusBarColor(Color.Argb(255, 33, 33, 33));
             instance = this;
-            if (MainActivity.parcelableSender == "Queue" && !MainActivity.instance.ResumeKiller)
-            {
-                ListView.GetLayoutManager().OnRestoreInstanceState(MainActivity.parcelable);
-                MainActivity.parcelable = null;
-                MainActivity.parcelableSender = null;
-            }
             RefreshCurrent();
         }
     }

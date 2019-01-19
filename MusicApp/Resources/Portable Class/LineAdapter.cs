@@ -190,7 +190,7 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     actions.Add(new BottomSheetAction(Resource.Drawable.Edit, "Edit Metadata", (sender, eventArg) =>
                     {
-                        Browse.EditMetadata(item, "Home", Home.instance.ListView.GetLayoutManager().OnSaveInstanceState());
+                        Browse.EditMetadata(item);
                         bottomSheet.Dismiss();
                     }));
                 }
@@ -250,7 +250,7 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     actions.Add(new BottomSheetAction(Resource.Drawable.Edit, "Edit Metadata", (sender, eventArg) =>
                     {
-                        Browse.EditMetadata(item, "Home", Home.instance.ListView.GetLayoutManager().OnSaveInstanceState());
+                        Browse.EditMetadata(item);
                         bottomSheet.Dismiss();
                     }));
                 }

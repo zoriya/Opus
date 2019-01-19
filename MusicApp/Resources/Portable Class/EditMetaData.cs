@@ -45,6 +45,7 @@ namespace MusicApp.Resources.Portable_Class
                 SetTheme(Resource.Style.DarkTheme);
 
             SetContentView(Resource.Layout.EditMetaData);
+            Window.SetStatusBarColor(Android.Graphics.Color.Argb(70, 00, 00, 00));
 
             instance = this;
             song = (Song) Intent.GetStringExtra("Song");
@@ -107,7 +108,7 @@ namespace MusicApp.Resources.Portable_Class
                             PickAnAlbumArtLocally();
                             break;
                         case 1:
-                            DownloadAlbumArtOnYT();
+                            DownloadMetaDataFromYT(true);
                             break;
                         default:
                             break;
@@ -131,7 +132,12 @@ namespace MusicApp.Resources.Portable_Class
                 if(resultCode == Result.Ok)
                 {
                     Android.Net.Uri uri = data.Data;
-                    Picasso.With(Application.Context).Load(uri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(albumArt);
+                    Picasso.With(Application.Context).Load(uri).Placeholder(Resource.Drawable.noAlbum).Into(albumArt);
+                    if (tempFile)
+                    {
+                        tempFile = false;
+                        System.IO.File.Delete(artURI.Path);
+                    }
                     artURI = uri;
                 }
             }
@@ -152,7 +158,7 @@ namespace MusicApp.Resources.Portable_Class
             }
             if (item.ItemId == Resource.Id.downloadMDfromYT)
             {
-                DownloadMetaDataFromYT();
+                DownloadMetaDataFromYT(false);
                 return true;
             }
             if(item.ItemId == Resource.Id.undoChange)
@@ -197,11 +203,25 @@ namespace MusicApp.Resources.Portable_Class
             {
                 IPicture[] pictures = new IPicture[1];
 
-                Android.Graphics.Bitmap bitmap = MediaStore.Images.Media.GetBitmap(ContentResolver, artURI);
+                Android.Graphics.Bitmap bitmap = null;
+                if (tempFile)
+                {
+                    await Task.Run(() => 
+                    {
+                        bitmap = Picasso.With(this).Load(artURI).Transform(new RemoveBlackBorder(true)).Get();
+                    });
+                }
+                else
+                {
+                    await Task.Run(() =>
+                    {
+                        bitmap = Picasso.With(this).Load(artURI).Get();
+                    });
+                }
+
                 MemoryStream memoryStream = new MemoryStream();
                 bitmap.Compress(Android.Graphics.Bitmap.CompressFormat.Jpeg, 100, memoryStream);
                 byte[] data = memoryStream.ToArray();
-
                 pictures[0] = new Picture(data);
                 meta.Tag.Pictures = pictures;
 
@@ -241,18 +261,11 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
-        async void DownloadMetaDataFromYT()
+        async void DownloadMetaDataFromYT(bool onlyArt)
         {
             if (song.YoutubeID == "")
             {
                 Toast.MakeText(this, "Can't get meta data on youtube, youtubeID isn't set.", ToastLength.Short).Show();
-                return;
-            }
-
-            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(this);
-            if (prefManager.GetString("downloadPath", null) == null)
-            {
-                Toast.MakeText(this, "Download path isn't set, can't download informations.", ToastLength.Short).Show();
                 return;
             }
 
@@ -269,78 +282,55 @@ namespace MusicApp.Resources.Portable_Class
 
             YoutubeClient client = new YoutubeClient();
             Video video = await client.GetVideoAsync(youtubeID.Text);
-            title.Text = video.Title;
-            artist.Text = video.Author;
-
-            if (tempFile)
+            if (!onlyArt)
             {
-                tempFile = false;
-                System.IO.File.Delete(artURI.ToString());
+                title.Text = video.Title;
+                artist.Text = video.Author;
+                album.Text = video.Title + " - " + video.Author;
             }
 
-            WebClient webClient = new WebClient();
-            webClient.DownloadDataCompleted += (sender, e) =>
-            {
-                string tempArt = Path.Combine(prefManager.GetString("downloadPath", ""), "albumArt" + Path.GetExtension(video.Thumbnails.HighResUrl));
-                System.Console.WriteLine("&Temp path: " + tempArt + "Url: " + video.Thumbnails.HighResUrl);
-                System.IO.File.WriteAllBytes(tempArt, e.Result);
+            string[] thumbnails = new string[] { video.Thumbnails.MaxResUrl, video.Thumbnails.StandardResUrl, video.Thumbnails.HighResUrl };
 
-                Android.Net.Uri uri = Android.Net.Uri.FromFile(new Java.IO.File(tempArt));
-                Picasso.With(this).Load(uri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(albumArt);
-                artURI = uri;
-                tempFile = true;
-            };
-            webClient.DownloadDataAsync(new System.Uri(video.Thumbnails.HighResUrl));
-        }
-
-        async void DownloadAlbumArtOnYT()
-        {
-            if (song.YoutubeID == "")
+            for (int i = 0; i < 3; i++)
             {
-                Toast.MakeText(this, "Can't get meta data on youtube, youtubeID isn't set.", ToastLength.Short).Show();
-                return;
+                ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(this);
+                string tempArt = Path.Combine(prefManager.GetString("downloadPath", Environment.GetExternalStoragePublicDirectory(Environment.DirectoryMusic).ToString()), "albumArt" + Path.GetExtension(thumbnails[i]));
+                if (System.IO.File.Exists(tempArt))
+                {
+                    await Task.Run(() => { System.IO.File.Delete(tempArt); });
+                }
+
+                bool? canContinue = false;
+                WebClient webClient = new WebClient();
+                webClient.DownloadDataCompleted += (sender, e) =>
+                {
+                    System.Console.WriteLine("&Error with thumb " + i + ": "  + e.Error);
+                    if (e.Error == null)
+                    {
+                        System.Console.WriteLine("&Error = null");
+                        System.IO.File.WriteAllBytes(tempArt, e.Result);
+
+                        Android.Net.Uri uri = Android.Net.Uri.FromFile(new Java.IO.File(tempArt));
+                        Picasso.With(this).Load(uri).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).MemoryPolicy(MemoryPolicy.NoCache, MemoryPolicy.NoStore).Into(albumArt);
+                        artURI = uri;
+                        tempFile = true;
+                        canContinue = null;
+                    }
+                    else
+                        canContinue = true;
+                };
+                try
+                {
+                    await webClient.DownloadDataTaskAsync(new System.Uri(thumbnails[i]));
+                }
+                catch { } //catch 404 errors
+
+                while (canContinue == false)
+                    await Task.Delay(10);
+
+                if (canContinue == null)
+                    return;
             }
-
-            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(this);
-            if (prefManager.GetString("downloadPath", null) == null)
-            {
-                Toast.MakeText(this, "Download path isn't set, can't download informations.", ToastLength.Short).Show();
-                return;
-            }
-
-            const string permission = Manifest.Permission.WriteExternalStorage;
-            if (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(this, permission) != (int)Permission.Granted)
-            {
-                string[] permissions = new string[] { permission };
-                RequestPermissions(permissions, 2659);
-
-                await Task.Delay(1000);
-                while (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(this, permission) != (int)Permission.Granted)
-                    await Task.Delay(500);
-            }
-
-            YoutubeClient client = new YoutubeClient();
-            Video video = await client.GetVideoAsync(youtubeID.Text);
-
-            if (tempFile)
-            {
-                tempFile = false;
-                System.IO.File.Delete(artURI.ToString());
-            }
-
-            WebClient webClient = new WebClient();
-            webClient.DownloadDataCompleted += (sender, e) =>
-            {
-                string tempArt = Path.Combine(prefManager.GetString("downloadPath", ""), "albumArt" + Path.GetExtension(video.Thumbnails.HighResUrl));
-                System.Console.WriteLine("&Temp path: " + tempArt + "Url: " + video.Thumbnails.HighResUrl);
-                System.IO.File.WriteAllBytes(tempArt, e.Result);
-
-                Android.Net.Uri uri = Android.Net.Uri.FromFile(new Java.IO.File(tempArt));
-                Picasso.With(this).Load(uri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(albumArt);
-                artURI = uri;
-                tempFile = true;
-            };
-            webClient.DownloadDataAsync(new System.Uri(video.Thumbnails.HighResUrl));
         }
 
         void UndoChange()
@@ -349,7 +339,6 @@ namespace MusicApp.Resources.Portable_Class
             artist.Text = song.Artist;
             album.Text = song.Album;
             youtubeID.Text = song.YoutubeID;
-            albumArt.Click += AlbumArt_Click;
 
             if (song.AlbumArt == -1 || song.IsYt)
             {
@@ -372,6 +361,11 @@ namespace MusicApp.Resources.Portable_Class
         {
             base.OnResume();
             instance = this;
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
         }
     }
 }

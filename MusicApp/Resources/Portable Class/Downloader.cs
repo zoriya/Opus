@@ -8,6 +8,7 @@ using Android.Net;
 using Android.OS;
 using Android.Provider;
 using Android.Support.V4.App;
+using Android.Support.V7.Preferences;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
@@ -17,6 +18,7 @@ using Square.Picasso;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using TagLib;
@@ -114,19 +116,19 @@ namespace MusicApp.Resources.Portable_Class
             try
             {
                 YoutubeClient client = new YoutubeClient();
-                Video videoInfo = await client.GetVideoAsync(queue[position].videoID);
+                Video video = await client.GetVideoAsync(queue[position].videoID);
                 MediaStreamInfoSet mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(queue[position].videoID);
-                AudioStreamInfo streamInfo = mediaStreamInfo.Audio.Where(x => x.Container == Container.M4A).OrderBy(s => s.Bitrate).Last();
+                AudioStreamInfo streamInfo = mediaStreamInfo.Audio.Where(x => x.Container == Container.Mp4).OrderBy(s => s.Bitrate).Last();
 
                 queue[position].State = DownloadState.Downloading;
                 UpdateList(position);
-                string title = videoInfo.Title;
+                string title = video.Title;
                 foreach(char c in Path.GetInvalidFileNameChars()) //Make the title a valid filename (remove /, \, : etc).
                 {
                     title = title.Replace(c, ' ');
                 }
 
-                string fileExtension = streamInfo.Container.GetFileExtension();
+                string fileExtension = "m4a"; //audio only extension containing aac (audio codex of the mp4)
 
                 string outpath = path;
 
@@ -172,7 +174,7 @@ namespace MusicApp.Resources.Portable_Class
                 if (queue.Count == 1)
                     SetNotificationProgress(100, true);
 
-                SetMetaData(position, filePath, videoInfo.Title, videoInfo.Author, videoInfo.Thumbnails.HighResUrl, queue[position].videoID, queue[position].playlist);
+                SetMetaData(position, filePath, video.Title, video.Author, new string[] { video.Thumbnails.MaxResUrl, video.Thumbnails.StandardResUrl, video.Thumbnails.HighResUrl }, queue[position].videoID, queue[position].playlist);
                 files.Remove(filePath);
                 downloadCount--;
 
@@ -199,29 +201,59 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
-        private async void SetMetaData(int position, string filePath, string title, string artist, string album, string youtubeID, string playlist)
+        private async void SetMetaData(int position, string filePath, string title, string artist, string[] thumbnails, string youtubeID, string playlist)
         {
-            await Task.Run(() => 
+            await Task.Run(async () => 
             {
                 Stream stream = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite);
                 var meta = TagLib.File.Create(new StreamFileAbstraction(filePath, stream, stream));
 
                 meta.Tag.Title = title;
                 meta.Tag.Performers = new string[] { artist };
-                meta.Tag.Album = album;
+                meta.Tag.Album = title + " - " + artist;
                 meta.Tag.Comment = youtubeID;
 
-                IPicture[] pictures = new IPicture[1];
-                Bitmap bitmap = Picasso.With(Application.Context).Load(album).Transform(new RemoveBlackBorder(true)).Get();
-                byte[] data;
-                using (var MemoryStream = new MemoryStream())
+                for (int i = 0; i < 3; i++)
                 {
-                    bitmap.Compress(Bitmap.CompressFormat.Png, 0, MemoryStream);
-                    data = MemoryStream.ToArray();
+                    bool? canContinue = false;
+                    WebClient webClient = new WebClient();
+                    webClient.DownloadDataCompleted += (sender, e) =>
+                    {
+                        System.Console.WriteLine("&Error with thumb " + i + ": " + e.Error);
+                        if (e.Error == null)
+                        {
+                            IPicture[] pictures = new IPicture[1];
+                            Bitmap bitmap = Picasso.With(Application.Context).Load(thumbnails[i]).Transform(new RemoveBlackBorder(true)).Get();
+                            byte[] data;
+                            using (var MemoryStream = new MemoryStream())
+                            {
+                                bitmap.Compress(Bitmap.CompressFormat.Png, 0, MemoryStream);
+                                data = MemoryStream.ToArray();
+                            }
+                            bitmap.Recycle();
+                            pictures[0] = new Picture(data);
+                            meta.Tag.Pictures = pictures;
+                            canContinue = null;
+                        }
+                        else
+                            canContinue = true;
+                    };
+                    try
+                    {
+                        await webClient.DownloadDataTaskAsync(new System.Uri(thumbnails[i]));
+                    }
+                    catch { } //catch 404 errors
+
+                    while (canContinue == false)
+                        await Task.Delay(10);
+
+                    if (canContinue == null)
+                    {
+                        meta.Save();
+                        stream.Dispose();
+                        return;
+                    }
                 }
-                bitmap.Recycle();
-                pictures[0] = new Picture(data);
-                meta.Tag.Pictures = pictures;
 
                 meta.Save();
                 stream.Dispose();

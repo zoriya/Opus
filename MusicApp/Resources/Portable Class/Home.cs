@@ -468,12 +468,6 @@ namespace MusicApp.Resources.Portable_Class
         {
             base.OnResume();
             instance = this;
-            if (MainActivity.parcelableSender == "Home" && !MainActivity.instance.ResumeKiller)
-            {
-                ListView.GetLayoutManager().OnRestoreInstanceState(MainActivity.parcelable);
-                MainActivity.parcelable = null;
-                MainActivity.parcelableSender = null;
-            }
 
             if(adapterItems.Count > 0)
             {

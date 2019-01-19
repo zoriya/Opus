@@ -62,8 +62,6 @@ namespace MusicApp
         public static MainActivity instance;
         public new static int Theme = 1;
         public static int dialogTheme;
-        public static IParcelable parcelable;
-        public static string parcelableSender;
 
         public Android.Support.V7.Widget.Toolbar ToolBar;
         public bool NoToolbarMenu = false;

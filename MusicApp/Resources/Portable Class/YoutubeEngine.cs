@@ -940,7 +940,7 @@ namespace MusicApp.Resources.Portable_Class
                 searchRequest.Fields = "items(id/videoId,snippet/title,snippet/thumbnails/high/url,snippet/channelTitle)";
                 searchRequest.Type = "video";
                 searchRequest.ChannelId = ChannelID;
-                searchRequest.MaxResults = 50;
+                searchRequest.MaxResults = 20;
                 var searchReponse = await searchRequest.ExecuteAsync();
 
 

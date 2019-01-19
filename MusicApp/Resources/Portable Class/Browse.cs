@@ -229,7 +229,7 @@ namespace MusicApp.Resources.Portable_Class
                 new BottomSheetAction(Resource.Drawable.PlaylistPlay, "Play Next", (sender, eventArg) => { PlayNext(item); bottomSheet.Dismiss(); }),
                 new BottomSheetAction(Resource.Drawable.Queue, "Play Last", (sender, eventArg) => { PlayLast(item); bottomSheet.Dismiss(); }),
                 new BottomSheetAction(Resource.Drawable.PlaylistAdd, "Add To Playlist", (sender, eventArg) => { GetPlaylist(item); bottomSheet.Dismiss(); }),
-                new BottomSheetAction(Resource.Drawable.Edit, "Edit Metadata", (sender, eventArg) => { EditMetadata(item, "Browse", ListView.OnSaveInstanceState()); bottomSheet.Dismiss(); })
+                new BottomSheetAction(Resource.Drawable.Edit, "Edit Metadata", (sender, eventArg) => { EditMetadata(item); bottomSheet.Dismiss(); })
             });
             bottomSheet.Show();
         }
@@ -682,11 +682,9 @@ namespace MusicApp.Resources.Portable_Class
             return -1;
         }
 
-        public static void EditMetadata(Song item, string sender, IParcelable parcelable)
+        public static void EditMetadata(Song item)
         {
-            MainActivity.instance.HideTabs();
-            MainActivity.parcelableSender = sender;
-            MainActivity.parcelable = parcelable;
+            item = CompleteItem(item);
             Intent intent = new Intent(Android.App.Application.Context, typeof(EditMetaData));
             intent.PutExtra("Song", item.ToString());
             MainActivity.instance.StartActivity(intent);
@@ -696,12 +694,6 @@ namespace MusicApp.Resources.Portable_Class
         {
             base.OnResume();
             instance = this;
-            if(MainActivity.parcelable != null && MainActivity.parcelableSender == "Browse")
-            {
-                ListView.OnRestoreInstanceState(MainActivity.parcelable);
-                MainActivity.parcelable = null;
-                MainActivity.parcelableSender = null;
-            }
         }
     }
 }

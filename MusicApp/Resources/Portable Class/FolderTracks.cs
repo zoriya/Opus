@@ -248,7 +248,7 @@ namespace MusicApp.Resources.Portable_Class
                 new BottomSheetAction(Resource.Drawable.PlaylistPlay, "Play next", (sender, eventArg) => { Browse.PlayNext(item); bottomSheet.Dismiss(); }),
                 new BottomSheetAction(Resource.Drawable.Queue, "Play last", (sender, eventArg) => { Browse.PlayLast(item); bottomSheet.Dismiss(); }),
                 new BottomSheetAction(Resource.Drawable.PlaylistAdd, "Add to playlist", (sender, eventArg) => { Browse.GetPlaylist(item); bottomSheet.Dismiss(); }),
-                new BottomSheetAction(Resource.Drawable.Edit, "Edit metadata", (sender, eventArg) => { Browse.EditMetadata(item, "Browse", ListView.OnSaveInstanceState()); bottomSheet.Dismiss(); })
+                new BottomSheetAction(Resource.Drawable.Edit, "Edit metadata", (sender, eventArg) => { Browse.EditMetadata(item); bottomSheet.Dismiss(); })
             });
             bottomSheet.Show();
         }
