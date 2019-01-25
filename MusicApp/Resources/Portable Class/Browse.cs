@@ -213,9 +213,9 @@ namespace MusicApp.Resources.Portable_Class
             if (item.Album == null)
             {
                 var songCover = Uri.Parse("content://media/external/audio/albumart");
-                var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, item.AlbumArt);
+                var songAlbumArtUri = ContentUris.WithAppendedId(songCover, item.AlbumArt);
 
-                Picasso.With(MainActivity.instance).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
+                Picasso.With(MainActivity.instance).Load(songAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
             }
             else
             {

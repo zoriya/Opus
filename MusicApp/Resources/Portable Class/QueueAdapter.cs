@@ -339,7 +339,6 @@ namespace MusicApp.Resources.Portable_Class
         {
             Song song = songList[position];
             Queue.RemoveFromQueue(position);
-            NotifyItemRemoved(position);
             Snackbar.Make(Queue.instance.FindViewById(Resource.Id.recycler), (song.Title.Length > 20 ? song.Title.Substring(0, 17) + "..." : song.Title) + " has been removed from the queue.", Snackbar.LengthShort)
                 .SetAction("Undo", (view) => 
                 {

@@ -226,9 +226,9 @@ namespace MusicApp.Resources.Portable_Class
 
         public static void InsertToQueue(int position, Song item)
         {
-            if (MusicPlayer.CurrentID() > position)
+            if (MusicPlayer.CurrentID() >= position)
             {
-                MusicPlayer.currentID--;
+                MusicPlayer.currentID++;
                 MusicPlayer.SaveQueueSlot();
             }
 
