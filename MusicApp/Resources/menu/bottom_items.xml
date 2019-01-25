@@ -4,19 +4,19 @@
   <item
     android:id="@+id/musicLayout"
     android:enabled="true"
-    android:title="Home"
+    android:title="@string/home"
     android:icon="@drawable/Home"
     app:showAsAction="ifRoom" />
   <item
     android:id="@+id/browseLayout"
     android:enabled="true"
-    android:title="Browse"
+    android:title="@string/browse"
     android:icon="@drawable/Folder"
     app:showAsAction="ifRoom" />
   <item
     android:id="@+id/playlistLayout"
     android:enabled="true"
-    android:title="Playlist"
+    android:title="@string/playlists"
     android:icon="@drawable/PlaylistPlay"
     app:showAsAction="ifRoom" />
 </menu>

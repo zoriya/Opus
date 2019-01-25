@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<resources>
+  <string name="home">Home</string>
+  <string name="browse">Browse</string>
+  <string name="playlists">Playlists</string>
+  <string name="shuffle_all">SHUFFLE ALL</string>
+  <string name="shuffle">Shuffle</string>
+  <string name="more">MORE</string>
+  <string name="queue">Queue</string>
+  <string name="featured">Featured</string>
+  <string name="music_genres">Music Genres</string>
+  <string name="recommendation_explanation">used for your recommendation</string>
+</resources>

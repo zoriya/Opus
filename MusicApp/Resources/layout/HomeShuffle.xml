@@ -21,7 +21,7 @@
   <TextView 
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:text="SHUFFLE ALL"
+    android:text="@string/shuffle_all"
     android:textColor="#15b7ed"
     android:textSize="14sp"
     android:textStyle="bold"

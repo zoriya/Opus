@@ -72,11 +72,11 @@ namespace MusicApp.Resources.Portable_Class
 
                 if (MusicPlayer.UseCastPlayer || (MusicPlayer.queue != null && MusicPlayer.queue?.Count > 0))
                 {
-                    HomeSection queue = new HomeSection("Queue", SectionType.SinglePlaylist, MusicPlayer.queue);
+                    HomeSection queue = new HomeSection(Resources.GetString(Resource.String.queue), SectionType.SinglePlaylist, MusicPlayer.queue);
                     adapterItems.Add(queue);
                 }
 
-                HomeSection shuffle = new HomeSection("Shuffle", SectionType.Shuffle, null);
+                HomeSection shuffle = new HomeSection(Resources.GetString(Resource.String.shuffle), SectionType.Shuffle, null);
                 adapterItems.Add(shuffle);
 
                 Android.Net.Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
@@ -118,7 +118,7 @@ namespace MusicApp.Resources.Portable_Class
 
                 if (songList.Count > 0)
                 {
-                    HomeSection featured = new HomeSection("Featured", SectionType.SinglePlaylist, songList.GetRange(0, songList.Count > 50 ? 50 : songList.Count));
+                    HomeSection featured = new HomeSection(Resources.GetString(Resource.String.featured), SectionType.SinglePlaylist, songList.GetRange(0, songList.Count > 50 ? 50 : songList.Count));
                     adapterItems.Add(featured);
                 }
 
@@ -396,8 +396,6 @@ namespace MusicApp.Resources.Portable_Class
                         channelLits.Add(channel);
                     }
 
-                    Console.WriteLine("Page loaded");
-
                     nextPageToken = response.NextPageToken;
                 }
                 catch(Exception ex)
@@ -411,15 +409,15 @@ namespace MusicApp.Resources.Portable_Class
             List<Song> channels = channelLits.OrderBy(x => r.Next()).ToList();
             channels.RemoveAll(x => selectedTopics.Contains(x.Title));
 
-            HomeSection TopicSelector = new HomeSection("Music Genres", SectionType.TopicSelector, channels);
+            HomeSection TopicSelector = new HomeSection(Resources.GetString(Resource.String.music_genres), SectionType.TopicSelector, channels);
             adapter.AddToList(new List<HomeSection> { TopicSelector });
         }
 
         public void AddQueue()
         {
-            if (adapterItems[0].SectionTitle != "Queue")
+            if (adapterItems[0].SectionTitle != Resources.GetString(Resource.String.queue))
             {
-                HomeSection queue = new HomeSection("Queue", SectionType.SinglePlaylist, MusicPlayer.queue);
+                HomeSection queue = new HomeSection(Resources.GetString(Resource.String.queue), SectionType.SinglePlaylist, MusicPlayer.queue);
                 adapterItems.Insert(0, queue);
                 adapter.Insert(0, queue);
             }

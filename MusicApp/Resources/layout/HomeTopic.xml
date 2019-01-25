@@ -30,7 +30,7 @@
         android:layout_height="wrap_content"
         android:textSize="16dp"
         android:alpha=".8"
-        android:text="used for your recommendation" />
+        android:text="@string/recommendation_explanation" />
     </LinearLayout>
     <Button
       android:id="@+id/viewMore"

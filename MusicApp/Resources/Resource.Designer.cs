@@ -7207,6 +7207,9 @@ namespace MusicApp
 			// aapt resource value: 0x7f0c0081
 			public const int bottom_sheet_behavior = 2131492993;
 			
+			// aapt resource value: 0x7f0c00b1
+			public const int browse = 2131493041;
+			
 			// aapt resource value: 0x7f0c0000
 			public const int cast_ad_label = 2131492864;
 			
@@ -7498,8 +7501,17 @@ namespace MusicApp
 			// aapt resource value: 0x7f0c0085
 			public const int fab_transformation_sheet_behavior = 2131492997;
 			
+			// aapt resource value: 0x7f0c00b7
+			public const int featured = 2131493047;
+			
 			// aapt resource value: 0x7f0c0086
 			public const int hide_bottom_view_on_scroll_behavior = 2131492998;
+			
+			// aapt resource value: 0x7f0c00b0
+			public const int home = 2131493040;
+			
+			// aapt resource value: 0x7f0c00b5
+			public const int more = 2131493045;
 			
 			// aapt resource value: 0x7f0c0040
 			public const int mr_button_content_description = 2131492928;
@@ -7576,6 +7588,9 @@ namespace MusicApp
 			// aapt resource value: 0x7f0c0087
 			public const int mtrl_chip_close_icon_content_description = 2131492999;
 			
+			// aapt resource value: 0x7f0c00b8
+			public const int music_genres = 2131493048;
+			
 			// aapt resource value: 0x7f0c0088
 			public const int password_toggle_content_description = 2131493000;
 			
@@ -7591,8 +7606,23 @@ namespace MusicApp
 			// aapt resource value: 0x7f0c008c
 			public const int path_password_strike_through = 2131493004;
 			
+			// aapt resource value: 0x7f0c00b2
+			public const int playlists = 2131493042;
+			
+			// aapt resource value: 0x7f0c00b6
+			public const int queue = 2131493046;
+			
+			// aapt resource value: 0x7f0c00b9
+			public const int recommendation_explanation = 2131493049;
+			
 			// aapt resource value: 0x7f0c0073
 			public const int search_menu_title = 2131492979;
+			
+			// aapt resource value: 0x7f0c00b4
+			public const int shuffle = 2131493044;
+			
+			// aapt resource value: 0x7f0c00b3
+			public const int shuffle_all = 2131493043;
 			
 			// aapt resource value: 0x7f0c008d
 			public const int status_bar_notification_info_overflow = 2131493005;
