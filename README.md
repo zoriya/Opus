@@ -1,6 +1,6 @@
 # MusicApp
 
-You can find a good description of the app here: https://anonymusraccoon.github.io/RaccoonWebsite/en/
+**You can find a good description of the app here: https://anonymusraccoon.github.io/RaccoonWebsite/en/**
 
 If you want to download the app, check on the Release tabs.
 
