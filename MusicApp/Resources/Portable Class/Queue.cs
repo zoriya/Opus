@@ -38,6 +38,7 @@ namespace MusicApp.Resources.Portable_Class
             SetSupportActionBar(FindViewById<Toolbar>(Resource.Id.toolbar));
             SupportActionBar.SetHomeAsUpIndicator(Resource.Drawable.Close);
             SupportActionBar.SetDisplayHomeAsUpEnabled(true);
+            FindViewById<Toolbar>(Resource.Id.toolbar).NavigationIcon.SetColorFilter(Color.White, PorterDuff.Mode.SrcAtop);
             Window.SetStatusBarColor(Color.Argb(255, 33, 33, 33));
 
             ListView = FindViewById<RecyclerView>(Resource.Id.recycler);

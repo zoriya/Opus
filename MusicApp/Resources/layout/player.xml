@@ -87,6 +87,7 @@
             android:background="@drawable/GradientShape"
             android:layout_width="80dp"
             android:layout_height="80dp"
+            android:tint="#ffffff"
             android:padding="20dp"
             android:layout_marginLeft="15dp"
             android:layout_marginRight="15dp"/>
@@ -96,6 +97,7 @@
             android:background="@drawable/GradientShape"
             android:layout_width="80dp"
             android:layout_height="80dp"
+            android:tint="#ffffff"
             android:padding="20dp"
             android:layout_marginLeft="15dp"
             android:layout_marginRight="15dp" />
