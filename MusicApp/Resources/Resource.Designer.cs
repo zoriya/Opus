@@ -7216,11 +7216,20 @@ namespace MusicApp
 			// aapt resource value: 0x7f0c00db
 			public const int all = 2131493083;
 			
+			// aapt resource value: 0x7f0c00ea
+			public const int and = 2131493098;
+			
+			// aapt resource value: 0x7f0c00eb
+			public const int and_more = 2131493099;
+			
 			// aapt resource value: 0x7f0c0080
 			public const int appbar_scrolling_view_behavior = 2131492992;
 			
-			// aapt resource value: 0x7f0c00ec
-			public const int appearances = 2131493100;
+			// aapt resource value: 0x7f0c00f2
+			public const int appearances = 2131493106;
+			
+			// aapt resource value: 0x7f0c00e5
+			public const int apply = 2131493093;
 			
 			// aapt resource value: 0x7f0c00bc
 			public const int autoplay = 2131493052;
@@ -7228,14 +7237,17 @@ namespace MusicApp
 			// aapt resource value: 0x7f0c00bd
 			public const int autoplay_desc = 2131493053;
 			
-			// aapt resource value: 0x7f0c00e5
-			public const int behavior = 2131493093;
+			// aapt resource value: 0x7f0c00e7
+			public const int behavior = 2131493095;
 			
 			// aapt resource value: 0x7f0c0081
 			public const int bottom_sheet_behavior = 2131492993;
 			
 			// aapt resource value: 0x7f0c00b1
 			public const int browse = 2131493041;
+			
+			// aapt resource value: 0x7f0c00e6
+			public const int cancel = 2131493094;
 			
 			// aapt resource value: 0x7f0c00b6
 			public const int cast = 2131493046;
@@ -7375,8 +7387,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f0c0083
 			public const int character_counter_pattern = 2131492995;
 			
-			// aapt resource value: 0x7f0c00ef
-			public const int check_updates = 2131493103;
+			// aapt resource value: 0x7f0c00f8
+			public const int check_updates = 2131493112;
 			
 			// aapt resource value: 0x7f0c002b
 			public const int common_google_play_services_enable_button = 2131492907;
@@ -7435,14 +7447,17 @@ namespace MusicApp
 			// aapt resource value: 0x7f0c00be
 			public const int create_mix = 2131493054;
 			
+			// aapt resource value: 0x7f0c00f6
+			public const int dark_theme = 2131493110;
+			
 			// aapt resource value: 0x7f0c00cc
 			public const int delete = 2131493068;
 			
 			// aapt resource value: 0x7f0c00c4
 			public const int download = 2131493060;
 			
-			// aapt resource value: 0x7f0c00e9
-			public const int download_directory = 2131493097;
+			// aapt resource value: 0x7f0c00ee
+			public const int download_directory = 2131493102;
 			
 			// aapt resource value: 0x7f0c00c3
 			public const int edit_metadata = 2131493059;
@@ -7561,6 +7576,9 @@ namespace MusicApp
 			// aapt resource value: 0x7f0c00da
 			public const int folders = 2131493082;
 			
+			// aapt resource value: 0x7f0c00e9
+			public const int genre_nothing = 2131493097;
+			
 			// aapt resource value: 0x7f0c0086
 			public const int hide_bottom_view_on_scroll_behavior = 2131492998;
 			
@@ -7573,8 +7591,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f0c00dd
 			public const int lives = 2131493085;
 			
-			// aapt resource value: 0x7f0c00e7
-			public const int local_play = 2131493095;
+			// aapt resource value: 0x7f0c00ec
+			public const int local_play = 2131493100;
 			
 			// aapt resource value: 0x7f0c00e3
 			public const int local_playlist_empty = 2131493091;
@@ -7582,8 +7600,20 @@ namespace MusicApp
 			// aapt resource value: 0x7f0c00df
 			public const int local_playlists = 2131493087;
 			
-			// aapt resource value: 0x7f0c00ea
-			public const int max_download = 2131493098;
+			// aapt resource value: 0x7f0c00fc
+			public const int log_in = 2131493116;
+			
+			// aapt resource value: 0x7f0c00fd
+			public const int log_out = 2131493117;
+			
+			// aapt resource value: 0x7f0c00fb
+			public const int logged_in = 2131493115;
+			
+			// aapt resource value: 0x7f0c00ef
+			public const int max_download = 2131493103;
+			
+			// aapt resource value: 0x7f0c00f0
+			public const int max_download_dialog = 2131493104;
 			
 			// aapt resource value: 0x7f0c00d4
 			public const int more = 2131493076;
@@ -7663,8 +7693,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f0c0087
 			public const int mtrl_chip_close_icon_content_description = 2131492999;
 			
-			// aapt resource value: 0x7f0c00e6
-			public const int music_genre = 2131493094;
+			// aapt resource value: 0x7f0c00e8
+			public const int music_genre = 2131493096;
 			
 			// aapt resource value: 0x7f0c00d7
 			public const int music_genres = 2131493079;
@@ -7672,11 +7702,14 @@ namespace MusicApp
 			// aapt resource value: 0x7f0c00bb
 			public const int next_loading = 2131493051;
 			
+			// aapt resource value: 0x7f0c00fa
+			public const int not_log = 2131493114;
+			
 			// aapt resource value: 0x7f0c00ba
 			public const int nothing = 2131493050;
 			
-			// aapt resource value: 0x7f0c00ee
-			public const int others = 2131493102;
+			// aapt resource value: 0x7f0c00f7
+			public const int others = 2131493111;
 			
 			// aapt resource value: 0x7f0c0088
 			public const int password_toggle_content_description = 2131493000;
@@ -7762,11 +7795,14 @@ namespace MusicApp
 			// aapt resource value: 0x7f0c00ce
 			public const int sync_now = 2131493070;
 			
-			// aapt resource value: 0x7f0c00eb
-			public const int sync_remove = 2131493099;
+			// aapt resource value: 0x7f0c00f1
+			public const int sync_remove = 2131493105;
 			
-			// aapt resource value: 0x7f0c00ed
-			public const int theme = 2131493101;
+			// aapt resource value: 0x7f0c00f3
+			public const int theme = 2131493107;
+			
+			// aapt resource value: 0x7f0c00f4
+			public const int theme_dialog = 2131493108;
 			
 			// aapt resource value: 0x7f0c00dc
 			public const int tracks = 2131493084;
@@ -7783,11 +7819,14 @@ namespace MusicApp
 			// aapt resource value: 0x7f0c003f
 			public const int v7_preference_on = 2131492927;
 			
-			// aapt resource value: 0x7f0c00f0
-			public const int version = 2131493104;
+			// aapt resource value: 0x7f0c00f9
+			public const int version = 2131493113;
 			
-			// aapt resource value: 0x7f0c00e8
-			public const int volume = 2131493096;
+			// aapt resource value: 0x7f0c00ed
+			public const int volume = 2131493101;
+			
+			// aapt resource value: 0x7f0c00f5
+			public const int white_theme = 2131493109;
 			
 			// aapt resource value: 0x7f0c00e2
 			public const int youtube_loading_error = 2131493090;

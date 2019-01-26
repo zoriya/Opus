@@ -489,7 +489,7 @@ namespace MusicApp.Resources.Portable_Class
         public void PlaylistMore(Song item)
         {
             BottomSheetDialog bottomSheet = new BottomSheetDialog(MainActivity.instance);
-            View bottomView = LayoutInflater.Inflate(Resource.Layout.BottomSheet, null);
+            View bottomView = MainActivity.instance.LayoutInflater.Inflate(Resource.Layout.BottomSheet, null);
             bottomView.FindViewById<TextView>(Resource.Id.bsTitle).Text = item.Title;
             bottomView.FindViewById<TextView>(Resource.Id.bsArtist).Text = item.Artist;
             Picasso.With(MainActivity.instance).Load(item.Album).Placeholder(Resource.Color.background_material_dark).Transform(new RemoveBlackBorder(true)).Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
@@ -497,27 +497,27 @@ namespace MusicApp.Resources.Portable_Class
 
             List<BottomSheetAction> actions = new List<BottomSheetAction>
             {
-                new BottomSheetAction(Resource.Drawable.Play, Resources.GetString(Resource.String.play_in_order), (sender, eventArg) =>
+                new BottomSheetAction(Resource.Drawable.Play, MainActivity.instance.Resources.GetString(Resource.String.play_in_order), (sender, eventArg) =>
                 {
                     Playlist.PlayInOrder(item.YoutubeID);
                     bottomSheet.Dismiss();
                 }),
-                new BottomSheetAction(Resource.Drawable.Shuffle, Resources.GetString(Resource.String.random_play), (sender, eventArg) =>
+                new BottomSheetAction(Resource.Drawable.Shuffle, MainActivity.instance.Resources.GetString(Resource.String.random_play), (sender, eventArg) =>
                 {
                     RandomPlay(item.YoutubeID);
                     bottomSheet.Dismiss();
                 }),
-                new BottomSheetAction(Resource.Drawable.Queue, Resources.GetString(Resource.String.add_to_queue), (sender, eventArg) =>
+                new BottomSheetAction(Resource.Drawable.Queue, MainActivity.instance.Resources.GetString(Resource.String.add_to_queue), (sender, eventArg) =>
                 {
                     Playlist.AddToQueue(item.YoutubeID);
                     bottomSheet.Dismiss();
                 }),
-                new BottomSheetAction(Resource.Drawable.LibraryAdd, Resources.GetString(Resource.String.add_to_library), (sender, eventArg) =>
+                new BottomSheetAction(Resource.Drawable.LibraryAdd, MainActivity.instance.Resources.GetString(Resource.String.add_to_library), (sender, eventArg) =>
                 {
                     ForkPlaylist(item.YoutubeID);
                     bottomSheet.Dismiss();
                 }),
-                new BottomSheetAction(Resource.Drawable.Download, Resources.GetString(Resource.String.download), (sender, eventArg) =>
+                new BottomSheetAction(Resource.Drawable.Download, MainActivity.instance.Resources.GetString(Resource.String.download), (sender, eventArg) =>
                 {
                     DownloadPlaylist(item.Title, item.YoutubeID);
                     bottomSheet.Dismiss();
