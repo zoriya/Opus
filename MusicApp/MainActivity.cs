@@ -998,6 +998,27 @@ namespace MusicApp
                 LocalPlay(sender, new EventArgs());
         }
 
+        public async static Task<string> GetBestThumb(string[] thumbnails)
+        {
+            foreach (string thumb in thumbnails)
+            {
+                HttpWebRequest request = new HttpWebRequest(new System.Uri(thumb))
+                {
+                    Method = "HEAD"
+                };
+                try
+                {
+                    HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
+
+                    if (response.StatusCode == HttpStatusCode.OK)
+                        return thumb;
+                }
+                catch (WebException) { }
+            }
+
+            return thumbnails.Last();
+        }
+
         public void HideQuickPlay()
         {
             FindViewById<LinearLayout>(Resource.Id.quickPlayLinear).Animate().Alpha(0);

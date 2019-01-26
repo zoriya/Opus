@@ -463,7 +463,7 @@ namespace MusicApp.Resources.Portable_Class
 
                 return song; //Song is a class, the youtube id will be updated with another method
             }
-                
+
             try
             {
                 YoutubeClient client = new YoutubeClient();
@@ -472,7 +472,6 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     song.Path = mediaStreamInfo.HlsLiveStreamUrl;
                     song.IsLiveStream = true;
-
                 }
                 else
                 {
@@ -480,7 +479,7 @@ namespace MusicApp.Resources.Portable_Class
 
                     if (mediaStreamInfo.Audio.Count > 0)
                         song.Path = mediaStreamInfo.Audio.OrderBy(s => s.Bitrate).Last().Url;
-                    else if(mediaStreamInfo.Muxed.Count > 0)
+                    else if (mediaStreamInfo.Muxed.Count > 0)
                         song.Path = mediaStreamInfo.Muxed.OrderBy(x => x.Resolution).Last().Url;
                     else
                     {
@@ -489,14 +488,19 @@ namespace MusicApp.Resources.Portable_Class
                     }
                 }
                 song.IsParsed = true;
-
-                if(position != -1)
+                if (position == -2)
+                {
+                    instance.Play(song);
+                    MainActivity.instance.ShowPlayer();
+                }
+                else if (position != -1)
                     Queue.instance?.adapter.NotifyItemChanged(position, Resource.Drawable.PublicIcon);
 
                 Video video = await client.GetVideoAsync(song.YoutubeID);
                 song.Title = video.Title;
                 song.Artist = video.Author;
-                song.Album = video.Thumbnails.HighResUrl;
+                song.Album = await MainActivity.GetBestThumb(new string[] { video.Thumbnails.MaxResUrl, video.Thumbnails.StandardResUrl, video.Thumbnails.HighResUrl });
+                Player.instance?.RefreshPlayer();
 
                 if (position != -1)
                     Queue.instance?.adapter.NotifyItemChanged(position, song.Artist);
@@ -506,7 +510,6 @@ namespace MusicApp.Resources.Portable_Class
 
                 if(position != -1)
                     UpdateQueueItemDB(song, position);
-
             }
             catch (System.Net.Http.HttpRequestException)
             {
@@ -531,29 +534,27 @@ namespace MusicApp.Resources.Portable_Class
                 Player.instance.Buffering();
             }
 
-            Song song = await ParseSong(new Song(title, artist, thumbnailURL, videoID, -1, -1, null, true, false));
-
-            switch (action)
+            if (action == "Play")
+                await ParseSong(new Song(title, artist, thumbnailURL, videoID, -1, -1, null, true, false), -2);
+            else
             {
-                case "Play":
-                    Play(song);
-                    break;
+                Song song = await ParseSong(new Song(title, artist, thumbnailURL, videoID, -1, -1, null, true, false));
 
-                case "PlayNext":
-                    AddToQueue(song);
-                    return;
+                switch (action)
+                {
+                    case "PlayNext":
+                        AddToQueue(song);
+                        return;
 
-                case "PlayLast":
-                    PlayLastInQueue(song);
-                    return;
+                    case "PlayLast":
+                        PlayLastInQueue(song);
+                        return;
+                }
             }
 
-            Player.instance?.RefreshPlayer();
             if (MainActivity.instance != null)
             {
                 MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
-                MainActivity.instance.ShowSmallPlayer();
-                MainActivity.instance.ShowPlayer();
             }
             UpdateQueueItemDB(await GetItem(), CurrentID());
         }
