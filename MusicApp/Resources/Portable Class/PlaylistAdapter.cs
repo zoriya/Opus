@@ -44,21 +44,20 @@ namespace MusicApp.Resources.Portable_Class
             if (position == 0)
             {
                 HeaderHolder holder = (HeaderHolder)viewHolder;
-                holder.headerText.Text = "Local Playlists";
+                holder.headerText.Text = MainActivity.instance.Resources.GetString(Resource.String.local_playlists);
             }
             else if (position - LocalPlaylists.Count == 0)
             {
                 HeaderHolder holder = (HeaderHolder)viewHolder;
-                holder.headerText.Text = "Youtube Playlists";
+                holder.headerText.Text = MainActivity.instance.Resources.GetString(Resource.String.youtube_playlists);
             }
-            else if (position == 1 && LocalPlaylists[1].Name.StartsWith("EMPTY - "))
+            else if (position == 1 && LocalPlaylists[1].Name == "EMPTY")
             {
                 EmptyHolder holder = (EmptyHolder)viewHolder;
-                holder.text.Text = LocalPlaylists[1].Name.Substring(8);
+                holder.text.Text = LocalPlaylists[1].Owner;
             }
             else if (position - LocalPlaylists.Count == 1 && YoutubePlaylists[1].Name == "EMPTY")
             {
-                Console.WriteLine("&Empty holder");
                 EmptyHolder holder = (EmptyHolder)viewHolder;
                 holder.text.Text = YoutubePlaylists[1].Owner;
             }
@@ -67,12 +66,12 @@ namespace MusicApp.Resources.Portable_Class
                 ButtonHolder holder = (ButtonHolder)viewHolder;
                 if (MainActivity.Theme == 1)
                 {
-                    ((GradientDrawable)holder.ItemView.Background).SetStroke(5, Android.Content.Res.ColorStateList.ValueOf(Color.Argb(255, 62, 80, 180)));
+                    ((GradientDrawable)holder.ItemView.Background).SetStroke(5, ColorStateList.ValueOf(Color.Argb(255, 62, 80, 180)));
                     holder.Button.SetTextColor(Color.Argb(255, 62, 80, 180));
                 }
                 else
                 {
-                    ((GradientDrawable)holder.ItemView.Background).SetStroke(5, Android.Content.Res.ColorStateList.ValueOf(Color.Argb(255, 21, 183, 237)));
+                    ((GradientDrawable)holder.ItemView.Background).SetStroke(5, ColorStateList.ValueOf(Color.Argb(255, 21, 183, 237)));
                     holder.Button.SetTextColor(Color.Argb(255, 21, 183, 237));
                 }
 
@@ -86,7 +85,7 @@ namespace MusicApp.Resources.Portable_Class
             else if(position >= LocalPlaylists.Count && YoutubePlaylists[position - LocalPlaylists.Count].Name == "Error" && YoutubePlaylists[position - LocalPlaylists.Count].YoutubeID == null)
             {
                 EmptyHolder holder = (EmptyHolder)viewHolder;
-                holder.text.Text = "Error while loading.\nCheck your internet connection and check if your logged in.";
+                holder.text.Text = MainActivity.instance.Resources.GetString(Resource.String.youtube_loading_error);
                 holder.text.SetTextColor(Color.Red);
             }
             else if (LocalPlaylists.Count >= position)
@@ -225,7 +224,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             if (position == 0 || position - LocalPlaylists.Count == 0)
                 return 0;
-            else if (LocalPlaylists.Count >= position && (LocalPlaylists.Count > 2 || !LocalPlaylists[1].Name.StartsWith("EMPTY - ")))
+            else if (LocalPlaylists.Count >= position && (LocalPlaylists.Count > 2 || LocalPlaylists[1].Name != "EMPTY"))
                 return 1;
             else if (position == LocalPlaylists.Count + YoutubePlaylists.Count)
                 return 4;

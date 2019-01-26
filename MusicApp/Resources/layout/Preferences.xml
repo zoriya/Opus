@@ -3,55 +3,50 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android/com/apk/res-auto"
   android:id="@+id/PreferenceScreen">
-  <android.support.v7.preference.PreferenceCategory android:title="Behavior" android:id="@+id/behavior" >
+  <android.support.v7.preference.PreferenceCategory android:title="@string/behavior" android:id="@+id/behavior" >
     <android.support.v7.preference.Preference
       android:key="topics"
-      android:title="Music genres your interesed in"
+      android:title="@string/music_genres"
       android:summary="Actualy nothing"/>
     <android.support.v7.preference.Preference
       android:key="localPlay"
-      android:title="Local Play Shortcut"
-      android:summary="Shuffle All Audio Files" />
-    <android.support.v7.preference.Preference
-      android:key="skipExistVerification"
-      android:title="Never play local file instead of youtube one"
+      android:title="@string/local_play"
       android:summary="Shuffle All Audio Files" />
     <SeekbarPreference
-      android:title="Volume"
+      android:title="@string/volume"
       android:key="volumeMultipler" />
   </android.support.v7.preference.PreferenceCategory>
-  <android.support.v7.preference.PreferenceCategory android:title="Download">
+  <android.support.v7.preference.PreferenceCategory android:title="@string/download">
     <android.support.v7.preference.Preference
       android:key="downloadPath"
-      android:title="Download directory"
-      android:summary="test" />
+      android:title="@string/download_directory" />
     <android.support.v7.preference.Preference
       android:key="maxDownload"
-      android:title="Maximum current download"
+      android:title="@string/max_download"
       android:summary="4"/>
     <android.support.v7.preference.Preference
       android:key="keepDeleted"
-      android:title="Delete song when removing them from a synced playlist"
+      android:title="@string/sync_remove"
       android:summary="true"/>
   </android.support.v7.preference.PreferenceCategory>
-  <android.support.v7.preference.PreferenceCategory android:title="Appearances">
+  <android.support.v7.preference.PreferenceCategory android:title="@string/appearances">
     <android.support.v7.preference.Preference
       android:key="theme"
-      android:title="Theme :"
+      android:title="@string/theme"
       android:summary="White Theme" />
   </android.support.v7.preference.PreferenceCategory>
-  <android.support.v7.preference.PreferenceCategory android:title="Others">
+  <android.support.v7.preference.PreferenceCategory android:title="@string/Others">
     <android.support.v7.preference.Preference
-      android:title="Check for updates"
+      android:title="@string/check_updates"
       android:key="update"/>
     <android.support.v7.preference.Preference
-      android:title="Version :"
+      android:title="@string/version"
       android:key="version" />
     <AccountPreference
       android:key="account"
       android:icon="@drawable/account"
       android:id="@+id/accountPreference"
       android:widgetLayout="@layout/LogOutButton"
-      android:title="Not logged in" />
+      android:title="@string/not_log" />
   </android.support.v7.preference.PreferenceCategory>
 </android.support.v7.preference.PreferenceScreen>

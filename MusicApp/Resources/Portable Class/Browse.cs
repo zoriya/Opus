@@ -225,11 +225,11 @@ namespace MusicApp.Resources.Portable_Class
 
             bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, new List<BottomSheetAction>
             {
-                new BottomSheetAction(Resource.Drawable.Play, "Play", (sender, eventArg) => { Play(item); bottomSheet.Dismiss(); }),
-                new BottomSheetAction(Resource.Drawable.PlaylistPlay, "Play Next", (sender, eventArg) => { PlayNext(item); bottomSheet.Dismiss(); }),
-                new BottomSheetAction(Resource.Drawable.Queue, "Play Last", (sender, eventArg) => { PlayLast(item); bottomSheet.Dismiss(); }),
-                new BottomSheetAction(Resource.Drawable.PlaylistAdd, "Add To Playlist", (sender, eventArg) => { GetPlaylist(item); bottomSheet.Dismiss(); }),
-                new BottomSheetAction(Resource.Drawable.Edit, "Edit Metadata", (sender, eventArg) => { EditMetadata(item); bottomSheet.Dismiss(); })
+                new BottomSheetAction(Resource.Drawable.Play, Resources.GetString(Resource.String.play), (sender, eventArg) => { Play(item); bottomSheet.Dismiss(); }),
+                new BottomSheetAction(Resource.Drawable.PlaylistPlay, Resources.GetString(Resource.String.play_next), (sender, eventArg) => { PlayNext(item); bottomSheet.Dismiss(); }),
+                new BottomSheetAction(Resource.Drawable.Queue, Resources.GetString(Resource.String.play_last), (sender, eventArg) => { PlayLast(item); bottomSheet.Dismiss(); }),
+                new BottomSheetAction(Resource.Drawable.PlaylistAdd, Resources.GetString(Resource.String.add_to_playlist), (sender, eventArg) => { GetPlaylist(item); bottomSheet.Dismiss(); }),
+                new BottomSheetAction(Resource.Drawable.Edit, Resources.GetString(Resource.String.edit_metadata), (sender, eventArg) => { EditMetadata(item); bottomSheet.Dismiss(); })
             });
             bottomSheet.Show();
         }

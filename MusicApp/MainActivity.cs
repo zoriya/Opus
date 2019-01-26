@@ -672,12 +672,12 @@ namespace MusicApp
 
             tabs.RemoveAllTabs();
             tabs.Visibility = ViewStates.Visible;
-            tabs.AddTab(tabs.NewTab().SetText("Songs"));
-            tabs.AddTab(tabs.NewTab().SetText("Folders"));
+            tabs.AddTab(tabs.NewTab().SetText(Resources.GetString(Resource.String.songs)));
+            tabs.AddTab(tabs.NewTab().SetText(Resources.GetString(Resource.String.folders)));
 
             ViewPagerAdapter adapter = new ViewPagerAdapter(SupportFragmentManager);
-            adapter.AddFragment(Browse.NewInstance(), "Songs");
-            adapter.AddFragment(FolderBrowse.NewInstance(), "Folders");
+            adapter.AddFragment(Browse.NewInstance(), Resources.GetString(Resource.String.songs));
+            adapter.AddFragment(FolderBrowse.NewInstance(), Resources.GetString(Resource.String.folders));
 
             pager.Adapter = adapter;
             pager.AddOnPageChangeListener(this);
@@ -719,19 +719,19 @@ namespace MusicApp
 
             tabs.Visibility = ViewStates.Visible;
             tabs.RemoveAllTabs();
-            tabs.AddTab(tabs.NewTab().SetText("All"));
-            tabs.AddTab(tabs.NewTab().SetText("Tracks"));
-            tabs.AddTab(tabs.NewTab().SetText("Playlists"));
-            tabs.AddTab(tabs.NewTab().SetText("Lives"));
-            tabs.AddTab(tabs.NewTab().SetText("Channels"));
+            tabs.AddTab(tabs.NewTab().SetText(Resources.GetString(Resource.String.all)));
+            tabs.AddTab(tabs.NewTab().SetText(Resources.GetString(Resource.String.tracks)));
+            tabs.AddTab(tabs.NewTab().SetText(Resources.GetString(Resource.String.playlists)));
+            tabs.AddTab(tabs.NewTab().SetText(Resources.GetString(Resource.String.lives)));
+            tabs.AddTab(tabs.NewTab().SetText(Resources.GetString(Resource.String.channels)));
 
             ViewPagerAdapter adapter = new ViewPagerAdapter(SupportFragmentManager);
             Android.Support.V4.App.Fragment[] fragment = YoutubeEngine.NewInstances(querry);
-            adapter.AddFragment(fragment[0], "All");
-            adapter.AddFragment(fragment[1], "Tracks");
-            adapter.AddFragment(fragment[2], "Playlists");
-            adapter.AddFragment(fragment[3], "Lives");
-            adapter.AddFragment(fragment[4], "Channels");
+            adapter.AddFragment(fragment[0], Resources.GetString(Resource.String.all));
+            adapter.AddFragment(fragment[1], Resources.GetString(Resource.String.tracks));
+            adapter.AddFragment(fragment[2], Resources.GetString(Resource.String.playlists));
+            adapter.AddFragment(fragment[3], Resources.GetString(Resource.String.lives));
+            adapter.AddFragment(fragment[4], Resources.GetString(Resource.String.channels));
 
             pager.Adapter = adapter;
             pager.AddOnPageChangeListener(this);

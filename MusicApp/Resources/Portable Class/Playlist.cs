@@ -96,7 +96,7 @@ namespace MusicApp.Resources.Portable_Class
                         long id = cursor.GetLong(listID);
 
                         PlaylistItem ytPlaylist = SyncedPlaylists.Find(x => x.LocalID == id);
-                        if (ytPlaylist == null) 
+                        if (ytPlaylist == null)
                         {
                             Android.Net.Uri musicUri = Playlists.Members.GetContentUri("external", id);
                             CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
@@ -119,7 +119,7 @@ namespace MusicApp.Resources.Portable_Class
                 }
 
                 if (LocalPlaylists.Count == 1)
-                    LocalPlaylists.Add(new PlaylistItem("EMPTY - You don't have any playlist on your device.", -1));
+                    LocalPlaylists.Add(new PlaylistItem("EMPTY", -1) { Owner = Resources.GetString(Resource.String.local_playlist_empty) });
 
                 YoutubePlaylists.Add(Loading);
                 adapter = new PlaylistAdapter(LocalPlaylists, YoutubePlaylists);
@@ -296,7 +296,7 @@ namespace MusicApp.Resources.Portable_Class
 
                     if (YoutubePlaylists.Count == 1)
                     {
-                        YoutubePlaylists.Add(new PlaylistItem("EMPTY", null) { Owner = "You don't have any youtube playlist on your account. \nWarning: Only playlist from your google account are displayed" });
+                        YoutubePlaylists.Add(new PlaylistItem("EMPTY", null) { Owner = Resources.GetString(Resource.String.youtube_playlist_empty) });
                     }
                     adapter.NotifyItemRangeInserted(LocalPlaylists.Count + YoutubePlaylists.Count + 1 - YtCount, YoutubePlaylists.Count - YtCount);
                     adapter.forkSaved = true;
@@ -311,7 +311,7 @@ namespace MusicApp.Resources.Portable_Class
 
                         if(BadSync.Count > 0)
                         {
-                            if (LocalPlaylists[1].Name.StartsWith("EMPTY - "))
+                            if (LocalPlaylists[1].Name == "EMPTY")
                             {
                                 LocalPlaylists.RemoveAt(1);
                                 adapter.NotifyItemRemoved(1);
@@ -492,7 +492,7 @@ namespace MusicApp.Resources.Portable_Class
 
             List<BottomSheetAction> actions = new List<BottomSheetAction>
             {
-                new BottomSheetAction(Resource.Drawable.Play, "Play In Order", (sender, eventArg) =>
+                new BottomSheetAction(Resource.Drawable.Play, Resources.GetString(Resource.String.play_in_order), (sender, eventArg) =>
                 {
                     if (local || item.SyncState == SyncState.True)
                         PlayInOrder(item.LocalID);
@@ -500,7 +500,7 @@ namespace MusicApp.Resources.Portable_Class
                         PlayInOrder(item.YoutubeID);
                     bottomSheet.Dismiss();
                 }),
-                new BottomSheetAction(Resource.Drawable.Shuffle, "Random Play", (sender, eventArg) =>
+                new BottomSheetAction(Resource.Drawable.Shuffle, Resources.GetString(Resource.String.random_play), (sender, eventArg) =>
                 {
                     if (local || item.SyncState == SyncState.True)
                         RandomPlay(item.LocalID, Activity);
@@ -508,7 +508,7 @@ namespace MusicApp.Resources.Portable_Class
                         YoutubeEngine.RandomPlay(item.YoutubeID);
                     bottomSheet.Dismiss();
                 }),
-                new BottomSheetAction(Resource.Drawable.Queue, "Add To Queue", (sender, eventArg) =>
+                new BottomSheetAction(Resource.Drawable.Queue, Resources.GetString(Resource.String.add_to_queue), (sender, eventArg) =>
                 {
                     if (local || item.SyncState == SyncState.True)
                         AddToQueue(item.LocalID);
@@ -520,7 +520,7 @@ namespace MusicApp.Resources.Portable_Class
 
             if (local || item.HasWritePermission)
             {
-                actions.AddRange(new BottomSheetAction[]{ new BottomSheetAction(Resource.Drawable.Edit, "Rename", (sender, eventArg) =>
+                actions.AddRange(new BottomSheetAction[]{ new BottomSheetAction(Resource.Drawable.Edit, Resources.GetString(Resource.String.rename), (sender, eventArg) =>
                 {
                     if (local)
                         Rename(Position, item);
@@ -528,7 +528,7 @@ namespace MusicApp.Resources.Portable_Class
                         RenameYoutubePlaylist(Position, item.YoutubeID, item.LocalID);
                     bottomSheet.Dismiss();
                 }),
-                new BottomSheetAction(Resource.Drawable.Delete, "Delete", (sender, eventArg) =>
+                new BottomSheetAction(Resource.Drawable.Delete, Resources.GetString(Resource.String.delete), (sender, eventArg) =>
                 {
                     if (local)
                         RemovePlaylist(Position, item.LocalID);
@@ -541,12 +541,12 @@ namespace MusicApp.Resources.Portable_Class
 
             if(item.SyncState == SyncState.True)
             {
-                actions.AddRange(new BottomSheetAction[]{ new BottomSheetAction(Resource.Drawable.Sync, "Sync Now", (sender, eventArg) =>
+                actions.AddRange(new BottomSheetAction[]{ new BottomSheetAction(Resource.Drawable.Sync, Resources.GetString(Resource.String.sync_now), (sender, eventArg) =>
                 {
                     YoutubeEngine.DownloadPlaylist(item.Name, item.YoutubeID);
                     bottomSheet.Dismiss();
                 }),
-                new BottomSheetAction(Resource.Drawable.SyncDisabled, "Stop Syncing", (sender, eventArg) =>
+                new BottomSheetAction(Resource.Drawable.SyncDisabled, Resources.GetString(Resource.String.stop_sync), (sender, eventArg) =>
                 {
                     StopSyncing(Position, item.LocalID);
                     bottomSheet.Dismiss();
@@ -554,7 +554,7 @@ namespace MusicApp.Resources.Portable_Class
             }
             else if (!local && item.HasWritePermission)
             {
-                actions.Add(new BottomSheetAction(Resource.Drawable.Sync, "Sync Playlist", (sender, eventArg) => 
+                actions.Add(new BottomSheetAction(Resource.Drawable.Sync, Resources.GetString(Resource.String.sync), (sender, eventArg) => 
                 {
                     YoutubeEngine.DownloadPlaylist(item.Name, item.YoutubeID);
                     bottomSheet.Dismiss();
@@ -562,12 +562,12 @@ namespace MusicApp.Resources.Portable_Class
             }
             else if(!local)
             {
-                actions.AddRange(new BottomSheetAction[]{ new BottomSheetAction(Resource.Drawable.Sync, "Sync Playlist", (sender, eventArg) =>
+                actions.AddRange(new BottomSheetAction[]{ new BottomSheetAction(Resource.Drawable.Sync, Resources.GetString(Resource.String.sync), (sender, eventArg) =>
                 {
                     YoutubeEngine.DownloadPlaylist(item.Name, item.YoutubeID);
                     bottomSheet.Dismiss();
                 }),
-                new BottomSheetAction(Resource.Drawable.Delete, "Unfork", (sender, eventArg) =>
+                new BottomSheetAction(Resource.Drawable.Delete, Resources.GetString(Resource.String.unfork), (sender, eventArg) =>
                 {
                     Unfork(Position, item.YoutubeID);
                     bottomSheet.Dismiss();
@@ -844,7 +844,7 @@ namespace MusicApp.Resources.Portable_Class
 
                         if (LocalPlaylists.Count == 1)
                         {
-                            LocalPlaylists.Add(new PlaylistItem("EMPTY - You don't have any playlist on your device.", -1));
+                            LocalPlaylists.Add(new PlaylistItem("EMPTY", -1) { Owner = Resources.GetString(Resource.String.local_playlist_empty) });
                             adapter.NotifyItemInserted(1);
                         }
                     })
@@ -863,7 +863,7 @@ namespace MusicApp.Resources.Portable_Class
                 adapter.NotifyItemRemoved(LocalIndex);
                 if (LocalPlaylists.Count == 1)
                 {
-                    LocalPlaylists.Add(new PlaylistItem("EMPTY - You don't have any playlist on your device.", -1));
+                    LocalPlaylists.Add(new PlaylistItem("EMPTY", -1) { Owner = Resources.GetString(Resource.String.local_playlist_empty) });
                     adapter.NotifyItemInserted(1);
                 }
                 await Task.Delay(500);
@@ -922,7 +922,7 @@ namespace MusicApp.Resources.Portable_Class
             holder.SyncLoading.Visibility = ViewStates.Gone;
 
             PlaylistItem LocalPlaylist = new PlaylistItem(YoutubePlaylists[position - LocalPlaylists.Count].Name, LocalID, YoutubePlaylists[position - LocalPlaylists.Count].Count);
-            if (LocalPlaylists.Count == 2 && LocalPlaylists[1].Name.StartsWith("EMPTY -"))
+            if (LocalPlaylists.Count == 2 && LocalPlaylists[1].Name == "EMPTY")
             {
                 LocalPlaylists.RemoveAt(1);
                 adapter.NotifyItemRemoved(1);
@@ -989,9 +989,9 @@ namespace MusicApp.Resources.Portable_Class
                         foreach (PlaylistItem item in YoutubePlaylists)
                             System.Console.WriteLine(item.Name);
 
-                    if (YoutubePlaylists.Count == 1)
-                    {
-                        YoutubePlaylists.Add(new PlaylistItem("EMPTY", null) { Owner = "You don't have any youtube playlist on your account. \nWarning: Only playlist from your google account are displayed" });
+                        if (YoutubePlaylists.Count == 1)
+                        {
+                            YoutubePlaylists.Add(new PlaylistItem("EMPTY", null) { Owner = Resources.GetString(Resource.String.youtube_playlist_empty) });
                             adapter.NotifyItemInserted(LocalPlaylists.Count + YoutubePlaylists.Count);
                         }
                     }
@@ -1038,9 +1038,9 @@ namespace MusicApp.Resources.Portable_Class
                         YoutubePlaylists.RemoveAt(position - LocalPlaylists.Count - 1);
                         adapter.NotifyItemRemoved(position);
 
-                    if (YoutubePlaylists.Count == 1)
-                    {
-                        YoutubePlaylists.Add(new PlaylistItem("EMPTY", null) { Owner = "You don't have any youtube playlist on your account. \nWarning: Only playlist from your google account are displayed" });
+                        if (YoutubePlaylists.Count == 1)
+                        {
+                            YoutubePlaylists.Add(new PlaylistItem("EMPTY", null) { Owner = Resources.GetString(Resource.String.youtube_playlist_empty) });
                             adapter.NotifyItemInserted(LocalPlaylists.Count + YoutubePlaylists.Count);
                         }
                     }

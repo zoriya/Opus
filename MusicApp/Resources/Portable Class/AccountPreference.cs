@@ -43,7 +43,7 @@ public class AccountPreference : Preference, IResultCallback
         if (MainActivity.account == null)
         {
             log.SetTextColor(Color.DarkBlue);
-            log.Text = "Log In";
+            log.Text = Preferences.instance.Resources.GetString(Resource.String.log_in);
             log.Click += logIn;
 
             if (MainActivity.Theme == 1)
@@ -53,7 +53,7 @@ public class AccountPreference : Preference, IResultCallback
         }
         else
         {
-            log.Text = "Log Out";
+            log.Text = Preferences.instance.Resources.GetString(Resource.String.log_out);
             Picasso.With(Android.App.Application.Context).Load(MainActivity.account.PhotoUrl).Transform(new CircleTransformation()).Into(view.FindViewById<ImageView>(Android.Resource.Id.Icon));
             log.SetTextColor(Color.Red);
             log.Click += logOut;
@@ -63,7 +63,7 @@ public class AccountPreference : Preference, IResultCallback
     public void OnSignedIn()
     {
         Button log = (Button)view.FindViewById(Resource.Id.logButton);
-        log.Text = "Log Out";
+        log.Text = Preferences.instance.Resources.GetString(Resource.String.log_out);
         Picasso.With(Android.App.Application.Context).Load(MainActivity.account.PhotoUrl).Transform(new CircleTransformation()).Into(view.FindViewById<ImageView>(Android.Resource.Id.Icon));
         view.FindViewById<ImageView>(Android.Resource.Id.Icon).ClearColorFilter();
         log.SetTextColor(Color.Red);
@@ -74,7 +74,7 @@ public class AccountPreference : Preference, IResultCallback
     {
         Button log = (Button)view.FindViewById(Resource.Id.logButton);
         log.SetTextColor(Color.DarkBlue);
-        log.Text = "Log In";
+        log.Text = Preferences.instance.Resources.GetString(Resource.String.log_in);
         Summary = "";
         Picasso.With(Android.App.Application.Context).Load(Resource.Drawable.account).Into(view.FindViewById<ImageView>(Android.Resource.Id.Icon));
         if(MainActivity.Theme == 1)

@@ -5,23 +5,23 @@
   <item
     android:id="@+id/search"
     android:icon="@drawable/Search"
-    android:title="Search On Youtube"
+    android:title="@string/youtube_search"
     app:showAsAction="always|collapseActionView"
     app:actionViewClass="android.support.v7.widget.SearchView" />
   <item
     android:id="@+id/filter"
     android:icon="@drawable/Filter"
-    android:title="Filter"
+    android:title="@string/filter"
     app:showAsAction="always|collapseActionView"
     app:actionViewClass="android.support.v7.widget.SearchView" />
   <item
     android:id="@+id/media_route_menu_item"
-    android:title="Cast"
+    android:title="@string/cast"
     app:actionProviderClass="android.support.v7.app.MediaRouteActionProvider"
     app:showAsAction="always" />
   <item
     android:id="@+id/settings"
     android:icon="@drawable/account"
     app:showAsAction="always"
-    android:title="Settings" />
+    android:title="@string/settings" />
 </menu>

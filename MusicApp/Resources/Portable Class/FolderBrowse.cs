@@ -199,22 +199,22 @@ namespace MusicApp.Resources.Portable_Class
 
             bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, new List<BottomSheetAction>
             {
-                new BottomSheetAction(Resource.Drawable.Folder, "List songs", (sender, eventArg) =>
+                new BottomSheetAction(Resource.Drawable.Folder, Resources.GetString(Resource.String.list_songs), (sender, eventArg) =>
                 {
                     ListSongs(displayPath, path);
                     bottomSheet.Dismiss();
                 }),
-                new BottomSheetAction(Resource.Drawable.Play, "Play in order", (sender, eventArg) =>
+                new BottomSheetAction(Resource.Drawable.Play, Resources.GetString(Resource.String.play_in_order), (sender, eventArg) =>
                 {
                     PlayInOrder(path);
                     bottomSheet.Dismiss();
                 }),
-                new BottomSheetAction(Resource.Drawable.Shuffle, "Random play", (sender, eventArg) =>
+                new BottomSheetAction(Resource.Drawable.Shuffle, Resources.GetString(Resource.String.random_play), (sender, eventArg) =>
                 {
                     RandomPlay(path);
                     bottomSheet.Dismiss();
                 }),
-                new BottomSheetAction(Resource.Drawable.PlaylistAdd, "Add to playlist", (sender, eventArg) =>
+                new BottomSheetAction(Resource.Drawable.PlaylistAdd, Resources.GetString(Resource.String.add_to_playlist), (sender, eventArg) =>
                 {
                     GetPlaylist(path);
                     bottomSheet.Dismiss();

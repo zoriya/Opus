@@ -199,14 +199,14 @@ namespace MusicApp.Resources.Portable_Class
 
             List<BottomSheetAction> actions = new List<BottomSheetAction>
             {
-                new BottomSheetAction(Resource.Drawable.Play, "Play", (sender, eventArg) => { ListView_ItemClick(null, position); bottomSheet.Dismiss(); }),
-                new BottomSheetAction(Resource.Drawable.Close, "Remove from queue", (sender, eventArg) => { RemoveFromQueue(position); bottomSheet.Dismiss(); }),
-                new BottomSheetAction(Resource.Drawable.PlaylistAdd, "Add To Playlist", (sender, eventArg) => { Browse.GetPlaylist(item); bottomSheet.Dismiss(); })
+                new BottomSheetAction(Resource.Drawable.Play, Resources.GetString(Resource.String.play), (sender, eventArg) => { ListView_ItemClick(null, position); bottomSheet.Dismiss(); }),
+                new BottomSheetAction(Resource.Drawable.Close, Resources.GetString(Resource.String.remove_from_queue), (sender, eventArg) => { RemoveFromQueue(position); bottomSheet.Dismiss(); }),
+                new BottomSheetAction(Resource.Drawable.PlaylistAdd, Resources.GetString(Resource.String.add_to_playlist), (sender, eventArg) => { Browse.GetPlaylist(item); bottomSheet.Dismiss(); })
             };
 
             if (item.IsYt)
             {
-                actions.Add(new BottomSheetAction(Resource.Drawable.Download, "Download", (sender, eventArg) =>
+                actions.Add(new BottomSheetAction(Resource.Drawable.Download, Resources.GetString(Resource.String.download), (sender, eventArg) =>
                 {
                     YoutubeEngine.Download(item.Title, item.YoutubeID);
                     bottomSheet.Dismiss();
@@ -214,7 +214,7 @@ namespace MusicApp.Resources.Portable_Class
             }
             else
             {
-                actions.Add(new BottomSheetAction(Resource.Drawable.Edit, "Edit Metadata", (sender, eventArg) =>
+                actions.Add(new BottomSheetAction(Resource.Drawable.Edit, Resources.GetString(Resource.String.edit_metadata), (sender, eventArg) =>
                 {
                     Browse.EditMetadata(item);
                     bottomSheet.Dismiss();

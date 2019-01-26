@@ -1,8 +1,51 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <resources>
+  <!--Navigation bar-->
   <string name="home">Home</string>
   <string name="browse">Browse</string>
   <string name="playlists">Playlists</string>
+  
+  <!--Toolbars-->
+  <string name="repeat">Repeat</string>
+  <string name="youtube_search">Search on youtube</string>
+  <string name="filter">Filter</string>
+  <string name="cast">Cast</string>
+  <string name="settings">Settings</string>
+  
+  <!--Player-->
+  <string name="show_queue">SHOW QUEUE</string>
+  <string name="up_next">Up next:</string>
+  <string name="nothing">Nothing.</string>
+  <string name="next_loading">Loading, please wait.</string>
+  
+  <!--Autoplay-->
+  <string name="autoplay">Autoplay</string>
+  <string name="autoplay_desc">Automatically add similars songs from youtube</string>
+  <string name="create_mix">CREATE MIX</string>
+  
+  <!--More menu (long clicks)-->
+  <string name="play">Play</string>
+  <string name="play_next">Play next</string>
+  <string name="play_last">Play last</string>
+  <string name="add_to_playlist">Add to playlist</string>
+  <string name="edit_metadata">Edit metadata</string>
+  <string name="download">Download</string>
+  <string name="remove_from_queue">Remove from queue</string>
+  <string name="remove_from_playlist">Remove track from playlist</string>
+  <!--More menu of playlist or folders-->
+  <string name="list_songs">List songs</string>
+  <string name="play_in_order">Play in order</string>
+  <string name="random_play">Shuffle</string>
+  <string name="add_to_queue">Add to queue</string>
+  <string name="rename">Rename</string>
+  <string name="delete">Delete</string>
+  <string name="sync">Sync playlist</string>
+  <string name="sync_now">Sync now</string>
+  <string name="stop_sync">Stop syncing</string>
+  <string name="add_to_library">Add playlist to library</string>
+  <string name="unfork">Remove playlist from library</string>
+
+  <!--Home screen-->
   <string name="shuffle_all">SHUFFLE ALL</string>
   <string name="shuffle">Shuffle</string>
   <string name="more">MORE</string>
@@ -10,4 +53,52 @@
   <string name="featured">Featured</string>
   <string name="music_genres">Music Genres</string>
   <string name="recommendation_explanation">used for your recommendation</string>
+  
+  <!--Browse tab-->
+  <string name="songs">Songs</string>
+  <string name="folders">Folders</string>
+  
+  <!--Youtube Search-->
+  <string name="all">All</string>
+  <string name="tracks">Tracks</string>
+  <string name="playlists">Playlists</string>
+  <string name="lives">Lives</string>
+  <string name="channels">Channels</string>
+  
+  <!--Playlists Screen-->
+  <string name="local_playlists">Local Playlists</string>
+  <string name="youtube_playlists">Youtube Playlists</string>
+  <string name="add_playlist">ADD A PLAYLIST</string>
+  <string name="youtube_loading_error">Error while loading.\nCheck your internet connection and check if your logged in.</string>
+  <string name="local_playlist_empty">You don\'t have any playlist on your device.</string>
+  <string name="youtube_playlist_empty">You don\'t have any youtube playlist on your account. \nWarning: Only playlist from your google account are displayed.</string>
+
+  <!--Settings-->
+  <string name="apply">Apply</string>
+  <string name="cancel">Cancel</string>
+  
+  <string name="behavior">Behavior</string>
+  <string name="music_genre">Music genres your interesed in</string>
+  <string name="genre_nothing">Actually nothing</string>
+  <string name="and"> and </string>
+  <string name="and_more"> and more.</string>
+  <string name="local_play">Local Play Shortcut</string>
+  <string name="volume">Volume</string>
+  <string name="download">Download</string>
+  <string name="download_directory">Download directory</string>
+  <string name="max_download">Maximum current download</string>
+  <string name="max_download_dialog">Choose the maximum number of current download</string>
+  <string name="sync_remove">Delete song when removing them from a synced playlist</string>
+  <string name="appearances">Appearances</string>
+  <string name="theme">Theme</string>
+  <string name="theme_dialog">Choose a theme</string>
+  <string name="white_theme">White Theme</string>
+  <string name="dark_theme">Dark Theme</string>
+  <string name="others">Others</string>
+  <string name="check_updates">Check for updates</string>
+  <string name="version">Version</string>
+  <string name="not_log">Not logged in</string>
+  <string name="logged_in">Logged in as</string>
+  <string name="log_in">LOG IN</string>
+  <string name="log_out">LOG OUT</string>
 </resources>

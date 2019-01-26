@@ -19,7 +19,6 @@ using static Android.Provider.MediaStore.Audio;
 using AlertDialog = Android.Support.V7.App.AlertDialog;
 using CursorLoader = Android.Support.V4.Content.CursorLoader;
 using Preference = Android.Support.V7.Preferences.Preference;
-using PreferenceCategory = Android.Support.V7.Preferences.PreferenceCategory;
 using PreferenceManager = Android.Support.V7.Preferences.PreferenceManager;
 using Toolbar = Android.Support.V7.Widget.Toolbar;
 
@@ -43,7 +42,7 @@ namespace MusicApp.Resources.Portable_Class
 
             instance = this;
             Window.SetStatusBarColor(Android.Graphics.Color.Argb(255, 33, 33, 33));
-            toolbar.Title = "Settings";
+            toolbar.Title = Resources.GetString(Resource.String.settings);
             toolbar.NavigationClick += (sender, e) =>
             {
                 if (DownloadFragment.instance == null && TopicSelector.instance == null)
@@ -57,7 +56,7 @@ namespace MusicApp.Resources.Portable_Class
                         editor.PutString("downloadPath", DownloadFragment.instance.path);
                         editor.Apply();
                         Preference downloadPref = PreferencesFragment.instance.PreferenceScreen.FindPreference("downloadPath");
-                        downloadPref.Summary = DownloadFragment.instance.path ?? "not set";
+                        downloadPref.Summary = DownloadFragment.instance.path ?? Environment.GetExternalStoragePublicDirectory(Environment.DirectoryMusic).ToString();
                         PreferencesFragment.instance.path = DownloadFragment.instance.path;
 
                         DownloadFragment.instance = null;
@@ -79,15 +78,15 @@ namespace MusicApp.Resources.Portable_Class
 
                         Preference topicPreference = PreferencesFragment.instance.PreferenceScreen.FindPreference("topics");
                         if (topics.Count == 0)
-                            topicPreference.Summary = "Actually nothing";
+                            topicPreference.Summary = Resources.GetString(Resource.String.genre_nothing);
                         else if (topics.Count == 1)
                             topicPreference.Summary = topics[0].Substring(0, topics[0].IndexOf("/#-#/"));
                         else if (topics.Count == 2)
-                            topicPreference.Summary = topics[0].Substring(0, topics[0].IndexOf("/#-#/")) + " and " + topics[1].Substring(0, topics[1].IndexOf("/#-#/"));
+                            topicPreference.Summary = topics[0].Substring(0, topics[0].IndexOf("/#-#/")) + Resources.GetString(Resource.String.and) + topics[1].Substring(0, topics[1].IndexOf("/#-#/"));
                         else if (topics.Count == 3)
-                            topicPreference.Summary = topics[0].Substring(0, topics[0].IndexOf("/#-#/")) + ", " + topics[1].Substring(0, topics[1].IndexOf("/#-#/")) + " and " + topics[2].Substring(0, topics[2].IndexOf("/#-#/"));
+                            topicPreference.Summary = topics[0].Substring(0, topics[0].IndexOf("/#-#/")) + ", " + topics[1].Substring(0, topics[1].IndexOf("/#-#/")) + Resources.GetString(Resource.String.and) + topics[2].Substring(0, topics[2].IndexOf("/#-#/"));
                         else if (topics.Count > 3)
-                            topicPreference.Summary = topics[0].Substring(0, topics[0].IndexOf("/#-#/")) + ", " + topics[1].Substring(0, topics[1].IndexOf("/#-#/")) + ", " + topics[2].Substring(0, topics[2].IndexOf("/#-#/")) + " and more.";
+                            topicPreference.Summary = topics[0].Substring(0, topics[0].IndexOf("/#-#/")) + ", " + topics[1].Substring(0, topics[1].IndexOf("/#-#/")) + ", " + topics[2].Substring(0, topics[2].IndexOf("/#-#/")) + Resources.GetString(Resource.String.and_more);
                     }
                 }
             };
@@ -151,22 +150,16 @@ namespace MusicApp.Resources.Portable_Class
             string[] topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToArray();
 
             if (topics.Length == 0)
-                topicPreference.Summary = "Actually nothing";
+                topicPreference.Summary = Resources.GetString(Resource.String.genre_nothing);
             else if (topics.Length == 1)
                 topicPreference.Summary = topics[0].Substring(0, topics[0].IndexOf("/#-#/"));
             else if (topics.Length == 2)
-                topicPreference.Summary = topics[0].Substring(0, topics[0].IndexOf("/#-#/")) + " and " + topics[1].Substring(0, topics[1].IndexOf("/#-#/"));
+                topicPreference.Summary = topics[0].Substring(0, topics[0].IndexOf("/#-#/")) + Resources.GetString(Resource.String.and) + topics[1].Substring(0, topics[1].IndexOf("/#-#/"));
             else if(topics.Length == 3)
-                topicPreference.Summary = topics[0].Substring(0, topics[0].IndexOf("/#-#/")) + ", " + topics[1].Substring(0, topics[1].IndexOf("/#-#/")) + " and " + topics[2].Substring(0, topics[2].IndexOf("/#-#/"));
+                topicPreference.Summary = topics[0].Substring(0, topics[0].IndexOf("/#-#/")) + ", " + topics[1].Substring(0, topics[1].IndexOf("/#-#/")) + Resources.GetString(Resource.String.and) + topics[2].Substring(0, topics[2].IndexOf("/#-#/"));
             else if(topics.Length > 3)
-                topicPreference.Summary = topics[0].Substring(0, topics[0].IndexOf("/#-#/")) + ", " + topics[1].Substring(0, topics[1].IndexOf("/#-#/")) + ", " + topics[2].Substring(0, topics[2].IndexOf("/#-#/")) + " and more.";
+                topicPreference.Summary = topics[0].Substring(0, topics[0].IndexOf("/#-#/")) + ", " + topics[1].Substring(0, topics[1].IndexOf("/#-#/")) + ", " + topics[2].Substring(0, topics[2].IndexOf("/#-#/")) + Resources.GetString(Resource.String.and_more);
 
-
-            //Skip Exist Verification
-            Preference skipExistVerification = PreferenceScreen.FindPreference("skipExistVerification");
-            skipExistVerification.IconSpaceReserved = false;
-            skipExistVerification.PreferenceClick += SkipClick;
-            skipExistVerification.Summary = prefManager.GetBoolean("skipExistVerification", false) ? "True" : "False";
 
             //Local play shortcut
             Preference localShortcutPreference = PreferenceScreen.FindPreference("localPlay");
@@ -197,7 +190,7 @@ namespace MusicApp.Resources.Portable_Class
             Preference themePreference = PreferenceScreen.FindPreference("theme");
             themePreference.IconSpaceReserved = false;
             themePreference.PreferenceClick += ChangeTheme;
-            themePreference.Summary = prefManager.GetInt("theme", 0) == 0 ? "White Theme" : "Dark Theme";
+            themePreference.Summary = prefManager.GetInt("theme", 0) == 0 ? Resources.GetString(Resource.String.white_theme) : Resources.GetString(Resource.String.dark_theme);
 
             //Check For Update
             Preference updatePreference = PreferenceScreen.FindPreference("update");
@@ -231,7 +224,7 @@ namespace MusicApp.Resources.Portable_Class
 
             if (MainActivity.account != null)
             {
-                accountPreference.Title = "Logged in as:";
+                accountPreference.Title = Resources.GetString(Resource.String.logged_in);
                 accountPreference.Summary = MainActivity.account.DisplayName;
             }
         }
@@ -273,25 +266,6 @@ namespace MusicApp.Resources.Portable_Class
         }
         #endregion
 
-        #region Skip Verification
-        private void SkipClick(object sender, Preference.PreferenceClickEventArgs e)
-        {
-            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
-            builder.SetTitle("Always play youtube file even if you have already downloaded the track:");
-            builder.SetItems(new[] { "True", "False" }, (s, args) =>
-            {
-                ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
-                ISharedPreferencesEditor editor = pref.Edit();
-                editor.PutBoolean("skipExistVerification", args.Which == 0);
-                editor.Apply();
-
-                Preference prefButton = FindPreference("skipExistVerification");
-                prefButton.Summary = args.Which == 0 ? "True" : "False";
-            });
-            builder.Show();
-        }
-        #endregion
-
         #region LocalShortcut
         private void LocalShortcut(object sender, Preference.PreferenceClickEventArgs e)
         {
@@ -305,7 +279,7 @@ namespace MusicApp.Resources.Portable_Class
 
         void LCShuffleAll()
         {
-            ISharedPreferences pref = Android.Support.V7.Preferences.PreferenceManager.GetDefaultSharedPreferences(Application.Context);
+            ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
             ISharedPreferencesEditor editor = pref.Edit();
             editor.PutString("localPlay", "Shuffle All Audio Files");
             editor.Apply();
@@ -349,7 +323,7 @@ namespace MusicApp.Resources.Portable_Class
 
         void LCSufflePlaylist(string playlist, long playlistID)
         {
-            ISharedPreferences pref = Android.Support.V7.Preferences.PreferenceManager.GetDefaultSharedPreferences(Application.Context);
+            ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
             ISharedPreferencesEditor editor = pref.Edit();
             editor.PutString("localPlay", "Shuffle " + playlist);
             editor.PutLong("localPlaylistID", playlistID);
@@ -373,14 +347,14 @@ namespace MusicApp.Resources.Portable_Class
         {
             View pickerView = LayoutInflater.Inflate(Resource.Layout.NumberPicker, null);
             AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
-            builder.SetTitle("Choose the maximum number of current download:");
+            builder.SetTitle(Resources.GetString(Resource.String.max_download_dialog));
             builder.SetView(pickerView);
             NumberPicker picker = (NumberPicker)pickerView;
             picker.MinValue = 1;
             picker.MaxValue = 10;
             picker.Value = int.Parse(FindPreference("maxDownload").Summary);
 
-            builder.SetPositiveButton("Apply", (s, eventArg) => 
+            builder.SetPositiveButton(Resources.GetString(Resource.String.apply), (s, eventArg) => 
             {
                 ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
                 ISharedPreferencesEditor editor = pref.Edit();
@@ -396,7 +370,7 @@ namespace MusicApp.Resources.Portable_Class
                     Downloader.instance.StartDownload();
                 } 
             });
-            builder.SetNegativeButton("Cancel", (s, eventArg) => { });
+            builder.SetNegativeButton(Resources.GetString(Resource.String.cancel), (s, eventArg) => { });
             builder.Show();
         }
         #endregion
@@ -424,8 +398,8 @@ namespace MusicApp.Resources.Portable_Class
         private void ChangeTheme(object sender, Preference.PreferenceClickEventArgs e)
         {
             AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
-            builder.SetTitle("Choose a theme :");
-            builder.SetItems(new[] { "White Theme", "Dark Theme" }, (s, args) =>
+            builder.SetTitle(Resources.GetString(Resource.String.theme_dialog));
+            builder.SetItems(new[] { Resources.GetString(Resource.String.white_theme), Resources.GetString(Resource.String.dark_theme) }, (s, args) =>
             {
                 ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
                 ISharedPreferencesEditor editor = pref.Edit();
@@ -433,7 +407,7 @@ namespace MusicApp.Resources.Portable_Class
                 editor.Apply();
 
                 Preference prefButton = FindPreference("theme");
-                prefButton.Summary = args.Which == 0 ? "White Theme" : "Dark Theme";
+                prefButton.Summary = args.Which == 0 ? Resources.GetString(Resource.String.white_theme) : Resources.GetString(Resource.String.dark_theme);
 
                 MainActivity.instance.SwitchTheme(args.Which);
                 MainActivity.instance.Recreate();

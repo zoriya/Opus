@@ -698,8 +698,8 @@ namespace MusicApp.Resources.Portable_Class
 
             List<BottomSheetAction> actions = new List<BottomSheetAction>
             {
-                new BottomSheetAction(Resource.Drawable.Play, "Play", (sender, eventArg) => { PlayInOrder(position, true); bottomSheet.Dismiss(); }),
-                new BottomSheetAction(Resource.Drawable.PlaylistPlay, "Play Next", (sender, eventArg) =>
+                new BottomSheetAction(Resource.Drawable.Play, Resources.GetString(Resource.String.play), (sender, eventArg) => { PlayInOrder(position, true); bottomSheet.Dismiss(); }),
+                new BottomSheetAction(Resource.Drawable.PlaylistPlay, Resources.GetString(Resource.String.play_next), (sender, eventArg) =>
                 {
                     if (!item.IsYt)
                         Browse.PlayNext(item);
@@ -707,7 +707,7 @@ namespace MusicApp.Resources.Portable_Class
                         YoutubeEngine.PlayNext(item.YoutubeID, item.Title, item.Artist, item.Album);
                     bottomSheet.Dismiss();
                 }),
-                new BottomSheetAction(Resource.Drawable.Queue, "Play Last", (sender, eventArg) =>
+                new BottomSheetAction(Resource.Drawable.Queue, Resources.GetString(Resource.String.play_last), (sender, eventArg) =>
                 {
                     if (!item.IsYt)
                         Browse.PlayLast(item);
@@ -715,12 +715,12 @@ namespace MusicApp.Resources.Portable_Class
                         YoutubeEngine.PlayLast(item.YoutubeID, item.Title, item.Artist, item.Album);
                     bottomSheet.Dismiss();
                 }),
-                new BottomSheetAction(Resource.Drawable.PlaylistAdd, "Add To Playlist", (sender, eventArg) => { Browse.GetPlaylist(item); bottomSheet.Dismiss(); })
+                new BottomSheetAction(Resource.Drawable.PlaylistAdd, Resources.GetString(Resource.String.add_to_playlist), (sender, eventArg) => { Browse.GetPlaylist(item); bottomSheet.Dismiss(); })
             };
 
             if (hasWriteAcess && YoutubeID != "")
             {
-                actions.Add(new BottomSheetAction(Resource.Drawable.Close, "Remove Track from playlist", (sender, eventArg) =>
+                actions.Add(new BottomSheetAction(Resource.Drawable.Close, Resources.GetString(Resource.String.remove_from_playlist), (sender, eventArg) =>
                 {
                     DeleteDialog(position);
                     bottomSheet.Dismiss();
@@ -729,7 +729,7 @@ namespace MusicApp.Resources.Portable_Class
 
             if (!item.IsYt)
             {
-                actions.Add(new BottomSheetAction(Resource.Drawable.Edit, "Edit Metadata", (sender, eventArg) =>
+                actions.Add(new BottomSheetAction(Resource.Drawable.Edit, Resources.GetString(Resource.String.edit_metadata), (sender, eventArg) =>
                 {
                     if (item.IsYt)
                         YoutubeEngine.Download(item.Title, item.YoutubeID);
@@ -740,7 +740,7 @@ namespace MusicApp.Resources.Portable_Class
             }
             else
             {
-                actions.Add(new BottomSheetAction(Resource.Drawable.Download, "Download", (sender, eventArg) =>
+                actions.Add(new BottomSheetAction(Resource.Drawable.Download, Resources.GetString(Resource.String.download), (sender, eventArg) =>
                 {
                     if (item.IsYt)
                         YoutubeEngine.Download(item.Title, item.YoutubeID);

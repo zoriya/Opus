@@ -222,7 +222,7 @@ namespace MusicApp.Resources.Portable_Class
 
             bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, new List<BottomSheetAction>
             {
-                new BottomSheetAction(Resource.Drawable.Play, "Play", async (sender, eventArg) => 
+                new BottomSheetAction(Resource.Drawable.Play, Resources.GetString(Resource.String.play), async (sender, eventArg) => 
                 {
                     int Position = tracks.IndexOf(item);
 
@@ -245,10 +245,10 @@ namespace MusicApp.Resources.Portable_Class
                     Player.instance.UpdateNext();
                     bottomSheet.Dismiss();
                 }),
-                new BottomSheetAction(Resource.Drawable.PlaylistPlay, "Play next", (sender, eventArg) => { Browse.PlayNext(item); bottomSheet.Dismiss(); }),
-                new BottomSheetAction(Resource.Drawable.Queue, "Play last", (sender, eventArg) => { Browse.PlayLast(item); bottomSheet.Dismiss(); }),
-                new BottomSheetAction(Resource.Drawable.PlaylistAdd, "Add to playlist", (sender, eventArg) => { Browse.GetPlaylist(item); bottomSheet.Dismiss(); }),
-                new BottomSheetAction(Resource.Drawable.Edit, "Edit metadata", (sender, eventArg) => { Browse.EditMetadata(item); bottomSheet.Dismiss(); })
+                new BottomSheetAction(Resource.Drawable.PlaylistPlay, Resources.GetString(Resource.String.play_next), (sender, eventArg) => { Browse.PlayNext(item); bottomSheet.Dismiss(); }),
+                new BottomSheetAction(Resource.Drawable.Queue, Resources.GetString(Resource.String.play_last), (sender, eventArg) => { Browse.PlayLast(item); bottomSheet.Dismiss(); }),
+                new BottomSheetAction(Resource.Drawable.PlaylistAdd, Resources.GetString(Resource.String.add_to_playlist), (sender, eventArg) => { Browse.GetPlaylist(item); bottomSheet.Dismiss(); }),
+                new BottomSheetAction(Resource.Drawable.Edit, Resources.GetString(Resource.String.edit_metadata), (sender, eventArg) => { Browse.EditMetadata(item); bottomSheet.Dismiss(); })
             });
             bottomSheet.Show();
         }

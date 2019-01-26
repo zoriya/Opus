@@ -250,7 +250,7 @@ namespace MusicApp
             if (asNext)
             {
                 Song next = await MusicPlayer.GetItem(MusicPlayer.CurrentID() + 1);
-                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle).Text = "Up next:";
+                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle).Text = Resources.GetString(Resource.String.up_next);
                 MainActivity.instance.FindViewById<TextView>(Resource.Id.nextArtist).Text = next.Title;
                 ImageView nextArt = MainActivity.instance.FindViewById<ImageView>(Resource.Id.nextArt);
 
@@ -268,7 +268,7 @@ namespace MusicApp
             }
             else if (MusicPlayer.useAutoPlay)
             {
-                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle).Text = "Up next:";
+                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle).Text = Resources.GetString(Resource.String.up_next);
                 ImageView nextArt = MainActivity.instance.FindViewById<ImageView>(Resource.Id.nextArt);
 
                 Song next = await MusicPlayer.GetItem(MusicPlayer.CurrentID() + 1);
@@ -290,7 +290,7 @@ namespace MusicApp
                 }
                 else
                 {
-                    MainActivity.instance.FindViewById<TextView>(Resource.Id.nextArtist).Text = "Loading, please wait";
+                    MainActivity.instance.FindViewById<TextView>(Resource.Id.nextArtist).Text = Resources.GetString(Resource.String.next_loading);
                     Picasso.With(MainActivity.instance).Load(Resource.Drawable.noAlbum).Into(nextArt);
                     MusicPlayer.instance?.GenerateAutoPlay(false);
                 }
@@ -298,7 +298,7 @@ namespace MusicApp
             else if (MusicPlayer.repeat)
             {
                 Song next = await MusicPlayer.GetItem(0);
-                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle).Text = "Up next:";
+                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle).Text = Resources.GetString(Resource.String.up_next);
                 MainActivity.instance.FindViewById<TextView>(Resource.Id.nextArtist).Text = next.Title;
                 ImageView nextArt = MainActivity.instance.FindViewById<ImageView>(Resource.Id.nextArt);
 
@@ -316,8 +316,8 @@ namespace MusicApp
             }
             else
             {
-                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle).Text = "Up next:";
-                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextArtist).Text = "Nothing.";
+                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle).Text = Resources.GetString(Resource.String.up_next);
+                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextArtist).Text = Resources.GetString(Resource.String.nothing);
 
                 ImageView nextArt = MainActivity.instance.FindViewById<ImageView>(Resource.Id.nextArt);
                 Picasso.With(MainActivity.instance).Load(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(nextArt);

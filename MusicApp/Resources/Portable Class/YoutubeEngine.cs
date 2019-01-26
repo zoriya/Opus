@@ -461,23 +461,23 @@ namespace MusicApp.Resources.Portable_Class
 
             bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, new List<BottomSheetAction>
             {
-                new BottomSheetAction(Resource.Drawable.Play, "Play", (sender, eventArg) =>
+                new BottomSheetAction(Resource.Drawable.Play, Resources.GetString(Resource.String.play), (sender, eventArg) =>
                 {
                     Play(item.YoutubeID, item.Title, item.Artist, item.Album);
                     bottomSheet.Dismiss();
                 }),
-                new BottomSheetAction(Resource.Drawable.PlaylistPlay, "Play next", (sender, eventArg) =>
+                new BottomSheetAction(Resource.Drawable.PlaylistPlay, Resources.GetString(Resource.String.play_next), (sender, eventArg) =>
                 {
                     PlayNext(item.YoutubeID, item.Title, item.Artist, item.Album);
                     bottomSheet.Dismiss();
                 }),
-                new BottomSheetAction(Resource.Drawable.Queue, "Play last", (sender, eventArg) =>
+                new BottomSheetAction(Resource.Drawable.Queue, Resources.GetString(Resource.String.play_last), (sender, eventArg) =>
                 {
                     PlayLast(item.YoutubeID, item.Title, item.Artist, item.Album);
                     bottomSheet.Dismiss();
                 }),
-                new BottomSheetAction(Resource.Drawable.PlaylistAdd, "Add to playlist", (sender, eventArg) => { Browse.GetPlaylist(item); bottomSheet.Dismiss(); }),
-                new BottomSheetAction(Resource.Drawable.Download, "Download", (sender, eventArg) =>
+                new BottomSheetAction(Resource.Drawable.PlaylistAdd, Resources.GetString(Resource.String.add_to_playlist), (sender, eventArg) => { Browse.GetPlaylist(item); bottomSheet.Dismiss(); }),
+                new BottomSheetAction(Resource.Drawable.Download, Resources.GetString(Resource.String.download), (sender, eventArg) =>
                 {
                     Download(item.Title, item.YoutubeID);
                     bottomSheet.Dismiss();
@@ -497,27 +497,27 @@ namespace MusicApp.Resources.Portable_Class
 
             List<BottomSheetAction> actions = new List<BottomSheetAction>
             {
-                new BottomSheetAction(Resource.Drawable.Play, "Play in order", (sender, eventArg) =>
+                new BottomSheetAction(Resource.Drawable.Play, Resources.GetString(Resource.String.play_in_order), (sender, eventArg) =>
                 {
                     Playlist.PlayInOrder(item.YoutubeID);
                     bottomSheet.Dismiss();
                 }),
-                new BottomSheetAction(Resource.Drawable.Shuffle, "Random play", (sender, eventArg) =>
+                new BottomSheetAction(Resource.Drawable.Shuffle, Resources.GetString(Resource.String.random_play), (sender, eventArg) =>
                 {
                     RandomPlay(item.YoutubeID);
                     bottomSheet.Dismiss();
                 }),
-                new BottomSheetAction(Resource.Drawable.Queue, "Add to queue", (sender, eventArg) =>
+                new BottomSheetAction(Resource.Drawable.Queue, Resources.GetString(Resource.String.add_to_queue), (sender, eventArg) =>
                 {
                     Playlist.AddToQueue(item.YoutubeID);
                     bottomSheet.Dismiss();
                 }),
-                new BottomSheetAction(Resource.Drawable.LibraryAdd, "Add playlist to library", (sender, eventArg) =>
+                new BottomSheetAction(Resource.Drawable.LibraryAdd, Resources.GetString(Resource.String.add_to_library), (sender, eventArg) =>
                 {
                     ForkPlaylist(item.YoutubeID);
                     bottomSheet.Dismiss();
                 }),
-                new BottomSheetAction(Resource.Drawable.Download, "Download", (sender, eventArg) =>
+                new BottomSheetAction(Resource.Drawable.Download, Resources.GetString(Resource.String.download), (sender, eventArg) =>
                 {
                     DownloadPlaylist(item.Title, item.YoutubeID);
                     bottomSheet.Dismiss();

@@ -27,7 +27,7 @@
           android:layout_height="wrap_content"
           android:textStyle="bold"
           android:textSize="20sp"
-          android:text="Autoplay"/>
+          android:text="@string/autoplay"/>
         <android.widget.Switch
           android:layout_width="wrap_content"
           android:layout_height="25dp"
@@ -40,7 +40,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="14sp"
-        android:text="Automatically add similars songs from youtube"/>
+        android:text="@string/autoplay_desc"/>
     </LinearLayout>
     <View
       android:layout_width="1dp"
@@ -53,7 +53,7 @@
       android:layout_height="wrap_content"
       android:background="@drawable/FlatButtonBorder"
       android:id="@+id/createMix"
-      android:text="Create Mix" />
+      android:text="@string/create_mix" />
   </LinearLayout>
   <android.support.v7.widget.CardView
     android:layout_width="fill_parent"
@@ -83,7 +83,7 @@
         <TextView
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:text="Up Next:"
+          android:text="@string/up_next"
           android:textSize="16dip"
           android:textStyle="bold" />
         <TextView

@@ -5,12 +5,12 @@
   <item
     android:id="@+id/shuffle"
     android:icon="@drawable/Shuffle"
-    android:title="Shuffle Queue"
+    android:title="@string/shuffle"
     app:showAsAction="always" />
   <item
     android:id="@+id/repeat"
     android:icon="@drawable/Repeat"
-    android:title="Repeat"
+    android:title="@string/repeat"
     android:checkable="true"
     app:showAsAction="always" />
 </menu>
