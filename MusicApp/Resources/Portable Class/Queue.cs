@@ -57,7 +57,11 @@ namespace MusicApp.Resources.Portable_Class
             ListView.ScrollToPosition(MusicPlayer.CurrentID());
 
             if (MusicPlayer.UseCastPlayer)
-                Snackbar.Make(FindViewById(Resource.Id.recycler), "Queue management with chromecast is currently in beta, expect some bugs.", (int)ToastLength.Short).Show();
+            {
+                Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.recycler), "Queue management with chromecast is currently in beta, expect some bugs.", (int)ToastLength.Short);
+                snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+                snackBar.Show();
+            }
         }
 
 
@@ -145,9 +149,17 @@ namespace MusicApp.Resources.Portable_Class
                 MusicPlayer.RemotePlayer.QueueSetRepeatMode(MusicPlayer.repeat ? 1 : 0, null);
 
             if (MusicPlayer.repeat)
+            {
                 item.Icon.SetColorFilter(Color.Argb(255, 21, 183, 237), PorterDuff.Mode.Multiply);
+                MusicPlayer.useAutoPlay = false;
+                adapter.NotifyItemChanged(adapter.ItemCount - 1, "UseAutoplay");
+            }
             else
+            {
                 item.Icon.ClearColorFilter();
+                MusicPlayer.useAutoPlay = true;
+                adapter.NotifyItemChanged(adapter.ItemCount - 1, "UseAutoplay");
+            }
         }
 
         private void ListView_ItemClick(object sender, int Position)

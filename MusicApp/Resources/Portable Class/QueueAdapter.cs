@@ -5,6 +5,7 @@ using Android.Graphics;
 using Android.Support.Design.Widget;
 using Android.Support.V7.Widget;
 using Android.Views;
+using Android.Widget;
 using MusicApp.Resources.values;
 using Square.Picasso;
 using System;
@@ -46,7 +47,7 @@ namespace MusicApp.Resources.Portable_Class
                 QueueFooter holder = (QueueFooter)viewHolder;
                 holder.SwitchButton.Checked = MusicPlayer.useAutoPlay;
 
-                if (MusicPlayer.CurrentID() == ItemCount - 2 || MusicPlayer.CurrentID() == ItemCount - 3 && MusicPlayer.useAutoPlay)
+                if ((MusicPlayer.CurrentID() == ItemCount - 2 || MusicPlayer.CurrentID() == ItemCount - 3) && MusicPlayer.useAutoPlay)
                 {
                     holder.Autoplay.Visibility = ViewStates.Visible;
 
@@ -239,21 +240,90 @@ namespace MusicApp.Resources.Portable_Class
         {
             if (payloads.Count > 0)
             {
-                RecyclerHolder holder = (RecyclerHolder)viewHolder;
-
-                if (payloads[0].ToString() == holder.Title.Text)
-                    return;
-
-                if(int.TryParse(payloads[0].ToString(), out int payload) && payload == Resource.Drawable.PublicIcon)
+                if(payloads[0].ToString() == "UseAutoplay")
                 {
-                    holder.youtubeIcon.SetImageResource(Resource.Drawable.PublicIcon);
-                    return;
+                    QueueFooter holder = (QueueFooter)viewHolder;
+                    holder.SwitchButton.Checked = MusicPlayer.useAutoPlay;
+
+                    if (MusicPlayer.useAutoPlay && (MusicPlayer.CurrentID() == ItemCount - 2 || MusicPlayer.CurrentID() == ItemCount - 3))
+                    {
+                        holder.Autoplay.Visibility = ViewStates.Visible;
+
+                        if (!holder.ItemView.HasOnClickListeners)
+                            holder.ItemView.Click += (sender, eventArg) =>
+                            {
+                                Intent intent = new Intent(Queue.instance, typeof(MusicPlayer));
+                                intent.SetAction("Next");
+                                Queue.instance.StartService(intent);
+                            };
+
+                        if (MusicPlayer.autoPlay.Count > 0)
+                        {
+                            holder.RightIcon.Visibility = ViewStates.Visible;
+
+                            if (MainActivity.Theme != 1)
+                                holder.RightIcon.ImageTintList = ColorStateList.ValueOf(Color.Black);
+
+                            Song ap = MusicPlayer.autoPlay[0];
+                            holder.NextTitle.Text = ap.Title;
+
+                            if (MainActivity.Theme == 1)
+                                holder.NextTitle.SetTextColor(Color.White);
+                            else
+                                holder.NextTitle.SetTextColor(Color.Black);
+
+                            holder.NextTitle.SetBackgroundResource(Android.Resource.Color.Transparent);
+                            if (ap.IsYt)
+                                Picasso.With(MainActivity.instance).Load(ap.Album).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(holder.NextAlbum);
+                            else
+                            {
+                                var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
+                                var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, ap.AlbumArt);
+
+                                Picasso.With(MainActivity.instance).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(holder.NextAlbum);
+                            }
+                        }
+                        else
+                        {
+                            int count = new Random().Next(6, 15);
+                            string title = "a";
+                            while (count > 0)
+                            {
+                                title += "a";
+                                count--;
+                            }
+
+                            holder.NextTitle.Text = title;
+                            holder.NextTitle.SetTextColor(Color.Transparent);
+                            holder.NextTitle.SetBackgroundResource(Resource.Color.background_material_dark);
+                            holder.NextAlbum.SetImageResource(Resource.Color.background_material_dark);
+                            holder.RightIcon.Visibility = ViewStates.Gone;
+                        }
+                    }
+                    else
+                    {
+                        holder.Autoplay.Visibility = ViewStates.Gone;
+                        return;
+                    }
                 }
-
-                if(payloads[0].ToString() != null && (holder.Artist.Text == "" || holder.Artist.Text == null))
+                else
                 {
-                    holder.Artist.Text = payloads[0].ToString();
-                    return;
+                    RecyclerHolder holder = (RecyclerHolder)viewHolder;
+
+                    if (payloads[0].ToString() == holder.Title.Text)
+                        return;
+
+                    if (int.TryParse(payloads[0].ToString(), out int payload) && payload == Resource.Drawable.PublicIcon)
+                    {
+                        holder.youtubeIcon.SetImageResource(Resource.Drawable.PublicIcon);
+                        return;
+                    }
+
+                    if (payloads[0].ToString() != null && (holder.Artist.Text == "" || holder.Artist.Text == null))
+                    {
+                        holder.Artist.Text = payloads[0].ToString();
+                        return;
+                    }
                 }
             }
 
@@ -339,13 +409,14 @@ namespace MusicApp.Resources.Portable_Class
         {
             Song song = songList[position];
             Queue.RemoveFromQueue(position);
-            Snackbar.Make(Queue.instance.FindViewById(Resource.Id.recycler), (song.Title.Length > 20 ? song.Title.Substring(0, 17) + "..." : song.Title) + " has been removed from the queue.", Snackbar.LengthShort)
-                .SetAction("Undo", (view) => 
+            Snackbar snackbar = Snackbar.Make(Queue.instance.FindViewById(Resource.Id.recycler), (song.Title.Length > 20 ? song.Title.Substring(0, 17) + "..." : song.Title) + " has been removed from the queue.", Snackbar.LengthShort)
+                .SetAction("Undo", (view) =>
                 {
                     Queue.InsertToQueue(position, song);
                     NotifyItemInserted(position);
-                })
-                .Show();
+                });
+            snackbar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+            snackbar.Show();
         }
     }
 }
