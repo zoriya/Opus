@@ -322,6 +322,13 @@ namespace MusicApp.Resources.Portable_Class
                     if (payloads[0].ToString() != null && (holder.Artist.Text == "" || holder.Artist.Text == null))
                     {
                         holder.Artist.Text = payloads[0].ToString();
+                        Song song = songList[position];
+
+                        if (song.IsYt)
+                        {
+                            var songAlbumArtUri = Android.Net.Uri.Parse(song.Album);
+                            Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Color.background_material_dark).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
+                        }
                         return;
                     }
                 }

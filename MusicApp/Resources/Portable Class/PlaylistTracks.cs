@@ -289,7 +289,7 @@ namespace MusicApp.Resources.Portable_Class
                         MainActivity.instance?.SupportFragmentManager.BeginTransaction().Remove(instance).Commit();
                     }
                 }
-                else if (!navigating)
+                else if (!navigating && Queue.instance == null)
                     MainActivity.instance?.SupportFragmentManager.PopBackStack();
 
                 instance = null;
@@ -542,7 +542,7 @@ namespace MusicApp.Resources.Portable_Class
                     {
                         if (item.Snippet.Title != "[Deleted video]" && item.Snippet.Title != "Private video" && item.Snippet.Title != "Deleted video")
                         {
-                            Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false)
+                            Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.High.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false)
                             {
                                 TrackID = item.Id
                             };
@@ -759,9 +759,9 @@ namespace MusicApp.Resources.Portable_Class
             if (YoutubeID != null && !Synced)
             {
                 if (result != null && result.Count > fromPosition)
-                    YoutubeEngine.Play(result[fromPosition].YoutubeID, result[fromPosition].Title, result[fromPosition].Artist, result[0].Album);
+                    YoutubeEngine.Play(result[fromPosition].YoutubeID, result[fromPosition].Title, result[fromPosition].Artist, result[fromPosition].Album);
                 else
-                    YoutubeEngine.Play(tracks[fromPosition].YoutubeID, tracks[fromPosition].Title, tracks[fromPosition].Artist, tracks[0].Album);
+                    YoutubeEngine.Play(tracks[fromPosition].YoutubeID, tracks[fromPosition].Title, tracks[fromPosition].Artist, tracks[fromPosition].Album);
 
                 while (nextPageToken != null)
                     await LoadMore();

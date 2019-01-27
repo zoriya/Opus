@@ -58,7 +58,6 @@ namespace MusicApp.Resources.Portable_Class
         public NotificationManager notificationManager;
         private bool noisyRegistered;
         public static bool isRunning = false;
-        public static string title;
         private bool generating = false;
         public static int currentID = 0;
         public static bool autoUpdateSeekBar = true;
@@ -328,8 +327,6 @@ namespace MusicApp.Resources.Portable_Class
                 CreateNotification(song.Title, song.Artist, song.AlbumArt, song.Album);
                 AddToQueue(song);
                 currentID = CurrentID() + 1;
-
-
             }
             else
             {
@@ -349,7 +346,7 @@ namespace MusicApp.Resources.Portable_Class
             ParseNextSong();
         }
 
-        public async void Play(Song song, long progress = -1)
+        public async void Play(Song song, long progress = -1, bool addToQueue = true)
         {
             if (song.IsParsed != true)
             {
@@ -421,6 +418,12 @@ namespace MusicApp.Resources.Portable_Class
 #pragma warning restore CS0618
                 }
 
+                if (progress != -1)
+                {
+                    player.SeekTo(progress);
+                    MainActivity.instance?.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.Pause);
+                }
+
                 player.PlayWhenReady = true;
                 player.Prepare(mediaSource, true, true);
                 CreateNotification(song.Title, song.Artist, song.AlbumArt, song.Album);
@@ -432,26 +435,23 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             isRunning = true;
-            AddToQueue(song);
-            currentID = CurrentID() + 1;
 
-            if (progress != -1)
+            if(addToQueue)
             {
-                player.SeekTo(progress);
-                MainActivity.instance?.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.Pause);
+                AddToQueue(song);
+                SaveQueueSlot();
+                autoPlay.Clear();
+                GenerateAutoPlay(false);
+                currentID = CurrentID() + 1;
             }
 
-            autoPlay.Clear();
-            GenerateAutoPlay(false);
-
-            SaveQueueSlot();
             Player.instance?.RefreshPlayer();
             Home.instance?.AddQueue();
             Queue.instance?.RefreshCurrent();
             ParseNextSong();
         }
 
-        private static async Task<Song> ParseSong(Song song, int position = -1)
+        private static async Task<Song> ParseSong(Song song, int position = -1, bool startPlaybackWhenPosible = false)
         {
             if (song.IsParsed == true || !song.IsYt)
                 return song;
@@ -460,6 +460,9 @@ namespace MusicApp.Resources.Portable_Class
             {
                 while (song.IsParsed == null)
                     await Task.Delay(10);
+
+                if (startPlaybackWhenPosible && (await GetItem()).YoutubeID != song.YoutubeID)
+                    instance.Play(song, -1, position == -1);
 
                 return song; //Song is a class, the youtube id will be updated with another method
             }
@@ -488,12 +491,11 @@ namespace MusicApp.Resources.Portable_Class
                     }
                 }
                 song.IsParsed = true;
-                if (position == -2)
-                {
-                    instance.Play(song);
-                    MainActivity.instance.ShowPlayer();
-                }
-                else if (position != -1)
+
+                if (startPlaybackWhenPosible)
+                    instance.Play(song, -1, position == -1);
+
+                if (position != -1)
                     Queue.instance?.adapter.NotifyItemChanged(position, Resource.Drawable.PublicIcon);
 
                 Video video = await client.GetVideoAsync(song.YoutubeID);
@@ -535,7 +537,15 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             if (action == "Play")
-                await ParseSong(new Song(title, artist, thumbnailURL, videoID, -1, -1, null, true, false), -2);
+            {
+                MainActivity.instance.ShowPlayer();
+                Song song = new Song(title, artist, thumbnailURL, videoID, -1, -1, null, true, false);
+                queue.Clear();
+                queue.Add(song);
+                currentID = 0;
+                await ParseSong(song, 0, true);
+            }
+
             else
             {
                 Song song = await ParseSong(new Song(title, artist, thumbnailURL, videoID, -1, -1, null, true, false));
@@ -587,7 +597,7 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     if (item.Snippet.Title != "[Deleted video]" && item.Snippet.Title != "Private video" && item.Snippet.Title != "Deleted video")
                     {
-                        Song song = new Song(item.Snippet.Title, "", item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
+                        Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.High.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
                         if (!queue.Exists(x => x.YoutubeID == song.YoutubeID))
                         {
                             autoPlay.Add(song);
@@ -922,7 +932,22 @@ namespace MusicApp.Resources.Portable_Class
         public async void SwitchQueue(int position, bool showPlayer = false, bool StartFromOldPosition = true)
         {
             Song song = await GetItem(position);
-            if (song.IsParsed != true)
+
+            if (player == null)
+                InitializeService();
+
+            if (currentID == position && StartFromOldPosition)
+                player.SeekTo(LastTimer);
+
+            currentID = position;
+            MainActivity.instance.ShowPlayer();
+
+            if (UseCastPlayer)
+            {
+                Console.WriteLine("&Switching to item at " + position + " with itemID: " + RemotePlayer.MediaQueue.ItemIdAtIndex(position));
+                RemotePlayer.QueueJumpToItem(RemotePlayer.MediaQueue.ItemIdAtIndex(position), null);
+            }
+            else if (song.IsParsed != true)
             {
                 Player.instance?.Buffering();
                 if (MainActivity.instance != null && showPlayer)
@@ -931,8 +956,7 @@ namespace MusicApp.Resources.Portable_Class
                     parseProgress.Visibility = ViewStates.Visible;
                     parseProgress.ScaleY = 6;
                 }
-                song = await ParseSong(song, position);
-                queue[position] = song;
+                await ParseSong(song, position, !UseCastPlayer);
 
                 if (MainActivity.instance != null && showPlayer)
                 {
@@ -940,98 +964,10 @@ namespace MusicApp.Resources.Portable_Class
                     parseProgress.Visibility = ViewStates.Gone;
                 }
             }
-
-            if (UseCastPlayer)
-            {
-                Console.WriteLine("&Switching to item at " + position + " with itemID: " + RemotePlayer.MediaQueue.ItemIdAtIndex(position));
-                RemotePlayer.QueueJumpToItem(RemotePlayer.MediaQueue.ItemIdAtIndex(position), null);
-            }
             else
-            {
-                isLiveStream = song.IsLiveStream;
+                Play(song, -1, false);
 
-                isRunning = true;
-                if (player == null)
-                    InitializeService();
-
-                if (mediaSession == null)
-                {
-                    mediaSession = new MediaSessionCompat(Application.Context, "MusicApp");
-                    mediaSession.SetFlags(MediaSessionCompat.FlagHandlesMediaButtons | MediaSessionCompat.FlagHandlesTransportControls);
-                    PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder().SetActions(PlaybackStateCompat.ActionPlay | PlaybackStateCompat.ActionPause | PlaybackStateCompat.ActionSkipToNext | PlaybackStateCompat.ActionSkipToPrevious);
-                    mediaSession.SetPlaybackState(builder.Build());
-                    mediaSession.SetCallback(new HeadphonesActions());
-                }
-
-                DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(Application.Context, "MusicApp");
-                IExtractorsFactory extractorFactory = new DefaultExtractorsFactory();
-                Handler handler = new Handler();
-                IMediaSource mediaSource;
-
-                if (!song.IsYt)
-                    mediaSource = new ExtractorMediaSource(Uri.FromFile(new Java.IO.File(song.Path)), dataSourceFactory, extractorFactory, handler, null);
-                else
-                    mediaSource = new ExtractorMediaSource(Uri.Parse(song.Path), dataSourceFactory, extractorFactory, handler, null);
-
-                AudioAttributes attributes = new AudioAttributes.Builder()
-                    .SetUsage(AudioUsageKind.Media)
-                    .SetContentType(AudioContentType.Music)
-                    .Build();
-
-                if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
-                {
-                    AudioFocusRequestClass focusRequest = new AudioFocusRequestClass.Builder(AudioFocus.Gain)
-                        .SetAudioAttributes(attributes)
-                        .SetAcceptsDelayedFocusGain(true)
-                        .SetWillPauseWhenDucked(true)
-                        .SetOnAudioFocusChangeListener(this)
-                        .Build();
-                    AudioFocusRequest audioFocus = audioManager.RequestAudioFocus(focusRequest);
-
-                    if (audioFocus != AudioFocusRequest.Granted)
-                    {
-                        Console.WriteLine("Can't Get Audio Focus");
-                        return;
-                    }
-                }
-                else
-                {
-#pragma warning disable CS0618 // Type or member is obsolete
-
-                    AudioManager am = (AudioManager)MainActivity.instance.GetSystemService(AudioService);
-
-                    AudioFocusRequest audioFocus = am.RequestAudioFocus(this, Stream.Music, AudioFocus.Gain);
-
-                    if (audioFocus != AudioFocusRequest.Granted)
-                    {
-                        Console.WriteLine("Can't Get Audio Focus");
-                        return;
-                    }
-#pragma warning restore CS0618
-                }
-
-                player.PlayWhenReady = true;
-                player.Prepare(mediaSource, true, true);
-                CreateNotification(song.Title, song.Artist, song.AlbumArt, song.Album);
-                isRunning = true;
-
-                if (currentID == position && StartFromOldPosition)
-                    player.SeekTo(LastTimer);
-
-                currentID = position;
-
-                SaveQueueSlot();
-                Player.instance?.RefreshPlayer();
-                Home.instance?.AddQueue();
-                Queue.instance?.RefreshCurrent();
-                Queue.instance?.RefreshAP();
-                ParseNextSong();
-            }
-
-            if (showPlayer)
-            {
-                MainActivity.instance.ShowPlayer();
-            }
+            Queue.instance?.RefreshAP();
         }
 
         public static int CurrentID()
@@ -1259,9 +1195,7 @@ namespace MusicApp.Resources.Portable_Class
 
         async void CreateNotification(string title, string artist, long albumArt = 0, string imageURI = "")
         {
-            MusicPlayer.title = title;
             Bitmap icon = null;
-
             if(albumArt == -1)
             {
                 await Task.Run(() =>
@@ -1583,22 +1517,23 @@ namespace MusicApp.Resources.Portable_Class
             if(player != null && CurrentPosition != 0)
                 SaveTimer(CurrentPosition);
 
+            noisyReceiver = null;
             noisyRegistered = false;
             isRunning = false;
-            title = null;
             currentID = -1;
             userStopped = false;
+            instance = null;
             MainActivity.instance?.HideSmallPlayer();
+            userStopped = true;
             if (player != null)
             {
-                if (isRunning)
-                    player.Stop();
                 player.Release();
+                player.Stop();
                 player = null;
                 StopForeground(true);
             }
 
-            if(!UseCastPlayer)
+            if (!UseCastPlayer)
                 StopSelf();
         }
 
