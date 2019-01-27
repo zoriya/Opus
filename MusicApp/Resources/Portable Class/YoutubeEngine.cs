@@ -480,7 +480,7 @@ namespace MusicApp.Resources.Portable_Class
                 }),
                 new BottomSheetAction(Resource.Drawable.PlayCircle, Resources.GetString(Resource.String.create_mix_from_song), (sender, eventArg) =>
                 {
-                    CreateMix(item.YoutubeID);
+                    CreateMix(item);
                     bottomSheet.Dismiss();
                 }),
                 new BottomSheetAction(Resource.Drawable.PlaylistAdd, Resources.GetString(Resource.String.add_to_playlist), (sender, eventArg) => { Browse.GetPlaylist(item); bottomSheet.Dismiss(); }),
@@ -550,20 +550,6 @@ namespace MusicApp.Resources.Portable_Class
             intent.PutExtra("thumbnailURI", thumbnailURL);
             intent.PutExtra("addToQueue", addToQueue);
             intent.PutExtra("showPlayer", showPlayer);
-            Android.App.Application.Context.StartService(intent);
-            ShowRecomandations(videoID);
-        }
-
-        public static void Play(string videoID)
-        {
-            MusicPlayer.queue?.Clear();
-            MusicPlayer.UpdateQueueDataBase();
-            MusicPlayer.currentID = -1;
-
-            Intent intent = new Intent(Android.App.Application.Context, typeof(MusicPlayer));
-            intent.SetAction("YoutubePlay");
-            intent.PutExtra("action", "Play");
-            intent.PutExtra("file", videoID);
             Android.App.Application.Context.StartService(intent);
             ShowRecomandations(videoID);
         }
@@ -986,11 +972,11 @@ namespace MusicApp.Resources.Portable_Class
             MusicPlayer.instance.RandomPlay(songs, false);
         }
 
-        public static async void CreateMix(string videoID)
+        public static async void CreateMix(Song item)
         {
             if(MusicPlayer.queue.Count == 0)
             {
-                Play(videoID);
+                Play(item.YoutubeID, item.Title, item.Artist, item.Album, true, true);
             }
 
             ProgressBar parseProgress = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress);
@@ -1009,7 +995,7 @@ namespace MusicApp.Resources.Portable_Class
             try
             {
                 YoutubeClient client = new YoutubeClient();
-                var video = await client.GetVideoAsync(MusicPlayer.queue[MusicPlayer.CurrentID()].YoutubeID);
+                var video = await client.GetVideoAsync(item.YoutubeID);
 
                 var ytPlaylistRequest = youtubeService.PlaylistItems.List("snippet, contentDetails");
                 ytPlaylistRequest.PlaylistId = video.GetVideoMixPlaylistId();
@@ -1017,11 +1003,11 @@ namespace MusicApp.Resources.Portable_Class
 
                 var ytPlaylist = await ytPlaylistRequest.ExecuteAsync();
 
-                foreach (var item in ytPlaylist.Items)
+                foreach (var ytItem in ytPlaylist.Items)
                 {
-                    if (item.Snippet.Title != "[Deleted video]" && item.Snippet.Title != "Private video" && item.Snippet.Title != "Deleted video" && item.ContentDetails.VideoId != MusicPlayer.queue[MusicPlayer.CurrentID()].YoutubeID)
+                    if (ytItem.Snippet.Title != "[Deleted video]" && ytItem.Snippet.Title != "Private video" && ytItem.Snippet.Title != "Deleted video" && ytItem.ContentDetails.VideoId != MusicPlayer.queue[MusicPlayer.CurrentID()].YoutubeID)
                     {
-                        Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.High.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
+                        Song song = new Song(ytItem.Snippet.Title, ytItem.Snippet.ChannelTitle, ytItem.Snippet.Thumbnails.High.Url, ytItem.ContentDetails.VideoId, -1, -1, ytItem.ContentDetails.VideoId, true, false);
                         tracks.Add(song);
                     }
                 }

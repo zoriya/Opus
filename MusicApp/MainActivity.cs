@@ -1185,7 +1185,7 @@ namespace MusicApp
             if (sender != null)
                 QuickPlay(this, e);
 
-            YoutubeEngine.CreateMix((await MusicPlayer.GetItem()).YoutubeID);
+            YoutubeEngine.CreateMix((await MusicPlayer.GetItem()));
         }
 
         public void YoutubeEndPointChanged()

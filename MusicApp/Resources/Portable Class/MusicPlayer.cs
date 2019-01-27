@@ -538,14 +538,15 @@ namespace MusicApp.Resources.Portable_Class
 
             if (action == "Play")
             {
-                MainActivity.instance.ShowPlayer();
+                if(showPlayer)
+                    MainActivity.instance.ShowPlayer();
+
                 Song song = new Song(title, artist, thumbnailURL, videoID, -1, -1, null, true, false);
                 queue.Clear();
                 queue.Add(song);
                 currentID = 0;
                 await ParseSong(song, 0, true);
             }
-
             else
             {
                 Song song = await ParseSong(new Song(title, artist, thumbnailURL, videoID, -1, -1, null, true, false));

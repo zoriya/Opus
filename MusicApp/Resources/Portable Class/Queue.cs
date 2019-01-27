@@ -222,7 +222,7 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     new BottomSheetAction(Resource.Drawable.PlayCircle, Resources.GetString(Resource.String.create_mix_from_song), (sender, eventArg) =>
                     {
-                        YoutubeEngine.CreateMix(item.YoutubeID);
+                        YoutubeEngine.CreateMix(item);
                         bottomSheet.Dismiss();
                     }),
                     new BottomSheetAction(Resource.Drawable.Download, Resources.GetString(Resource.String.download), (sender, eventArg) =>
