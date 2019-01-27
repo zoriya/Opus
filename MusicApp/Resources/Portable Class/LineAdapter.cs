@@ -160,7 +160,7 @@ namespace MusicApp.Resources.Portable_Class
                 bottomView.FindViewById<TextView>(Resource.Id.bsArtist).Text = item.Artist;
                 if (item.Album == null)
                 {
-                    var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
+                    var songCover = Uri.Parse("content://media/external/audio/albumart");
                     var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, item.AlbumArt);
 
                     Picasso.With(MainActivity.instance).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
@@ -180,11 +180,19 @@ namespace MusicApp.Resources.Portable_Class
 
                 if (item.IsYt)
                 {
-                    actions.Add(new BottomSheetAction(Resource.Drawable.Download, MainActivity.instance.Resources.GetString(Resource.String.download), (sender, eventArg) =>
+                    actions.AddRange(new BottomSheetAction[]
                     {
-                        YoutubeEngine.Download(item.Title, item.YoutubeID);
-                        bottomSheet.Dismiss();
-                    }));
+                        new BottomSheetAction(Resource.Drawable.PlayCircle, MainActivity.instance.Resources.GetString(Resource.String.create_mix_from_song), (sender, eventArg) =>
+                        {
+                            YoutubeEngine.CreateMix(item.YoutubeID);
+                            bottomSheet.Dismiss();
+                        }),
+                        new BottomSheetAction(Resource.Drawable.Download, MainActivity.instance.Resources.GetString(Resource.String.download), (sender, eventArg) =>
+                        {
+                            YoutubeEngine.Download(item.Title, item.YoutubeID);
+                            bottomSheet.Dismiss();
+                        })
+                    });
                 }
                 else
                 {
@@ -256,11 +264,19 @@ namespace MusicApp.Resources.Portable_Class
                 }
                 else
                 {
-                    actions.Add(new BottomSheetAction(Resource.Drawable.Download, MainActivity.instance.Resources.GetString(Resource.String.download), (sender, eventArg) =>
+                    actions.AddRange(new BottomSheetAction[]
                     {
-                        YoutubeEngine.Download(item.Title, item.YoutubeID);
-                        bottomSheet.Dismiss();
-                    }));
+                        new BottomSheetAction(Resource.Drawable.PlayCircle, MainActivity.instance.Resources.GetString(Resource.String.create_mix_from_song), (sender, eventArg) =>
+                        {
+                            YoutubeEngine.CreateMix(item.YoutubeID);
+                            bottomSheet.Dismiss();
+                        }),
+                        new BottomSheetAction(Resource.Drawable.Download, MainActivity.instance.Resources.GetString(Resource.String.download), (sender, eventArg) =>
+                        {
+                            YoutubeEngine.Download(item.Title, item.YoutubeID);
+                            bottomSheet.Dismiss();
+                        })
+                    });
                 }
 
                 bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, actions);

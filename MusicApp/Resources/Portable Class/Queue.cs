@@ -218,11 +218,19 @@ namespace MusicApp.Resources.Portable_Class
 
             if (item.IsYt)
             {
-                actions.Add(new BottomSheetAction(Resource.Drawable.Download, Resources.GetString(Resource.String.download), (sender, eventArg) =>
+                actions.AddRange(new BottomSheetAction[]
                 {
-                    YoutubeEngine.Download(item.Title, item.YoutubeID);
-                    bottomSheet.Dismiss();
-                }));
+                    new BottomSheetAction(Resource.Drawable.PlayCircle, Resources.GetString(Resource.String.create_mix_from_song), (sender, eventArg) =>
+                    {
+                        YoutubeEngine.CreateMix(item.YoutubeID);
+                        bottomSheet.Dismiss();
+                    }),
+                    new BottomSheetAction(Resource.Drawable.Download, Resources.GetString(Resource.String.download), (sender, eventArg) =>
+                    {
+                        YoutubeEngine.Download(item.Title, item.YoutubeID);
+                        bottomSheet.Dismiss();
+                    })
+                });
             }
             else
             {

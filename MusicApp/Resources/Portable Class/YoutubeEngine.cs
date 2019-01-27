@@ -19,6 +19,8 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using TagLib;
+using YoutubeExplode;
+using YoutubeExplode.Models;
 using CursorLoader = Android.Support.V4.Content.CursorLoader;
 
 namespace MusicApp.Resources.Portable_Class
@@ -476,6 +478,11 @@ namespace MusicApp.Resources.Portable_Class
                     PlayLast(item.YoutubeID, item.Title, item.Artist, item.Album);
                     bottomSheet.Dismiss();
                 }),
+                new BottomSheetAction(Resource.Drawable.PlayCircle, Resources.GetString(Resource.String.create_mix_from_song), (sender, eventArg) =>
+                {
+                    CreateMix(item.YoutubeID);
+                    bottomSheet.Dismiss();
+                }),
                 new BottomSheetAction(Resource.Drawable.PlaylistAdd, Resources.GetString(Resource.String.add_to_playlist), (sender, eventArg) => { Browse.GetPlaylist(item); bottomSheet.Dismiss(); }),
                 new BottomSheetAction(Resource.Drawable.Download, Resources.GetString(Resource.String.download), (sender, eventArg) =>
                 {
@@ -543,6 +550,20 @@ namespace MusicApp.Resources.Portable_Class
             intent.PutExtra("thumbnailURI", thumbnailURL);
             intent.PutExtra("addToQueue", addToQueue);
             intent.PutExtra("showPlayer", showPlayer);
+            Android.App.Application.Context.StartService(intent);
+            ShowRecomandations(videoID);
+        }
+
+        public static void Play(string videoID)
+        {
+            MusicPlayer.queue?.Clear();
+            MusicPlayer.UpdateQueueDataBase();
+            MusicPlayer.currentID = -1;
+
+            Intent intent = new Intent(Android.App.Application.Context, typeof(MusicPlayer));
+            intent.SetAction("YoutubePlay");
+            intent.PutExtra("action", "Play");
+            intent.PutExtra("file", videoID);
             Android.App.Application.Context.StartService(intent);
             ShowRecomandations(videoID);
         }
@@ -963,6 +984,73 @@ namespace MusicApp.Resources.Portable_Class
                 await Task.Delay(10);
 
             MusicPlayer.instance.RandomPlay(songs, false);
+        }
+
+        public static async void CreateMix(string videoID)
+        {
+            if(MusicPlayer.queue.Count == 0)
+            {
+                Play(videoID);
+            }
+
+            ProgressBar parseProgress = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress);
+            parseProgress.Visibility = ViewStates.Visible;
+            parseProgress.ScaleY = 6;
+
+            if (!await MainActivity.instance.WaitForYoutube())
+            {
+                Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), "Error while loading. Check your internet connection and check if your logged in.", Snackbar.LengthLong);
+                snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+                snackBar.Show();
+                return;
+            }
+
+            List<Song> tracks = new List<Song>();
+            try
+            {
+                YoutubeClient client = new YoutubeClient();
+                var video = await client.GetVideoAsync(MusicPlayer.queue[MusicPlayer.CurrentID()].YoutubeID);
+
+                var ytPlaylistRequest = youtubeService.PlaylistItems.List("snippet, contentDetails");
+                ytPlaylistRequest.PlaylistId = video.GetVideoMixPlaylistId();
+                ytPlaylistRequest.MaxResults = 50;
+
+                var ytPlaylist = await ytPlaylistRequest.ExecuteAsync();
+
+                foreach (var item in ytPlaylist.Items)
+                {
+                    if (item.Snippet.Title != "[Deleted video]" && item.Snippet.Title != "Private video" && item.Snippet.Title != "Deleted video" && item.ContentDetails.VideoId != MusicPlayer.queue[MusicPlayer.CurrentID()].YoutubeID)
+                    {
+                        Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.High.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
+                        tracks.Add(song);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex is System.Net.Http.HttpRequestException)
+                    MainActivity.instance.Timout();
+                else
+                    MainActivity.instance.Unknow();
+
+                return;
+            }
+
+            Random r = new Random();
+            tracks = tracks.OrderBy(x => r.Next()).ToList();
+
+            Intent intent = new Intent(MainActivity.instance, typeof(MusicPlayer));
+            MainActivity.instance.StartService(intent);
+
+            while (MusicPlayer.instance == null)
+                await Task.Delay(100);
+
+            MusicPlayer.instance.AddToQueue(tracks.ToArray());
+            MainActivity.instance.ShowPlayer();
+            Player.instance?.UpdateNext();
+            Home.instance?.RefreshQueue();
+            Queue.instance?.Refresh();
+            parseProgress.Visibility = ViewStates.Gone;
         }
 
         public static async void DownloadPlaylist(string playlist, string playlistID, bool showToast = true)

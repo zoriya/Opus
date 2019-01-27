@@ -740,14 +740,22 @@ namespace MusicApp.Resources.Portable_Class
             }
             else
             {
-                actions.Add(new BottomSheetAction(Resource.Drawable.Download, Resources.GetString(Resource.String.download), (sender, eventArg) =>
+                actions.AddRange(new BottomSheetAction[]
                 {
-                    if (item.IsYt)
-                        YoutubeEngine.Download(item.Title, item.YoutubeID);
-                    else
-                        Browse.EditMetadata(item);
-                    bottomSheet.Dismiss();
-                }));
+                    new BottomSheetAction(Resource.Drawable.PlayCircle, Resources.GetString(Resource.String.create_mix_from_song), (sender, eventArg) =>
+                    {
+                        YoutubeEngine.CreateMix(item.YoutubeID);
+                        bottomSheet.Dismiss();
+                    }),
+                    new BottomSheetAction(Resource.Drawable.Download, Resources.GetString(Resource.String.download), (sender, eventArg) =>
+                    {
+                        if (item.IsYt)
+                            YoutubeEngine.Download(item.Title, item.YoutubeID);
+                        else
+                            Browse.EditMetadata(item);
+                        bottomSheet.Dismiss();
+                    })
+                });
             }
 
             bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, actions);

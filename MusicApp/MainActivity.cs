@@ -1182,72 +1182,10 @@ namespace MusicApp
 
             YtMix:
 
-            ProgressBar parseProgress = FindViewById<ProgressBar>(Resource.Id.ytProgress);
-            parseProgress.Visibility = ViewStates.Visible;
-            parseProgress.ScaleY = 6;
-
             if (sender != null)
                 QuickPlay(this, e);
 
-            if (!await WaitForYoutube())
-            {
-                Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), "Error while loading. Check your internet connection and check if your logged in.", Snackbar.LengthLong);
-                snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
-                snackBar.Show();
-                return;
-            }
-
-            List<Song> tracks = new List<Song>();
-            try
-            {
-                YoutubeClient client = new YoutubeClient();
-                Video video = await client.GetVideoAsync(MusicPlayer.queue[MusicPlayer.CurrentID()].YoutubeID);
-
-                var ytPlaylistRequest = YoutubeEngine.youtubeService.PlaylistItems.List("snippet, contentDetails");
-                ytPlaylistRequest.PlaylistId = video.GetVideoMixPlaylistId();
-                ytPlaylistRequest.MaxResults = 50;
-
-                var ytPlaylist = await ytPlaylistRequest.ExecuteAsync();
-
-                foreach (var item in ytPlaylist.Items)
-                {
-                    if (item.Snippet.Title != "[Deleted video]" && item.Snippet.Title != "Private video" && item.Snippet.Title != "Deleted video" && item.ContentDetails.VideoId != MusicPlayer.queue[MusicPlayer.CurrentID()].YoutubeID)
-                    {
-                        Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.High.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
-                        tracks.Add(song);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                if (ex is System.Net.Http.HttpRequestException)
-                    instance.Timout();
-                else
-                    instance.Unknow();
-
-                return;
-            }
-
-
-            Song current = MusicPlayer.queue[MusicPlayer.CurrentID()];
-
-            Random r = new Random();
-            tracks = tracks.OrderBy(x => r.Next()).ToList();
-
-            Intent intent = new Intent(this, typeof(MusicPlayer));
-            StartService(intent);
-
-            while (MusicPlayer.instance == null)
-                await Task.Delay(100);
-
-            MusicPlayer.instance.AddToQueue(tracks.ToArray());
-
-            ShowSmallPlayer();
-            ShowPlayer();
-            Player.instance?.UpdateNext();
-            Home.instance?.RefreshQueue();
-            Queue.instance?.Refresh();
-            parseProgress.Visibility = ViewStates.Gone;
+            YoutubeEngine.CreateMix((await MusicPlayer.GetItem()).YoutubeID);
         }
 
         public void YoutubeEndPointChanged()
