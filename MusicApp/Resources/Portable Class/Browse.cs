@@ -25,48 +25,48 @@ using CursorLoader = Android.Support.V4.Content.CursorLoader;
 
 namespace MusicApp.Resources.Portable_Class
 {
-    public class Browse : ListFragment
+    public class Browse : Fragment
     {
         public static Browse instance;
+        public RecyclerView ListView;
+        public BrowseAdapter adapter;
         public List<Song> musicList = new List<Song>();
         public List<Song> result;
-        public Adapter adapter;
-        public View emptyView;
         public bool focused = true;
 
-        private View view;
-        private bool isEmpty = false;
+        private View EmptyView;
 
 
         public override void OnActivityCreated(Bundle savedInstanceState)
         {
             base.OnActivityCreated(savedInstanceState);
-            emptyView = LayoutInflater.Inflate(Resource.Layout.NoSong, null);
-            ListView.EmptyView = emptyView;
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
-            ListView.Scroll += MainActivity.instance.Scroll;
             ListView.NestedScrollingEnabled = true;
-
-            if (ListView.Adapter == null)
-                MainActivity.instance.GetStoragePermission();
         }
 
         public override void OnDestroy()
         {
             MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
-            if (isEmpty)
-            {
-                ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
-                rootView.RemoveView(emptyView);
-            }
             base.OnDestroy();
             instance = null;
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            View view = base.OnCreateView(inflater, container, savedInstanceState);
-            this.view = view;
+            View view = inflater.Inflate(Resource.Layout.YoutubeSearch, container, false);
+
+            if(MainActivity.Theme == 1)
+                view.SetBackgroundColor(Color.ParseColor("#424242"));
+
+            EmptyView = view.FindViewById<TextView>(Resource.Id.empty);
+            ListView = view.FindViewById<RecyclerView>(Resource.Id.recycler);
+            ListView.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
+            ListView.SetItemAnimator(new DefaultItemAnimator());
+
+            PopulateList();
+
+            //if (ListView.GetAdapter() == null)
+            //    MainActivity.instance.GetStoragePermission();
             return view;
         }
 
@@ -116,36 +116,14 @@ namespace MusicApp.Resources.Portable_Class
 
             List<Song> songList = musicList.OrderBy(x => x.Title).ToList();
             musicList = songList;
-            int listPadding = 0;
-            if (adapter != null)
-                listPadding = adapter.listPadding;
-            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, musicList)
-            {
-                listPadding = listPadding
-            };
-            ListAdapter = adapter;
-            ListView.TextFilterEnabled = true;
-            ListView.ItemClick += ListView_ItemClick;
-            ListView.ItemLongClick += ListView_ItemLongClick;
+            adapter = new BrowseAdapter(result ?? musicList, result == null);
+            ListView.SetAdapter(adapter);
+            adapter.ItemClick += ListView_ItemClick;
+            adapter.ItemLongCLick += ListView_ItemLongClick;
 
-            if (adapter == null || adapter.Count == 0)
+            if (adapter == null || adapter.ItemCount == 0)
             {
-                isEmpty = true;
-                Activity.AddContentView(emptyView, View.LayoutParameters);
-            }
-
-            //if (MainActivity.paddingBot > MainActivity.defaultPaddingBot && adapter.listPadding == 0)
-            //    adapter.listPadding = MainActivity.paddingBot - MainActivity.defaultPaddingBot;
-
-            if(result != null)
-            {
-                if (adapter != null)
-                    listPadding = adapter.listPadding;
-                adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, result)
-                {
-                    listPadding = listPadding
-                };
-                ListAdapter = adapter;
+                EmptyView.Visibility = ViewStates.Visible;
             }
         }
 
@@ -172,34 +150,30 @@ namespace MusicApp.Resources.Portable_Class
                     result.Add(item);
                 }
             }
-            int listPadding = 0;
-            if (adapter != null)
-                listPadding = adapter.listPadding;
-            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, result)
-            {
-                listPadding = listPadding
-            };
-            ListAdapter = adapter;
+            adapter = new BrowseAdapter(result, result.Count == musicList.Count);
+            adapter.ItemClick += ListView_ItemClick;
+            adapter.ItemLongCLick += ListView_ItemLongClick;
+            ListView.SetAdapter(adapter);
         }
 
-        public void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
+        public void ListView_ItemClick(object sender, int position)
         {
-            Song item = musicList[e.Position];
+            Song item = musicList[position];
             if (result != null)
-                item = result[e.Position];
+                item = result[position];
 
             item = CompleteItem(item);
 
             Play(item);
         }
 
-        private void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
+        private void ListView_ItemLongClick(object sender, int position)
         {
-            Song item = musicList[e.Position];
+            Song item = musicList[position];
             if (result != null)
-                item = result[e.Position];
+                item = result[position];
 
-            More(item, e.Position);
+            More(item, position);
         } 
 
         public void More(Song item, int position)

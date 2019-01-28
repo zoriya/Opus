@@ -18,7 +18,6 @@ namespace MusicApp.Resources.Portable_Class
         public List<Song> songList;
         public event EventHandler<int> ItemClick;
         public event EventHandler<int> ItemLongCLick;
-        public int listPadding;
 
         public QueueAdapter(List<Song> songList)
         {

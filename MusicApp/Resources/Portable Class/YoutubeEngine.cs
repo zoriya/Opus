@@ -334,7 +334,7 @@ namespace MusicApp.Resources.Portable_Class
                     YtFile channelPreview = new YtFile(result[0].item, YtKind.ChannelPreview);
                     result.Insert(0, channelPreview);
                 }
-                else if(querryType == "All" || querryType == "Channels")
+                else if (querryType == "All" || querryType == "Channels")
                 {
                     IEnumerable<string> artist = result.GetRange(0, (result.Count > 20 ? 20 : result.Count)).GroupBy(x => x.item.Artist).Where(x => x.Count() > 5).Select(x => x.Key);
                     if (artist.Count() == 1)
@@ -342,14 +342,14 @@ namespace MusicApp.Resources.Portable_Class
                         Song channel = null;
                         if (result.Find(x => x.Kind == YtKind.Channel && x.item.Title == artist.First()) != null)
                             channel = result.Find(x => x.item.Title == artist.First() && x.Kind == YtKind.Channel).item;
-                        else
-                        {
-                            string channelID = result.Find(x => x.item.Artist == artist.First()).item.Path;
-                            ChannelsResource.ListRequest request = youtubeService.Channels.List("snippet");
-                            request.Id = channelID;
-                            ChannelListResponse response = await request.ExecuteAsync();
-                            channel = new Song(response.Items[0].Snippet.Title, null, response.Items[0].Snippet.Thumbnails.High.Url, channelID, -1, -1, null);
-                        }
+                        //else
+                        //{
+                        //    string channelID = result.Find(x => x.item.Artist == artist.First()).item.Path;
+                        //    ChannelsResource.ListRequest request = youtubeService.Channels.List("snippet");
+                        //    request.Id = channelID;
+                        //    ChannelListResponse response = await request.ExecuteAsync();
+                        //    channel = new Song(response.Items[0].Snippet.Title, null, response.Items[0].Snippet.Thumbnails.High.Url, channelID, -1, -1, null);
+                        //}
 
                         if (channel != null)
                         {

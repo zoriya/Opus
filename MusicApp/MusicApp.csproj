@@ -326,7 +326,7 @@
     <Compile Include="Resources\Fragments\EmptyFragment.cs" />
     <Compile Include="Resources\Portable Class\AccountPreference.cs" />
     <Compile Include="Resources\Portable Class\AccountTarget.cs" />
-    <Compile Include="Resources\Portable Class\Adapter.cs" />
+    <Compile Include="Resources\Portable Class\BrowseAdapter.cs" />
     <Compile Include="Resources\Portable Class\AddToPlaylistAdapter.cs" />
     <Compile Include="Resources\Portable Class\AudioStopper.cs" />
     <Compile Include="Resources\Portable Class\BottomSheetAdapter.cs" />
@@ -858,6 +858,9 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\strings.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\BrowseShuffle.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Android.Support.Animated.Vector.Drawable.25.4.0.2\build\MonoAndroid70\Xamarin.Android.Support.Animated.Vector.Drawable.targets" Condition="Exists('..\packages\Xamarin.Android.Support.Animated.Vector.Drawable.25.4.0.2\build\MonoAndroid70\Xamarin.Android.Support.Animated.Vector.Drawable.targets')" />

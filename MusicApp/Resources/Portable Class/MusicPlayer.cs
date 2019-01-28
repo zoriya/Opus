@@ -941,7 +941,8 @@ namespace MusicApp.Resources.Portable_Class
                 player.SeekTo(LastTimer);
 
             currentID = position;
-            MainActivity.instance.ShowPlayer();
+            if(showPlayer)
+                MainActivity.instance.ShowPlayer();
 
             if (UseCastPlayer)
             {

@@ -5,6 +5,7 @@ using Android.OS;
 using Android.Provider;
 using Android.Support.Design.Widget;
 using Android.Support.V4.App;
+using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
@@ -15,25 +16,24 @@ using CursorLoader = Android.Support.V4.Content.CursorLoader;
 
 namespace MusicApp.Resources.Portable_Class
 {
-    public class FolderTracks : ListFragment
+    public class FolderTracks : Fragment
     {
         public static FolderTracks instance;
         public string folderName;
-        public Adapter adapter;
+        private RecyclerView ListView;
+        private View EmptyView;
+        public BrowseAdapter adapter;
         public List<Song> result;
         public string path;
 
         private List<Song> tracks = new List<Song>();
-        private readonly string[] actions = new string[] { "Play", "Play Next", "Play Last", "Add To Playlist" };
 
 
         public override void OnActivityCreated(Bundle savedInstanceState)
         {
             base.OnActivityCreated(savedInstanceState);
-            ListView.Scroll += MainActivity.instance.Scroll;
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
 
-            PopulateList();
             MainActivity.instance.DisplaySearch(1);
         }
 
@@ -46,7 +46,13 @@ namespace MusicApp.Resources.Portable_Class
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            View view = base.OnCreateView(inflater, container, savedInstanceState);
+            View view = inflater.Inflate(Resource.Layout.YoutubeSearch, container, false);
+            EmptyView = view.FindViewById<TextView>(Resource.Id.empty);
+            ListView = view.FindViewById<RecyclerView>(Resource.Id.recycler);
+            ListView.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
+            ListView.SetItemAnimator(new DefaultItemAnimator());
+
+            PopulateList();
             return view;
         }
 
@@ -100,11 +106,10 @@ namespace MusicApp.Resources.Portable_Class
                 musicCursor.Close();
             }
 
-            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, tracks);
-            ListAdapter = adapter;
-            ListView.TextFilterEnabled = true;
-            ListView.ItemClick += ListView_ItemClick;
-            ListView.ItemLongClick += ListView_ItemLongClick;
+            adapter = new BrowseAdapter(tracks, false);
+            adapter.ItemClick += ListView_ItemClick;
+            adapter.ItemLongCLick += ListView_ItemLongClick;
+            ListView.SetAdapter(adapter);
         }
 
         private void OnRefresh(object sender, System.EventArgs e)
@@ -150,8 +155,10 @@ namespace MusicApp.Resources.Portable_Class
                 musicCursor.Close();
             }
 
-            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, tracks);
-            ListAdapter = adapter;
+            adapter = new BrowseAdapter(tracks, false);
+            adapter.ItemClick += ListView_ItemClick;
+            adapter.ItemLongCLick += ListView_ItemLongClick;
+            ListView.SetAdapter(adapter);
             MainActivity.instance.contentRefresh.Refreshing = false;
         }
 
@@ -165,18 +172,20 @@ namespace MusicApp.Resources.Portable_Class
                     result.Add(item);
                 }
             }
-            adapter = new Adapter(Android.App.Application.Context, Resource.Layout.SongList, result);
-            ListAdapter = adapter;
+            adapter = new BrowseAdapter(result, false);
+            adapter.ItemClick += ListView_ItemClick;
+            adapter.ItemLongCLick += ListView_ItemLongClick;
+            ListView.SetAdapter(adapter);
         }
 
-        private async void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
+        private async void ListView_ItemClick(object sender, int position)
         {
-            Song item = tracks[e.Position];
-            List<Song> queue = tracks.GetRange(e.Position + 1, tracks.Count - e.Position - 1);
+            Song item = tracks[position];
+            List<Song> queue = tracks.GetRange(position + 1, tracks.Count - position - 1);
             if (result != null)
             {
-                item = result[e.Position];
-                queue = result.GetRange(e.Position + 1, result.Count - e.Position - 1);
+                item = result[position];
+                queue = result.GetRange(position + 1, result.Count - position - 1);
             }
             queue.Reverse();
 
@@ -192,13 +201,13 @@ namespace MusicApp.Resources.Portable_Class
             Player.instance.UpdateNext();
         }
 
-        private void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
+        private void ListView_ItemLongClick(object sender, int position)
         {
-            Song item = tracks[e.Position];
+            Song item = tracks[position];
             if (result != null)
-                item = result[e.Position];
+                item = result[position];
 
-            More(item, e.Position);
+            More(item, position);
         }
 
         public void More(Song item, int position)
