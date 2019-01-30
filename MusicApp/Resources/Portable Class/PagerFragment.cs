@@ -21,8 +21,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public static Fragment NewInstance(int type, int pos)
         {
-            if(instance == null)
-                instance = new Pager { Arguments = new Bundle() };
+            instance = new Pager { Arguments = new Bundle() };
             instance.type = type;
             instance.pos = pos;
             return instance;
@@ -162,7 +161,7 @@ namespace MusicApp.Resources.Portable_Class
             base.OnDestroyView();
             Browse.instance = null;
             FolderBrowse.instance = null;
-            adapter.Dispose();
+            adapter?.Dispose();
 
             TabLayout tabs = Activity.FindViewById<TabLayout>(Resource.Id.tabs);
             tabs.RemoveAllTabs();

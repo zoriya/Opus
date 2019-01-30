@@ -531,8 +531,7 @@ namespace MusicApp
         {
             contentRefresh.Refreshing = false;
 
-            bool specialSwitch = false;
-            if(YoutubeEngine.instances != null)
+            if (YoutubeEngine.instances != null)
             {
                 YoutubeEngine.error = false;
 
@@ -542,23 +541,19 @@ namespace MusicApp
                 searchView.Iconified = true;
                 searchView.SetQuery("", false);
                 SupportActionBar.SetDisplayHomeAsUpEnabled(false);
-                FindViewById(Resource.Id.tabs).Visibility = ViewStates.Gone;
-                YoutubeEngine.instances = null;
-                specialSwitch = true;
             }
 
-            if(PlaylistTracks.instance != null)
+            if (PlaylistTracks.instance != null)
             {
                 PlaylistTracks.instance.navigating = true;
                 SupportFragmentManager.BeginTransaction().Remove(PlaylistTracks.instance).Commit();
-                specialSwitch = true;
             }
 
             Android.Support.V4.App.Fragment fragment = null;
             switch (layout)
             {
                 case Resource.Id.musicLayout:
-                    if (Home.instance != null && !specialSwitch)
+                    if (Home.instance != null)
                     {
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                         Home.instance.Refresh();
@@ -571,8 +566,7 @@ namespace MusicApp
                     break;
 
                 case Resource.Id.browseLayout:
-                    Console.WriteLine("&Navigating to browse with browse instance value " + Browse.instance + ", pager instance: " + Pager.instance + " and with youtubeSwitch set to " + specialSwitch);
-                    if (Browse.instance != null && !specialSwitch)
+                    if (Browse.instance != null)
                     {
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                         Browse.instance.Refresh();
@@ -585,7 +579,7 @@ namespace MusicApp
                     break;
 
                 case Resource.Id.playlistLayout:
-                    if (Playlist.instance != null && !specialSwitch)
+                    if (Playlist.instance != null)
                     {
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                         Playlist.instance.Refresh();

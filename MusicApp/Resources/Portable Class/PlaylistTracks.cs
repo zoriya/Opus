@@ -290,7 +290,7 @@ namespace MusicApp.Resources.Portable_Class
                     }
                 }
                 else if (!navigating && Queue.instance == null)
-                    MainActivity.instance?.SupportFragmentManager.PopBackStack();
+                    MainActivity.instance.SupportFragmentManager.PopBackStack();
 
                 instance = null;
             }
