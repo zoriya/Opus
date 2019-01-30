@@ -219,7 +219,6 @@ namespace MusicApp.Resources.Portable_Class
             ListView = view.FindViewById<RecyclerView>(Resource.Id.recycler);
             ListView.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
             ListView.SetItemAnimator(new DefaultItemAnimator());
-            ListView.ScrollChange += MainActivity.instance.Scroll;
 
 #pragma warning disable CS4014
             Search(searchKeyWorld, querryType, true);

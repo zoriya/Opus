@@ -116,9 +116,9 @@ namespace MusicApp.Resources.Portable_Class
                         }
                     };
 
-                    holder.MixButton.Click += (sender, e) =>
+                    holder.MixButton.Click += async (sender, e) =>
                     {
-                        MainActivity.instance.YtPlay(null, null);
+                        YoutubeEngine.CreateMix(await MusicPlayer.GetItem());
                     };
                 }
             }

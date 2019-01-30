@@ -36,13 +36,12 @@ namespace MusicApp.Resources.Portable_Class
         {
             base.OnActivityCreated(savedInstanceState);
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
-            ListView.ScrollChange += MainActivity.instance.Scroll;
+            //ListView.ScrollChange += MainActivity.instance.Scroll; //was executing the following: contentRefresh.Enabled = ((LinearLayoutManager)Home.instance.ListView.GetLayoutManager()).FindFirstCompletelyVisibleItemPosition() == 0;
         }
 
         public override void OnDestroy()
         {
             MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
-            ListView.ScrollChange -= MainActivity.instance.Scroll;
             ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
             base.OnDestroy();
             instance = null;
@@ -126,7 +125,6 @@ namespace MusicApp.Resources.Portable_Class
                 ListView.SetAdapter(adapter);
                 adapter.ItemClick += ListView_ItemClick;
                 ListView.SetItemAnimator(new DefaultItemAnimator());
-                ListView.ScrollChange += MainActivity.instance.Scroll;
 
                 ConnectivityManager connectivityManager = (ConnectivityManager)MainActivity.instance.GetSystemService(Context.ConnectivityService);
                 NetworkInfo activeNetworkInfo = connectivityManager.ActiveNetworkInfo;
@@ -425,7 +423,8 @@ namespace MusicApp.Resources.Portable_Class
 
         public static Fragment NewInstance()
         {
-            instance = new Home { Arguments = new Bundle() };
+            if(instance == null)
+                instance = new Home { Arguments = new Bundle() };
             return instance;
         }
 

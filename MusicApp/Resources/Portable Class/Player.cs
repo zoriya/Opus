@@ -659,7 +659,6 @@ namespace MusicApp
         private FrameLayout smallPlayer;
         private View playerContainer;
         //private View playerStatusBar;
-        private LinearLayout quickPlay;
         private CoordinatorLayout snackBar;
         private bool Refreshed = false;
         private SheetMovement movement = SheetMovement.Unknow;
@@ -672,7 +671,6 @@ namespace MusicApp
             smallPlayer = context.FindViewById<FrameLayout>(Resource.Id.smallPlayer);
             playerContainer = context.FindViewById(Resource.Id.playerContainer);
             //playerStatusBar = context.FindViewById(Resource.Id.playerStatus);
-            quickPlay = context.FindViewById<LinearLayout>(Resource.Id.quickPlayLinear);
             snackBar = context.FindViewById<CoordinatorLayout>(Resource.Id.snackBar);
         }
 
@@ -695,8 +693,6 @@ namespace MusicApp
                 playerContainer.Alpha = Math.Max(0, (slideOffset - 0.5f) * 2.5f);
                 //playerStatusBar.ScaleY = slideOffset;
                 smallPlayer.Alpha = Math.Max(0, 1 - slideOffset * 2);
-                quickPlay.ScaleX = Math.Max(0, 1 - slideOffset * 2);
-                quickPlay.ScaleY = Math.Max(0, 1 - slideOffset * 2);
                 snackBar.TranslationY = (int)((50 * context.Resources.DisplayMetrics.Density + 0.5f) * slideOffset);
 
                 if (!Refreshed && slideOffset > .3)

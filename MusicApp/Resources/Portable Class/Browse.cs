@@ -2,9 +2,9 @@
 using Android.Content;
 using Android.Content.PM;
 using Android.Database;
-using Android.Net;
 using Android.OS;
 using Android.Provider;
+using Android.Runtime;
 using Android.Support.Design.Widget;
 using Android.Support.V4.App;
 using Android.Support.V7.App;
@@ -15,6 +15,7 @@ using Google.Apis.YouTube.v3;
 using MusicApp.Resources.values;
 using SQLite;
 using Square.Picasso;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -22,6 +23,7 @@ using System.Threading.Tasks;
 using TagLib;
 using Color = Android.Graphics.Color;
 using CursorLoader = Android.Support.V4.Content.CursorLoader;
+using Uri = Android.Net.Uri;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -36,6 +38,8 @@ namespace MusicApp.Resources.Portable_Class
 
         private View EmptyView;
 
+        public Browse() { }
+        protected Browse(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer) { }
 
         public override void OnActivityCreated(Bundle savedInstanceState)
         {
@@ -63,23 +67,25 @@ namespace MusicApp.Resources.Portable_Class
             ListView.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
             ListView.SetItemAnimator(new DefaultItemAnimator());
 
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             PopulateList();
-
-            //if (ListView.GetAdapter() == null)
-            //    MainActivity.instance.GetStoragePermission();
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             return view;
         }
 
         public static Fragment NewInstance()
         {
-            instance = new Browse { Arguments = new Bundle() };
+            if(instance == null)
+                instance = new Browse { Arguments = new Bundle() };
             return instance;
         }
 
-        public void PopulateList()
+        public async Task PopulateList()
         {
-            musicList = new List<Song>();
+            if (await MainActivity.instance.GetReadPermission() == false)
+                return;
 
+            musicList = new List<Song>();
             Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
 
             CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
@@ -112,10 +118,10 @@ namespace MusicApp.Resources.Portable_Class
                 }
                 while (musicCursor.MoveToNext());
                 musicCursor.Close();
+                List<Song> songList = musicList.OrderBy(x => x.Title).ToList();
+                musicList = songList;
             }
 
-            List<Song> songList = musicList.OrderBy(x => x.Title).ToList();
-            musicList = songList;
             adapter = new BrowseAdapter(result ?? musicList, result == null);
             ListView.SetAdapter(adapter);
             adapter.ItemClick += ListView_ItemClick;
@@ -127,17 +133,17 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
-        private void OnRefresh(object sender, System.EventArgs e)
+        private async void OnRefresh(object sender, EventArgs e)
         {
             if (!focused)
                 return;
-            Refresh();
+            await Refresh();
             MainActivity.instance.contentRefresh.Refreshing = false;
         }
 
-        public void Refresh()
+        public async Task Refresh()
         {
-            PopulateList();
+            await PopulateList();
         }
 
         public void Search(string search)
@@ -153,7 +159,8 @@ namespace MusicApp.Resources.Portable_Class
             adapter = new BrowseAdapter(result, result.Count == musicList.Count);
             adapter.ItemClick += ListView_ItemClick;
             adapter.ItemLongCLick += ListView_ItemLongClick;
-            ListView.SetAdapter(adapter);
+            Console.WriteLine("&ListView: " + ListView);
+            ListView.SetAdapter(adapter); //ListView reference is still null
         }
 
         public void ListView_ItemClick(object sender, int position)
@@ -181,7 +188,7 @@ namespace MusicApp.Resources.Portable_Class
             item = CompleteItem(item);
 
             BottomSheetDialog bottomSheet = new BottomSheetDialog(MainActivity.instance);
-            View bottomView = LayoutInflater.Inflate(Resource.Layout.BottomSheet, null);
+            View bottomView = MainActivity.instance.LayoutInflater.Inflate(Resource.Layout.BottomSheet, null);
             bottomView.FindViewById<TextView>(Resource.Id.bsTitle).Text = item.Title;
             bottomView.FindViewById<TextView>(Resource.Id.bsArtist).Text = item.Artist;
             if (item.Album == null)
@@ -647,7 +654,6 @@ namespace MusicApp.Resources.Portable_Class
                     if (name != playlistName)
                         continue;
 
-                    System.Console.WriteLine("&Playlist exist");
                     return cursor.GetLong(plID);
                 }
                 while (cursor.MoveToNext());
@@ -664,10 +670,10 @@ namespace MusicApp.Resources.Portable_Class
             MainActivity.instance.StartActivity(intent);
         }
 
-        public override void OnResume()
+        public override void OnViewStateRestored(Bundle savedInstanceState)
         {
-            base.OnResume();
-            instance = this;
+            base.OnViewStateRestored(savedInstanceState);
+            instance.ListView = View.FindViewById<RecyclerView>(Resource.Id.recycler);
         }
     }
 }

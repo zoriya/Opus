@@ -127,7 +127,6 @@ namespace MusicApp.Resources.Portable_Class
                 adapter.ItemClick += ListView_ItemClick;
                 adapter.ItemLongCLick += ListView_ItemLongClick;
                 ListView.SetItemAnimator(new DefaultItemAnimator());
-                ListView.ScrollChange += MainActivity.instance.Scroll;
 
                 //Youtube playlists
                 if (!await MainActivity.instance.WaitForYoutube())
@@ -345,7 +344,8 @@ namespace MusicApp.Resources.Portable_Class
 
         public static Fragment NewInstance()
         {
-            instance = new Playlist { Arguments = new Bundle() };
+            if(instance == null)
+                instance = new Playlist { Arguments = new Bundle() };
             return instance;
         }
 

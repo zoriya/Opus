@@ -137,8 +137,6 @@ namespace MusicApp.Resources.Portable_Class
 
         public override void OnCreatePreferences(Bundle savedInstanceState, string rootKey)
         {
-            AskForPermission();
-
             instance = this;
             SetPreferencesFromResource(Resource.Layout.Preferences, rootKey);
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
@@ -229,11 +227,6 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
-        private async void AskForPermission()
-        {
-            await Task.Delay(100);
-            MainActivity.instance.GetStoragePermission();
-        }
 
         public override void OnDestroy()
         {

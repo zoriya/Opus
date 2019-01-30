@@ -74,7 +74,8 @@ namespace MusicApp.Resources.Portable_Class
 
         public static Fragment NewInstance()
         {
-            instance = new FolderBrowse { Arguments = new Bundle() };
+            //if(instance == null)
+                instance = new FolderBrowse { Arguments = new Bundle() };
             return instance;
         }
 
@@ -230,7 +231,6 @@ namespace MusicApp.Resources.Portable_Class
             act.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
             act.SupportActionBar.Title = displayPath;
 
-            MainActivity.instance.HideTabs();
             MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, FolderTracks.NewInstance(path, displayPath)).AddToBackStack(null).Commit();
         }
 

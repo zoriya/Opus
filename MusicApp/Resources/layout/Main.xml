@@ -225,47 +225,4 @@
     app:layout_anchorGravity="top"
     android:layout_gravity="top"
     android:padding="10dp" />
-
-  <LinearLayout
-    android:layout_height="wrap_content"
-    android:layout_width="wrap_content"
-    android:id="@+id/quickPlayLinear"
-    android:orientation="vertical"
-    android:padding="20dp"
-    app:layout_anchor="@id/snackBar"
-    app:layout_anchorGravity="top|end"
-    android:layout_gravity="top|end" >
-    <android.support.design.widget.FloatingActionButton
-      android:layout_height="wrap_content"
-      android:layout_width="wrap_content"
-      android:visibility="gone"
-      android:layout_gravity="center"
-      app:fabSize="mini"
-      app:elevation="5dp"
-      app:pressedTranslationZ="12dp"
-      app:backgroundTint="?colorAccent"
-      android:layout_marginBottom="15dp"
-      android:tint="#000"
-      android:src="@drawable/PlaylistPlay"
-      android:id="@+id/localPlay"/>
-    <android.support.design.widget.FloatingActionButton
-      android:layout_height="wrap_content"
-      android:layout_width="wrap_content"
-      android:visibility="gone"
-      android:layout_gravity="center"
-      app:fabSize="mini"
-      app:elevation="5dp"
-      app:pressedTranslationZ="12dp"
-      app:backgroundTint="#c62828"
-      android:layout_marginBottom="15dp"
-      android:src="@drawable/YtPlay"
-      android:id="@+id/ytPlay"/>
-    <android.support.design.widget.FloatingActionButton
-      android:layout_height="wrap_content"
-      android:layout_width="wrap_content"
-      app:elevation="5dp"
-      app:pressedTranslationZ="12dp"
-      android:src="@drawable/PlayToCross"
-      android:id="@+id/quickPlay"/>
-  </LinearLayout>
 </android.support.design.widget.CoordinatorLayout>

@@ -54,7 +54,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             base.OnActivityCreated(savedInstanceState);
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
-            MainActivity.instance.DisplaySearch(1);
+            MainActivity.instance.DisplaySearch();
 
             int statusHeight = Resources.GetDimensionPixelSize(Resources.GetIdentifier("status_bar_height", "dimen", "android"));
             MainActivity.instance.FindViewById(Resource.Id.collapsingToolbar).LayoutParameters.Height = ViewGroup.LayoutParams.WrapContent;

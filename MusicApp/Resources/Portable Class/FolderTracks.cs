@@ -34,7 +34,7 @@ namespace MusicApp.Resources.Portable_Class
             base.OnActivityCreated(savedInstanceState);
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
 
-            MainActivity.instance.DisplaySearch(1);
+            MainActivity.instance.DisplaySearch();
         }
 
         public override void OnDestroy()
