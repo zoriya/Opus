@@ -90,8 +90,8 @@ public class AccountPreference : Preference, IResultCallback
         if (MainActivity.instance.googleClient == null)
         {
             GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DefaultSignIn)
-                    .RequestIdToken("112086459272-59scolco82ho7d6hcieq8kmdjai2i2qd.apps.googleusercontent.com")
-                    .RequestServerAuthCode("112086459272-59scolco82ho7d6hcieq8kmdjai2i2qd.apps.googleusercontent.com")
+                    .RequestIdToken(Preferences.instance.GetString(Resource.String.clientID))
+                    .RequestServerAuthCode(Preferences.instance.GetString(Resource.String.clientID))
                     .RequestEmail()
                     .RequestScopes(new Scope(YouTubeService.Scope.Youtube))
                     .Build();

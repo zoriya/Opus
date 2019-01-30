@@ -87,7 +87,6 @@ namespace MusicApp
         public const int NotifUpdateID = 4626;
         private const string versionURI = "https://raw.githubusercontent.com/AnonymusRaccoon/MusicApp/master/MusicApp/Assets/Version.txt";
 
-        private const string clientID = "112086459272-8m4do6aehtdg4a7nffd0a84jk94c64e8.apps.googleusercontent.com";
         public static GoogleSignInAccount account;
         public GoogleApiClient googleClient;
         private bool canAsk;
@@ -221,8 +220,8 @@ namespace MusicApp
             if(googleClient == null)
             {
                 GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DefaultSignIn)
-                    .RequestIdToken("112086459272-59scolco82ho7d6hcieq8kmdjai2i2qd.apps.googleusercontent.com")
-                    .RequestServerAuthCode("112086459272-59scolco82ho7d6hcieq8kmdjai2i2qd.apps.googleusercontent.com")
+                    .RequestIdToken(GetString(Resource.String.clientID))
+                    .RequestServerAuthCode(GetString(Resource.String.clientID))
                     .RequestEmail()
                     .RequestScopes(new Scope(YouTubeService.Scope.Youtube))
                     .Build();
@@ -306,13 +305,13 @@ namespace MusicApp
             OkHttpClient client = new OkHttpClient();
             RequestBody body = new FormEncodingBuilder()
                 .Add("grant_type", "authorization_code")
-                .Add("client_id", "112086459272-59scolco82ho7d6hcieq8kmdjai2i2qd.apps.googleusercontent.com")
-                .Add("client_secret", "Q8vVJRc5Cofeuj1-BxAg5qta")
+                .Add("client_id", GetString(Resource.String.clientID))
+                .Add("client_secret", GetString(Resource.String.clientSecret))
                 .Add("redirect_uri", "")
                 .Add("code", account.ServerAuthCode)
                 .Add("id_token", account.IdToken)
                 .Build();
-            Request request = new Square.OkHttp.Request.Builder()
+            Request request = new Request.Builder()
                 .Url("https://www.googleapis.com/oauth2/v4/token")
                 .Post(body)
                 .Build();
