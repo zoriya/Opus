@@ -446,21 +446,17 @@ namespace MusicApp.Resources.Portable_Class
                 return;
             }
 
-            AppCompatActivity act = (AppCompatActivity)Activity;
-            act.SupportActionBar.SetHomeButtonEnabled(true);
-            act.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
-            act.SupportActionBar.Title = playlist.Name;
             instance = null;
             MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
             MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
 
 
             if (playlist.SyncState == SyncState.True || playlist.SyncState == SyncState.Loading)
-                MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.YoutubeID, playlist.LocalID, playlist.Name, playlist.HasWritePermission, true, playlist.Owner, playlist.Count, playlist.ImageURL)).AddToBackStack(null).Commit();
+                MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.YoutubeID, playlist.LocalID, playlist.Name, playlist.HasWritePermission, true, playlist.Owner, playlist.Count, playlist.ImageURL)).AddToBackStack("Playlist Track").Commit();
             else if (local || (playlist.SyncState == SyncState.Error && playlist.LocalID != 0 && playlist.LocalID != -1))
-                MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.LocalID, playlist.Name)).AddToBackStack(null).Commit();
+                MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.LocalID, playlist.Name)).AddToBackStack("Playlist Track").Commit();
             else
-                MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.YoutubeID, playlist.Name, playlist.HasWritePermission, true, playlist.Owner, playlist.Count, playlist.ImageURL)).AddToBackStack(null).Commit();
+                MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist.YoutubeID, playlist.Name, playlist.HasWritePermission, true, playlist.Owner, playlist.Count, playlist.ImageURL)).AddToBackStack("Playlist Track").Commit();
         }
 
         private void ListView_ItemLongClick(object sender, int position)

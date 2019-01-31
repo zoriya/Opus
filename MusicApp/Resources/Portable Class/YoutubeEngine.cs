@@ -417,20 +417,12 @@ namespace MusicApp.Resources.Portable_Class
                     Play(item.YoutubeID, item.Title, item.Artist, item.Album);
                     break;
                 case YtKind.Playlist:
-                    ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
-                    rootView.RemoveView(LoadingView);
-                    foreach(YoutubeEngine instance in instances)
-                    {
-                        rootView.RemoveView(instance.EmptyView);
-                    }
-
-                    MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
-                    MainActivity.instance.SupportActionBar.Title = item.Title;
                     PlaylistTracks.openned = true;
                     MainActivity.instance.menu.FindItem(Resource.Id.search).CollapseActionView();
                     MainActivity.instance.FindViewById<TabLayout>(Resource.Id.tabs).Visibility = ViewStates.Gone;
-                    MainActivity.instance.SupportFragmentManager.BeginTransaction().Add(Resource.Id.contentView, PlaylistTracks.NewInstance(item.YoutubeID, item.Title, false, false, item.Artist, -1, item.Album)).Commit();
-                    MainActivity.instance.SupportFragmentManager.BeginTransaction().Detach(this).Commit();
+                    MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(item.YoutubeID, item.Title, false, false, item.Artist, -1, item.Album)).AddToBackStack("Playlist Track").Commit();
+                    //MainActivity.instance.SupportFragmentManager.BeginTransaction().Add(Resource.Id.contentView, PlaylistTracks.NewInstance(item.YoutubeID, item.Title, false, false, item.Artist, -1, item.Album)).Commit();
+                    //MainActivity.instance.SupportFragmentManager.BeginTransaction().Detach(this).Commit();
                     break;
                 default:
                     break;

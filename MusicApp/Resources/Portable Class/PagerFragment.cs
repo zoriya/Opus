@@ -13,12 +13,6 @@ namespace MusicApp.Resources.Portable_Class
         private int type;
         private int pos;
 
-
-        public override void OnCreate(Bundle savedInstanceState)
-        {
-            base.OnCreate(savedInstanceState);
-        }
-
         public static Fragment NewInstance(int type, int pos)
         {
             instance = new Pager { Arguments = new Bundle() };
@@ -29,6 +23,13 @@ namespace MusicApp.Resources.Portable_Class
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
+            //if(savedInstanceState != null)
+            //{
+            //    System.Console.WriteLine("&Instance state restored");
+            //    type = savedInstanceState.GetInt("type");
+            //    pos = savedInstanceState.GetInt("pos");
+            //}
+
             View view = inflater.Inflate(Resource.Layout.ViewPager, container, false);
             TabLayout tabs = Activity.FindViewById<TabLayout>(Resource.Id.tabs);
             ViewPager pager = view.FindViewById<ViewPager>(Resource.Id.pager);
@@ -42,7 +43,7 @@ namespace MusicApp.Resources.Portable_Class
                 tabs.AddTab(tabs.NewTab().SetText(Resources.GetString(Resource.String.songs)));
                 tabs.AddTab(tabs.NewTab().SetText(Resources.GetString(Resource.String.folders)));
 
-                adapter = new ViewPagerAdapter(Activity.SupportFragmentManager);
+                adapter = new ViewPagerAdapter(ChildFragmentManager);
                 adapter.AddFragment(Browse.NewInstance(), Resources.GetString(Resource.String.songs));
                 adapter.AddFragment(FolderBrowse.NewInstance(), Resources.GetString(Resource.String.folders));
 
@@ -65,7 +66,7 @@ namespace MusicApp.Resources.Portable_Class
                 tabs.AddTab(tabs.NewTab().SetText(Resources.GetString(Resource.String.lives)));
                 tabs.AddTab(tabs.NewTab().SetText(Resources.GetString(Resource.String.channels)));
 
-                ViewPagerAdapter adapter = new ViewPagerAdapter(Activity.SupportFragmentManager);
+                ViewPagerAdapter adapter = new ViewPagerAdapter(ChildFragmentManager);
                 Fragment[] fragment = YoutubeEngine.NewInstances(YoutubeEngine.searchKeyWorld);
                 adapter.AddFragment(fragment[0], Resources.GetString(Resource.String.all));
                 adapter.AddFragment(fragment[1], Resources.GetString(Resource.String.tracks));
@@ -161,6 +162,8 @@ namespace MusicApp.Resources.Portable_Class
             base.OnDestroyView();
             Browse.instance = null;
             FolderBrowse.instance = null;
+            YoutubeEngine.instances = null;
+
             adapter?.Dispose();
 
             TabLayout tabs = Activity.FindViewById<TabLayout>(Resource.Id.tabs);
@@ -171,5 +174,13 @@ namespace MusicApp.Resources.Portable_Class
 
             instance = null;
         }
+
+        //public override void OnSaveInstanceState(Bundle outState)
+        //{
+        //    base.OnSaveInstanceState(outState);
+        //    System.Console.WriteLine("&Pager insatnce state saved");
+        //    outState.PutInt("type", type);
+        //    outState.PutInt("pos", View.FindViewById<ViewPager>(Resource.Id.pager).CurrentItem);
+        //}
     }
 }

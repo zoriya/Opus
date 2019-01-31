@@ -267,5 +267,14 @@ namespace MusicApp.Resources.Portable_Class
             base.OnResume();
             instance = this;
         }
+
+        public override void OnDestroyView()
+        {
+            MainActivity.instance.SupportActionBar.SetHomeButtonEnabled(false);
+            MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(false);
+            MainActivity.instance.SupportActionBar.Title = "MusicApp";
+            MainActivity.instance.HideSearch();
+            base.OnDestroyView();
+        }
     }
 }

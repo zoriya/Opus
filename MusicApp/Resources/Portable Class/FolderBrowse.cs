@@ -53,6 +53,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public override void OnDestroy()
         {
+            System.Console.WriteLine("&Destroy called");
             MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
             if (isEmpty)
             {

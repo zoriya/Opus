@@ -75,7 +75,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public static Fragment NewInstance()
         {
-            if(instance == null)
+            if (instance == null)
                 instance = new Browse { Arguments = new Bundle() };
             return instance;
         }

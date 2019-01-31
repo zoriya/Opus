@@ -61,6 +61,9 @@ namespace MusicApp.Resources.Portable_Class
             MainActivity.instance.FindViewById(Resource.Id.contentLayout).SetPadding(0, 0, 0, 0);
             MainActivity.instance.FindViewById(Resource.Id.toolbar).SetPadding(0, statusHeight, 0, 0);
             MainActivity.instance.FindViewById(Resource.Id.toolbar).LayoutParameters.Height += statusHeight;
+            MainActivity.instance.SupportActionBar.SetHomeButtonEnabled(true);
+            MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
+            MainActivity.instance.SupportActionBar.Title = playlistName;
         }
 
         public bool OnMenuItemClick(IMenuItem item)
@@ -241,7 +244,7 @@ namespace MusicApp.Resources.Portable_Class
             dialog.Show();
         }
 
-        public override void OnStop()
+        public override void OnDestroyView()
         {
             Activity.FindViewById<ImageButton>(Resource.Id.headerMore).Click -= PlaylistMore;
 
@@ -283,18 +286,18 @@ namespace MusicApp.Resources.Portable_Class
                         if (YoutubeEngine.instances[i].focused)
                             selectedTab = i;
                     }
-                    if (!navigating)
-                    {
-                        MainActivity.instance?.SupportFragmentManager.BeginTransaction().Attach(YoutubeEngine.instances[selectedTab]).Commit();
-                        MainActivity.instance?.SupportFragmentManager.BeginTransaction().Remove(instance).Commit();
-                    }
+                    //if (!navigating)
+                    //{
+                    //    MainActivity.instance?.SupportFragmentManager.BeginTransaction().Attach(YoutubeEngine.instances[selectedTab]).Commit();
+                    //    MainActivity.instance?.SupportFragmentManager.BeginTransaction().Remove(instance).Commit();
+                    //}
                 }
-                else if (!navigating && Queue.instance == null)
-                    MainActivity.instance.SupportFragmentManager.PopBackStack();
+                //else if (!navigating && Queue.instance == null)
+                //    MainActivity.instance.SupportFragmentManager.PopBackStack();
 
                 instance = null;
             }
-            base.OnStop();
+            base.OnDestroyView();
         }
 
         public static async Task<Song> CompleteItem(Song song, string YoutubeID)
