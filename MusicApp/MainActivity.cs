@@ -64,8 +64,7 @@ namespace MusicApp
         public SwipeRefreshLayout contentRefresh;
         public bool usePager;
         public bool HomeDetails = false;
-        public bool paused = false;
-        public bool StateSaved = false;
+        public bool Paused = false;
 
         public bool prepared = false;
         public BottomSheetBehavior SheetBehavior;
@@ -926,7 +925,7 @@ namespace MusicApp
             {
                 if (displayToast)
                 {
-                    if (instance != null && !instance.StateSaved)
+                    if (instance != null && !instance.Paused)
                     {
                         Snackbar snackBar = Snackbar.Make(instance.FindViewById(Resource.Id.snackBar), "You are not connected to internet, can't check for updates.", Snackbar.LengthLong);
                         snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
@@ -983,7 +982,7 @@ namespace MusicApp
             {
                 if (!beta)
                 {
-                    if ((instance != null && !instance.StateSaved) || Preferences.instance != null)
+                    if ((instance != null && !instance.Paused) || Preferences.instance != null)
                     {
                         Snackbar snackBar;
                         if (Preferences.instance != null)
@@ -998,7 +997,7 @@ namespace MusicApp
                 }
                 else
                 {
-                    if ((instance != null && !instance.StateSaved) || Preferences.instance != null)
+                    if ((instance != null && !instance.Paused) || Preferences.instance != null)
                     {
                         Snackbar snackBar;
                         if (Preferences.instance != null)
@@ -1054,9 +1053,8 @@ namespace MusicApp
         protected override void OnResume()
         {
             base.OnResume();
-            paused = false;
+            Paused = false;
             instance = this;
-            StateSaved = false;
 
             if (CastContext.SessionManager.CurrentSession == null && MusicPlayer.CurrentID() == -1)
                 MusicPlayer.currentID = MusicPlayer.RetrieveQueueSlot();
@@ -1101,7 +1099,7 @@ namespace MusicApp
         protected override void OnPause()
         {
             base.OnPause();
-            paused = true;
+            Paused = true;
         }
 
         public override void OnBackPressed()
@@ -1112,12 +1110,6 @@ namespace MusicApp
                 SupportFragmentManager.BeginTransaction().Remove(PlaylistTracks.instance).Commit();
             else
                 base.OnBackPressed();
-        }
-
-        protected override void OnSaveInstanceState(Bundle outState)
-        {
-            StateSaved = true;
-            base.OnSaveInstanceState(outState);
         }
 
         protected override void OnNewIntent(Intent intent)

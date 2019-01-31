@@ -245,7 +245,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             Activity.FindViewById<ImageButton>(Resource.Id.headerMore).Click -= PlaylistMore;
 
-            if (!MainActivity.instance.StateSaved)
+            if (!MainActivity.instance.Paused)
             {
                 int statusHeight = Resources.GetDimensionPixelSize(Resources.GetIdentifier("status_bar_height", "dimen", "android"));
                 MainActivity.instance.FindViewById(Resource.Id.toolbar).SetPadding(0, 0, 0, 0);

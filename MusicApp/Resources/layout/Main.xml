@@ -19,7 +19,6 @@
       <android.support.design.widget.CollapsingToolbarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_scrollFlags="scroll"
         android:id="@+id/collapsingToolbar"
         android:fitsSystemWindows="true"
         app:titleEnabled="false" >
