@@ -25,7 +25,7 @@
 
   <!--Autoplay-->
   <string name="autoplay">Lecture automatique</string>
-  <string name="autoplay_desc">Ajoute automatiquement des musiques similaire depuis youtube.</string>
+  <string name="autoplay_desc">Ajoute automatiquement des musiques similaire</string>
   <string name="create_mix">CRÉER UN MIX</string>
   
   <!--More menu (long clicks)-->

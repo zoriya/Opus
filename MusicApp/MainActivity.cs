@@ -25,7 +25,6 @@ using Android.Widget;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
-using MusicApp.Resources.Fragments;
 using MusicApp.Resources.Portable_Class;
 using MusicApp.Resources.values;
 using Newtonsoft.Json.Linq;
@@ -538,7 +537,7 @@ namespace MusicApp
                 SupportFragmentManager.BeginTransaction().Remove(PlaylistTracks.instance).Commit();
             }
 
-            Android.Support.V4.App.Fragment fragment = null;
+            Fragment fragment = null;
             switch (layout)
             {
                 case Resource.Id.musicLayout:
@@ -582,7 +581,7 @@ namespace MusicApp
             }
 
             if (fragment == null)
-                fragment = EmptyFragment.NewInstance();
+                return;
 
             SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, fragment).SetCustomAnimations(Android.Resource.Animation.FadeIn, Android.Resource.Animation.FadeOut).Commit();
         }

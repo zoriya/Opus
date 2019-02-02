@@ -91,7 +91,7 @@
   <string name="removed_from_playlist"> has been removed from the playlist.</string>
   <string name="playlist_already_saved">Playlist already added to your library.</string>
   <string name="playlist_not_found">No playlist exist with this id or link.</string>
-  <string name="playlist_add_song_not_found">Song can't be found on youtube, can't add it to a youtube playlist.</string>
+  <string name="playlist_add_song_not_found">Song can\'t be found on youtube, can\'t add it to a youtube playlist.</string>
   
   <!--Edit metadata-->
   <string name="title">Title</string>
@@ -156,5 +156,5 @@
   <string name="beta_available">A beta version is available.</string>
   <string name="downloading_update">Downloading update, you will be prompt for the installation soon.</string>
   <string name="updating">Updating app...</string>
-  <string name="cant_play_non_youtube">Can't play non youtube video.</string>
+  <string name="cant_play_non_youtube">Can\'t play non youtube video.</string>
 </resources>

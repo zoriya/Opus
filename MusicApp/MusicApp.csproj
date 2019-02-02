@@ -323,7 +323,6 @@
   <ItemGroup>
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="MainActivity.cs" />
-    <Compile Include="Resources\Fragments\EmptyFragment.cs" />
     <Compile Include="Resources\Portable Class\AccountPreference.cs" />
     <Compile Include="Resources\Portable Class\AccountTarget.cs" />
     <Compile Include="Resources\Portable Class\BrowseAdapter.cs" />
@@ -376,7 +375,7 @@
     <Compile Include="Resources\Portable Class\Sleeper.cs" />
     <Compile Include="Resources\Portable Class\SnackbarCallback.cs" />
     <Compile Include="Resources\Portable Class\SuggestionAdapter.cs" />
-    <Compile Include="Resources\values\PlaylistItem.cs" />
+    <Compile Include="Resources\Portable Class\PlaylistItem.cs" />
     <Compile Include="Resources\Portable Class\TopicSelector.cs" />
     <Compile Include="Resources\Portable Class\TwoLineAdapter.cs" />
     <Compile Include="Resources\Portable Class\UslessHolder.cs" />
@@ -386,20 +385,20 @@
     <Compile Include="Resources\Portable Class\YtFile.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Resources\values\ButtonHolder.cs" />
-    <Compile Include="Resources\values\ChannelHolder.cs" />
-    <Compile Include="Resources\values\DownloadFile.cs" />
-    <Compile Include="Resources\values\EmptyCategoryHolder.cs" />
-    <Compile Include="Resources\values\Folder.cs" />
-    <Compile Include="Resources\values\FolderHolder.cs" />
-    <Compile Include="Resources\values\Holder.cs" />
-    <Compile Include="Resources\values\HomeChannelHolder.cs" />
-    <Compile Include="Resources\values\HomeItem.cs" />
-    <Compile Include="Resources\values\HomeSection.cs" />
-    <Compile Include="Resources\values\PaddingChange.cs" />
-    <Compile Include="Resources\values\Song.cs" />
-    <Compile Include="Resources\values\Suggestion.cs" />
-    <Compile Include="Resources\values\TwoLineHolder.cs" />
+    <Compile Include="Resources\Portable Class\ButtonHolder.cs" />
+    <Compile Include="Resources\Portable Class\ChannelHolder.cs" />
+    <Compile Include="Resources\Portable Class\DownloadFile.cs" />
+    <Compile Include="Resources\Portable Class\EmptyCategoryHolder.cs" />
+    <Compile Include="Resources\Portable Class\Folder.cs" />
+    <Compile Include="Resources\Portable Class\FolderHolder.cs" />
+    <Compile Include="Resources\Portable Class\Holder.cs" />
+    <Compile Include="Resources\Portable Class\HomeChannelHolder.cs" />
+    <Compile Include="Resources\Portable Class\HomeItem.cs" />
+    <Compile Include="Resources\Portable Class\HomeSection.cs" />
+    <Compile Include="Resources\Portable Class\PaddingChange.cs" />
+    <Compile Include="Resources\Portable Class\Song.cs" />
+    <Compile Include="Resources\Portable Class\Suggestion.cs" />
+    <Compile Include="Resources\Portable Class\TwoLineHolder.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
