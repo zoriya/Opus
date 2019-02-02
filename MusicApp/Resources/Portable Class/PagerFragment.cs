@@ -11,6 +11,7 @@ namespace MusicApp.Resources.Portable_Class
         public static Pager instance;
         private ViewPagerAdapter adapter;
         private int type;
+        private string query;
         private int pos;
 
         public static Fragment NewInstance(int type, int pos)
@@ -21,14 +22,23 @@ namespace MusicApp.Resources.Portable_Class
             return instance;
         }
 
+        public static Fragment NewInstance(string query, int pos)
+        {
+            instance = new Pager { Arguments = new Bundle() };
+            instance.type = 1;
+            instance.query = query;
+            instance.pos = pos;
+            return instance;
+        }
+
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            //if(savedInstanceState != null)
-            //{
-            //    System.Console.WriteLine("&Instance state restored");
-            //    type = savedInstanceState.GetInt("type");
-            //    pos = savedInstanceState.GetInt("pos");
-            //}
+            if (savedInstanceState != null)
+            {
+                System.Console.WriteLine("&Instance state restored");
+                //type = savedInstanceState.GetInt("type");
+                //pos = savedInstanceState.GetInt("pos");
+            }
 
             View view = inflater.Inflate(Resource.Layout.ViewPager, container, false);
             TabLayout tabs = Activity.FindViewById<TabLayout>(Resource.Id.tabs);
@@ -58,7 +68,7 @@ namespace MusicApp.Resources.Portable_Class
                 tabs.TabMode = TabLayout.ModeFixed;
                 tabs.SetScrollPosition(pos, 0f, true);
             }
-            else if (type == 1 || type == 2)
+            else if (type == 1)
             {
                 tabs.AddTab(tabs.NewTab().SetText(Resources.GetString(Resource.String.all)));
                 tabs.AddTab(tabs.NewTab().SetText(Resources.GetString(Resource.String.tracks)));
@@ -67,7 +77,7 @@ namespace MusicApp.Resources.Portable_Class
                 tabs.AddTab(tabs.NewTab().SetText(Resources.GetString(Resource.String.channels)));
 
                 ViewPagerAdapter adapter = new ViewPagerAdapter(ChildFragmentManager);
-                Fragment[] fragment = YoutubeEngine.NewInstances(YoutubeEngine.searchKeyWorld);
+                Fragment[] fragment = YoutubeEngine.NewInstances(query);
                 adapter.AddFragment(fragment[0], Resources.GetString(Resource.String.all));
                 adapter.AddFragment(fragment[1], Resources.GetString(Resource.String.tracks));
                 adapter.AddFragment(fragment[2], Resources.GetString(Resource.String.playlists));
@@ -84,7 +94,7 @@ namespace MusicApp.Resources.Portable_Class
                 tabs.TabMode = TabLayout.ModeScrollable;
                 tabs.SetScrollPosition(pos, 0f, true);
 
-                YoutubeEngine.instances[pos].focused = true;
+                YoutubeEngine.instances[pos].IsFocused = true;
                 YoutubeEngine.instances[pos].OnFocus();
             }
             return view;
@@ -103,7 +113,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 foreach (YoutubeEngine instance in YoutubeEngine.instances)
                 {
-                    if (instance.focused)
+                    if (instance.IsFocused)
                     {
                         instance.ListView.SmoothScrollToPosition(0);
                     }
@@ -148,11 +158,11 @@ namespace MusicApp.Resources.Portable_Class
             {
                 foreach (YoutubeEngine instance in YoutubeEngine.instances)
                 {
-                    if (instance.focused)
+                    if (instance.IsFocused)
                         instance.OnUnfocus();
-                    instance.focused = false;
+                    instance.IsFocused = false;
                 }
-                YoutubeEngine.instances[position].focused = true;
+                YoutubeEngine.instances[position].IsFocused = true;
                 YoutubeEngine.instances[position].OnFocus();
             }
         }
@@ -173,6 +183,12 @@ namespace MusicApp.Resources.Portable_Class
             ((AppBarLayout.LayoutParams)Activity.FindViewById<CollapsingToolbarLayout>(Resource.Id.collapsingToolbar).LayoutParameters).ScrollFlags = 0;
 
             instance = null;
+        }
+
+        public override void OnViewStateRestored(Bundle savedInstanceState)
+        {
+            base.OnViewStateRestored(savedInstanceState);
+            System.Console.WriteLine("&View state restored");
         }
 
         //public override void OnSaveInstanceState(Bundle outState)

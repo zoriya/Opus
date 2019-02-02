@@ -40,6 +40,7 @@ using System.Net;
 using System.Threading.Tasks;
 using YoutubeExplode;
 using CursorLoader = Android.Support.V4.Content.CursorLoader;
+using Fragment = Android.Support.V4.App.Fragment;
 using ICallback = Square.OkHttp.ICallback;
 using Playlist = MusicApp.Resources.Portable_Class.Playlist;
 using Request = Square.OkHttp.Request;
@@ -439,7 +440,7 @@ namespace MusicApp
         public bool OnMenuItemActionCollapse(IMenuItem item) //Youtube search collapse
         {
             Console.WriteLine("&Youtube Search Collapse");
-            if (YoutubeEngine.instances == null || PlaylistTracks.openned)
+            if (YoutubeEngine.instances == null || SearchableActivity.IgnoreMyself)
                 return true;
 
             Console.WriteLine("&Youtube instnace != null");
@@ -448,18 +449,6 @@ namespace MusicApp
                 Console.WriteLine("&Back stack entry " + i + ": " + SupportFragmentManager.GetBackStackEntryAt(i));
             }
             SupportFragmentManager.PopBackStack();
-            //if (Browse.instance != null)
-            //{
-            //    Console.WriteLine("&Browse insatnce != null");
-            //    YoutubeEngine.instances = null;
-            //    SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(0, 0)).Commit();
-            //}
-            //else if (YoutubeEngine.instances != null && !PlaylistTracks.openned)
-            //{
-            //    Console.WriteLine("&Backstack");
-            //    YoutubeEngine.instances = null;
-            //    SupportFragmentManager.PopBackStack();
-            //}
             return true;
         }
 
@@ -480,25 +469,15 @@ namespace MusicApp
 
         public void OnFocusChange(View v, bool hasFocus)
         {
-            if (hasFocus && !PlaylistTracks.openned)
+            if (hasFocus && !SearchableActivity.IgnoreMyself)
             {
                 Bundle animation = ActivityOptionsCompat.MakeCustomAnimation(this, Android.Resource.Animation.FadeIn, Android.Resource.Animation.FadeOut).ToBundle();
                 StartActivity(new Intent(this, typeof(SearchableActivity)), animation);
             }
-            PlaylistTracks.openned = false;
+            SearchableActivity.IgnoreMyself = false;
         }
 
-        public void SearchOnYoutube(string query)
-        {
-            YoutubeEngine.searchKeyWorld = query;
-            IMenuItem searchItem = menu.FindItem(Resource.Id.search);
-            SearchView searchView = (SearchView)searchItem.ActionView;
-            searchView.SetQuery(query, false);
-            searchView.ClearFocus();
-            searchView.Focusable = false;
-        }
-
-        public void CancelSearch()
+        public void CancelSearch() //SearchableActivity is finishing and no search has been made
         {
             IMenuItem searchItem = menu.FindItem(Resource.Id.search);
             searchItem.CollapseActionView();
@@ -1072,18 +1051,19 @@ namespace MusicApp
             else if(MusicPlayer.UseCastPlayer)
                 MusicPlayer.GetQueueFromCast();
 
-            if (SearchableActivity.instance != null && SearchableActivity.instance.searched)
+            if (SearchableActivity.instance != null && SearchableActivity.instance.SearchQuery != null && SearchableActivity.instance.SearchQuery != "")
             {
-                if (YoutubeEngine.instances != null)
-                {
-#pragma warning disable CS4014
-                    foreach (YoutubeEngine instance in YoutubeEngine.instances)
-                        instance.Search(YoutubeEngine.searchKeyWorld, instance.querryType, true);
-                }
-                else
-                {
-                     SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(1, 0)).AddToBackStack("Youtube").Commit();
-                }
+//                if (YoutubeEngine.instances != null)
+//                {
+//#pragma warning disable CS4014
+//                    foreach (YoutubeEngine instance in YoutubeEngine.instances)
+//                        instance.Search(SearchableActivity.instance.SearchQuery, instance.querryType, true);
+
+//                    SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.instance).AddToBackStack("Youtube").Commit();
+//                }
+//                else
+                    SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(SearchableActivity.instance.SearchQuery, 0)).AddToBackStack("Youtube").Commit();
+
                 SearchableActivity.instance = null;
             }
 

@@ -21,8 +21,9 @@ namespace MusicApp.Resources.Portable_Class
     public class SearchableActivity : AppCompatActivity, IMenuItemOnActionExpandListener
     {
         public static SearchableActivity instance;
+        public static bool IgnoreMyself = false;
         public SearchView searchView;
-        public bool searched = false;
+        public string SearchQuery = null;
         private ListView ListView;
         private SuggestionAdapter adapter;
         private List<Suggestion> History = new List<Suggestion>();
@@ -47,7 +48,6 @@ namespace MusicApp.Resources.Portable_Class
             ListView.DividerHeight = 0;
             ListView.ItemClick += (sender, e) =>
             {
-                searched = true;
                 searchView.SetQuery(suggestions[e.Position].Text, true);
             };
             ListView.ItemLongClick += (sender, e) =>
@@ -118,7 +118,7 @@ namespace MusicApp.Resources.Portable_Class
                                 suggestions = items.ConvertAll(StringToSugest);
                                 suggestions.InsertRange(0, History.Where(x => x.Text.StartsWith(e.NewText)));
 
-                                if(!searched)
+                                if(SearchQuery == null || SearchQuery == "")
                                     RunOnUiThread(new Java.Lang.Runnable(() => { ListView.Adapter = new SuggestionAdapter(instance, Resource.Layout.SuggestionLayout, suggestions); }));
                             }
                         }
@@ -134,11 +134,10 @@ namespace MusicApp.Resources.Portable_Class
             };
             searchView.QueryTextSubmit += (s, e) =>
             {
-                searched = true;
+                SearchQuery = e.NewText;
                 AddQueryToHistory(e.NewText);
                 Finish();
                 OverridePendingTransition(Android.Resource.Animation.FadeIn, Android.Resource.Animation.FadeOut);
-                MainActivity.instance.SearchOnYoutube(e.NewText);
                 e.Handled = true;
             };
             searchItem.SetOnActionExpandListener(this);
@@ -190,7 +189,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             base.OnStop();
             Window.SetNavigationBarColor(Android.Graphics.Color.Transparent);
-            if (!searched && YoutubeEngine.instances == null)
+            if ((SearchQuery == null || SearchQuery == "") && YoutubeEngine.instances == null)
                 MainActivity.instance.CancelSearch();
         }
 

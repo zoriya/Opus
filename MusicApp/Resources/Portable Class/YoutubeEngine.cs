@@ -22,6 +22,7 @@ using TagLib;
 using YoutubeExplode;
 using YoutubeExplode.Models;
 using CursorLoader = Android.Support.V4.Content.CursorLoader;
+using SearchView = Android.Support.V7.Widget.SearchView;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -29,13 +30,13 @@ namespace MusicApp.Resources.Portable_Class
     {
         public static YoutubeEngine[] instances;
         public static YouTubeService youtubeService;
-        public static string searchKeyWorld;
+        public string Query;
         public static bool error = false;
         private bool isEmpty = false;
         private string nextPageToken = null;
         public string querryType;
 
-        public bool focused = false;
+        public bool IsFocused = false;
         public RecyclerView ListView;
         public List<YtFile> result;
 
@@ -44,18 +45,24 @@ namespace MusicApp.Resources.Portable_Class
         public ProgressBar LoadingView;
         private bool searching;
 
-        public override void OnActivityCreated(Bundle savedInstanceState)
+
+        public YoutubeEngine(string Query, string querryType)
         {
-            base.OnActivityCreated(savedInstanceState);
-            ListView.ScrollChange += OnScroll;
+            this.Query = Query;
+            this.querryType = querryType;
+        }
+
+        public override void OnCreate(Bundle savedInstanceState)
+        {
+            base.OnCreate(savedInstanceState);
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
         }
 
         private async void OnRefresh(object sender, EventArgs e)
         {
-            if (focused)
+            if (IsFocused)
             {
-                await Search(searchKeyWorld, querryType, false);
+                await Search(Query, querryType, false);
                 MainActivity.instance.contentRefresh.Refreshing = false;
             }
         }
@@ -74,7 +81,7 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     searching = true;
                     SearchResource.ListRequest searchResult = youtubeService.Search.List("snippet");
-                    searchResult.Q = searchKeyWorld.Replace(" ", "+-");
+                    searchResult.Q = Query.Replace(" ", "+-");
                     searchResult.PageToken = nextPageToken;
                     searchResult.TopicId = "/m/04rlf";
                     switch (querryType)
@@ -168,19 +175,19 @@ namespace MusicApp.Resources.Portable_Class
                 switch (querryType)
                 {
                     case "All":
-                        EmptyView.Text = "No result for " + searchKeyWorld;
+                        EmptyView.Text = "No result for " + Query;
                         break;
                     case "Tracks":
-                        EmptyView.Text = "No track for " + searchKeyWorld;
+                        EmptyView.Text = "No track for " + Query;
                         break;
                     case "Playlists":
-                        EmptyView.Text = "No playlist for " + searchKeyWorld;
+                        EmptyView.Text = "No playlist for " + Query;
                         break;
                     case "Lives":
-                        EmptyView.Text = "No lives for " + searchKeyWorld;
+                        EmptyView.Text = "No lives for " + Query;
                         break;
                     case "Channels":
-                        EmptyView.Text = "No channel for " + searchKeyWorld;
+                        EmptyView.Text = "No channel for " + Query;
                         break;
                     default:
                         break;
@@ -194,20 +201,14 @@ namespace MusicApp.Resources.Portable_Class
 
         public static Fragment[] NewInstances(string searchQuery)
         {
-            searchKeyWorld = searchQuery;
             instances = new YoutubeEngine[]
             {
-                new YoutubeEngine { Arguments = new Bundle() },
-                new YoutubeEngine { Arguments = new Bundle() },
-                new YoutubeEngine { Arguments = new Bundle() },
-                new YoutubeEngine { Arguments = new Bundle() },
-                new YoutubeEngine { Arguments = new Bundle() },
+                new YoutubeEngine(searchQuery, "All"),
+                new YoutubeEngine(searchQuery, "Tracks"),
+                new YoutubeEngine(searchQuery, "Playlists"),
+                new YoutubeEngine(searchQuery, "Lives"),
+                new YoutubeEngine(searchQuery, "Channels")
             };
-            instances[0].querryType = "All";
-            instances[1].querryType = "Tracks";
-            instances[2].querryType = "Playlists";
-            instances[3].querryType = "Lives";
-            instances[4].querryType = "Channels";
             return instances;
         }
 
@@ -219,19 +220,31 @@ namespace MusicApp.Resources.Portable_Class
             ListView = view.FindViewById<RecyclerView>(Resource.Id.recycler);
             ListView.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
             ListView.SetItemAnimator(new DefaultItemAnimator());
+            ListView.ScrollChange += OnScroll;
+
+            if (savedInstanceState != null)
+                Query = savedInstanceState.GetString("Query");
 
 #pragma warning disable CS4014
-            Search(searchKeyWorld, querryType, true);
+            Search(Query, querryType, true);
             return view;
         }
 
         public async Task Search(string search, string querryType, bool loadingBar)
         {
+            SearchableActivity.IgnoreMyself = true;
+            IMenuItem searchItem = MainActivity.instance.menu.FindItem(Resource.Id.search);
+            searchItem.ExpandActionView();
+            SearchView searchView = (SearchView)searchItem.ActionView;
+            searchView.SetQuery(search, false);
+            searchView.ClearFocus();
+            searchView.Focusable = false;
+
             if (search == null || search == "" || error)
                 return;
 
             searching = true;
-            searchKeyWorld = search;
+            Query = search;
 
             if (loadingBar)
             {
@@ -241,7 +254,9 @@ namespace MusicApp.Resources.Portable_Class
                 LoadingView.Visibility = ViewStates.Visible;
             }
 
-            if(!await MainActivity.instance.WaitForYoutube())
+            SearchableActivity.IgnoreMyself = false;
+
+            if (!await MainActivity.instance.WaitForYoutube())
             {
                 error = true;
                 ListView.SetAdapter(null);
@@ -368,7 +383,7 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     isEmpty = true;
 
-                    if (focused)
+                    if (IsFocused)
                     {
                         switch (querryType)
                         {
@@ -382,7 +397,7 @@ namespace MusicApp.Resources.Portable_Class
                                 EmptyView.Text = "No playlist for " + search;
                                 break;
                             case "Lives":
-                                EmptyView.Text = "No lives for " + searchKeyWorld;
+                                EmptyView.Text = "No lives for " + Query;
                                 break;
                             case "Channels":
                                 EmptyView.Text = "No channel for " + search;
@@ -400,7 +415,7 @@ namespace MusicApp.Resources.Portable_Class
             catch (System.Net.Http.HttpRequestException)
             {
                 MainActivity.instance.Timout();
-                if (focused)
+                if (IsFocused)
                 {
                     EmptyView.Text = "Timout exception, check if you're still connected to internet.";
                     EmptyView.Visibility = ViewStates.Visible;
@@ -417,12 +432,10 @@ namespace MusicApp.Resources.Portable_Class
                     Play(item.YoutubeID, item.Title, item.Artist, item.Album);
                     break;
                 case YtKind.Playlist:
-                    PlaylistTracks.openned = true;
+                    SearchableActivity.IgnoreMyself = true;
                     MainActivity.instance.menu.FindItem(Resource.Id.search).CollapseActionView();
                     MainActivity.instance.FindViewById<TabLayout>(Resource.Id.tabs).Visibility = ViewStates.Gone;
                     MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(item.YoutubeID, item.Title, false, false, item.Artist, -1, item.Album)).AddToBackStack("Playlist Track").Commit();
-                    //MainActivity.instance.SupportFragmentManager.BeginTransaction().Add(Resource.Id.contentView, PlaylistTracks.NewInstance(item.YoutubeID, item.Title, false, false, item.Artist, -1, item.Album)).Commit();
-                    //MainActivity.instance.SupportFragmentManager.BeginTransaction().Detach(this).Commit();
                     break;
                 default:
                     break;
@@ -1060,6 +1073,13 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             DownloadFiles(names.ToArray(), videoIDs.ToArray(), playlist);
+        }
+
+        public override void OnSaveInstanceState(Bundle outState)
+        {
+            outState.PutString("Query", Query);
+            Console.WriteLine("&Youtube engine state saved - query = " + Query);
+            base.OnSaveInstanceState(outState);
         }
     }
 }

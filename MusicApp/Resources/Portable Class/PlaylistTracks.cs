@@ -44,7 +44,6 @@ namespace MusicApp.Resources.Portable_Class
         public bool isEmpty = false;
         public bool lastVisible = false;
         public bool useHeader = true;
-        public static bool openned = false;
         public bool navigating = false;
 
         public List<Song> tracks = new List<Song>();
@@ -277,13 +276,13 @@ namespace MusicApp.Resources.Portable_Class
                     Android.Support.V7.Widget.SearchView searchView = (Android.Support.V7.Widget.SearchView)MainActivity.instance.menu.FindItem(Resource.Id.search).ActionView;
                     searchView.Focusable = false;
                     MainActivity.instance.menu.FindItem(Resource.Id.search).ExpandActionView();
-                    searchView.SetQuery(YoutubeEngine.searchKeyWorld, false);
+                    searchView.SetQuery(YoutubeEngine.instances[0].Query, false);
                     searchView.ClearFocus();
 
                     int selectedTab = 0;
                     for (int i = 0; i < YoutubeEngine.instances.Length; i++)
                     {
-                        if (YoutubeEngine.instances[i].focused)
+                        if (YoutubeEngine.instances[i].IsFocused)
                             selectedTab = i;
                     }
                     //if (!navigating)
