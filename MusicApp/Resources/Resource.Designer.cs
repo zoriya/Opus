@@ -7198,8 +7198,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f0c0080
 			public const int appbar_scrolling_view_behavior = 2131492992;
 			
-			// aapt resource value: 0x7f0c00f6
-			public const int appearances = 2131493110;
+			// aapt resource value: 0x7f0c00f5
+			public const int appearances = 2131493109;
 			
 			// aapt resource value: 0x7f0c00e9
 			public const int apply = 2131493097;
@@ -7360,8 +7360,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f0c0083
 			public const int character_counter_pattern = 2131492995;
 			
-			// aapt resource value: 0x7f0c00fc
-			public const int check_updates = 2131493116;
+			// aapt resource value: 0x7f0c00fb
+			public const int check_updates = 2131493115;
 			
 			// aapt resource value: 0x7f0c00b0
 			public const int clientID = 2131493040;
@@ -7429,8 +7429,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f0c00c4
 			public const int create_mix_from_song = 2131493060;
 			
-			// aapt resource value: 0x7f0c00fa
-			public const int dark_theme = 2131493114;
+			// aapt resource value: 0x7f0c00f9
+			public const int dark_theme = 2131493113;
 			
 			// aapt resource value: 0x7f0c00cf
 			public const int delete = 2131493071;
@@ -7438,8 +7438,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f0c00c7
 			public const int download = 2131493063;
 			
-			// aapt resource value: 0x7f0c00f2
-			public const int download_directory = 2131493106;
+			// aapt resource value: 0x7f0c00f1
+			public const int download_directory = 2131493105;
 			
 			// aapt resource value: 0x7f0c00c6
 			public const int edit_metadata = 2131493062;
@@ -7573,29 +7573,26 @@ namespace MusicApp
 			// aapt resource value: 0x7f0c00e1
 			public const int lives = 2131493089;
 			
-			// aapt resource value: 0x7f0c00f0
-			public const int local_play = 2131493104;
-			
 			// aapt resource value: 0x7f0c00e7
 			public const int local_playlist_empty = 2131493095;
 			
 			// aapt resource value: 0x7f0c00e3
 			public const int local_playlists = 2131493091;
 			
-			// aapt resource value: 0x7f0c0100
-			public const int log_in = 2131493120;
-			
-			// aapt resource value: 0x7f0c0101
-			public const int log_out = 2131493121;
-			
 			// aapt resource value: 0x7f0c00ff
-			public const int logged_in = 2131493119;
+			public const int log_in = 2131493119;
+			
+			// aapt resource value: 0x7f0c0100
+			public const int log_out = 2131493120;
+			
+			// aapt resource value: 0x7f0c00fe
+			public const int logged_in = 2131493118;
+			
+			// aapt resource value: 0x7f0c00f2
+			public const int max_download = 2131493106;
 			
 			// aapt resource value: 0x7f0c00f3
-			public const int max_download = 2131493107;
-			
-			// aapt resource value: 0x7f0c00f4
-			public const int max_download_dialog = 2131493108;
+			public const int max_download_dialog = 2131493107;
 			
 			// aapt resource value: 0x7f0c00d7
 			public const int more = 2131493079;
@@ -7687,14 +7684,14 @@ namespace MusicApp
 			// aapt resource value: 0x7f0c00de
 			public const int no_song = 2131493086;
 			
-			// aapt resource value: 0x7f0c00fe
-			public const int not_log = 2131493118;
+			// aapt resource value: 0x7f0c00fd
+			public const int not_log = 2131493117;
 			
 			// aapt resource value: 0x7f0c00bc
 			public const int nothing = 2131493052;
 			
-			// aapt resource value: 0x7f0c00fb
-			public const int others = 2131493115;
+			// aapt resource value: 0x7f0c00fa
+			public const int others = 2131493114;
 			
 			// aapt resource value: 0x7f0c0088
 			public const int password_toggle_content_description = 2131493000;
@@ -7780,14 +7777,14 @@ namespace MusicApp
 			// aapt resource value: 0x7f0c00d1
 			public const int sync_now = 2131493073;
 			
-			// aapt resource value: 0x7f0c00f5
-			public const int sync_remove = 2131493109;
+			// aapt resource value: 0x7f0c00f4
+			public const int sync_remove = 2131493108;
+			
+			// aapt resource value: 0x7f0c00f6
+			public const int theme = 2131493110;
 			
 			// aapt resource value: 0x7f0c00f7
-			public const int theme = 2131493111;
-			
-			// aapt resource value: 0x7f0c00f8
-			public const int theme_dialog = 2131493112;
+			public const int theme_dialog = 2131493111;
 			
 			// aapt resource value: 0x7f0c00e0
 			public const int tracks = 2131493088;
@@ -7804,14 +7801,14 @@ namespace MusicApp
 			// aapt resource value: 0x7f0c003f
 			public const int v7_preference_on = 2131492927;
 			
-			// aapt resource value: 0x7f0c00fd
-			public const int version = 2131493117;
+			// aapt resource value: 0x7f0c00fc
+			public const int version = 2131493116;
 			
-			// aapt resource value: 0x7f0c00f1
-			public const int volume = 2131493105;
+			// aapt resource value: 0x7f0c00f0
+			public const int volume = 2131493104;
 			
-			// aapt resource value: 0x7f0c00f9
-			public const int white_theme = 2131493113;
+			// aapt resource value: 0x7f0c00f8
+			public const int white_theme = 2131493112;
 			
 			// aapt resource value: 0x7f0c00e6
 			public const int youtube_loading_error = 2131493094;

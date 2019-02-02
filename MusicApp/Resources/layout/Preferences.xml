@@ -8,10 +8,6 @@
       android:key="topics"
       android:title="@string/music_genres"
       android:summary="Actualy nothing"/>
-    <android.support.v7.preference.Preference
-      android:key="localPlay"
-      android:title="@string/local_play"
-      android:summary="Shuffle All Audio Files" />
     <SeekbarPreference
       android:title="@string/volume"
       android:key="volumeMultipler" />
