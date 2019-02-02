@@ -92,7 +92,7 @@ namespace MusicApp.Resources.Portable_Class
                 RecyclerHolder holder = (RecyclerHolder)ListView.GetChildViewHolder(((LinearLayoutManager)ListView.GetLayoutManager()).FindViewByPosition(i));
                 if (MusicPlayer.queue[MusicPlayer.CurrentID()] == song)
                 {
-                    holder.status.Text = MusicPlayer.isRunning ? "Playing" : "Paused";
+                    holder.status.Text = MusicPlayer.isRunning ? GetString(Resource.String.playing) : GetString(Resource.String.paused);
                     holder.status.SetTextColor(MusicPlayer.isRunning ? Color.Argb(255, 244, 81, 30) : Color.Argb(255, 66, 165, 245));
                     holder.status.Visibility = ViewStates.Visible;
                 }

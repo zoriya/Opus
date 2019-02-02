@@ -865,8 +865,8 @@ namespace MusicApp.Resources.Portable_Class
                     }
                     SnackbarCallback callback = new SnackbarCallback(song, LocalID);
 
-                    Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), (song.Title.Length > 20 ? song.Title.Substring(0, 17) + "..." : song.Title) + " has been removed from the playlist.", Snackbar.LengthLong)
-                        .SetAction("Undo", (v) =>
+                    Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), (song.Title.Length > 20 ? song.Title.Substring(0, 17) + "..." : song.Title) + GetString(Resource.String.removed_from_playlist), Snackbar.LengthLong)
+                        .SetAction(GetString(Resource.String.undo), (v) =>
                         {
                             callback.canceled = true;
                             if (YoutubeID != null)

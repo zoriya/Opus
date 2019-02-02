@@ -16,8 +16,13 @@
   <string name="show_queue">AFFICHER LA LISTE DE LECTURE</string>
   <string name="up_next">À suivre:</string>
   <string name="nothing">Rien.</string>
-  <string name="next_loading">Chargement en cour, veuillez patienter.</string>
-  
+  <string name="next_loading">Chargement en cours, veuillez patienter.</string>
+
+  <!--Queue-->
+  <string name="playing">Lecture en cours</string>
+  <string name="paused">En pause</string>
+  <string name="removed_from_queue"> a été enlevé de la liste de lecture.</string>
+
   <!--Autoplay-->
   <string name="autoplay">Lecture automatique</string>
   <string name="autoplay_desc">Ajoute automatiquement des musiques similaire depuis youtube.</string>
@@ -60,13 +65,14 @@
   <string name="folders">Dossiers</string>
   <string name="no_song">Vous n\'avez aucune musique sur cet appareil.</string>
   
-  
   <!--Youtube Search-->
   <string name="all">Tous</string>
   <string name="tracks">Titre</string>
   <string name="playlists">Playlists</string>
   <string name="lives">Lives</string>
   <string name="channels">Chaines</string>
+  <string name="download_path_not_set">Le dossier de téléchargement n\'a pas été définie, celui par défault va être utilisé.</string>
+  <string name="set_path">Definir le dossier</string>
   
   <!--Playlists Screen-->
   <string name="local_playlists">Playlists locales</string>
@@ -75,18 +81,25 @@
   <string name="youtube_loading_error">Erreur de chargement. \nVerifiez avoir séléction un compte et votre connection internet.</string>
   <string name="local_playlist_empty">Vous n\'avez aucune playlist sur cet appareil.</string>
   <string name="youtube_playlist_empty">Vous n\'avez aucune playlist sur ce compte youtube \nAttention : Seulement les playlists présentes sur votre compte google sont affichées.</string>
-  <string name="playlists_song_count">titres</string>
+  <string name="element">titre</string>
+  <string name="elements">titres</string>
+  <string name="playlist_empty">Cette playlist est vide.</string>
+  <string name="removed_from_playlist"> a été enlevé de la playlist.</string>
+  <string name="playlist_already_saved">Cette playlist a déja été ajouté a votre bibliothèque.</string>
+  <string name="playlist_not_found">Aucune playlist n\'existe avec cet id ou cet url.</string>
 
   <!--Settings-->
   <string name="apply">Appliquer</string>
   <string name="cancel">Annuler</string>
+  <string name="ok">Ok</string>
+  <string name="later">Plus tard</string>
   
   <string name="behavior">Fonctionnement</string>
   <string name="volume">Volume</string>
   <string name="download">Téléchargement</string>
   <string name="download_directory">Dossier de téléchargement</string>
-  <string name="max_download">Nomnbre maximum de téléchargement simultané</string>
-  <string name="max_download_dialog">Choissisez combient de musiques peuvent être téléchargées en même temps</string>
+  <string name="max_download">Nombre maximum de téléchargement simultané</string>
+  <string name="max_download_dialog">Combient de musiques peuvent-elle être téléchargées en même temps ?</string>
   <string name="sync_remove">Supprimer les musiques enlevée d\'une playlist synchronisée.</string>
   <string name="appearances">Apparence</string>
   <string name="theme">Thème</string>
@@ -100,4 +113,32 @@
   <string name="logged_in">Connecté en temps que</string>
   <string name="log_in">CONNECTION</string>
   <string name="log_out">DECONNECTION</string>
+
+  <!--Snackbars-->
+  <string name="undo">Annuler</string>
+
+  <string name="no_permission">Permission refusée, impossible de completer cette action.</string>
+  <string name="no_song_mix">Aucune musique trouvée, impossible de créer un mix.</string>
+  <string name="youtube_endpoint">L\'algorithme youtube a changé, l\'application ne peut plus lire cette vidéo. Attendez la prochaine mise a jour.</string>
+  <string name="timout">Timout, vérifier votre connection internet.</string>
+  <string name="unknow">Une erreur inconue est survenue.</string>
+  <string name="not_streamable"> ne peut pas être lu, L\'audio n\'est pas disponible.</string> <!--//A song title will be placed before this sentence-->
+  <string name="update_no_internet">Vous n\'êtes pas connecté a internet, impossible de verifier si des mises a jours existent.</string>
+  <string name="update">La version %1$s est disponible</string> <!--//%1$s will be replaced with the version number-->
+  <string name="update_message">Une mise a jour est disponible, voulez vous l\'installer maintenant ?</string>
+  <string name="up_to_date">Aucune mise a jour disponible.</string>
+  <string name="beta_available">Une version beta est disponible.</string>
+  <string name="downloading_update">Téléchargement en cours, vous serez informer lorsque l\'installation sera prète.</string>
+  <string name="updating">Mise a jour en cours...</string>
+
+  <!--Edit metadata-->
+  <string name="title">Titre</string>
+  <string name="artist">Artiste</string>
+  <string name="album">Album</string>
+  <string name="youtubeid">Youtube ID</string>
+  <string name="change_albumart">Changer d\'image d\'album</string>
+  <string name="pick_album_local">Choisir une image depuis le stockage interne</string>
+  <string name="download_albumart">Télécharger la couverture depuis youtube</string>
+  <string name="download_meta">Télécharger les metadata depuis youtube</string>
+  <string name="undo_change">Annuler les modifications</string>
 </resources>

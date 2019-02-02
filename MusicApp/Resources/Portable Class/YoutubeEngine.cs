@@ -634,8 +634,8 @@ namespace MusicApp.Resources.Portable_Class
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Android.App.Application.Context);
             if (prefManager.GetString("downloadPath", null) == null)
             {
-                Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), "Download Path Not Set, using default one.", Snackbar.LengthIndefinite);
-                snackBar.SetAction("Set Path", (v) =>
+                Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), Resource.String.download_path_not_set, Snackbar.LengthIndefinite);
+                snackBar.SetAction(Resource.String.set_path, (v) =>
                 {
                     snackBar.Dismiss();
                     Intent prefIntent = new Intent(Android.App.Application.Context, typeof(Preferences));
@@ -664,7 +664,7 @@ namespace MusicApp.Resources.Portable_Class
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Android.App.Application.Context);
             if (prefManager.GetString("downloadPath", null) == null)
             {
-                Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), "Download Path Not Set, using default one.", Snackbar.LengthLong).SetAction("Set Path", (v) =>
+                Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), Resource.String.download_path_not_set, Snackbar.LengthLong).SetAction(Resource.String.set_path, (v) =>
                 {
                     Intent pref = new Intent(Android.App.Application.Context, typeof(Preferences));
                     MainActivity.instance.StartActivity(pref);
@@ -864,8 +864,8 @@ namespace MusicApp.Resources.Portable_Class
                     //AddToSection
                     if (section.ContentDetails.Playlists.Contains(playlistID))
                     {
-                        Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById<CoordinatorLayout>(Resource.Id.snackBar), "You've already added this playlist.", Snackbar.LengthLong);
-                        snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Android.Graphics.Color.White);
+                        Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById<CoordinatorLayout>(Resource.Id.snackBar), Resource.String.playlist_already_saved, Snackbar.LengthLong);
+                        snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
                         snackBar.Show();
                         return;
                     }
@@ -989,7 +989,7 @@ namespace MusicApp.Resources.Portable_Class
 
             if (!await MainActivity.instance.WaitForYoutube())
             {
-                Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), "Error while loading. Check your internet connection and check if your logged in.", Snackbar.LengthLong);
+                Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), Resource.String.youtube_loading_error, Snackbar.LengthLong);
                 snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
                 snackBar.Show();
                 return;

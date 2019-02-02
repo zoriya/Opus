@@ -65,10 +65,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             if(empty && position + 1 == ItemCount)
             {
-                if(PlaylistTracks.instance.tracks.Count == 0)
-                    ((TextView)viewHolder.ItemView).Text = "This playlist is empty.";
-                else
-                    ((TextView)viewHolder.ItemView).Text = "No track found.";
+                ((TextView)viewHolder.ItemView).Text = MainActivity.instance.GetString(Resource.String.playlist_empty);
                 return;
             }
 
@@ -78,7 +75,7 @@ namespace MusicApp.Resources.Portable_Class
             if(position == -1 && !PlaylistTracks.instance.useHeader)
             {
                 View header = viewHolder.ItemView;
-                header.FindViewById<TextView>(Resource.Id.headerNumber).Text = PlaylistTracks.instance.tracks.Count + " " + MainActivity.instance.GetString(Resource.String.playlists_song_count);
+                header.FindViewById<TextView>(Resource.Id.headerNumber).Text = songList.Count + " " + (songList.Count < 2 ? MainActivity.instance.GetString(Resource.String.element) : MainActivity.instance.GetString(Resource.String.elements));
                 if (!header.FindViewById<ImageButton>(Resource.Id.headerPlay).HasOnClickListeners)
                 {
                     header.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { PlaylistTracks.instance.PlayInOrder(0, false); };

@@ -143,7 +143,7 @@ namespace MusicApp.Resources.Portable_Class
                 if (position == MusicPlayer.CurrentID())
                 {
                     holder.status.Visibility = ViewStates.Visible;
-                    holder.status.Text = MusicPlayer.isRunning ? "Playing" : "Paused";
+                    holder.status.Text = MusicPlayer.isRunning ? Queue.instance.GetString(Resource.String.playing) : Queue.instance.GetString(Resource.String.paused);
                     holder.status.SetTextColor(MusicPlayer.isRunning ? Color.Argb(255, 244, 81, 30) : Color.Argb(255, 66, 165, 245));
                 }
                 else
@@ -415,8 +415,8 @@ namespace MusicApp.Resources.Portable_Class
         {
             Song song = songList[position];
             Queue.RemoveFromQueue(position);
-            Snackbar snackbar = Snackbar.Make(Queue.instance.FindViewById(Resource.Id.recycler), (song.Title.Length > 20 ? song.Title.Substring(0, 17) + "..." : song.Title) + " has been removed from the queue.", Snackbar.LengthShort)
-                .SetAction("Undo", (view) =>
+            Snackbar snackbar = Snackbar.Make(Queue.instance.FindViewById(Resource.Id.recycler), (song.Title.Length > 20 ? song.Title.Substring(0, 17) + "..." : song.Title) + Queue.instance.GetString(Resource.String.removed_from_queue), Snackbar.LengthShort)
+                .SetAction(Queue.instance.GetString(Resource.String.undo), (view) =>
                 {
                     Queue.InsertToQueue(position, song);
                     NotifyItemInserted(position);

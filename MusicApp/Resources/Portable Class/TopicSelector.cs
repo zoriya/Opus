@@ -155,7 +155,7 @@ namespace MusicApp.Resources.Portable_Class
                 rootView.RemoveView(emptyView);
             }
             base.OnStop();
-            Preferences.instance.toolbar.Title = "Settings";
+            Preferences.instance.toolbar.Title = Preferences.instance.GetString(Resource.String.settings);
         }
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)

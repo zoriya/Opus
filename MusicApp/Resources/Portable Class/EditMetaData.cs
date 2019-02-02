@@ -35,7 +35,6 @@ namespace MusicApp.Resources.Portable_Class
         private bool hasPermission = false;
         private const int RequestCode = 8539;
         private const int PickerRequestCode = 9852;
-        private readonly string[] actions = new string[] { "Pick an album art from storage", "Download album art on youtube" };
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -99,8 +98,8 @@ namespace MusicApp.Resources.Portable_Class
         private void AlbumArt_Click(object sender, System.EventArgs e)
         {
             new Android.Support.V7.App.AlertDialog.Builder(this, MainActivity.dialogTheme)
-                .SetTitle("Change Album Art")
-                .SetItems(actions, (senderAlert, args) =>  
+                .SetTitle(Resource.String.change_albumart)
+                .SetItems(new string[] { GetString(Resource.String.pick_album_local), GetString(Resource.String.download_albumart) }, (senderAlert, args) =>  
                 {
                     switch(args.Which)
                     {
@@ -256,7 +255,7 @@ namespace MusicApp.Resources.Portable_Class
                     if (grantResults[0] == Permission.Granted)
                         hasPermission = true;
                     else
-                        Snackbar.Make(FindViewById<View>(Resource.Id.contentView), "Permission denied, can't edit metadata.", Snackbar.LengthShort).Show();
+                        Snackbar.Make(FindViewById<View>(Resource.Id.contentView), Resource.String.no_permission, Snackbar.LengthShort).Show();
                 }
             }
         }

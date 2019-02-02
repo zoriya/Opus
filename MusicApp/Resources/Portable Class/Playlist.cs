@@ -417,7 +417,7 @@ namespace MusicApp.Resources.Portable_Class
                         }
                         catch (Google.GoogleApiException)
                         {
-                            Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), "No playlist exist with this id or link.", Snackbar.LengthLong);
+                            Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), Resource.String.playlist_not_found, Snackbar.LengthLong);
                             snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
                             snackBar.Show();
                         }

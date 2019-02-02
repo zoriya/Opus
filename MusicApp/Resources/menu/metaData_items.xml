@@ -3,10 +3,10 @@
       xmlns:app="http://schemas.android.com/apk-res/auto">
   <item 
     android:id="@+id/downloadMDfromYT"
-    android:title="Download MetaData from Youtube"
+    android:title="@string/download_meta"
     app:showAsAction="never"/>
   <item
     android:id="@+id/undoChange"
-    android:title="Undo change"
+    android:title="@string/undo_change"
     app:showAsAction="never"/>
 </menu>

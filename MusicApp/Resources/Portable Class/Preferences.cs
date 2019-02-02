@@ -42,7 +42,6 @@ namespace MusicApp.Resources.Portable_Class
 
             instance = this;
             Window.SetStatusBarColor(Android.Graphics.Color.Argb(255, 33, 33, 33));
-            toolbar.Title = Resources.GetString(Resource.String.settings);
             toolbar.NavigationClick += (sender, e) =>
             {
                 if (DownloadFragment.instance == null && TopicSelector.instance == null)
@@ -131,9 +130,6 @@ namespace MusicApp.Resources.Portable_Class
         public static PreferencesFragment instance;
         public string path;
         private View view;
-
-        //Local Shortcut
-        private int LSposition;
 
         public override void OnCreatePreferences(Bundle savedInstanceState, string rootKey)
         {

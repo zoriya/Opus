@@ -71,7 +71,7 @@ namespace MusicApp.Resources.Portable_Class
 
                 if (MusicPlayer.UseCastPlayer || (MusicPlayer.queue != null && MusicPlayer.queue?.Count > 0))
                 {
-                    HomeSection queue = new HomeSection(Resources.GetString(Resource.String.queue), SectionType.SinglePlaylist, MusicPlayer.queue);
+                    HomeSection queue = new HomeSection("Queue", SectionType.SinglePlaylist, MusicPlayer.queue);
                     adapterItems.Add(queue);
                 }
 
@@ -413,9 +413,9 @@ namespace MusicApp.Resources.Portable_Class
 
         public void AddQueue()
         {
-            if (adapterItems[0].SectionTitle != Resources.GetString(Resource.String.queue))
+            if (adapterItems[0].SectionTitle != "Queue")
             {
-                HomeSection queue = new HomeSection(Resources.GetString(Resource.String.queue), SectionType.SinglePlaylist, MusicPlayer.queue);
+                HomeSection queue = new HomeSection("Queue", SectionType.SinglePlaylist, MusicPlayer.queue);
                 adapterItems.Insert(0, queue);
                 adapter.Insert(0, queue);
             }

@@ -80,10 +80,10 @@ namespace MusicApp.Resources.Portable_Class
                 LineSongHolder holder = (LineSongHolder)viewHolder;
                 items[position].recycler = holder.recycler;
 
-                holder.title.Text = items[position].SectionTitle;
                 holder.recycler.SetLayoutManager(new LinearLayoutManager(MainActivity.instance, LinearLayoutManager.Horizontal, false));
                 if (items[position].SectionTitle == "Queue")
                 {
+                    holder.title.Text = MainActivity.instance.GetString(Resource.String.queue);
                     LineAdapter adapter = new LineAdapter(holder.recycler);
                     Home.instance.QueueAdapter = adapter;
                     holder.recycler.SetAdapter(adapter);
@@ -97,6 +97,7 @@ namespace MusicApp.Resources.Portable_Class
                 }
                 else
                 {
+                    holder.title.Text = items[position].SectionTitle;
                     holder.recycler.SetAdapter(new LineAdapter(items[position].contentValue.GetRange(0, items[position].contentValue.Count > 20 ? 20 : items[position].contentValue.Count), holder.recycler));
                     holder.more.Click += (sender, e) =>
                     {

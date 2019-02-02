@@ -709,7 +709,8 @@ namespace MusicApp
                     else
                     {
                         PermissionGot = false;
-                        Snackbar snackBar = Snackbar.Make(FindViewById<CoordinatorLayout>(Resource.Id.snackBar), "Permission denied, can't complete this action.", Snackbar.LengthLong);                        snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+                        Snackbar snackBar = Snackbar.Make(FindViewById<CoordinatorLayout>(Resource.Id.snackBar), Resource.String.no_permission, Snackbar.LengthLong);
+                        snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
                         snackBar.Show();
                     }
                 }
@@ -721,7 +722,8 @@ namespace MusicApp
                 else
                 {
                     PermissionGot = false;
-                    Snackbar snackBar = Snackbar.Make(FindViewById<CoordinatorLayout>(Resource.Id.snackBar), "Permission denied, can't complete this action.", Snackbar.LengthLong);                    snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+                    Snackbar snackBar = Snackbar.Make(FindViewById<CoordinatorLayout>(Resource.Id.snackBar), Resource.String.no_permission, Snackbar.LengthLong);
+                    snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
                     snackBar.Show();
                 }
             }
@@ -786,7 +788,7 @@ namespace MusicApp
 
             if (songs.Count == 0)
             {
-                Snackbar snackBar = Snackbar.Make(FindViewById<CoordinatorLayout>(Resource.Id.snackBar), "No music file found on this device. Can't create a mix.", Snackbar.LengthLong);
+                Snackbar snackBar = Snackbar.Make(FindViewById<CoordinatorLayout>(Resource.Id.snackBar), Resource.String.no_song_mix, Snackbar.LengthLong);
                 snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
                 snackBar.Show();
                 return;
@@ -807,7 +809,7 @@ namespace MusicApp
         public void YoutubeEndPointChanged()
         {
             FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
-            Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), "The way youtube play video has changed, the app can't play this video now. Wait for the next update.", Snackbar.LengthLong);
+            Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), Resource.String.youtube_endpoint, Snackbar.LengthLong);
             snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
             snackBar.Show();
 
@@ -816,14 +818,14 @@ namespace MusicApp
 
         public void Timout()
         {
-            Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), "Timout exception, check if you're still connected to internet.", Snackbar.LengthLong);
+            Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), Resource.String.timout, Snackbar.LengthLong);
             snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
             snackBar.Show();
         }
 
         public void Unknow()
         {
-            Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), "An unknown error has occured.", Snackbar.LengthIndefinite);
+            Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), Resource.String.unknow, Snackbar.LengthIndefinite);
             snackBar.SetAction("Dismiss", (sender) => { snackBar.Dismiss(); });
             snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
             snackBar.Show();
@@ -831,7 +833,7 @@ namespace MusicApp
 
         public void NotStreamable(string title)
         {
-            Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), title + " can't be played. No audio streams are availables.", Snackbar.LengthLong);
+            Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), title + Resource.String.not_streamable, Snackbar.LengthLong);
             snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
             snackBar.Show();
         }
@@ -917,18 +919,18 @@ namespace MusicApp
                 {
                     if (instance != null && !instance.Paused)
                     {
-                        Snackbar snackBar = Snackbar.Make(instance.FindViewById(Resource.Id.snackBar), "You are not connected to internet, can't check for updates.", Snackbar.LengthLong);
+                        Snackbar snackBar = Snackbar.Make(instance.FindViewById(Resource.Id.snackBar), activity.GetString(Resource.String.update_no_internet), Snackbar.LengthLong);
                         snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
                         snackBar.Show();
                     }
                     if(Preferences.instance != null)
                     {
-                        Snackbar snackBar = Snackbar.Make(Preferences.instance.FindViewById(Android.Resource.Id.Content), "You are not connected to internet, can't check for updates.", Snackbar.LengthLong);
+                        Snackbar snackBar = Snackbar.Make(Preferences.instance.FindViewById(Android.Resource.Id.Content), activity.GetString(Resource.String.update_no_internet), Snackbar.LengthLong);
                         snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
                         snackBar.Show();
                     }
                     else
-                        Toast.MakeText(Application.Context, "You are not connected to internet, can't check for updates.", ToastLength.Short).Show();
+                        Toast.MakeText(Application.Context, activity.GetString(Resource.String.update_no_internet), ToastLength.Short).Show();
                 }
                 return;
             }
@@ -962,10 +964,10 @@ namespace MusicApp
             if (gitVersion > version && !beta)
             {
                 Android.Support.V7.App.AlertDialog.Builder builder = new Android.Support.V7.App.AlertDialog.Builder(activity, dialogTheme);
-                builder.SetTitle(string.Format("The version {0} is available", gitVersionID));
-                builder.SetMessage("An update is available, do you want to download it now ?");
-                builder.SetPositiveButton("Ok", (sender, e) => { InstallUpdate(gitVersionID, false, downloadPath); });
-                builder.SetNegativeButton("Later", (sender, e) => { });
+                builder.SetTitle(string.Format(activity.GetString(Resource.String.update), gitVersionID));
+                builder.SetMessage(activity.GetString(Resource.String.update_message));
+                builder.SetPositiveButton(activity.GetString(Resource.String.ok), (sender, e) => { InstallUpdate(gitVersionID, false, downloadPath); });
+                builder.SetNegativeButton(activity.GetString(Resource.String.later), (sender, e) => { });
                 builder.Show();
             }
             else if (displayToast)
@@ -976,14 +978,14 @@ namespace MusicApp
                     {
                         Snackbar snackBar;
                         if (Preferences.instance != null)
-                            snackBar = Snackbar.Make(Preferences.instance.FindViewById(Android.Resource.Id.Content), "Your app is up to date.", Snackbar.LengthLong);
+                            snackBar = Snackbar.Make(Preferences.instance.FindViewById(Android.Resource.Id.Content), activity.GetString(Resource.String.up_to_date), Snackbar.LengthLong);
                         else
-                            snackBar = Snackbar.Make(instance.FindViewById(Resource.Id.snackBar), "Your app is up to date.", Snackbar.LengthLong);
+                            snackBar = Snackbar.Make(instance.FindViewById(Resource.Id.snackBar), activity.GetString(Resource.String.up_to_date), Snackbar.LengthLong);
                         snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
                         snackBar.Show();
                     }
                     else
-                        Toast.MakeText(Application.Context, "Your app is up to date.", ToastLength.Short).Show();
+                        Toast.MakeText(Application.Context, activity.GetString(Resource.String.up_to_date), ToastLength.Short).Show();
                 }
                 else
                 {
@@ -991,10 +993,10 @@ namespace MusicApp
                     {
                         Snackbar snackBar;
                         if (Preferences.instance != null)
-                            snackBar = Snackbar.Make(Preferences.instance.FindViewById(Android.Resource.Id.Content), "A beta version is available.", Snackbar.LengthLong);
+                            snackBar = Snackbar.Make(Preferences.instance.FindViewById(Android.Resource.Id.Content), activity.GetString(Resource.String.beta_available), Snackbar.LengthLong);
                         else
-                            snackBar = Snackbar.Make(instance.FindViewById(Resource.Id.snackBar), "A beta version is available.", Snackbar.LengthLong);
-                        snackBar.SetAction("Download", (sender) =>
+                            snackBar = Snackbar.Make(instance.FindViewById(Resource.Id.snackBar), activity.GetString(Resource.String.beta_available), Snackbar.LengthLong);
+                        snackBar.SetAction(activity.GetString(Resource.String.download), (sender) =>
                         {
                             InstallUpdate(gitVersionID, true, downloadPath);
                         });
@@ -1002,19 +1004,19 @@ namespace MusicApp
                         snackBar.Show();
                     }
                     else
-                        Toast.MakeText(Application.Context, "A beta version is available.", ToastLength.Short).Show();
+                        Toast.MakeText(Application.Context, activity.GetString(Resource.String.beta_available), ToastLength.Short).Show();
                 }
             }
         }
 
         public async static void InstallUpdate(string version, bool beta, string downloadPath)
         {
-            Toast.MakeText(Application.Context, "Downloading update, you will be prompt for the installation soon.", ToastLength.Short).Show();
+            Toast.MakeText(Application.Context, Application.Context.GetString(Resource.String.downloading_update), ToastLength.Short).Show();
 
             NotificationCompat.Builder notification = new NotificationCompat.Builder(Application.Context, "MusicApp.Channel")
                 .SetVisibility(NotificationCompat.VisibilityPublic)
                 .SetSmallIcon(Resource.Drawable.MusicIcon)
-                .SetContentTitle("Updating app...")
+                .SetContentTitle(Application.Context.GetString(Resource.String.updating))
                 .SetOngoing(true);
 
             NotificationManager notificationManager = (NotificationManager)Application.Context.GetSystemService(NotificationService);

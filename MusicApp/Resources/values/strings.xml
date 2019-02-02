@@ -18,6 +18,11 @@
   <string name="nothing">Nothing.</string>
   <string name="next_loading">Loading, please wait.</string>
   
+  <!--Queue-->
+  <string name="playing">Playing</string>
+  <string name="paused">Paused</string>
+  <string name="removed_from_queue"> has been removed from the queue.</string>
+  
   <!--Autoplay-->
   <string name="autoplay">Autoplay</string>
   <string name="autoplay_desc">Automatically add similars songs from youtube</string>
@@ -60,13 +65,14 @@
   <string name="folders">Folders</string>
   <string name="no_song">You don\'t have any song in your device.</string>
   
-  
   <!--Youtube Search-->
   <string name="all">All</string>
   <string name="tracks">Tracks</string>
   <string name="playlists">Playlists</string>
   <string name="lives">Lives</string>
   <string name="channels">Channels</string>
+  <string name="download_path_not_set">Download path not set, using default one.</string>
+  <string name="set_path">Set path</string>
   
   <!--Playlists Screen-->
   <string name="local_playlists">Local playlists</string>
@@ -75,11 +81,18 @@
   <string name="youtube_loading_error">Error while loading.\nCheck your internet connection and check if your logged in.</string>
   <string name="local_playlist_empty">You don\'t have any playlist on your device.</string>
   <string name="youtube_playlist_empty">You don\'t have any youtube playlist on your account. \nWarning: Only playlist from your google account are displayed.</string>
-  <string name="playlists_song_count">songs</string>
+  <string name="element">element</string>
+  <string name="elements">elements</string>
+  <string name="playlist_empty">This playlist is empty.</string>
+  <string name="removed_from_playlist"> has been removed from the playlist.</string>
+  <string name="playlist_already_saved">Playlist already added to your library.</string>
+  <string name="playlist_not_found">No playlist exist with this id or link.</string>
 
   <!--Settings-->
   <string name="apply">Apply</string>
   <string name="cancel">Cancel</string>
+  <string name="ok">Ok</string>
+  <string name="later">Later</string>
   
   <string name="behavior">Behavior</string>
   <string name="music_genre">Music genres your interesed in</string>
@@ -104,4 +117,32 @@
   <string name="logged_in">Logged in as</string>
   <string name="log_in">LOG IN</string>
   <string name="log_out">LOG OUT</string>
+
+  <!--Snackbars-->
+  <string name="undo">Undo</string>
+  
+  <string name="no_permission">Permission denied, can\'t complete this action.</string>
+  <string name="no_song_mix">No songs found, can\'t create a mix.</string>
+  <string name="youtube_endpoint">The way youtube play video has changed, the app can\'t play this video now. Wait for the next update.</string>
+  <string name="timout">Timout, check if you\'re still connected to internet.</string>
+  <string name="unknow">An unknown error has occured.</string>
+  <string name="not_streamable"> can\'t be played. No audio streams are availables.</string> <!--A song title will be placed before this sentence-->
+  <string name="update_no_internet">You are not connected to internet, can\'t check for updates.</string>
+  <string name="update">The version %1$s is available</string> <!--//%1$s will be replaced with the version number-->
+  <string name="update_message">An update is available, do you want to download it now?</string>
+  <string name="up_to_date">Your app is up to date.</string>
+  <string name="beta_available">A beta version is available.</string>
+  <string name="downloading_update">Downloading update, you will be prompt for the installation soon.</string>
+  <string name="updating">Updating app...</string>
+
+  <!--Edit metadata-->
+  <string name="title">Title</string>
+  <string name="artist">Artist</string>
+  <string name="album">Album</string>
+  <string name="youtubeid">Youtube ID</string>
+  <string name="change_albumart">Change Album Art</string>
+  <string name="pick_album_local">Pick an album art from storage</string>
+  <string name="download_albumart">Download album art on youtube</string>
+  <string name="download_meta">Download metadata from youtube</string>
+  <string name="undo_change">Undo changes</string>
 </resources>

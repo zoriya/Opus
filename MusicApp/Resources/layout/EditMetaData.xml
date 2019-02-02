@@ -55,7 +55,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="text"
-            android:hint="Title"
+            android:hint="@string/title"
             android:id="@+id/metadataTitle" />
         </android.support.design.widget.TextInputLayout>
         <android.support.design.widget.TextInputLayout
@@ -66,7 +66,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="text"
-            android:hint="Artist"
+            android:hint="@string/album"
             android:id="@+id/metadataArtist" />
         </android.support.design.widget.TextInputLayout>
         <android.support.design.widget.TextInputLayout
@@ -77,7 +77,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="text"
-            android:hint="Album"
+            android:hint="@string/album"
             android:id="@+id/metadataAlbum" />
         </android.support.design.widget.TextInputLayout>
         <android.support.design.widget.TextInputLayout
@@ -88,7 +88,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="text"
-            android:hint="Youtube ID"
+            android:hint="@string/youtubeid"
             android:id="@+id/metadataYID" />
         </android.support.design.widget.TextInputLayout>
       </LinearLayout>

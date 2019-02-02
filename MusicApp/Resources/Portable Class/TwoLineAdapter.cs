@@ -28,7 +28,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             TwoLineHolder holder = (TwoLineHolder)viewHolder;
             holder.Line1.Text = Title[position];
-            holder.Line2.Text = Count[position].ToString() + ((Count[position] > 1) ? " elements" : " element");
+            holder.Line2.Text = Count[position].ToString() + " " + (Title.Count < 2 ? MainActivity.instance.GetString(Resource.String.element) : MainActivity.instance.GetString(Resource.String.elements));
 
             if (!holder.more.HasOnClickListeners)
             {
