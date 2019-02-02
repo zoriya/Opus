@@ -8,6 +8,7 @@ using Android.Provider;
 using Android.Support.Design.Widget;
 using Android.Support.V4.App;
 using Android.Support.V7.App;
+using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
@@ -17,66 +18,49 @@ using CursorLoader = Android.Support.V4.Content.CursorLoader;
 
 namespace MusicApp.Resources.Portable_Class
 {
-    public class FolderBrowse : ListFragment
+    public class FolderBrowse : Fragment
     {
         public static FolderBrowse instance;
-        public static Context act;
-        public static LayoutInflater inflater;
         public List<string> pathDisplay = new List<string>();
         public List<string> paths = new List<string>();
         public List<int> pathUse = new List<int>();
+        public RecyclerView ListView;
         public TwoLineAdapter adapter;
-        public View emptyView;
-        public bool populated = false;
-        public bool focused = false;
-
-        private View view;
-        private bool isEmpty = false;
+        public TextView EmptyView;
+        public bool IsFocused = false;
 
 
         public override void OnActivityCreated(Bundle savedInstanceState)
         {
             base.OnActivityCreated(savedInstanceState);
-            act = Activity;
-            inflater = LayoutInflater;
-            emptyView = LayoutInflater.Inflate(Resource.Layout.NoSong, null);
-            ListView.EmptyView = emptyView;
-            ListView.Scroll += MainActivity.instance.Scroll;
-            ListView.ItemClick += ListView_ItemClick;
-            ListView.ItemLongClick += ListView_ItemLongClick;
-            ListView.NestedScrollingEnabled = true;
+            
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
-
-            if (ListView.Adapter == null)
-                PopulateList();
         }
 
         public override void OnDestroy()
         {
-            System.Console.WriteLine("&Destroy called");
             MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
-            if (isEmpty)
-            {
-                ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
-                rootView.RemoveView(emptyView);
-            }
             base.OnDestroy();
             instance = null;
-            act = null;
-            inflater = null;
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            View view = base.OnCreateView(inflater, container, savedInstanceState);
-            this.view = view;
+            View view = inflater.Inflate(Resource.Layout.CompleteRecycler, container, false);
+            EmptyView = view.FindViewById<TextView>(Resource.Id.empty);
+            ListView = view.FindViewById<RecyclerView>(Resource.Id.recycler);
+            ListView.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
+            ListView.SetItemAnimator(new DefaultItemAnimator());
+            //ListView.ScrollChange += (s, e) => { MainActivity.instance.contentRefresh.Enabled = e. == 0; };
+            ListView.NestedScrollingEnabled = true;
+
+            PopulateList();
             return view;
         }
 
         public static Fragment NewInstance()
         {
-            //if(instance == null)
-                instance = new FolderBrowse { Arguments = new Bundle() };
+            instance = new FolderBrowse { Arguments = new Bundle() };
             return instance;
         }
 
@@ -85,13 +69,13 @@ namespace MusicApp.Resources.Portable_Class
             if (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(Android.App.Application.Context, Manifest.Permission.ReadExternalStorage) != (int)Permission.Granted)
                 return;
 
-            populated = true;
+            pathDisplay.Clear();
+            paths.Clear();
+            pathUse.Clear();
 
             Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
-
             CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
             ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
-
 
             if (musicCursor != null && musicCursor.MoveToFirst())
             {
@@ -115,19 +99,21 @@ namespace MusicApp.Resources.Portable_Class
                 musicCursor.Close();
             }
 
-            adapter = new TwoLineAdapter(Android.App.Application.Context, Resource.Layout.TwoLineLayout, pathDisplay, pathUse);
-            ListAdapter = adapter;
+            adapter = new TwoLineAdapter(pathDisplay, pathUse);
+            adapter.ItemClick += ListView_ItemClick;
+            adapter.ItemLongClick += ListView_ItemLongClick;
+            ListView.SetAdapter(adapter);
 
-            if (adapter == null || adapter.Count == 0)
+            if (adapter.ItemCount == 0)
             {
-                isEmpty = true;
-                Activity.AddContentView(emptyView, View.LayoutParameters);
+                EmptyView.Visibility = ViewStates.Visible;
+                EmptyView.Text = MainActivity.instance.Resources.GetString(Resource.String.no_song);
             }
         }
 
         private void OnRefresh(object sender, System.EventArgs e)
         {
-            if (!focused)
+            if (!IsFocused)
                 return;
             Refresh();
             MainActivity.instance.contentRefresh.Refreshing = false;
@@ -135,56 +121,17 @@ namespace MusicApp.Resources.Portable_Class
 
         public void Refresh()
         {
-            Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
-
-            CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
-            ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
-
-            paths.Clear();
-            pathDisplay.Clear();
-            pathUse.Clear();
-
-
-            if (musicCursor != null && musicCursor.MoveToFirst())
-            {
-                int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
-                do
-                {
-                    string path = musicCursor.GetString(pathID);
-                    path = path.Substring(0, path.LastIndexOf("/"));
-                    string displayPath = path.Substring(path.LastIndexOf("/") + 1, path.Length - (path.LastIndexOf("/") + 1));
-
-                    if (!paths.Contains(path))
-                    {
-                        pathDisplay.Add(displayPath);
-                        paths.Add(path);
-                        pathUse.Add(1);
-                    }
-                    else
-                        pathUse[paths.IndexOf(path)] += 1;
-                }
-                while (musicCursor.MoveToNext());
-                musicCursor.Close();
-            }
-
-            adapter = new TwoLineAdapter(Android.App.Application.Context, Resource.Layout.TwoLineLayout, pathDisplay, pathUse);
-            ListAdapter = adapter;
-
-            if (adapter == null || adapter.Count == 0)
-            {
-                isEmpty = true;
-                Activity.AddContentView(emptyView, View.LayoutParameters);
-            }
+            PopulateList();
         }
 
-        public void ListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
+        public void ListView_ItemClick(object sender, int position)
         {
-            ListSongs(pathDisplay[e.Position], paths[e.Position]);
+            ListSongs(pathDisplay[position], paths[position]);
         }
 
-        private void ListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
+        private void ListView_ItemLongClick(object sender, int position)
         {
-            More(e.Position);
+            More(position);
         }
 
         public void More(int position)
@@ -315,7 +262,7 @@ namespace MusicApp.Resources.Portable_Class
                 cursor.Close();
             }
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(act, MainActivity.dialogTheme);
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme);
             builder.SetTitle("Add to a playlist");
             builder.SetItems(playList.ToArray(), (senderAlert, args) =>
             {
@@ -334,7 +281,7 @@ namespace MusicApp.Resources.Portable_Class
                 await Browse.CheckWritePermission();
 
                 List<ContentValues> values = new List<ContentValues>();
-                ContentResolver resolver = act.ContentResolver;
+                ContentResolver resolver = MainActivity.instance.ContentResolver;
 
                 Uri musicUri = MediaStore.Audio.Media.GetContentUriForPath(path);
                 CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
@@ -367,9 +314,9 @@ namespace MusicApp.Resources.Portable_Class
 
         public void CreatePlalistDialog(string path)
         {
-            AlertDialog.Builder builder = new AlertDialog.Builder(act, MainActivity.dialogTheme);
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme);
             builder.SetTitle("Playlist name");
-            View view = inflater.Inflate(Resource.Layout.CreatePlaylistDialog, null);
+            View view = LayoutInflater.Inflate(Resource.Layout.CreatePlaylistDialog, null);
             builder.SetView(view);
             PlaylistLocationAdapter adapter = new PlaylistLocationAdapter(MainActivity.instance, Android.Resource.Layout.SimpleSpinnerItem, new string[] { "Local playlist", "Youtube playlist", "Synced playlist (both local and youtube)" })
             {
@@ -389,7 +336,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             await Browse.CheckWritePermission();
 
-            ContentResolver resolver = act.ContentResolver;
+            ContentResolver resolver = MainActivity.instance.ContentResolver;
             Uri uri = MediaStore.Audio.Playlists.ExternalContentUri;
             ContentValues value = new ContentValues();
             value.Put(MediaStore.Audio.Playlists.InterfaceConsts.Name, name);

@@ -46,7 +46,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            View view = inflater.Inflate(Resource.Layout.YoutubeSearch, container, false);
+            View view = inflater.Inflate(Resource.Layout.CompleteRecycler, container, false);
             EmptyView = view.FindViewById<TextView>(Resource.Id.empty);
             ListView = view.FindViewById<RecyclerView>(Resource.Id.recycler);
             ListView.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));

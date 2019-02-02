@@ -23,7 +23,7 @@ namespace MusicApp.Resources.Portable_Class
             this.displayShuffle = displayShuffle;
         }
 
-        public override int ItemCount => songList.Count + (displayShuffle ? 1 : 0);
+        public override int ItemCount => songList.Count + ((displayShuffle && songList.Count != 0) ? 1 : 0);
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position)
         {

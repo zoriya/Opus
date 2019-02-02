@@ -132,25 +132,22 @@ namespace MusicApp.Resources.Portable_Class
         {
             if (Browse.instance != null)
             {
-                if (!FolderBrowse.instance.populated)
-                    FolderBrowse.instance.PopulateList();
-
                 if (position == 0)
                 {
                     if (Browse.instance.focused)
                         Browse.instance.ListView.SmoothScrollToPosition(0);
 
                     Browse.instance.focused = true;
-                    FolderBrowse.instance.focused = false;
+                    FolderBrowse.instance.IsFocused = false;
                     MainActivity.instance.DisplaySearch();
                 }
                 else if (position == 1)
                 {
-                    if (FolderBrowse.instance.focused)
+                    if (FolderBrowse.instance.IsFocused)
                         FolderBrowse.instance.ListView.SmoothScrollToPosition(0);
 
                     Browse.instance.focused = false;
-                    FolderBrowse.instance.focused = true;
+                    FolderBrowse.instance.IsFocused = true;
                     MainActivity.instance.HideSearch();
                 }
             }

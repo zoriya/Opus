@@ -58,6 +58,8 @@
   <!--Browse tab-->
   <string name="songs">Songs</string>
   <string name="folders">Folders</string>
+  <string name="no_song">You don\'t have any song in your device.</string>
+  
   
   <!--Youtube Search-->
   <string name="all">All</string>
@@ -83,7 +85,6 @@
   <string name="genre_nothing">Actually nothing</string>
   <string name="and"> and </string>
   <string name="and_more"> and more.</string>
-  <string name="local_play">Local Play Shortcut</string>
   <string name="volume">Volume</string>
   <string name="download">Download</string>
   <string name="download_directory">Download directory</string>

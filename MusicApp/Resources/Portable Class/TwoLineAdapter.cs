@@ -1,53 +1,43 @@
 ﻿using Android.Content;
 using Android.Graphics;
+using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
+using System;
 using System.Collections.Generic;
 
 namespace MusicApp.Resources.Portable_Class
 {
-    public class TwoLineAdapter : ArrayAdapter
+    public class TwoLineAdapter : RecyclerView.Adapter
     {
-        public int listPadding;
-        private Context context;
-        private List<string> line1;
-        private List<int> line2;
-        private LayoutInflater inflater;
-        private int resource;
+        private List<string> Title;
+        private readonly List<int> Count;
+        public EventHandler<int> ItemClick;
+        public EventHandler<int> ItemLongClick;
 
-        public TwoLineAdapter(Context context, int resource, List<string> line1, List<int> line2) : base(context, resource, line1)
+        public TwoLineAdapter(List<string> Title, List<int> Count)
         {
-            this.context = context;
-            this.resource = resource;
-            this.line1 = line1;
-            this.line2 = line2;
+            this.Title = Title;
+            this.Count = Count;
         }
 
-        public override View GetView(int position, View convertView, ViewGroup parent)
+        public override int ItemCount => Title.Count;
+
+        public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position)
         {
-            if (inflater == null)
-            {
-                inflater = (LayoutInflater)context.GetSystemService(Context.LayoutInflaterService);
-            }
-            if (convertView == null)
-            {
-                convertView = inflater.Inflate(resource, parent, false);
-            }
-            TwoLineHolder holder = new TwoLineHolder(convertView, null, null)
-            {
-                Line1 = { Text = line1[position] },
-                Line2 = { Text = line2[position].ToString() + ((line2[position] > 1) ? " elements" : " element") },
-            };
+            TwoLineHolder holder = (TwoLineHolder)viewHolder;
+            holder.Line1.Text = Title[position];
+            holder.Line2.Text = Count[position].ToString() + ((Count[position] > 1) ? " elements" : " element");
 
             if (!holder.more.HasOnClickListeners)
             {
                 holder.more.Tag = position;
-                holder.more.Click += (sender, e) => 
+                holder.more.Click += (sender, e) =>
                 {
                     int pos = (int)((ImageView)sender).Tag;
 
-                    if(FolderBrowse.instance != null)
+                    if (FolderBrowse.instance != null)
                         FolderBrowse.instance.More(pos);
                 };
             }
@@ -59,7 +49,22 @@ namespace MusicApp.Resources.Portable_Class
                 holder.Line2.SetTextColor(Color.White);
                 holder.Line2.Alpha = 0.7f;
             }
-            return convertView;
+        }
+
+        public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
+        {
+            View view = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.TwoLineLayout, parent, false);
+            return new TwoLineHolder(view, OnClick, OnLongClick);
+        }
+
+        void OnClick(int position)
+        {
+            ItemClick?.Invoke(this, position);
+        }
+
+        void OnLongClick(int position)
+        {
+            ItemLongClick?.Invoke(this, position);
         }
     }
 }

@@ -781,7 +781,7 @@
     <AndroidResource Include="Resources\layout\ChannelPreview.xml" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\layout\YoutubeSearch.xml" />
+    <AndroidResource Include="Resources\layout\CompleteRecycler.xml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\layout\BottomSheet.xml" />

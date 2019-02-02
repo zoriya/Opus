@@ -158,13 +158,6 @@ namespace MusicApp.Resources.Portable_Class
             else if(topics.Length > 3)
                 topicPreference.Summary = topics[0].Substring(0, topics[0].IndexOf("/#-#/")) + ", " + topics[1].Substring(0, topics[1].IndexOf("/#-#/")) + ", " + topics[2].Substring(0, topics[2].IndexOf("/#-#/")) + Resources.GetString(Resource.String.and_more);
 
-
-            //Local play shortcut
-            Preference localShortcutPreference = PreferenceScreen.FindPreference("localPlay");
-            localShortcutPreference.IconSpaceReserved = false;
-            localShortcutPreference.PreferenceClick += LocalShortcut;
-            localShortcutPreference.Summary = prefManager.GetString("localPlay", "Shuffle All Audio Files");
-
             //Download Path
             Preference downloadPref = PreferenceScreen.FindPreference("downloadPath");
             downloadPref.IconSpaceReserved = false;
@@ -256,74 +249,6 @@ namespace MusicApp.Resources.Portable_Class
         {
             Preferences.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.PreferenceFragment, TopicSelector.NewInstance()).AddToBackStack(null).Commit();
             Preferences.instance.toolbar.Title = "Music Genres";
-        }
-        #endregion
-
-        #region LocalShortcut
-        private void LocalShortcut(object sender, Preference.PreferenceClickEventArgs e)
-        {
-            string[] items = new string[] { "Shuffle All Audio Files", "Shuffle a playlist" };
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
-            builder.SetTitle("Set the local storage shortcut:");
-            builder.SetItems(items, (s, args) => { if (args.Which == 0) LCShuffleAll(); else LCSufflePlaylist(); });
-            builder.Show();
-        }
-
-        void LCShuffleAll()
-        {
-            ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
-            ISharedPreferencesEditor editor = pref.Edit();
-            editor.PutString("localPlay", "Shuffle All Audio Files");
-            editor.Apply();
-
-            Preference prefButton = FindPreference("localPlay");
-            prefButton.Summary = "Shuffle All Audio Files";
-        }
-
-        void LCSufflePlaylist()
-        {
-            List<string> playList = new List<string>();
-            List<long> playlistId = new List<long>();
-
-            Android.Net.Uri uri = Playlists.ExternalContentUri;
-            CursorLoader loader = new CursorLoader(Application.Context, uri, null, null, null, null);
-            ICursor cursor = (ICursor)loader.LoadInBackground();
-
-            if (cursor != null && cursor.MoveToFirst())
-            {
-                int nameID = cursor.GetColumnIndex(Playlists.InterfaceConsts.Name);
-                int listID = cursor.GetColumnIndex(Playlists.InterfaceConsts.Id);
-                do
-                {
-                    string name = cursor.GetString(nameID);
-                    long id = cursor.GetLong(listID);
-                    playList.Add(name);
-                    playlistId.Add(id);
-
-                }
-                while (cursor.MoveToNext());
-                cursor.Close();
-            }
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
-            builder.SetTitle("Set the local storage shortcut:");
-            builder.SetSingleChoiceItems(playList.ToArray(), -1, (s, args) => { LSposition = args.Which; });
-            builder.SetPositiveButton("Ok", (s, args) => { LCSufflePlaylist(playList[LSposition], playlistId[LSposition]); });
-            builder.SetNegativeButton("Cancel", (s, args) => { return; });
-            builder.Show();
-        }
-
-        void LCSufflePlaylist(string playlist, long playlistID)
-        {
-            ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
-            ISharedPreferencesEditor editor = pref.Edit();
-            editor.PutString("localPlay", "Shuffle " + playlist);
-            editor.PutLong("localPlaylistID", playlistID);
-            editor.Apply();
-
-            Preference prefButton = FindPreference("localPlay");
-            prefButton.Summary = "Shuffle " + playlist;
         }
         #endregion
 

@@ -36,7 +36,7 @@ namespace MusicApp.Resources.Portable_Class
         public List<Song> result;
         public bool focused = true;
 
-        private View EmptyView;
+        private TextView EmptyView;
 
         public Browse() { }
         protected Browse(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer) { }
@@ -57,7 +57,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            View view = inflater.Inflate(Resource.Layout.YoutubeSearch, container, false);
+            View view = inflater.Inflate(Resource.Layout.CompleteRecycler, container, false);
 
             if(MainActivity.Theme == 1)
                 view.SetBackgroundColor(Color.ParseColor("#424242"));
@@ -127,9 +127,10 @@ namespace MusicApp.Resources.Portable_Class
             adapter.ItemClick += ListView_ItemClick;
             adapter.ItemLongCLick += ListView_ItemLongClick;
 
-            if (adapter == null || adapter.ItemCount == 0)
+            if (adapter.ItemCount == 0)
             {
                 EmptyView.Visibility = ViewStates.Visible;
+                EmptyView.Text = MainActivity.instance.Resources.GetString(Resource.String.no_song);
             }
         }
 
@@ -160,7 +161,7 @@ namespace MusicApp.Resources.Portable_Class
             adapter.ItemClick += ListView_ItemClick;
             adapter.ItemLongCLick += ListView_ItemLongClick;
             Console.WriteLine("&ListView: " + ListView);
-            ListView.SetAdapter(adapter); //ListView reference is still null
+            ListView.SetAdapter(adapter);
         }
 
         public void ListView_ItemClick(object sender, int position)
@@ -206,11 +207,11 @@ namespace MusicApp.Resources.Portable_Class
 
             bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, new List<BottomSheetAction>
             {
-                new BottomSheetAction(Resource.Drawable.Play, Resources.GetString(Resource.String.play), (sender, eventArg) => { Play(item); bottomSheet.Dismiss(); }),
-                new BottomSheetAction(Resource.Drawable.PlaylistPlay, Resources.GetString(Resource.String.play_next), (sender, eventArg) => { PlayNext(item); bottomSheet.Dismiss(); }),
-                new BottomSheetAction(Resource.Drawable.Queue, Resources.GetString(Resource.String.play_last), (sender, eventArg) => { PlayLast(item); bottomSheet.Dismiss(); }),
-                new BottomSheetAction(Resource.Drawable.PlaylistAdd, Resources.GetString(Resource.String.add_to_playlist), (sender, eventArg) => { GetPlaylist(item); bottomSheet.Dismiss(); }),
-                new BottomSheetAction(Resource.Drawable.Edit, Resources.GetString(Resource.String.edit_metadata), (sender, eventArg) => { EditMetadata(item); bottomSheet.Dismiss(); })
+                new BottomSheetAction(Resource.Drawable.Play, MainActivity.instance.Resources.GetString(Resource.String.play), (sender, eventArg) => { Play(item); bottomSheet.Dismiss(); }),
+                new BottomSheetAction(Resource.Drawable.PlaylistPlay, MainActivity.instance.Resources.GetString(Resource.String.play_next), (sender, eventArg) => { PlayNext(item); bottomSheet.Dismiss(); }),
+                new BottomSheetAction(Resource.Drawable.Queue, MainActivity.instance.Resources.GetString(Resource.String.play_last), (sender, eventArg) => { PlayLast(item); bottomSheet.Dismiss(); }),
+                new BottomSheetAction(Resource.Drawable.PlaylistAdd, MainActivity.instance.Resources.GetString(Resource.String.add_to_playlist), (sender, eventArg) => { GetPlaylist(item); bottomSheet.Dismiss(); }),
+                new BottomSheetAction(Resource.Drawable.Edit, MainActivity.instance.Resources.GetString(Resource.String.edit_metadata), (sender, eventArg) => { EditMetadata(item); bottomSheet.Dismiss(); })
             });
             bottomSheet.Show();
         }
