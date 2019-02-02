@@ -32,7 +32,6 @@ namespace MusicApp.Resources.Portable_Class
         public static YouTubeService youtubeService;
         public string Query;
         public static bool error = false;
-        private bool isEmpty = false;
         private string nextPageToken = null;
         public string querryType;
 
@@ -162,41 +161,7 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
-        public void OnFocus()
-        {
-            if (searching && !error && !isEmpty)
-            {
-                adapter = null;
-                ListView.SetAdapter(null);
-                LoadingView.Visibility = ViewStates.Visible;
-            }
-            if (isEmpty)
-            {
-                switch (querryType)
-                {
-                    case "All":
-                        EmptyView.Text = "No result for " + Query;
-                        break;
-                    case "Tracks":
-                        EmptyView.Text = "No track for " + Query;
-                        break;
-                    case "Playlists":
-                        EmptyView.Text = "No playlist for " + Query;
-                        break;
-                    case "Lives":
-                        EmptyView.Text = "No lives for " + Query;
-                        break;
-                    case "Channels":
-                        EmptyView.Text = "No channel for " + Query;
-                        break;
-                    default:
-                        break;
-                }
-
-                EmptyView.Visibility = ViewStates.Visible;
-            }
-        }
-
+        public void OnFocus() { }
         public void OnUnfocus() { }
 
         public static Fragment[] NewInstances(string searchQuery)
@@ -240,7 +205,7 @@ namespace MusicApp.Resources.Portable_Class
             searchView.ClearFocus();
             searchView.Focusable = false;
 
-            if (search == null || search == "" || error)
+            if (search == null || search == "")
                 return;
 
             searching = true;
@@ -260,7 +225,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 error = true;
                 ListView.SetAdapter(null);
-                EmptyView.Text = "Error while loading.\nCheck your internet connection and check if your logged in.";
+                EmptyView.Text = MainActivity.instance.GetString(Resource.String.youtube_loading_error);
                 EmptyView.SetTextColor(Color.Red);
                 EmptyView.Visibility = ViewStates.Visible;
                 return;
@@ -333,9 +298,7 @@ namespace MusicApp.Resources.Portable_Class
                     result.Add(new YtFile(videoInfo, kind));
                 }
 
-                if (loadingBar)
-                    LoadingView.Visibility = ViewStates.Gone;
-
+                LoadingView.Visibility = ViewStates.Gone;
                 if (nextPageToken != null)
                     result.Add(new YtFile(new Song(), YtKind.Loading));
 
@@ -343,12 +306,12 @@ namespace MusicApp.Resources.Portable_Class
                 List<string> topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
                 List<string> selectedTopics = topics.ConvertAll(x => x.Substring(x.IndexOf("/#-#/") + 5));
 
-                if(result[0].Kind == YtKind.Channel && result.Count(x => x.item.Artist == result[0].item.Title && x.Kind == YtKind.Video) > 0)
+                if(result.Count > 0 && result[0].Kind == YtKind.Channel && result.Count(x => x.item.Artist == result[0].item.Title && x.Kind == YtKind.Video) > 0)
                 {
                     YtFile channelPreview = new YtFile(result[0].item, YtKind.ChannelPreview);
                     result.Insert(0, channelPreview);
                 }
-                else if (querryType == "All" || querryType == "Channels")
+                else if (result.Count > 0 && querryType == "All" || querryType == "Channels")
                 {
                     IEnumerable<string> artist = result.GetRange(0, (result.Count > 20 ? 20 : result.Count)).GroupBy(x => x.item.Artist).Where(x => x.Count() > 5).Select(x => x.Key);
                     if (artist.Count() == 1)
@@ -379,34 +342,28 @@ namespace MusicApp.Resources.Portable_Class
                 ListView.SetAdapter(adapter);
                 searching = false;
 
-                if (adapter == null || adapter.ItemCount == 0)
+                if (result.Count == 0)
                 {
-                    isEmpty = true;
-
-                    if (IsFocused)
+                    EmptyView.Visibility = ViewStates.Visible;
+                    switch (querryType)
                     {
-                        switch (querryType)
-                        {
-                            case "All":
-                                EmptyView.Text = "No result for " + search;
-                                break;
-                            case "Tracks":
-                                EmptyView.Text = "No tracks for " + search;
-                                break;
-                            case "Playlists":
-                                EmptyView.Text = "No playlist for " + search;
-                                break;
-                            case "Lives":
-                                EmptyView.Text = "No lives for " + Query;
-                                break;
-                            case "Channels":
-                                EmptyView.Text = "No channel for " + search;
-                                break;
-                            default:
-                                break;
-                        }
-
-                        EmptyView.Visibility = ViewStates.Visible;
+                        case "All":
+                            EmptyView.Text = "No result for " + search;
+                            break;
+                        case "Tracks":
+                            EmptyView.Text = "No tracks for " + search;
+                            break;
+                        case "Playlists":
+                            EmptyView.Text = "No playlist for " + search;
+                            break;
+                        case "Lives":
+                            EmptyView.Text = "No lives for " + Query;
+                            break;
+                        case "Channels":
+                            EmptyView.Text = "No channel for " + search;
+                            break;
+                        default:
+                            break;
                     }
                 }
                 else
@@ -415,11 +372,8 @@ namespace MusicApp.Resources.Portable_Class
             catch (System.Net.Http.HttpRequestException)
             {
                 MainActivity.instance.Timout();
-                if (IsFocused)
-                {
-                    EmptyView.Text = "Timout exception, check if you're still connected to internet.";
-                    EmptyView.Visibility = ViewStates.Visible;
-                }
+                EmptyView.Text = "Timout exception, check if you're still connected to internet.";
+                EmptyView.Visibility = ViewStates.Visible;
             }
         }
 

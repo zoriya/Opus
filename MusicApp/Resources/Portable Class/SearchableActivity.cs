@@ -57,7 +57,7 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     AlertDialog dialog = new AlertDialog.Builder(this, MainActivity.dialogTheme)
                         .SetTitle(suggestions[e.Position].Text)
-                        .SetMessage("Remove from search histroy?")
+                        .SetMessage("Remove from search history?")
                         .SetPositiveButton("Remove", (send, eventArg) =>
                         {
                             History.Remove(toRemove);
