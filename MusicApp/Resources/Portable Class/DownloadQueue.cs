@@ -87,7 +87,7 @@ namespace MusicApp.Resources.Portable_Class
                     }
                     else
                     {
-                        Android.Widget.Toast.MakeText(this, "Can't delete this file for now, try again later.", Android.Widget.ToastLength.Short).Show();
+                        Android.Widget.Toast.MakeText(this, Resource.String.cant_delete, Android.Widget.ToastLength.Short).Show();
                     }
                     ListView.GetAdapter().NotifyItemChanged(morePosition);
                     morePosition = 0;

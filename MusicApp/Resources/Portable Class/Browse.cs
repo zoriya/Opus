@@ -464,7 +464,7 @@ namespace MusicApp.Resources.Portable_Class
                 item = CompleteItem(item);
                 if (item.YoutubeID == null)
                 {
-                    Toast.MakeText(MainActivity.instance, "Song can't be found on youtube, can't add it to a youtube playlist.", ToastLength.Long).Show();
+                    Toast.MakeText(MainActivity.instance, Resource.String.playlist_add_song_not_found, ToastLength.Long).Show();
                     Playlists.Remove(Loading);
                     adapter.NotifyItemRemoved(Playlists.Count);
                     return;
@@ -473,7 +473,7 @@ namespace MusicApp.Resources.Portable_Class
 
             if (!await MainActivity.instance.WaitForYoutube())
             {
-                Toast.MakeText(MainActivity.instance, "Error while loading.\nCheck your internet connection and check if your logged in.", ToastLength.Long).Show();
+                Toast.MakeText(MainActivity.instance, Resource.String.youtube_loading_error, ToastLength.Long).Show();
                 Playlists.Remove(Loading);
                 adapter.NotifyItemRemoved(Playlists.Count);
                 return;

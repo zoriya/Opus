@@ -243,7 +243,7 @@ namespace MusicApp.Resources.Portable_Class
             await Task.Delay(10);
             Android.Media.MediaScannerConnection.ScanFile(this, new string[] { song.Path }, null, null);
 
-            Toast.MakeText(this, "Changes saved.", ToastLength.Short).Show();
+            Toast.MakeText(this, Resource.String.changes_saved, ToastLength.Short).Show();
         }
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, Permission[] grantResults)
@@ -264,7 +264,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             if (song.YoutubeID == "")
             {
-                Toast.MakeText(this, "Can't get meta data on youtube, youtubeID isn't set.", ToastLength.Short).Show();
+                Toast.MakeText(this, Resource.String.metdata_error_noid, ToastLength.Short).Show();
                 return;
             }
 

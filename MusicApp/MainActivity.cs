@@ -171,7 +171,7 @@ namespace MusicApp
                 }
                 else
                 {
-                    Toast.MakeText(this, "Can't play non youtube video.", ToastLength.Short).Show();
+                    Toast.MakeText(this, Resource.String.cant_play_non_youtube, ToastLength.Short).Show();
                     Finish();
                 }
             }
@@ -930,7 +930,7 @@ namespace MusicApp
                         snackBar.Show();
                     }
                     else
-                        Toast.MakeText(Application.Context, activity.GetString(Resource.String.update_no_internet), ToastLength.Short).Show();
+                        Toast.MakeText(Application.Context, Resource.String.update_no_internet, ToastLength.Short).Show();
                 }
                 return;
             }
@@ -985,7 +985,7 @@ namespace MusicApp
                         snackBar.Show();
                     }
                     else
-                        Toast.MakeText(Application.Context, activity.GetString(Resource.String.up_to_date), ToastLength.Short).Show();
+                        Toast.MakeText(Application.Context, Resource.String.up_to_date, ToastLength.Short).Show();
                 }
                 else
                 {
@@ -1004,7 +1004,7 @@ namespace MusicApp
                         snackBar.Show();
                     }
                     else
-                        Toast.MakeText(Application.Context, activity.GetString(Resource.String.beta_available), ToastLength.Short).Show();
+                        Toast.MakeText(Application.Context, Resource.String.beta_available, ToastLength.Short).Show();
                 }
             }
         }

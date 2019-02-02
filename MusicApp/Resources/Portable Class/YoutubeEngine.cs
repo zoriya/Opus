@@ -645,7 +645,7 @@ namespace MusicApp.Resources.Portable_Class
                 snackBar.Show();
             }
 
-            Toast.MakeText(Android.App.Application.Context, "Downloading...", ToastLength.Short).Show();
+            Toast.MakeText(Android.App.Application.Context, Resource.String.downloading, ToastLength.Short).Show();
             Context context = Android.App.Application.Context;
             Intent intent = new Intent(context, typeof(Downloader));
             context.StartService(intent);
@@ -1049,7 +1049,7 @@ namespace MusicApp.Resources.Portable_Class
                 return;
 
             if (showToast)
-                Toast.MakeText(Android.App.Application.Context, "Syncing...", ToastLength.Short).Show();
+                Toast.MakeText(Android.App.Application.Context, Resource.String.syncing, ToastLength.Short).Show();
 
             List<string> names = new List<string>();
             List<string> videoIDs = new List<string>();

@@ -631,7 +631,7 @@ namespace MusicApp.Resources.Portable_Class
 
             if (!await MainActivity.instance.WaitForYoutube())
             {
-                Toast.MakeText(Android.App.Application.Context, "Error while loading.\nCheck your internet connection and check if your logged in.", ToastLength.Long).Show();
+                Toast.MakeText(Android.App.Application.Context, Resource.String.youtube_loading_error, ToastLength.Long).Show();
                 return;
             }
 
@@ -755,7 +755,7 @@ namespace MusicApp.Resources.Portable_Class
 
             if (!await MainActivity.instance.WaitForYoutube())
             {
-                Toast.MakeText(Android.App.Application.Context, "Error while loading.\nCheck your internet connection and check if your logged in.", ToastLength.Long).Show();
+                Toast.MakeText(Android.App.Application.Context, Resource.String.youtube_loading_error, ToastLength.Long).Show();
                 return;
             }
 

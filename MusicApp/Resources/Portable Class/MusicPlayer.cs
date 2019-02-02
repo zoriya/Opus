@@ -1435,7 +1435,7 @@ namespace MusicApp.Resources.Portable_Class
                     showToast = true;
 
                 if(showToast)
-                    Toast.MakeText(MainActivity.instance, "Pushing current queue to the cast, please wait...", ToastLength.Long).Show();
+                    Toast.MakeText(MainActivity.instance, Resource.String.cast_queue_push, ToastLength.Long).Show();
 
                 for (int i = 0; i < queue.Count; i++)
                 {
@@ -1444,7 +1444,7 @@ namespace MusicApp.Resources.Portable_Class
                 }
 
                 if(showToast)
-                    Toast.MakeText(MainActivity.instance, "Done, start playing!", ToastLength.Short).Show();
+                    Toast.MakeText(MainActivity.instance, Resource.String.cast_queue_pushed, ToastLength.Short).Show();
                 RemotePlayer.QueueLoad(queue.ConvertAll(GetQueueItem).ToArray(), currentID, 0, CurrentPosition, null);
 
                 if (noisyRegistered)

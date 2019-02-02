@@ -72,7 +72,11 @@
   <string name="lives">Lives</string>
   <string name="channels">Channels</string>
   <string name="download_path_not_set">Download path not set, using default one.</string>
+  <string name="download_path_error">Download path do not exist anymore, please change it in the settings.</string>
   <string name="set_path">Set path</string>
+  <string name="downloading">Downloading...</string>
+  <string name="syncing">Syncing...</string>
+  <string name="cant_delete">Can\'t delete this file for now, try again later.</string>
   
   <!--Playlists Screen-->
   <string name="local_playlists">Local playlists</string>
@@ -87,6 +91,24 @@
   <string name="removed_from_playlist"> has been removed from the playlist.</string>
   <string name="playlist_already_saved">Playlist already added to your library.</string>
   <string name="playlist_not_found">No playlist exist with this id or link.</string>
+  <string name="playlist_add_song_not_found">Song can't be found on youtube, can't add it to a youtube playlist.</string>
+  
+  <!--Edit metadata-->
+  <string name="title">Title</string>
+  <string name="artist">Artist</string>
+  <string name="album">Album</string>
+  <string name="youtubeid">Youtube ID</string>
+  <string name="change_albumart">Change Album Art</string>
+  <string name="pick_album_local">Pick an album art from storage</string>
+  <string name="download_albumart">Download album art on youtube</string>
+  <string name="download_meta">Download metadata from youtube</string>
+  <string name="undo_change">Undo changes</string>
+  <string name="changes_saved">Changes saved.</string>
+  <string name="metdata_error_noid">Can\'t get meta data on youtube, Youtube ID isn\'t set.</string>
+  
+  <!--Chromecast-->
+  <string name="cast_queue_push">Pushing current queue to the cast, please wait...</string>
+  <string name="cast_queue_pushed">Done, start playing!</string>
 
   <!--Settings-->
   <string name="apply">Apply</string>
@@ -118,7 +140,7 @@
   <string name="log_in">LOG IN</string>
   <string name="log_out">LOG OUT</string>
 
-  <!--Snackbars-->
+  <!--Snackbars and others-->
   <string name="undo">Undo</string>
   
   <string name="no_permission">Permission denied, can\'t complete this action.</string>
@@ -134,15 +156,5 @@
   <string name="beta_available">A beta version is available.</string>
   <string name="downloading_update">Downloading update, you will be prompt for the installation soon.</string>
   <string name="updating">Updating app...</string>
-
-  <!--Edit metadata-->
-  <string name="title">Title</string>
-  <string name="artist">Artist</string>
-  <string name="album">Album</string>
-  <string name="youtubeid">Youtube ID</string>
-  <string name="change_albumart">Change Album Art</string>
-  <string name="pick_album_local">Pick an album art from storage</string>
-  <string name="download_albumart">Download album art on youtube</string>
-  <string name="download_meta">Download metadata from youtube</string>
-  <string name="undo_change">Undo changes</string>
+  <string name="cant_play_non_youtube">Can't play non youtube video.</string>
 </resources>

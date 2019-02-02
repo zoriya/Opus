@@ -88,6 +88,17 @@
   <string name="playlist_already_saved">Cette playlist a déja été ajouté a votre bibliothèque.</string>
   <string name="playlist_not_found">Aucune playlist n\'existe avec cet id ou cet url.</string>
 
+  <!--Edit metadata-->
+  <string name="title">Titre</string>
+  <string name="artist">Artiste</string>
+  <string name="album">Album</string>
+  <string name="youtubeid">Youtube ID</string>
+  <string name="change_albumart">Changer d\'image d\'album</string>
+  <string name="pick_album_local">Choisir une image depuis le stockage interne</string>
+  <string name="download_albumart">Télécharger la couverture depuis youtube</string>
+  <string name="download_meta">Télécharger les metadata depuis youtube</string>
+  <string name="undo_change">Annuler les modifications</string>
+
   <!--Settings-->
   <string name="apply">Appliquer</string>
   <string name="cancel">Annuler</string>
@@ -114,7 +125,7 @@
   <string name="log_in">CONNECTION</string>
   <string name="log_out">DECONNECTION</string>
 
-  <!--Snackbars-->
+  <!--Snackbars and others-->
   <string name="undo">Annuler</string>
 
   <string name="no_permission">Permission refusée, impossible de completer cette action.</string>
@@ -130,15 +141,4 @@
   <string name="beta_available">Une version beta est disponible.</string>
   <string name="downloading_update">Téléchargement en cours, vous serez informer lorsque l\'installation sera prète.</string>
   <string name="updating">Mise a jour en cours...</string>
-
-  <!--Edit metadata-->
-  <string name="title">Titre</string>
-  <string name="artist">Artiste</string>
-  <string name="album">Album</string>
-  <string name="youtubeid">Youtube ID</string>
-  <string name="change_albumart">Changer d\'image d\'album</string>
-  <string name="pick_album_local">Choisir une image depuis le stockage interne</string>
-  <string name="download_albumart">Télécharger la couverture depuis youtube</string>
-  <string name="download_meta">Télécharger les metadata depuis youtube</string>
-  <string name="undo_change">Annuler les modifications</string>
 </resources>

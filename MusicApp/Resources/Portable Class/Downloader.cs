@@ -191,7 +191,7 @@ namespace MusicApp.Resources.Portable_Class
             catch (DirectoryNotFoundException)
             {
                 Handler handler = new Handler(Looper.MainLooper);
-                handler.Post(() => { Toast.MakeText(Application.Context, "Download path do not exist anymore, please change it in the settings", ToastLength.Long).Show(); });
+                handler.Post(() => { Toast.MakeText(Application.Context, Resource.String.download_path_error, ToastLength.Long).Show(); });
                 Cancel();
             }
             catch
