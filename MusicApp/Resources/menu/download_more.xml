@@ -3,6 +3,6 @@
       xmlns:app="http://schemas.android.com/apk-res/auto">
   <item
     android:id="@+id/delete"
-    android:title="Delete"
+    android:title="@string/delete"
     app:showAsAction="never"/>
 </menu>

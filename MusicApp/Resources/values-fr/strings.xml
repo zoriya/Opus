@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<resources>
+  <!--Navigation bar-->
+  <string name="home">Accueil</string>
+  <string name="browse">Parcourir</string>
+  <string name="playlists">Playlists</string>
+  
+  <!--Toolbars-->
+  <string name="repeat">Lire en boucle</string>
+  <string name="youtube_search">Rechercher sur youtube</string>
+  <string name="filter">Filtrer</string>
+  <string name="cast">Cast</string>
+  <string name="settings">Paramètres</string>
+  
+  <!--Player-->
+  <string name="show_queue">AFFICHER LA LISTE DE LECTURE</string>
+  <string name="up_next">À suivre:</string>
+  <string name="nothing">Rien.</string>
+  <string name="next_loading">Chargement en cour, veuillez patienter.</string>
+  
+  <!--Autoplay-->
+  <string name="autoplay">Lecture automatique</string>
+  <string name="autoplay_desc">Ajoute automatiquement des musiques similaire depuis youtube.</string>
+  <string name="create_mix">CRÉER UN MIX</string>
+  
+  <!--More menu (long clicks)-->
+  <string name="play">Lire</string>
+  <string name="play_next">Lire après</string>
+  <string name="play_last">Lire en dernier</string>
+  <string name="create_mix_from_song">Créer un mix</string>
+  <string name="add_to_playlist">Ajouter a une playlist</string>
+  <string name="edit_metadata">Modifier les metadata</string>
+  <string name="download">Télécharger</string>
+  <string name="remove_from_queue">Enlever de la liste de lecture</string>
+  <string name="remove_from_playlist">Enlever de la playlist</string>
+  <!--More menu of playlist or folders-->
+  <string name="list_songs">Lister les titres</string>
+  <string name="play_in_order">Lire dans l\'ordre</string>
+  <string name="random_play">Lecture aléatoire</string>
+  <string name="add_to_queue">Ajouter a la liste de lecture</string>
+  <string name="rename">Renomer</string>
+  <string name="delete">Supprimer</string>
+  <string name="sync">Synchronizer la playlist</string>
+  <string name="sync_now">Synchronizer maintenant</string>
+  <string name="stop_sync">Arreter de synchronizer</string>
+  <string name="add_to_library">Sauvegarder la playlist</string>
+  <string name="unfork">Enlever la playlist de la bibliothèque</string>
+
+  <!--Home screen-->
+  <string name="shuffle_all">TOUS LIRE ALÉATOIREMENT</string>
+  <string name="shuffle">Lecture aléatoire</string>
+  <string name="more">PLUS</string>
+  <string name="queue">Liste de lecture</string>
+  <string name="featured">Mis en avant</string>
+  <string name="music_genres">Genres musicaux</string>
+  <string name="recommendation_explanation">utilisé pour vos recommandations</string>
+  
+  <!--Browse tab-->
+  <string name="songs">Titres</string>
+  <string name="folders">Dossiers</string>
+  <string name="no_song">Vous n\'avez aucune musique sur cet appareil.</string>
+  
+  
+  <!--Youtube Search-->
+  <string name="all">Tous</string>
+  <string name="tracks">Titre</string>
+  <string name="playlists">Playlists</string>
+  <string name="lives">Lives</string>
+  <string name="channels">Chaines</string>
+  
+  <!--Playlists Screen-->
+  <string name="local_playlists">Playlists locales</string>
+  <string name="youtube_playlists">Playlists youtubes</string>
+  <string name="add_playlist">AJOUTER UNE PLAYLIST</string>
+  <string name="youtube_loading_error">Erreur de chargement. \nVerifiez avoir séléction un compte et votre connection internet.</string>
+  <string name="local_playlist_empty">Vous n\'avez aucune playlist sur cet appareil.</string>
+  <string name="youtube_playlist_empty">Vous n\'avez aucune playlist sur ce compte youtube \nAttention : Seulement les playlists présentes sur votre compte google sont affichées.</string>
+  <string name="playlists_song_count">titres</string>
+
+  <!--Settings-->
+  <string name="apply">Appliquer</string>
+  <string name="cancel">Annuler</string>
+  
+  <string name="behavior">Fonctionnement</string>
+  <string name="volume">Volume</string>
+  <string name="download">Téléchargement</string>
+  <string name="download_directory">Dossier de téléchargement</string>
+  <string name="max_download">Nomnbre maximum de téléchargement simultané</string>
+  <string name="max_download_dialog">Choissisez combient de musiques peuvent être téléchargées en même temps</string>
+  <string name="sync_remove">Supprimer les musiques enlevée d\'une playlist synchronisée.</string>
+  <string name="appearances">Apparence</string>
+  <string name="theme">Thème</string>
+  <string name="theme_dialog">Choissisez un thème</string>
+  <string name="white_theme">Thème clair</string>
+  <string name="dark_theme">Thème sombre</string>
+  <string name="others">Autres</string>
+  <string name="check_updates">Rechercher des mises à jour</string>
+  <string name="version">Version</string>
+  <string name="not_log">Déconnecté</string>
+  <string name="logged_in">Connecté en temps que</string>
+  <string name="log_in">CONNECTION</string>
+  <string name="log_out">DECONNECTION</string>
+</resources>

@@ -78,8 +78,8 @@ namespace MusicApp.Resources.Portable_Class
             if(position == -1 && !PlaylistTracks.instance.useHeader)
             {
                 View header = viewHolder.ItemView;
-                header.FindViewById<TextView>(Resource.Id.headerNumber).Text = PlaylistTracks.instance.tracks.Count + " songs";
-                if (header.FindViewById<ImageButton>(Resource.Id.headerPlay).HasOnClickListeners)
+                header.FindViewById<TextView>(Resource.Id.headerNumber).Text = PlaylistTracks.instance.tracks.Count + " " + MainActivity.instance.GetString(Resource.String.playlists_song_count);
+                if (!header.FindViewById<ImageButton>(Resource.Id.headerPlay).HasOnClickListeners)
                 {
                     header.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { PlaylistTracks.instance.PlayInOrder(0, false); };
                     header.FindViewById<ImageButton>(Resource.Id.headerShuffle).Click += (sender, e0) =>

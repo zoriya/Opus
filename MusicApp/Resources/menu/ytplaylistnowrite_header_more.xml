@@ -2,11 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
   <item
     android:id="@+id/download"
-    android:title="Sync Playlist" />
+    android:title="@string/sync" />
   <item
     android:id="@+id/addToQueue"
-    android:title="Add To Queue" />
+    android:title="@string/add_to_queue" />
   <item
     android:id="@+id/delete"
-    android:title="Delete" />
+    android:title="@string/delete" />
 </menu>

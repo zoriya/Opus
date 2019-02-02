@@ -69,12 +69,13 @@
   <string name="channels">Channels</string>
   
   <!--Playlists Screen-->
-  <string name="local_playlists">Local Playlists</string>
-  <string name="youtube_playlists">Youtube Playlists</string>
+  <string name="local_playlists">Local playlists</string>
+  <string name="youtube_playlists">Youtube playlists</string>
   <string name="add_playlist">ADD A PLAYLIST</string>
   <string name="youtube_loading_error">Error while loading.\nCheck your internet connection and check if your logged in.</string>
   <string name="local_playlist_empty">You don\'t have any playlist on your device.</string>
   <string name="youtube_playlist_empty">You don\'t have any youtube playlist on your account. \nWarning: Only playlist from your google account are displayed.</string>
+  <string name="playlists_song_count">songs</string>
 
   <!--Settings-->
   <string name="apply">Apply</string>

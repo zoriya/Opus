@@ -22,8 +22,6 @@ namespace MusicApp.Resources.Portable_Class
         private List<Song> songList;
         private bool isEmpty = false;
 
-        private readonly string[] actions = new string[] { "Play", "Play Next", "Play Last", "Add To Playlist" };
-
         public override int ItemCount
         {
             get
@@ -85,12 +83,12 @@ namespace MusicApp.Resources.Portable_Class
 
                 if (song.AlbumArt == -1 || song.IsYt)
                 {
-                    var songAlbumArtUri = Android.Net.Uri.Parse(song.Album);
+                    var songAlbumArtUri = Uri.Parse(song.Album);
                     Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Color.background_material_dark).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
                 }
                 else
                 {
-                    var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
+                    var songCover = Uri.Parse("content://media/external/audio/albumart");
                     var songAlbumArtUri = ContentUris.WithAppendedId(songCover, song.AlbumArt);
 
                     Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Color.background_material_dark).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
