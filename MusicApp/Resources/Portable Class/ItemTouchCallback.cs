@@ -2,7 +2,6 @@
 using Android.Graphics.Drawables;
 using Android.Support.V7.Widget;
 using Android.Support.V7.Widget.Helper;
-using Android.Widget;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -17,7 +16,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             get
             {
-                if (PlaylistTracks.instance != null && !PlaylistTracks.instance.hasWriteAcess)
+                if (PlaylistTracks.instance != null && (!PlaylistTracks.instance.hasWriteAcess || ((PlaylistTrackAdapter)adapter).IsEmpty))
                     return false;
                 return true;
             }

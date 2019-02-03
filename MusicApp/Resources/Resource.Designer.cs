@@ -6966,31 +6966,34 @@ namespace MusicApp
 			public const int select_dialog_singlechoice_material = 2130903191;
 			
 			// aapt resource value: 0x7f030098
-			public const int smallLoading = 2130903192;
+			public const int SmallEmptyView = 2130903192;
 			
 			// aapt resource value: 0x7f030099
-			public const int SongList = 2130903193;
+			public const int smallLoading = 2130903193;
 			
 			// aapt resource value: 0x7f03009a
-			public const int SuggestionLayout = 2130903194;
+			public const int SongList = 2130903194;
 			
 			// aapt resource value: 0x7f03009b
-			public const int support_simple_spinner_dropdown_item = 2130903195;
+			public const int SuggestionLayout = 2130903195;
 			
 			// aapt resource value: 0x7f03009c
-			public const int tabs = 2130903196;
+			public const int support_simple_spinner_dropdown_item = 2130903196;
 			
 			// aapt resource value: 0x7f03009d
-			public const int TimerLayout = 2130903197;
+			public const int tabs = 2130903197;
 			
 			// aapt resource value: 0x7f03009e
-			public const int TwoLineLayout = 2130903198;
+			public const int TimerLayout = 2130903198;
 			
 			// aapt resource value: 0x7f03009f
-			public const int ViewPager = 2130903199;
+			public const int TwoLineLayout = 2130903199;
 			
 			// aapt resource value: 0x7f0300a0
-			public const int YtList = 2130903200;
+			public const int ViewPager = 2130903200;
+			
+			// aapt resource value: 0x7f0300a1
+			public const int YtList = 2130903201;
 			
 			static Layout()
 			{

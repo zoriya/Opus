@@ -660,6 +660,9 @@ namespace MusicApp.Resources.Portable_Class
                     nextPageToken = ytPlaylist.NextPageToken;
                 }
 
+                if (songs.Count == 0)
+                    return;
+
                 if (MusicPlayer.isRunning)
                     MusicPlayer.queue?.Clear();
 
@@ -700,6 +703,9 @@ namespace MusicApp.Resources.Portable_Class
                 while (musicCursor.MoveToNext());
                 musicCursor.Close();
             }
+
+            if (tracksPath.Count == 0)
+                return;
 
             Intent intent = new Intent(Android.App.Application.Context, typeof(MusicPlayer));
             intent.PutStringArrayListExtra("files", tracksPath);
@@ -1004,7 +1010,7 @@ namespace MusicApp.Resources.Portable_Class
         void Unfork(int position, string playlistID)
         {
             AlertDialog dialog = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme)
-                .SetTitle(GetString(Resource.String.unfork_playlist, YoutubePlaylists[position].Name))
+                .SetTitle(GetString(Resource.String.unfork_playlist, YoutubePlaylists[position - LocalPlaylists.Count].Name))
                 .SetPositiveButton(Resource.String.yes, async (sender, e) =>
                 {
                     try

@@ -526,6 +526,8 @@ namespace MusicApp
                 searchView.Iconified = true;
                 searchView.SetQuery("", false);
                 SupportActionBar.SetDisplayHomeAsUpEnabled(false);
+
+                SupportFragmentManager.PopBackStack(null, Android.Support.V4.App.FragmentManager.PopBackStackInclusive);
             }
 
             if (PlaylistTracks.instance != null)

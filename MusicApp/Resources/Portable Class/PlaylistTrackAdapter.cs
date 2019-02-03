@@ -19,7 +19,7 @@ namespace MusicApp.Resources.Portable_Class
         public event EventHandler<int> ItemClick;
         public event EventHandler<int> ItemLongClick;
         public int listPadding;
-        private bool empty = false;
+        public bool IsEmpty = false;
 
         public PlaylistTrackAdapter(List<Song> songList)
         {
@@ -53,7 +53,7 @@ namespace MusicApp.Resources.Portable_Class
                 int count = songList.Count + (PlaylistTracks.instance.fullyLoadded ? 0 : 1) + (PlaylistTracks.instance.useHeader ? 0 : 1);
                 if (count == 0 || (count == 1 && !PlaylistTracks.instance.useHeader))
                 {
-                    empty = true;
+                    IsEmpty = true;
                     count++;
                 }
 
@@ -63,7 +63,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position)
         {
-            if(empty && position + 1 == ItemCount)
+            if(IsEmpty && position + 1 == ItemCount)
             {
                 ((TextView)viewHolder.ItemView).Text = MainActivity.instance.GetString(Resource.String.playlist_empty);
                 return;
@@ -186,14 +186,14 @@ namespace MusicApp.Resources.Portable_Class
             }
             else
             {
-                View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.EmptyView, parent, false);
+                View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.SmallEmptyView, parent, false);
                 return new EmptyHolder(itemView);
             }
         }
 
         public override int GetItemViewType(int position)
         {
-            if (empty && position + 1 == ItemCount)
+            if (IsEmpty && position + 1 == ItemCount)
                 return 3;
 
             if (position == 0 && !PlaylistTracks.instance.useHeader)

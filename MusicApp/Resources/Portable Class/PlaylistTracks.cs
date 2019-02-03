@@ -41,7 +41,6 @@ namespace MusicApp.Resources.Portable_Class
         private bool forked;
         private string nextPageToken = null;
         public bool fullyLoadded = true;
-        public bool isEmpty = false;
         public bool lastVisible = false;
         public bool useHeader = true;
         public bool navigating = false;
@@ -766,6 +765,9 @@ namespace MusicApp.Resources.Portable_Class
 
         public async void PlayInOrder(int fromPosition, bool useTransition)
         {
+            if (tracks.Count < fromPosition)
+                return;
+
             if (YoutubeID != null && !Synced)
             {
                 if (result != null && result.Count > fromPosition)

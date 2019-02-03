@@ -881,6 +881,9 @@ namespace MusicApp.Resources.Portable_Class
                     nextPageToken = ytPlaylist.NextPageToken;
                 }
 
+                if (tracks.Count == 0)
+                    return;
+
                 Random r = new Random();
                 tracks = tracks.OrderBy(x => r.Next()).ToList();
                 PlayFiles(tracks.ToArray());
