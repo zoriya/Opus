@@ -366,10 +366,10 @@ namespace MusicApp.Resources.Portable_Class
             {
                 View view = LayoutInflater.Inflate(Resource.Layout.SaveAPlaylist, null);
                 AlertDialog dialog = new AlertDialog.Builder(Activity, MainActivity.dialogTheme)
-                    .SetTitle("Add a Playlist")
+                    .SetTitle(Resource.String.add_playlist_msg)
                     .SetView(view)
-                    .SetNegativeButton("Cancel", (s, eventArgs) => { })
-                    .SetPositiveButton("Go", async (s, eventArgs) => 
+                    .SetNegativeButton(Resource.String.cancel, (s, eventArgs) => { })
+                    .SetPositiveButton(Resource.String.add, async (s, eventArgs) => 
                     {
                         string url = view.FindViewById<EditText>(Resource.Id.playlistURL).Text;
                         string shrinkedURL = url.Substring(url.IndexOf('=') + 1);
@@ -529,7 +529,7 @@ namespace MusicApp.Resources.Portable_Class
                     if (local)
                         RemovePlaylist(Position, item.LocalID);
                     else
-                        RemoveYoutubePlaylist(Position, item.YoutubeID);
+                        DeleteYoutubePlaylist(Position, item.YoutubeID);
                     bottomSheet.Dismiss();
                 })});
             }
@@ -800,11 +800,11 @@ namespace MusicApp.Resources.Portable_Class
         void Rename(int position, PlaylistItem playlist)
         {
             AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
-            builder.SetTitle("Playlist name");
+            builder.SetTitle(Resource.String.rename_playlist);
             View view = LayoutInflater.Inflate(Resource.Layout.CreatePlaylistDialog, null);
             builder.SetView(view);
-            builder.SetNegativeButton("Cancel", (senderAlert, args) => { });
-            builder.SetPositiveButton("Rename", (senderAlert, args) =>
+            builder.SetNegativeButton(Resource.String.cancel, (senderAlert, args) => { });
+            builder.SetPositiveButton(Resource.String.rename, (senderAlert, args) =>
             {
                 playlist.Name = view.FindViewById<EditText>(Resource.Id.playlistName).Text;
                 RenamePlaylist(position, playlist);
@@ -829,8 +829,8 @@ namespace MusicApp.Resources.Portable_Class
             if (await MainActivity.instance.GetWritePermission())
             {
                 AlertDialog dialog = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme)
-                    .SetTitle("Do you want to delete the playlist \"" + LocalPlaylists[position].Name + "\"?")
-                    .SetPositiveButton("Yes", (sender, e) =>
+                    .SetTitle(string.Format(GetString(Resource.String.delete_playlist), LocalPlaylists[position].Name))
+                    .SetPositiveButton(Resource.String.yes, (sender, e) =>
                     {
                         ContentResolver resolver = Activity.ContentResolver;
                         Android.Net.Uri uri = Playlists.ExternalContentUri;
@@ -844,7 +844,7 @@ namespace MusicApp.Resources.Portable_Class
                             adapter.NotifyItemInserted(1);
                         }
                     })
-                    .SetNegativeButton("No", (sender, e) => { })
+                    .SetNegativeButton(Resource.String.no, (sender, e) => { })
                     .Create();
                 dialog.Show();
             }
@@ -931,11 +931,11 @@ namespace MusicApp.Resources.Portable_Class
         public void RenameYoutubePlaylist(int position, string YoutubeID, long LocalID = -1)
         {
             AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
-            builder.SetTitle("Playlist name");
+            builder.SetTitle(Resource.String.rename_playlist);
             View view = LayoutInflater.Inflate(Resource.Layout.CreatePlaylistDialog, null);
             builder.SetView(view);
-            builder.SetNegativeButton("Cancel", (senderAlert, args) => { });
-            builder.SetPositiveButton("Rename", (senderAlert, args) =>
+            builder.SetNegativeButton(Resource.String.cancel, (senderAlert, args) => { });
+            builder.SetPositiveButton(Resource.String.rename, (senderAlert, args) =>
             {
                 RenameYT(position, view.FindViewById<EditText>(Resource.Id.playlistName).Text, YoutubeID, LocalID);
             });
@@ -968,11 +968,11 @@ namespace MusicApp.Resources.Portable_Class
             }
         }
 
-        void RemoveYoutubePlaylist(int position, string playlistID)
+        void DeleteYoutubePlaylist(int position, string playlistID)
         {
             AlertDialog dialog = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme)
-                .SetTitle("Do you want to delete the playlist \"" + YoutubePlaylists[position - LocalPlaylists.Count].Name + "\"?")
-                .SetPositiveButton("Yes", async (sender, e) =>
+                .SetTitle(string.Format(GetString(Resource.String.delete_playlist), YoutubePlaylists[position - LocalPlaylists.Count].Name))
+                .SetPositiveButton(Resource.String.yes, async (sender, e) =>
                 {
                     try
                     {
@@ -996,7 +996,7 @@ namespace MusicApp.Resources.Portable_Class
                         MainActivity.instance.Timout();
                     }
                 })
-                .SetNegativeButton("No", (sender, e) => {  })
+                .SetNegativeButton(Resource.String.no, (sender, e) => {  })
                 .Create();
             dialog.Show();
         }
@@ -1004,8 +1004,8 @@ namespace MusicApp.Resources.Portable_Class
         void Unfork(int position, string playlistID)
         {
             AlertDialog dialog = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme)
-                .SetTitle("Do you want to remove  \"" + YoutubePlaylists[position].Name + "\" from your playlists?")
-                .SetPositiveButton("Yes", async (sender, e) =>
+                .SetTitle(string.Format(GetString(Resource.String.unfork_playlist), YoutubePlaylists[position].Name))
+                .SetPositiveButton(Resource.String.yes, async (sender, e) =>
                 {
                     try
                     {
@@ -1045,7 +1045,7 @@ namespace MusicApp.Resources.Portable_Class
                         MainActivity.instance.Timout();
                     }
                 })
-                .SetNegativeButton("No", (sender, e) => { })
+                .SetNegativeButton(Resource.String.no, (sender, e) => { })
                 .Create();
             dialog.Show();
         }

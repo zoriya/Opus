@@ -408,7 +408,7 @@ namespace MusicApp.Resources.Portable_Class
                 Layout.FindViewById<View>(Resource.Id.divider).SetBackgroundColor(Color.White);
             }
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme);
-            builder.SetTitle("Add to playlists");
+            builder.SetTitle(Resource.String.save_playlist);
             builder.SetView(Layout);
             RecyclerView ListView = Layout.FindViewById<RecyclerView>(Resource.Id.recycler);
             ListView.SetLayoutManager(new LinearLayoutManager(MainActivity.instance));
@@ -453,7 +453,7 @@ namespace MusicApp.Resources.Portable_Class
                     }
                 }
             };
-            builder.SetPositiveButton("OK", (sender, e) => { });
+            builder.SetPositiveButton(Resource.String.ok, (sender, e) => { });
             AlertDialog dialog = builder.Create();
             Layout.FindViewById<LinearLayout>(Resource.Id.CreatePlaylist).Click += (sender, e) => { dialog.Dismiss(); CreatePlalistDialog(item); };
             dialog.Show();

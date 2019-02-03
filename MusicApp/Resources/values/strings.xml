@@ -17,6 +17,10 @@
   <string name="up_next">Up next:</string>
   <string name="nothing">Nothing.</string>
   <string name="next_loading">Loading, please wait.</string>
+  <string name="sleep_timer">Stop music in</string>
+  <string name="off">Off</string>
+  <string name="minutes">minutes</string>
+  <string name="hours">hours</string>
   
   <!--Queue-->
   <string name="playing">Playing</string>
@@ -77,6 +81,13 @@
   <string name="downloading">Downloading...</string>
   <string name="syncing">Syncing...</string>
   <string name="cant_delete">Can\'t delete this file for now, try again later.</string>
+  <string name="no_result">No result for </string>
+  <string name="no_track">No track for </string>
+  <string name="no_playlist">No playlist for </string>
+  <string name="no_lives">No lives for </string>
+  <string name="no_channel">No channel for </string>
+  <string name="remove_search">Remove from search history?</string>
+  <string name="remove">Remove</string>
   
   <!--Playlists Screen-->
   <string name="local_playlists">Local playlists</string>
@@ -88,10 +99,20 @@
   <string name="element">element</string>
   <string name="elements">elements</string>
   <string name="playlist_empty">This playlist is empty.</string>
+  <string name="remove_from_playlist">Remove %1$s from playlist?</string> <!--%1$s will be replaced by the song name-->
   <string name="removed_from_playlist"> has been removed from the playlist.</string>
   <string name="playlist_already_saved">Playlist already added to your library.</string>
   <string name="playlist_not_found">No playlist exist with this id or link.</string>
   <string name="playlist_add_song_not_found">Song can\'t be found on youtube, can\'t add it to a youtube playlist.</string>
+  <string name="delete_playlist">Do you want to delete the playlist \"%1$s\"?</string> <!--%1$s will be replaced by the playlist name-->
+  <string name="rename_playlist">Enter a new name for this playlist</string>
+  <string name="stop_syncing">Do you want to stop syncing the playlist \"%1$s\"?</string> <!--%1$s will be replaced by the playlist name-->
+  <string name="unfork_playlist">Do you want to remove  \"%1$s"\" from your library?</string> <!--%1$s will be replaced by the playlist name-->
+  <string name="add_playlist_msg">Enter the url or the id of the playlist you want to add</string> <!--%1$s will be replaced by the playlist name-->
+  
+  <!--Add song to playlist-->
+  <string name="create_playlist">Create new playlist</string>
+  <string name="save_playlist">Save song to...</string>
   
   <!--Edit metadata-->
   <string name="title">Title</string>
@@ -114,7 +135,10 @@
   <string name="apply">Apply</string>
   <string name="cancel">Cancel</string>
   <string name="ok">Ok</string>
+  <string name="add">Add</string>
   <string name="later">Later</string>
+  <string name="yes">Yes</string>
+  <string name="no">No</string>
   
   <string name="behavior">Behavior</string>
   <string name="music_genre">Music genres your interesed in</string>

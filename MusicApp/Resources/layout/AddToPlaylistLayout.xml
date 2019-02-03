@@ -36,7 +36,7 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:id="@+id/title"
-      android:text="Create new playlist"
+      android:text="@string/create_playlist"
       android:textSize="18dip"
       android:layout_gravity="center_vertical"
       android:layout_toRightOf="@id/leftIcon" />

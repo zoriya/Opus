@@ -31,6 +31,11 @@ namespace MusicApp.Resources.Portable_Class
             return instance;
         }
 
+        public void ScrollToFirst()
+        {
+            View.FindViewById<ViewPager>(Resource.Id.pager).CurrentItem = 0;
+        }
+
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             if (savedInstanceState != null)

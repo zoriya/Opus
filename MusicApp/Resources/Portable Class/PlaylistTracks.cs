@@ -89,11 +89,11 @@ namespace MusicApp.Resources.Portable_Class
 
                 case Resource.Id.rename:
                     AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
-                    builder.SetTitle("Playlist name");
+                    builder.SetTitle(Resource.String.rename_playlist);
                     View view = LayoutInflater.Inflate(Resource.Layout.CreatePlaylistDialog, null);
                     builder.SetView(view);
-                    builder.SetNegativeButton("Cancel", (senderAlert, args) => { });
-                    builder.SetPositiveButton("Rename", (senderAlert, args) =>
+                    builder.SetNegativeButton(Resource.String.cancel, (senderAlert, args) => { });
+                    builder.SetPositiveButton(Resource.String.rename, (senderAlert, args) =>
                     {
                         Rename(view.FindViewById<EditText>(Resource.Id.playlistName).Text);
                     });
@@ -169,8 +169,8 @@ namespace MusicApp.Resources.Portable_Class
         void StopSyncing()
         {
             AlertDialog dialog = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme)
-                .SetTitle("Do you want to stop syncing the playlist \"" + playlistName + "\" ?")
-                .SetPositiveButton("Yes", async (sender, e) =>
+                .SetTitle(Resource.String.stop_syncing)
+                .SetPositiveButton(Resource.String.yes, async (sender, e) =>
                 {
                     await Task.Run(() =>
                     {
@@ -181,7 +181,7 @@ namespace MusicApp.Resources.Portable_Class
                     });
                     MainActivity.instance.SupportFragmentManager.PopBackStack();
                 })
-                .SetNegativeButton("No", (sender, e) => { })
+                .SetNegativeButton(Resource.String.no, (sender, e) => { })
                 .Create();
             dialog.Show();
         }   
@@ -189,8 +189,8 @@ namespace MusicApp.Resources.Portable_Class
         void Delete()
         {
             AlertDialog dialog = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme)
-                .SetTitle("Do you want to delete the playlist \"" + playlistName + "\" ?")
-                .SetPositiveButton("Yes", async (sender, e) =>
+                .SetTitle(string.Format(MainActivity.instance.GetString(Resource.String.delete_playlist), playlistName))
+                .SetPositiveButton(Resource.String.yes, async (sender, e) =>
                 {
                     if (YoutubeID != null)
                     {
@@ -238,7 +238,7 @@ namespace MusicApp.Resources.Portable_Class
                     }
                     MainActivity.instance.SupportFragmentManager.PopBackStack();
                 })
-                .SetNegativeButton("No", (sender, e) => { })
+                .SetNegativeButton(Resource.String.no, (sender, e) => { })
                 .Create();
             dialog.Show();
         }
@@ -855,8 +855,8 @@ namespace MusicApp.Resources.Portable_Class
                 song = result[position];
 
             AlertDialog dialog = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme)
-                .SetTitle("Remove " + song.Title + " from playlist ?")
-                .SetPositiveButton("Yes", async (sender, e) =>
+                .SetTitle(string.Format(MainActivity.instance.GetString(Resource.String.remove_from_playlist), song.Title))
+                .SetPositiveButton(Resource.String.yes, async (sender, e) =>
                 {
                     if(Synced && YoutubeID != null && LocalID != 0)
                     {
@@ -900,7 +900,7 @@ namespace MusicApp.Resources.Portable_Class
                         result?.Remove(song);
                     }
                 })
-                .SetNegativeButton("No", (sender, e) => { adapter.NotifyItemChanged(position); })
+                .SetNegativeButton(Resource.String.no, (sender, e) => { adapter.NotifyItemChanged(position); })
                 .Create();
             dialog.Show();
         }

@@ -410,7 +410,6 @@ namespace MusicApp
                 }
                 else if (YoutubeEngine.instances != null)
                 {
-                    YoutubeEngine.error = false;
                     var searchView = menu.FindItem(Resource.Id.search).ActionView.JavaCast<SearchView>();
                     menu.FindItem(Resource.Id.search).CollapseActionView();
                     searchView.ClearFocus();
@@ -521,8 +520,6 @@ namespace MusicApp
 
             if (YoutubeEngine.instances != null)
             {
-                YoutubeEngine.error = false;
-
                 var searchView = menu.FindItem(Resource.Id.search).ActionView.JavaCast<SearchView>();
                 menu.FindItem(Resource.Id.search).CollapseActionView();
                 searchView.ClearFocus();
@@ -541,11 +538,9 @@ namespace MusicApp
             switch (layout)
             {
                 case Resource.Id.musicLayout:
-                    if (Home.instance != null)
+                    if (Home.instance != null && Home.instance.ListView != null)
                     {
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                        Home.instance.Refresh();
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                        Home.instance.ListView.ScrollToPosition(0);
                         return;
                     }
 
@@ -554,11 +549,10 @@ namespace MusicApp
                     break;
 
                 case Resource.Id.browseLayout:
-                    if (Browse.instance != null)
+                    if (Browse.instance != null && Pager.instance != null && Browse.instance.ListView != null)
                     {
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                        Browse.instance.Refresh();
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                        Pager.instance.ScrollToFirst();
+                        Browse.instance.ListView.ScrollToPosition(0);
                         return;
                     }
 
@@ -569,9 +563,7 @@ namespace MusicApp
                 case Resource.Id.playlistLayout:
                     if (Playlist.instance != null)
                     {
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                        Playlist.instance.Refresh();
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                        Playlist.instance.ListView.ScrollToPosition(0);
                         return;
                     }
 

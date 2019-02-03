@@ -31,7 +31,6 @@ namespace MusicApp.Resources.Portable_Class
         public static YoutubeEngine[] instances;
         public static YouTubeService youtubeService;
         public string Query;
-        public static bool error = false;
         private string nextPageToken = null;
         public string querryType;
 
@@ -223,7 +222,6 @@ namespace MusicApp.Resources.Portable_Class
 
             if (!await MainActivity.instance.WaitForYoutube())
             {
-                error = true;
                 ListView.SetAdapter(null);
                 EmptyView.Text = MainActivity.instance.GetString(Resource.String.youtube_loading_error);
                 EmptyView.SetTextColor(Color.Red);
@@ -348,19 +346,19 @@ namespace MusicApp.Resources.Portable_Class
                     switch (querryType)
                     {
                         case "All":
-                            EmptyView.Text = "No result for " + search;
+                            EmptyView.Text = GetString(Resource.String.no_result) + search;
                             break;
                         case "Tracks":
-                            EmptyView.Text = "No tracks for " + search;
+                            EmptyView.Text = GetString(Resource.String.no_track) + search;
                             break;
                         case "Playlists":
-                            EmptyView.Text = "No playlist for " + search;
+                            EmptyView.Text = GetString(Resource.String.no_playlist) + search;
                             break;
                         case "Lives":
-                            EmptyView.Text = "No lives for " + Query;
+                            EmptyView.Text = GetString(Resource.String.no_lives) + search;
                             break;
                         case "Channels":
-                            EmptyView.Text = "No channel for " + search;
+                            EmptyView.Text = GetString(Resource.String.no_channel) + search;
                             break;
                         default:
                             break;
@@ -372,7 +370,7 @@ namespace MusicApp.Resources.Portable_Class
             catch (System.Net.Http.HttpRequestException)
             {
                 MainActivity.instance.Timout();
-                EmptyView.Text = "Timout exception, check if you're still connected to internet.";
+                EmptyView.Text = GetString(Resource.String.timout);
                 EmptyView.Visibility = ViewStates.Visible;
             }
         }
