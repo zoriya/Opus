@@ -111,8 +111,13 @@
   <string name="add_playlist_msg">Enter the url or the id of the playlist you want to add</string> <!--%1$s will be replaced by the playlist name-->
   
   <!--Add song to playlist-->
-  <string name="create_playlist">Create new playlist</string>
+  <string name="create_playlist">Create a new playlist</string>
   <string name="save_playlist">Save song to...</string>
+  <string name="save_folder_playlist">Save songs to...</string>
+  <string name="new_playlist">New playlist</string>
+  <string name="create_local">Local playlist</string>
+  <string name="create_youtube">Youtube playlist</string>
+  <string name="create_synced">Synced playlist (both local and youtube)</string>
   
   <!--Edit metadata-->
   <string name="title">Title</string>

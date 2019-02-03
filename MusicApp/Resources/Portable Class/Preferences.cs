@@ -1,7 +1,6 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.Content.Res;
-using Android.Database;
 using Android.Gms.Auth.Api;
 using Android.Gms.Auth.Api.SignIn;
 using Android.OS;
@@ -14,10 +13,7 @@ using Android.Widget;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using static Android.Provider.MediaStore.Audio;
 using AlertDialog = Android.Support.V7.App.AlertDialog;
-using CursorLoader = Android.Support.V4.Content.CursorLoader;
 using Preference = Android.Support.V7.Preferences.Preference;
 using PreferenceManager = Android.Support.V7.Preferences.PreferenceManager;
 using Toolbar = Android.Support.V7.Widget.Toolbar;

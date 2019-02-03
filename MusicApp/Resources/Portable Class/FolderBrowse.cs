@@ -240,7 +240,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             List<string> playList = new List<string>();
             List<long> playListId = new List<long>();
-            playList.Add("Create a playlist");
+            playList.Add(GetString(Resource.String.create_playlist));
             playListId.Add(0);
 
             Uri uri = MediaStore.Audio.Playlists.ExternalContentUri;
@@ -263,7 +263,7 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme);
-            builder.SetTitle("Add to a playlist");
+            builder.SetTitle(Resource.String.save_folder_playlist);
             builder.SetItems(playList.ToArray(), (senderAlert, args) =>
             {
                 AddToPlaylist(path, playList[args.Which], playListId[args.Which]);
@@ -273,7 +273,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public async void AddToPlaylist(string path, string playList, long playlistID)
         {
-            if (playList == "Create a playlist")
+            if (playList == GetString(Resource.String.create_playlist))
                 CreatePlalistDialog(path);
 
             else
@@ -315,17 +315,17 @@ namespace MusicApp.Resources.Portable_Class
         public void CreatePlalistDialog(string path)
         {
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme);
-            builder.SetTitle("Playlist name");
+            builder.SetTitle(Resource.String.new_playlist);
             View view = LayoutInflater.Inflate(Resource.Layout.CreatePlaylistDialog, null);
             builder.SetView(view);
-            PlaylistLocationAdapter adapter = new PlaylistLocationAdapter(MainActivity.instance, Android.Resource.Layout.SimpleSpinnerItem, new string[] { "Local playlist", "Youtube playlist", "Synced playlist (both local and youtube)" })
+            PlaylistLocationAdapter adapter = new PlaylistLocationAdapter(MainActivity.instance, Android.Resource.Layout.SimpleSpinnerItem, new int[] { Resource.String.create_local, Resource.String.create_youtube, Resource.String.create_synced })
             {
                 YoutubeWorkflow = false
             };
             adapter.SetDropDownViewResource(Android.Resource.Layout.SimpleSpinnerDropDownItem);
             view.FindViewById<Spinner>(Resource.Id.playlistLocation).Adapter = adapter;
-            builder.SetNegativeButton("Cancel", (senderAlert, args) => { });
-            builder.SetPositiveButton("Create", (senderAlert, args) =>
+            builder.SetNegativeButton(Resource.String.cancel, (senderAlert, args) => { });
+            builder.SetPositiveButton(Resource.String.ok, (senderAlert, args) =>
             {
                 CreatePlaylist(view.FindViewById<EditText>(Resource.Id.playlistName).Text, path);
             });

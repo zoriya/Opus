@@ -562,17 +562,17 @@ namespace MusicApp.Resources.Portable_Class
         public static void CreatePlalistDialog(Song item)
         {
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme);
-            builder.SetTitle("Playlist name");
+            builder.SetTitle(Resource.String.new_playlist);
             View view = MainActivity.instance.LayoutInflater.Inflate(Resource.Layout.CreatePlaylistDialog, null);
             builder.SetView(view);
-            PlaylistLocationAdapter adapter = new PlaylistLocationAdapter(MainActivity.instance, Android.Resource.Layout.SimpleSpinnerItem, new string[] { "Local playlist", "Youtube playlist", "Synced playlist (both local and youtube)" })
+            PlaylistLocationAdapter adapter = new PlaylistLocationAdapter(MainActivity.instance, Android.Resource.Layout.SimpleSpinnerItem, new int[] { Resource.String.create_local, Resource.String.create_youtube, Resource.String.create_synced })
             {
                 YoutubeWorkflow = item.YoutubeID != null
             };
             adapter.SetDropDownViewResource(Android.Resource.Layout.SimpleSpinnerDropDownItem);
             view.FindViewById<Spinner>(Resource.Id.playlistLocation).Adapter = adapter;
-            builder.SetNegativeButton("Cancel", (senderAlert, args) => { });
-            builder.SetPositiveButton("Create", (senderAlert, args) => 
+            builder.SetNegativeButton(Resource.String.cancel, (senderAlert, args) => { });
+            builder.SetPositiveButton(Resource.String.ok, (senderAlert, args) => 
             {
                 switch (view.FindViewById<Spinner>(Resource.Id.playlistLocation).SelectedItemPosition)
                 {
