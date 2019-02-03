@@ -100,7 +100,7 @@ namespace MusicApp.Resources.Portable_Class
             adapter = new SuggestionAdapter(instance, Resource.Layout.SuggestionLayout, suggestions);
             ListView.Adapter = adapter;
             searchView.MaxWidth = int.MaxValue;
-            searchView.QueryHint = "Search Youtube";
+            searchView.QueryHint = GetString(Resource.String.youtube_search);
             searchView.QueryTextChange += (s, e) =>
             {
                 if (e.NewText.Length > 0)

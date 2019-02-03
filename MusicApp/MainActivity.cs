@@ -387,7 +387,7 @@ namespace MusicApp
             item.SetVisible(false);
             menu.FindItem(Resource.Id.search).SetOnActionExpandListener(this);
             ((SearchView)menu.FindItem(Resource.Id.search).ActionView).SetOnQueryTextFocusChangeListener(this);
-            ((SearchView)menu.FindItem(Resource.Id.search).ActionView).QueryHint = "Search Youtube";
+            ((SearchView)menu.FindItem(Resource.Id.search).ActionView).QueryHint = GetString(Resource.String.youtube_search);
 
             CastButtonFactory.SetUpMediaRouteButton(this, menu, Resource.Id.media_route_menu_item);
             return base.OnCreateOptionsMenu(menu);

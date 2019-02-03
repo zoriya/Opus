@@ -475,10 +475,9 @@ namespace MusicApp
         public void SleepButton_Click(object sender, EventArgs e)
         {
             string minutes = GetString(Resource.String.minutes);
-            string hours = GetString(Resource.String.hours);
             Android.Support.V7.App.AlertDialog.Builder builder = new Android.Support.V7.App.AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme);
             builder.SetTitle(Resource.String.sleep_timer);
-            builder.SetSingleChoiceItems(new string[] { GetString(Resource.String.off), "2 " + minutes, "10 " + minutes, "30 " + minutes, "1 " + hours, "2 " + hours }, checkedItem, ((senders, eventargs) => { checkedItem = eventargs.Which; }));
+            builder.SetSingleChoiceItems(new string[] { GetString(Resource.String.off), "2 " + minutes, "10 " + minutes, "30 " + minutes, "1 " + GetString(Resource.String.hour), "2 " + GetString(Resource.String.hours) }, checkedItem, ((senders, eventargs) => { checkedItem = eventargs.Which; }));
             builder.SetPositiveButton(Resource.String.ok, ((senders, args) => { Sleep(timers[checkedItem]); }));
             builder.SetNegativeButton(Resource.String.cancel, ((senders, args) => { }));
             builder.Show();

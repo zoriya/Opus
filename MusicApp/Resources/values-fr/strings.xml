@@ -20,6 +20,7 @@
   <string name="sleep_timer">Arreter la musique dans</string>
   <string name="off">Off</string>
   <string name="minutes">minutes</string>
+  <string name="hour">heure</string>
   <string name="hours">heures</string>
   
   <!--Queue-->

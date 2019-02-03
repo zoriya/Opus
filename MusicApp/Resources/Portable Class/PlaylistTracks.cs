@@ -765,7 +765,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public async void PlayInOrder(int fromPosition, bool useTransition)
         {
-            if (tracks.Count < fromPosition)
+            if (tracks.Count <= fromPosition)
                 return;
 
             if (YoutubeID != null && !Synced)

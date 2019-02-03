@@ -7,7 +7,7 @@
   
   <!--Toolbars-->
   <string name="repeat">Repeat</string>
-  <string name="youtube_search">Search on youtube</string>
+  <string name="youtube_search">Search Youtube</string>
   <string name="filter">Filter</string>
   <string name="cast">Cast</string>
   <string name="settings">Settings</string>
@@ -20,6 +20,7 @@
   <string name="sleep_timer">Stop music in</string>
   <string name="off">Off</string>
   <string name="minutes">minutes</string>
+  <string name="hour">hour</string>
   <string name="hours">hours</string>
   
   <!--Queue-->
