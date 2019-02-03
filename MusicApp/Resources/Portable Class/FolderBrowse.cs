@@ -318,7 +318,7 @@ namespace MusicApp.Resources.Portable_Class
             builder.SetTitle(Resource.String.new_playlist);
             View view = LayoutInflater.Inflate(Resource.Layout.CreatePlaylistDialog, null);
             builder.SetView(view);
-            PlaylistLocationAdapter adapter = new PlaylistLocationAdapter(MainActivity.instance, Android.Resource.Layout.SimpleSpinnerItem, new int[] { Resource.String.create_local, Resource.String.create_youtube, Resource.String.create_synced })
+            PlaylistLocationAdapter adapter = new PlaylistLocationAdapter(MainActivity.instance, Android.Resource.Layout.SimpleSpinnerItem, new string[] { MainActivity.instance.GetString(Resource.String.create_local), MainActivity.instance.GetString(Resource.String.create_youtube), MainActivity.instance.GetString(Resource.String.create_synced) })
             {
                 YoutubeWorkflow = false
             };

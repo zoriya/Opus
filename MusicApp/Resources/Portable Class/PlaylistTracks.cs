@@ -189,7 +189,7 @@ namespace MusicApp.Resources.Portable_Class
         void Delete()
         {
             AlertDialog dialog = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme)
-                .SetTitle(string.Format(MainActivity.instance.GetString(Resource.String.delete_playlist), playlistName))
+                .SetTitle(MainActivity.instance.GetString(Resource.String.delete_playlist, playlistName))
                 .SetPositiveButton(Resource.String.yes, async (sender, e) =>
                 {
                     if (YoutubeID != null)
@@ -855,7 +855,7 @@ namespace MusicApp.Resources.Portable_Class
                 song = result[position];
 
             AlertDialog dialog = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme)
-                .SetTitle(string.Format(MainActivity.instance.GetString(Resource.String.remove_from_playlist), song.Title))
+                .SetTitle(MainActivity.instance.GetString(Resource.String.remove_from_playlist, song.Title))
                 .SetPositiveButton(Resource.String.yes, async (sender, e) =>
                 {
                     if(Synced && YoutubeID != null && LocalID != 0)

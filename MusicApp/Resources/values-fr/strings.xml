@@ -17,7 +17,11 @@
   <string name="up_next">À suivre:</string>
   <string name="nothing">Rien.</string>
   <string name="next_loading">Chargement en cours, veuillez patienter.</string>
-
+  <string name="sleep_timer">Arreter la musique dans</string>
+  <string name="off">Off</string>
+  <string name="minutes">minutes</string>
+  <string name="hours">heures</string>
+  
   <!--Queue-->
   <string name="playing">Lecture en cours</string>
   <string name="paused">En pause</string>
@@ -72,7 +76,18 @@
   <string name="lives">Lives</string>
   <string name="channels">Chaines</string>
   <string name="download_path_not_set">Le dossier de téléchargement n\'a pas été définie, celui par défault va être utilisé.</string>
+  <string name="download_path_error">Le dossier de téléchargement n\'existe plus, veuillez le changer dans les paramètres.</string>
   <string name="set_path">Definir le dossier</string>
+  <string name="downloading">Téléchargement en cours...</string>
+  <string name="syncing">Synchronisation en cours...</string>
+  <string name="cant_delete">Impossible de supprimer ce fichier pour le moment, veuillez réesseyer plus tard.</string>
+  <string name="no_result">Aucun résultat pour </string>
+  <string name="no_track">Aucun titre pour </string>
+  <string name="no_playlist">Aucunne playlist pour </string>
+  <string name="no_lives">Aucun lives pour </string>
+  <string name="no_channel">Aucune chaine pour </string>
+  <string name="remove_search">Supprimer de l\'historique de recherche ?</string>
+  <string name="remove">Supprimer</string>
   
   <!--Playlists Screen-->
   <string name="local_playlists">Playlists locales</string>
@@ -84,9 +99,25 @@
   <string name="element">titre</string>
   <string name="elements">titres</string>
   <string name="playlist_empty">Cette playlist est vide.</string>
+  <string name="remove_from_playlist">Enlever %1$s de la playlist ?</string> <!--%1$s will be replaced by the song name-->
   <string name="removed_from_playlist"> a été enlevé de la playlist.</string>
   <string name="playlist_already_saved">Cette playlist a déja été ajouté a votre bibliothèque.</string>
   <string name="playlist_not_found">Aucune playlist n\'existe avec cet id ou cet url.</string>
+  <string name="playlist_add_song_not_found">Musique non trouvée sur youtube, impossible de l\'ajouter à une playlist youtube.</string>
+  <string name="delete_playlist">Voulez vous supprimer la playlist  \"%1$s\" ?</string> <!--%1$s will be replaced by the playlist name-->
+  <string name="rename_playlist">Choissisez un nouveau nom pour cette playlist</string>
+  <string name="stop_syncing">Voulez vous arreter de synchroniser la playlist \"%1s$\" ?</string> <!--%1$s will be replaced by the playlist name-->
+  <string name="unfork_playlist">Voulez vous supprimer la playlist \"%1$s"\" de votre bibliothèque ?</string> <!--%1$s will be replaced by the playlist name-->
+  <string name="add_playlist_msg">Enter l\'url ou l\'id de la playlist que vous voulez ajouter</string> <!--%1$s will be replaced by the playlist name-->
+
+  <!--Add song to playlist-->
+  <string name="create_playlist">Créer une nouvelle playlist</string>
+  <string name="save_playlist">Ajouter à...</string>
+  <string name="save_folder_playlist">Ajouter à...</string>
+  <string name="new_playlist">Nouvelle playlist</string>
+  <string name="create_local">Playlist locale</string>
+  <string name="create_youtube">Playlist youtube</string>
+  <string name="create_synced">Playlist synchronisée (disponible localement et sur youtube)</string>
 
   <!--Edit metadata-->
   <string name="title">Titre</string>
@@ -98,12 +129,21 @@
   <string name="download_albumart">Télécharger la couverture depuis youtube</string>
   <string name="download_meta">Télécharger les metadata depuis youtube</string>
   <string name="undo_change">Annuler les modifications</string>
+  <string name="changes_saved">Changement sauvegardé.</string>
+  <string name="metdata_error_noid">Impossible de télécharger les metadatas depuis youtube, l\'id youtube n\'est pas défnit.</string>
+
+  <!--Chromecast-->
+  <string name="cast_queue_push">Votre liste de lecture est envoyée au chromecast, veuillez patienter...</string>
+  <string name="cast_queue_pushed">Finis, la musique va commencer sous peu.</string>
 
   <!--Settings-->
   <string name="apply">Appliquer</string>
   <string name="cancel">Annuler</string>
   <string name="ok">Ok</string>
+  <string name="add">Ajouter</string>
   <string name="later">Plus tard</string>
+  <string name="yes">Oui</string>
+  <string name="no">Non</string>
   
   <string name="behavior">Fonctionnement</string>
   <string name="volume">Volume</string>
@@ -141,4 +181,5 @@
   <string name="beta_available">Une version beta est disponible.</string>
   <string name="downloading_update">Téléchargement en cours, vous serez informer lorsque l\'installation sera prète.</string>
   <string name="updating">Mise a jour en cours...</string>
+  <string name="cant_play_non_youtube">Impossible de lire ce type de vidéo.</string>
 </resources>

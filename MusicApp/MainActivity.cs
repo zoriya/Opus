@@ -955,7 +955,7 @@ namespace MusicApp
             if (gitVersion > version && !beta)
             {
                 Android.Support.V7.App.AlertDialog.Builder builder = new Android.Support.V7.App.AlertDialog.Builder(activity, dialogTheme);
-                builder.SetTitle(string.Format(activity.GetString(Resource.String.update), gitVersionID));
+                builder.SetTitle(activity.GetString(Resource.String.update, gitVersionID));
                 builder.SetMessage(activity.GetString(Resource.String.update_message));
                 builder.SetPositiveButton(activity.GetString(Resource.String.ok), (sender, e) => { InstallUpdate(gitVersionID, false, downloadPath); });
                 builder.SetNegativeButton(activity.GetString(Resource.String.later), (sender, e) => { });

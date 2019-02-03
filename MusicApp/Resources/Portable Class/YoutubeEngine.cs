@@ -346,19 +346,19 @@ namespace MusicApp.Resources.Portable_Class
                     switch (querryType)
                     {
                         case "All":
-                            EmptyView.Text = GetString(Resource.String.no_result) + search;
+                            EmptyView.Text = GetString(Resource.String.no_result) + " " + search;
                             break;
                         case "Tracks":
-                            EmptyView.Text = GetString(Resource.String.no_track) + search;
+                            EmptyView.Text = GetString(Resource.String.no_track) + " " + search;
                             break;
                         case "Playlists":
-                            EmptyView.Text = GetString(Resource.String.no_playlist) + search;
+                            EmptyView.Text = GetString(Resource.String.no_playlist) + " " + search;
                             break;
                         case "Lives":
-                            EmptyView.Text = GetString(Resource.String.no_lives) + search;
+                            EmptyView.Text = GetString(Resource.String.no_lives) + " " + search;
                             break;
                         case "Channels":
-                            EmptyView.Text = GetString(Resource.String.no_channel) + search;
+                            EmptyView.Text = GetString(Resource.String.no_channel) + " " + search;
                             break;
                         default:
                             break;

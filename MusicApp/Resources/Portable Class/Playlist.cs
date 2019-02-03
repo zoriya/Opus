@@ -829,7 +829,7 @@ namespace MusicApp.Resources.Portable_Class
             if (await MainActivity.instance.GetWritePermission())
             {
                 AlertDialog dialog = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme)
-                    .SetTitle(string.Format(GetString(Resource.String.delete_playlist), LocalPlaylists[position].Name))
+                    .SetTitle(GetString(Resource.String.delete_playlist, LocalPlaylists[position].Name))
                     .SetPositiveButton(Resource.String.yes, (sender, e) =>
                     {
                         ContentResolver resolver = Activity.ContentResolver;
@@ -971,7 +971,7 @@ namespace MusicApp.Resources.Portable_Class
         void DeleteYoutubePlaylist(int position, string playlistID)
         {
             AlertDialog dialog = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme)
-                .SetTitle(string.Format(GetString(Resource.String.delete_playlist), YoutubePlaylists[position - LocalPlaylists.Count].Name))
+                .SetTitle(GetString(Resource.String.delete_playlist, YoutubePlaylists[position - LocalPlaylists.Count].Name))
                 .SetPositiveButton(Resource.String.yes, async (sender, e) =>
                 {
                     try
@@ -1004,7 +1004,7 @@ namespace MusicApp.Resources.Portable_Class
         void Unfork(int position, string playlistID)
         {
             AlertDialog dialog = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme)
-                .SetTitle(string.Format(GetString(Resource.String.unfork_playlist), YoutubePlaylists[position].Name))
+                .SetTitle(GetString(Resource.String.unfork_playlist, YoutubePlaylists[position].Name))
                 .SetPositiveButton(Resource.String.yes, async (sender, e) =>
                 {
                     try
