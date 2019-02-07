@@ -106,6 +106,7 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     MainActivity.account = result.SignInAccount;
                     PreferencesFragment.instance?.SignedIn();
+                    MainActivity.instance.CreateYoutube();
                 }
                 else
                 {

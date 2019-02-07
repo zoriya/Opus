@@ -20,6 +20,7 @@ using static Android.Provider.MediaStore.Audio;
 using CursorLoader = Android.Support.V4.Content.CursorLoader;
 using PopupMenu = Android.Support.V7.Widget.PopupMenu;
 using RecyclerView = Android.Support.V7.Widget.RecyclerView;
+using Toolbar = Android.Support.V7.Widget.Toolbar;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -835,7 +836,7 @@ namespace MusicApp.Resources.Portable_Class
             if (instance == null)
                 return;
 
-            if (System.Math.Abs(verticalOffset) <= appBarLayout.TotalScrollRange - MainActivity.instance.ToolBar.Height)
+            if (System.Math.Abs(verticalOffset) <= appBarLayout.TotalScrollRange - MainActivity.instance.FindViewById<Toolbar>(Resource.Id.toolbar).Height)
             {
                 Activity.FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Visible;
                 MainActivity.instance.SupportActionBar.SetDisplayShowTitleEnabled(false);

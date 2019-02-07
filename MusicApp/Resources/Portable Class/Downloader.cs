@@ -196,7 +196,7 @@ namespace MusicApp.Resources.Portable_Class
             }
             catch
             {
-                MainActivity.instance.Unknow();
+                MainActivity.instance.UnknowError();
                 Cancel();
             }
         }

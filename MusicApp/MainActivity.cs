@@ -29,7 +29,6 @@ using MusicApp.Resources.Portable_Class;
 using MusicApp.Resources.values;
 using Newtonsoft.Json.Linq;
 using SQLite;
-using Square.OkHttp;
 using Square.Picasso;
 using System;
 using System.Collections.Generic;
@@ -40,10 +39,10 @@ using System.Threading.Tasks;
 using YoutubeExplode;
 using CursorLoader = Android.Support.V4.Content.CursorLoader;
 using Fragment = Android.Support.V4.App.Fragment;
-using ICallback = Square.OkHttp.ICallback;
 using Playlist = MusicApp.Resources.Portable_Class.Playlist;
 using Request = Square.OkHttp.Request;
 using SearchView = Android.Support.V7.Widget.SearchView;
+using Toolbar = Android.Support.V7.Widget.Toolbar;
 using TransportType = Android.Net.TransportType;
 
 namespace MusicApp
@@ -52,18 +51,15 @@ namespace MusicApp
     [IntentFilter(new[] {Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, DataHost = "www.youtube.com", DataMimeType = "text/*")]
     [IntentFilter(new[] {Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, DataHost = "m.youtube.com", DataMimeType = "text/plain")]
     [IntentFilter(new[] { Intent.ActionView }, Categories = new[] { Intent.CategoryDefault }, DataMimeTypes = new[] { "audio/*", "application/ogg", "application/x-ogg", "application/itunes" })]
-    public class MainActivity : AppCompatActivity, GoogleApiClient.IOnConnectionFailedListener, ICallback, IResultCallback, IMenuItemOnActionExpandListener, View.IOnFocusChangeListener, ISessionManagerListener
+    public class MainActivity : AppCompatActivity, GoogleApiClient.IOnConnectionFailedListener, IResultCallback, IMenuItemOnActionExpandListener, View.IOnFocusChangeListener, ISessionManagerListener
     {
         public static MainActivity instance;
         public new static int Theme = 1;
         public static int dialogTheme;
 
-        public Android.Support.V7.Widget.Toolbar ToolBar;
         public bool NoToolbarMenu = false;
         public IMenu menu;
         public SwipeRefreshLayout contentRefresh;
-        public bool usePager;
-        public bool HomeDetails = false;
         public bool Paused = false;
 
         public bool prepared = false;
@@ -75,9 +71,9 @@ namespace MusicApp
         private const string versionURI = "https://raw.githubusercontent.com/AnonymusRaccoon/MusicApp/master/MusicApp/Assets/Version.txt";
 
         public static GoogleSignInAccount account;
-        public GoogleApiClient googleClient;
-        private bool canAsk;
+        private Intent AskIntent;
         public bool waitingForYoutube;
+        private DateTime NextRefreshDate;
         private bool? PermissionGot;
         public bool ResumeKiller;
 
@@ -98,8 +94,7 @@ namespace MusicApp
 
             int statusHeight = Resources.GetDimensionPixelSize(Resources.GetIdentifier("status_bar_height", "dimen", "android"));
             FindViewById(Resource.Id.contentLayout).SetPadding(0, statusHeight, 0, 0);
-            ToolBar = (Android.Support.V7.Widget.Toolbar)FindViewById(Resource.Id.toolbar);
-            SetSupportActionBar(ToolBar);
+            SetSupportActionBar(FindViewById<Toolbar>(Resource.Id.toolbar));
             SupportActionBar.Title = "MusicApp";
             ((CoordinatorLayout.LayoutParams)FindViewById(Resource.Id.contentLayout).LayoutParameters).TopMargin = -Resources.GetDimensionPixelSize(Resources.GetIdentifier("status_bar_height", "dimen", "android"));
 
@@ -192,9 +187,13 @@ namespace MusicApp
         }
 
 
-        public void Login(bool canAsk = true, bool skipSilentLog = false)
+        public  void Login(bool canAsk = true, bool skipSilentLog = false)
         {
             waitingForYoutube = true;
+
+            if(account == null)
+                account = GoogleSignIn.GetLastSignedInAccount(this);
+
 
             if (account != null)
             {
@@ -202,21 +201,17 @@ namespace MusicApp
                 return;
             }
 
-            if(googleClient == null)
-            {
-                GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DefaultSignIn)
-                    .RequestIdToken(GetString(Resource.String.clientID))
-                    .RequestServerAuthCode(GetString(Resource.String.clientID))
-                    .RequestEmail()
-                    .RequestScopes(new Scope(YouTubeService.Scope.Youtube))
-                    .Build();
+            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DefaultSignIn)
+                .RequestIdToken(GetString(Resource.String.clientID))
+                .RequestServerAuthCode(GetString(Resource.String.clientID))
+                .RequestScopes(new Scope(YouTubeService.Scope.Youtube))
+                .Build();
 
-                googleClient = new GoogleApiClient.Builder(this)
-                    .AddApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                    .Build();
+            GoogleApiClient googleClient = new GoogleApiClient.Builder(this)
+                .AddApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .Build();
 
-                googleClient.Connect();
-            }
+            googleClient.Connect();
 
             if (!skipSilentLog)
             {
@@ -233,7 +228,7 @@ namespace MusicApp
                 }
                 else if (silentLog != null)
                 {
-                    this.canAsk = canAsk;
+                    AskIntent = Auth.GoogleSignInApi.GetSignInIntent(googleClient);
                     silentLog.SetResultCallback(this);
                 }
                 else if (canAsk)
@@ -241,10 +236,8 @@ namespace MusicApp
                     ResumeKiller = true;
                     StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);
                 }
-
-                return;
             }
-            if (canAsk)
+            else if (canAsk)
             {
                 ResumeKiller = true;
                 StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);
@@ -278,49 +271,159 @@ namespace MusicApp
                 RunOnUiThread(() => { Picasso.With(this).Load(account.PhotoUrl).Transform(new CircleTransformation()).Into(new AccountTarget()); });
                 CreateYoutube();
             }
-            else if(canAsk)
+            else if(AskIntent != null)
             {
                 ResumeKiller = true;
-                StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);
+                StartActivityForResult(AskIntent, 1598);
+                AskIntent = null;
             }
         }
 
-        void CreateYoutube()
+        public async void CreateYoutube()
         {
-            OkHttpClient client = new OkHttpClient();
-            RequestBody body = new FormEncodingBuilder()
-                .Add("grant_type", "authorization_code")
-                .Add("client_id", GetString(Resource.String.clientID))
-                .Add("client_secret", GetString(Resource.String.clientSecret))
-                .Add("redirect_uri", "")
-                .Add("code", account.ServerAuthCode)
-                .Add("id_token", account.IdToken)
-                .Build();
-            Request request = new Request.Builder()
-                .Url("https://www.googleapis.com/oauth2/v4/token")
-                .Post(body)
-                .Build();
-            client.NewCall(request).Enqueue(this);
-            
-            Console.WriteLine("&Requesting access token");
-        }
-        
-        public void OnResponse(Square.OkHttp.Response response)
-        {
-            string jsonFile = response.Body().String();
-            Console.WriteLine(jsonFile);
-            if (jsonFile.Contains("error"))
-                return;
+            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(this);
+            string refreshToken = prefManager.GetString("refresh-token", null);
+            Console.WriteLine("&Current refresh token: " + refreshToken);
 
-            JToken json = JObject.Parse(jsonFile);
-            GoogleCredential credential = GoogleCredential.FromAccessToken((string)json.SelectToken("access_token"));
-            YoutubeEngine.youtubeService = new YouTubeService(new BaseClientService.Initializer()
+            //This method do not return refresh-token if the app has already been aprouved by google for this user, should force request
+            if (refreshToken == null)
             {
-                HttpClientInitializer = credential,
-                ApplicationName = "MusicApp"
-            });
+                Console.WriteLine("&Getting refresh-token and creating a youtube service");
+                Console.WriteLine("&Code = " + account.ServerAuthCode);
 
-            Console.WriteLine("&Youtube created");
+                if(account.ServerAuthCode == null)
+                {
+                    Login(true);
+                    return;
+                }
+
+                Dictionary<string, string> fields = new Dictionary<string, string>
+                {
+                    { "grant_type", "authorization_code" },
+                    { "client_id", GetString(Resource.String.clientID) },
+                    { "client_secret", GetString(Resource.String.clientSecret) },
+                    { "redirect_uri", "" },
+                    { "code", account.ServerAuthCode },
+                    { "id_token", account.IdToken },
+                };
+
+                var items = from kvp in fields
+                            select kvp.Key + "=" + kvp.Value;
+
+                string content = string.Join("&", items);
+
+                try
+                {
+                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://www.googleapis.com/oauth2/v4/token");
+                    request.Host = "www.googleapis.com";
+
+                    request.Method = "POST";
+                    request.ContentType = "application/x-www-form-urlencoded";
+                    request.ContentLength = content.Length;
+
+                    using (StreamWriter writer = new StreamWriter(request.GetRequestStream()))
+                    {
+                        writer.Write(content);
+                    }
+
+                    Console.WriteLine("&Content: " + content);
+
+                    HttpWebResponse resp = (HttpWebResponse)await request.GetResponseAsync();
+
+                    string response;
+                    using (StreamReader responseReader = new StreamReader(request.GetResponse().GetResponseStream()))
+                    {
+                        response = responseReader.ReadToEnd();
+                        Console.WriteLine("&" + response);
+                    }
+
+                    JToken json = JObject.Parse(response);
+                    GoogleCredential credential = GoogleCredential.FromAccessToken((string)json.SelectToken("access_token"));
+                    YoutubeEngine.youtubeService = new YouTubeService(new BaseClientService.Initializer()
+                    {
+                        HttpClientInitializer = credential,
+                        ApplicationName = "MusicApp"
+                    });
+
+                    refreshToken = (string)json.SelectToken("refresh_token");
+                    if(refreshToken != null)
+                    {
+                        ISharedPreferencesEditor editor = prefManager.Edit();
+                        editor.PutString("refresh-token", refreshToken);
+                        editor.Apply();
+                    }
+
+                    int expireIn = (int)json.SelectToken("expires_in");
+                    NextRefreshDate = DateTime.UtcNow.AddSeconds(expireIn - 30); //Should refresh a bit before the expiration of the acess token
+                }
+                catch (WebException ex)
+                {
+                    Console.WriteLine("&Refresh token get error: " + ex.Message);
+                    UnknowError(new Action(() => { CreateYoutube(); }));
+                }
+            }
+            else if(account != null)
+            {
+                Console.WriteLine("&Getting a new access-token and creating a youtube service");
+                Dictionary<string, string> fields = new Dictionary<string, string>
+                {
+                    { "refresh_token", refreshToken },
+                    { "client_id", GetString(Resource.String.clientID) },
+                    { "client_secret", GetString(Resource.String.clientSecret) },
+                    { "grant_type", "refresh_token" },
+                };
+
+                var items = from kvp in fields
+                            select kvp.Key + "=" + kvp.Value;
+
+                string content = string.Join("&", items);
+
+                try
+                {
+                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://www.googleapis.com/oauth2/v4/token");
+                    request.Host = "www.googleapis.com";
+
+                    request.Method = "POST";
+                    request.ContentType = "application/x-www-form-urlencoded";
+                    request.ContentLength = content.Length;
+
+                    using (StreamWriter writer = new StreamWriter(request.GetRequestStream()))
+                    {
+                        writer.Write(content);
+                    }
+
+                    Console.WriteLine("&Content: " + content);
+
+                    HttpWebResponse resp = (HttpWebResponse)await request.GetResponseAsync();
+
+                    string response;
+                    using (StreamReader responseReader = new StreamReader(request.GetResponse().GetResponseStream()))
+                    {
+                        response = responseReader.ReadToEnd();
+                        Console.WriteLine("&" + response);
+                    }
+
+                    JToken json = JObject.Parse(response);
+                    GoogleCredential credential = GoogleCredential.FromAccessToken((string)json.SelectToken("access_token"));
+                    YoutubeEngine.youtubeService = new YouTubeService(new BaseClientService.Initializer()
+                    {
+                        HttpClientInitializer = credential,
+                        ApplicationName = "MusicApp"
+                    });
+
+                    int expireIn = (int)json.SelectToken("expires_in");
+                    NextRefreshDate = DateTime.UtcNow.AddSeconds(expireIn - 30); //Should refresh a bit before the expiration of the acess token
+                }
+                catch (WebException ex)
+                {
+                    Console.WriteLine("&New access token get error: " + ex.Message);
+                    UnknowError(new Action(() => { CreateYoutube(); }));
+                }
+            }
+            else
+            {
+                Login(true);
+            }
         }
 
         public void OnFailure(Request request, Java.IO.IOException iOException)
@@ -349,6 +452,11 @@ namespace MusicApp
 
                     await Task.Delay(10);
                 }
+            }
+            else if(NextRefreshDate <= DateTime.UtcNow) //Acess token has expired
+            {
+                waitingForYoutube = true;
+                CreateYoutube();
             }
             waitingForYoutube = false;
             return true;
@@ -816,10 +924,13 @@ namespace MusicApp
             snackBar.Show();
         }
 
-        public void Unknow()
+        public void UnknowError(Action action = null)
         {
             Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), Resource.String.unknow, Snackbar.LengthIndefinite);
-            snackBar.SetAction("Dismiss", (sender) => { snackBar.Dismiss(); });
+            if (action != null)
+                snackBar.SetAction("Try Again", (sender) => { action.Invoke();  snackBar.Dismiss(); });
+            else
+                snackBar.SetAction("Dismiss", (sender) => { snackBar.Dismiss(); });
             snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
             snackBar.Show();
         }

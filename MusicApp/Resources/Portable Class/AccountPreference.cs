@@ -13,6 +13,7 @@ using MusicApp;
 using MusicApp.Resources.Portable_Class;
 using Square.Picasso;
 using System;
+using System.Threading.Tasks;
 
 public class AccountPreference : Preference, IResultCallback
 {
@@ -60,6 +61,27 @@ public class AccountPreference : Preference, IResultCallback
         }
     }
 
+    private async void LogIn()
+    {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DefaultSignIn)
+            .RequestIdToken(Preferences.instance.GetString(Resource.String.clientID))
+            .RequestServerAuthCode(Preferences.instance.GetString(Resource.String.clientID))
+            .RequestEmail()
+            .RequestScopes(new Scope(YouTubeService.Scope.Youtube))
+            .Build();
+
+        GoogleApiClient googleClient = new GoogleApiClient.Builder(Preferences.instance)
+            .AddApi(Auth.GOOGLE_SIGN_IN_API, gso)
+            .Build();
+
+        googleClient.Connect();
+
+        while (!googleClient.IsConnected)
+            await Task.Delay(10);
+
+        Preferences.instance.StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 5981);
+    }
+
     public void OnSignedIn()
     {
         Button log = (Button)view.FindViewById(Resource.Id.logButton);
@@ -70,6 +92,37 @@ public class AccountPreference : Preference, IResultCallback
         log.Click -= logIn;
     }
 
+
+    private async void LogOut()
+    {
+        MainActivity.account = null;
+        YoutubeEngine.youtubeService = null;
+
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DefaultSignIn)
+                .RequestIdToken(Preferences.instance.GetString(Resource.String.clientID))
+                .RequestServerAuthCode(Preferences.instance.GetString(Resource.String.clientID))
+                .RequestEmail()
+                .RequestScopes(new Scope(YouTubeService.Scope.Youtube))
+                .Build();
+
+        GoogleApiClient googleClient = new GoogleApiClient.Builder(Preferences.instance)
+                .AddApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .Build();
+
+        googleClient.Connect();
+
+        while (!googleClient.IsConnected)
+            await Task.Delay(10);
+
+        Auth.GoogleSignInApi.RevokeAccess(googleClient).SetResultCallback(this);
+
+        ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Preferences.instance);
+        ISharedPreferencesEditor editor = prefManager.Edit();
+        editor.Remove("refresh-token");
+        editor.Apply();
+    }
+
+    //Log out result
     public void OnResult(Java.Lang.Object result)
     {
         Button log = (Button)view.FindViewById(Resource.Id.logButton);
@@ -77,39 +130,11 @@ public class AccountPreference : Preference, IResultCallback
         log.Text = Preferences.instance.Resources.GetString(Resource.String.log_in);
         Summary = "";
         Picasso.With(Android.App.Application.Context).Load(Resource.Drawable.account).Into(view.FindViewById<ImageView>(Android.Resource.Id.Icon));
-        if(MainActivity.Theme == 1)
+        if (MainActivity.Theme == 1)
             view.FindViewById<ImageView>(Android.Resource.Id.Icon).SetColorFilter(Color.White);
         else
             view.FindViewById<ImageView>(Android.Resource.Id.Icon).SetColorFilter(Color.Gray);
         log.Click -= logOut;
         MainActivity.instance.InvalidateOptionsMenu();
-    }
-
-    void LogIn()
-    {
-        if (MainActivity.instance.googleClient == null)
-        {
-            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DefaultSignIn)
-                    .RequestIdToken(Preferences.instance.GetString(Resource.String.clientID))
-                    .RequestServerAuthCode(Preferences.instance.GetString(Resource.String.clientID))
-                    .RequestEmail()
-                    .RequestScopes(new Scope(YouTubeService.Scope.Youtube))
-                    .Build();
-
-            MainActivity.instance.googleClient = new GoogleApiClient.Builder(Preferences.instance)
-                    .AddApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                    .Build();
-
-            MainActivity.instance.googleClient.Connect();
-        }
-
-        Preferences.instance.StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(MainActivity.instance.googleClient), 5981);
-    }
-
-    void LogOut()
-    {
-        MainActivity.account = null;
-        YoutubeEngine.youtubeService = null;
-        Auth.GoogleSignInApi.SignOut(MainActivity.instance.googleClient).SetResultCallback(this);
     }
 }

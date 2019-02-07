@@ -976,7 +976,7 @@ namespace MusicApp.Resources.Portable_Class
                 if (ex is System.Net.Http.HttpRequestException)
                     MainActivity.instance.Timout();
                 else
-                    MainActivity.instance.Unknow();
+                    MainActivity.instance.UnknowError();
 
                 return;
             }
