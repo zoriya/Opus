@@ -4,7 +4,6 @@ using Android.OS;
 using Android.Support.V7.App;
 using Android.Support.V7.Widget;
 using Android.Views;
-using System.Threading.Tasks;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -27,7 +26,7 @@ namespace MusicApp.Resources.Portable_Class
 
             Toolbar ToolBar = FindViewById<Toolbar>(Resource.Id.toolbar);
             SetSupportActionBar(ToolBar);
-            SupportActionBar.Title = "Download Queue";
+            SupportActionBar.Title = GetString(Resource.String.download_queue);
             SupportActionBar.SetHomeAsUpIndicator(Resource.Drawable.Close);
             SupportActionBar.SetDisplayHomeAsUpEnabled(true);
             Window.SetStatusBarColor(Color.Argb(255, 33, 33, 33));
@@ -77,12 +76,12 @@ namespace MusicApp.Resources.Portable_Class
                     if(Downloader.queue[morePosition].State == DownloadState.Completed)
                     {
                         System.IO.File.Delete(Downloader.queue[morePosition].path);
-                        Downloader.queue[morePosition].name = "Deleted file";
+                        Downloader.queue[morePosition].name = GetString(Resource.String.deleted_file);
                         Downloader.queue[morePosition].State = DownloadState.Canceled;
                     }
                     else if(Downloader.queue[morePosition].State == DownloadState.None)
                     {
-                        Downloader.queue[morePosition].name = "Deleted file";
+                        Downloader.queue[morePosition].name = GetString(Resource.String.deleted_file);
                         Downloader.queue[morePosition].State = DownloadState.Canceled;
                     }
                     else

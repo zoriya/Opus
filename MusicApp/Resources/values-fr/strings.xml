@@ -133,6 +133,10 @@
   <string name="changes_saved">Changement sauvegardé.</string>
   <string name="metdata_error_noid">Impossible de télécharger les metadatas depuis youtube, l\'id youtube n\'est pas défnit.</string>
 
+  <!--Download Queue-->
+  <string name="download_queue">Liste de téléchargement</string>
+  <string name="deleted_file">Fichier supprimé</string>
+
   <!--Chromecast-->
   <string name="cast_queue_push">Votre liste de lecture est envoyée au chromecast, veuillez patienter...</string>
   <string name="cast_queue_pushed">Finis, la musique va commencer sous peu.</string>
@@ -183,4 +187,8 @@
   <string name="downloading_update">Téléchargement en cours, vous serez informer lorsque l\'installation sera prète.</string>
   <string name="updating">Mise a jour en cours...</string>
   <string name="cant_play_non_youtube">Impossible de lire ce type de vidéo.</string>
+  <string name="sleep_timer">La musique va s\'arreter dans :</string>
+  <string name="downloading_notification">Téléchargement :</string>
+  <string name="tap_details">Tappez pour plus de détails</string>
+  <string name="cancelling">Annulation en cours...</string>
 </resources>

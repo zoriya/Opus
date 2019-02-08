@@ -8,7 +8,6 @@ using Android.Net;
 using Android.OS;
 using Android.Provider;
 using Android.Support.V4.App;
-using Android.Support.V7.Preferences;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
@@ -428,10 +427,10 @@ namespace MusicApp.Resources.Portable_Class
             notification = new NotificationCompat.Builder(Application.Context, "MusicApp.Channel")
                 .SetVisibility(NotificationCompat.VisibilityPublic)
                 .SetSmallIcon(Resource.Drawable.MusicIcon)
-                .SetContentTitle("Downloading: ")
-                .SetContentText(downloadCount > 1 ? "Tap for more details" : title)
+                .SetContentTitle(GetString(Resource.String.downloading_notification))
+                .SetContentText(downloadCount > 1 ? GetString(Resource.String.tap_details) : title)
                 .SetContentIntent(queueIntent)
-                .AddAction(Resource.Drawable.Cancel, "Cancel", cancelIntent);
+                .AddAction(Resource.Drawable.Cancel, GetString(Resource.String.cancel), cancelIntent);
 
             if(queue.Count > 1)
             {
@@ -453,7 +452,7 @@ namespace MusicApp.Resources.Portable_Class
 
         void SetCancelNotification()
         {
-            notification.SetContentTitle("Cancelling...")
+            notification.SetContentTitle(GetString(Resource.String.cancelling))
                 .SetSubText((string)null);
               
             StartForeground(notificationID, notification.Build());

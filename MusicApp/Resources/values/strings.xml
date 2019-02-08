@@ -19,6 +19,7 @@
   <string name="next_loading">Loading, please wait.</string>
   <string name="sleep_timer">Stop music in</string>
   <string name="off">Off</string>
+  <string name="minute">minute</string>
   <string name="minutes">minutes</string>
   <string name="hour">hour</string>
   <string name="hours">hours</string>
@@ -133,6 +134,10 @@
   <string name="changes_saved">Changes saved.</string>
   <string name="metdata_error_noid">Can\'t get meta data on youtube, Youtube ID isn\'t set.</string>
   
+  <!--Download Queue-->
+  <string name="download_queue">Download Queue</string>
+  <string name="deleted_file">Deleted file</string>
+  
   <!--Chromecast-->
   <string name="cast_queue_push">Pushing current queue to the cast, please wait...</string>
   <string name="cast_queue_pushed">Done, start playing!</string>
@@ -187,4 +192,8 @@
   <string name="downloading_update">Downloading update, you will be prompt for the installation soon.</string>
   <string name="updating">Updating app...</string>
   <string name="cant_play_non_youtube">Can\'t play non youtube video.</string>
+  <string name="sleep_timer">Music will stop in:</string>
+  <string name="downloading_notification">Downloading:</string>
+  <string name="tap_details">Tap for more details</string>
+  <string name="cancelling">Cancelling...</string>
 </resources>

@@ -41,8 +41,8 @@ namespace MusicApp.Resources.Portable_Class
                     NotificationCompat.Builder notification = new NotificationCompat.Builder(Application.Context, "MusicApp.Channel")
                         .SetVisibility(NotificationCompat.VisibilityPublic)
                         .SetSmallIcon(Resource.Drawable.MusicIcon)
-                        .SetContentTitle("Music will stop in:")
-                        .SetContentText(timer + " minutes")
+                        .SetContentTitle(GetString(Resource.String.sleep_timer))
+                        .SetContentText(timer + " " + GetString(Resource.String.minutes))
                         .SetOngoing(true);
 
                     notificationManager.Notify(1001, notification.Build());
@@ -65,8 +65,8 @@ namespace MusicApp.Resources.Portable_Class
             NotificationCompat.Builder notification = new NotificationCompat.Builder(Application.Context, "MusicApp.Channel")
                 .SetVisibility(NotificationCompat.VisibilityPublic)
                 .SetSmallIcon(Resource.Drawable.MusicIcon)
-                .SetContentTitle("Music will stop in:")
-                .SetContentText(timer + " minutes")
+                .SetContentTitle(GetString(Resource.String.sleep_timer))
+                .SetContentText(timer + " " + GetString(Resource.String.minutes))
                 .SetContentIntent(defaultIntent)
                 .SetOngoing(true);
 
@@ -74,7 +74,7 @@ namespace MusicApp.Resources.Portable_Class
 
             while (timer > 0)
             {
-                notification.SetContentText(timer + " minutes");
+                notification.SetContentText(timer + " " + (timer > 1 ? GetString(Resource.String.minutes) : GetString(Resource.String.minute)));
                 notificationManager.Notify(1001, notification.Build());
 
                 await Task.Delay(60000); // One minute in ms
