@@ -727,32 +727,16 @@ namespace MusicApp
             else if(newState == BottomSheetBehavior.StateHidden)
             {
                 movement = SheetMovement.Unknow;
-                if (MusicPlayer.userStopped)
+                if (MainActivity.instance.SkipStop)
                 {
                     Intent intent = new Intent(context, typeof(MusicPlayer));
                     intent.SetAction("Stop");
-                    context.StartService(intent);
-                    if(MusicPlayer.UseCastPlayer)
-                        MusicPlayer.RemotePlayer.Stop();
-
-                    MusicPlayer.queue = new List<Song>();
-                    MusicPlayer.UpdateQueueDataBase();
-                    if (Home.adapterItems.Count > 0 && Home.adapterItems[0].SectionTitle == "Queue")
-                    {
-                        Home.instance?.adapter.NotifyItemRemoved(0);
-                        Home.adapterItems.RemoveAt(0);
-                    }
-                }
-                else
-                {
-                    Intent intent = new Intent(context, typeof(MusicPlayer));
-                    intent.SetAction("Stop");
+                    intent.PutExtra("saveQueue", false);
                     context.StartService(intent);
                 }
-
+                MainActivity.instance.SkipStop = false;
                 sheet.Alpha = 1;
                 MusicPlayer.instance?.ChangeVolume(MusicPlayer.instance.volume);
-                MusicPlayer.userStopped = true;
             }
         }
     }

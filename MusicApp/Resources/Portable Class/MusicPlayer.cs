@@ -63,7 +63,6 @@ namespace MusicApp.Resources.Portable_Class
         public static bool autoUpdateSeekBar = true;
         public static bool repeat = false;
         public static bool useAutoPlay = true;
-        public static bool userStopped = true;
         public static bool isLiveStream = false;
         public static bool ShouldResumePlayback;
         public static bool Initialized = false;
@@ -149,7 +148,7 @@ namespace MusicApp.Resources.Portable_Class
                     break;
 
                 case "Stop":
-                    Stop();
+                    Stop(intent.GetBooleanExtra("saveQueue", true));
                     break;
 
                 case "SleepPause":
@@ -1504,44 +1503,66 @@ namespace MusicApp.Resources.Portable_Class
                         MainActivity.instance.ShowSmallPlayer();
                 }
                 else
-                {
-                    userStopped = false;
                     MainActivity.instance.HideSmallPlayer();
-                }
             }
         }
 
-        public void Stop()
+        public void Stop(bool SaveQueue)
         {
+            Console.WriteLine("&Stopping with SaveQueue = " + SaveQueue);
             if (noisyRegistered)
                 UnregisterReceiver(noisyReceiver);
 
-            if(player != null && CurrentPosition != 0)
-                SaveTimer(CurrentPosition);
+            if (SaveQueue)
+            {
+                if (player != null && CurrentPosition != 0)
+                    SaveTimer(CurrentPosition);
+            }
+            else
+            {
+                ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
+                ISharedPreferencesEditor editor = pref.Edit();
+                editor.PutInt("currentID", 0);
+                editor.Apply();
+
+                queue = new List<Song>();
+                UpdateQueueDataBase();
+
+                MainActivity.instance?.HideSmallPlayer();
+                if (Home.adapterItems?.Count > 0 && Home.adapterItems[0]?.SectionTitle == "Queue")
+                {
+                    Home.instance?.adapter.NotifyItemRemoved(0);
+                    Home.adapterItems?.RemoveAt(0);
+                }
+            }
+            
 
             noisyReceiver = null;
             noisyRegistered = false;
             isRunning = false;
             currentID = -1;
-            userStopped = false;
-            instance = null;
-            MainActivity.instance?.HideSmallPlayer();
-            userStopped = true;
             if (player != null)
             {
                 player.Release();
                 player.Stop();
                 player = null;
-                StopForeground(true);
             }
 
             if (!UseCastPlayer)
+            {
+                instance = null;
                 StopSelf();
+            }
+            else if (!SaveQueue)
+            {
+                RemotePlayer.Stop();
+                StopSelf();
+            }
         }
 
         private void SleepPause()
         {
-            Stop();
+            Stop(true);
         }
 
         public void OnAudioFocusChange(AudioFocus focusChange)
@@ -1588,7 +1609,7 @@ namespace MusicApp.Resources.Portable_Class
         public override void OnDestroy()
         {
             base.OnDestroy();
-            Stop();
+            Stop(true);
             instance = null;
         }
 

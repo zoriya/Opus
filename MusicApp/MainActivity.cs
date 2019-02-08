@@ -63,6 +63,7 @@ namespace MusicApp
         public bool Paused = false;
 
         public bool prepared = false;
+        public bool SkipStop = false;
         public BottomSheetBehavior SheetBehavior;
 
         private const int RequestCode = 8539;
@@ -453,7 +454,7 @@ namespace MusicApp
                     await Task.Delay(10);
                 }
             }
-            else if(NextRefreshDate <= DateTime.UtcNow) //Acess token has expired
+            else if(NextRefreshDate == null || NextRefreshDate <= DateTime.UtcNow) //Acess token has expired
             {
                 waitingForYoutube = true;
                 CreateYoutube();
@@ -760,6 +761,7 @@ namespace MusicApp
 
         public void HideSmallPlayer()
         {
+            SkipStop = true;
             FindViewById<FrameLayout>(Resource.Id.contentView).SetPadding(0, 0, 0, 0);
             SheetBehavior.State = BottomSheetBehavior.StateHidden;
             FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Gone;
