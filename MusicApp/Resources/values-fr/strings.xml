@@ -14,11 +14,12 @@
   
   <!--Player-->
   <string name="show_queue">AFFICHER LA LISTE DE LECTURE</string>
-  <string name="up_next">À suivre:</string>
+  <string name="up_next">À suivre :</string>
   <string name="nothing">Rien.</string>
   <string name="next_loading">Chargement en cours, veuillez patienter.</string>
   <string name="sleep_timer">Arreter la musique dans</string>
   <string name="off">Off</string>
+  <string name="minute">minute</string>
   <string name="minutes">minutes</string>
   <string name="hour">heure</string>
   <string name="hours">heures</string>
@@ -36,7 +37,7 @@
   <!--More menu (long clicks)-->
   <string name="play">Lire</string>
   <string name="play_next">Lire après</string>
-  <string name="play_last">Lire en dernier</string>
+  <string name="play_last">Ajouter a la fin de la liste de lecture</string>
   <string name="create_mix_from_song">Créer un mix</string>
   <string name="add_to_playlist">Ajouter a une playlist</string>
   <string name="edit_metadata">Modifier les metadata</string>
@@ -136,6 +137,11 @@
   <!--Download Queue-->
   <string name="download_queue">Liste de téléchargement</string>
   <string name="deleted_file">Fichier supprimé</string>
+  <string name="initialization">Initialisation</string>
+  <string name="metadata">Metdata</string>
+  <string name="downloading_status">Téléchargement</string>
+  <string name="up_to_date_status">Déja a jour</string>
+  <string name="completed">Completé</string>
 
   <!--Chromecast-->
   <string name="cast_queue_push">Votre liste de lecture est envoyée au chromecast, veuillez patienter...</string>

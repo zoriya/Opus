@@ -15,12 +15,22 @@ namespace MusicApp.Resources.Portable_Class
         {
             DownloadHolder holder = (DownloadHolder)viewHolder;
             holder.Title.Text = Downloader.queue[position].name;
-            holder.Status.Text = Downloader.queue[position].State.ToString();
 
             switch (Downloader.queue[position].State)
             {
                 case DownloadState.Initialization:
+                    holder.Status.Text = Downloader.instance.GetString(Resource.String.initialization);
+                    holder.Status.Visibility = ViewStates.Visible;
+                    holder.Progress.Visibility = ViewStates.Visible;
+                    holder.Progress.Indeterminate = true;
+                    holder.Title.Alpha = 1f;
+                    if (MainActivity.Theme == 1)
+                        holder.Title.SetTextColor(Color.White);
+                    else
+                        holder.Title.SetTextColor(Color.Black);
+                    break;
                 case DownloadState.MetaData:
+                    holder.Status.Text = Downloader.instance.GetString(Resource.String.metadata);
                     holder.Status.Visibility = ViewStates.Visible;
                     holder.Progress.Visibility = ViewStates.Visible;
                     holder.Progress.Indeterminate = true;
@@ -31,6 +41,7 @@ namespace MusicApp.Resources.Portable_Class
                         holder.Title.SetTextColor(Color.Black);
                     break;
                 case DownloadState.Downloading:
+                    holder.Status.Text = Downloader.instance.GetString(Resource.String.downloading_status);
                     holder.Status.Visibility = ViewStates.Visible;
                     holder.Progress.Visibility = ViewStates.Visible;
                     holder.Title.Alpha = 1f;
@@ -51,11 +62,13 @@ namespace MusicApp.Resources.Portable_Class
                         holder.Title.SetTextColor(Color.Black);
                     break;
                 case DownloadState.Completed:
+                    holder.Status.Text = Downloader.instance.GetString(Resource.String.completed);
                     holder.Status.Visibility = ViewStates.Gone;
                     holder.Progress.Visibility = ViewStates.Invisible;
                     holder.Title.SetTextColor(Color.Argb(255, 117, 117, 117));
                     break;
                 case DownloadState.UpToDate:
+                    holder.Status.Text = Downloader.instance.GetString(Resource.String.up_to_date_status);
                     holder.Status.Visibility = ViewStates.Visible;
                     holder.Progress.Visibility = ViewStates.Invisible;
                     holder.Title.SetTextColor(Color.Argb(255, 76, 175, 80));
