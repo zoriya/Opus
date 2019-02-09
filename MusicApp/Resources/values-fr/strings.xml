@@ -109,7 +109,7 @@
   <string name="rename_playlist">Choissisez un nouveau nom pour cette playlist</string>
   <string name="stop_syncing">Voulez vous arreter de synchroniser la playlist \"%1s$\" ?</string> <!--%1$s will be replaced by the playlist name-->
   <string name="unfork_playlist">Voulez vous supprimer la playlist \"%1$s"\" de votre bibliothèque ?</string> <!--%1$s will be replaced by the playlist name-->
-  <string name="add_playlist_msg">Enter l\'url ou l\'id de la playlist que vous voulez ajouter</string> <!--%1$s will be replaced by the playlist name-->
+  <string name="add_playlist_msg">Entrer l\'url ou l\'id de la playlist que vous voulez ajouter</string> <!--%1$s will be replaced by the playlist name-->
 
   <!--Add song to playlist-->
   <string name="create_playlist">Créer une nouvelle playlist</string>
@@ -137,7 +137,7 @@
   <string name="download_queue">Liste de téléchargement</string>
   <string name="deleted_file">Fichier supprimé</string>
   <string name="initialization">Initialisation</string>
-  <string name="metadata">Metdata</string>
+  <string name="metadata">Metadata</string>
   <string name="downloading_status">Téléchargement</string>
   <string name="up_to_date_status">Déja a jour</string>
   <string name="completed">Completé</string>
@@ -160,7 +160,7 @@
   <string name="download">Téléchargement</string>
   <string name="download_directory">Dossier de téléchargement</string>
   <string name="max_download">Nombre maximum de téléchargement simultané</string>
-  <string name="max_download_dialog">Combient de musiques peuvent-elle être téléchargées en même temps ?</string>
+  <string name="max_download_dialog">Combiens de musiques peuvent-elle être téléchargées en même temps ?</string>
   <string name="sync_remove">Supprimer les musiques enlevée d\'une playlist synchronisée.</string>
   <string name="appearances">Apparence</string>
   <string name="theme">Thème</string>
@@ -183,7 +183,7 @@
   <string name="youtube_endpoint">L\'algorithme youtube a changé, l\'application ne peut plus lire cette vidéo. Attendez la prochaine mise a jour.</string>
   <string name="timout">Timout, vérifier votre connection internet.</string>
   <string name="unknow">Une erreur inconue est survenue.</string>
-  <string name="not_streamable"> ne peut pas être lu, L\'audio n\'est pas disponible.</string> <!--//A song title will be placed before this sentence-->
+  <string name="not_streamable"> ne peut pas être lu, l\'audio n\'est pas disponible.</string> <!--//A song title will be placed before this sentence-->
   <string name="update_no_internet">Vous n\'êtes pas connecté a internet, impossible de verifier si des mises a jours existent.</string>
   <string name="update">La version %1$s est disponible</string> <!--//%1$s will be replaced with the version number-->
   <string name="update_message">Une mise a jour est disponible, voulez vous l\'installer maintenant ?</string>

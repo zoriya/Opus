@@ -137,7 +137,7 @@
   <string name="download_queue">Download Queue</string>
   <string name="deleted_file">Deleted file</string>
   <string name="initialization">Initialization</string>
-  <string name="metadata">Metdata</string>
+  <string name="metadata">Metadata</string>
   <string name="downloading_status">Downloading</string>
   <string name="up_to_date_status">Up to date</string>
   <string name="completed">Completed</string>

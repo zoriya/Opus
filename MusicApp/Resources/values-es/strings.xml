@@ -1,0 +1,197 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<resources>
+  <!--Navigation bar-->
+  <string name="home">Inicio</string>
+  <string name="browse">Navegar</string>
+  <string name="playlists">Playlists</string>
+  
+  <!--Toolbars-->
+  <string name="repeat">Repetir</string>
+  <string name="youtube_search">Buscar en YouTube</string>
+  <string name="filter">Filtrar</string>
+  <string name="cast">Cast</string>
+  <string name="settings">Ajustes</string>
+  
+  <!--Player-->
+  <string name="show_queue">Mostrar la cola</string>
+  <string name="up_next">Siguiente :</string>
+  <string name="nothing">Nada.</string>
+  <string name="next_loading">Cargando, por favor espere.</string>
+  <string name="sleep_timer">Detener la música dentro de</string>
+  <string name="off">Off</string>
+  <string name="minute">minuto</string>
+  <string name="minutes">minutos</string>
+  <string name="hour">hora</string>
+  <string name="hours">horas</string>
+  
+  <!--Queue-->
+  <string name="playing">Reproducción en curso</string>
+  <string name="paused">Pausa</string>
+  <string name="removed_from_queue"> se ha eliminado de la cola.</string>
+
+  <!--Autoplay-->
+  <string name="autoplay">Lectura automática</string>
+  <string name="autoplay_desc">Añade automáticamente música similar</string>
+  <string name="create_mix">CREAR UN MIX</string>
+  
+  <!--More menu (long clicks)-->
+  <string name="play">Reproducir</string>
+  <string name="play_next">Reproducir a continuación</string>
+  <string name="play_last">Añadir al final de la lista de la cola</string>
+  <string name="create_mix_from_song">Crear un mix</string>
+  <string name="add_to_playlist">Añadir a la playlist</string>
+  <string name="edit_metadata">Modifiar la metadata</string>
+  <string name="download">Descargar</string>
+  <string name="remove_from_queue">Eliminar de la cola</string>
+  <string name="remove_from_playlist">Eliminar de la playlist</string>
+  <!--More menu of playlist or folders-->
+  <string name="list_songs">Listar la música </string>
+  <string name="play_in_order">Reproducir en orden</string>
+  <string name="random_play">Reproducción aleatoria </string>
+  <string name="add_to_queue">Añadir a la cola</string>
+  <string name="rename">Rebautizar</string>
+  <string name="delete">Eliminar</string>
+  <string name="sync">Sincronizar</string>
+  <string name="sync_now">Sincronizar ya</string>
+  <string name="stop_sync">Parar de sincronizar</string>
+  <string name="add_to_library">Guardar la playlist</string>
+  <string name="unfork">Eliminar la playlist de la biblioteca</string>
+
+  <!--Home screen-->
+  <string name="shuffle_all">Leer todo al azar</string>
+  <string name="shuffle">Reproducción aleatoria</string>
+  <string name="more">mas</string>
+  <string name="queue">Lista de reproducción</string>
+  <string name="featured">Destacado</string>
+ 
+  <!--Browse tab-->
+  <string name="songs">Musicas</string>
+  <string name="folders">Archivos</string>
+  <string name="no_song">No tiene ninguna musica en este dispositivo.</string>
+  
+  <!--Youtube Search-->
+  <string name="all">Todos</string>
+  <string name="playlists">Playlists</string>
+  <string name="lives">Lives</string>
+  <string name="channels">Cadenas</string>
+  <string name="download_path_not_set">No se ha definido la carpeta de descarga, se utilizará la carpeta predeterminada.</string>
+  <string name="download_path_error">El archivo de descargas ya no existe, por favor, cambie lo en los ajustes.</string>
+  <string name="set_path">Definir el archivo</string>
+  <string name="downloading">Descargando...</string>
+  <string name="syncing">Sincronizando...</string>
+  <string name="cant_delete">Imposible de eliminar este fichero por el momento, por favor, intente mas tarde.</string>
+  <string name="no_result">ningún resultado para </string>
+  <string name="no_track">Ningúna musica para </string>
+  <string name="no_playlist">Ningúna playlist para </string>
+  <string name="no_lives">Ningún lives para </string>
+  <string name="no_channel">Ningún canal para </string>
+  <string name="remove_search">¿Eliminar de el historial?</string>
+  <string name="remove">Eliminar</string>
+  
+  <!--Playlists Screen-->
+  <string name="local_playlists">Playlists locales</string>
+  <string name="youtube_playlists">Playlists youtubes</string>
+  <string name="add_playlist">AÑADIR UNA PLAYLIST</string>
+  <string name="youtube_loading_error">Error de carga. \nPor favor, seleccione una cuenta y compruebe su conexión internet.</string>
+  <string name="local_playlist_empty">No tiene ninguna playlist en este dispositivo.</string>
+  <string name="youtube_playlist_empty">No tiene ninguna playlist en esta cuenta youtube \nAtención : Solo las playlists presentes en su cuenta google son mostradas.</string>
+  <string name="element">musica</string>
+  <string name="elements">musicas</string>
+  <string name="playlist_empty">Esta playlist esta vacia.</string>
+  <string name="remove_from_playlist">¿Eliminar %1$s de la playlist ?</string> <!--%1$s will be replaced by the song name-->
+  <string name="removed_from_playlist"> ha sido eliminado de la playlist.</string>
+  <string name="playlist_already_saved">Esta playlist ya ha sido añadida a vuestra biblioteca.</string>
+  <string name="playlist_not_found">Ningúna playlist existe con este id ou este url.</string>
+  <string name="playlist_add_song_not_found">la musica no se encontro en youtube, impossible de añadirla a una playlist youtube.</string>
+  <string name="delete_playlist">¿Quiere eliminar de la playlist  \"%1$s\" ?</string> <!--%1$s will be replaced by the playlist name-->
+  <string name="rename_playlist">Elija un nuevo nombre para esta playlist</string>
+  <string name="stop_syncing">¿Quiere parar de sincronizar la playlist \"%1s$\" ?</string> <!--%1$s will be replaced by the playlist name-->
+  <string name="unfork_playlist">¿Quiere eliminar la playlist \"%1$s"\" de vuestra biblioteca ?</string> <!--%1$s will be replaced by the playlist name-->
+  <string name="add_playlist_msg">inscribir la url o la id de la playlist que desea añadir</string> <!--%1$s will be replaced by the playlist name-->
+
+  <!--Add song to playlist-->
+  <string name="create_playlist">Crear una nueva playlist</string>
+  <string name="save_playlist">Añadir a...</string>
+  <string name="save_folder_playlist">Añadir a...</string>
+  <string name="new_playlist">Nueva playlist</string>
+  <string name="create_local">Playlist local</string>
+  <string name="create_youtube">Playlist youtube</string>
+  <string name="create_synced">Playlist syncronizada (disponible localemente y sobre youtube)</string>
+
+  <!--Edit metadata-->
+  <string name="title">Musica</string>
+  <string name="artist">Artista</string>
+  <string name="album">álbum</string>
+  <string name="youtubeid">Youtube ID</string>
+  <string name="change_albumart">Cambiar la imagen del álbum</string>
+  <string name="pick_album_local">Elegir una imagen desde el almacenamiento interno</string>
+  <string name="download_albumart">Descargar la cobija desde youtube</string>
+  <string name="download_meta">Descargar les metadata desde youtube</string>
+  <string name="undo_change">Anular las modificaciones</string>
+  <string name="changes_saved">Cambio guardado.</string>
+  <string name="metdata_error_noid">Imposible de descargar las metadatas desde youtube, la id youtube no ha sido définida.</string>
+
+  <!--Download Queue-->
+  <string name="download_queue">Lista de descargas</string>
+  <string name="deleted_file">Fichero eliminado</string>
+  <string name="initialization">Inicialización</string>
+  <string name="metadata">Metadata</string>
+  <string name="downloading_status">Descargando</string>
+  <string name="up_to_date_status">Actualizado</string>
+  <string name="completed">Finalizado</string>
+
+  <!--Chromecast-->
+  <string name="cast_queue_push">Vuestra lista de reproducción es enviada a la chromecast, por favor espere...</string>
+  <string name="cast_queue_pushed">Terminado, la musica empezará pronto.</string>
+
+  <!--Settings-->
+  <string name="apply">Aplicar</string>
+  <string name="cancel">Anular</string>
+  <string name="ok">Ok</string>
+  <string name="add">Añadir</string>
+  <string name="later">Mas tarde</string>
+  <string name="yes">Si</string>
+  <string name="no">No</string>
+  
+  <string name="behavior">Funcionamiento</string>
+  <string name="volume">Volumen</string>
+  <string name="download">Descargas</string>
+  <string name="download_directory">Archivo de descargas</string>
+  <string name="max_download">Numero maximo de descargas simultaneas</string>
+  <string name="max_download_dialog">¿Cuantas musicas pueden descargarse al mismo tiempo?</string>
+  <string name="sync_remove">Eliminar las musicas quitadas de una playlist sincronizada.</string>
+  <string name="appearances">Apariencia</string>
+  <string name="theme">Tema</string>
+  <string name="theme_dialog">Elija un tema</string>
+  <string name="white_theme">Tema claro</string>
+  <string name="dark_theme">Tema Obscuro</string>
+  <string name="others">Otros</string>
+  <string name="check_updates">Buscar actualizaciones</string>
+  <string name="version">Version</string>
+  <string name="not_log">Desconectado</string>
+  <string name="logged_in">Conectado al mismo tiempo que</string>
+  <string name="log_in">CONEXIÓN</string>
+  <string name="log_out">DECONEXIÓN</string>
+
+  <!--Snackbars and others-->
+  <string name="undo">Anular</string>
+
+  <string name="no_permission">permiso denegado, imposible de completar esta acción.</string>
+  <string name="no_song_mix">ninguna musica encontrada, imposible de crear un mix.</string>
+  <string name="youtube_endpoint">El algoritmo youtube a cambiado, la aplicación no puede leer este video.Espere la proxima actualización.</string>
+  <string name="timout">Timout, compruebe su conexión internet.</string>
+  <string name="unknow">Un error desconozido est sucedió.</string>
+  <string name="not_streamable"> no pude ser reproducido, el audio no está disponible.</string> <!--//A song title will be placed before this sentence-->
+  <string name="update_no_internet">No está conectado a internet, imposible de comprobar si existen actualizaciones.</string>
+  <string name="update">La versión %1$s está disponible</string> <!--//%1$s will be replaced with the version number-->
+  <string name="update_message">¿Una  actualización está disponible, desea instalarla ahora?</string>
+  <string name="up_to_date">Ninguna Actualización disponible.</string>
+  <string name="beta_available">Une versión beta está disponible.</string>
+  <string name="downloading_update">Descargando, se le informara cuando la instalacio este lista.</string>
+  <string name="updating">Actualizando...</string>
+  <string name="cant_play_non_youtube">Imposible de reproducir este tipo de video.</string>
+  <string name="sleep_timer">La musica parara dentro de :</string>
+  <string name="downloading_notification">Descargando :</string>
+  <string name="tap_details">toque para mas detalles</string>
+  <string name="cancelling">Anulando...</string>
+</resources>
