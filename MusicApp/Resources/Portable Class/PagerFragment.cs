@@ -76,7 +76,7 @@ namespace MusicApp.Resources.Portable_Class
             else if (type == 1)
             {
                 tabs.AddTab(tabs.NewTab().SetText(Resources.GetString(Resource.String.all)));
-                tabs.AddTab(tabs.NewTab().SetText(Resources.GetString(Resource.String.tracks)));
+                tabs.AddTab(tabs.NewTab().SetText(Resources.GetString(Resource.String.songs)));
                 tabs.AddTab(tabs.NewTab().SetText(Resources.GetString(Resource.String.playlists)));
                 tabs.AddTab(tabs.NewTab().SetText(Resources.GetString(Resource.String.lives)));
                 tabs.AddTab(tabs.NewTab().SetText(Resources.GetString(Resource.String.channels)));
@@ -84,7 +84,7 @@ namespace MusicApp.Resources.Portable_Class
                 ViewPagerAdapter adapter = new ViewPagerAdapter(ChildFragmentManager);
                 Fragment[] fragment = YoutubeEngine.NewInstances(query);
                 adapter.AddFragment(fragment[0], Resources.GetString(Resource.String.all));
-                adapter.AddFragment(fragment[1], Resources.GetString(Resource.String.tracks));
+                adapter.AddFragment(fragment[1], Resources.GetString(Resource.String.songs));
                 adapter.AddFragment(fragment[2], Resources.GetString(Resource.String.playlists));
                 adapter.AddFragment(fragment[3], Resources.GetString(Resource.String.lives));
                 adapter.AddFragment(fragment[4], Resources.GetString(Resource.String.channels));

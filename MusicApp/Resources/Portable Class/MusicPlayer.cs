@@ -336,13 +336,14 @@ namespace MusicApp.Resources.Portable_Class
             }
 
             autoPlay.Clear();
-            GenerateAutoPlay(false);
 
             SaveQueueSlot();
             Player.instance?.RefreshPlayer();
             Home.instance?.AddQueue();
             Queue.instance?.RefreshCurrent();
             ParseNextSong();
+            if (useAutoPlay)
+                GenerateAutoPlay(false);
         }
 
         public async void Play(Song song, long progress = -1, bool addToQueue = true)
@@ -448,6 +449,8 @@ namespace MusicApp.Resources.Portable_Class
             Home.instance?.AddQueue();
             Queue.instance?.RefreshCurrent();
             ParseNextSong();
+            if (useAutoPlay)
+                GenerateAutoPlay(false);
         }
 
         private static async Task<Song> ParseSong(Song song, int position = -1, bool startPlaybackWhenPosible = false)
@@ -591,6 +594,7 @@ namespace MusicApp.Resources.Portable_Class
                 ytPlaylistRequest.PlaylistId = video.GetVideoMixPlaylistId();
                 ytPlaylistRequest.MaxResults = 15;
 
+                List<Song> allSongs = new List<Song>();
                 var ytPlaylist = await ytPlaylistRequest.ExecuteAsync();
 
                 foreach (var item in ytPlaylist.Items)
@@ -600,11 +604,15 @@ namespace MusicApp.Resources.Portable_Class
                         Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.High.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
                         if (!queue.Exists(x => x.YoutubeID == song.YoutubeID))
                         {
-                            autoPlay.Add(song);
+                            allSongs.Add(song);
                             break;
                         }
                     }
                 }
+
+                Random r = new Random();
+                allSongs = allSongs.OrderBy(x => r.Next()).ToList();
+                autoPlay.AddRange(allSongs.GetRange(0, allSongs.Count > 5 ? 5 : allSongs.Count));
             }
             else
             {
@@ -643,8 +651,8 @@ namespace MusicApp.Resources.Portable_Class
                     musicCursor.Close();
                 }
                 Random r = new Random();
-                List<Song> songList = allSongs.OrderBy(x => r.Next()).ToList();
-                autoPlay.AddRange(songList.GetRange(0, songList.Count > 15 ? 15 : songList.Count));
+                allSongs = allSongs.OrderBy(x => r.Next()).ToList();
+                autoPlay.AddRange(allSongs.GetRange(0, allSongs.Count > 5 ? 5 : allSongs.Count));
             }
 
             Random random = new Random();

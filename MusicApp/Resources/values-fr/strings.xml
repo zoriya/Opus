@@ -49,7 +49,7 @@
   <string name="play_in_order">Lire dans l\'ordre</string>
   <string name="random_play">Lecture aléatoire</string>
   <string name="add_to_queue">Ajouter a la liste de lecture</string>
-  <string name="rename">Renomer</string>
+  <string name="rename">Renommer</string>
   <string name="delete">Supprimer</string>
   <string name="sync">Synchronizer la playlist</string>
   <string name="sync_now">Synchronizer maintenant</string>
@@ -73,7 +73,6 @@
   
   <!--Youtube Search-->
   <string name="all">Tous</string>
-  <string name="tracks">Titre</string>
   <string name="playlists">Playlists</string>
   <string name="lives">Lives</string>
   <string name="channels">Chaines</string>
@@ -95,7 +94,7 @@
   <string name="local_playlists">Playlists locales</string>
   <string name="youtube_playlists">Playlists youtubes</string>
   <string name="add_playlist">AJOUTER UNE PLAYLIST</string>
-  <string name="youtube_loading_error">Erreur de chargement. \nVerifiez avoir séléction un compte et votre connection internet.</string>
+  <string name="youtube_loading_error">Erreur de chargement. \nVerifiez avoir séléctionné un compte et votre connection internet.</string>
   <string name="local_playlist_empty">Vous n\'avez aucune playlist sur cet appareil.</string>
   <string name="youtube_playlist_empty">Vous n\'avez aucune playlist sur ce compte youtube \nAttention : Seulement les playlists présentes sur votre compte google sont affichées.</string>
   <string name="element">titre</string>
