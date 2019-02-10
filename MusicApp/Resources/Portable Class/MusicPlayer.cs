@@ -1517,12 +1517,16 @@ namespace MusicApp.Resources.Portable_Class
 
         public void Stop(bool SaveQueue)
         {
-            Console.WriteLine("&Stopping with SaveQueue = " + SaveQueue);
             if (noisyRegistered)
                 UnregisterReceiver(noisyReceiver);
 
             if (SaveQueue)
             {
+                ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
+                ISharedPreferencesEditor editor = pref.Edit();
+                editor.PutInt("currentID", currentID);
+                editor.Apply();
+
                 if (player != null && CurrentPosition != 0)
                     SaveTimer(CurrentPosition);
             }
@@ -1535,6 +1539,7 @@ namespace MusicApp.Resources.Portable_Class
 
                 queue = new List<Song>();
                 UpdateQueueDataBase();
+                currentID = -1;
 
                 MainActivity.instance?.HideSmallPlayer();
                 if (Home.adapterItems?.Count > 0 && Home.adapterItems[0]?.SectionTitle == "Queue")
@@ -1548,7 +1553,6 @@ namespace MusicApp.Resources.Portable_Class
             noisyReceiver = null;
             noisyRegistered = false;
             isRunning = false;
-            currentID = -1;
             if (player != null)
             {
                 player.Release();

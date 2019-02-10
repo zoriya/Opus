@@ -727,7 +727,7 @@ namespace MusicApp
             else if(newState == BottomSheetBehavior.StateHidden)
             {
                 movement = SheetMovement.Unknow;
-                if (MainActivity.instance.SkipStop)
+                if (!MainActivity.instance.SkipStop)
                 {
                     Intent intent = new Intent(context, typeof(MusicPlayer));
                     intent.SetAction("Stop");

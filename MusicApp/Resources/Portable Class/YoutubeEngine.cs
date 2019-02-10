@@ -933,9 +933,11 @@ namespace MusicApp.Resources.Portable_Class
 
         public static async void CreateMix(Song item)
         {
+            bool AddItemToQueue = true;
             if(MusicPlayer.queue.Count == 0)
             {
                 Play(item.YoutubeID, item.Title, item.Artist, item.Album, true, true);
+                AddItemToQueue = false;
             }
 
             ProgressBar parseProgress = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress);
@@ -983,6 +985,8 @@ namespace MusicApp.Resources.Portable_Class
 
             Random r = new Random();
             tracks = tracks.OrderBy(x => r.Next()).ToList();
+            if(AddItemToQueue)
+                tracks.Add(item);
 
             Intent intent = new Intent(MainActivity.instance, typeof(MusicPlayer));
             MainActivity.instance.StartService(intent);
