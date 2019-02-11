@@ -5,12 +5,12 @@ using Android.Content.PM;
 using Android.Content.Res;
 using Android.Gms.Cast.Framework;
 using Android.Graphics;
-using Android.Graphics.Drawables;
 using Android.OS;
 using Android.Runtime;
 using Android.Support.Design.Widget;
 using Android.Support.V4.Widget;
 using Android.Support.V7.Graphics;
+using Android.Support.V7.Widget;
 using Android.Text;
 using Android.Text.Style;
 using Android.Util;
@@ -40,6 +40,7 @@ namespace MusicApp
         private ProgressBar spBar;
         private TextView timer;
         private ImageView imgView;
+        private DrawerLayout DrawerLayout;
         private bool prepared = false;
         private readonly int[] timers = new int[] { 0, 2, 10, 30, 60, 120 };
         private int checkedItem = 0;
@@ -64,9 +65,6 @@ namespace MusicApp
 
             CastButtonFactory.SetUpMediaRouteButton(MainActivity.instance, MainActivity.instance.FindViewById<MediaRouteButton>(Resource.Id.castButton));
             MainActivity.instance.PrepareSmallPlayer();
-            TextView title = MainActivity.instance.FindViewById<TextView>(Resource.Id.playerTitle);
-            TextView artist = MainActivity.instance.FindViewById<TextView>(Resource.Id.playerArtist);
-            imgView = MainActivity.instance.FindViewById<ImageView>(Resource.Id.playerAlbum);
 
             if (!MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton).HasOnClickListeners)
             {
@@ -78,11 +76,7 @@ namespace MusicApp
                 MainActivity.instance.FindViewById<ImageButton>(Resource.Id.moreButton).Click += More;
             }
 
-            title.Selected = true;
-            title.SetMarqueeRepeatLimit(3);
-            artist.Selected = true;
-            artist.SetMarqueeRepeatLimit(3);
-
+            imgView = MainActivity.instance.FindViewById<ImageView>(Resource.Id.playerAlbum);
             timer = MainActivity.instance.FindViewById<TextView>(Resource.Id.timer);
             bar = MainActivity.instance.FindViewById<SeekBar>(Resource.Id.songTimer);
             bar.ProgressChanged += (sender, e) =>
@@ -92,6 +86,10 @@ namespace MusicApp
             };
 
             spBar = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.spProgress);
+
+            DrawerLayout = (DrawerLayout)MainActivity.instance.FindViewById(Resource.Id.playerView).Parent;
+            MainActivity.instance.FindViewById(Resource.Id.queueParent).LayoutParameters.Width = (int)(DrawerLayout.Width * 0.75f);
+            ((FrameLayout.LayoutParams)MainActivity.instance.FindViewById(Resource.Id.queue).LayoutParameters).TopMargin = Resources.GetDimensionPixelSize(Resources.GetIdentifier("status_bar_height", "dimen", "android"));
         }
 
         public async void RefreshPlayer()
@@ -386,8 +384,8 @@ namespace MusicApp
 
         private void ShowQueue_Click(object sender, EventArgs e)
         {
-            Intent intent = new Intent(MainActivity.instance, typeof(Queue));
-            MainActivity.instance.StartActivity(intent);
+            Queue.instance.Refresh();
+            DrawerLayout.OpenDrawer((int)GravityFlags.Start);
         }
 
         private void Last_Click(object sender, EventArgs e)
@@ -541,61 +539,8 @@ namespace MusicApp
             Color text = Color.Argb(Color.GetAlphaComponent(swatch.BodyTextColor), Color.GetRedComponent(swatch.BodyTextColor), Color.GetGreenComponent(swatch.BodyTextColor), Color.GetBlueComponent(swatch.BodyTextColor));
             Color background = Color.Argb(Color.GetAlphaComponent(swatch.Rgb), Color.GetRedComponent(swatch.Rgb), Color.GetGreenComponent(swatch.Rgb), Color.GetBlueComponent(swatch.Rgb));
             Color accentColor = Color.Argb(Color.GetAlphaComponent(accent.Rgb), Color.GetRedComponent(accent.Rgb), Color.GetGreenComponent(accent.Rgb), Color.GetBlueComponent(accent.Rgb));
-            //MainActivity.instance.FindViewById<TextView>(Resource.Id.playerTitle).SetTextColor(text);
-            //MainActivity.instance.FindViewById<TextView>(Resource.Id.playerArtist).SetTextColor(text);
             MainActivity.instance.FindViewById<TextView>(Resource.Id.spTitle).SetTextColor(text);
             MainActivity.instance.FindViewById<TextView>(Resource.Id.spArtist).SetTextColor(text);
-            //MainActivity.instance.FindViewById<FloatingActionButton>(Resource.Id.downFAB).BackgroundTintList = ColorStateList.ValueOf(accentColor);
-            //MainActivity.instance.FindViewById<FloatingActionButton>(Resource.Id.downFAB).RippleColor = accent.Rgb;
-
-            ////float multiplier = 0.4f;
-            //////if(Build.VERSION.SdkInt >= BuildVersionCodes.M && IsColorDark(accentColor))
-            //////    multiplier = 1.6f;
-
-            ////int red = (int)(Color.GetRedComponent(accentColor.ToArgb()) * multiplier);
-            ////int green = (int)(Color.GetGreenComponent(accentColor.ToArgb()) * multiplier);
-            ////int blue = (int)(Color.GetBlueComponent(accentColor.ToArgb()) * multiplier);
-            ////Color toolbar = Color.Rgb(red, green, blue);
-            ////MainActivity.instance.FindViewById(Resource.Id.playerStatus).SetBackgroundColor(toolbar);
-
-            //////if (Build.VERSION.SdkInt >= BuildVersionCodes.M)
-            //////{
-            //////    int statusBar = (int)MainActivity.instance.Window.DecorView.SystemUiVisibility;
-            //////    if (!IsColorDark(toolbar))
-            //////        statusBar |= (int)SystemUiFlags.LightStatusBar;
-            //////    else
-            //////        statusBar ^= (int)SystemUiFlags.LightStatusBar;
-            //////    MainActivity.instance.Window.DecorView.SystemUiVisibility = (StatusBarVisibility)statusBar;
-            //////}
-
-            ////Reveal for the player
-            //View reveal = MainActivity.instance.FindViewById<View>(Resource.Id.reveal);
-            //int centerX, centerY;
-            //float endRadius;
-            //if (playNext == true)
-            //{
-            //    centerX = 0;
-            //    centerY = reveal.Height / 2;
-            //    endRadius = reveal.Width * 1.3f;
-            //}
-            //else if(playNext == null)
-            //{
-            //    centerX = reveal.Width / 2;
-            //    centerY = reveal.Height;
-            //    endRadius = reveal.Width / 1.5f;
-            //}
-            //else
-            //{
-            //    centerX = reveal.Width;
-            //    centerY = reveal.Height / 2;
-            //    endRadius = reveal.Width * 1.3f;
-            //}
-            //Animator anim = ViewAnimationUtils.CreateCircularReveal(reveal, centerX, centerY, 0, endRadius);
-            //anim.AnimationStart += (sender, e) => { reveal.SetBackgroundColor(background); };
-            //anim.AnimationEnd += (sender, e) => { MainActivity.instance?.FindViewById<RelativeLayout>(Resource.Id.infoPanel).SetBackgroundColor(background); };
-            //anim.SetDuration(500);
-            //anim.StartDelay = 200;
-            //anim.Start();
 
             //Reveal for the smallPlayer
             if (prepared)
@@ -629,7 +574,6 @@ namespace MusicApp
 
             if (IsColorDark(accent.Rgb))
             {
-                //MainActivity.instance.FindViewById<FloatingActionButton>(Resource.Id.downFAB).ImageTintList = ColorStateList.ValueOf(Color.White);
                 MainActivity.instance.FindViewById<ImageButton>(Resource.Id.spNext).ImageTintList = ColorStateList.ValueOf(Color.White);
                 MainActivity.instance.FindViewById<ImageButton>(Resource.Id.spPlay).ImageTintList = ColorStateList.ValueOf(Color.White);
                 MainActivity.instance.FindViewById<ImageButton>(Resource.Id.spLast).ImageTintList = ColorStateList.ValueOf(Color.White);
@@ -637,7 +581,6 @@ namespace MusicApp
             }
             else
             {
-                //MainActivity.instance.FindViewById<FloatingActionButton>(Resource.Id.downFAB).ImageTintList = ColorStateList.ValueOf(Color.Black);
                 MainActivity.instance.FindViewById<ImageButton>(Resource.Id.spNext).ImageTintList = ColorStateList.ValueOf(Color.Black);
                 MainActivity.instance.FindViewById<ImageButton>(Resource.Id.spPlay).ImageTintList = ColorStateList.ValueOf(Color.Black);
                 MainActivity.instance.FindViewById<ImageButton>(Resource.Id.spLast).ImageTintList = ColorStateList.ValueOf(Color.Black);
@@ -666,7 +609,6 @@ namespace MusicApp
         private BottomNavigationView bottomView;
         private FrameLayout smallPlayer;
         private View playerContainer;
-        //private View playerStatusBar;
         private CoordinatorLayout snackBar;
         private bool Refreshed = false;
         private SheetMovement movement = SheetMovement.Unknow;
@@ -678,12 +620,13 @@ namespace MusicApp
             bottomView = context.FindViewById<BottomNavigationView>(Resource.Id.bottomView);
             smallPlayer = context.FindViewById<FrameLayout>(Resource.Id.smallPlayer);
             playerContainer = context.FindViewById(Resource.Id.playerContainer);
-            //playerStatusBar = context.FindViewById(Resource.Id.playerStatus);
             snackBar = context.FindViewById<CoordinatorLayout>(Resource.Id.snackBar);
         }
 
         public override void OnSlide(View bottomSheet, float slideOffset)
         {
+            smallPlayer.Visibility = ViewStates.Visible;
+
             if (movement == SheetMovement.Unknow)
             {
                 if (slideOffset > 0)
@@ -699,7 +642,6 @@ namespace MusicApp
                 sheet.TranslationY = -(int)((56 * context.Resources.DisplayMetrics.Density + 0.5f) * (1 - slideOffset));
 
                 playerContainer.Alpha = Math.Max(0, (slideOffset - 0.5f) * 2.5f);
-                //playerStatusBar.ScaleY = slideOffset;
                 smallPlayer.Alpha = Math.Max(0, 1 - slideOffset * 2);
                 snackBar.TranslationY = (int)((50 * context.Resources.DisplayMetrics.Density + 0.5f) * slideOffset);
 
@@ -725,6 +667,7 @@ namespace MusicApp
                 sheet.Alpha = 1;
                 playerContainer.Alpha = 1;
                 smallPlayer.Alpha = 0;
+                smallPlayer.Visibility = ViewStates.Gone;
                 bottomSheet.TranslationY = (int)(56 * context.Resources.DisplayMetrics.Density + 0.5f);
                 sheet.TranslationY = 0;
                 snackBar.TranslationY = (int)(50 * context.Resources.DisplayMetrics.Density + 0.5f);

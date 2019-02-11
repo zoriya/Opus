@@ -53,9 +53,9 @@ namespace MusicApp.Resources.Portable_Class
                     if (!holder.ItemView.HasOnClickListeners)
                         holder.ItemView.Click += (sender, eventArg) => 
                         {
-                            Intent intent = new Intent(Queue.instance, typeof(MusicPlayer));
+                            Intent intent = new Intent(MainActivity.instance, typeof(MusicPlayer));
                             intent.SetAction("Next");
-                            Queue.instance.StartService(intent);
+                            MainActivity.instance.StartService(intent);
                         };
 
                     if(MusicPlayer.autoPlay.Count > 0)
@@ -116,10 +116,10 @@ namespace MusicApp.Resources.Portable_Class
                         }
                     };
 
-                    holder.MixButton.Click += async (sender, e) =>
-                    {
-                        YoutubeEngine.CreateMix(await MusicPlayer.GetItem());
-                    };
+                    //holder.MixButton.Click += async (sender, e) =>
+                    //{
+                    //    YoutubeEngine.CreateMix(await MusicPlayer.GetItem());
+                    //};
                 }
             }
             else
@@ -134,12 +134,12 @@ namespace MusicApp.Resources.Portable_Class
                     holder.Artist.SetTextColor(Color.White);
                     holder.Artist.Alpha = 0.7f;
                     holder.youtubeIcon.SetColorFilter(Color.White);
-                    holder.ItemView.SetBackgroundColor(Color.ParseColor("#424242"));
+                    //holder.ItemView.SetBackgroundColor(Color.ParseColor("#424242"));
                 }
-                else
-                    holder.ItemView.SetBackgroundColor(Color.White);
+                //else
+                //    holder.ItemView.SetBackgroundColor(Color.White);
 
-                holder.reorder.Visibility = ViewStates.Visible;
+                holder.reorder.Visibility = ViewStates.Gone;
                 if (position == MusicPlayer.CurrentID())
                 {
                     holder.status.Visibility = ViewStates.Visible;
@@ -213,10 +213,10 @@ namespace MusicApp.Resources.Portable_Class
                     };
                 }
 
-                if (position == MusicPlayer.CurrentID())
-                    holder.Title.SetTextSize(Android.Util.ComplexUnitType.Dip, 18);
-                else
-                    holder.Title.SetTextSize(Android.Util.ComplexUnitType.Dip, 14);
+                //if (position == MusicPlayer.CurrentID())
+                //    holder.Title.SetTextSize(Android.Util.ComplexUnitType.Dip, 18);
+                //else
+                //    holder.Title.SetTextSize(Android.Util.ComplexUnitType.Dip, 14);
 
                 if (song.IsParsed != true && song.IsYt)
                 {
@@ -251,9 +251,9 @@ namespace MusicApp.Resources.Portable_Class
                         if (!holder.ItemView.HasOnClickListeners)
                             holder.ItemView.Click += (sender, eventArg) =>
                             {
-                                Intent intent = new Intent(Queue.instance, typeof(MusicPlayer));
+                                Intent intent = new Intent(MainActivity.instance, typeof(MusicPlayer));
                                 intent.SetAction("Next");
-                                Queue.instance.StartService(intent);
+                                MainActivity.instance.StartService(intent);
                             };
 
                         if (MusicPlayer.autoPlay.Count > 0)
@@ -415,7 +415,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             Song song = songList[position];
             Queue.RemoveFromQueue(position);
-            Snackbar snackbar = Snackbar.Make(Queue.instance.FindViewById(Resource.Id.recycler), (song.Title.Length > 20 ? song.Title.Substring(0, 17) + "..." : song.Title) + Queue.instance.GetString(Resource.String.removed_from_queue), Snackbar.LengthShort)
+            Snackbar snackbar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.recycler), (song.Title.Length > 20 ? song.Title.Substring(0, 17) + "..." : song.Title) + Queue.instance.GetString(Resource.String.removed_from_queue), Snackbar.LengthShort)
                 .SetAction(Queue.instance.GetString(Resource.String.undo), (view) =>
                 {
                     Queue.InsertToQueue(position, song);

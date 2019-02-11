@@ -37,7 +37,6 @@ namespace MusicApp.Resources.Portable_Class
             SetSupportActionBar(toolbar);
 
             instance = this;
-            Window.SetStatusBarColor(Android.Graphics.Color.Argb(255, 33, 33, 33));
             toolbar.NavigationClick += (sender, e) =>
             {
                 if (DownloadFragment.instance == null && TopicSelector.instance == null)
@@ -93,7 +92,6 @@ namespace MusicApp.Resources.Portable_Class
         {
             base.OnStop();
             instance = null;
-            Window.SetStatusBarColor(Android.Graphics.Color.Transparent);
         }
 
         protected override void OnActivityResult(int requestCode, [GeneratedEnum] Result resultCode, Intent data)
@@ -118,7 +116,6 @@ namespace MusicApp.Resources.Portable_Class
         protected override void OnResume()
         {
             base.OnResume();
-            Window.SetStatusBarColor(Android.Graphics.Color.Argb(255, 33, 33, 33));
         }
     }
 

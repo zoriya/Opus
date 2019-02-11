@@ -4,6 +4,7 @@ using Android.Content;
 using Android.Content.PM;
 using Android.Content.Res;
 using Android.Database;
+using Android.Gms.Auth;
 using Android.Gms.Auth.Api;
 using Android.Gms.Auth.Api.SignIn;
 using Android.Gms.Cast.Framework;
@@ -64,7 +65,7 @@ namespace MusicApp
 
         public bool prepared = false;
         public bool SkipStop = false;
-        public BottomSheetBehavior SheetBehavior;
+        public PlayerBehavior SheetBehavior;
 
         private const int RequestCode = 8539;
         private const int WriteRequestCode = 2659;
@@ -104,7 +105,7 @@ namespace MusicApp
             if(savedInstanceState == null)
                 Navigate(Resource.Id.musicLayout);
 
-            SheetBehavior = BottomSheetBehavior.From(FindViewById(Resource.Id.playerSheet));
+            SheetBehavior = (PlayerBehavior)BottomSheetBehavior.From(FindViewById(Resource.Id.playerSheet));
             SheetBehavior.State = BottomSheetBehavior.StateCollapsed;
             SheetBehavior.SetBottomSheetCallback(new PlayerCallback(this));
 
@@ -194,7 +195,6 @@ namespace MusicApp
 
             if (!skipLastSigned)
             {
-                Console.WriteLine("&Checking for last signed in account");
                 if (account == null)
                     account = GoogleSignIn.GetLastSignedInAccount(this);
 
@@ -206,9 +206,11 @@ namespace MusicApp
                 }
             }
 
+            //This will be used only when the access has been revoked, when the refresh token has been lost or for the first loggin. 
+            //In each case we want a refresh token so we call RequestServerAuthCode with true as the second parameter.
             GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DefaultSignIn)
                 .RequestIdToken(GetString(Resource.String.clientID))
-                .RequestServerAuthCode(GetString(Resource.String.clientID))
+                .RequestServerAuthCode(GetString(Resource.String.clientID), true)
                 .RequestScopes(new Scope(YouTubeService.Scope.Youtube))
                 .Build();
 
@@ -296,7 +298,7 @@ namespace MusicApp
                 Console.WriteLine("&Getting refresh-token and creating a youtube service");
                 Console.WriteLine("&Code = " + account.ServerAuthCode);
 
-                if(account.ServerAuthCode == null)
+                if (account.ServerAuthCode == null)
                 {
                     Login(true, false, true);
                     return;
@@ -339,8 +341,8 @@ namespace MusicApp
                     using (StreamReader responseReader = new StreamReader(request.GetResponse().GetResponseStream()))
                     {
                         response = responseReader.ReadToEnd();
-                        Console.WriteLine("&" + response);
                     }
+                    Console.WriteLine("&Response: " + response);
 
                     JToken json = JObject.Parse(response);
                     GoogleCredential credential = GoogleCredential.FromAccessToken((string)json.SelectToken("access_token"));
@@ -351,7 +353,7 @@ namespace MusicApp
                     });
 
                     refreshToken = (string)json.SelectToken("refresh_token");
-                    if(refreshToken != null)
+                    if (refreshToken != null)
                     {
                         ISharedPreferencesEditor editor = prefManager.Edit();
                         editor.PutString("refresh-token", refreshToken);
@@ -367,7 +369,7 @@ namespace MusicApp
                     UnknowError(new Action(() => { CreateYoutube(); }));
                 }
             }
-            else if(account != null)
+            else if (account != null)
             {
                 Console.WriteLine("&Getting a new access-token and creating a youtube service");
                 Dictionary<string, string> fields = new Dictionary<string, string>
@@ -405,8 +407,8 @@ namespace MusicApp
                     using (StreamReader responseReader = new StreamReader(request.GetResponse().GetResponseStream()))
                     {
                         response = responseReader.ReadToEnd();
-                        Console.WriteLine("&" + response);
                     }
+                    Console.WriteLine("&Response: " + response);
 
                     JToken json = JObject.Parse(response);
                     GoogleCredential credential = GoogleCredential.FromAccessToken((string)json.SelectToken("access_token"));

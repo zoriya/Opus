@@ -339,6 +339,7 @@
     <Compile Include="Resources\Portable Class\DownloadQueue.cs" />
     <Compile Include="Resources\Portable Class\DownloadQueueAdapter.cs" />
     <Compile Include="Resources\Portable Class\FixedLinearLayoutManager.cs" />
+    <Compile Include="Resources\Portable Class\PlayerBehavior.cs" />
     <Compile Include="Resources\Portable Class\PlaylistHolder.cs" />
     <Compile Include="Resources\Portable Class\PlaylistLocationAdapter.cs" />
     <Compile Include="Resources\Portable Class\PlaylistTrackAdapter.cs" />
@@ -568,9 +569,6 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\layout\SeekbarPreference.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\layout\ListPopupLayout.xml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\menu\QueueItems.xml" />

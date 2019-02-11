@@ -14,8 +14,7 @@
     android:background="?attr/colorPrimary"
     app:navigationIcon="?attr/homeAsUpIndicator"
     android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-    app:popupTheme="@style/ThemeOverlay.AppCompat.Light" 
-    android:fitsSystemWindows="true" />
+    app:popupTheme="@style/ThemeOverlay.AppCompat.Light"  />
   <FrameLayout
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"

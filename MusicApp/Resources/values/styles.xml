@@ -7,7 +7,7 @@
     <item name="windowActionBar">false</item>
     <item name="android:windowActivityTransitions">true</item>
     <item name="android:windowContentTransitions">true</item>
-    <item name="android:statusBarColor">@android:color/transparent</item>
+    <item name="android:windowTranslucentStatus">true</item>
     <item name="android:navigationBarColor">#ffffff</item>
     <item name="android:dropDownListViewStyle">@style/LightDropDown</item>
     <item name="preferenceTheme">@style/LightPreferences</item>
@@ -22,7 +22,7 @@
     <item name="windowActionBar">false</item>
     <item name="android:windowActivityTransitions">true</item>
     <item name="android:windowContentTransitions">true</item>
-    <item name="android:statusBarColor">@android:color/transparent</item>
+    <item name="android:windowTranslucentStatus">true</item>
     <item name="android:navigationBarColor">#212121</item>
     <item name="preferenceTheme">@style/DarkPreferences</item>
     <item name="colorAccent">#15b7ed</item>
@@ -60,7 +60,7 @@
     <item name="android:textColor">#FFFFFF</item>
     <item name="android:textColorPrimary">#ffffff</item>
     <item name="android:textColorSecondary">#B3FFFFFF</item>
-    <item name="android:statusBarColor">#212121</item>
+    <item name="android:windowTranslucentStatus">true</item>
     <item name="android:navigationBarColor">#212121</item>
     <item name="preferenceCategoryStyle">@style/PreferenceCategoryStyle</item>
     <item name="windowNoTitle">true</item>

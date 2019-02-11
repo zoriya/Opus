@@ -38,7 +38,7 @@ namespace MusicApp.Resources.Portable_Class
         public ItemTouchCallback(IItemTouchAdapter adapter)
         {
             this.adapter = adapter;
-            drawable = MainActivity.instance.GetDrawable(Resource.Drawable.Delete);
+            drawable = Android.App.Application.Context.GetDrawable(Resource.Drawable.Delete);
         }
 
         public override int GetMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder)

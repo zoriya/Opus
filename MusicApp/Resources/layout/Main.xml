@@ -92,127 +92,115 @@
     android:translationY="-56dp"
     app:behavior_hideable="true"
     app:behavior_peekHeight="70dp"
-    app:layout_behavior="android.support.design.widget.BottomSheetBehavior" >
-    <!--<LinearLayout
+    app:layout_behavior="MusicApp.PlayerBehavior" >
+    <RelativeLayout
       android:layout_width="fill_parent"
       android:layout_height="fill_parent"
-      android:orientation="vertical" >-->
-      <!--<View
-        android:layout_width="fill_parent"
-        android:layout_height="@*android:dimen/status_bar_height"
-        android:transformPivotY="@*android:dimen/status_bar_height"
-        android:background="#2b5568"
-        android:fitsSystemWindows="true"
-        android:id="@+id/playerStatus" />-->
-      <RelativeLayout
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:id="@+id/playersHolder"
-        android:background="#2b5568"
-        android:fitsSystemWindows="true" >
-        <FrameLayout
+      android:id="@+id/playersHolder"
+      android:background="#2b5568"
+      android:fitsSystemWindows="true" >
+      <FrameLayout
+        android:layout_width="wrap_content"
+        android:id="@+id/smallPlayer"
+        android:elevation="6dp"
+        android:layout_height="70dp" >
+        <View
+          android:layout_width="fill_parent"
+          android:layout_height="70dp"
+          android:layout_marginLeft="70dp"
+          android:id="@+id/spReveal" />
+        <LinearLayout
+          android:orientation="horizontal"
+          android:clickable="true"
+          android:id="@+id/spContainer"
           android:layout_width="wrap_content"
-          android:id="@+id/smallPlayer"
-          android:elevation="6dp"
-          android:layout_height="70dp" >
-          <View
-            android:layout_width="fill_parent"
+          android:layout_height="wrap_content" >
+          <ImageView
+            android:id="@+id/spArt"
+            android:layout_width="70dp"
+            android:clickable="false"
             android:layout_height="70dp"
-            android:layout_marginLeft="70dp"
-            android:id="@+id/spReveal" />
+            android:layout_gravity="left"
+            android:layout_alignParentBottom="true"/>
           <LinearLayout
-            android:orientation="horizontal"
-            android:clickable="true"
-            android:id="@+id/spContainer"
+            android:orientation="vertical"
+            android:paddingLeft="10dp"
+            android:paddingRight="130dp"
+            android:clickable="false"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-            <ImageView
-              android:id="@+id/spArt"
-              android:layout_width="70dp"
-              android:clickable="false"
-              android:layout_height="70dp"
-              android:layout_gravity="left"
-              android:layout_alignParentBottom="true"/>
-            <LinearLayout
-              android:orientation="vertical"
-              android:paddingLeft="10dp"
-              android:paddingRight="130dp"
+            android:layout_gravity="center_vertical"
+            android:layout_height="wrap_content">
+            <TextView
+              android:id="@+id/spTitle"
+              android:text="Title"
               android:clickable="false"
               android:layout_width="wrap_content"
-              android:layout_gravity="center_vertical"
-              android:layout_height="wrap_content">
-              <TextView
-                android:id="@+id/spTitle"
-                android:text="Title"
-                android:clickable="false"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:singleLine="true"
-                android:textSize="18dip" />
-              <TextView
-                android:id="@+id/spArtist"
-                android:text="Artist"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:singleLine="true"
-                android:clickable="false"
-                android:alpha="0.7"
-                android:textSize="14dip" />
-            </LinearLayout>
+              android:layout_height="wrap_content"
+              android:singleLine="true"
+              android:textSize="18dip" />
+            <TextView
+              android:id="@+id/spArtist"
+              android:text="Artist"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:singleLine="true"
+              android:clickable="false"
+              android:alpha="0.7"
+              android:textSize="14dip" />
           </LinearLayout>
-          <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical">
-            <ImageButton
-              android:id="@+id/spNext"
-              android:layout_width="40dp"
-              android:layout_height="40dp"
-              android:background="@null"
-              android:layout_alignParentRight="true"
-              android:src="@drawable/SkipNext"/>
-            <ImageButton
-              android:id="@+id/spPlay"
-              android:layout_width="40dp"
-              android:layout_height="40dp"
-              android:layout_marginLeft="3dp"
-              android:layout_toLeftOf="@id/spNext"
-              android:background="@null"
-              android:layout_marginRight="3dp"
-              android:src="@drawable/Pause"/>
-            <ProgressBar
-              android:layout_width="40dp"
-              android:layout_height="40dp"
-              android:layout_marginLeft="3dp"
-              android:layout_toLeftOf="@id/spNext"
-              android:layout_marginRight="3dp"
-              android:layout_gravity="center"
-              android:visibility="gone"
-              android:id="@+id/spBuffer" />
-            <ImageButton
-              android:id="@+id/spLast"
-              android:background="@null"
-              android:layout_width="40dp"
-              android:layout_height="40dp"
-              android:layout_toLeftOf="@id/spPlay"
-              android:src="@drawable/SkipPrevious"/>
-          </RelativeLayout>
+        </LinearLayout>
+        <RelativeLayout
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_gravity="center_vertical">
+          <ImageButton
+            android:id="@+id/spNext"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@null"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/SkipNext"/>
+          <ImageButton
+            android:id="@+id/spPlay"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="3dp"
+            android:layout_toLeftOf="@id/spNext"
+            android:background="@null"
+            android:layout_marginRight="3dp"
+            android:src="@drawable/Pause"/>
           <ProgressBar
-            android:id="@+id/spProgress"
-            style="@android:style/Widget.ProgressBar.Horizontal"
-            android:paddingLeft="70dp"
-            android:layout_width="match_parent"
-            android:layout_height="3dp"
-            android:layout_alignParentTop="true"
-            android:progress="0"/>
-        </FrameLayout>
-        <fragment
-          android:name="MusicApp.Player"
-          android:id="@+id/playerContainer"
-          android:layout_width="fill_parent"
-          android:layout_height="fill_parent" />
-      </RelativeLayout>
-    <!--</LinearLayout>-->
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="3dp"
+            android:layout_toLeftOf="@id/spNext"
+            android:layout_marginRight="3dp"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            android:id="@+id/spBuffer" />
+          <ImageButton
+            android:id="@+id/spLast"
+            android:background="@null"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_toLeftOf="@id/spPlay"
+            android:src="@drawable/SkipPrevious"/>
+        </RelativeLayout>
+        <ProgressBar
+          android:id="@+id/spProgress"
+          style="@android:style/Widget.ProgressBar.Horizontal"
+          android:paddingLeft="70dp"
+          android:layout_width="match_parent"
+          android:layout_height="3dp"
+          android:layout_alignParentTop="true"
+          android:progress="0"/>
+      </FrameLayout>
+      <fragment
+        android:name="MusicApp.Player"
+        android:id="@+id/playerContainer"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" />
+    </RelativeLayout>
   </android.support.v4.widget.NestedScrollView>
     
   <android.support.design.widget.CoordinatorLayout
