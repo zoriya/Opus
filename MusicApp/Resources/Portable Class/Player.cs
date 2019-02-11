@@ -3,6 +3,7 @@ using Android.App;
 using Android.Content;
 using Android.Content.PM;
 using Android.Content.Res;
+using Android.Gms.Cast.Framework;
 using Android.Graphics;
 using Android.Graphics.Drawables;
 using Android.OS;
@@ -10,6 +11,8 @@ using Android.Runtime;
 using Android.Support.Design.Widget;
 using Android.Support.V4.Widget;
 using Android.Support.V7.Graphics;
+using Android.Text;
+using Android.Text.Style;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
@@ -20,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MediaRouteButton = Android.Support.V7.App.MediaRouteButton;
 
 namespace MusicApp
 {
@@ -34,7 +38,7 @@ namespace MusicApp
 
         private SeekBar bar;
         private ProgressBar spBar;
-        private TextView timerStart;
+        private TextView timer;
         private ImageView imgView;
         private bool prepared = false;
         private readonly int[] timers = new int[] { 0, 2, 10, 30, 60, 120 };
@@ -58,27 +62,20 @@ namespace MusicApp
 
             await Task.Delay(700);
 
+            CastButtonFactory.SetUpMediaRouteButton(MainActivity.instance, MainActivity.instance.FindViewById<MediaRouteButton>(Resource.Id.castButton));
             MainActivity.instance.PrepareSmallPlayer();
             TextView title = MainActivity.instance.FindViewById<TextView>(Resource.Id.playerTitle);
             TextView artist = MainActivity.instance.FindViewById<TextView>(Resource.Id.playerArtist);
             imgView = MainActivity.instance.FindViewById<ImageView>(Resource.Id.playerAlbum);
-            TextView NextTitle = MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle);
-            TextView NextAlbum = MainActivity.instance.FindViewById<TextView>(Resource.Id.nextArtist);
-            Button ShowQueue = MainActivity.instance.FindViewById<Button>(Resource.Id.showQueue);
-            ImageButton smallQueue = MainActivity.instance.FindViewById<ImageButton>(Resource.Id.smallQueue);
 
             if (!MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton).HasOnClickListeners)
             {
+                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.downButton).Click += Down_Click;
+                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.showQueue).Click += ShowQueue_Click;
                 MainActivity.instance.FindViewById<ImageButton>(Resource.Id.lastButton).Click += Last_Click;
                 MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton).Click += Play_Click;
                 MainActivity.instance.FindViewById<ImageButton>(Resource.Id.nextButton).Click += Next_Click;
-                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playerSleep).Click += SleepButton_Click;
-                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playerPlaylistAdd).Click += AddToPlaylist_Click;
-                MainActivity.instance.FindViewById<FloatingActionButton>(Resource.Id.downFAB).Click += Fab_Click;
-                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playerDownload).Click += Download_Click;
-                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playerYoutube).Click += Youtube_Click;
-                ShowQueue.Click += ShowQueue_Click;
-                smallQueue.Click += ShowQueue_Click;
+                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.moreButton).Click += More;
             }
 
             title.Selected = true;
@@ -86,36 +83,13 @@ namespace MusicApp
             artist.Selected = true;
             artist.SetMarqueeRepeatLimit(3);
 
-            ((GradientDrawable)ShowQueue.Background).SetStroke(5, ColorStateList.ValueOf(Color.Argb(255, 21, 183, 237)));
-            ShowQueue.SetTextColor(Color.Argb(255, 21, 183, 237));
-
-            ((GradientDrawable)smallQueue.Background).SetStroke(5, ColorStateList.ValueOf(Color.Argb(255, 21, 183, 237)));
-
-            if (MainActivity.Theme == 1)
-            {
-                NextTitle.SetTextColor(Color.White);
-                NextAlbum.SetTextColor(Color.White);
-                NextAlbum.Alpha = 0.7f;
-                smallQueue.ImageTintList = ColorStateList.ValueOf(Color.Argb(255, 255, 255, 255));
-            }
-            else
-            {
-                smallQueue.ImageTintList = ColorStateList.ValueOf(Color.Argb(255, 0, 0, 0));
-            }
-
-            if (ShowQueue.Height < 100)
-            {
-                smallQueue.Visibility = ViewStates.Visible;
-                ShowQueue.Visibility = ViewStates.Gone;
-            }
-
+            timer = MainActivity.instance.FindViewById<TextView>(Resource.Id.timer);
             bar = MainActivity.instance.FindViewById<SeekBar>(Resource.Id.songTimer);
             bar.ProgressChanged += (sender, e) =>
             {
                 if(!MusicPlayer.isLiveStream)
-                    timerStart.Text = DurationToTimer(e.Progress);
+                    timer.Text = string.Format("{0} | {1}", DurationToTimer(e.Progress), DurationToTimer((int)MusicPlayer.Duration));
             };
-            timerStart = MainActivity.instance.FindViewById<TextView>(Resource.Id.timerStart);
 
             spBar = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.spProgress);
         }
@@ -126,7 +100,7 @@ namespace MusicApp
                 await Task.Delay(100);
 
             Song current = await MusicPlayer.GetItem();
-
+            
             FrameLayout smallPlayer = MainActivity.instance.FindViewById<FrameLayout>(Resource.Id.smallPlayer);
             smallPlayer.FindViewById<TextView>(Resource.Id.spTitle).Text = current.Title;
             smallPlayer.FindViewById<TextView>(Resource.Id.spArtist).Text = current.Artist;
@@ -148,8 +122,12 @@ namespace MusicApp
             TextView title = MainActivity.instance.FindViewById<TextView>(Resource.Id.playerTitle);
             TextView artist = MainActivity.instance.FindViewById<TextView>(Resource.Id.playerArtist);
             imgView = MainActivity.instance.FindViewById<ImageView>(Resource.Id.playerAlbum);
-            title.Text = current.Title;
-            artist.Text = current.Artist;
+            SpannableString titleText = new SpannableString(current.Title);
+            titleText.SetSpan(new BackgroundColorSpan(Color.ParseColor("#BF000000")), 0, current.Title.Length, SpanTypes.InclusiveInclusive);
+            title.TextFormatted = titleText;
+            SpannableString artistText = new SpannableString(current.Artist);
+            artistText.SetSpan(new BackgroundColorSpan(Color.ParseColor("#BF000000")), 0, current.Artist.Length, SpanTypes.InclusiveInclusive);
+            artist.TextFormatted = artistText;
 
             if (!errorState)
             {
@@ -201,19 +179,6 @@ namespace MusicApp
             imgView.SetImageBitmap(icon);
             Palette.From(icon).MaximumColorCount(28).Generate(this);
 
-            if (current.IsYt)
-            {
-                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playerDownload).Visibility = ViewStates.Visible;
-                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playerYoutube).Visibility = ViewStates.Visible;
-            }
-            else
-            {
-                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playerDownload).Visibility = ViewStates.Gone;
-                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playerYoutube).Visibility = ViewStates.Gone;
-            }
-
-            UpdateNext();
-
             if (bar != null)
             {
                 while (MusicPlayer.Duration < 2)
@@ -225,15 +190,13 @@ namespace MusicApp
                     bar.Progress = 1;
                     spBar.Max = 1;
                     spBar.Progress = 1;
-                    timerStart.Text = "";
-                    MainActivity.instance.FindViewById<TextView>(Resource.Id.timerEnd).Text = "🔴 LIVE";
+                    timer.Text = "🔴 LIVE";
                 }
                 else
                 {
                     bar.Max = (int)MusicPlayer.Duration;
                     MusicPlayer.SetSeekBar(bar);
-                    timerStart.Text = DurationToTimer((int)MusicPlayer.CurrentPosition);
-                    MainActivity.instance.FindViewById<TextView>(Resource.Id.timerEnd).Text = DurationToTimer((int)MusicPlayer.Duration);
+                    timer.Text = string.Format("{0} | {1}", DurationToTimer((int)MusicPlayer.CurrentPosition), DurationToTimer((int)MusicPlayer.Duration));
                     spBar.Max = (int)MusicPlayer.Duration;
                     spBar.Progress = (int)MusicPlayer.CurrentPosition;
 
@@ -245,82 +208,82 @@ namespace MusicApp
         public async void UpdateNext()
         {
             await Task.Delay(10);
-            bool asNext = MusicPlayer.queue.Count > MusicPlayer.CurrentID() + 1;
-            if (asNext)
-            {
-                Song next = await MusicPlayer.GetItem(MusicPlayer.CurrentID() + 1);
-                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle).Text = Resources.GetString(Resource.String.up_next);
-                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextArtist).Text = next.Title;
-                ImageView nextArt = MainActivity.instance.FindViewById<ImageView>(Resource.Id.nextArt);
+            //bool asNext = MusicPlayer.queue.Count > MusicPlayer.CurrentID() + 1;
+            //if (asNext)
+            //{
+            //    Song next = await MusicPlayer.GetItem(MusicPlayer.CurrentID() + 1);
+            //    MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle).Text = Resources.GetString(Resource.String.up_next);
+            //    MainActivity.instance.FindViewById<TextView>(Resource.Id.nextArtist).Text = next.Title;
+            //    ImageView nextArt = MainActivity.instance.FindViewById<ImageView>(Resource.Id.nextArt);
 
-                if (next.Album == null)
-                {
-                    var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
-                    var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, next.AlbumArt);
+            //    if (next.Album == null)
+            //    {
+            //        var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
+            //        var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, next.AlbumArt);
 
-                    Picasso.With(MainActivity.instance).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(nextArt);
-                }
-                else
-                {
-                    Picasso.With(MainActivity.instance).Load(next.Album).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(nextArt);
-                }
-            }
-            else if (MusicPlayer.useAutoPlay)
-            {
-                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle).Text = Resources.GetString(Resource.String.up_next);
-                ImageView nextArt = MainActivity.instance.FindViewById<ImageView>(Resource.Id.nextArt);
+            //        Picasso.With(MainActivity.instance).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(nextArt);
+            //    }
+            //    else
+            //    {
+            //        Picasso.With(MainActivity.instance).Load(next.Album).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(nextArt);
+            //    }
+            //}
+            //else if (MusicPlayer.useAutoPlay)
+            //{
+            //    MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle).Text = Resources.GetString(Resource.String.up_next);
+            //    ImageView nextArt = MainActivity.instance.FindViewById<ImageView>(Resource.Id.nextArt);
 
-                Song next = await MusicPlayer.GetItem(MusicPlayer.CurrentID() + 1);
-                if(next != null)
-                {
-                    MainActivity.instance.FindViewById<TextView>(Resource.Id.nextArtist).Text = next.Title;
+            //    Song next = await MusicPlayer.GetItem(MusicPlayer.CurrentID() + 1);
+            //    if(next != null)
+            //    {
+            //        MainActivity.instance.FindViewById<TextView>(Resource.Id.nextArtist).Text = next.Title;
 
-                    if (next.Album == null)
-                    {
-                        var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
-                        var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, next.AlbumArt);
+            //        if (next.Album == null)
+            //        {
+            //            var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
+            //            var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, next.AlbumArt);
 
-                        Picasso.With(MainActivity.instance).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(nextArt);
-                    }
-                    else
-                    {
-                        Picasso.With(MainActivity.instance).Load(next.Album).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(nextArt);
-                    }
-                }
-                else
-                {
-                    MainActivity.instance.FindViewById<TextView>(Resource.Id.nextArtist).Text = Resources.GetString(Resource.String.next_loading);
-                    Picasso.With(MainActivity.instance).Load(Resource.Drawable.noAlbum).Into(nextArt);
-                    MusicPlayer.instance?.GenerateAutoPlay(false);
-                }
-            }
-            else if (MusicPlayer.repeat)
-            {
-                Song next = await MusicPlayer.GetItem(0);
-                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle).Text = Resources.GetString(Resource.String.up_next);
-                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextArtist).Text = next.Title;
-                ImageView nextArt = MainActivity.instance.FindViewById<ImageView>(Resource.Id.nextArt);
+            //            Picasso.With(MainActivity.instance).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(nextArt);
+            //        }
+            //        else
+            //        {
+            //            Picasso.With(MainActivity.instance).Load(next.Album).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(nextArt);
+            //        }
+            //    }
+            //    else
+            //    {
+            //        MainActivity.instance.FindViewById<TextView>(Resource.Id.nextArtist).Text = Resources.GetString(Resource.String.next_loading);
+            //        Picasso.With(MainActivity.instance).Load(Resource.Drawable.noAlbum).Into(nextArt);
+            //        MusicPlayer.instance?.GenerateAutoPlay(false);
+            //    }
+            //}
+            //else if (MusicPlayer.repeat)
+            //{
+            //    Song next = await MusicPlayer.GetItem(0);
+            //    MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle).Text = Resources.GetString(Resource.String.up_next);
+            //    MainActivity.instance.FindViewById<TextView>(Resource.Id.nextArtist).Text = next.Title;
+            //    ImageView nextArt = MainActivity.instance.FindViewById<ImageView>(Resource.Id.nextArt);
 
-                if (next.Album == null)
-                {
-                    var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
-                    var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, next.AlbumArt);
+            //    if (next.Album == null)
+            //    {
+            //        var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
+            //        var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, next.AlbumArt);
 
-                    Picasso.With(MainActivity.instance).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(nextArt);
-                }
-                else
-                {
-                    Picasso.With(MainActivity.instance).Load(next.Album).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(nextArt);
-                }
-            }
-            else
-            {
-                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle).Text = Resources.GetString(Resource.String.up_next);
-                MainActivity.instance.FindViewById<TextView>(Resource.Id.nextArtist).Text = Resources.GetString(Resource.String.nothing);
+            //        Picasso.With(MainActivity.instance).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(nextArt);
+            //    }
+            //    else
+            //    {
+            //        Picasso.With(MainActivity.instance).Load(next.Album).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(nextArt);
+            //    }
+            //}
+            //else
+            //{
+            //    MainActivity.instance.FindViewById<TextView>(Resource.Id.nextTitle).Text = Resources.GetString(Resource.String.up_next);
+            //    MainActivity.instance.FindViewById<TextView>(Resource.Id.nextArtist).Text = Resources.GetString(Resource.String.nothing);
 
-                ImageView nextArt = MainActivity.instance.FindViewById<ImageView>(Resource.Id.nextArt);
-                Picasso.With(MainActivity.instance).Load(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(nextArt);
-            }
+            //    ImageView nextArt = MainActivity.instance.FindViewById<ImageView>(Resource.Id.nextArt);
+            //    Picasso.With(MainActivity.instance).Load(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(nextArt);
+            //}
         }
 
         public void Buffering()
@@ -374,27 +337,10 @@ namespace MusicApp
 
         }
 
-        private void Download_Click(object sender, EventArgs e)
-        {
-            Song song = MusicPlayer.queue[MusicPlayer.CurrentID()];
-            YoutubeEngine.Download(song.Title, song.YoutubeID);
-        }
-
-        private void Youtube_Click(object sender, EventArgs e)
-        {
-            Intent intent = new Intent(Intent.ActionView, Android.Net.Uri.Parse("vnd.youtube://" + MusicPlayer.queue[MusicPlayer.CurrentID()].YoutubeID));
-            StartActivity(intent);
-        }
-
         public void Stoped()
         {
             MainActivity.instance.ShowSmallPlayer();
             MainActivity.instance.SheetBehavior.State = BottomSheetBehavior.StateCollapsed;
-        }
-
-        private void AddToPlaylist_Click(object sender, EventArgs e)
-        {
-            Browse.GetPlaylist(MusicPlayer.queue[MusicPlayer.CurrentID()]);
         }
 
         public void UpdateSeekBar()
@@ -407,7 +353,7 @@ namespace MusicApp
             if(MusicPlayer.autoUpdateSeekBar)
             {
                 bar.Progress = (int)MusicPlayer.CurrentPosition;
-                timerStart.Text = DurationToTimer((int)MusicPlayer.CurrentPosition);
+                timer.Text = string.Format("{0} | {1}", DurationToTimer((int)MusicPlayer.CurrentPosition), DurationToTimer((int)MusicPlayer.Duration));
             }
             spBar.Progress = (int)MusicPlayer.CurrentPosition;
             handler.PostDelayed(UpdateSeekBar, 1000);
@@ -432,7 +378,7 @@ namespace MusicApp
             return (hours == 0) ? (min + ":" + sec) : (hour + ":" + min + ":" + sec);
         }
 
-        private void Fab_Click(object sender, EventArgs e)
+        private void Down_Click(object sender, EventArgs e)
         {
             MainActivity.instance.ShowSmallPlayer();
             MainActivity.instance.SheetBehavior.State = BottomSheetBehavior.StateCollapsed;
@@ -472,7 +418,69 @@ namespace MusicApp
             MainActivity.instance.StartService(intent);
         }
 
-        public void SleepButton_Click(object sender, EventArgs e)
+        private async void More(object s, EventArgs e)
+        {
+            Song item = await MusicPlayer.GetItem();
+
+            BottomSheetDialog bottomSheet = new BottomSheetDialog(MainActivity.instance);
+            View bottomView = MainActivity.instance.LayoutInflater.Inflate(Resource.Layout.BottomSheet, null);
+            bottomView.FindViewById<TextView>(Resource.Id.bsTitle).Text = item.Title;
+            bottomView.FindViewById<TextView>(Resource.Id.bsArtist).Text = item.Artist;
+            if (item.Album == null)
+            {
+                var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
+                var songAlbumArtUri = ContentUris.WithAppendedId(songCover, item.AlbumArt);
+
+                Picasso.With(MainActivity.instance).Load(songAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
+            }
+            else
+            {
+                Picasso.With(MainActivity.instance).Load(item.Album).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
+            }
+            bottomSheet.SetContentView(bottomView);
+
+            List<BottomSheetAction> actions = new List<BottomSheetAction>
+            {
+                new BottomSheetAction(Resource.Drawable.Timer, Resources.GetString(Resource.String.timer), (sender, eventArg) => { SleepDialog(); bottomSheet.Dismiss(); }),
+                new BottomSheetAction(Resource.Drawable.PlaylistAdd, Resources.GetString(Resource.String.add_to_playlist), (sender, eventArg) => { Browse.GetPlaylist(item); bottomSheet.Dismiss(); })
+            };
+
+            if (item.IsYt)
+            {
+                actions.AddRange(new BottomSheetAction[]
+                {
+                    new BottomSheetAction(Resource.Drawable.PlayCircle, Resources.GetString(Resource.String.create_mix_from_song), (sender, eventArg) =>
+                    {
+                        YoutubeEngine.CreateMix(item);
+                        bottomSheet.Dismiss();
+                    }),
+                    new BottomSheetAction(Resource.Drawable.Download, Resources.GetString(Resource.String.download), (sender, eventArg) =>
+                    {
+                        YoutubeEngine.Download(item.Title, item.YoutubeID);
+                        bottomSheet.Dismiss();
+                    }),
+                    new BottomSheetAction(Resource.Drawable.OpenInBrowser, Resources.GetString(Resource.String.open_youtube), (sender, eventArg) =>
+                    {
+                        Intent intent = new Intent(Intent.ActionView, Android.Net.Uri.Parse("vnd.youtube://" + MusicPlayer.queue[MusicPlayer.CurrentID()].YoutubeID));
+                        StartActivity(intent);
+                        bottomSheet.Dismiss();
+                    })
+                });
+            }
+            else
+            {
+                actions.Add(new BottomSheetAction(Resource.Drawable.Edit, Resources.GetString(Resource.String.edit_metadata), (sender, eventArg) =>
+                {
+                    Browse.EditMetadata(item);
+                    bottomSheet.Dismiss();
+                }));
+            }
+
+            bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, actions);
+            bottomSheet.Show();
+        }
+
+        public void SleepDialog()
         {
             string minutes = GetString(Resource.String.minutes);
             Android.Support.V7.App.AlertDialog.Builder builder = new Android.Support.V7.App.AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme);
@@ -533,61 +541,61 @@ namespace MusicApp
             Color text = Color.Argb(Color.GetAlphaComponent(swatch.BodyTextColor), Color.GetRedComponent(swatch.BodyTextColor), Color.GetGreenComponent(swatch.BodyTextColor), Color.GetBlueComponent(swatch.BodyTextColor));
             Color background = Color.Argb(Color.GetAlphaComponent(swatch.Rgb), Color.GetRedComponent(swatch.Rgb), Color.GetGreenComponent(swatch.Rgb), Color.GetBlueComponent(swatch.Rgb));
             Color accentColor = Color.Argb(Color.GetAlphaComponent(accent.Rgb), Color.GetRedComponent(accent.Rgb), Color.GetGreenComponent(accent.Rgb), Color.GetBlueComponent(accent.Rgb));
-            MainActivity.instance.FindViewById<TextView>(Resource.Id.playerTitle).SetTextColor(text);
-            MainActivity.instance.FindViewById<TextView>(Resource.Id.playerArtist).SetTextColor(text);
+            //MainActivity.instance.FindViewById<TextView>(Resource.Id.playerTitle).SetTextColor(text);
+            //MainActivity.instance.FindViewById<TextView>(Resource.Id.playerArtist).SetTextColor(text);
             MainActivity.instance.FindViewById<TextView>(Resource.Id.spTitle).SetTextColor(text);
             MainActivity.instance.FindViewById<TextView>(Resource.Id.spArtist).SetTextColor(text);
-            MainActivity.instance.FindViewById<FloatingActionButton>(Resource.Id.downFAB).BackgroundTintList = ColorStateList.ValueOf(accentColor);
-            MainActivity.instance.FindViewById<FloatingActionButton>(Resource.Id.downFAB).RippleColor = accent.Rgb;
+            //MainActivity.instance.FindViewById<FloatingActionButton>(Resource.Id.downFAB).BackgroundTintList = ColorStateList.ValueOf(accentColor);
+            //MainActivity.instance.FindViewById<FloatingActionButton>(Resource.Id.downFAB).RippleColor = accent.Rgb;
 
-            //float multiplier = 0.4f;
-            ////if(Build.VERSION.SdkInt >= BuildVersionCodes.M && IsColorDark(accentColor))
-            ////    multiplier = 1.6f;
+            ////float multiplier = 0.4f;
+            //////if(Build.VERSION.SdkInt >= BuildVersionCodes.M && IsColorDark(accentColor))
+            //////    multiplier = 1.6f;
 
-            //int red = (int)(Color.GetRedComponent(accentColor.ToArgb()) * multiplier);
-            //int green = (int)(Color.GetGreenComponent(accentColor.ToArgb()) * multiplier);
-            //int blue = (int)(Color.GetBlueComponent(accentColor.ToArgb()) * multiplier);
-            //Color toolbar = Color.Rgb(red, green, blue);
-            //MainActivity.instance.FindViewById(Resource.Id.playerStatus).SetBackgroundColor(toolbar);
+            ////int red = (int)(Color.GetRedComponent(accentColor.ToArgb()) * multiplier);
+            ////int green = (int)(Color.GetGreenComponent(accentColor.ToArgb()) * multiplier);
+            ////int blue = (int)(Color.GetBlueComponent(accentColor.ToArgb()) * multiplier);
+            ////Color toolbar = Color.Rgb(red, green, blue);
+            ////MainActivity.instance.FindViewById(Resource.Id.playerStatus).SetBackgroundColor(toolbar);
 
-            ////if (Build.VERSION.SdkInt >= BuildVersionCodes.M)
-            ////{
-            ////    int statusBar = (int)MainActivity.instance.Window.DecorView.SystemUiVisibility;
-            ////    if (!IsColorDark(toolbar))
-            ////        statusBar |= (int)SystemUiFlags.LightStatusBar;
-            ////    else
-            ////        statusBar ^= (int)SystemUiFlags.LightStatusBar;
-            ////    MainActivity.instance.Window.DecorView.SystemUiVisibility = (StatusBarVisibility)statusBar;
-            ////}
+            //////if (Build.VERSION.SdkInt >= BuildVersionCodes.M)
+            //////{
+            //////    int statusBar = (int)MainActivity.instance.Window.DecorView.SystemUiVisibility;
+            //////    if (!IsColorDark(toolbar))
+            //////        statusBar |= (int)SystemUiFlags.LightStatusBar;
+            //////    else
+            //////        statusBar ^= (int)SystemUiFlags.LightStatusBar;
+            //////    MainActivity.instance.Window.DecorView.SystemUiVisibility = (StatusBarVisibility)statusBar;
+            //////}
 
-            //Reveal for the player
-            View reveal = MainActivity.instance.FindViewById<View>(Resource.Id.reveal);
-            int centerX, centerY;
-            float endRadius;
-            if (playNext == true)
-            {
-                centerX = 0;
-                centerY = reveal.Height / 2;
-                endRadius = reveal.Width * 1.3f;
-            }
-            else if(playNext == null)
-            {
-                centerX = reveal.Width / 2;
-                centerY = reveal.Height;
-                endRadius = reveal.Width / 1.5f;
-            }
-            else
-            {
-                centerX = reveal.Width;
-                centerY = reveal.Height / 2;
-                endRadius = reveal.Width * 1.3f;
-            }
-            Animator anim = ViewAnimationUtils.CreateCircularReveal(reveal, centerX, centerY, 0, endRadius);
-            anim.AnimationStart += (sender, e) => { reveal.SetBackgroundColor(background); };
-            anim.AnimationEnd += (sender, e) => { MainActivity.instance?.FindViewById<RelativeLayout>(Resource.Id.infoPanel).SetBackgroundColor(background); };
-            anim.SetDuration(500);
-            anim.StartDelay = 200;
-            anim.Start();
+            ////Reveal for the player
+            //View reveal = MainActivity.instance.FindViewById<View>(Resource.Id.reveal);
+            //int centerX, centerY;
+            //float endRadius;
+            //if (playNext == true)
+            //{
+            //    centerX = 0;
+            //    centerY = reveal.Height / 2;
+            //    endRadius = reveal.Width * 1.3f;
+            //}
+            //else if(playNext == null)
+            //{
+            //    centerX = reveal.Width / 2;
+            //    centerY = reveal.Height;
+            //    endRadius = reveal.Width / 1.5f;
+            //}
+            //else
+            //{
+            //    centerX = reveal.Width;
+            //    centerY = reveal.Height / 2;
+            //    endRadius = reveal.Width * 1.3f;
+            //}
+            //Animator anim = ViewAnimationUtils.CreateCircularReveal(reveal, centerX, centerY, 0, endRadius);
+            //anim.AnimationStart += (sender, e) => { reveal.SetBackgroundColor(background); };
+            //anim.AnimationEnd += (sender, e) => { MainActivity.instance?.FindViewById<RelativeLayout>(Resource.Id.infoPanel).SetBackgroundColor(background); };
+            //anim.SetDuration(500);
+            //anim.StartDelay = 200;
+            //anim.Start();
 
             //Reveal for the smallPlayer
             if (prepared)
@@ -610,7 +618,7 @@ namespace MusicApp
             if (bar == null)
                 bar = MainActivity.instance.FindViewById<SeekBar>(Resource.Id.songTimer);
 
-            if(spBar == null)
+            if (spBar == null)
                 spBar = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.spProgress);
 
             bar.ProgressTintList = ColorStateList.ValueOf(accentColor);
@@ -621,7 +629,7 @@ namespace MusicApp
 
             if (IsColorDark(accent.Rgb))
             {
-                MainActivity.instance.FindViewById<FloatingActionButton>(Resource.Id.downFAB).ImageTintList = ColorStateList.ValueOf(Color.White);
+                //MainActivity.instance.FindViewById<FloatingActionButton>(Resource.Id.downFAB).ImageTintList = ColorStateList.ValueOf(Color.White);
                 MainActivity.instance.FindViewById<ImageButton>(Resource.Id.spNext).ImageTintList = ColorStateList.ValueOf(Color.White);
                 MainActivity.instance.FindViewById<ImageButton>(Resource.Id.spPlay).ImageTintList = ColorStateList.ValueOf(Color.White);
                 MainActivity.instance.FindViewById<ImageButton>(Resource.Id.spLast).ImageTintList = ColorStateList.ValueOf(Color.White);
@@ -629,7 +637,7 @@ namespace MusicApp
             }
             else
             {
-                MainActivity.instance.FindViewById<FloatingActionButton>(Resource.Id.downFAB).ImageTintList = ColorStateList.ValueOf(Color.Black);
+                //MainActivity.instance.FindViewById<FloatingActionButton>(Resource.Id.downFAB).ImageTintList = ColorStateList.ValueOf(Color.Black);
                 MainActivity.instance.FindViewById<ImageButton>(Resource.Id.spNext).ImageTintList = ColorStateList.ValueOf(Color.Black);
                 MainActivity.instance.FindViewById<ImageButton>(Resource.Id.spPlay).ImageTintList = ColorStateList.ValueOf(Color.Black);
                 MainActivity.instance.FindViewById<ImageButton>(Resource.Id.spLast).ImageTintList = ColorStateList.ValueOf(Color.Black);

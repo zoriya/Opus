@@ -137,7 +137,7 @@ namespace MusicApp
             if (intent.Action == "Sleep")
             {
                 ShowPlayer();
-                Player.instance.SleepButton_Click("", null);
+                Player.instance.SleepDialog();
             }
             else if (intent.Action == "Player")
             {
@@ -188,18 +188,22 @@ namespace MusicApp
         }
 
 
-        public  void Login(bool canAsk = true, bool skipSilentLog = false)
+        public  void Login(bool canAsk = true, bool skipSilentLog = false, bool skipLastSigned = false)
         {
             waitingForYoutube = true;
 
-            if(account == null)
-                account = GoogleSignIn.GetLastSignedInAccount(this);
-
-
-            if (account != null)
+            if (!skipLastSigned)
             {
-                CreateYoutube();
-                return;
+                Console.WriteLine("&Checking for last signed in account");
+                if (account == null)
+                    account = GoogleSignIn.GetLastSignedInAccount(this);
+
+
+                if (account != null)
+                {
+                    CreateYoutube();
+                    return;
+                }
             }
 
             GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DefaultSignIn)
@@ -294,7 +298,7 @@ namespace MusicApp
 
                 if(account.ServerAuthCode == null)
                 {
-                    Login(true);
+                    Login(true, false, true);
                     return;
                 }
 
