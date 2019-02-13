@@ -8,7 +8,7 @@ using System;
 [Register("MusicApp/PlayerBehavior")]
 public class PlayerBehavior : BottomSheetBehavior
 {
-    public bool PreventSlide = true;
+    public bool PreventSlide = false;
 
     public PlayerBehavior() { }
 

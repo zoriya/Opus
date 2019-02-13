@@ -6,6 +6,7 @@ using Android.Content.Res;
 using Android.Gms.Cast.Framework;
 using Android.Graphics;
 using Android.OS;
+using Android.Renderscripts;
 using Android.Runtime;
 using Android.Support.Design.Widget;
 using Android.Support.V4.Widget;
@@ -39,7 +40,7 @@ namespace MusicApp
         private SeekBar bar;
         private ProgressBar spBar;
         private TextView timer;
-        private ImageView imgView;
+        private ImageView view;
         private DrawerLayout DrawerLayout;
         private bool prepared = false;
         private readonly int[] timers = new int[] { 0, 2, 10, 30, 60, 120 };
@@ -76,7 +77,7 @@ namespace MusicApp
                 MainActivity.instance.FindViewById<ImageButton>(Resource.Id.moreButton).Click += More;
             }
 
-            imgView = MainActivity.instance.FindViewById<ImageView>(Resource.Id.playerAlbum);
+            view = MainActivity.instance.FindViewById<ImageView>(Resource.Id.playerAlbum);
             timer = MainActivity.instance.FindViewById<TextView>(Resource.Id.timer);
             bar = MainActivity.instance.FindViewById<SeekBar>(Resource.Id.songTimer);
             bar.ProgressChanged += (sender, e) =>
@@ -88,6 +89,7 @@ namespace MusicApp
             spBar = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.spProgress);
 
             DrawerLayout = (DrawerLayout)MainActivity.instance.FindViewById(Resource.Id.playerView).Parent;
+            DrawerLayout.AddDrawerListener(new QueueListener(MainActivity.instance.FindViewById<ImageView>(Resource.Id.queueBackground)));
             MainActivity.instance.FindViewById(Resource.Id.queueParent).LayoutParameters.Width = (int)(DrawerLayout.Width * 0.75f);
             ((FrameLayout.LayoutParams)MainActivity.instance.FindViewById(Resource.Id.queue).LayoutParameters).TopMargin = Resources.GetDimensionPixelSize(Resources.GetIdentifier("status_bar_height", "dimen", "android"));
         }
@@ -119,7 +121,7 @@ namespace MusicApp
 
             TextView title = MainActivity.instance.FindViewById<TextView>(Resource.Id.playerTitle);
             TextView artist = MainActivity.instance.FindViewById<TextView>(Resource.Id.playerArtist);
-            imgView = MainActivity.instance.FindViewById<ImageView>(Resource.Id.playerAlbum);
+            view = MainActivity.instance.FindViewById<ImageView>(Resource.Id.playerAlbum);
             SpannableString titleText = new SpannableString(current.Title);
             titleText.SetSpan(new BackgroundColorSpan(Color.ParseColor("#BF000000")), 0, current.Title.Length, SpanTypes.InclusiveInclusive);
             title.TextFormatted = titleText;
@@ -141,18 +143,18 @@ namespace MusicApp
                 }
             }
 
-            Bitmap icon = null;
+            Bitmap drawable = null;
             if (current.AlbumArt == -1)
             {
                 await Task.Run(() =>
                 {
                     try
                     {
-                        icon = Picasso.With(Application.Context).Load(current.Album).Error(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Get();
+                        drawable = Picasso.With(Application.Context).Load(current.Album).Error(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Get();
                     }
                     catch (Exception)
                     {
-                        icon = Picasso.With(Application.Context).Load(Resource.Drawable.noAlbum).Get();
+                        drawable = Picasso.With(Application.Context).Load(Resource.Drawable.noAlbum).Get();
                     }
                 });
             }
@@ -165,17 +167,33 @@ namespace MusicApp
                 {
                     try
                     {
-                        icon = Picasso.With(Application.Context).Load(iconURI).Error(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.noAlbum).NetworkPolicy(NetworkPolicy.Offline).Resize(1080, 1080).CenterCrop().Get();
+                        drawable = Picasso.With(Application.Context).Load(iconURI).Error(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.noAlbum).NetworkPolicy(NetworkPolicy.Offline).Get();
                     }
                     catch (Exception)
                     {
-                        icon = Picasso.With(Application.Context).Load(Resource.Drawable.noAlbum).Get();
+                        drawable = Picasso.With(Application.Context).Load(Resource.Drawable.noAlbum).Get();
                     }
                 });
             }
 
-            imgView.SetImageBitmap(icon);
-            Palette.From(icon).MaximumColorCount(28).Generate(this);
+            view.SetImageBitmap(drawable);
+            Palette.From(drawable).MaximumColorCount(28).Generate(this);
+
+            //The width of the view in pixel (we'll multiply this by 0.75f because the drawer has a width of 75%)
+            int width = (int)(view.Width * (float)drawable.Height / view.Height);
+            int dX = (int)((drawable.Width - width) * 0.5f);
+            Bitmap blured = Bitmap.CreateBitmap(drawable, dX, 0, (int)(width * 0.75f), drawable.Height);
+
+            RenderScript rs = RenderScript.Create(MainActivity.instance);
+            Allocation input = Allocation.CreateFromBitmap(rs, blured);
+            Allocation output = Allocation.CreateTyped(rs, input.Type);
+            ScriptIntrinsicBlur blurrer = ScriptIntrinsicBlur.Create(rs, Element.U8_4(rs));
+            blurrer.SetRadius(10);
+            blurrer.SetInput(input);
+            blurrer.ForEach(output);
+
+            output.CopyTo(blured);
+            MainActivity.instance.FindViewById<ImageView>(Resource.Id.queueBackground).SetImageBitmap(blured);
 
             if (bar != null)
             {
@@ -384,7 +402,7 @@ namespace MusicApp
 
         private void ShowQueue_Click(object sender, EventArgs e)
         {
-            Queue.instance.Refresh();
+            Queue.instance?.adapter.NotifyDataSetChanged();
             DrawerLayout.OpenDrawer((int)GravityFlags.Start);
         }
 
@@ -693,4 +711,35 @@ namespace MusicApp
     }
 
     public enum SheetMovement { Expanding, Hidding, Unknow }
+
+
+    public class QueueListener : Java.Lang.Object, DrawerLayout.IDrawerListener
+    {
+        private ImageView QueueBackground;
+
+        public QueueListener(ImageView queueBackground)
+        {
+            QueueBackground = queueBackground;
+        }
+
+        public void OnDrawerOpened(View drawerView)
+        {
+            MainActivity.instance.SheetBehavior.PreventSlide = true;
+        }
+
+        public void OnDrawerClosed(View drawerView)
+        {
+            MainActivity.instance.SheetBehavior.PreventSlide = false;
+        }
+
+        public void OnDrawerSlide(View drawerView, float slideOffset)
+        {
+            QueueBackground.TranslationX = (1 - slideOffset) * drawerView.Width;
+        }
+
+        public void OnDrawerStateChanged(int newState)
+        {
+
+        }
+    }
 }

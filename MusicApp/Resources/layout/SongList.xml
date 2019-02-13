@@ -2,31 +2,16 @@
 <RelativeLayout  
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="fill_parent"
-  android:layout_height="78dp"
-  android:background="?android:colorBackground" >
-  <LinearLayout
-    android:orientation="horizontal"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:gravity="center_vertical"
-    android:id="@+id/leftButtons"
+  android:layout_height="78dp" >
+  <ImageView
+    android:id="@+id/albumArt"
+    android:layout_width="70dp"
+    android:layout_height="70dp"
+    android:layout_centerVertical="true"
+    android:layout_alignParentLeft="true"
     android:paddingLeft="8dp"
-    android:layout_alignParentLeft="true">
-    <ImageView
-      android:id="@+id/reorder"
-      android:layout_width="30dp"
-      android:layout_height="match_parent"
-      android:padding="5dp"
-      android:clickable="true"
-      android:visibility="gone"
-      android:src="@drawable/Reorder" />
-    <ImageView
-      android:id="@+id/albumArt"
-      android:layout_width="70dp"
-      android:layout_height="70dp"
-      android:padding="5dp"
-      android:src="@drawable/MusicIcon" />
-  </LinearLayout>
+    android:padding="5dp"
+    android:src="@drawable/MusicIcon" />
   <LinearLayout
     android:orientation="vertical"
     android:layout_width="fill_parent"
@@ -34,7 +19,7 @@
     android:gravity="center_vertical"
     android:paddingLeft="10dp"
     android:id="@+id/textLayout"
-    android:layout_toRightOf="@id/leftButtons"
+    android:layout_toRightOf="@id/albumArt"
     android:layout_toLeftOf="@+id/rightButtons" >
     <TextView
       android:id="@+id/title"
@@ -93,6 +78,15 @@
       android:src="@drawable/PublicIcon"
       android:layout_gravity="center_vertical"
       android:visibility="gone" />
+    <ImageView
+      android:id="@+id/reorder"
+      android:layout_width="30dp"
+      android:layout_height="match_parent"
+      android:padding="5dp"
+      android:clickable="true"
+      android:visibility="gone"
+      android:layout_gravity="center_vertical"
+      android:src="@drawable/Reorder" />
     <ImageView
       android:id="@+id/moreButton"
       android:layout_width="30dp"

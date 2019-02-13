@@ -8,6 +8,7 @@ namespace MusicApp.Resources.Portable_Class
     public class ItemTouchCallback : ItemTouchHelper.Callback
     {
         private IItemTouchAdapter adapter;
+        private readonly bool alwaysAllowSwap;
 
         private int from = -1;
         private int to = -1;
@@ -16,7 +17,10 @@ namespace MusicApp.Resources.Portable_Class
         {
             get
             {
-                if (PlaylistTracks.instance != null && (!PlaylistTracks.instance.hasWriteAcess || ((PlaylistTrackAdapter)adapter).IsEmpty))
+                if (alwaysAllowSwap)
+                    return true;
+
+                if (PlaylistTracks.instance != null && (!PlaylistTracks.instance.hasWriteAcess || ((PlaylistTrackAdapter)adapter)?.IsEmpty == true))
                     return false;
                 return true;
             }
@@ -25,19 +29,17 @@ namespace MusicApp.Resources.Portable_Class
         {
             get
             {
-                if (Queue.instance != null)
-                    return true;
-                else
-                    return false;
+                return false;
             }
         }
 
         private Drawable drawable;
 
 
-        public ItemTouchCallback(IItemTouchAdapter adapter)
+        public ItemTouchCallback(IItemTouchAdapter adapter, bool alwaysAllowSwap)
         {
             this.adapter = adapter;
+            this.alwaysAllowSwap = alwaysAllowSwap;
             drawable = Android.App.Application.Context.GetDrawable(Resource.Drawable.Delete);
         }
 

@@ -518,7 +518,7 @@ namespace MusicApp.Resources.Portable_Class
                 adapter.ItemLongClick += ListView_ItemLongClick;
                 ListView.SetAdapter(adapter);
 
-                Android.Support.V7.Widget.Helper.ItemTouchHelper.Callback callback = new ItemTouchCallback(adapter);
+                Android.Support.V7.Widget.Helper.ItemTouchHelper.Callback callback = new ItemTouchCallback(adapter, false);
                 itemTouchHelper = new Android.Support.V7.Widget.Helper.ItemTouchHelper(callback);
                 itemTouchHelper.AttachToRecyclerView(ListView);
 
@@ -561,7 +561,7 @@ namespace MusicApp.Resources.Portable_Class
                     adapter.ItemLongClick += ListView_ItemLongClick;
                     ListView.SetAdapter(adapter);
 
-                    Android.Support.V7.Widget.Helper.ItemTouchHelper.Callback callback = new ItemTouchCallback(adapter);
+                    Android.Support.V7.Widget.Helper.ItemTouchHelper.Callback callback = new ItemTouchCallback(adapter, false);
                     itemTouchHelper = new Android.Support.V7.Widget.Helper.ItemTouchHelper(callback);
                     itemTouchHelper.AttachToRecyclerView(ListView);
                 }
@@ -652,7 +652,7 @@ namespace MusicApp.Resources.Portable_Class
             adapter.ItemClick += ListView_ItemClick;
             adapter.ItemLongClick += ListView_ItemLongClick;
 
-            Android.Support.V7.Widget.Helper.ItemTouchHelper.Callback callback = new ItemTouchCallback(adapter);
+            Android.Support.V7.Widget.Helper.ItemTouchHelper.Callback callback = new ItemTouchCallback(adapter, false);
             itemTouchHelper = new Android.Support.V7.Widget.Helper.ItemTouchHelper(callback);
             itemTouchHelper.AttachToRecyclerView(ListView);
 
@@ -722,7 +722,7 @@ namespace MusicApp.Resources.Portable_Class
 
             if (hasWriteAcess && YoutubeID != "")
             {
-                actions.Add(new BottomSheetAction(Resource.Drawable.Close, Resources.GetString(Resource.String.remove_from_playlist), (sender, eventArg) =>
+                actions.Add(new BottomSheetAction(Resource.Drawable.Close, Resources.GetString(Resource.String.remove_track_from_playlist), (sender, eventArg) =>
                 {
                     DeleteDialog(position);
                     bottomSheet.Dismiss();
@@ -766,23 +766,23 @@ namespace MusicApp.Resources.Portable_Class
 
         public async void PlayInOrder(int fromPosition, bool useTransition)
         {
-            if (tracks.Count <= fromPosition)
+            if (instance.tracks.Count <= fromPosition)
                 return;
 
-            if (YoutubeID != null && !Synced)
+            if (instance.YoutubeID != null && !instance.Synced)
             {
-                if (result != null && result.Count > fromPosition)
-                    YoutubeEngine.Play(result[fromPosition].YoutubeID, result[fromPosition].Title, result[fromPosition].Artist, result[fromPosition].Album);
+                if (instance.result != null && instance.result.Count > fromPosition)
+                    YoutubeEngine.Play(instance.result[fromPosition].YoutubeID, instance.result[fromPosition].Title, instance.result[fromPosition].Artist, instance.result[fromPosition].Album);
                 else
-                    YoutubeEngine.Play(tracks[fromPosition].YoutubeID, tracks[fromPosition].Title, tracks[fromPosition].Artist, tracks[fromPosition].Album);
+                    YoutubeEngine.Play(instance.tracks[fromPosition].YoutubeID, instance.tracks[fromPosition].Title, instance.tracks[fromPosition].Artist, instance.tracks[fromPosition].Album);
 
-                while (nextPageToken != null)
-                    await LoadMore();
+                while (instance.nextPageToken != null)
+                    await instance.LoadMore();
             }
 
-            List<Song> songs = tracks.GetRange(fromPosition, tracks.Count - fromPosition);
+            List<Song> songs = instance.tracks.GetRange(fromPosition, tracks.Count - fromPosition);
             if (result != null && result.Count > fromPosition)
-                songs = result.GetRange(fromPosition, result.Count - fromPosition);
+                songs = instance.result.GetRange(fromPosition, result.Count - fromPosition);
 
             if (!songs[0].IsYt)
             {
@@ -792,6 +792,7 @@ namespace MusicApp.Resources.Portable_Class
 
             songs.RemoveAt(0);
             MusicPlayer.queue.AddRange(songs);
+            Queue.instance?.adapter.NotifyDataSetChanged();
 
             while (MusicPlayer.instance == null)
                 await Task.Delay(10);

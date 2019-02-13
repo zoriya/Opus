@@ -43,7 +43,7 @@
   <string name="edit_metadata">Modifier les metadatas</string>
   <string name="download">Télécharger</string>
   <string name="remove_from_queue">Enlever de la liste de lecture</string>
-  <string name="remove_from_playlist">Enlever de la playlist</string>
+  <string name="remove_track_from_playlist">Enlever de la playlist</string>
   <!--More menu of playlist or folders-->
   <string name="list_songs">Lister les titres</string>
   <string name="play_in_order">Lire dans l\'ordre</string>

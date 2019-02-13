@@ -493,10 +493,6 @@ namespace MusicApp.Resources.Portable_Class
 
         public static void Play(string videoID, string title, string artist, string thumbnailURL, bool addToQueue = true, bool showPlayer = true)
         {
-            MusicPlayer.queue?.Clear();
-            MusicPlayer.UpdateQueueDataBase();
-            MusicPlayer.currentID = -1;
-
             Intent intent = new Intent(Android.App.Application.Context, typeof(MusicPlayer));
             intent.SetAction("YoutubePlay");
             intent.PutExtra("action", "Play");
@@ -998,7 +994,7 @@ namespace MusicApp.Resources.Portable_Class
             MainActivity.instance.ShowPlayer();
             Player.instance?.UpdateNext();
             Home.instance?.RefreshQueue();
-            Queue.instance?.Refresh();
+            Queue.instance?.adapter.NotifyDataSetChanged();
             parseProgress.Visibility = ViewStates.Gone;
         }
 

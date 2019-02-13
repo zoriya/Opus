@@ -41,7 +41,7 @@ public class Queue : Fragment
         ListView.SetItemAnimator(new DefaultItemAnimator());
         ListView.ScrollChange += Scroll;
 
-        ItemTouchHelper.Callback callback = new ItemTouchCallback(adapter);
+        ItemTouchHelper.Callback callback = new ItemTouchCallback(adapter, true);
         itemTouchHelper = new ItemTouchHelper(callback);
         itemTouchHelper.AttachToRecyclerView(ListView);
 
@@ -65,11 +65,6 @@ public class Queue : Fragment
     //    base.OnStop();
     //    instance = null;
     //}
-
-    public void Refresh()
-    {
-        adapter.UpdateList(MusicPlayer.queue);
-    }
 
     public void RefreshCurrent()
     {
@@ -172,9 +167,9 @@ public class Queue : Fragment
         }
     }
 
-    private void ListView_ItemLongCLick(object sender, int e)
+    private void ListView_ItemLongCLick(object sender, int position)
     {
-        MainActivity.instance.contentRefresh.Enabled = false;
+        More(position);
     }
 
     public void More(int position)
@@ -263,6 +258,5 @@ public class Queue : Fragment
     {
         base.OnResume();
         instance = this;
-        RefreshCurrent();
     }
 }

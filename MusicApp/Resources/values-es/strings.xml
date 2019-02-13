@@ -43,7 +43,7 @@
   <string name="edit_metadata">Modifiar la metadata</string>
   <string name="download">Descargar</string>
   <string name="remove_from_queue">Eliminar de la cola</string>
-  <string name="remove_from_playlist">Eliminar de la playlist</string>
+  <string name="remove_track_from_playlist">Eliminar de la playlist</string>
   <!--More menu of playlist or folders-->
   <string name="list_songs">Listar la música </string>
   <string name="play_in_order">Reproducir en orden</string>

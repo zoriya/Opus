@@ -15,29 +15,12 @@ namespace MusicApp.Resources.Portable_Class
 {
     public class QueueAdapter : RecyclerView.Adapter, IItemTouchAdapter
     {
-        public List<Song> songList;
         public event EventHandler<int> ItemClick;
         public event EventHandler<int> ItemLongCLick;
 
-        public QueueAdapter(List<Song> songList)
-        {
-            this.songList = songList;
-        }
+        public QueueAdapter(List<Song> songList) { }
 
-        public void UpdateList(List<Song> songList)
-        {
-            this.songList = songList;
-            NotifyDataSetChanged();
-        }
-
-        public void AddToList(List<Song> songList)
-        {
-            int positionStart = this.songList.Count;
-            this.songList.AddRange(songList);
-            NotifyItemRangeInserted(positionStart, songList.Count);
-        }
-
-        public override int ItemCount => MusicPlayer.UseCastPlayer ? MusicPlayer.RemotePlayer.MediaQueue.ItemCount + 1 : songList.Count + 1;
+        public override int ItemCount => MusicPlayer.UseCastPlayer ? MusicPlayer.RemotePlayer.MediaQueue.ItemCount + 1 : MusicPlayer.queue.Count + 1;
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position)
         {
@@ -128,18 +111,15 @@ namespace MusicApp.Resources.Portable_Class
 
                 if (MainActivity.Theme == 1)
                 {
-                    holder.more.SetColorFilter(Color.White);
                     holder.reorder.SetColorFilter(Color.White);
                     holder.Title.SetTextColor(Color.White);
                     holder.Artist.SetTextColor(Color.White);
                     holder.Artist.Alpha = 0.7f;
                     holder.youtubeIcon.SetColorFilter(Color.White);
-                    //holder.ItemView.SetBackgroundColor(Color.ParseColor("#424242"));
                 }
-                //else
-                //    holder.ItemView.SetBackgroundColor(Color.White);
 
-                holder.reorder.Visibility = ViewStates.Gone;
+                holder.reorder.Visibility = ViewStates.Visible;
+                holder.more.Visibility = ViewStates.Gone;
                 if (position == MusicPlayer.CurrentID())
                 {
                     holder.status.Visibility = ViewStates.Visible;
@@ -150,7 +130,7 @@ namespace MusicApp.Resources.Portable_Class
                     holder.status.Visibility = ViewStates.Gone;
 
 
-                Song song = songList.Count <= position ? null : songList[position];
+                Song song = MusicPlayer.queue.Count <= position ? null : MusicPlayer.queue[position];
                 if (song == null)
                 {
                     if (holder.Title.Text.Length == 0)
@@ -189,15 +169,6 @@ namespace MusicApp.Resources.Portable_Class
                     Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Color.background_material_dark).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
                 }
 
-                if (!holder.more.HasOnClickListeners)
-                {
-                    holder.more.Click += (sender, e) =>
-                    {
-                        if (Queue.instance != null)
-                            Queue.instance.More(holder.AdapterPosition);
-                    };
-                }
-
                 if (song.IsLiveStream)
                     holder.Live.Visibility = ViewStates.Visible;
                 else
@@ -212,11 +183,6 @@ namespace MusicApp.Resources.Portable_Class
                         MainActivity.instance.contentRefresh.Enabled = false;
                     };
                 }
-
-                //if (position == MusicPlayer.CurrentID())
-                //    holder.Title.SetTextSize(Android.Util.ComplexUnitType.Dip, 18);
-                //else
-                //    holder.Title.SetTextSize(Android.Util.ComplexUnitType.Dip, 14);
 
                 if (song.IsParsed != true && song.IsYt)
                 {
@@ -307,6 +273,10 @@ namespace MusicApp.Resources.Portable_Class
                 }
                 else
                 {
+                    Console.WriteLine("&Payload: " + payloads[0].ToString());
+                    Console.WriteLine("&Position: " + position);
+                    Console.WriteLine("&Song at position: " + MusicPlayer.queue[position]);
+
                     RecyclerHolder holder = (RecyclerHolder)viewHolder;
 
                     if (payloads[0].ToString() == holder.Title.Text)
@@ -321,7 +291,7 @@ namespace MusicApp.Resources.Portable_Class
                     if (payloads[0].ToString() != null && (holder.Artist.Text == "" || holder.Artist.Text == null))
                     {
                         holder.Artist.Text = payloads[0].ToString();
-                        Song song = songList[position];
+                        Song song = MusicPlayer.queue[position];
 
                         if (song.IsYt)
                         {
@@ -373,12 +343,12 @@ namespace MusicApp.Resources.Portable_Class
             if(fromPosition < toPosition)
             {
                 for(int i = fromPosition; i < toPosition; i++)
-                    songList = Swap(songList, i, i + 1);
+                    MusicPlayer.queue = Swap(MusicPlayer.queue, i, i + 1);
             }
             else
             {
                 for(int i = fromPosition; i > toPosition; i--)
-                    songList = Swap(songList, i, i - 1);
+                    MusicPlayer.queue = Swap(MusicPlayer.queue, i, i - 1);
             }
 
             NotifyItemMoved(fromPosition, toPosition);
@@ -413,7 +383,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public void ItemDismissed(int position)
         {
-            Song song = songList[position];
+            Song song = MusicPlayer.queue[position];
             Queue.RemoveFromQueue(position);
             Snackbar snackbar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.recycler), (song.Title.Length > 20 ? song.Title.Substring(0, 17) + "..." : song.Title) + Queue.instance.GetString(Resource.String.removed_from_queue), Snackbar.LengthShort)
                 .SetAction(Queue.instance.GetString(Resource.String.undo), (view) =>

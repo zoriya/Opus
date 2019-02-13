@@ -250,6 +250,9 @@ namespace MusicApp.Resources.Portable_Class
             if (player == null)
                 InitializeService();
 
+            queue?.Clear();
+            currentID = -1;
+
             Song song = null;
             if (title == null)
                 song = Browse.GetSong(filePath);
@@ -340,7 +343,7 @@ namespace MusicApp.Resources.Portable_Class
             SaveQueueSlot();
             Player.instance?.RefreshPlayer();
             Home.instance?.AddQueue();
-            Queue.instance?.RefreshCurrent();
+            Queue.instance?.adapter.NotifyDataSetChanged();
             ParseNextSong();
             if (useAutoPlay)
                 GenerateAutoPlay(false);
@@ -352,6 +355,12 @@ namespace MusicApp.Resources.Portable_Class
             {
                 song = await ParseSong(song);
                 return;
+            }
+
+            if (addToQueue)
+            {
+                queue?.Clear();
+                currentID = -1;
             }
 
             isLiveStream = song.IsLiveStream;
@@ -436,19 +445,21 @@ namespace MusicApp.Resources.Portable_Class
 
             isRunning = true;
 
-            if(addToQueue)
+            if (addToQueue)
             {
                 AddToQueue(song);
                 SaveQueueSlot();
                 autoPlay.Clear();
-                GenerateAutoPlay(false);
                 currentID = CurrentID() + 1;
+                Queue.instance?.adapter.NotifyDataSetChanged();
             }
+            else
+                Queue.instance?.RefreshCurrent();
 
             Player.instance?.RefreshPlayer();
             Home.instance?.AddQueue();
-            Queue.instance?.RefreshCurrent();
             ParseNextSong();
+
             if (useAutoPlay)
                 GenerateAutoPlay(false);
         }
@@ -494,11 +505,11 @@ namespace MusicApp.Resources.Portable_Class
                 }
                 song.IsParsed = true;
 
-                if (startPlaybackWhenPosible)
-                    instance.Play(song, -1, position == -1);
-
                 if (position != -1)
                     Queue.instance?.adapter.NotifyItemChanged(position, Resource.Drawable.PublicIcon);
+
+                if (startPlaybackWhenPosible)
+                    instance.Play(song, -1, position == -1);
 
                 Video video = await client.GetVideoAsync(song.YoutubeID);
                 song.Title = video.Title;
@@ -545,7 +556,10 @@ namespace MusicApp.Resources.Portable_Class
 
                 Song song = new Song(title, artist, thumbnailURL, videoID, -1, -1, null, true, false);
                 queue.Clear();
+                autoPlay.Clear();
                 queue.Add(song);
+                Queue.instance?.adapter.NotifyDataSetChanged();
+                Player.instance?.RefreshPlayer();
                 currentID = 0;
                 await ParseSong(song, 0, true);
             }
@@ -743,7 +757,7 @@ namespace MusicApp.Resources.Portable_Class
                 UpdateQueueDataBase();
                 SaveQueueSlot();
                 Player.instance?.UpdateNext();
-                Queue.instance?.Refresh();
+                Queue.instance?.adapter.NotifyDataSetChanged();
                 Home.instance?.RefreshQueue();
                 Queue.instance?.ListView.ScrollToPosition(0);
             }
@@ -1487,6 +1501,7 @@ namespace MusicApp.Resources.Portable_Class
                 for (int i = 0; i < RemotePlayer.MediaQueue.ItemCount; i++)
                     queue.Add((Song)RemotePlayer.MediaQueue.GetItemAtIndex(i, true));
 
+                Queue.instance?.adapter.NotifyDataSetChanged();
                 Console.WriteLine("&Waiting for fetch - queue count: " + queue.Count);
 
                 if (queue.Count > 0)
@@ -1505,7 +1520,7 @@ namespace MusicApp.Resources.Portable_Class
 
                     Home.instance?.AddQueue();
                     Home.instance?.RefreshQueue(false);
-                    Queue.instance?.Refresh();
+                    Queue.instance?.adapter.NotifyDataSetChanged();
 
                     if (showPlayer)
                         MainActivity.instance.ShowSmallPlayer();
