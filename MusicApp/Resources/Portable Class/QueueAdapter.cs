@@ -4,6 +4,8 @@ using Android.Content.Res;
 using Android.Graphics;
 using Android.Support.Design.Widget;
 using Android.Support.V7.Widget;
+using Android.Text;
+using Android.Text.Style;
 using Android.Views;
 using Android.Widget;
 using MusicApp.Resources.values;
@@ -153,8 +155,12 @@ namespace MusicApp.Resources.Portable_Class
                     holder.Artist.SetBackgroundResource(0);
                 }
 
-                holder.Title.Text = song.Title;
-                holder.Artist.Text = song.Artist;
+                SpannableString titleText = new SpannableString(song.Title);
+                titleText.SetSpan(new BackgroundColorSpan(Color.ParseColor("#8C000000")), 0, song.Title.Length, SpanTypes.InclusiveInclusive);
+                holder.Title.TextFormatted = titleText;
+                holder.Title.SetMaxLines(2);
+
+                holder.Artist.Visibility = ViewStates.Gone;
 
                 if (song.AlbumArt == -1 || song.IsYt)
                 {

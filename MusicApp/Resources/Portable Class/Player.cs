@@ -188,7 +188,7 @@ namespace MusicApp
             Allocation input = Allocation.CreateFromBitmap(rs, blured);
             Allocation output = Allocation.CreateTyped(rs, input.Type);
             ScriptIntrinsicBlur blurrer = ScriptIntrinsicBlur.Create(rs, Element.U8_4(rs));
-            blurrer.SetRadius(10);
+            blurrer.SetRadius(13);
             blurrer.SetInput(input);
             blurrer.ForEach(output);
 
