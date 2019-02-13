@@ -1,3 +1,3 @@
-Version: 3.0.4
+Version: 3.0.5
 Beta: True
-Link: https://github.com/AnonymusRaccoon/MusicApp/releases/download/3.0.4/MusicApp.v3.0.4.apk
+Link: https://github.com/AnonymusRaccoon/MusicApp/releases/download/3.0.5/MusicApp.v3.0.5.apk
