@@ -383,9 +383,11 @@ namespace MusicApp.Resources.Portable_Class
                 DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(Application.Context, "MusicApp");
                 IExtractorsFactory extractorFactory = new DefaultExtractorsFactory();
                 Handler handler = new Handler();
-                IMediaSource mediaSource;
 
-                if (!song.IsYt)
+                IMediaSource mediaSource = null;
+                if (song.IsLiveStream)
+                    mediaSource = new HlsMediaSource(Uri.Parse(song.Path), dataSourceFactory, handler, null);
+                else if (!song.IsYt)
                     mediaSource = new ExtractorMediaSource(Uri.FromFile(new Java.IO.File(song.Path)), dataSourceFactory, extractorFactory, handler, null);
                 else
                     mediaSource = new ExtractorMediaSource(Uri.Parse(song.Path), dataSourceFactory, extractorFactory, handler, null);
