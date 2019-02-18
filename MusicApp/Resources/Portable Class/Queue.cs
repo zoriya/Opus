@@ -96,20 +96,23 @@ public class Queue : Fragment
         int last = ((LinearLayoutManager)ListView.GetLayoutManager()).FindLastVisibleItemPosition() - 1;
         for (int i = first; i <= last; i++)
         {
-            Song song = MusicPlayer.queue[i];
-            RecyclerHolder holder = (RecyclerHolder)ListView.GetChildViewHolder(((LinearLayoutManager)ListView.GetLayoutManager()).FindViewByPosition(i));
-            if (MusicPlayer.queue[MusicPlayer.CurrentID() + 1] == song)
+            if(i > 0)
             {
-                holder.status.Visibility = ViewStates.Visible;
-                holder.status.SetTextColor(MusicPlayer.isRunning ? Color.Argb(255, 244, 81, 30) : Color.Argb(255, 66, 165, 245));
+                Song song = MusicPlayer.queue[i - 1];
+                RecyclerHolder holder = (RecyclerHolder)ListView.GetChildViewHolder(((LinearLayoutManager)ListView.GetLayoutManager()).FindViewByPosition(i));
+                if (MusicPlayer.queue[MusicPlayer.CurrentID()] == song)
+                {
+                    holder.status.Visibility = ViewStates.Visible;
+                    holder.status.SetTextColor(MusicPlayer.isRunning ? Color.Argb(255, 244, 81, 30) : Color.Argb(255, 66, 165, 245));
 
-                string status = MusicPlayer.isRunning ? GetString(Resource.String.playing) : GetString(Resource.String.paused);
-                SpannableString statusText = new SpannableString(status);
-                statusText.SetSpan(new BackgroundColorSpan(Color.ParseColor("#8C000000")), 0, status.Length, SpanTypes.InclusiveInclusive);
-                holder.status.TextFormatted = statusText;
+                    string status = MusicPlayer.isRunning ? GetString(Resource.String.playing) : GetString(Resource.String.paused);
+                    SpannableString statusText = new SpannableString(status);
+                    statusText.SetSpan(new BackgroundColorSpan(Color.ParseColor("#8C000000")), 0, status.Length, SpanTypes.InclusiveInclusive);
+                    holder.status.TextFormatted = statusText;
+                }
+                else
+                    holder.status.Visibility = ViewStates.Gone;
             }
-            else
-                holder.status.Visibility = ViewStates.Gone;
         }
     }
 
