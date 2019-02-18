@@ -792,7 +792,7 @@ namespace MusicApp.Resources.Portable_Class
 
             songs.RemoveAt(0);
             MusicPlayer.queue.AddRange(songs);
-            Queue.instance?.adapter.NotifyDataSetChanged();
+            Queue.instance?.Refresh();
 
             while (MusicPlayer.instance == null)
                 await Task.Delay(10);

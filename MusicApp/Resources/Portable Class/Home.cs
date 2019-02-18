@@ -417,7 +417,7 @@ namespace MusicApp.Resources.Portable_Class
             {
                 HomeSection queue = new HomeSection("Queue", SectionType.SinglePlaylist, MusicPlayer.queue);
                 adapterItems.Insert(0, queue);
-                adapter.Insert(0, queue);
+                adapter?.Insert(0, queue);
             }
         }
 

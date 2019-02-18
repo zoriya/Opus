@@ -15,7 +15,7 @@ namespace MusicApp.Resources.Portable_Class
         public override void ItemsReloaded()
         {
             base.ItemsReloaded();
-            Queue.instance?.adapter.NotifyDataSetChanged();
+            Queue.instance?.Refresh();
             Home.instance?.QueueAdapter?.NotifyDataSetChanged();
             Player.instance?.RefreshPlayer();
         }
@@ -25,7 +25,7 @@ namespace MusicApp.Resources.Portable_Class
             base.ItemsRemovedAtIndexes(indexes);
             foreach(int index in indexes)
             {
-                Queue.instance?.adapter.NotifyItemRemoved(index);
+                Queue.instance?.NotifyItemRemoved(index);
                 Home.instance?.QueueAdapter?.NotifyItemRemoved(index);
 
                 if (index == MusicPlayer.CurrentID())
@@ -56,7 +56,7 @@ namespace MusicApp.Resources.Portable_Class
 
                 if(song != null)
                 {
-                    Queue.instance?.adapter.NotifyItemChanged(index, song.Title);
+                    Queue.instance?.NotifyItemChanged(index, song.Title);
                     Home.instance?.QueueAdapter?.NotifyItemChanged(index, song.Title);
 
                     if (index == MusicPlayer.CurrentID())

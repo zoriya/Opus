@@ -994,7 +994,7 @@ namespace MusicApp.Resources.Portable_Class
             MainActivity.instance.ShowPlayer();
             Player.instance?.UpdateNext();
             Home.instance?.RefreshQueue();
-            Queue.instance?.adapter.NotifyDataSetChanged();
+            Queue.instance?.Refresh();
             parseProgress.Visibility = ViewStates.Gone;
         }
 

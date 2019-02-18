@@ -48,7 +48,7 @@ namespace MusicApp.Resources.Portable_Class
             int dragFlag = ItemTouchHelper.Up | ItemTouchHelper.Down;
             int swipeFlag = ItemTouchHelper.Left | ItemTouchHelper.Right;
 
-            if (Queue.instance != null && viewHolder.AdapterPosition + 1 == Queue.instance.adapter.ItemCount)
+            if (Queue.instance != null && (viewHolder.AdapterPosition + 1 == ((QueueAdapter)adapter).ItemCount || viewHolder.AdapterPosition == 0))
                 return MakeFlag(0, 0);
 
             if (Queue.instance != null && MusicPlayer.CurrentID() == viewHolder.AdapterPosition)
@@ -59,7 +59,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public override bool OnMove(RecyclerView recyclerView, RecyclerView.ViewHolder source, RecyclerView.ViewHolder target)
         {
-            if (Queue.instance != null && target.AdapterPosition + 1 == Queue.instance.adapter.ItemCount)
+            if (Queue.instance != null && target.AdapterPosition + 1 == ((QueueAdapter)adapter).ItemCount)
                 return false;
 
             if (from == -1)

@@ -5,9 +5,10 @@ using Android.Graphics;
 using Android.OS;
 using Android.Runtime;
 using Android.Support.Design.Widget;
-using Android.Support.V7.App;
 using Android.Support.V7.Widget;
 using Android.Support.V7.Widget.Helper;
+using Android.Text;
+using Android.Text.Style;
 using Android.Views;
 using Android.Widget;
 using MusicApp;
@@ -16,7 +17,6 @@ using MusicApp.Resources.values;
 using Square.Picasso;
 using System.Collections.Generic;
 using Fragment = Android.Support.V4.App.Fragment;
-using Toolbar = Android.Support.V7.Widget.Toolbar;
 
 [Activity(Label = "Queue", Theme = "@style/Theme", ScreenOrientation = ScreenOrientation.Portrait)]
 [Register("MusicApp/Queue")]
@@ -24,7 +24,7 @@ public class Queue : Fragment
 {
     public static Queue instance;
     public RecyclerView ListView;
-    public QueueAdapter adapter;
+    private QueueAdapter adapter;
     public ItemTouchHelper itemTouchHelper;
     public IMenu menu;
 
@@ -39,6 +39,7 @@ public class Queue : Fragment
         adapter.ItemClick += ListView_ItemClick;
         adapter.ItemLongCLick += ListView_ItemLongCLick;
         ListView.SetItemAnimator(new DefaultItemAnimator());
+        ListView.AddItemDecoration(new CurrentItemDecoration());
         ListView.ScrollChange += Scroll;
 
         ItemTouchHelper.Callback callback = new ItemTouchCallback(adapter, true);
@@ -66,6 +67,29 @@ public class Queue : Fragment
     //    instance = null;
     //}
 
+    public void Refresh()
+    {
+        adapter.NotifyDataSetChanged();
+    }
+
+    public void NotifyItemChanged(int position)
+    {
+        position++;
+        adapter.NotifyItemChanged(position);
+    }
+
+    public void NotifyItemChanged(int position, Java.Lang.Object payload)
+    {
+        position++;
+        adapter.NotifyItemChanged(position, payload);
+    }
+
+    public void NotifyItemRemoved(int position)
+    {
+        position++;
+        adapter.NotifyItemRemoved(position);
+    }
+
     public void RefreshCurrent()
     {
         int first = ((LinearLayoutManager)ListView.GetLayoutManager()).FindFirstVisibleItemPosition();
@@ -74,11 +98,15 @@ public class Queue : Fragment
         {
             Song song = MusicPlayer.queue[i];
             RecyclerHolder holder = (RecyclerHolder)ListView.GetChildViewHolder(((LinearLayoutManager)ListView.GetLayoutManager()).FindViewByPosition(i));
-            if (MusicPlayer.queue[MusicPlayer.CurrentID()] == song)
+            if (MusicPlayer.queue[MusicPlayer.CurrentID() + 1] == song)
             {
-                holder.status.Text = MusicPlayer.isRunning ? GetString(Resource.String.playing) : GetString(Resource.String.paused);
-                holder.status.SetTextColor(MusicPlayer.isRunning ? Color.Argb(255, 244, 81, 30) : Color.Argb(255, 66, 165, 245));
                 holder.status.Visibility = ViewStates.Visible;
+                holder.status.SetTextColor(MusicPlayer.isRunning ? Color.Argb(255, 244, 81, 30) : Color.Argb(255, 66, 165, 245));
+
+                string status = MusicPlayer.isRunning ? GetString(Resource.String.playing) : GetString(Resource.String.paused);
+                SpannableString statusText = new SpannableString(status);
+                statusText.SetSpan(new BackgroundColorSpan(Color.ParseColor("#8C000000")), 0, status.Length, SpanTypes.InclusiveInclusive);
+                holder.status.TextFormatted = statusText;
             }
             else
                 holder.status.Visibility = ViewStates.Gone;

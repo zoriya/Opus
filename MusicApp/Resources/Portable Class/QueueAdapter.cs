@@ -22,10 +22,13 @@ namespace MusicApp.Resources.Portable_Class
 
         public QueueAdapter(List<Song> songList) { }
 
-        public override int ItemCount => MusicPlayer.UseCastPlayer ? MusicPlayer.RemotePlayer.MediaQueue.ItemCount + 1 : MusicPlayer.queue.Count + 1;
+        public override int ItemCount => MusicPlayer.UseCastPlayer ? MusicPlayer.RemotePlayer.MediaQueue.ItemCount + 2 : MusicPlayer.queue.Count + 2;
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position)
         {
+            if (position == 0)
+                return;
+
             if (position + 1 == ItemCount)
             {
                 QueueFooter holder = (QueueFooter)viewHolder;
@@ -109,24 +112,23 @@ namespace MusicApp.Resources.Portable_Class
             }
             else
             {
+                position--;
                 RecyclerHolder holder = (RecyclerHolder)viewHolder;
 
-                if (MainActivity.Theme == 1)
-                {
-                    holder.reorder.SetColorFilter(Color.White);
-                    holder.Title.SetTextColor(Color.White);
-                    holder.Artist.SetTextColor(Color.White);
-                    holder.Artist.Alpha = 0.7f;
-                    holder.youtubeIcon.SetColorFilter(Color.White);
-                }
-
+                holder.reorder.SetColorFilter(Color.White);
+                holder.Title.SetTextColor(Color.White);
+                holder.youtubeIcon.SetColorFilter(Color.White);
                 holder.reorder.Visibility = ViewStates.Visible;
                 holder.more.Visibility = ViewStates.Gone;
                 if (position == MusicPlayer.CurrentID())
                 {
                     holder.status.Visibility = ViewStates.Visible;
-                    holder.status.Text = MusicPlayer.isRunning ? Queue.instance.GetString(Resource.String.playing) : Queue.instance.GetString(Resource.String.paused);
                     holder.status.SetTextColor(MusicPlayer.isRunning ? Color.Argb(255, 244, 81, 30) : Color.Argb(255, 66, 165, 245));
+
+                    string status = MusicPlayer.isRunning ? Queue.instance.GetString(Resource.String.playing) : Queue.instance.GetString(Resource.String.paused);
+                    SpannableString statusText = new SpannableString(status);
+                    statusText.SetSpan(new BackgroundColorSpan(Color.ParseColor("#8C000000")), 0, status.Length, SpanTypes.InclusiveInclusive);
+                    holder.status.TextFormatted = statusText;
                 }
                 else
                     holder.status.Visibility = ViewStates.Gone;
@@ -279,10 +281,6 @@ namespace MusicApp.Resources.Portable_Class
                 }
                 else
                 {
-                    Console.WriteLine("&Payload: " + payloads[0].ToString());
-                    Console.WriteLine("&Position: " + position);
-                    Console.WriteLine("&Song at position: " + MusicPlayer.queue[position]);
-
                     RecyclerHolder holder = (RecyclerHolder)viewHolder;
 
                     if (payloads[0].ToString() == holder.Title.Text)
@@ -297,7 +295,7 @@ namespace MusicApp.Resources.Portable_Class
                     if (payloads[0].ToString() != null && (holder.Artist.Text == "" || holder.Artist.Text == null))
                     {
                         holder.Artist.Text = payloads[0].ToString();
-                        Song song = MusicPlayer.queue[position];
+                        Song song = MusicPlayer.queue[position - 1];
 
                         if (song.IsYt)
                         {
@@ -319,6 +317,11 @@ namespace MusicApp.Resources.Portable_Class
                 View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.SongList, parent, false);
                 return new RecyclerHolder(itemView, OnClick, OnLongClick);
             }
+            else if(viewType == 1)
+            {
+                View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.Empty, parent, false);
+                return new UslessHolder(itemView);
+            }
             else
             {
                 View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.QueueFooter, parent, false);
@@ -329,6 +332,8 @@ namespace MusicApp.Resources.Portable_Class
         public override int GetItemViewType(int position)
         {
             if (position + 1 == ItemCount)
+                return 2;
+            else if (position == 0)
                 return 1;
             else
                 return 0;
@@ -336,16 +341,21 @@ namespace MusicApp.Resources.Portable_Class
 
         void OnClick(int position)
         {
+            position--;
             ItemClick?.Invoke(this, position);
         }
 
         void OnLongClick(int position)
         {
+            position--;
             ItemLongCLick?.Invoke(this, position);
         }
 
         public void ItemMoved(int fromPosition, int toPosition)
         {
+            fromPosition--;
+            toPosition--;
+
             if(fromPosition < toPosition)
             {
                 for(int i = fromPosition; i < toPosition; i++)
@@ -362,6 +372,9 @@ namespace MusicApp.Resources.Portable_Class
 
         public void ItemMoveEnded(int fromPosition, int toPosition)
         {
+            fromPosition--;
+            toPosition--;
+
             if (MusicPlayer.CurrentID() > fromPosition && MusicPlayer.CurrentID() <= toPosition)
                 MusicPlayer.currentID--;
 
@@ -381,6 +394,8 @@ namespace MusicApp.Resources.Portable_Class
         
         List<T> Swap<T>(List<T> list, int fromPosition, int toPosition)
         {
+            fromPosition--;
+            toPosition--;
             T item = list[fromPosition];
             list[fromPosition] = list[toPosition];
             list[toPosition] = item;
@@ -389,6 +404,8 @@ namespace MusicApp.Resources.Portable_Class
 
         public void ItemDismissed(int position)
         {
+            position--;
+
             Song song = MusicPlayer.queue[position];
             Queue.RemoveFromQueue(position);
             Snackbar snackbar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.recycler), (song.Title.Length > 20 ? song.Title.Substring(0, 17) + "..." : song.Title) + Queue.instance.GetString(Resource.String.removed_from_queue), Snackbar.LengthShort)

@@ -343,7 +343,7 @@ namespace MusicApp.Resources.Portable_Class
             SaveQueueSlot();
             Player.instance?.RefreshPlayer();
             Home.instance?.AddQueue();
-            Queue.instance?.adapter.NotifyDataSetChanged();
+            Queue.instance?.Refresh();
             ParseNextSong();
             if (useAutoPlay)
                 GenerateAutoPlay(false);
@@ -453,7 +453,7 @@ namespace MusicApp.Resources.Portable_Class
                 SaveQueueSlot();
                 autoPlay.Clear();
                 currentID = CurrentID() + 1;
-                Queue.instance?.adapter.NotifyDataSetChanged();
+                Queue.instance?.Refresh();
             }
             else
                 Queue.instance?.RefreshCurrent();
@@ -508,7 +508,7 @@ namespace MusicApp.Resources.Portable_Class
                 song.IsParsed = true;
 
                 if (position != -1)
-                    Queue.instance?.adapter.NotifyItemChanged(position, Resource.Drawable.PublicIcon);
+                    Queue.instance?.NotifyItemChanged(position, Resource.Drawable.PublicIcon);
 
                 if (startPlaybackWhenPosible)
                     instance.Play(song, -1, position == -1);
@@ -520,7 +520,7 @@ namespace MusicApp.Resources.Portable_Class
                 Player.instance?.RefreshPlayer();
 
                 if (position != -1)
-                    Queue.instance?.adapter.NotifyItemChanged(position, song.Artist);
+                    Queue.instance?.NotifyItemChanged(position, song.Artist);
 
                 if (!song.IsLiveStream)
                     song.ExpireDate = mediaStreamInfo.ValidUntil;
@@ -560,7 +560,7 @@ namespace MusicApp.Resources.Portable_Class
                 queue.Clear();
                 autoPlay.Clear();
                 queue.Add(song);
-                Queue.instance?.adapter.NotifyDataSetChanged();
+                Queue.instance?.Refresh();
                 Player.instance?.RefreshPlayer();
                 currentID = 0;
                 await ParseSong(song, 0, true);
@@ -759,7 +759,7 @@ namespace MusicApp.Resources.Portable_Class
                 UpdateQueueDataBase();
                 SaveQueueSlot();
                 Player.instance?.UpdateNext();
-                Queue.instance?.adapter.NotifyDataSetChanged();
+                Queue.instance?.Refresh();
                 Home.instance?.RefreshQueue();
                 Queue.instance?.ListView.ScrollToPosition(0);
             }
@@ -1336,7 +1336,7 @@ namespace MusicApp.Resources.Portable_Class
 
         public void Resume()
         {
-            if(!UseCastPlayer && player != null && !isRunning)
+            if(!UseCastPlayer && player != null && notification != null && !isRunning)
             {
                 ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
                 player.Volume = prefManager.GetInt("volumeMultiplier", 100) / 100f;
@@ -1503,7 +1503,7 @@ namespace MusicApp.Resources.Portable_Class
                 for (int i = 0; i < RemotePlayer.MediaQueue.ItemCount; i++)
                     queue.Add((Song)RemotePlayer.MediaQueue.GetItemAtIndex(i, true));
 
-                Queue.instance?.adapter.NotifyDataSetChanged();
+                Queue.instance?.Refresh();
                 Console.WriteLine("&Waiting for fetch - queue count: " + queue.Count);
 
                 if (queue.Count > 0)
@@ -1522,7 +1522,7 @@ namespace MusicApp.Resources.Portable_Class
 
                     Home.instance?.AddQueue();
                     Home.instance?.RefreshQueue(false);
-                    Queue.instance?.adapter.NotifyDataSetChanged();
+                    Queue.instance?.Refresh();
 
                     if (showPlayer)
                         MainActivity.instance.ShowSmallPlayer();
@@ -1561,7 +1561,7 @@ namespace MusicApp.Resources.Portable_Class
                 MainActivity.instance?.HideSmallPlayer();
                 if (Home.adapterItems?.Count > 0 && Home.adapterItems[0]?.SectionTitle == "Queue")
                 {
-                    Home.instance?.adapter.NotifyItemRemoved(0);
+                    Home.instance?.adapter?.NotifyItemRemoved(0);
                     Home.adapterItems?.RemoveAt(0);
                 }
             }

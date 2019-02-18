@@ -179,21 +179,24 @@ namespace MusicApp
             view.SetImageBitmap(drawable);
             Palette.From(drawable).MaximumColorCount(28).Generate(this);
 
-            //The width of the view in pixel (we'll multiply this by 0.75f because the drawer has a width of 75%)
-            int width = (int)(view.Width * (float)drawable.Height / view.Height);
-            int dX = (int)((drawable.Width - width) * 0.5f);
-            Bitmap blured = Bitmap.CreateBitmap(drawable, dX, 0, (int)(width * 0.75f), drawable.Height);
+            if(view.Width > 0)
+            {
+                //The width of the view in pixel (we'll multiply this by 0.75f because the drawer has a width of 75%)
+                int width = (int)(view.Width * (float)drawable.Height / view.Height);
+                int dX = (int)((drawable.Width - width) * 0.5f);
+                Bitmap blured = Bitmap.CreateBitmap(drawable, dX, 0, (int)(width * 0.75f), drawable.Height);
 
-            RenderScript rs = RenderScript.Create(MainActivity.instance);
-            Allocation input = Allocation.CreateFromBitmap(rs, blured);
-            Allocation output = Allocation.CreateTyped(rs, input.Type);
-            ScriptIntrinsicBlur blurrer = ScriptIntrinsicBlur.Create(rs, Element.U8_4(rs));
-            blurrer.SetRadius(13);
-            blurrer.SetInput(input);
-            blurrer.ForEach(output);
+                RenderScript rs = RenderScript.Create(MainActivity.instance);
+                Allocation input = Allocation.CreateFromBitmap(rs, blured);
+                Allocation output = Allocation.CreateTyped(rs, input.Type);
+                ScriptIntrinsicBlur blurrer = ScriptIntrinsicBlur.Create(rs, Element.U8_4(rs));
+                blurrer.SetRadius(13);
+                blurrer.SetInput(input);
+                blurrer.ForEach(output);
 
-            output.CopyTo(blured);
-            MainActivity.instance.FindViewById<ImageView>(Resource.Id.queueBackground).SetImageBitmap(blured);
+                output.CopyTo(blured);
+                MainActivity.instance.FindViewById<ImageView>(Resource.Id.queueBackground).SetImageBitmap(blured);
+            }
 
             if (bar != null)
             {
@@ -402,7 +405,7 @@ namespace MusicApp
 
         private void ShowQueue_Click(object sender, EventArgs e)
         {
-            Queue.instance?.adapter.NotifyDataSetChanged();
+            Queue.instance?.Refresh();
             DrawerLayout.OpenDrawer((int)GravityFlags.Start);
         }
 
