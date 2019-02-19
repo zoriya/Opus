@@ -59,12 +59,12 @@ namespace MusicApp.Resources.Portable_Class
 
         public override bool OnMove(RecyclerView recyclerView, RecyclerView.ViewHolder source, RecyclerView.ViewHolder target)
         {
-            if (Queue.instance != null && target.AdapterPosition + 1 == ((QueueAdapter)adapter).ItemCount)
+            adapter.IsSliding = true;
+
+            if (Queue.instance != null && (target.AdapterPosition + 1 == ((QueueAdapter)adapter).ItemCount || target.AdapterPosition == 0))
                 return false;
 
-            if (from == -1)
-                from = source.AdapterPosition;
-
+            from = source.AdapterPosition;
             to = target.AdapterPosition;
             adapter.ItemMoved(source.AdapterPosition, target.AdapterPosition);
             return true;
@@ -119,13 +119,18 @@ namespace MusicApp.Resources.Portable_Class
         public override void ClearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder)
         {
             base.ClearView(recyclerView, viewHolder);
+            adapter.IsSliding = false;
 
             viewHolder.ItemView.Alpha = 1;
 
             MainActivity.instance.contentRefresh.Enabled = true;
 
             if (from != -1 && to != -1 && from != to)
+            {
                 adapter.ItemMoveEnded(from, to);
+                from = -1;
+                to = -1;
+            }
 
 
             if (viewHolder is IItemTouchHolder)
@@ -135,6 +140,8 @@ namespace MusicApp.Resources.Portable_Class
 
     public interface IItemTouchAdapter
     {
+        bool IsSliding { get; set; }
+
         void ItemMoved(int fromPosition, int toPosition);
         void ItemMoveEnded(int fromPosition, int toPosition);
         void ItemDismissed(int position);

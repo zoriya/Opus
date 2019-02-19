@@ -12,13 +12,22 @@ namespace MusicApp.Resources.Portable_Class
 {
     public class CurrentItemDecoration : RecyclerView.ItemDecoration
     {
-        public CurrentItemDecoration() { }
+        public IItemTouchAdapter adapter;
+
+        public CurrentItemDecoration(IItemTouchAdapter adapter) { this.adapter = adapter; }
 
         public override void OnDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state)
         {
             base.OnDrawOver(c, parent, state);
 
-            if(parent.ChildCount > 1 && parent.Width > 0)
+            if (adapter.IsSliding)
+            {
+                parent.SetPadding(0, 0, 0, 0);
+                return;
+            }
+
+
+            if (parent.ChildCount > 1 && parent.Width > 0)
             {
                 int firstPos = parent.GetChildAdapterPosition(parent.GetChildAt(0));
                 int lastPos = parent.GetChildAdapterPosition(parent.GetChildAt(parent.ChildCount - 1));

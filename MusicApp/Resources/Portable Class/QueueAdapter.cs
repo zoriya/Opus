@@ -20,6 +20,9 @@ namespace MusicApp.Resources.Portable_Class
         public event EventHandler<int> ItemClick;
         public event EventHandler<int> ItemLongCLick;
 
+        public bool IsSliding { get; set; }
+
+
         public QueueAdapter(List<Song> songList) { }
 
         public override int ItemCount => MusicPlayer.UseCastPlayer ? MusicPlayer.RemotePlayer.MediaQueue.ItemCount + 2 : MusicPlayer.queue.Count + 2;
@@ -353,18 +356,15 @@ namespace MusicApp.Resources.Portable_Class
 
         public void ItemMoved(int fromPosition, int toPosition)
         {
-            fromPosition--;
-            toPosition--;
-
-            if(fromPosition < toPosition)
+            if (fromPosition < toPosition)
             {
-                for(int i = fromPosition; i < toPosition; i++)
-                    MusicPlayer.queue = Swap(MusicPlayer.queue, i, i + 1);
+                for (int i = fromPosition; i < toPosition; i++)
+                    MusicPlayer.queue = Swap(MusicPlayer.queue, i - 1, i);
             }
             else
             {
-                for(int i = fromPosition; i > toPosition; i--)
-                    MusicPlayer.queue = Swap(MusicPlayer.queue, i, i - 1);
+                for (int i = fromPosition; i > toPosition; i--)
+                    MusicPlayer.queue = Swap(MusicPlayer.queue, i - 1, i - 2);
             }
 
             NotifyItemMoved(fromPosition, toPosition);
@@ -394,8 +394,6 @@ namespace MusicApp.Resources.Portable_Class
         
         List<T> Swap<T>(List<T> list, int fromPosition, int toPosition)
         {
-            fromPosition--;
-            toPosition--;
             T item = list[fromPosition];
             list[fromPosition] = list[toPosition];
             list[toPosition] = item;
@@ -408,7 +406,7 @@ namespace MusicApp.Resources.Portable_Class
 
             Song song = MusicPlayer.queue[position];
             Queue.RemoveFromQueue(position);
-            Snackbar snackbar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.recycler), (song.Title.Length > 20 ? song.Title.Substring(0, 17) + "..." : song.Title) + Queue.instance.GetString(Resource.String.removed_from_queue), Snackbar.LengthShort)
+            Snackbar snackbar = Snackbar.Make(Player.instance.View, (song.Title.Length > 20 ? song.Title.Substring(0, 17) + "..." : song.Title) + Queue.instance.GetString(Resource.String.removed_from_queue), Snackbar.LengthShort)
                 .SetAction(Queue.instance.GetString(Resource.String.undo), (view) =>
                 {
                     Queue.InsertToQueue(position, song);

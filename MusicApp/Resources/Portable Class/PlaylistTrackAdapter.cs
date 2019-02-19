@@ -20,6 +20,7 @@ namespace MusicApp.Resources.Portable_Class
         public event EventHandler<int> ItemLongClick;
         public int listPadding;
         public bool IsEmpty = false;
+        public bool IsSliding { get; set; }
 
         public PlaylistTrackAdapter(List<Song> songList)
         {

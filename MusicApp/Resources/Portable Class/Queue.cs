@@ -39,7 +39,7 @@ public class Queue : Fragment
         adapter.ItemClick += ListView_ItemClick;
         adapter.ItemLongCLick += ListView_ItemLongCLick;
         ListView.SetItemAnimator(new DefaultItemAnimator());
-        ListView.AddItemDecoration(new CurrentItemDecoration());
+        ListView.AddItemDecoration(new CurrentItemDecoration(adapter));
         ListView.ScrollChange += Scroll;
 
         ItemTouchHelper.Callback callback = new ItemTouchCallback(adapter, true);
@@ -282,7 +282,7 @@ public class Queue : Fragment
         MusicPlayer.RemoveFromQueue(position);
 
         if (instance != null)
-            instance.adapter.NotifyItemRemoved(position);
+            instance.adapter.NotifyItemRemoved(position + 1);
     }
 
     public override void OnResume()
