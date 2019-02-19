@@ -12,9 +12,9 @@ namespace MusicApp.Resources.Portable_Class
 {
     public class CurrentItemDecoration : RecyclerView.ItemDecoration
     {
-        public IItemTouchAdapter adapter;
+        public QueueAdapter adapter;
 
-        public CurrentItemDecoration(IItemTouchAdapter adapter) { this.adapter = adapter; }
+        public CurrentItemDecoration(QueueAdapter adapter) { this.adapter = adapter; }
 
         public override void OnDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state)
         {
@@ -46,6 +46,7 @@ namespace MusicApp.Resources.Portable_Class
 
                     header.FindViewById(Resource.Id.topDivider).Visibility = ViewStates.Gone;
                     BindHolder(new RecyclerHolder(header, null, null));
+                    Queue.instance.HeaderHeight = header.MeasuredHeight;
 
                     c.Save();
                     c.Translate(0, 0);
@@ -66,6 +67,7 @@ namespace MusicApp.Resources.Portable_Class
 
                     header.FindViewById(Resource.Id.bottomDivider).Visibility = ViewStates.Gone;
                     BindHolder(new RecyclerHolder(header, null, null));
+                    Queue.instance.HeaderHeight = -header.MeasuredHeight;
 
                     c.Save();
                     c.Translate(0, parentHeight - header.MeasuredHeight);
@@ -75,6 +77,7 @@ namespace MusicApp.Resources.Portable_Class
                 }
                 else
                 {
+                    Queue.instance.HeaderHeight = 0;
                     parent.SetPadding(0, 0, 0, 0);
                 }
             }

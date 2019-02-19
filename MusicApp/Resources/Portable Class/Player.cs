@@ -405,7 +405,11 @@ namespace MusicApp
 
         private void ShowQueue_Click(object sender, EventArgs e)
         {
-            Queue.instance?.Refresh();
+            ShowQueue();
+        }
+
+        public void ShowQueue()
+        {
             DrawerLayout.OpenDrawer((int)GravityFlags.Start);
         }
 

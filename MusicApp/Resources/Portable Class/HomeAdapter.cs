@@ -89,8 +89,8 @@ namespace MusicApp.Resources.Portable_Class
                     holder.recycler.SetAdapter(adapter);
                     holder.more.Click += (sender, e) =>
                     {
-                        Intent intent = new Intent(MainActivity.instance, typeof(Queue));
-                        MainActivity.instance.StartActivity(intent);
+                        MainActivity.instance.ShowPlayer();
+                        Player.instance.ShowQueue();
                     };
                     if(MusicPlayer.CurrentID() != -1 && MusicPlayer.CurrentID() <= MusicPlayer.queue.Count)
                         holder.recycler.ScrollToPosition(MusicPlayer.CurrentID());

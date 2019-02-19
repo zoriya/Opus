@@ -20,12 +20,13 @@ using Fragment = Android.Support.V4.App.Fragment;
 
 [Activity(Label = "Queue", Theme = "@style/Theme", ScreenOrientation = ScreenOrientation.Portrait)]
 [Register("MusicApp/Queue")]
-public class Queue : Fragment
+public class Queue : Fragment, RecyclerView.IOnItemTouchListener
 {
     public static Queue instance;
     public RecyclerView ListView;
     private QueueAdapter adapter;
     public ItemTouchHelper itemTouchHelper;
+    public int HeaderHeight;
     public IMenu menu;
 
     public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -40,6 +41,7 @@ public class Queue : Fragment
         adapter.ItemLongCLick += ListView_ItemLongCLick;
         ListView.SetItemAnimator(new DefaultItemAnimator());
         ListView.AddItemDecoration(new CurrentItemDecoration(adapter));
+        ListView.AddOnItemTouchListener(this);
         ListView.ScrollChange += Scroll;
 
         ItemTouchHelper.Callback callback = new ItemTouchCallback(adapter, true);
@@ -92,6 +94,8 @@ public class Queue : Fragment
 
     public void RefreshCurrent()
     {
+        ListView.InvalidateItemDecorations();
+
         int first = ((LinearLayoutManager)ListView.GetLayoutManager()).FindFirstVisibleItemPosition();
         int last = ((LinearLayoutManager)ListView.GetLayoutManager()).FindLastVisibleItemPosition() - 1;
         for (int i = first; i <= last; i++)
@@ -260,6 +264,13 @@ public class Queue : Fragment
         bottomSheet.Show();
     }
 
+    void HeaderClick()
+    {
+        Intent intent = new Intent(Activity, typeof(MusicPlayer));
+        intent.SetAction("Pause");
+        Activity.StartService(intent);
+    }
+
     public static void InsertToQueue(int position, Song item)
     {
         if (MusicPlayer.CurrentID() >= position)
@@ -290,4 +301,29 @@ public class Queue : Fragment
         base.OnResume();
         instance = this;
     }
+
+    public bool OnInterceptTouchEvent(RecyclerView recyclerView, MotionEvent motionEvent)
+    {
+        if (HeaderHeight == 0)
+            return false;
+
+        if (motionEvent.GetY() <= HeaderHeight)
+        {
+            if (motionEvent.ActionMasked == MotionEventActions.Down) //The up motion is never triggered so i use the down here.
+                HeaderClick();
+            return true;
+        }
+        if(motionEvent.GetY() >= recyclerView.Height + HeaderHeight) //When the header is at the bottom, the HeaderHeight is negative
+        {
+            if (motionEvent.ActionMasked == MotionEventActions.Down)
+                HeaderClick();
+            return true;
+        }
+
+        return false;
+    }
+
+    public void OnRequestDisallowInterceptTouchEvent(bool disallow) { }
+
+    public void OnTouchEvent(RecyclerView recyclerView, MotionEvent @event) { }
 }
