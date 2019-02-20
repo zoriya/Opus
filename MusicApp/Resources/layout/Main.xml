@@ -4,7 +4,7 @@
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
-  android:layout_height="fill_parent"
+  android:layout_height="match_parent"
   android:fitsSystemWindows="true" >
   <android.support.design.widget.CoordinatorLayout 
     android:layout_width="match_parent"
@@ -82,11 +82,11 @@
     app:itemTextColor="@color/color_tint"
     app:menu="@menu/bottom_items" />
 
-  <android.support.v4.widget.NestedScrollView
+  <MusicApp.FixedNestedScrollView
     android:id="@+id/playerSheet"
     android:fitsSystemWindows="true"
-    android:layout_width="wrap_content"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:visibility="gone"
     android:elevation="6dp"
     android:translationY="-56dp"
@@ -94,8 +94,8 @@
     app:behavior_peekHeight="70dp"
     app:layout_behavior="MusicApp.PlayerBehavior" >
     <RelativeLayout
-      android:layout_width="fill_parent"
-      android:layout_height="fill_parent"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
       android:id="@+id/playersHolder"
       android:background="#2b5568"
       android:fitsSystemWindows="true" >
@@ -198,10 +198,10 @@
       <fragment
         android:name="MusicApp.Player"
         android:id="@+id/playerContainer"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent" />
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
     </RelativeLayout>
-  </android.support.v4.widget.NestedScrollView>
+  </MusicApp.FixedNestedScrollView>
     
   <android.support.design.widget.CoordinatorLayout
     android:id="@+id/snackBar"

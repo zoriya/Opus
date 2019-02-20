@@ -756,7 +756,7 @@ namespace MusicApp
         }
 
         public void ShowSmallPlayer()
-        {            
+        {
             FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Visible;
             FindViewById(Resource.Id.playerContainer).Alpha = 0;
             FindViewById(Resource.Id.smallPlayer).Alpha = 1;

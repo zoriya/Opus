@@ -11,7 +11,6 @@ using Android.Runtime;
 using Android.Support.Design.Widget;
 using Android.Support.V4.Widget;
 using Android.Support.V7.Graphics;
-using Android.Support.V7.Widget;
 using Android.Text;
 using Android.Text.Style;
 using Android.Util;
@@ -41,7 +40,7 @@ namespace MusicApp
         private ProgressBar spBar;
         private TextView timer;
         private ImageView view;
-        private DrawerLayout DrawerLayout;
+        public DrawerLayout DrawerLayout;
         private bool prepared = false;
         private readonly int[] timers = new int[] { 0, 2, 10, 30, 60, 120 };
         private int checkedItem = 0;
@@ -179,7 +178,7 @@ namespace MusicApp
             view.SetImageBitmap(drawable);
             Palette.From(drawable).MaximumColorCount(28).Generate(this);
 
-            if(view.Width > 0)
+            if (view.Width > 0)
             {
                 //The width of the view in pixel (we'll multiply this by 0.75f because the drawer has a width of 75%)
                 int width = (int)(view.Width * (float)drawable.Height / view.Height);
@@ -746,7 +745,10 @@ namespace MusicApp
 
         public void OnDrawerStateChanged(int newState)
         {
-
+            if (newState == DrawerLayout.StateDragging)
+                FixedNestedScrollView.PreventSlide = true;
+            else if(newState == DrawerLayout.StateSettling)
+                FixedNestedScrollView.PreventSlide = false;
         }
     }
 }

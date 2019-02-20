@@ -40,14 +40,6 @@ public class PlayerBehavior : BottomSheetBehavior
         return base.OnStartNestedScroll(coordinatorLayout, child, directTargetChild, target, axes, type);
     }
 
-    public override bool OnNestedPreFling(CoordinatorLayout coordinatorLayout, Java.Lang.Object child, View target, float velocityX, float velocityY)
-    {
-        if (PreventSlide)
-            return false;
-
-        return base.OnNestedPreFling(coordinatorLayout, child, target, velocityX, velocityY);
-    }
-
     public override void OnNestedPreScroll(CoordinatorLayout coordinatorLayout, Java.Lang.Object child, View target, int dx, int dy, int[] consumed, int type)
     {
         if (PreventSlide)
@@ -62,5 +54,13 @@ public class PlayerBehavior : BottomSheetBehavior
             return;
 
         base.OnStopNestedScroll(coordinatorLayout, child, target, type);
+    }
+
+    public override bool OnNestedPreFling(CoordinatorLayout coordinatorLayout, Java.Lang.Object child, View target, float velocityX, float velocityY)
+    {
+        if (PreventSlide)
+            return false;
+
+        return base.OnNestedPreFling(coordinatorLayout, child, target, velocityX, velocityY);
     }
 }
