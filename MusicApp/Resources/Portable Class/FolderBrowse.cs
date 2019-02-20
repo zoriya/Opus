@@ -231,8 +231,6 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     MusicPlayer.instance.AddToQueue(song);
                 }
-
-                Player.instance.UpdateNext();
             }
         }
 

@@ -5582,8 +5582,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f0a010d
 			public const int largeLabel = 2131362061;
 			
-			// aapt resource value: 0x7f0a0196
-			public const int lastButton = 2131362198;
+			// aapt resource value: 0x7f0a0197
+			public const int lastButton = 2131362199;
 			
 			// aapt resource value: 0x7f0a007c
 			public const int left = 2131361916;
@@ -5690,8 +5690,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f0a0118
 			public const int more = 2131362072;
 			
-			// aapt resource value: 0x7f0a019a
-			public const int moreButton = 2131362202;
+			// aapt resource value: 0x7f0a0195
+			public const int moreButton = 2131362197;
 			
 			// aapt resource value: 0x7f0a0163
 			public const int mr_art = 2131362147;
@@ -5852,8 +5852,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f0a006b
 			public const int never = 2131361899;
 			
-			// aapt resource value: 0x7f0a0199
-			public const int nextButton = 2131362201;
+			// aapt resource value: 0x7f0a019a
+			public const int nextButton = 2131362202;
 			
 			// aapt resource value: 0x7f0a0177
 			public const int noPlaylist = 2131362167;
@@ -5897,8 +5897,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f0a0080
 			public const int pin = 2131361920;
 			
-			// aapt resource value: 0x7f0a0197
-			public const int playButton = 2131362199;
+			// aapt resource value: 0x7f0a0198
+			public const int playButton = 2131362200;
 			
 			// aapt resource value: 0x7f0a018d
 			public const int playerAlbum = 2131362189;
@@ -5906,8 +5906,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f0a0192
 			public const int playerArtist = 2131362194;
 			
-			// aapt resource value: 0x7f0a0198
-			public const int playerBuffer = 2131362200;
+			// aapt resource value: 0x7f0a0199
+			public const int playerBuffer = 2131362201;
 			
 			// aapt resource value: 0x7f0a0145
 			public const int playerContainer = 2131362117;
@@ -6095,8 +6095,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f0a0054
 			public const int showHome = 2131361876;
 			
-			// aapt resource value: 0x7f0a0195
-			public const int showQueue = 2131362197;
+			// aapt resource value: 0x7f0a0193
+			public const int showQueue = 2131362195;
 			
 			// aapt resource value: 0x7f0a0055
 			public const int showTitle = 2131361877;
@@ -6125,8 +6125,8 @@ namespace MusicApp
 			// aapt resource value: 0x7f0a0074
 			public const int snapMargins = 2131361908;
 			
-			// aapt resource value: 0x7f0a0193
-			public const int songTimer = 2131362195;
+			// aapt resource value: 0x7f0a0196
+			public const int songTimer = 2131362198;
 			
 			// aapt resource value: 0x7f0a01b4
 			public const int songView = 2131362228;

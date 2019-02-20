@@ -195,10 +195,7 @@ namespace MusicApp.Resources.Portable_Class
                 await Task.Delay(10);
 
             foreach(Song song in queue)
-            {
                 MusicPlayer.instance.AddToQueue(song);
-            }
-            Player.instance.UpdateNext();
         }
 
         private void ListView_ItemLongClick(object sender, int position)
@@ -248,10 +245,8 @@ namespace MusicApp.Resources.Portable_Class
                         await Task.Delay(10);
 
                     foreach (Song song in queue)
-                    {
                         MusicPlayer.instance.AddToQueue(song);
-                    }
-                    Player.instance.UpdateNext();
+
                     bottomSheet.Dismiss();
                 }),
                 new BottomSheetAction(Resource.Drawable.PlaylistPlay, Resources.GetString(Resource.String.play_next), (sender, eventArg) => { Browse.PlayNext(item); bottomSheet.Dismiss(); }),

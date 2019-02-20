@@ -797,7 +797,6 @@ namespace MusicApp.Resources.Portable_Class
             while (MusicPlayer.instance == null)
                 await Task.Delay(10);
 
-            Player.instance?.UpdateNext();
             MusicPlayer.UpdateQueueDataBase();
             Home.instance?.RefreshQueue();
         }

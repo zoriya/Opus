@@ -68,21 +68,23 @@
         android:textColor="#FFFFFF" />
     </LinearLayout>
     <LinearLayout
-      android:layout_width="fill_parent"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:orientation="vertical"
       android:layout_alignParentBottom="true"
       android:layout_marginBottom="25dp">
       <RelativeLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp" >
-        <SeekBar
-          android:layout_width="fill_parent"
-          android:layout_height="wrap_content"
-          android:id="@+id/songTimer"
-          app:elevation="6dp"
-          android:padding="0dp" />
+        android:layout_width="match_parent"
+        android:layout_height="80dp" >
+        <ImageButton
+          android:id="@+id/showQueue"
+          android:layout_width="56dp"
+          android:layout_height="56dp"
+          android:layout_margin="12dp"
+          android:layout_alignParentLeft="true"
+          android:tint="#ffffff"
+          android:background="@drawable/darkCircle"
+          android:src="@drawable/queue" />
         <TextView
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
@@ -90,22 +92,30 @@
           android:id="@+id/timer"
           android:textColor="#ffffff"
           android:background="#BF000000"
+          android:layout_alignParentBottom="true"
           android:layout_centerHorizontal="true"
           android:padding="3dp" />
+        <ImageButton
+          android:id="@+id/moreButton"
+          android:layout_width="56dp"
+          android:layout_height="56dp"
+          android:layout_margin="12dp"
+          android:layout_alignParentRight="true"
+          android:tint="#ffffff"
+          android:background="@drawable/darkCircle"
+          android:src="@drawable/more" />
       </RelativeLayout>
+      <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/songTimer"
+        app:elevation="6dp"
+        android:padding="0dp" />
       <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_gravity="center_horizontal" >
-        <ImageButton
-          android:id="@+id/showQueue"
-          android:layout_width="56dp"
-          android:layout_height="56dp"
-          android:layout_margin="12dp"
-          android:tint="#ffffff"
-          android:background="@drawable/darkCircle"
-          android:src="@drawable/queue" />
         <ImageButton
           android:id="@+id/lastButton"
           android:tint="#ffffff"
@@ -140,14 +150,6 @@
           android:tint="#ffffff"
           android:background="@drawable/darkCircle"
           android:src="@drawable/SkipNext" />
-        <ImageButton
-          android:id="@+id/moreButton"
-          android:layout_width="56dp"
-          android:layout_height="56dp"
-          android:layout_margin="12dp"
-          android:tint="#ffffff"
-          android:background="@drawable/darkCircle"
-          android:src="@drawable/more" />
       </LinearLayout>
     </LinearLayout>
   </RelativeLayout>

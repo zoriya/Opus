@@ -525,8 +525,6 @@ namespace MusicApp.Resources.Portable_Class
 
             for (int i = 1; i < files.Length; i++)
                 MusicPlayer.instance.AddToQueue(files[i]);
-
-            Player.instance?.UpdateNext();
         }
 
 
@@ -992,7 +990,6 @@ namespace MusicApp.Resources.Portable_Class
 
             MusicPlayer.instance.AddToQueue(tracks.ToArray());
             MainActivity.instance.ShowPlayer();
-            Player.instance?.UpdateNext();
             Home.instance?.RefreshQueue();
             Queue.instance?.Refresh();
             parseProgress.Visibility = ViewStates.Gone;

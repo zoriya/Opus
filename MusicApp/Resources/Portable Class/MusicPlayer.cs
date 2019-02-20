@@ -674,7 +674,6 @@ namespace MusicApp.Resources.Portable_Class
             Random random = new Random();
             autoPlay = autoPlay.OrderBy(x => random.Next()).ToList().GetRange(0, autoPlay.Count > 20 ? 20 : autoPlay.Count);
             generating = false;
-            Player.instance?.UpdateNext();
             Queue.instance?.RefreshAP();
 
             if (switchToNext)
@@ -758,7 +757,6 @@ namespace MusicApp.Resources.Portable_Class
 
                 UpdateQueueDataBase();
                 SaveQueueSlot();
-                Player.instance?.UpdateNext();
                 Queue.instance?.Refresh();
                 Home.instance?.RefreshQueue();
                 Queue.instance?.ListView.ScrollToPosition(0);

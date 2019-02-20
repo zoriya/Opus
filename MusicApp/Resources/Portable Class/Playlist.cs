@@ -618,10 +618,7 @@ namespace MusicApp.Resources.Portable_Class
                     await Task.Delay(10);
 
                 foreach (Song song in songs)
-                {
                     MusicPlayer.instance.AddToQueue(song);
-                }
-                Player.instance?.UpdateNext();
             }
         }
 
@@ -677,7 +674,6 @@ namespace MusicApp.Resources.Portable_Class
                 {
                     MusicPlayer.instance.AddToQueue(song);
                 }
-                Player.instance?.UpdateNext();
             }
             catch (System.Net.Http.HttpRequestException)
             {
@@ -745,8 +741,6 @@ namespace MusicApp.Resources.Portable_Class
 
             foreach(string path in tracksPath)
                 MusicPlayer.instance.AddToQueue(path);
-
-            Player.instance?.UpdateNext();
         }
 
         public static async void AddToQueue(string playlistID)
@@ -794,8 +788,6 @@ namespace MusicApp.Resources.Portable_Class
 
                 foreach (Song song in songs)
                     MusicPlayer.instance.AddToQueue(song);
-
-                Player.instance?.UpdateNext();
             }
             catch (System.Net.Http.HttpRequestException)
             {
