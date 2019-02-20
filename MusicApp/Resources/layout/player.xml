@@ -139,6 +139,7 @@
           android:layout_height="56dp"
           android:layout_margin="12dp"
           android:visibility="gone"
+          android:background="@drawable/darkCircle"
           android:id="@+id/playerBuffer"
           android:layout_marginLeft="50dp"
           android:layout_marginRight="50dp"/>

@@ -271,6 +271,11 @@ public class Queue : Fragment, RecyclerView.IOnItemTouchListener
         Activity.StartService(intent);
     }
 
+    void HeaderMoreClick()
+    {
+        More(MusicPlayer.CurrentID());
+    }
+
     public static void InsertToQueue(int position, Song item)
     {
         if (MusicPlayer.CurrentID() >= position)
@@ -310,13 +315,23 @@ public class Queue : Fragment, RecyclerView.IOnItemTouchListener
         if (motionEvent.GetY() <= HeaderHeight)
         {
             if (motionEvent.ActionMasked == MotionEventActions.Down) //The up motion is never triggered so i use the down here.
-                HeaderClick();
+            {
+                if (motionEvent.GetX() < recyclerView.MeasuredWidth * 0.8)
+                    HeaderClick();
+                else
+                    HeaderMoreClick();
+            }
             return true;
         }
         if(motionEvent.GetY() >= recyclerView.Height + HeaderHeight) //When the header is at the bottom, the HeaderHeight is negative
         {
             if (motionEvent.ActionMasked == MotionEventActions.Down)
-                HeaderClick();
+            {
+                if (motionEvent.GetX() < recyclerView.MeasuredWidth * 0.8)
+                    HeaderClick();
+                else
+                    HeaderMoreClick();
+            }
             return true;
         }
 
