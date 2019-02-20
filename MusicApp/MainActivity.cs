@@ -63,7 +63,6 @@ namespace MusicApp
         public SwipeRefreshLayout contentRefresh;
         public bool Paused = false;
 
-        public bool prepared = false;
         public bool SkipStop = false;
         public PlayerBehavior SheetBehavior;
 
@@ -109,6 +108,7 @@ namespace MusicApp
             SheetBehavior.State = BottomSheetBehavior.StateCollapsed;
             SheetBehavior.SetBottomSheetCallback(new PlayerCallback(this));
 
+            PrepareSmallPlayer();
             if (MusicPlayer.queue == null || MusicPlayer.queue.Count == 0)
                 MusicPlayer.RetrieveQueueFromDataBase();
             else if(SheetBehavior.State != BottomSheetBehavior.StateExpanded)
@@ -697,17 +697,14 @@ namespace MusicApp
 
         public void PrepareSmallPlayer()
         {
-            Player.instance.RefreshPlayer();
-
-            if (!prepared)
+            FrameLayout smallPlayer = FindViewById<FrameLayout>(Resource.Id.smallPlayer);
+            if (!smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).HasOnClickListeners)
             {
-                FrameLayout smallPlayer = FindViewById<FrameLayout>(Resource.Id.smallPlayer);
                 smallPlayer.FindViewById<ImageButton>(Resource.Id.spLast).Click += Last_Click;
                 smallPlayer.FindViewById<ImageButton>(Resource.Id.spPlay).Click += Play_Click;
                 smallPlayer.FindViewById<ImageButton>(Resource.Id.spNext).Click += Next_Click;
 
                 smallPlayer.FindViewById<LinearLayout>(Resource.Id.spContainer).Click += Container_Click;
-                prepared = true;
             }
         }
 

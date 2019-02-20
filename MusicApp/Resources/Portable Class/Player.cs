@@ -39,7 +39,7 @@ namespace MusicApp
         private SeekBar bar;
         private ProgressBar spBar;
         private TextView timer;
-        private ImageView view;
+        private ImageView albumArt;
         public DrawerLayout DrawerLayout;
         private bool prepared = false;
         private readonly int[] timers = new int[] { 0, 2, 10, 30, 60, 120 };
@@ -47,51 +47,42 @@ namespace MusicApp
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            View view = inflater.Inflate(Resource.Layout.player, container, false);
             instance = this;
-            CreatePlayer();
-            return view;
-        }
-
-        async void CreatePlayer()
-        {
-            await Task.Delay(300);
-
-            DisplayMetrics metrics = new DisplayMetrics();
-            MainActivity.instance.WindowManager.DefaultDisplay.GetMetrics(metrics);
-            MainActivity.instance.FindViewById(Resource.Id.playerContainer).LayoutParameters.Height = metrics.HeightPixels;
-
-            await Task.Delay(700);
-
-            CastButtonFactory.SetUpMediaRouteButton(MainActivity.instance, MainActivity.instance.FindViewById<MediaRouteButton>(Resource.Id.castButton));
-            MainActivity.instance.PrepareSmallPlayer();
-
-            if (!MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton).HasOnClickListeners)
+            View view = inflater.Inflate(Resource.Layout.player, container, false);
+            Console.WriteLine("&Play button: " + view.FindViewById<ImageButton>(Resource.Id.playButton));
+            if (!view.FindViewById<ImageButton>(Resource.Id.playButton).HasOnClickListeners)
             {
-                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.downButton).Click += Down_Click;
-                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.showQueue).Click += ShowQueue_Click;
-                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.lastButton).Click += Last_Click;
-                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton).Click += Play_Click;
-                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.nextButton).Click += Next_Click;
-                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.moreButton).Click += More;
+                view.FindViewById<ImageButton>(Resource.Id.downButton).Click += Down_Click;
+                view.FindViewById<ImageButton>(Resource.Id.showQueue).Click += ShowQueue_Click;
+                view.FindViewById<ImageButton>(Resource.Id.lastButton).Click += Last_Click;
+                view.FindViewById<ImageButton>(Resource.Id.playButton).Click += Play_Click;
+                view.FindViewById<ImageButton>(Resource.Id.nextButton).Click += Next_Click;
+                view.FindViewById<ImageButton>(Resource.Id.moreButton).Click += More;
             }
 
-            view = MainActivity.instance.FindViewById<ImageView>(Resource.Id.playerAlbum);
-            timer = MainActivity.instance.FindViewById<TextView>(Resource.Id.timer);
-            bar = MainActivity.instance.FindViewById<SeekBar>(Resource.Id.songTimer);
+            albumArt = view.FindViewById<ImageView>(Resource.Id.playerAlbum);
+            timer = view.FindViewById<TextView>(Resource.Id.timer);
+            bar = view.FindViewById<SeekBar>(Resource.Id.songTimer);
             bar.ProgressChanged += (sender, e) =>
             {
-                if(!MusicPlayer.isLiveStream)
+                if (!MusicPlayer.isLiveStream)
                     timer.Text = string.Format("{0} | {1}", DurationToTimer(e.Progress), DurationToTimer((int)MusicPlayer.Duration));
             };
 
-            spBar = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.spProgress);
+            DrawerLayout = view.FindViewById<DrawerLayout>(Resource.Id.queueDrawer);
+            DrawerLayout.AddDrawerListener(new QueueListener(view.FindViewById<ImageView>(Resource.Id.queueBackground)));
 
-            DrawerLayout = (DrawerLayout)MainActivity.instance.FindViewById(Resource.Id.playerView).Parent;
-            DrawerLayout.AddDrawerListener(new QueueListener(MainActivity.instance.FindViewById<ImageView>(Resource.Id.queueBackground)));
-            MainActivity.instance.FindViewById(Resource.Id.queueParent).LayoutParameters.Width = (int)(DrawerLayout.Width * 0.75f);
-            ((FrameLayout.LayoutParams)MainActivity.instance.FindViewById(Resource.Id.queue).LayoutParameters).TopMargin = Resources.GetDimensionPixelSize(Resources.GetIdentifier("status_bar_height", "dimen", "android"));
+            DisplayMetrics metrics = new DisplayMetrics();
+            Activity.WindowManager.DefaultDisplay.GetMetrics(metrics);
+            view.FindViewById(Resource.Id.queueParent).LayoutParameters.Width = (int)(metrics.WidthPixels * 0.75f);
+            ((FrameLayout.LayoutParams)view.FindViewById(Resource.Id.queue).LayoutParameters).TopMargin = Resources.GetDimensionPixelSize(Resources.GetIdentifier("status_bar_height", "dimen", "android"));
+
+            spBar = Activity.FindViewById<ProgressBar>(Resource.Id.spProgress);
+            CastButtonFactory.SetUpMediaRouteButton(Activity, view.FindViewById<MediaRouteButton>(Resource.Id.castButton));
+            RefreshPlayer();
+            return view;
         }
+
 
         public async void RefreshPlayer()
         {
@@ -120,7 +111,7 @@ namespace MusicApp
 
             TextView title = MainActivity.instance.FindViewById<TextView>(Resource.Id.playerTitle);
             TextView artist = MainActivity.instance.FindViewById<TextView>(Resource.Id.playerArtist);
-            view = MainActivity.instance.FindViewById<ImageView>(Resource.Id.playerAlbum);
+            albumArt = MainActivity.instance.FindViewById<ImageView>(Resource.Id.playerAlbum);
             SpannableString titleText = new SpannableString(current.Title);
             titleText.SetSpan(new BackgroundColorSpan(Color.ParseColor("#BF000000")), 0, current.Title.Length, SpanTypes.InclusiveInclusive);
             title.TextFormatted = titleText;
@@ -175,13 +166,13 @@ namespace MusicApp
                 });
             }
 
-            view.SetImageBitmap(drawable);
+            albumArt.SetImageBitmap(drawable);
             Palette.From(drawable).MaximumColorCount(28).Generate(this);
 
-            if (view.Width > 0)
+            if (albumArt.Width > 0)
             {
                 //The width of the view in pixel (we'll multiply this by 0.75f because the drawer has a width of 75%)
-                int width = (int)(view.Width * (float)drawable.Height / view.Height);
+                int width = (int)(albumArt.Width * (float)drawable.Height / albumArt.Height);
                 int dX = (int)((drawable.Width - width) * 0.5f);
                 Bitmap blured = Bitmap.CreateBitmap(drawable, dX, 0, (int)(width * 0.75f), drawable.Height);
 
