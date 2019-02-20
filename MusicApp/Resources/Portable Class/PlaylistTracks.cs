@@ -357,7 +357,7 @@ namespace MusicApp.Resources.Portable_Class
                 Activity.FindViewById<TextView>(Resource.Id.headerTitle).Text = playlistName;
 
                 if(!Activity.FindViewById<ImageButton>(Resource.Id.headerPlay).HasOnClickListeners)
-                    Activity.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { PlayInOrder(0, false); };
+                    Activity.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { PlayInOrder(0); };
                 if(!Activity.FindViewById<ImageButton>(Resource.Id.headerShuffle).HasOnClickListeners)
                     Activity.FindViewById<ImageButton>(Resource.Id.headerShuffle).Click += (sender, e0) => { RandomPlay(); };
                 if (!Activity.FindViewById<ImageButton>(Resource.Id.headerMore).HasOnClickListeners)
@@ -664,7 +664,7 @@ namespace MusicApp.Resources.Portable_Class
             if (!useHeader)
                 Position--;
 
-            PlayInOrder(Position, true);
+            PlayInOrder(Position);
         }
 
         private void ListView_ItemLongClick(object sender, int Position)
@@ -700,7 +700,7 @@ namespace MusicApp.Resources.Portable_Class
 
             List<BottomSheetAction> actions = new List<BottomSheetAction>
             {
-                new BottomSheetAction(Resource.Drawable.Play, Resources.GetString(Resource.String.play), (sender, eventArg) => { PlayInOrder(position, true); bottomSheet.Dismiss(); }),
+                new BottomSheetAction(Resource.Drawable.Play, Resources.GetString(Resource.String.play), (sender, eventArg) => { PlayInOrder(position); bottomSheet.Dismiss(); }),
                 new BottomSheetAction(Resource.Drawable.PlaylistPlay, Resources.GetString(Resource.String.play_next), (sender, eventArg) =>
                 {
                     if (!item.IsYt)
@@ -764,7 +764,7 @@ namespace MusicApp.Resources.Portable_Class
             bottomSheet.Show();
         }
 
-        public async void PlayInOrder(int fromPosition, bool useTransition)
+        public async void PlayInOrder(int fromPosition)
         {
             if (instance.tracks.Count <= fromPosition)
                 return;
@@ -780,9 +780,9 @@ namespace MusicApp.Resources.Portable_Class
                     await instance.LoadMore();
             }
 
-            List<Song> songs = instance.tracks.GetRange(fromPosition, tracks.Count - fromPosition);
+            List<Song> songs = instance.tracks.GetRange(fromPosition, instance.tracks.Count - fromPosition);
             if (result != null && result.Count > fromPosition)
-                songs = instance.result.GetRange(fromPosition, result.Count - fromPosition);
+                songs = instance.result.GetRange(fromPosition, instance.result.Count - fromPosition);
 
             if (!songs[0].IsYt)
             {
@@ -792,6 +792,13 @@ namespace MusicApp.Resources.Portable_Class
 
             songs.RemoveAt(0);
             MusicPlayer.queue.AddRange(songs);
+
+            List<Song> preSongs = instance.tracks.GetRange(0, fromPosition);
+            if (result != null && result.Count > fromPosition)
+                preSongs = instance.result.GetRange(0, fromPosition);
+
+            MusicPlayer.queue.InsertRange(0, preSongs);
+            MusicPlayer.currentID = preSongs.Count;
             Queue.instance?.Refresh();
 
             while (MusicPlayer.instance == null)
@@ -824,7 +831,7 @@ namespace MusicApp.Resources.Portable_Class
             instance = this;
 
             if (!Activity.FindViewById<ImageButton>(Resource.Id.headerPlay).HasOnClickListeners)
-                Activity.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { PlayInOrder(0, false); };
+                Activity.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { instance.PlayInOrder(0); };
             if (!Activity.FindViewById<ImageButton>(Resource.Id.headerShuffle).HasOnClickListeners)
                 Activity.FindViewById<ImageButton>(Resource.Id.headerShuffle).Click += (sender, e0) => { RandomPlay(); };
             if (!Activity.FindViewById<ImageButton>(Resource.Id.headerMore).HasOnClickListeners)

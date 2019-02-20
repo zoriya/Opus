@@ -79,7 +79,7 @@ namespace MusicApp.Resources.Portable_Class
                 header.FindViewById<TextView>(Resource.Id.headerNumber).Text = songList.Count + " " + (songList.Count < 2 ? MainActivity.instance.GetString(Resource.String.element) : MainActivity.instance.GetString(Resource.String.elements));
                 if (!header.FindViewById<ImageButton>(Resource.Id.headerPlay).HasOnClickListeners)
                 {
-                    header.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { PlaylistTracks.instance.PlayInOrder(0, false); };
+                    header.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { PlaylistTracks.instance.PlayInOrder(0); };
                     header.FindViewById<ImageButton>(Resource.Id.headerShuffle).Click += (sender, e0) =>
                     {
                         if (PlaylistTracks.instance.tracks[0].IsYt)
