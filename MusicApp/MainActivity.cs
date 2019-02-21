@@ -18,6 +18,7 @@ using Android.Provider;
 using Android.Runtime;
 using Android.Support.Design.Widget;
 using Android.Support.V4.App;
+using Android.Support.V4.Content;
 using Android.Support.V4.Widget;
 using Android.Support.V7.App;
 using Android.Support.V7.Preferences;
@@ -39,6 +40,7 @@ using System.Net;
 using System.Threading.Tasks;
 using YoutubeExplode;
 using CursorLoader = Android.Support.V4.Content.CursorLoader;
+using Environment = Android.OS.Environment;
 using Fragment = Android.Support.V4.App.Fragment;
 using Playlist = MusicApp.Resources.Portable_Class.Playlist;
 using Request = Square.OkHttp.Request;
@@ -1125,28 +1127,36 @@ namespace MusicApp
 
         public async static void InstallUpdate(string version, bool beta, string downloadPath)
         {
-            Toast.MakeText(Application.Context, Application.Context.GetString(Resource.String.downloading_update), ToastLength.Short).Show();
-
-            NotificationCompat.Builder notification = new NotificationCompat.Builder(Application.Context, "MusicApp.Channel")
-                .SetVisibility(NotificationCompat.VisibilityPublic)
-                .SetSmallIcon(Resource.Drawable.MusicIcon)
-                .SetContentTitle(Application.Context.GetString(Resource.String.updating))
-                .SetOngoing(true);
-
-            NotificationManager notificationManager = (NotificationManager)Application.Context.GetSystemService(NotificationService);
-            notificationManager.Notify(NotifUpdateID, notification.Build());
-
-            using (WebClient client = new WebClient())
+            if (await instance.GetWritePermission())
             {
-                await client.DownloadFileTaskAsync(downloadPath, Android.OS.Environment.ExternalStorageDirectory + "/download/" + "MusicApp-v" + version + (beta ? "-beta" : "") + ".apk");
+                string localPath = Environment.GetExternalStoragePublicDirectory(Environment.DirectoryDownloads).AbsolutePath + "/MusicApp-v" + version + (beta ? "-beta" : "") + ".apk";
+                Console.WriteLine("&DownloadPath: " + downloadPath);
+                Console.WriteLine("&Local path: " + localPath);
+
+                Toast.MakeText(Application.Context, Application.Context.GetString(Resource.String.downloading_update), ToastLength.Short).Show();
+
+                NotificationCompat.Builder notification = new NotificationCompat.Builder(Application.Context, "MusicApp.Channel")
+                    .SetVisibility(NotificationCompat.VisibilityPublic)
+                    .SetSmallIcon(Resource.Drawable.MusicIcon)
+                    .SetContentTitle(Application.Context.GetString(Resource.String.updating))
+                    .SetOngoing(true);
+
+                NotificationManager notificationManager = (NotificationManager)Application.Context.GetSystemService(NotificationService);
+                notificationManager.Notify(NotifUpdateID, notification.Build());
+
+                using (WebClient client = new WebClient())
+                {
+                    await client.DownloadFileTaskAsync(downloadPath, localPath);
+                }
+
+                notificationManager.Cancel(NotifUpdateID);
+
+                Intent intent = new Intent(Intent.ActionView);
+                intent.SetDataAndType(FileProvider.GetUriForFile(instance, Application.Context.PackageName + ".provider", new Java.IO.File(localPath)), "application/vnd.android.package-archive");
+                intent.SetFlags(ActivityFlags.NewTask);
+                intent.AddFlags(ActivityFlags.GrantReadUriPermission);
+                Application.Context.StartActivity(intent);
             }
-
-            notificationManager.Cancel(NotifUpdateID);
-
-            Intent intent = new Intent(Intent.ActionView);
-            intent.SetDataAndType(Android.Net.Uri.FromFile(new Java.IO.File(Android.OS.Environment.ExternalStorageDirectory + "/download/" + "MusicApp-v" + version + (beta ? "-beta" : "") + ".apk")), "application/vnd.android.package-archive");
-            intent.SetFlags(ActivityFlags.NewTask);
-            Application.Context.StartActivity(intent);
         }
 
         protected override void OnStart()
