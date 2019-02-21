@@ -799,6 +799,7 @@ namespace MusicApp.Resources.Portable_Class
 
             MusicPlayer.queue.InsertRange(0, preSongs);
             MusicPlayer.currentID = preSongs.Count;
+            MusicPlayer.SaveQueueSlot();
             Queue.instance?.Refresh();
 
             while (MusicPlayer.instance == null)

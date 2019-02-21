@@ -770,15 +770,20 @@ namespace MusicApp
             FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Gone;
         }
 
+        public bool HasReadPermission()
+        {
+            if (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(this, Manifest.Permission.ReadExternalStorage) == (int)Permission.Granted)
+                return true;
+            else
+                return false;
+        }
+
         public async Task<bool> GetReadPermission()
         {
-            const string permission = Manifest.Permission.ReadExternalStorage;
-            if (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(this, permission) == (int)Permission.Granted)
-            {
+            if (HasReadPermission())
                 return true;
-            }
             PermissionGot = null;
-            string[] permissions = new string[] { permission };
+            string[] permissions = new string[] { Manifest.Permission.ReadExternalStorage };
             RequestPermissions(permissions, RequestCode);
 
             while (PermissionGot == null)

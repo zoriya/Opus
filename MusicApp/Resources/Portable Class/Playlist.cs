@@ -81,45 +81,52 @@ namespace MusicApp.Resources.Portable_Class
                 YoutubePlaylists.Add(new PlaylistItem("Header", null));
                 PlaylistItem Loading = new PlaylistItem("Loading", null);
 
-                //Local playlists
-                Android.Net.Uri uri = Playlists.ExternalContentUri;
-                CursorLoader loader = new CursorLoader(Android.App.Application.Context, uri, null, null, null, null);
-                ICursor cursor = (ICursor)loader.LoadInBackground();
-
-                if (cursor != null && cursor.MoveToFirst())
+                if (await MainActivity.instance.GetReadPermission())
                 {
-                    int nameID = cursor.GetColumnIndex(Playlists.InterfaceConsts.Name);
-                    int listID = cursor.GetColumnIndex(Playlists.InterfaceConsts.Id);
-                    do
+                    //Local playlists
+                    Android.Net.Uri uri = Playlists.ExternalContentUri;
+                    CursorLoader loader = new CursorLoader(Android.App.Application.Context, uri, null, null, null, null);
+                    ICursor cursor = (ICursor)loader.LoadInBackground();
+
+                    if (cursor != null && cursor.MoveToFirst())
                     {
-                        string name = cursor.GetString(nameID);
-                        long id = cursor.GetLong(listID);
-
-                        PlaylistItem ytPlaylist = SyncedPlaylists.Find(x => x.LocalID == id);
-                        if (ytPlaylist == null)
+                        int nameID = cursor.GetColumnIndex(Playlists.InterfaceConsts.Name);
+                        int listID = cursor.GetColumnIndex(Playlists.InterfaceConsts.Id);
+                        do
                         {
-                            Android.Net.Uri musicUri = Playlists.Members.GetContentUri("external", id);
-                            CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
-                            ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
+                            string name = cursor.GetString(nameID);
+                            long id = cursor.GetLong(listID);
 
-                            LocalPlaylists.Add(new PlaylistItem(name, id, musicCursor.Count));
-                        }
-                        else
-                        {
-                            if (ytPlaylist.YoutubeID == null)
-                                ytPlaylist.SyncState = SyncState.Loading;
+                            PlaylistItem ytPlaylist = SyncedPlaylists.Find(x => x.LocalID == id);
+                            if (ytPlaylist == null)
+                            {
+                                Android.Net.Uri musicUri = Playlists.Members.GetContentUri("external", id);
+                                CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
+                                ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
+
+                                LocalPlaylists.Add(new PlaylistItem(name, id, musicCursor.Count));
+                            }
                             else
-                                ytPlaylist.SyncState = SyncState.True;
+                            {
+                                if (ytPlaylist.YoutubeID == null)
+                                    ytPlaylist.SyncState = SyncState.Loading;
+                                else
+                                    ytPlaylist.SyncState = SyncState.True;
 
-                            YoutubePlaylists.Add(ytPlaylist);
+                                YoutubePlaylists.Add(ytPlaylist);
+                            }
                         }
+                        while (cursor.MoveToNext());
+                        cursor.Close();
                     }
-                    while (cursor.MoveToNext());
-                    cursor.Close();
-                }
 
-                if (LocalPlaylists.Count == 1)
-                    LocalPlaylists.Add(new PlaylistItem("EMPTY", -1) { Owner = Resources.GetString(Resource.String.local_playlist_empty) });
+                    if (LocalPlaylists.Count == 1)
+                        LocalPlaylists.Add(new PlaylistItem("EMPTY", -1) { Owner = Resources.GetString(Resource.String.local_playlist_empty) });
+                }
+                else
+                {
+                    LocalPlaylists.Add(new PlaylistItem("EMPTY", -1) { Owner = Resources.GetString(Resource.String.no_permission) });
+                }
 
                 YoutubePlaylists.Add(Loading);
                 adapter = new PlaylistAdapter(LocalPlaylists, YoutubePlaylists);

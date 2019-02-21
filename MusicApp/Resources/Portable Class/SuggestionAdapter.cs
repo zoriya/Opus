@@ -14,14 +14,12 @@ namespace MusicApp.Resources.Portable_Class
         private List<Suggestion> objects;
         private LayoutInflater inflater;
         private Context context;
-        private int resource;
 
         public override int Count => objects.Count;
 
         public SuggestionAdapter(Context context, int resource, List<Suggestion> objects) : base(context, resource, objects)
         {
             this.context = context;
-            this.resource = resource;
             this.objects = objects;
         }
 
@@ -39,13 +37,8 @@ namespace MusicApp.Resources.Portable_Class
             }
             if (convertView == null)
             {
-                convertView = inflater.Inflate(resource, parent, false);
+                convertView = inflater.Inflate(Resource.Layout.SuggestionLayout, parent, false);
             }
-
-            convertView.FindViewById<ImageView>(Resource.Id.icon1).SetX((int)(18 * SearchableActivity.instance.Resources.DisplayMetrics.Density + 0.5f));
-            convertView.FindViewById<TextView>(Resource.Id.text).SetX(SearchableActivity.instance.searchView.GetX());
-            convertView.FindViewById<TextView>(Resource.Id.text).SetPadding((int)(16 * SearchableActivity.instance.Resources.DisplayMetrics.Density + 0.5f), 0, 0, 0);
-            convertView.FindViewById<ImageView>(Resource.Id.refine).SetPadding(0, 0, (int)(6 * SearchableActivity.instance.Resources.DisplayMetrics.Density + 0.5f), 0);
 
             convertView.FindViewById<ImageView>(Resource.Id.icon1).SetImageResource(objects[position].Icon);
             convertView.FindViewById<TextView>(Resource.Id.text).Text = objects[position].Text;

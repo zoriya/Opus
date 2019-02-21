@@ -29,7 +29,7 @@ namespace MusicApp.Resources.Portable_Class
         private List<Suggestion> History = new List<Suggestion>();
         private List<Suggestion> suggestions = new List<Suggestion>();
 
-        protected override void OnCreate(Bundle savedInstanceState)
+        protected async override void OnCreate(Bundle savedInstanceState)
         {
             instance = this;
             base.OnCreate(savedInstanceState);
@@ -37,7 +37,6 @@ namespace MusicApp.Resources.Portable_Class
                 SetTheme(Resource.Style.DarkTheme);
 
             SetContentView(Resource.Layout.SearchLayout);
-            Window.SetStatusBarColor(Android.Graphics.Color.Argb(255, 33, 33, 33));
 
             Toolbar ToolBar = FindViewById<Toolbar>(Resource.Id.toolbar);
             SetSupportActionBar(ToolBar);
@@ -75,7 +74,7 @@ namespace MusicApp.Resources.Portable_Class
                 }
             };
 
-            Task.Run(() => 
+            await Task.Run(() => 
             {
                 SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "RecentSearch.sqlite"));
                 db.CreateTable<Suggestion>();
@@ -84,6 +83,9 @@ namespace MusicApp.Resources.Portable_Class
                 History.Reverse();
                 suggestions = History;
             });
+
+            adapter = new SuggestionAdapter(instance, Resource.Layout.SuggestionLayout, suggestions);
+            ListView.Adapter = adapter;
         }
 
         Suggestion HistoryItem(Suggestion suggestion)
@@ -97,8 +99,6 @@ namespace MusicApp.Resources.Portable_Class
             IMenuItem searchItem = menu.FindItem(Resource.Id.search);
             searchItem.ExpandActionView();
             searchView = searchItem.ActionView.JavaCast<SearchView>();
-            adapter = new SuggestionAdapter(instance, Resource.Layout.SuggestionLayout, suggestions);
-            ListView.Adapter = adapter;
             searchView.MaxWidth = int.MaxValue;
             searchView.QueryHint = GetString(Resource.String.youtube_search);
             searchView.QueryTextChange += (s, e) =>

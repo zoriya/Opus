@@ -78,47 +78,50 @@ namespace MusicApp.Resources.Portable_Class
                 HomeSection shuffle = new HomeSection(Resources.GetString(Resource.String.shuffle), SectionType.Shuffle, null);
                 adapterItems.Add(shuffle);
 
-                Android.Net.Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
-
-                List<Song> allSongs = new List<Song>();
-                CursorLoader cursorLoader = new CursorLoader(MainActivity.instance, musicUri, null, null, null, null);
-                ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
-
-                if (musicCursor != null && musicCursor.MoveToFirst())
+                if (MainActivity.instance.HasReadPermission())
                 {
-                    int titleID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Title);
-                    int artistID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Artist);
-                    int albumID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Album);
-                    int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
-                    int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
-                    do
+                    Android.Net.Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
+
+                    List<Song> allSongs = new List<Song>();
+                    CursorLoader cursorLoader = new CursorLoader(MainActivity.instance, musicUri, null, null, null, null);
+                    ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
+
+                    if (musicCursor != null && musicCursor.MoveToFirst())
                     {
-                        string Artist = musicCursor.GetString(artistID);
-                        string Title = musicCursor.GetString(titleID);
-                        string Album = musicCursor.GetString(albumID);
-                        long AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
-                        long id = musicCursor.GetLong(thisID);
-                        string path = musicCursor.GetString(pathID);
+                        int titleID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Title);
+                        int artistID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Artist);
+                        int albumID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Album);
+                        int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
+                        int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
+                        do
+                        {
+                            string Artist = musicCursor.GetString(artistID);
+                            string Title = musicCursor.GetString(titleID);
+                            string Album = musicCursor.GetString(albumID);
+                            long AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
+                            long id = musicCursor.GetLong(thisID);
+                            string path = musicCursor.GetString(pathID);
 
-                        if (Title == null)
-                            Title = "Unknown Title";
-                        if (Artist == null)
-                            Artist = "Unknow Artist";
-                        if (Album == null)
-                            Album = "Unknow Album";
+                            if (Title == null)
+                                Title = "Unknown Title";
+                            if (Artist == null)
+                                Artist = "Unknow Artist";
+                            if (Album == null)
+                                Album = "Unknow Album";
 
-                        allSongs.Add(new Song(Title, Artist, Album, null, AlbumArt, id, path));
+                            allSongs.Add(new Song(Title, Artist, Album, null, AlbumArt, id, path));
+                        }
+                        while (musicCursor.MoveToNext());
+                        musicCursor.Close();
                     }
-                    while (musicCursor.MoveToNext());
-                    musicCursor.Close();
-                }
-                Random r = new Random();
-                List<Song> songList = allSongs.OrderBy(x => r.Next()).ToList();
+                    Random r = new Random();
+                    List<Song> songList = allSongs.OrderBy(x => r.Next()).ToList();
 
-                if (songList.Count > 0)
-                {
-                    HomeSection featured = new HomeSection(Resources.GetString(Resource.String.featured), SectionType.SinglePlaylist, songList.GetRange(0, songList.Count > 50 ? 50 : songList.Count));
-                    adapterItems.Add(featured);
+                    if (songList.Count > 0)
+                    {
+                        HomeSection featured = new HomeSection(Resources.GetString(Resource.String.featured), SectionType.SinglePlaylist, songList.GetRange(0, songList.Count > 50 ? 50 : songList.Count));
+                        adapterItems.Add(featured);
+                    }
                 }
 
                 adapter = new HomeAdapter(adapterItems);
@@ -208,7 +211,7 @@ namespace MusicApp.Resources.Portable_Class
                     }
                     List<HomeItem> playlistList = Items.FindAll(x => x.contentType == SectionType.PlaylistList);
                     Items.RemoveAll(x => x.contentType == SectionType.PlaylistList);
-                    r = new Random();
+                    Random r = new Random();
                     Items = Items.OrderBy(x => r.Next()).ToList();
                     Items.AddRange(playlistList);
 
