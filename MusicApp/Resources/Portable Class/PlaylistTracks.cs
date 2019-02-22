@@ -6,7 +6,6 @@ using Android.Provider;
 using Android.Support.Design.Widget;
 using Android.Support.V4.App;
 using Android.Support.V7.App;
-using Android.Util;
 using Android.Views;
 using Android.Widget;
 using Google.Apis.YouTube.v3;
@@ -55,11 +54,6 @@ namespace MusicApp.Resources.Portable_Class
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
             MainActivity.instance.DisplaySearch();
 
-            int statusHeight = Resources.GetDimensionPixelSize(Resources.GetIdentifier("status_bar_height", "dimen", "android"));
-            MainActivity.instance.FindViewById(Resource.Id.collapsingToolbar).LayoutParameters.Height = ViewGroup.LayoutParams.WrapContent;
-            MainActivity.instance.FindViewById(Resource.Id.contentLayout).SetPadding(0, 0, 0, 0);
-            MainActivity.instance.FindViewById(Resource.Id.toolbar).SetPadding(0, statusHeight, 0, 0);
-            MainActivity.instance.FindViewById(Resource.Id.toolbar).LayoutParameters.Height += statusHeight;
             MainActivity.instance.SupportActionBar.SetHomeButtonEnabled(true);
             MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
             MainActivity.instance.SupportActionBar.Title = playlistName;
@@ -249,16 +243,7 @@ namespace MusicApp.Resources.Portable_Class
 
             if (!MainActivity.instance.Paused)
             {
-                int statusHeight = Resources.GetDimensionPixelSize(Resources.GetIdentifier("status_bar_height", "dimen", "android"));
-                MainActivity.instance.FindViewById(Resource.Id.toolbar).SetPadding(0, 0, 0, 0);
-                TypedValue tv = new TypedValue();
-                Activity.Theme.ResolveAttribute(Resource.Attribute.actionBarSize, tv, true);
-                int actionBarHeight = Resources.GetDimensionPixelSize(tv.ResourceId);
-                MainActivity.instance.FindViewById(Resource.Id.toolbar).LayoutParameters.Height = actionBarHeight;
-                MainActivity.instance.FindViewById(Resource.Id.toolbar).RequestLayout();
-                MainActivity.instance.FindViewById(Resource.Id.contentLayout).SetPadding(0, statusHeight, 0, 0);
                 Activity.FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Gone;
-                MainActivity.instance.FindViewById(Resource.Id.collapsingToolbar).LayoutParameters.Height = actionBarHeight;
 
                 MainActivity.instance.HideSearch();
                 MainActivity.instance.SupportActionBar.SetHomeButtonEnabled(false);
@@ -285,15 +270,7 @@ namespace MusicApp.Resources.Portable_Class
                         if (YoutubeEngine.instances[i].IsFocused)
                             selectedTab = i;
                     }
-                    //if (!navigating)
-                    //{
-                    //    MainActivity.instance?.SupportFragmentManager.BeginTransaction().Attach(YoutubeEngine.instances[selectedTab]).Commit();
-                    //    MainActivity.instance?.SupportFragmentManager.BeginTransaction().Remove(instance).Commit();
-                    //}
                 }
-                //else if (!navigating && Queue.instance == null)
-                //    MainActivity.instance.SupportFragmentManager.PopBackStack();
-
                 instance = null;
             }
             base.OnDestroyView();
@@ -374,7 +351,7 @@ namespace MusicApp.Resources.Portable_Class
                     if (count == -1)
                         Activity.FindViewById<TextView>(Resource.Id.headerNumber).Text = "NaN songs";
 
-                    Picasso.With(Android.App.Application.Context).Load(thumnailURI).Placeholder(Resource.Drawable.noAlbum).Resize(1080, 1080).CenterCrop().Into(Activity.FindViewById<ImageView>(Resource.Id.headerArt));
+                    Picasso.With(Android.App.Application.Context).Load(thumnailURI).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(Activity.FindViewById<ImageView>(Resource.Id.headerArt));
                 }
                 Activity.FindViewById(Resource.Id.playlistDark).LayoutParameters.Height = Activity.FindViewById<ImageView>(Resource.Id.headerArt).Height / 2;
             }

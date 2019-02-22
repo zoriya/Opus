@@ -11,21 +11,25 @@
     android:layout_height="match_parent"
     android:id="@+id/contentLayout"
     android:layout_marginBottom="56dp"
+    android:fitsSystemWindows="true"
     android:background="#212121">
     <android.support.design.widget.AppBarLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
+      android:fitsSystemWindows="true"
+      android:background="?colorAccent"
       android:id="@+id/appbar" >
       <android.support.design.widget.CollapsingToolbarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/collapsingToolbar"
-        android:fitsSystemWindows="true"
+        app:contentScrim="?colorAccent"
+        app:statusBarScrim="?colorAccent"
+        app:scrimAnimationDuration="0"
         app:titleEnabled="false" >
         <include
           layout="@layout/PlaylistHeader"
           android:id="@+id/playlistHeader"
-          android:fitsSystemWindows="true"
           android:visibility="gone" />
         <android.support.v7.widget.Toolbar
           android:layout_width="match_parent"
@@ -33,7 +37,6 @@
           android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
           app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
           app:layout_collapseMode="pin"
-          android:fitsSystemWindows="true"
           android:id="@+id/toolbar" />
       </android.support.design.widget.CollapsingToolbarLayout>
       <android.support.design.widget.TabLayout
@@ -43,7 +46,7 @@
         android:layout_height="wrap_content"
         app:tabTextColor="@android:color/white"
         app:tabSelectedTextColor="@android:color/white"
-        app:tabIndicatorColor="?colorAccent"
+        app:tabIndicatorColor="#ffffff"
         app:tabGravity="fill"
         app:tabMode="fixed" />
       <ProgressBar

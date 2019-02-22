@@ -2,10 +2,12 @@
 using Android.Graphics;
 using Android.Graphics.Drawables;
 using Android.Support.V7.Widget;
+using Android.Util;
 using Android.Views;
 using MusicApp.Resources.values;
 using System;
 using System.Collections.Generic;
+using static Android.Content.Res.Resources;
 
 namespace MusicApp.Resources.Portable_Class
 {
@@ -177,7 +179,12 @@ namespace MusicApp.Resources.Portable_Class
             else if (items[position].contentType == SectionType.Shuffle)
             {
                 UslessHolder holder = (UslessHolder)viewHolder;
-                ((GradientDrawable)holder.ItemView.Background).SetStroke(5, Android.Content.Res.ColorStateList.ValueOf(Color.Argb(255, 21, 183, 237)));
+
+                TypedValue typedValue = new TypedValue();
+                Theme theme = ((Context)MainActivity.instance).Theme;
+                theme.ResolveAttribute(Resource.Attribute.colorAccent, typedValue, true);
+                Color color = Color.Rgb(Color.GetRedComponent(typedValue.Data), Color.GetGreenComponent(typedValue.Data), Color.GetBlueComponent(typedValue.Data));
+                ((GradientDrawable)holder.ItemView.Background).SetStroke(5, Android.Content.Res.ColorStateList.ValueOf(color));
             }
         }
 

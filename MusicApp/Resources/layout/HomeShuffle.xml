@@ -14,7 +14,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:src="@drawable/shuffle"
-    android:tint="#15b7ed"
+    android:tint="?colorAccent"
     android:paddingRight="5dp"
     android:paddingTop="8dp"
     android:paddingBottom="8dp"/>
@@ -22,7 +22,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:text="@string/shuffle_all"
-    android:textColor="#15b7ed"
+    android:textColor="?colorAccent"
     android:textSize="14sp"
     android:textStyle="bold"
     android:paddingLeft="5dp"

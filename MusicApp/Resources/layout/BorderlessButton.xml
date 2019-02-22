@@ -9,4 +9,5 @@
   android:layout_marginBottom="10dp"
   android:background="@drawable/FlatButtonBorder"
   android:id="@+id/button"
+  android:textColor="?colorAccent"
   android:text="@string/add_playlist" />

@@ -95,11 +95,11 @@ namespace MusicApp
             var bottomNavigation = FindViewById<BottomNavigationView>(Resource.Id.bottomView);
             bottomNavigation.NavigationItemSelected += PreNavigate;
 
-            int statusHeight = Resources.GetDimensionPixelSize(Resources.GetIdentifier("status_bar_height", "dimen", "android"));
-            FindViewById(Resource.Id.contentLayout).SetPadding(0, statusHeight, 0, 0);
+            //int statusHeight = Resources.GetDimensionPixelSize(Resources.GetIdentifier("status_bar_height", "dimen", "android"));
+            //FindViewById(Resource.Id.contentLayout).SetPadding(0, statusHeight, 0, 0);
             SetSupportActionBar(FindViewById<Toolbar>(Resource.Id.toolbar));
             SupportActionBar.Title = "MusicApp";
-            ((CoordinatorLayout.LayoutParams)FindViewById(Resource.Id.contentLayout).LayoutParameters).TopMargin = -Resources.GetDimensionPixelSize(Resources.GetIdentifier("status_bar_height", "dimen", "android"));
+            //((CoordinatorLayout.LayoutParams)FindViewById(Resource.Id.contentLayout).LayoutParameters).TopMargin = -Resources.GetDimensionPixelSize(Resources.GetIdentifier("status_bar_height", "dimen", "android"));
 
             contentRefresh = FindViewById<SwipeRefreshLayout>(Resource.Id.contentRefresh);
 

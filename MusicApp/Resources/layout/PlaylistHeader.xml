@@ -32,8 +32,7 @@
       android:layout_height="wrap_content"
       android:textColor="#ffffff"
       android:textSize="20dip"
-      android:textStyle="bold"
-      android:text="Title of the playlist" />
+      android:textStyle="bold" />
     <TextView
       android:id="@+id/headerAuthor"
       android:layout_width="wrap_content"
