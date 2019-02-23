@@ -38,8 +38,7 @@ namespace MusicApp.Resources.Portable_Class
 
             SetContentView(Resource.Layout.SearchLayout);
 
-            Toolbar ToolBar = FindViewById<Toolbar>(Resource.Id.toolbar);
-            SetSupportActionBar(ToolBar);
+            SetSupportActionBar(FindViewById<Toolbar>(Resource.Id.toolbar));
             SupportActionBar.Title = "";
             ListView = FindViewById<ListView>(Resource.Id.searchSuggestions);
 
@@ -188,7 +187,6 @@ namespace MusicApp.Resources.Portable_Class
         protected override void OnStop()
         {
             base.OnStop();
-            Window.SetNavigationBarColor(Android.Graphics.Color.Transparent);
             if ((SearchQuery == null || SearchQuery == "") && YoutubeEngine.instances == null)
                 MainActivity.instance.CancelSearch();
         }

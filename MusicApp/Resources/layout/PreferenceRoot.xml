@@ -5,11 +5,14 @@
   android:layout_width="fill_parent"
   android:layout_height="fill_parent"
   android:fitsSystemWindows="true"
+  android:background="?colorAccent"
   android:orientation="vertical" >
   <android.support.v7.widget.Toolbar
     android:id="@+id/toolbar"
     android:layout_width="match_parent"
-    android:layout_height="?attr/actionBarSize"
+    android:layout_height="wrap_content"
+    android:fitsSystemWindows="true"
+    android:minHeight="?attr/actionBarSize"
     android:background="?colorAccent"
     android:elevation="8dp"
     app:title="@string/settings"
@@ -17,7 +20,8 @@
     android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
     app:popupTheme="@style/ThemeOverlay.AppCompat.Light"  />
   <FrameLayout
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent"
+    android:background="?android:colorBackground"
     android:id="@+id/PreferenceFragment" />
 </LinearLayout>

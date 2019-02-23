@@ -2,25 +2,21 @@
 <RelativeLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_height="wrap_content"
-  android:layout_width="fill_parent"
-  android:id="@+id/playlistHeader"
-  android:fitsSystemWindows="true">
+  android:layout_width="match_parent"
+  android:fitsSystemWindows="true"
+  android:background="#ff0000"
+  android:id="@+id/playlistHeader" >
   <ImageView
     android:layout_height="wrap_content"
-    android:layout_width="fill_parent"
+    android:layout_width="match_parent"
+    android:fitsSystemWindows="true"
     android:src="@drawable/noAlbum"
     android:id="@+id/headerArt"
     android:adjustViewBounds="true"
-    android:fitsSystemWindows="true"/>
-  <ImageView
-    android:src="@drawable/darkRectangle"
-    android:id="@+id/playlistDark"
-    android:layout_width="fill_parent"
-    android:layout_height="512px"
-    android:adjustViewBounds="true"
-    android:layout_alignParentBottom="true" />
+    android:background="#00ff00" />
   <LinearLayout
     android:orientation="vertical"
+    android:fitsSystemWindows="true"
     android:layout_height="wrap_content"
     android:layout_width="wrap_content"
     android:layout_marginLeft="15dp"
@@ -30,6 +26,7 @@
       android:id="@+id/headerTitle"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
+      android:background="#BF000000"
       android:textColor="#ffffff"
       android:textSize="20dip"
       android:textStyle="bold" />
@@ -37,6 +34,7 @@
       android:id="@+id/headerAuthor"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
+      android:background="#BF000000"
       android:textColor="#ffffff"
       android:textSize="19dip"
       android:alpha=".8"
@@ -45,6 +43,7 @@
       android:id="@+id/headerNumber"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
+      android:background="#BF000000"
       android:textColor="#ffffff"
       android:textSize="14dip"
       android:alpha=".65"
@@ -52,10 +51,12 @@
   </LinearLayout>
   <LinearLayout
     android:orientation="horizontal"
-    android:layout_height="wrap_content"
+    android:fitsSystemWindows="true"
+    android:layout_height="60dp"
     android:layout_width="wrap_content"
     android:layout_alignParentBottom="true"
-    android:layout_alignParentRight="true" >
+    android:layout_alignParentRight="true"
+    android:background="@drawable/semiDarkLinear" >
     <ImageButton
       android:id="@+id/headerPlay"
       android:layout_width="60dp"
@@ -79,4 +80,3 @@
       android:background="@null" />
   </LinearLayout>
 </RelativeLayout>
-

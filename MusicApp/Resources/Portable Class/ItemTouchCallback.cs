@@ -48,10 +48,10 @@ namespace MusicApp.Resources.Portable_Class
             int dragFlag = ItemTouchHelper.Up | ItemTouchHelper.Down;
             int swipeFlag = ItemTouchHelper.Left | ItemTouchHelper.Right;
 
-            if (Queue.instance != null && (viewHolder.AdapterPosition + 1 == ((QueueAdapter)adapter).ItemCount || viewHolder.AdapterPosition == 0))
+            if (alwaysAllowSwap && (viewHolder.AdapterPosition + 1 == ((QueueAdapter)adapter).ItemCount || viewHolder.AdapterPosition == 0))
                 return MakeFlag(0, 0);
 
-            if (Queue.instance != null && MusicPlayer.CurrentID() == viewHolder.AdapterPosition)
+            if (alwaysAllowSwap && MusicPlayer.CurrentID() == viewHolder.AdapterPosition)
                 return MakeMovementFlags(dragFlag, 0);
 
             return MakeMovementFlags(dragFlag, swipeFlag);
@@ -61,7 +61,7 @@ namespace MusicApp.Resources.Portable_Class
         {
             adapter.IsSliding = true;
 
-            if (Queue.instance != null && (target.AdapterPosition + 1 == ((QueueAdapter)adapter).ItemCount || target.AdapterPosition == 0))
+            if (alwaysAllowSwap && (target.AdapterPosition + 1 == ((QueueAdapter)adapter).ItemCount || target.AdapterPosition == 0))
                 return false;
 
             from = source.AdapterPosition;

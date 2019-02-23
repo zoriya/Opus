@@ -353,7 +353,9 @@ namespace MusicApp.Resources.Portable_Class
 
                     Picasso.With(Android.App.Application.Context).Load(thumnailURI).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(Activity.FindViewById<ImageView>(Resource.Id.headerArt));
                 }
-                Activity.FindViewById(Resource.Id.playlistDark).LayoutParameters.Height = Activity.FindViewById<ImageView>(Resource.Id.headerArt).Height / 2;
+                Activity.FindViewById(Resource.Id.collapsingToolbar).RequestLayout();
+                System.Console.WriteLine("&Height: " + Activity.FindViewById(Resource.Id.playlistHeader).Height);
+                System.Console.WriteLine("&Image Height: " + Activity.FindViewById(Resource.Id.headerArt).Height);
             }
         }
 

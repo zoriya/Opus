@@ -4,14 +4,12 @@
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:fitsSystemWindows="true" >
+  android:layout_height="match_parent" >
   <android.support.design.widget.CoordinatorLayout 
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/contentLayout"
     android:layout_marginBottom="56dp"
-    android:fitsSystemWindows="true"
     android:background="#212121">
     <android.support.design.widget.AppBarLayout
       android:layout_width="match_parent"
@@ -19,7 +17,7 @@
       android:fitsSystemWindows="true"
       android:background="?colorAccent"
       android:id="@+id/appbar" >
-      <android.support.design.widget.CollapsingToolbarLayout
+      <MusicApp.CollapsingToolbarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/collapsingToolbar"
@@ -38,7 +36,7 @@
           app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
           app:layout_collapseMode="pin"
           android:id="@+id/toolbar" />
-      </android.support.design.widget.CollapsingToolbarLayout>
+      </MusicApp.CollapsingToolbarLayout>
       <android.support.design.widget.TabLayout
         android:id="@+id/tabs"
         android:visibility="gone"
