@@ -37,10 +37,10 @@
   <!--More menu (long clicks)-->
   <string name="play">Reproducir</string>
   <string name="play_next">Reproducir a continuación</string>
-  <string name="play_last">Añadir al final de la lista de la cola</string>
+  <string name="play_last">Añadir al final de la cola</string>
   <string name="create_mix_from_song">Crear un mix</string>
   <string name="add_to_playlist">Añadir a la playlist</string>
-  <string name="edit_metadata">Modifiar la metadata</string>
+  <string name="edit_metadata">Modificar la metadata</string>
   <string name="download">Descargar</string>
   <string name="remove_from_queue">Eliminar de la cola</string>
   <string name="remove_track_from_playlist">Eliminar de la playlist</string>
@@ -49,11 +49,11 @@
   <string name="play_in_order">Reproducir en orden</string>
   <string name="random_play">Reproducción aleatoria </string>
   <string name="add_to_queue">Añadir a la cola</string>
-  <string name="rename">Rebautizar</string>
+  <string name="rename">Renombrar</string>
   <string name="delete">Eliminar</string>
   <string name="sync">Sincronizar</string>
-  <string name="sync_now">Sincronizar ya</string>
-  <string name="stop_sync">Parar de sincronizar</string>
+  <string name="sync_now">Sincronizar ahora</string>
+  <string name="stop_sync">Detener Sincronización</string>
   <string name="add_to_library">Guardar la playlist</string>
   <string name="unfork">Eliminar la playlist de la biblioteca</string>
 
@@ -65,7 +65,7 @@
   <string name="featured">Destacado</string>
 
   <!--Browse tab-->
-  <string name="songs">Musicas</string>
+  <string name="songs">Musica</string>
   <string name="folders">Archivos</string>
   <string name="no_song">No tiene ninguna musica en este dispositivo.</string>
 
@@ -73,26 +73,26 @@
   <string name="all">Todos</string>
   <string name="playlists">Playlists</string>
   <string name="lives">Lives</string>
-  <string name="channels">Cadenas</string>
+  <string name="channels">Canales</string>
   <string name="download_path_not_set">No se ha definido la carpeta de descarga, se utilizará la carpeta predeterminada.</string>
-  <string name="download_path_error">El archivo de descargas ya no existe, por favor, cambie lo en los ajustes.</string>
-  <string name="set_path">Definir el archivo</string>
+  <string name="download_path_error">El archivo de descargas ya no existe, por favor, cambielo en los ajustes.</string>
+  <string name="set_path">Definir la ruta</string>
   <string name="downloading">Descargando...</string>
   <string name="syncing">Sincronizando...</string>
-  <string name="cant_delete">Imposible de eliminar este fichero por el momento, por favor, intente mas tarde.</string>
+  <string name="cant_delete">Imposible eliminar este fichero por el momento, por favor, intente mas tarde.</string>
   <string name="no_result">ningún resultado para </string>
   <string name="no_track">Ningúna musica para </string>
   <string name="no_playlist">Ningúna playlist para </string>
-  <string name="no_lives">Ningún lives para </string>
+  <string name="no_lives">Ningún live para </string>
   <string name="no_channel">Ningún canal para </string>
-  <string name="remove_search">¿Eliminar de el historial?</string>
+  <string name="remove_search">¿Eliminar del historial?</string>
   <string name="remove">Eliminar</string>
 
   <!--Playlists Screen-->
   <string name="local_playlists">Playlists locales</string>
-  <string name="youtube_playlists">Playlists youtubes</string>
+  <string name="youtube_playlists">Playlists de Youtube</string>
   <string name="add_playlist">AÑADIR UNA PLAYLIST</string>
-  <string name="youtube_loading_error">Error de carga. \nPor favor, seleccione una cuenta y compruebe su conexión internet.</string>
+  <string name="youtube_loading_error">Error de carga. \nPor favor, seleccione una cuenta y compruebe su conexión a internet.</string>
   <string name="local_playlist_empty">No tiene ninguna playlist en este dispositivo.</string>
   <string name="youtube_playlist_empty">No tiene ninguna playlist en esta cuenta youtube \nAtención : Solo las playlists presentes en su cuenta google son mostradas.</string>
   <string name="element">musica</string>
@@ -101,17 +101,17 @@
   <string name="remove_from_playlist">¿Eliminar %1$s de la playlist ?</string>
   <!--%1$s will be replaced by the song name-->
   <string name="removed_from_playlist"> ha sido eliminado de la playlist.</string>
-  <string name="playlist_already_saved">Esta playlist ya ha sido añadida a vuestra biblioteca.</string>
-  <string name="playlist_not_found">Ningúna playlist existe con este id ou este url.</string>
+  <string name="playlist_already_saved">Esta playlist ya ha sido añadida a su biblioteca.</string>
+  <string name="playlist_not_found">Ninguna playlist existe con este id o este url.</string>
   <string name="playlist_add_song_not_found">la musica no se encontro en youtube, impossible de añadirla a una playlist youtube.</string>
   <string name="delete_playlist">¿Quiere eliminar de la playlist  \"%1$s\" ?</string>
   <!--%1$s will be replaced by the playlist name-->
   <string name="rename_playlist">Elija un nuevo nombre para esta playlist</string>
   <string name="stop_syncing">¿Quiere parar de sincronizar la playlist \"%1s$\" ?</string>
   <!--%1$s will be replaced by the playlist name-->
-  <string name="unfork_playlist">¿Quiere eliminar la playlist \"%1$s"\" de vuestra biblioteca ?</string>
+  <string name="unfork_playlist">¿Quiere eliminar la playlist \"%1$s"\" de su biblioteca ?</string>
   <!--%1$s will be replaced by the playlist name-->
-  <string name="add_playlist_msg">inscribir la url o la id de la playlist que desea añadir</string>
+  <string name="add_playlist_msg">escribir la url o la id de la playlist que desea añadir</string>
   <!--%1$s will be replaced by the playlist name-->
 
   <!--Add song to playlist-->
