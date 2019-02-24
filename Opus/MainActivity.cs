@@ -1126,8 +1126,6 @@ namespace Opus
             if (await instance.GetWritePermission())
             {
                 string localPath = Environment.GetExternalStoragePublicDirectory(Environment.DirectoryDownloads).AbsolutePath + "/Opus-v" + version + (beta ? "-beta" : "") + ".apk";
-                Console.WriteLine("&DownloadPath: " + downloadPath);
-                Console.WriteLine("&Local path: " + localPath);
 
                 Toast.MakeText(Application.Context, Application.Context.GetString(Resource.String.downloading_update), ToastLength.Short).Show();
 
