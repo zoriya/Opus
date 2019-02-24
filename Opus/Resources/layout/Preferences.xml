@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<android.support.v7.preference.PreferenceScreen
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android/com/apk/res-auto"
+  android:id="@+id/PreferenceScreen">
+  <android.support.v7.preference.PreferenceCategory android:title="@string/behavior" android:id="@+id/behavior" >
+    <android.support.v7.preference.Preference
+      android:key="topics"
+      android:title="@string/music_genres"
+      android:summary="Actualy nothing"/>
+    <Opus.SeekbarPreference
+      android:title="@string/volume"
+      android:key="volumeMultipler" />
+  </android.support.v7.preference.PreferenceCategory>
+  <android.support.v7.preference.PreferenceCategory android:title="@string/download">
+    <android.support.v7.preference.Preference
+      android:key="downloadPath"
+      android:title="@string/download_directory" />
+    <android.support.v7.preference.Preference
+      android:key="maxDownload"
+      android:title="@string/max_download"
+      android:summary="4"/>
+    <android.support.v7.preference.Preference
+      android:key="keepDeleted"
+      android:title="@string/sync_remove"
+      android:summary="true"/>
+  </android.support.v7.preference.PreferenceCategory>
+  <android.support.v7.preference.PreferenceCategory android:title="@string/appearances">
+    <android.support.v7.preference.Preference
+      android:key="theme"
+      android:title="@string/theme"
+      android:summary="White Theme" />
+  </android.support.v7.preference.PreferenceCategory>
+  <android.support.v7.preference.PreferenceCategory android:title="@string/others">
+    <android.support.v7.preference.Preference
+      android:title="@string/check_updates"
+      android:key="update"/>
+    <android.support.v7.preference.Preference
+      android:title="@string/version"
+      android:key="version" />
+    <AccountPreference
+      android:key="account"
+      android:icon="@drawable/account"
+      android:id="@+id/accountPreference"
+      android:widgetLayout="@layout/LogOutButton"
+      android:title="@string/not_log" />
+  </android.support.v7.preference.PreferenceCategory>
+</android.support.v7.preference.PreferenceScreen>
