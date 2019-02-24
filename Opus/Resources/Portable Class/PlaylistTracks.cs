@@ -56,6 +56,8 @@ namespace Opus.Resources.Portable_Class
 
             MainActivity.instance.SupportActionBar.SetHomeButtonEnabled(true);
             MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
+            MainActivity.instance.SupportActionBar.SetDisplayShowTitleEnabled(true);
+            MainActivity.instance.FindViewById(Resource.Id.toolbarLogo).Visibility = ViewStates.Gone;
             MainActivity.instance.SupportActionBar.Title = playlistName;
         }
 
@@ -249,7 +251,8 @@ namespace Opus.Resources.Portable_Class
                 MainActivity.instance.SupportActionBar.SetHomeButtonEnabled(false);
                 MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(false);
                 MainActivity.instance.SupportActionBar.SetDisplayShowTitleEnabled(true);
-                MainActivity.instance.SupportActionBar.Title = "Opus";
+                MainActivity.instance.SupportActionBar.SetDisplayShowTitleEnabled(false);
+                MainActivity.instance.FindViewById(Resource.Id.toolbarLogo).Visibility = ViewStates.Visible;
 
                 MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
                 Activity.FindViewById<AppBarLayout>(Resource.Id.appbar).RemoveOnOffsetChangedListener(this);

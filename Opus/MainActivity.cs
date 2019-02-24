@@ -95,7 +95,7 @@ namespace Opus
             bottomNavigation.NavigationItemSelected += PreNavigate;
 
             SetSupportActionBar(FindViewById<Toolbar>(Resource.Id.toolbar));
-            SupportActionBar.Title = "Opus";
+            SupportActionBar.SetDisplayShowTitleEnabled(false);
 
             contentRefresh = FindViewById<SwipeRefreshLayout>(Resource.Id.contentRefresh);
 
@@ -125,7 +125,7 @@ namespace Opus
                 notificationManager.CreateNotificationChannel(channel);
             }
 
-            //CheckForUpdate(this, false);
+            CheckForUpdate(this, false);
             HandleIntent(Intent);
             Login();
             SyncPlaylists();

@@ -35,7 +35,16 @@
           android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
           app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
           app:layout_collapseMode="pin"
-          android:id="@+id/toolbar" />
+          android:id="@+id/toolbar" >
+          <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/toolbarLogo"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:adjustViewBounds="true"
+            android:src="@drawable/long_icon" />
+        </android.support.v7.widget.Toolbar>
       </Opus.CollapsingToolbarLayout>
       <android.support.design.widget.TabLayout
         android:id="@+id/tabs"

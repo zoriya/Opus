@@ -24,7 +24,7 @@
   <string name="hour">hour</string>
   <string name="hours">hours</string>
   <string name="timer">Sleep timer</string>
-  <string name="open_youtube">Open in the youtube app</string>
+  <string name="open_youtube">Watch clip on youtube</string>
   
   <!--Queue-->
   <string name="playing">Playing</string>

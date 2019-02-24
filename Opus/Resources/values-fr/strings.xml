@@ -23,6 +23,8 @@
   <string name="minutes">minutes</string>
   <string name="hour">heure</string>
   <string name="hours">heures</string>
+  <string name="timer">Timer d\'arret</string>
+  <string name="open_youtube">Regarder le clip sur youtube</string>
   
   <!--Queue-->
   <string name="playing">Lecture en cours</string>

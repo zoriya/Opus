@@ -34,6 +34,8 @@ namespace Opus.Resources.Portable_Class
             base.OnActivityCreated(savedInstanceState);
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
 
+            MainActivity.instance.SupportActionBar.SetDisplayShowTitleEnabled(true);
+            MainActivity.instance.FindViewById(Resource.Id.toolbarLogo).Visibility = ViewStates.Gone;
             MainActivity.instance.DisplaySearch();
         }
 
@@ -267,7 +269,8 @@ namespace Opus.Resources.Portable_Class
         {
             MainActivity.instance.SupportActionBar.SetHomeButtonEnabled(false);
             MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(false);
-            MainActivity.instance.SupportActionBar.Title = "Opus";
+            MainActivity.instance.SupportActionBar.SetDisplayShowTitleEnabled(false);
+            MainActivity.instance.FindViewById(Resource.Id.toolbarLogo).Visibility = ViewStates.Visible;
             MainActivity.instance.HideSearch();
             base.OnDestroyView();
         }
