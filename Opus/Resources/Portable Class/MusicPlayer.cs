@@ -773,7 +773,8 @@ namespace Opus.Resources.Portable_Class
 
             song.IsLiveStream = isLive;
             queue.Insert(CurrentID() + 1, song);
-            Home.instance?.RefreshQueue();
+            Home.instance?.NotifyQueueInserted(CurrentID() + 1);
+            Queue.instance?.NotifyItemInserted(CurrentID() + 1);
             UpdateQueueDataBase();
 
             if (UseCastPlayer)
@@ -794,7 +795,8 @@ namespace Opus.Resources.Portable_Class
         public void AddToQueue(Song song)
         {
             queue.Insert(CurrentID() + 1, song);
-            Home.instance?.RefreshQueue();
+            Home.instance?.NotifyQueueInserted(CurrentID() + 1);
+            Queue.instance?.NotifyItemInserted(CurrentID() + 1);
             UpdateQueueDataBase();
 
             if(UseCastPlayer)
@@ -815,6 +817,8 @@ namespace Opus.Resources.Portable_Class
         public async void AddToQueue(Song[] songs)
         {
             queue.AddRange(songs);
+            Home.instance?.RefreshQueue();
+            Queue.instance?.Refresh();
             UpdateQueueDataBase();
 
             if (UseCastPlayer)
@@ -827,8 +831,10 @@ namespace Opus.Resources.Portable_Class
         public static void InsertToQueue(int position, Song song)
         {
             queue.Insert(position, song);
+            Home.instance?.NotifyQueueInserted(position);
+            Queue.instance?.NotifyItemInserted(position);
 
-            if(UseCastPlayer)
+            if (UseCastPlayer)
                 RemotePlayer.QueueInsertItems(new MediaQueueItem[] { GetQueueItem(song) }, RemotePlayer.MediaQueue.ItemIdAtIndex(position + 1), null);
 
             UpdateQueueDataBase();
@@ -837,6 +843,8 @@ namespace Opus.Resources.Portable_Class
         public static void RemoveFromQueue(int position)
         {
             queue.RemoveAt(position);
+            Home.instance?.NotifyQueueRemoved(position);
+            Queue.instance?.NotifyItemRemoved(position);
 
             if (UseCastPlayer)
                 RemotePlayer.QueueRemoveItem(RemotePlayer.MediaQueue.ItemIdAtIndex(position), null);
@@ -854,9 +862,9 @@ namespace Opus.Resources.Portable_Class
             {
                 queue.Add(song);
                 UpdateQueueItemDB(song, queue.Count - 1);
-
-                Home.instance?.RefreshQueue();
             }
+            Home.instance?.NotifyQueueInserted(queue.Count - 1);
+            Queue.instance?.NotifyItemInserted(queue.Count - 1);
         }
 
         public void PlayLastInQueue(Song song)
@@ -867,8 +875,9 @@ namespace Opus.Resources.Portable_Class
             {
                 queue.Add(song);
                 UpdateQueueItemDB(song, queue.Count - 1);
-                Home.instance?.RefreshQueue();
             }
+            Home.instance?.NotifyQueueInserted(queue.Count - 1);
+            Queue.instance?.NotifyItemInserted(queue.Count - 1);
         }
 
         public void PlayLastInQueue(string filePath, string title, string artist, string youtubeID, string thumbnailURI, bool isLive = false)
@@ -885,8 +894,9 @@ namespace Opus.Resources.Portable_Class
             {
                 queue.Add(song);
                 UpdateQueueItemDB(song, queue.Count - 1);
-                Home.instance?.RefreshQueue();
             }
+            Home.instance?.NotifyQueueInserted(queue.Count - 1);
+            Queue.instance?.NotifyItemInserted(queue.Count - 1);
         }
 
         public void PlayPrevious()

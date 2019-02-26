@@ -35,7 +35,7 @@ public class Queue : Fragment, RecyclerView.IOnItemTouchListener
         instance = this;
         ListView = view.FindViewById<RecyclerView>(Resource.Id.recycler);
         ListView.SetLayoutManager(new LinearLayoutManager(Application.Context));
-        adapter = new QueueAdapter(MusicPlayer.queue);
+        adapter = new QueueAdapter();
         ListView.SetAdapter(adapter);
         adapter.ItemClick += ListView_ItemClick;
         adapter.ItemLongCLick += ListView_ItemLongCLick;
@@ -72,6 +72,12 @@ public class Queue : Fragment, RecyclerView.IOnItemTouchListener
     public void Refresh()
     {
         adapter.NotifyDataSetChanged();
+    }
+
+    public void NotifyItemInserted(int position)
+    {
+        position++;
+        adapter.NotifyItemInserted(position);
     }
 
     public void NotifyItemChanged(int position)
@@ -297,8 +303,8 @@ public class Queue : Fragment, RecyclerView.IOnItemTouchListener
 
         MusicPlayer.RemoveFromQueue(position);
 
-        if (instance != null)
-            instance.adapter.NotifyItemRemoved(position + 1);
+        //if (instance != null)
+        //    instance.adapter.NotifyItemRemoved(position + 1);
     }
 
     public override void OnResume()

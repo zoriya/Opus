@@ -456,6 +456,18 @@ namespace Opus.Resources.Portable_Class
             }
         }
 
+        public void NotifyQueueInserted(int position)
+        {
+            if (adapterItems.Count > 0)
+                QueueAdapter?.NotifyItemInserted(position);
+        }
+
+        public void NotifyQueueRemoved(int position)
+        {
+            if (adapterItems.Count > 0)
+                QueueAdapter?.NotifyItemRemoved(position);
+        }
+
         private void ListView_ItemClick(object sender, int position)
         {
             if(adapterItems[position].contentType == SectionType.Shuffle)

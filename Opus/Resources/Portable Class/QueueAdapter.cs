@@ -23,7 +23,7 @@ namespace Opus.Resources.Portable_Class
         public bool IsSliding { get; set; }
 
 
-        public QueueAdapter(List<Song> songList) { }
+        public QueueAdapter() { }
 
         public override int ItemCount => MusicPlayer.UseCastPlayer ? MusicPlayer.RemotePlayer.MediaQueue.ItemCount + 2 : MusicPlayer.queue.Count + 2;
 
@@ -410,7 +410,7 @@ namespace Opus.Resources.Portable_Class
                 .SetAction(Queue.instance.GetString(Resource.String.undo), (view) =>
                 {
                     Queue.InsertToQueue(position, song);
-                    NotifyItemInserted(position);
+                    //NotifyItemInserted(position);
                 });
             snackbar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
             snackbar.Show();
