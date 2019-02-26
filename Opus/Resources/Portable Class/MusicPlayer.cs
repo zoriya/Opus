@@ -469,9 +469,14 @@ namespace Opus.Resources.Portable_Class
         private static async Task<Song> ParseSong(Song song, int position = -1, bool startPlaybackWhenPosible = false)
         {
             if (song.IsParsed == true || !song.IsYt)
-                return song;
+            {
+                if (startPlaybackWhenPosible)
+                    instance.Play(song, -1, position == -1);
 
-            if(song.IsParsed == null)
+                return song;
+            }
+
+            if (song.IsParsed == null)
             {
                 while (song.IsParsed == null)
                     await Task.Delay(10);
@@ -1184,9 +1189,7 @@ namespace Opus.Resources.Portable_Class
                     Song song = autoPlay[0];
                     if (song.IsParsed != false || !song.IsYt)
                         return;
-                    song = await ParseSong(song);
-                    if(autoPlay.Count > 0 && autoPlay[0].YoutubeID == song.YoutubeID)
-                        autoPlay[0] = song;
+                    await ParseSong(song);
                 }
             }
             else
@@ -1195,7 +1198,7 @@ namespace Opus.Resources.Portable_Class
                 if (song.IsParsed != false || !song.IsYt)
                     return;
 
-                queue[currentID + 1] = await ParseSong(song, currentID + 1);
+                await ParseSong(song, currentID + 1);
             }
         }
 
