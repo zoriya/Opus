@@ -954,13 +954,13 @@ namespace Opus.Resources.Portable_Class
 
                 var ytPlaylistRequest = youtubeService.PlaylistItems.List("snippet, contentDetails");
                 ytPlaylistRequest.PlaylistId = video.GetVideoMixPlaylistId();
-                ytPlaylistRequest.MaxResults = 50;
+                ytPlaylistRequest.MaxResults = 25;
 
                 var ytPlaylist = await ytPlaylistRequest.ExecuteAsync();
 
                 foreach (var ytItem in ytPlaylist.Items)
                 {
-                    if (ytItem.Snippet.Title != "[Deleted video]" && ytItem.Snippet.Title != "Private video" && ytItem.Snippet.Title != "Deleted video" && ytItem.ContentDetails.VideoId != MusicPlayer.queue[MusicPlayer.CurrentID()].YoutubeID)
+                    if (ytItem.Snippet.Title != "[Deleted video]" && ytItem.Snippet.Title != "Private video" && ytItem.Snippet.Title != "Deleted video" && !MusicPlayer.queue.Exists(x => x.YoutubeID == ytItem.ContentDetails.VideoId))
                     {
                         Song song = new Song(ytItem.Snippet.Title, ytItem.Snippet.ChannelTitle, ytItem.Snippet.Thumbnails.High.Url, ytItem.ContentDetails.VideoId, -1, -1, ytItem.ContentDetails.VideoId, true, false);
                         tracks.Add(song);
@@ -979,7 +979,7 @@ namespace Opus.Resources.Portable_Class
 
             Random r = new Random();
             tracks = tracks.OrderBy(x => r.Next()).ToList();
-            if(AddItemToQueue)
+            if(AddItemToQueue && !MusicPlayer.queue.Exists(x => x.YoutubeID == item.YoutubeID))
                 tracks.Add(item);
 
             Intent intent = new Intent(MainActivity.instance, typeof(MusicPlayer));
