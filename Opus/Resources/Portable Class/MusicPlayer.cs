@@ -601,12 +601,39 @@ namespace Opus.Resources.Portable_Class
             generating = true;
 
             string youtubeID = null;
-            if (MainActivity.HasInternet() && queue.Where(x => x.IsYt).Count() > 0)
-                youtubeID = queue.Where(x => x.IsYt).ElementAt(0)?.YoutubeID ?? "local";
+            if (MainActivity.HasInternet())
+            {
+                Song current = await GetItem();
+                if (current.IsYt)
+                    youtubeID = current.YoutubeID;
+                else
+                    youtubeID = "local";
+            }
             else
                 youtubeID = "local";
 
             if (youtubeID != "local" && await MainActivity.instance.WaitForYoutube())
+            {
+                await GenerateYtAutoplay(youtubeID);
+            }
+            else
+            {
+                GenerateLocalAutoplay();
+            }
+
+            Random random = new Random();
+            autoPlay = autoPlay.OrderBy(x => random.Next()).ToList().GetRange(0, autoPlay.Count > 20 ? 20 : autoPlay.Count);
+            generating = false;
+            Queue.instance?.RefreshAP();
+            ParseNextSong();
+
+            if (switchToNext)
+                PlayNext();
+        }
+
+        async Task GenerateYtAutoplay(string youtubeID)
+        {
+            try
             {
                 YoutubeClient client = new YoutubeClient();
                 Video video = await client.GetVideoAsync(youtubeID);
@@ -623,7 +650,7 @@ namespace Opus.Resources.Portable_Class
                     if (item.Snippet.Title != "[Deleted video]" && item.Snippet.Title != "Private video" && item.Snippet.Title != "Deleted video")
                     {
                         Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.High.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
-                        if (!queue.Exists(x => x.YoutubeID == song.YoutubeID))
+                        if (!queue.Exists(x => x.YoutubeID == song.YoutubeID) && !autoPlay.Exists(x => x.YoutubeID == song.YoutubeID))
                         {
                             allSongs.Add(song);
                             break;
@@ -635,54 +662,51 @@ namespace Opus.Resources.Portable_Class
                 allSongs = allSongs.OrderBy(x => r.Next()).ToList();
                 autoPlay.AddRange(allSongs.GetRange(0, allSongs.Count > 5 ? 5 : allSongs.Count));
             }
-            else
+            catch
             {
-                Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
-
-                List<Song> allSongs = new List<Song>();
-                CursorLoader cursorLoader = new CursorLoader(Application.Context, musicUri, null, null, null, null);
-                ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
-
-                if (musicCursor != null && musicCursor.MoveToFirst())
-                {
-                    int titleID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Title);
-                    int artistID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Artist);
-                    int albumID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Album);
-                    int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
-                    int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
-                    do
-                    {
-                        string Artist = musicCursor.GetString(artistID);
-                        string Title = musicCursor.GetString(titleID);
-                        string Album = musicCursor.GetString(albumID);
-                        long AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
-                        long id = musicCursor.GetLong(thisID);
-                        string path = musicCursor.GetString(pathID);
-
-                        if (Title == null)
-                            Title = "Unknown Title";
-                        if (Artist == null)
-                            Artist = "Unknow Artist";
-                        if (Album == null)
-                            Album = "Unknow Album";
-
-                        allSongs.Add(new Song(Title, Artist, Album, null, AlbumArt, id, path));
-                    }
-                    while (musicCursor.MoveToNext());
-                    musicCursor.Close();
-                }
-                Random r = new Random();
-                allSongs = allSongs.OrderBy(x => r.Next()).ToList();
-                autoPlay.AddRange(allSongs.GetRange(0, allSongs.Count > 5 ? 5 : allSongs.Count));
+                GenerateLocalAutoplay();
             }
+        }
 
-            Random random = new Random();
-            autoPlay = autoPlay.OrderBy(x => random.Next()).ToList().GetRange(0, autoPlay.Count > 20 ? 20 : autoPlay.Count);
-            generating = false;
-            Queue.instance?.RefreshAP();
+        void GenerateLocalAutoplay()
+        {
+            Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
 
-            if (switchToNext)
-                PlayNext();
+            List<Song> allSongs = new List<Song>();
+            CursorLoader cursorLoader = new CursorLoader(Application.Context, musicUri, null, null, null, null);
+            ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
+
+            if (musicCursor != null && musicCursor.MoveToFirst())
+            {
+                int titleID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Title);
+                int artistID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Artist);
+                int albumID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Album);
+                int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
+                int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
+                do
+                {
+                    string Artist = musicCursor.GetString(artistID);
+                    string Title = musicCursor.GetString(titleID);
+                    string Album = musicCursor.GetString(albumID);
+                    long AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
+                    long id = musicCursor.GetLong(thisID);
+                    string path = musicCursor.GetString(pathID);
+
+                    if (Title == null)
+                        Title = "Unknown Title";
+                    if (Artist == null)
+                        Artist = "Unknow Artist";
+                    if (Album == null)
+                        Album = "Unknow Album";
+
+                    allSongs.Add(new Song(Title, Artist, Album, null, AlbumArt, id, path));
+                }
+                while (musicCursor.MoveToNext());
+                musicCursor.Close();
+            }
+            Random r = new Random();
+            allSongs = allSongs.OrderBy(x => r.Next()).ToList();
+            autoPlay.AddRange(allSongs.GetRange(0, allSongs.Count > 5 ? 5 : allSongs.Count));
         }
 
         public async void RandomPlay(List<string> filePaths, bool clearQueue)

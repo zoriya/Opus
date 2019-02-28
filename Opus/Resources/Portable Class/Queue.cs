@@ -128,7 +128,7 @@ public class Queue : Fragment, RecyclerView.IOnItemTouchListener
 
     public void RefreshAP()
     {
-        adapter.NotifyItemChanged(MusicPlayer.queue.Count);
+        adapter.NotifyItemChanged(MusicPlayer.queue.Count + 1);
     }
 
     //public override bool OnCreateOptionsMenu(IMenu menu)
