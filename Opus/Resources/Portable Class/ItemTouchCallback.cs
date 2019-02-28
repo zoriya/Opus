@@ -64,7 +64,8 @@ namespace Opus.Resources.Portable_Class
             if (alwaysAllowSwap && (target.AdapterPosition + 1 == ((QueueAdapter)adapter).ItemCount || target.AdapterPosition == 0))
                 return false;
 
-            from = source.AdapterPosition;
+            if(from == -1)
+                from = source.AdapterPosition;
             to = target.AdapterPosition;
             adapter.ItemMoved(source.AdapterPosition, target.AdapterPosition);
             return true;

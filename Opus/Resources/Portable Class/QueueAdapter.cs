@@ -375,14 +375,18 @@ namespace Opus.Resources.Portable_Class
             fromPosition--;
             toPosition--;
 
+            Console.WriteLine("&From: " + fromPosition + " To: " + toPosition + " CurrentID:" + MusicPlayer.CurrentID());
+
             if (MusicPlayer.CurrentID() > fromPosition && MusicPlayer.CurrentID() <= toPosition)
                 MusicPlayer.currentID--;
 
             else if (MusicPlayer.CurrentID() < fromPosition && MusicPlayer.CurrentID() >= toPosition)
                 MusicPlayer.currentID++;
 
-            else if (MusicPlayer.currentID == fromPosition)
+            else if (MusicPlayer.CurrentID() == fromPosition)
                 MusicPlayer.currentID = toPosition;
+
+            Console.WriteLine("&Updated! From: " + fromPosition + " To: " + toPosition + " CurrentID:" + MusicPlayer.CurrentID());
 
             if (MusicPlayer.UseCastPlayer)
             {
