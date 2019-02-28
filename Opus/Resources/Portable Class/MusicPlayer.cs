@@ -252,6 +252,8 @@ namespace Opus.Resources.Portable_Class
 
             queue?.Clear();
             currentID = -1;
+            Queue.instance?.Refresh();
+            Home.instance?.RefreshQueue();
 
             Song song = null;
             if (title == null)

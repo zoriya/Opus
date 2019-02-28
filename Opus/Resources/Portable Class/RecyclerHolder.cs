@@ -16,8 +16,9 @@ namespace Opus.Resources.Portable_Class
         public ImageView youtubeIcon;
         public ImageView more;
         public TextView status;
-        public CheckBox checkBox;
         public Button action;
+        public View RightButtons;
+        public View TextLayout;
 
         public RecyclerHolder(View itemView, Action<int> listener, Action<int> longListener) : base(itemView)
         {
@@ -28,8 +29,9 @@ namespace Opus.Resources.Portable_Class
             AlbumArt = itemView.FindViewById<ImageView>(Resource.Id.albumArt);
             youtubeIcon = itemView.FindViewById<ImageView>(Resource.Id.youtubeIcon);
             more = itemView.FindViewById<ImageView>(Resource.Id.moreButton);
+            RightButtons = itemView.FindViewById(Resource.Id.rightButtons);
+            TextLayout = itemView.FindViewById(Resource.Id.textLayout);
             status = itemView.FindViewById<TextView>(Resource.Id.status);
-            checkBox = itemView.FindViewById<CheckBox>(Resource.Id.checkBox);
             action = itemView.FindViewById<Button>(Resource.Id.action);
 
             itemView.Click += (sender, e) => listener(AdapterPosition);

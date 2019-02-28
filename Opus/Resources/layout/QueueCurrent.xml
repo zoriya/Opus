@@ -29,7 +29,8 @@
       android:layout_width="fill_parent"
       android:layout_height="78dp"
       android:gravity="center_vertical"
-      android:paddingLeft="10dp"
+      android:paddingLeft="5dp"
+      android:paddingRight="5dp"
       android:id="@+id/textLayout"
       android:layout_toRightOf="@id/albumArt"
       android:layout_toLeftOf="@+id/rightButtons" >
@@ -72,6 +73,8 @@
       android:layout_height="wrap_content"
       android:layout_centerVertical="true"
       android:layout_alignParentRight="true"
+      android:background="@drawable/darkLinear"
+      android:layout_marginRight="5dp"
       android:id="@+id/rightButtons">
       <ImageView
         android:id="@+id/youtubeIcon"
@@ -85,11 +88,8 @@
       <ImageView
         android:id="@+id/moreButton"
         android:layout_width="30dp"
-        android:layout_height="70dp"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        android:paddingTop="25dp"
-        android:paddingBottom="25dp"
+        android:layout_height="30dp"
+        android:padding="5dp"
         android:clickable="true"
         android:background="@null"
         android:src="@drawable/More"

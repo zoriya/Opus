@@ -123,6 +123,9 @@ namespace Opus.Resources.Portable_Class
                 holder.youtubeIcon.SetColorFilter(Color.White);
                 holder.reorder.Visibility = ViewStates.Visible;
                 holder.more.Visibility = ViewStates.Gone;
+                holder.RightButtons.SetBackgroundResource(Resource.Drawable.darkLinear);
+                ((RelativeLayout.LayoutParams)holder.RightButtons.LayoutParameters).RightMargin = MainActivity.instance.DpToPx(5);
+                holder.TextLayout.SetPadding(5, 0, 5, 0);
                 if (position == MusicPlayer.CurrentID())
                 {
                     holder.status.Visibility = ViewStates.Visible;
@@ -375,8 +378,6 @@ namespace Opus.Resources.Portable_Class
             fromPosition--;
             toPosition--;
 
-            Console.WriteLine("&From: " + fromPosition + " To: " + toPosition + " CurrentID:" + MusicPlayer.CurrentID());
-
             if (MusicPlayer.CurrentID() > fromPosition && MusicPlayer.CurrentID() <= toPosition)
                 MusicPlayer.currentID--;
 
@@ -385,8 +386,6 @@ namespace Opus.Resources.Portable_Class
 
             else if (MusicPlayer.CurrentID() == fromPosition)
                 MusicPlayer.currentID = toPosition;
-
-            Console.WriteLine("&Updated! From: " + fromPosition + " To: " + toPosition + " CurrentID:" + MusicPlayer.CurrentID());
 
             if (MusicPlayer.UseCastPlayer)
             {

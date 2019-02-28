@@ -80,7 +80,7 @@
     <ImageView
       android:id="@+id/reorder"
       android:layout_width="30dp"
-      android:layout_height="match_parent"
+      android:layout_height="30dp"
       android:padding="5dp"
       android:clickable="true"
       android:visibility="gone"
@@ -89,11 +89,8 @@
     <ImageView
       android:id="@+id/moreButton"
       android:layout_width="30dp"
-      android:layout_height="70dp"
-      android:paddingLeft="5dp"
-      android:paddingRight="5dp"
-      android:paddingTop="25dp"
-      android:paddingBottom="25dp"
+      android:layout_height="30dp"
+      android:padding="5dp"
       android:clickable="true"
       android:background="@null"
       android:src="@drawable/More"
