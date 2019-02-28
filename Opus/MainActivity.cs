@@ -647,6 +647,7 @@ namespace Opus
             {
                 PlaylistTracks.instance.navigating = true;
                 SupportFragmentManager.BeginTransaction().Remove(PlaylistTracks.instance).Commit();
+                SupportFragmentManager.PopBackStack(null, Android.Support.V4.App.FragmentManager.PopBackStackInclusive);
             }
 
             Fragment fragment = null;
