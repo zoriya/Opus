@@ -90,7 +90,10 @@ namespace Opus
                 await Task.Delay(100);
 
             Song current = await MusicPlayer.GetItem();
-            
+
+            if (current.IsYt && current.Album == null)
+                return;
+
             FrameLayout smallPlayer = MainActivity.instance.FindViewById<FrameLayout>(Resource.Id.smallPlayer);
             smallPlayer.FindViewById<TextView>(Resource.Id.spTitle).Text = current.Title;
             smallPlayer.FindViewById<TextView>(Resource.Id.spArtist).Text = current.Artist;

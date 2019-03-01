@@ -462,6 +462,12 @@ namespace Opus.Resources.Portable_Class
                 QueueAdapter?.NotifyItemInserted(position);
         }
 
+        public void NotifyQueueChanged(int position, Java.Lang.Object payload)
+        {
+            if (adapterItems.Count > 0)
+                QueueAdapter?.NotifyItemChanged(position, payload);
+        }
+
         public void NotifyQueueRemoved(int position)
         {
             if (adapterItems.Count > 0)

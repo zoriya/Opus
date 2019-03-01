@@ -345,7 +345,6 @@ namespace Opus.Resources.Portable_Class
             SaveQueueSlot();
             Player.instance?.RefreshPlayer();
             Home.instance?.AddQueue();
-            Queue.instance?.Refresh();
             ParseNextSong();
             if (useAutoPlay)
                 GenerateAutoPlay(false);
@@ -517,17 +516,29 @@ namespace Opus.Resources.Portable_Class
                 if (position != -1)
                     Queue.instance?.NotifyItemChanged(position, Resource.Drawable.PublicIcon);
 
-                if (startPlaybackWhenPosible)
+                if (startPlaybackWhenPosible && song.Album != null)
+                {
                     instance.Play(song, -1, position == -1);
+                    startPlaybackWhenPosible = false;
+                }
 
                 Video video = await client.GetVideoAsync(song.YoutubeID);
                 song.Title = video.Title;
                 song.Artist = video.Author;
                 song.Album = await MainActivity.GetBestThumb(new string[] { video.Thumbnails.MaxResUrl, video.Thumbnails.StandardResUrl, video.Thumbnails.HighResUrl });
-                Player.instance?.RefreshPlayer();
 
-                if (position != -1)
-                    Queue.instance?.NotifyItemChanged(position, song.Artist);
+                if (startPlaybackWhenPosible)
+                {
+                    instance.Play(song, -1, position == -1);
+
+                    if (position != -1)
+                    {
+                        Queue.instance?.NotifyItemChanged(position, song.Artist);
+                        Home.instance?.NotifyQueueChanged(position, song.Artist);
+                    }
+                }
+
+                Player.instance?.RefreshPlayer();
 
                 if (!song.IsLiveStream)
                     song.ExpireDate = mediaStreamInfo.ValidUntil;
@@ -563,7 +574,7 @@ namespace Opus.Resources.Portable_Class
                 if(showPlayer)
                     MainActivity.instance.ShowPlayer();
 
-                Song song = new Song(title, artist, thumbnailURL, videoID, -1, -1, null, true, false);
+                Song song = new Song(title ?? "", artist ?? "", thumbnailURL, videoID, -1, -1, null, true, false);
                 queue.Clear();
                 autoPlay.Clear();
                 queue.Add(song);

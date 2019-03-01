@@ -150,7 +150,6 @@ namespace Opus
                 inte.PutExtra("file", intent.Data.ToString());
                 StartService(inte);
 
-                ShowSmallPlayer();
                 ShowPlayer();
             }
             else if (intent.Action == Intent.ActionSend)

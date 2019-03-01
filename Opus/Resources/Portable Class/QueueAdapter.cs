@@ -103,7 +103,7 @@ namespace Opus.Resources.Portable_Class
                         if (MusicPlayer.useAutoPlay)
                         {
                             MusicPlayer.repeat = false;
-                            Queue.instance.menu.FindItem(Resource.Id.repeat).Icon.ClearColorFilter();
+                            //Queue.instance.menu.FindItem(Resource.Id.repeat).Icon.ClearColorFilter();
                         }
                     };
 
@@ -172,8 +172,10 @@ namespace Opus.Resources.Portable_Class
 
                 if (song.AlbumArt == -1 || song.IsYt)
                 {
-                    var songAlbumArtUri = Android.Net.Uri.Parse(song.Album);
-                    Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Color.background_material_dark).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
+                    if(song.Album != null)
+                        Picasso.With(Application.Context).Load(song.Album).Placeholder(Resource.Color.background_material_dark).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
+                    else
+                        Picasso.With(Application.Context).Load(Resource.Color.background_material_dark).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
                 }
                 else
                 {
@@ -298,10 +300,16 @@ namespace Opus.Resources.Portable_Class
                         return;
                     }
 
-                    if (payloads[0].ToString() != null && (holder.Artist.Text == "" || holder.Artist.Text == null))
+                    if (payloads[0].ToString() != null)
                     {
-                        holder.Artist.Text = payloads[0].ToString();
                         Song song = MusicPlayer.queue[position - 1];
+
+                        if (holder.Title.Text == "" || holder.Title.Text == null)
+                        {
+                            SpannableString titleText = new SpannableString(song.Title);
+                            titleText.SetSpan(new BackgroundColorSpan(Color.ParseColor("#8C000000")), 0, song.Title.Length, SpanTypes.InclusiveInclusive);
+                            holder.Title.TextFormatted = titleText;
+                        }
 
                         if (song.IsYt)
                         {

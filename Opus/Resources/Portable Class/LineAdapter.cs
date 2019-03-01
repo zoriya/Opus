@@ -83,8 +83,10 @@ namespace Opus.Resources.Portable_Class
 
                 if (song.AlbumArt == -1 || song.IsYt)
                 {
-                    var songAlbumArtUri = Uri.Parse(song.Album);
-                    Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Color.background_material_dark).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
+                    if(song.Album != null)
+                        Picasso.With(Application.Context).Load(song.Album).Placeholder(Resource.Color.background_material_dark).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
+                    else
+                        Picasso.With(Application.Context).Load(Resource.Color.background_material_dark).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
                 }
                 else
                 {
@@ -96,12 +98,31 @@ namespace Opus.Resources.Portable_Class
             }
         }
 
-        public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position, IList<Java.Lang.Object> payloads)
+        public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position, IList<Java.Lang.Object> payloads)
         {
-            if (payloads.Count > 0 && payloads[0].ToString() == ((RecyclerHolder)holder).Title.Text)
-                return;
+            if (payloads.Count > 0)
+            {
+                RecyclerHolder holder = (RecyclerHolder)viewHolder;
 
-            base.OnBindViewHolder(holder, position, payloads);
+                if(payloads[0].ToString() == holder.Title.Text)
+                    return;
+
+                if (payloads[0].ToString() != null)
+                {
+                    Song song = MusicPlayer.queue[position];
+
+                    if (holder.Title.Text == "" || holder.Title.Text == null)
+                        holder.Title.Text = song.Title;
+
+                    if (song.IsYt)
+                    {
+                        Picasso.With(Application.Context).Load(song.Album).Placeholder(Resource.Color.background_material_dark).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
+                    }
+                    return;
+                }
+            }
+
+            base.OnBindViewHolder(viewHolder, position, payloads);
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
