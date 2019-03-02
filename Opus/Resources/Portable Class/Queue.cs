@@ -303,8 +303,8 @@ public class Queue : Fragment, RecyclerView.IOnItemTouchListener
 
         MusicPlayer.RemoveFromQueue(position);
 
-        //if (instance != null)
-        //    instance.adapter.NotifyItemRemoved(position + 1);
+        if (instance != null && instance.adapter.ItemCount - position < 4)
+            instance.RefreshAP();
     }
 
     public override void OnResume()

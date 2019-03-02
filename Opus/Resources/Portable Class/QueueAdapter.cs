@@ -421,7 +421,6 @@ namespace Opus.Resources.Portable_Class
                 .SetAction(Queue.instance.GetString(Resource.String.undo), (view) =>
                 {
                     Queue.InsertToQueue(position, song);
-                    //NotifyItemInserted(position);
                 });
             snackbar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
             snackbar.Show();
