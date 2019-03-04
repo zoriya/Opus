@@ -70,7 +70,7 @@ namespace Opus.Resources.Portable_Class
             }
             else
             {
-                View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.HomeShuffle, parent, false);
+                View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.ShuffleButton, parent, false);
                 return new UslessHolder(itemView, OnClick);
             }
         }
@@ -178,13 +178,10 @@ namespace Opus.Resources.Portable_Class
             }
             else if (items[position].contentType == SectionType.Shuffle)
             {
-                UslessHolder holder = (UslessHolder)viewHolder;
-
-                TypedValue typedValue = new TypedValue();
-                Theme theme = ((Context)MainActivity.instance).Theme;
-                theme.ResolveAttribute(Resource.Attribute.colorAccent, typedValue, true);
-                Color color = Color.Rgb(Color.GetRedComponent(typedValue.Data), Color.GetGreenComponent(typedValue.Data), Color.GetBlueComponent(typedValue.Data));
-                ((GradientDrawable)holder.ItemView.Background).SetStroke(5, Android.Content.Res.ColorStateList.ValueOf(color));
+                if (MainActivity.Theme == 1)
+                    ((CardView)viewHolder.ItemView).SetCardBackgroundColor(Color.ParseColor("#212121"));
+                else
+                    ((CardView)viewHolder.ItemView).SetCardBackgroundColor(Color.White);
             }
         }
 

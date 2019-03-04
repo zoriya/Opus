@@ -75,7 +75,7 @@ namespace Opus.Resources.Portable_Class
         {
             if (viewType == 0)
             {
-                View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.BrowseShuffle, parent, false);
+                View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.ShuffleButton, parent, false);
                 return new UslessHolder(itemView, OnClick);
             }
             else

@@ -63,17 +63,14 @@ namespace Opus.Resources.Portable_Class
             }
             else if (position == LocalPlaylists.Count + YoutubePlaylists.Count)
             {
-                ButtonHolder holder = (ButtonHolder)viewHolder;
+                UslessHolder holder = (UslessHolder)viewHolder;
                 if (MainActivity.Theme == 1)
-                {
-                    ((GradientDrawable)holder.ItemView.Background).SetStroke(5, ColorStateList.ValueOf(Color.Argb(255, 62, 80, 180)));
-                    holder.Button.SetTextColor(Color.Argb(255, 62, 80, 180));
-                }
+                    ((CardView)viewHolder.ItemView).SetCardBackgroundColor(Color.ParseColor("#212121"));
                 else
-                {
-                    ((GradientDrawable)holder.ItemView.Background).SetStroke(5, ColorStateList.ValueOf(Color.Argb(255, 21, 183, 237)));
-                    holder.Button.SetTextColor(Color.Argb(255, 21, 183, 237));
-                }
+                    ((CardView)viewHolder.ItemView).SetCardBackgroundColor(Color.White);
+
+                holder.ItemView.FindViewById<ImageView>(Resource.Id.icon).SetImageResource(Resource.Drawable.PlaylistAdd);
+                holder.ItemView.FindViewById<TextView>(Resource.Id.text).Text = MainActivity.instance.GetString(Resource.String.add_playlist);
 
                 float scale = MainActivity.instance.Resources.DisplayMetrics.Density;
                 if (position + 1 == YoutubePlaylists.Count + LocalPlaylists.Count)
@@ -210,8 +207,8 @@ namespace Opus.Resources.Portable_Class
             }
             else if (viewType == 4)
             {
-                View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.BorderlessButton, parent, false);
-                return new ButtonHolder(itemView, OnClick);
+                View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.ShuffleButton, parent, false);
+                return new UslessHolder(itemView, OnClick);
             }
             else
             {

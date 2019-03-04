@@ -389,7 +389,6 @@
     <Compile Include="Resources\Portable Class\YtFile.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Resources\Portable Class\ButtonHolder.cs" />
     <Compile Include="Resources\Portable Class\ChannelHolder.cs" />
     <Compile Include="Resources\Portable Class\DownloadFile.cs" />
     <Compile Include="Resources\Portable Class\EmptyCategoryHolder.cs" />
@@ -567,9 +566,6 @@
     <AndroidResource Include="Resources\layout\EmptyView.xml" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\layout\BorderlessButton.xml" />
-  </ItemGroup>
-  <ItemGroup>
     <AndroidResource Include="Resources\layout\SaveAPlaylist.xml" />
   </ItemGroup>
   <ItemGroup>
@@ -703,9 +699,6 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\Repeat.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\layout\HomeShuffle.xml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\Play.xml">
@@ -849,7 +842,7 @@
     <AndroidResource Include="Resources\values\strings.xml" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\layout\BrowseShuffle.xml" />
+    <AndroidResource Include="Resources\layout\ShuffleButton.xml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\credentials.xml" />

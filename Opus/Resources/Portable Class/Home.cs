@@ -36,7 +36,6 @@ namespace Opus.Resources.Portable_Class
         {
             base.OnActivityCreated(savedInstanceState);
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
-            //ListView.ScrollChange += MainActivity.instance.Scroll; //was executing the following: contentRefresh.Enabled = ((LinearLayoutManager)Home.instance.ListView.GetLayoutManager()).FindFirstCompletelyVisibleItemPosition() == 0;
         }
 
         public override void OnDestroy()
