@@ -467,9 +467,9 @@ namespace Opus.Resources.Portable_Class
                 GenerateAutoPlay(false);
         }
 
-        private static async Task<Song> ParseSong(Song song, int position = -1, bool startPlaybackWhenPosible = false)
+        private static async Task<Song> ParseSong(Song song, int position = -1, bool startPlaybackWhenPosible = false, bool forceParse = false)
         {
-            if (song.IsParsed == true || !song.IsYt)
+            if ((!forceParse && song.IsParsed == true) || !song.IsYt)
             {
                 if (startPlaybackWhenPosible)
                     instance.Play(song, -1, position == -1);
@@ -1022,7 +1022,7 @@ namespace Opus.Resources.Portable_Class
                 Console.WriteLine("&Switching to item at " + position + " with itemID: " + RemotePlayer.MediaQueue.ItemIdAtIndex(position));
                 RemotePlayer.QueueJumpToItem(RemotePlayer.MediaQueue.ItemIdAtIndex(position), null);
             }
-            else if (song.IsParsed != true)
+            else if (song.IsParsed != true || song.ExpireDate < DateTime.UtcNow.AddMinutes(-20))
             {
                 Player.instance?.Buffering();
                 if (MainActivity.instance != null && showPlayer)
@@ -1031,7 +1031,7 @@ namespace Opus.Resources.Portable_Class
                     parseProgress.Visibility = ViewStates.Visible;
                     parseProgress.ScaleY = 6;
                 }
-                await ParseSong(song, position, !UseCastPlayer);
+                await ParseSong(song, position, !UseCastPlayer, true);
 
                 if (MainActivity.instance != null && showPlayer)
                 {
