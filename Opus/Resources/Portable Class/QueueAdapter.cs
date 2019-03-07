@@ -124,8 +124,9 @@ namespace Opus.Resources.Portable_Class
                 holder.reorder.Visibility = ViewStates.Visible;
                 holder.more.Visibility = ViewStates.Gone;
                 holder.RightButtons.SetBackgroundResource(Resource.Drawable.darkLinear);
-                ((RelativeLayout.LayoutParams)holder.RightButtons.LayoutParameters).RightMargin = MainActivity.instance.DpToPx(5);
-                holder.TextLayout.SetPadding(5, 0, 5, 0);
+                int dp = MainActivity.instance.DpToPx(5);
+                ((RelativeLayout.LayoutParams)holder.RightButtons.LayoutParameters).RightMargin = dp;
+                holder.TextLayout.SetPadding(dp, 0, dp, 0);
                 if (position == MusicPlayer.CurrentID())
                 {
                     holder.status.Visibility = ViewStates.Visible;

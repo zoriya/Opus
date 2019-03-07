@@ -129,6 +129,8 @@ namespace Opus.Resources.Portable_Class
                 else
                 {
                     holder.youtubeIcon.Visibility = ViewStates.Gone;
+                    holder.RightButtons.Background = null;
+                    holder.more.SetBackgroundResource(Resource.Drawable.darkLinear);
                 }
             }
         }
