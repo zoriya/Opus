@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<RelativeLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="34dp"
+  android:layout_marginTop="5dp" >
+    <LinearLayout
+    android:layout_width="wrap_content"
+    android:layout_height="34dp"
+    android:layout_centerHorizontal="true"
+    android:background="@drawable/darkLinear" >
+    <ImageButton
+      android:layout_width="34dp"
+      android:layout_height="34dp"
+      android:padding="5dp"
+      android:src="@drawable/shuffle"
+      android:background="@null"
+      android:id="@+id/shuffle" />
+    <ImageButton
+      android:layout_width="34dp"
+      android:layout_height="34dp"
+      android:padding="5dp"
+      android:src="@drawable/repeat"
+      android:background="@null"
+      android:id="@+id/repeat" />
+  </LinearLayout>
+</RelativeLayout>

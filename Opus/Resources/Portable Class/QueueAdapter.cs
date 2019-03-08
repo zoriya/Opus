@@ -30,7 +30,42 @@ namespace Opus.Resources.Portable_Class
         public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position)
         {
             if (position == 0)
+            {
+                QueueHeader holder = (QueueHeader)viewHolder;
+                if (!holder.Shuffle.HasOnClickListeners)
+                {
+                    holder.Shuffle.Click += (sender, e) =>
+                    {
+                        Intent intent = new Intent(MainActivity.instance, typeof(MusicPlayer));
+                        intent.SetAction("RandomizeQueue");
+                        MainActivity.instance.StartService(intent);
+                    };
+                }
+                if (!holder.Repeat.HasOnClickListeners)
+                {
+                    holder.Repeat.Click += (sender, e) =>
+                    {
+                        MusicPlayer.repeat = !MusicPlayer.repeat;
+
+                        if (MusicPlayer.UseCastPlayer)
+                            MusicPlayer.RemotePlayer.QueueSetRepeatMode(MusicPlayer.repeat ? 1 : 0, null);
+
+                        if (MusicPlayer.repeat)
+                        {
+                            holder.Repeat.SetColorFilter(Color.Argb(255, 21, 183, 237), PorterDuff.Mode.Multiply);
+                            MusicPlayer.useAutoPlay = false;
+                            NotifyItemChanged(ItemCount - 1, "UseAutoplay");
+                        }
+                        else
+                        {
+                            holder.Repeat.ClearColorFilter();
+                            MusicPlayer.useAutoPlay = true;
+                            NotifyItemChanged(ItemCount - 1, "UseAutoplay");
+                        }
+                    };
+                }
                 return;
+            }
 
             if (position + 1 == ItemCount)
             {
@@ -334,8 +369,8 @@ namespace Opus.Resources.Portable_Class
             }
             else if(viewType == 1)
             {
-                View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.Empty, parent, false);
-                return new UslessHolder(itemView);
+                View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.QueueHeader, parent, false);
+                return new QueueHeader(itemView);
             }
             else
             {

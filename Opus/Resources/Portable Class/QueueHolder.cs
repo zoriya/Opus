@@ -5,6 +5,18 @@ using System;
 
 namespace Opus.Resources.Portable_Class
 {
+    public class QueueHeader : RecyclerView.ViewHolder
+    {
+        public ImageButton Shuffle;
+        public ImageButton Repeat;
+
+        public QueueHeader(View itemView) : base(itemView)
+        {
+            Shuffle = itemView.FindViewById<ImageButton>(Resource.Id.shuffle);
+            Repeat = itemView.FindViewById<ImageButton>(Resource.Id.repeat);
+        }
+    }
+
     public class QueueFooter : RecyclerView.ViewHolder
     {
         public Switch SwitchButton;

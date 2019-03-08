@@ -159,34 +159,6 @@ public class Queue : Fragment, RecyclerView.IOnItemTouchListener
     //    return base.OnOptionsItemSelected(item);
     //}
 
-    void ShuffleQueue()
-    {
-        Intent intent = new Intent(Activity, typeof(MusicPlayer));
-        intent.SetAction("RandomizeQueue");
-        Activity.StartService(intent);
-    }
-
-    void Repeat(IMenuItem item)
-    {
-        MusicPlayer.repeat = !MusicPlayer.repeat;
-
-        if (MusicPlayer.UseCastPlayer)
-            MusicPlayer.RemotePlayer.QueueSetRepeatMode(MusicPlayer.repeat ? 1 : 0, null);
-
-        if (MusicPlayer.repeat)
-        {
-            item.Icon.SetColorFilter(Color.Argb(255, 21, 183, 237), PorterDuff.Mode.Multiply);
-            MusicPlayer.useAutoPlay = false;
-            adapter.NotifyItemChanged(adapter.ItemCount - 1, "UseAutoplay");
-        }
-        else
-        {
-            item.Icon.ClearColorFilter();
-            MusicPlayer.useAutoPlay = true;
-            adapter.NotifyItemChanged(adapter.ItemCount - 1, "UseAutoplay");
-        }
-    }
-
     private void ListView_ItemClick(object sender, int Position)
     {
         Song item = MusicPlayer.queue[Position];

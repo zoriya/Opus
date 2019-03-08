@@ -372,7 +372,7 @@
     <Compile Include="Resources\Portable Class\PlaylistTracks.cs" />
     <Compile Include="Resources\Portable Class\Preferences.cs" />
     <Compile Include="Resources\Portable Class\Queue.cs" />
-    <Compile Include="Resources\Portable Class\QueueFooter.cs" />
+    <Compile Include="Resources\Portable Class\QueueHolder.cs" />
     <Compile Include="Resources\Portable Class\QueueAdapter.cs" />
     <Compile Include="Resources\Portable Class\RecyclerHolder.cs" />
     <Compile Include="Resources\Portable Class\SeekbarPreference.cs" />
@@ -869,9 +869,6 @@
     <AndroidResource Include="Resources\layout\QueueCurrent.xml" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\layout\Empty.xml" />
-  </ItemGroup>
-  <ItemGroup>
     <AndroidResource Include="Resources\xml\provider.xml" />
   </ItemGroup>
   <ItemGroup>
@@ -882,6 +879,9 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\QueueHeader.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Android.Support.Animated.Vector.Drawable.25.4.0.2\build\MonoAndroid70\Xamarin.Android.Support.Animated.Vector.Drawable.targets" Condition="Exists('..\packages\Xamarin.Android.Support.Animated.Vector.Drawable.25.4.0.2\build\MonoAndroid70\Xamarin.Android.Support.Animated.Vector.Drawable.targets')" />
