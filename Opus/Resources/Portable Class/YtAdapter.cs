@@ -18,14 +18,12 @@ namespace Opus.Resources.Portable_Class
     {
         public int listPadding;
         private List<YtFile> items;
-        public List<string> selectedTopicsID;
         public event EventHandler<int> ItemClick;
         public event EventHandler<int> ItemLongCLick;
 
-        public YtAdapter(List<YtFile> items, List<string> selectedTopicsID)
+        public YtAdapter(List<YtFile> items)
         {
             this.items = items;
-            this.selectedTopicsID = selectedTopicsID;
         }
 
         public override int ItemCount => items.Count;
@@ -120,48 +118,11 @@ namespace Opus.Resources.Portable_Class
                 holder.Title.Text = song.Title;
                 Picasso.With(Android.App.Application.Context).Load(song.Album).Placeholder(Resource.Color.background_material_dark).Transform(new CircleTransformation(false)).Into(holder.AlbumArt);
 
-                holder.action.Visibility = ViewStates.Visible;
-                holder.CheckBox.Visibility = ViewStates.Gone;
-
-                if (selectedTopicsID.Contains(song.YoutubeID))
-                    holder.action.Text = "Unfollow";
-                else
-                    holder.action.Text = "Follow";
-
                 if (!holder.action.HasOnClickListeners)
                 {
-                    holder.action.Click += async (sender, e) =>
+                    holder.action.Click += (sender, e) =>
                     {
-                        if (holder.action.Text == "Following" || holder.action.Text == "Unfollow")
-                        {
-                            holder.action.Text = "Unfollowed";
-                            selectedTopicsID.Remove(song.YoutubeID);
-                            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(MainActivity.instance);
-                            List<string> topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
-
-                            ISharedPreferencesEditor editor = prefManager.Edit();
-                            topics.Remove(song.Title + "/#-#/" + song.YoutubeID);
-                            editor.PutStringSet("selectedTopics", topics);
-                            editor.Apply();
-
-                            await Task.Delay(1000);
-                            holder.action.Text = "Follow";
-                        }
-                        else if (holder.action.Text == "Follow")
-                        {
-                            selectedTopicsID.Add(song.YoutubeID);
-                            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(MainActivity.instance);
-                            List<string> topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
-
-                            ISharedPreferencesEditor editor = prefManager.Edit();
-                            topics.Add(song.Title + "/#-#/" + song.YoutubeID);
-                            editor.PutStringSet("selectedTopics", topics);
-                            editor.Apply();
-
-                            holder.action.Text = "Following";
-                            await Task.Delay(1000);
-                            holder.action.Text = "Unfollow";
-                        }
+                        YoutubeEngine.instances[0].MixFromChannel(song.YoutubeID);
                     };
                 }
 

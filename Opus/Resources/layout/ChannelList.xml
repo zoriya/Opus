@@ -13,15 +13,6 @@
     android:padding="5dp"
     android:gravity="center"
     android:src="@drawable/MusicIcon" />
-  <CheckBox
-    android:id="@+id/checkBox"
-    android:layout_width="25dp"
-    android:layout_height="25dp"
-    android:paddingRight="5dp"
-    android:focusable="false"
-    android:clickable="false"
-    android:layout_centerVertical="true"
-    android:layout_alignParentRight="true" />
   <Button
     android:layout_centerVertical="true"
     android:layout_alignParentRight="true"
@@ -29,31 +20,16 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     app:backgroundTint="?colorAccent"
-    android:layout_toLeftOf="@id/checkBox"
-    android:visibility="gone"
-    android:text="Loading"
+    android:text="@string/create_mix"
     android:id="@+id/action"/>
-  <LinearLayout
-    android:orientation="vertical"
+  <TextView
+    android:id="@+id/title"
     android:layout_width="fill_parent"
-    android:layout_toLeftOf="@id/action"
     android:layout_height="wrap_content"
     android:layout_centerVertical="true"
-    android:id="@+id/textLayout"
-    android:paddingLeft="70dp">
-    <TextView
-      android:id="@+id/title"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:textSize="14dip"
-      android:textColor="#000"
-      android:textStyle="bold" />
-    <TextView
-      android:id="@+id/artist"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:textSize="12dip"
-      android:textColor="#000"
-      android:maxLines="2" />
-  </LinearLayout>
+    android:layout_toLeftOf="@id/action"
+    android:paddingLeft="70dp"
+    android:textSize="14dip"
+    android:textColor="#000"
+    android:textStyle="bold" />
 </RelativeLayout >

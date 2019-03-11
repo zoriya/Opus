@@ -334,7 +334,6 @@
     <Compile Include="Resources\Portable Class\CastCallback.cs" />
     <Compile Include="Resources\Portable Class\CastProvider.cs" />
     <Compile Include="Resources\Portable Class\CastQueueManager.cs" />
-    <Compile Include="Resources\Portable Class\ChannelAdapter.cs" />
     <Compile Include="Resources\Portable Class\ChannelPreviewHolder.cs" />
     <Compile Include="Resources\Portable Class\CircleTransformation.cs" />
     <Compile Include="Resources\Portable Class\CollapsingToolbar.cs" />
@@ -381,7 +380,6 @@
     <Compile Include="Resources\Portable Class\SnackbarCallback.cs" />
     <Compile Include="Resources\Portable Class\SuggestionAdapter.cs" />
     <Compile Include="Resources\Portable Class\PlaylistItem.cs" />
-    <Compile Include="Resources\Portable Class\TopicSelector.cs" />
     <Compile Include="Resources\Portable Class\TwoLineAdapter.cs" />
     <Compile Include="Resources\Portable Class\UslessHolder.cs" />
     <Compile Include="Resources\Portable Class\ViewPagerAdapter.cs" />

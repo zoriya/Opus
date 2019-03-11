@@ -11,7 +11,6 @@ namespace Opus.Resources.values
         public TextView Title;
         public TextView Artist;
         public ImageView AlbumArt;
-        public CheckBox CheckBox;
 
         public HomeChannelHolder(View itemView, Action<int> listener, Action<int> longListener) : base(itemView)
         {
@@ -19,7 +18,6 @@ namespace Opus.Resources.values
             Title = itemView.FindViewById<TextView>(Resource.Id.title);
             Artist = itemView.FindViewById<TextView>(Resource.Id.artist);
             AlbumArt = itemView.FindViewById<ImageView>(Resource.Id.albumArt);
-            CheckBox = itemView.FindViewById<CheckBox>(Resource.Id.checkBox);
 
             itemView.Click += (sender, e) => listener(AdapterPosition);
             itemView.LongClick += (sender, e) => longListener(AdapterPosition);

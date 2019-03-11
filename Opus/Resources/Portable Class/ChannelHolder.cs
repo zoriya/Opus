@@ -12,7 +12,6 @@ namespace Opus.Resources.values
         public TextView Title;
         public TextView Artist;
         public ImageView AlbumArt;
-        public CheckBox CheckBox;
 
         public ChannelHolder(View v)
         {
@@ -20,7 +19,6 @@ namespace Opus.Resources.values
             Title = v.FindViewById<TextView>(Resource.Id.title);
             Artist = v.FindViewById<TextView>(Resource.Id.artist);
             AlbumArt = v.FindViewById<ImageView>(Resource.Id.albumArt);
-            CheckBox = v.FindViewById<CheckBox>(Resource.Id.checkBox);
         }
     }
 
@@ -30,7 +28,6 @@ namespace Opus.Resources.values
         public TextView Title;
         public TextView Artist;
         public ImageView AlbumArt;
-        public CheckBox CheckBox;
         public Button action;
 
         public RecyclerChannelHolder(View itemView, Action<int> listener, Action<int> longListener) : base(itemView)
@@ -39,7 +36,6 @@ namespace Opus.Resources.values
             Title = itemView.FindViewById<TextView>(Resource.Id.title);
             Artist = itemView.FindViewById<TextView>(Resource.Id.artist);
             AlbumArt = itemView.FindViewById<ImageView>(Resource.Id.albumArt);
-            CheckBox = itemView.FindViewById<CheckBox>(Resource.Id.checkBox);
             action = itemView.FindViewById<Button>(Resource.Id.action);
 
             if (listener != null)

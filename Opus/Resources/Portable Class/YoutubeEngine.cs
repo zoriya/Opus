@@ -301,10 +301,6 @@ namespace Opus.Resources.Portable_Class
                 if (nextPageToken != null)
                     result.Add(new YtFile(new Song(), YtKind.Loading));
 
-                ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(MainActivity.instance);
-                List<string> topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToList();
-                List<string> selectedTopics = topics.ConvertAll(x => x.Substring(x.IndexOf("/#-#/") + 5));
-
                 if(result.Count > 0 && result[0].Kind == YtKind.Channel && result.Count(x => x.item.Artist == result[0].item.Title && x.Kind == YtKind.Video) > 0)
                 {
                     YtFile channelPreview = new YtFile(result[0].item, YtKind.ChannelPreview);
@@ -335,7 +331,7 @@ namespace Opus.Resources.Portable_Class
                     }
                 }
 
-                adapter = new YtAdapter(result, selectedTopics);
+                adapter = new YtAdapter(result);
                 adapter.ItemClick += ListView_ItemClick;
                 adapter.ItemLongCLick += ListView_ItemLongClick;
                 ListView.SetAdapter(adapter);

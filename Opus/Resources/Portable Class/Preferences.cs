@@ -39,49 +39,20 @@ namespace Opus.Resources.Portable_Class
             instance = this;
             toolbar.NavigationClick += (sender, e) =>
             {
-                if (DownloadFragment.instance == null && TopicSelector.instance == null)
+                if (DownloadFragment.instance == null)
                     Finish();
-                else
+                else if (DownloadFragment.instance != null)
                 {
-                    if (DownloadFragment.instance != null)
-                    {
-                        ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(this);
-                        ISharedPreferencesEditor editor = prefManager.Edit();
-                        editor.PutString("downloadPath", DownloadFragment.instance.path);
-                        editor.Apply();
-                        Preference downloadPref = PreferencesFragment.instance.PreferenceScreen.FindPreference("downloadPath");
-                        downloadPref.Summary = DownloadFragment.instance.path ?? Environment.GetExternalStoragePublicDirectory(Environment.DirectoryMusic).ToString();
-                        PreferencesFragment.instance.path = DownloadFragment.instance.path;
+                    ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(this);
+                    ISharedPreferencesEditor editor = prefManager.Edit();
+                    editor.PutString("downloadPath", DownloadFragment.instance.path);
+                    editor.Apply();
+                    Preference downloadPref = PreferencesFragment.instance.PreferenceScreen.FindPreference("downloadPath");
+                    downloadPref.Summary = DownloadFragment.instance.path ?? Environment.GetExternalStoragePublicDirectory(Environment.DirectoryMusic).ToString();
+                    PreferencesFragment.instance.path = DownloadFragment.instance.path;
 
-                        DownloadFragment.instance = null;
-                        SupportFragmentManager.PopBackStack();
-                    }
-                    else if (TopicSelector.instance != null)
-                    {
-                        ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(this);
-                        ISharedPreferencesEditor editor = prefManager.Edit();
-                        List<string> topics = new List<string>();
-                        for (int i = 0; i < TopicSelector.instance.selectedTopics.Count; i++)
-                        {
-                            topics.Add(TopicSelector.instance.selectedTopics[i] + "/#-#/" + TopicSelector.instance.selectedTopicsID[i]);
-                        }
-                        editor.PutStringSet("selectedTopics", topics);
-                        editor.Apply();
-                        TopicSelector.instance = null;
-                        SupportFragmentManager.PopBackStack();
-
-                        Preference topicPreference = PreferencesFragment.instance.PreferenceScreen.FindPreference("topics");
-                        if (topics.Count == 0)
-                            topicPreference.Summary = Resources.GetString(Resource.String.genre_nothing);
-                        else if (topics.Count == 1)
-                            topicPreference.Summary = topics[0].Substring(0, topics[0].IndexOf("/#-#/"));
-                        else if (topics.Count == 2)
-                            topicPreference.Summary = topics[0].Substring(0, topics[0].IndexOf("/#-#/")) + Resources.GetString(Resource.String.and) + topics[1].Substring(0, topics[1].IndexOf("/#-#/"));
-                        else if (topics.Count == 3)
-                            topicPreference.Summary = topics[0].Substring(0, topics[0].IndexOf("/#-#/")) + ", " + topics[1].Substring(0, topics[1].IndexOf("/#-#/")) + Resources.GetString(Resource.String.and) + topics[2].Substring(0, topics[2].IndexOf("/#-#/"));
-                        else if (topics.Count > 3)
-                            topicPreference.Summary = topics[0].Substring(0, topics[0].IndexOf("/#-#/")) + ", " + topics[1].Substring(0, topics[1].IndexOf("/#-#/")) + ", " + topics[2].Substring(0, topics[2].IndexOf("/#-#/")) + Resources.GetString(Resource.String.and_more);
-                    }
+                    DownloadFragment.instance = null;
+                    SupportFragmentManager.PopBackStack();
                 }
             };
 
@@ -130,23 +101,6 @@ namespace Opus.Resources.Portable_Class
             instance = this;
             SetPreferencesFromResource(Resource.Layout.Preferences, rootKey);
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
-
-            //Music Genres
-            Preference topicPreference = PreferenceScreen.FindPreference("topics");
-            topicPreference.IconSpaceReserved = false;
-            topicPreference.PreferenceClick += TopicPreference;
-            string[] topics = prefManager.GetStringSet("selectedTopics", new string[] { }).ToArray();
-
-            if (topics.Length == 0)
-                topicPreference.Summary = Resources.GetString(Resource.String.genre_nothing);
-            else if (topics.Length == 1)
-                topicPreference.Summary = topics[0].Substring(0, topics[0].IndexOf("/#-#/"));
-            else if (topics.Length == 2)
-                topicPreference.Summary = topics[0].Substring(0, topics[0].IndexOf("/#-#/")) + Resources.GetString(Resource.String.and) + topics[1].Substring(0, topics[1].IndexOf("/#-#/"));
-            else if(topics.Length == 3)
-                topicPreference.Summary = topics[0].Substring(0, topics[0].IndexOf("/#-#/")) + ", " + topics[1].Substring(0, topics[1].IndexOf("/#-#/")) + Resources.GetString(Resource.String.and) + topics[2].Substring(0, topics[2].IndexOf("/#-#/"));
-            else if(topics.Length > 3)
-                topicPreference.Summary = topics[0].Substring(0, topics[0].IndexOf("/#-#/")) + ", " + topics[1].Substring(0, topics[1].IndexOf("/#-#/")) + ", " + topics[2].Substring(0, topics[2].IndexOf("/#-#/")) + Resources.GetString(Resource.String.and_more);
 
             //Download Path
             Preference downloadPref = PreferenceScreen.FindPreference("downloadPath");
@@ -233,14 +187,6 @@ namespace Opus.Resources.Portable_Class
             accountPreference.OnSignedIn();
             MainActivity.instance.InvalidateOptionsMenu();
         }
-
-        #region Topic Preference
-        private void TopicPreference(object sender, Preference.PreferenceClickEventArgs e)
-        {
-            Preferences.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.PreferenceFragment, TopicSelector.NewInstance()).AddToBackStack(null).Commit();
-            Preferences.instance.toolbar.Title = "Music Genres";
-        }
-        #endregion
 
         #region Download location
         private void DownloadClick(object sender, Preference.PreferenceClickEventArgs e)
