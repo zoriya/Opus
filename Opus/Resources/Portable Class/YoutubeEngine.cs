@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
 using TagLib;
 using YoutubeExplode;
 using YoutubeExplode.Models;
@@ -269,7 +270,7 @@ namespace Opus.Resources.Portable_Class
 
                 foreach (var video in searchReponse.Items)
                 {
-                    Song videoInfo = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.High.Url, null, -1, -1, video.Snippet.ChannelId, true, false);
+                    Song videoInfo = new Song(HttpUtility.HtmlDecode(video.Snippet.Title), HttpUtility.HtmlDecode(video.Snippet.ChannelTitle), video.Snippet.Thumbnails.High.Url, null, -1, -1, video.Snippet.ChannelId, true, false);
                     YtKind kind = YtKind.Null;
 
                     if (video.Snippet.LiveBroadcastContent == "live")
