@@ -17,10 +17,11 @@ using Opus.Resources.values;
 using Square.Picasso;
 using System.Collections.Generic;
 using Fragment = Android.Support.V4.App.Fragment;
+using PopupMenu = Android.Support.V7.Widget.PopupMenu;
 
 [Activity(Label = "Queue", Theme = "@style/Theme", ScreenOrientation = ScreenOrientation.Portrait)]
 [Register("Opus/Queue")]
-public class Queue : Fragment, RecyclerView.IOnItemTouchListener
+public class Queue : Fragment, RecyclerView.IOnItemTouchListener, PopupMenu.IOnMenuItemClickListener
 {
     public static Queue instance;
     public RecyclerView ListView;
@@ -319,4 +320,20 @@ public class Queue : Fragment, RecyclerView.IOnItemTouchListener
     public void OnRequestDisallowInterceptTouchEvent(bool disallow) { }
 
     public void OnTouchEvent(RecyclerView recyclerView, MotionEvent @event) { }
+
+    public bool OnMenuItemClick(IMenuItem item)
+    {
+        switch(item.ItemId)
+        {
+            case Resource.Id.saveAsPlaylist:
+                SaveQueueToPlaylist();
+                break;
+        }
+        return true;
+    }
+
+    public void SaveQueueToPlaylist()
+    {
+        Browse.CreatePlalistDialog(MusicPlayer.queue.ToArray());
+    }
 }

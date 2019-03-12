@@ -9,11 +9,13 @@ namespace Opus.Resources.Portable_Class
     {
         public ImageButton Shuffle;
         public ImageButton Repeat;
+        public ImageButton More;
 
         public QueueHeader(View itemView) : base(itemView)
         {
             Shuffle = itemView.FindViewById<ImageButton>(Resource.Id.shuffle);
             Repeat = itemView.FindViewById<ImageButton>(Resource.Id.repeat);
+            More = itemView.FindViewById<ImageButton>(Resource.Id.more);
         }
     }
 

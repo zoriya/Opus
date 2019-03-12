@@ -4,7 +4,7 @@
   android:layout_width="match_parent"
   android:layout_height="34dp"
   android:layout_marginTop="5dp" >
-    <LinearLayout
+  <LinearLayout
     android:layout_width="wrap_content"
     android:layout_height="34dp"
     android:layout_centerHorizontal="true"
@@ -23,5 +23,13 @@
       android:src="@drawable/repeat"
       android:background="@null"
       android:id="@+id/repeat" />
+    <ImageButton
+      android:layout_width="34dp"
+      android:layout_height="34dp"
+      android:padding="5dp"
+      android:src="@drawable/more"
+      android:background="@null"
+      android:tint="#ffffff"
+      android:id="@+id/more" />
   </LinearLayout>
 </RelativeLayout>

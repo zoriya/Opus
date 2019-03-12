@@ -5351,8 +5351,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b018f
 			public const int downButton = 2131427727;
 			
-			// aapt resource value: 0x7f0b01d6
-			public const int download = 2131427798;
+			// aapt resource value: 0x7f0b01d7
+			public const int download = 2131427799;
 			
 			// aapt resource value: 0x7f0b01cf
 			public const int downloadMDfromYT = 2131427791;
@@ -5480,8 +5480,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b0087
 			public const int filled = 2131427463;
 			
-			// aapt resource value: 0x7f0b01d3
-			public const int filter = 2131427795;
+			// aapt resource value: 0x7f0b01d4
+			public const int filter = 2131427796;
 			
 			// aapt resource value: 0x7f0b0092
 			public const int fit = 2131427474;
@@ -5507,8 +5507,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b008f
 			public const int forever = 2131427471;
 			
-			// aapt resource value: 0x7f0b01d7
-			public const int fork = 2131427799;
+			// aapt resource value: 0x7f0b01d8
+			public const int fork = 2131427800;
 			
 			// aapt resource value: 0x7f0b0017
 			public const int ghost_view = 2131427351;
@@ -5648,8 +5648,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b017c
 			public const int media_actions = 2131427708;
 			
-			// aapt resource value: 0x7f0b01d4
-			public const int media_route_menu_item = 2131427796;
+			// aapt resource value: 0x7f0b01d5
+			public const int media_route_menu_item = 2131427797;
 			
 			// aapt resource value: 0x7f0b00cb
 			public const int message = 2131427531;
@@ -6008,6 +6008,9 @@ namespace Opus
 			// aapt resource value: 0x7f0b0180
 			public const int right_side = 2131427712;
 			
+			// aapt resource value: 0x7f0b01d3
+			public const int saveAsPlaylist = 2131427795;
+			
 			// aapt resource value: 0x7f0b0019
 			public const int save_image_matrix = 2131427353;
 			
@@ -6089,8 +6092,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b0077
 			public const int selected = 2131427447;
 			
-			// aapt resource value: 0x7f0b01d5
-			public const int settings = 2131427797;
+			// aapt resource value: 0x7f0b01d6
+			public const int settings = 2131427798;
 			
 			// aapt resource value: 0x7f0b00b2
 			public const int shortcut = 2131427506;
@@ -7015,22 +7018,25 @@ namespace Opus
 			public const int playlist_smallheader_more = 2131755012;
 			
 			// aapt resource value: 0x7f100005
-			public const int QueueItems = 2131755013;
+			public const int queue_more = 2131755013;
 			
 			// aapt resource value: 0x7f100006
-			public const int search_toolbar = 2131755014;
+			public const int QueueItems = 2131755014;
 			
 			// aapt resource value: 0x7f100007
-			public const int toolbar_menu = 2131755015;
+			public const int search_toolbar = 2131755015;
 			
 			// aapt resource value: 0x7f100008
-			public const int ytplaylist_header_more = 2131755016;
+			public const int toolbar_menu = 2131755016;
 			
 			// aapt resource value: 0x7f100009
-			public const int ytplaylist_nowrite_nofork_header_more = 2131755017;
+			public const int ytplaylist_header_more = 2131755017;
 			
 			// aapt resource value: 0x7f10000a
-			public const int ytplaylistnowrite_header_more = 2131755018;
+			public const int ytplaylist_nowrite_nofork_header_more = 2131755018;
+			
+			// aapt resource value: 0x7f10000b
+			public const int ytplaylistnowrite_header_more = 2131755019;
 			
 			static Menu()
 			{
@@ -7168,59 +7174,59 @@ namespace Opus
 			// aapt resource value: 0x7f0d0072
 			public const int abc_toolbar_collapse_description = 2131558514;
 			
-			// aapt resource value: 0x7f0d012b
-			public const int add = 2131558699;
+			// aapt resource value: 0x7f0d012c
+			public const int add = 2131558700;
 			
-			// aapt resource value: 0x7f0d00fc
-			public const int add_playlist = 2131558652;
+			// aapt resource value: 0x7f0d00fd
+			public const int add_playlist = 2131558653;
 			
-			// aapt resource value: 0x7f0d010c
-			public const int add_playlist_msg = 2131558668;
+			// aapt resource value: 0x7f0d010d
+			public const int add_playlist_msg = 2131558669;
 			
-			// aapt resource value: 0x7f0d00de
-			public const int add_to_library = 2131558622;
+			// aapt resource value: 0x7f0d00df
+			public const int add_to_library = 2131558623;
 			
-			// aapt resource value: 0x7f0d00d0
-			public const int add_to_playlist = 2131558608;
+			// aapt resource value: 0x7f0d00d1
+			public const int add_to_playlist = 2131558609;
 			
-			// aapt resource value: 0x7f0d00d8
-			public const int add_to_queue = 2131558616;
+			// aapt resource value: 0x7f0d00d9
+			public const int add_to_queue = 2131558617;
 			
-			// aapt resource value: 0x7f0d0116
-			public const int album = 2131558678;
+			// aapt resource value: 0x7f0d0117
+			public const int album = 2131558679;
 			
-			// aapt resource value: 0x7f0d00ea
-			public const int all = 2131558634;
-			
-			// aapt resource value: 0x7f0d0132
-			public const int and = 2131558706;
+			// aapt resource value: 0x7f0d00eb
+			public const int all = 2131558635;
 			
 			// aapt resource value: 0x7f0d0133
-			public const int and_more = 2131558707;
+			public const int and = 2131558707;
+			
+			// aapt resource value: 0x7f0d0134
+			public const int and_more = 2131558708;
 			
 			// aapt resource value: 0x7f0d0080
 			public const int appbar_scrolling_view_behavior = 2131558528;
 			
-			// aapt resource value: 0x7f0d0139
-			public const int appearances = 2131558713;
+			// aapt resource value: 0x7f0d013a
+			public const int appearances = 2131558714;
 			
-			// aapt resource value: 0x7f0d0128
-			public const int apply = 2131558696;
+			// aapt resource value: 0x7f0d0129
+			public const int apply = 2131558697;
 			
-			// aapt resource value: 0x7f0d0115
-			public const int artist = 2131558677;
-			
-			// aapt resource value: 0x7f0d00c9
-			public const int autoplay = 2131558601;
+			// aapt resource value: 0x7f0d0116
+			public const int artist = 2131558678;
 			
 			// aapt resource value: 0x7f0d00ca
-			public const int autoplay_desc = 2131558602;
+			public const int autoplay = 2131558602;
 			
-			// aapt resource value: 0x7f0d012f
-			public const int behavior = 2131558703;
+			// aapt resource value: 0x7f0d00cb
+			public const int autoplay_desc = 2131558603;
 			
-			// aapt resource value: 0x7f0d0150
-			public const int beta_available = 2131558736;
+			// aapt resource value: 0x7f0d0130
+			public const int behavior = 2131558704;
+			
+			// aapt resource value: 0x7f0d0151
+			public const int beta_available = 2131558737;
 			
 			// aapt resource value: 0x7f0d0081
 			public const int bottom_sheet_behavior = 2131558529;
@@ -7228,17 +7234,17 @@ namespace Opus
 			// aapt resource value: 0x7f0d00b3
 			public const int browse = 2131558579;
 			
-			// aapt resource value: 0x7f0d0129
-			public const int cancel = 2131558697;
+			// aapt resource value: 0x7f0d012a
+			public const int cancel = 2131558698;
 			
-			// aapt resource value: 0x7f0d0156
-			public const int cancelling = 2131558742;
+			// aapt resource value: 0x7f0d0157
+			public const int cancelling = 2131558743;
 			
-			// aapt resource value: 0x7f0d00f2
-			public const int cant_delete = 2131558642;
+			// aapt resource value: 0x7f0d00f3
+			public const int cant_delete = 2131558643;
 			
-			// aapt resource value: 0x7f0d0153
-			public const int cant_play_non_youtube = 2131558739;
+			// aapt resource value: 0x7f0d0154
+			public const int cant_play_non_youtube = 2131558740;
 			
 			// aapt resource value: 0x7f0d00b8
 			public const int cast = 2131558584;
@@ -7321,11 +7327,11 @@ namespace Opus
 			// aapt resource value: 0x7f0d0015
 			public const int cast_play = 2131558421;
 			
-			// aapt resource value: 0x7f0d0126
-			public const int cast_queue_push = 2131558694;
-			
 			// aapt resource value: 0x7f0d0127
-			public const int cast_queue_pushed = 2131558695;
+			public const int cast_queue_push = 2131558695;
+			
+			// aapt resource value: 0x7f0d0128
+			public const int cast_queue_pushed = 2131558696;
 			
 			// aapt resource value: 0x7f0d0016
 			public const int cast_rewind = 2131558422;
@@ -7375,14 +7381,14 @@ namespace Opus
 			// aapt resource value: 0x7f0d0025
 			public const int cast_unmute = 2131558437;
 			
-			// aapt resource value: 0x7f0d0118
-			public const int change_albumart = 2131558680;
+			// aapt resource value: 0x7f0d0119
+			public const int change_albumart = 2131558681;
 			
-			// aapt resource value: 0x7f0d011d
-			public const int changes_saved = 2131558685;
+			// aapt resource value: 0x7f0d011e
+			public const int changes_saved = 2131558686;
 			
-			// aapt resource value: 0x7f0d00ec
-			public const int channels = 2131558636;
+			// aapt resource value: 0x7f0d00ed
+			public const int channels = 2131558637;
 			
 			// aapt resource value: 0x7f0d0082
 			public const int character_counter_content_description = 2131558530;
@@ -7390,8 +7396,8 @@ namespace Opus
 			// aapt resource value: 0x7f0d0083
 			public const int character_counter_pattern = 2131558531;
 			
-			// aapt resource value: 0x7f0d013f
-			public const int check_updates = 2131558719;
+			// aapt resource value: 0x7f0d0140
+			public const int check_updates = 2131558720;
 			
 			// aapt resource value: 0x7f0d00b0
 			public const int clientID = 2131558576;
@@ -7453,80 +7459,80 @@ namespace Opus
 			// aapt resource value: 0x7f0d003b
 			public const int common_signin_button_text_long = 2131558459;
 			
-			// aapt resource value: 0x7f0d0125
-			public const int completed = 2131558693;
-			
-			// aapt resource value: 0x7f0d0111
-			public const int create_local = 2131558673;
-			
-			// aapt resource value: 0x7f0d00cb
-			public const int create_mix = 2131558603;
-			
-			// aapt resource value: 0x7f0d00cf
-			public const int create_mix_from_song = 2131558607;
-			
-			// aapt resource value: 0x7f0d010d
-			public const int create_playlist = 2131558669;
-			
-			// aapt resource value: 0x7f0d0113
-			public const int create_synced = 2131558675;
+			// aapt resource value: 0x7f0d0126
+			public const int completed = 2131558694;
 			
 			// aapt resource value: 0x7f0d0112
-			public const int create_youtube = 2131558674;
+			public const int create_local = 2131558674;
 			
-			// aapt resource value: 0x7f0d013d
-			public const int dark_theme = 2131558717;
+			// aapt resource value: 0x7f0d00cc
+			public const int create_mix = 2131558604;
 			
-			// aapt resource value: 0x7f0d00da
-			public const int delete = 2131558618;
+			// aapt resource value: 0x7f0d00d0
+			public const int create_mix_from_song = 2131558608;
 			
-			// aapt resource value: 0x7f0d0108
-			public const int delete_playlist = 2131558664;
+			// aapt resource value: 0x7f0d010e
+			public const int create_playlist = 2131558670;
 			
-			// aapt resource value: 0x7f0d0120
-			public const int deleted_file = 2131558688;
+			// aapt resource value: 0x7f0d0114
+			public const int create_synced = 2131558676;
 			
-			// aapt resource value: 0x7f0d00d2
-			public const int download = 2131558610;
+			// aapt resource value: 0x7f0d0113
+			public const int create_youtube = 2131558675;
 			
-			// aapt resource value: 0x7f0d011a
-			public const int download_albumart = 2131558682;
+			// aapt resource value: 0x7f0d013e
+			public const int dark_theme = 2131558718;
 			
-			// aapt resource value: 0x7f0d0135
-			public const int download_directory = 2131558709;
+			// aapt resource value: 0x7f0d00db
+			public const int delete = 2131558619;
+			
+			// aapt resource value: 0x7f0d0109
+			public const int delete_playlist = 2131558665;
+			
+			// aapt resource value: 0x7f0d0121
+			public const int deleted_file = 2131558689;
+			
+			// aapt resource value: 0x7f0d00d3
+			public const int download = 2131558611;
 			
 			// aapt resource value: 0x7f0d011b
-			public const int download_meta = 2131558683;
+			public const int download_albumart = 2131558683;
+			
+			// aapt resource value: 0x7f0d0136
+			public const int download_directory = 2131558710;
+			
+			// aapt resource value: 0x7f0d011c
+			public const int download_meta = 2131558684;
+			
+			// aapt resource value: 0x7f0d00ef
+			public const int download_path_error = 2131558639;
 			
 			// aapt resource value: 0x7f0d00ee
-			public const int download_path_error = 2131558638;
+			public const int download_path_not_set = 2131558638;
 			
-			// aapt resource value: 0x7f0d00ed
-			public const int download_path_not_set = 2131558637;
+			// aapt resource value: 0x7f0d0120
+			public const int download_queue = 2131558688;
 			
-			// aapt resource value: 0x7f0d011f
-			public const int download_queue = 2131558687;
+			// aapt resource value: 0x7f0d00f1
+			public const int downloading = 2131558641;
 			
-			// aapt resource value: 0x7f0d00f0
-			public const int downloading = 2131558640;
+			// aapt resource value: 0x7f0d0155
+			public const int downloading_notification = 2131558741;
 			
-			// aapt resource value: 0x7f0d0154
-			public const int downloading_notification = 2131558740;
+			// aapt resource value: 0x7f0d0124
+			public const int downloading_status = 2131558692;
 			
-			// aapt resource value: 0x7f0d0123
-			public const int downloading_status = 2131558691;
+			// aapt resource value: 0x7f0d0152
+			public const int downloading_update = 2131558738;
 			
-			// aapt resource value: 0x7f0d0151
-			public const int downloading_update = 2131558737;
-			
-			// aapt resource value: 0x7f0d00d1
-			public const int edit_metadata = 2131558609;
-			
-			// aapt resource value: 0x7f0d0100
-			public const int element = 2131558656;
+			// aapt resource value: 0x7f0d00d2
+			public const int edit_metadata = 2131558610;
 			
 			// aapt resource value: 0x7f0d0101
-			public const int elements = 2131558657;
+			public const int element = 2131558657;
+			
+			// aapt resource value: 0x7f0d0102
+			public const int elements = 2131558658;
 			
 			// aapt resource value: 0x7f0d0090
 			public const int exo_controls_fastforward_description = 2131558544;
@@ -7633,17 +7639,17 @@ namespace Opus
 			// aapt resource value: 0x7f0d0085
 			public const int fab_transformation_sheet_behavior = 2131558533;
 			
-			// aapt resource value: 0x7f0d00e4
-			public const int featured = 2131558628;
+			// aapt resource value: 0x7f0d00e5
+			public const int featured = 2131558629;
 			
 			// aapt resource value: 0x7f0d00b7
 			public const int filter = 2131558583;
 			
-			// aapt resource value: 0x7f0d00e8
-			public const int folders = 2131558632;
+			// aapt resource value: 0x7f0d00e9
+			public const int folders = 2131558633;
 			
-			// aapt resource value: 0x7f0d0131
-			public const int genre_nothing = 2131558705;
+			// aapt resource value: 0x7f0d0132
+			public const int genre_nothing = 2131558706;
 			
 			// aapt resource value: 0x7f0d0086
 			public const int hide_bottom_view_on_scroll_behavior = 2131558534;
@@ -7657,44 +7663,44 @@ namespace Opus
 			// aapt resource value: 0x7f0d00c3
 			public const int hours = 2131558595;
 			
-			// aapt resource value: 0x7f0d0121
-			public const int initialization = 2131558689;
+			// aapt resource value: 0x7f0d0122
+			public const int initialization = 2131558690;
 			
-			// aapt resource value: 0x7f0d012c
-			public const int later = 2131558700;
+			// aapt resource value: 0x7f0d012d
+			public const int later = 2131558701;
 			
-			// aapt resource value: 0x7f0d00d5
-			public const int list_songs = 2131558613;
+			// aapt resource value: 0x7f0d00d6
+			public const int list_songs = 2131558614;
 			
-			// aapt resource value: 0x7f0d00eb
-			public const int lives = 2131558635;
+			// aapt resource value: 0x7f0d00ec
+			public const int lives = 2131558636;
 			
-			// aapt resource value: 0x7f0d00fe
-			public const int local_playlist_empty = 2131558654;
+			// aapt resource value: 0x7f0d00ff
+			public const int local_playlist_empty = 2131558655;
 			
-			// aapt resource value: 0x7f0d00fa
-			public const int local_playlists = 2131558650;
-			
-			// aapt resource value: 0x7f0d0143
-			public const int log_in = 2131558723;
+			// aapt resource value: 0x7f0d00fb
+			public const int local_playlists = 2131558651;
 			
 			// aapt resource value: 0x7f0d0144
-			public const int log_out = 2131558724;
+			public const int log_in = 2131558724;
 			
-			// aapt resource value: 0x7f0d0142
-			public const int logged_in = 2131558722;
+			// aapt resource value: 0x7f0d0145
+			public const int log_out = 2131558725;
 			
-			// aapt resource value: 0x7f0d0136
-			public const int max_download = 2131558710;
+			// aapt resource value: 0x7f0d0143
+			public const int logged_in = 2131558723;
 			
 			// aapt resource value: 0x7f0d0137
-			public const int max_download_dialog = 2131558711;
+			public const int max_download = 2131558711;
 			
-			// aapt resource value: 0x7f0d0122
-			public const int metadata = 2131558690;
+			// aapt resource value: 0x7f0d0138
+			public const int max_download_dialog = 2131558712;
 			
-			// aapt resource value: 0x7f0d011e
-			public const int metdata_error_noid = 2131558686;
+			// aapt resource value: 0x7f0d0123
+			public const int metadata = 2131558691;
+			
+			// aapt resource value: 0x7f0d011f
+			public const int metdata_error_noid = 2131558687;
 			
 			// aapt resource value: 0x7f0d00c0
 			public const int minute = 2131558592;
@@ -7702,8 +7708,8 @@ namespace Opus
 			// aapt resource value: 0x7f0d00c1
 			public const int minutes = 2131558593;
 			
-			// aapt resource value: 0x7f0d00e2
-			public const int more = 2131558626;
+			// aapt resource value: 0x7f0d00e3
+			public const int more = 2131558627;
 			
 			// aapt resource value: 0x7f0d0040
 			public const int mr_button_content_description = 2131558464;
@@ -7780,50 +7786,50 @@ namespace Opus
 			// aapt resource value: 0x7f0d0087
 			public const int mtrl_chip_close_icon_content_description = 2131558535;
 			
-			// aapt resource value: 0x7f0d0130
-			public const int music_genre = 2131558704;
+			// aapt resource value: 0x7f0d0131
+			public const int music_genre = 2131558705;
 			
-			// aapt resource value: 0x7f0d00e5
-			public const int music_genres = 2131558629;
+			// aapt resource value: 0x7f0d00e6
+			public const int music_genres = 2131558630;
 			
-			// aapt resource value: 0x7f0d0110
-			public const int new_playlist = 2131558672;
+			// aapt resource value: 0x7f0d0111
+			public const int new_playlist = 2131558673;
 			
 			// aapt resource value: 0x7f0d00bd
 			public const int next_loading = 2131558589;
 			
-			// aapt resource value: 0x7f0d012e
-			public const int no = 2131558702;
+			// aapt resource value: 0x7f0d012f
+			public const int no = 2131558703;
+			
+			// aapt resource value: 0x7f0d00f8
+			public const int no_channel = 2131558648;
 			
 			// aapt resource value: 0x7f0d00f7
-			public const int no_channel = 2131558647;
-			
-			// aapt resource value: 0x7f0d00f6
-			public const int no_lives = 2131558646;
-			
-			// aapt resource value: 0x7f0d0146
-			public const int no_permission = 2131558726;
-			
-			// aapt resource value: 0x7f0d00f5
-			public const int no_playlist = 2131558645;
-			
-			// aapt resource value: 0x7f0d00f3
-			public const int no_result = 2131558643;
-			
-			// aapt resource value: 0x7f0d00e9
-			public const int no_song = 2131558633;
+			public const int no_lives = 2131558647;
 			
 			// aapt resource value: 0x7f0d0147
-			public const int no_song_mix = 2131558727;
+			public const int no_permission = 2131558727;
+			
+			// aapt resource value: 0x7f0d00f6
+			public const int no_playlist = 2131558646;
 			
 			// aapt resource value: 0x7f0d00f4
-			public const int no_track = 2131558644;
+			public const int no_result = 2131558644;
 			
-			// aapt resource value: 0x7f0d0141
-			public const int not_log = 2131558721;
+			// aapt resource value: 0x7f0d00ea
+			public const int no_song = 2131558634;
 			
-			// aapt resource value: 0x7f0d014b
-			public const int not_streamable = 2131558731;
+			// aapt resource value: 0x7f0d0148
+			public const int no_song_mix = 2131558728;
+			
+			// aapt resource value: 0x7f0d00f5
+			public const int no_track = 2131558645;
+			
+			// aapt resource value: 0x7f0d0142
+			public const int not_log = 2131558722;
+			
+			// aapt resource value: 0x7f0d014c
+			public const int not_streamable = 2131558732;
 			
 			// aapt resource value: 0x7f0d00bc
 			public const int nothing = 2131558588;
@@ -7831,14 +7837,14 @@ namespace Opus
 			// aapt resource value: 0x7f0d00bf
 			public const int off = 2131558591;
 			
-			// aapt resource value: 0x7f0d012a
-			public const int ok = 2131558698;
+			// aapt resource value: 0x7f0d012b
+			public const int ok = 2131558699;
 			
 			// aapt resource value: 0x7f0d00c5
 			public const int open_youtube = 2131558597;
 			
-			// aapt resource value: 0x7f0d013e
-			public const int others = 2131558718;
+			// aapt resource value: 0x7f0d013f
+			public const int others = 2131558719;
 			
 			// aapt resource value: 0x7f0d0088
 			public const int password_toggle_content_description = 2131558536;
@@ -7858,89 +7864,92 @@ namespace Opus
 			// aapt resource value: 0x7f0d00c7
 			public const int paused = 2131558599;
 			
-			// aapt resource value: 0x7f0d0119
-			public const int pick_album_local = 2131558681;
-			
-			// aapt resource value: 0x7f0d00cc
-			public const int play = 2131558604;
-			
-			// aapt resource value: 0x7f0d00d6
-			public const int play_in_order = 2131558614;
-			
-			// aapt resource value: 0x7f0d00ce
-			public const int play_last = 2131558606;
+			// aapt resource value: 0x7f0d011a
+			public const int pick_album_local = 2131558682;
 			
 			// aapt resource value: 0x7f0d00cd
-			public const int play_next = 2131558605;
+			public const int play = 2131558605;
+			
+			// aapt resource value: 0x7f0d00d7
+			public const int play_in_order = 2131558615;
+			
+			// aapt resource value: 0x7f0d00cf
+			public const int play_last = 2131558607;
+			
+			// aapt resource value: 0x7f0d00ce
+			public const int play_next = 2131558606;
 			
 			// aapt resource value: 0x7f0d00c6
 			public const int playing = 2131558598;
 			
-			// aapt resource value: 0x7f0d0107
-			public const int playlist_add_song_not_found = 2131558663;
-			
-			// aapt resource value: 0x7f0d0105
-			public const int playlist_already_saved = 2131558661;
-			
-			// aapt resource value: 0x7f0d0102
-			public const int playlist_empty = 2131558658;
+			// aapt resource value: 0x7f0d0108
+			public const int playlist_add_song_not_found = 2131558664;
 			
 			// aapt resource value: 0x7f0d0106
-			public const int playlist_not_found = 2131558662;
+			public const int playlist_already_saved = 2131558662;
+			
+			// aapt resource value: 0x7f0d0103
+			public const int playlist_empty = 2131558659;
+			
+			// aapt resource value: 0x7f0d0107
+			public const int playlist_not_found = 2131558663;
 			
 			// aapt resource value: 0x7f0d00b4
 			public const int playlists = 2131558580;
 			
-			// aapt resource value: 0x7f0d00e3
-			public const int queue = 2131558627;
+			// aapt resource value: 0x7f0d00e4
+			public const int queue = 2131558628;
 			
-			// aapt resource value: 0x7f0d00d7
-			public const int random_play = 2131558615;
+			// aapt resource value: 0x7f0d00d8
+			public const int random_play = 2131558616;
 			
-			// aapt resource value: 0x7f0d00e6
-			public const int recommendation_explanation = 2131558630;
+			// aapt resource value: 0x7f0d00e7
+			public const int recommendation_explanation = 2131558631;
 			
-			// aapt resource value: 0x7f0d00f9
-			public const int remove = 2131558649;
-			
-			// aapt resource value: 0x7f0d0103
-			public const int remove_from_playlist = 2131558659;
-			
-			// aapt resource value: 0x7f0d00d3
-			public const int remove_from_queue = 2131558611;
-			
-			// aapt resource value: 0x7f0d00f8
-			public const int remove_search = 2131558648;
-			
-			// aapt resource value: 0x7f0d00d4
-			public const int remove_track_from_playlist = 2131558612;
+			// aapt resource value: 0x7f0d00fa
+			public const int remove = 2131558650;
 			
 			// aapt resource value: 0x7f0d0104
-			public const int removed_from_playlist = 2131558660;
+			public const int remove_from_playlist = 2131558660;
+			
+			// aapt resource value: 0x7f0d00d4
+			public const int remove_from_queue = 2131558612;
+			
+			// aapt resource value: 0x7f0d00f9
+			public const int remove_search = 2131558649;
+			
+			// aapt resource value: 0x7f0d00d5
+			public const int remove_track_from_playlist = 2131558613;
+			
+			// aapt resource value: 0x7f0d0105
+			public const int removed_from_playlist = 2131558661;
 			
 			// aapt resource value: 0x7f0d00c8
 			public const int removed_from_queue = 2131558600;
 			
-			// aapt resource value: 0x7f0d00d9
-			public const int rename = 2131558617;
+			// aapt resource value: 0x7f0d00da
+			public const int rename = 2131558618;
 			
-			// aapt resource value: 0x7f0d0109
-			public const int rename_playlist = 2131558665;
+			// aapt resource value: 0x7f0d010a
+			public const int rename_playlist = 2131558666;
 			
 			// aapt resource value: 0x7f0d00b5
 			public const int repeat = 2131558581;
 			
-			// aapt resource value: 0x7f0d010f
-			public const int save_folder_playlist = 2131558671;
+			// aapt resource value: 0x7f0d00c9
+			public const int save_as_playlist = 2131558601;
 			
-			// aapt resource value: 0x7f0d010e
-			public const int save_playlist = 2131558670;
+			// aapt resource value: 0x7f0d0110
+			public const int save_folder_playlist = 2131558672;
+			
+			// aapt resource value: 0x7f0d010f
+			public const int save_playlist = 2131558671;
 			
 			// aapt resource value: 0x7f0d0073
 			public const int search_menu_title = 2131558515;
 			
-			// aapt resource value: 0x7f0d00ef
-			public const int set_path = 2131558639;
+			// aapt resource value: 0x7f0d00f0
+			public const int set_path = 2131558640;
 			
 			// aapt resource value: 0x7f0d00b9
 			public const int settings = 2131558585;
@@ -7948,95 +7957,95 @@ namespace Opus
 			// aapt resource value: 0x7f0d00ba
 			public const int show_queue = 2131558586;
 			
-			// aapt resource value: 0x7f0d00e1
-			public const int shuffle = 2131558625;
+			// aapt resource value: 0x7f0d00e2
+			public const int shuffle = 2131558626;
 			
-			// aapt resource value: 0x7f0d00e0
-			public const int shuffle_all = 2131558624;
+			// aapt resource value: 0x7f0d00e1
+			public const int shuffle_all = 2131558625;
 			
 			// aapt resource value: 0x7f0d00be
 			public const int sleep_timer = 2131558590;
 			
-			// aapt resource value: 0x7f0d00e7
-			public const int songs = 2131558631;
+			// aapt resource value: 0x7f0d00e8
+			public const int songs = 2131558632;
 			
 			// aapt resource value: 0x7f0d008d
 			public const int status_bar_notification_info_overflow = 2131558541;
 			
-			// aapt resource value: 0x7f0d00dd
-			public const int stop_sync = 2131558621;
+			// aapt resource value: 0x7f0d00de
+			public const int stop_sync = 2131558622;
 			
-			// aapt resource value: 0x7f0d010a
-			public const int stop_syncing = 2131558666;
+			// aapt resource value: 0x7f0d010b
+			public const int stop_syncing = 2131558667;
 			
 			// aapt resource value: 0x7f0d003d
 			public const int summary_collapsed_preference_list = 2131558461;
 			
-			// aapt resource value: 0x7f0d00db
-			public const int sync = 2131558619;
-			
 			// aapt resource value: 0x7f0d00dc
-			public const int sync_now = 2131558620;
+			public const int sync = 2131558620;
 			
-			// aapt resource value: 0x7f0d0138
-			public const int sync_remove = 2131558712;
+			// aapt resource value: 0x7f0d00dd
+			public const int sync_now = 2131558621;
 			
-			// aapt resource value: 0x7f0d00f1
-			public const int syncing = 2131558641;
+			// aapt resource value: 0x7f0d0139
+			public const int sync_remove = 2131558713;
 			
-			// aapt resource value: 0x7f0d0155
-			public const int tap_details = 2131558741;
+			// aapt resource value: 0x7f0d00f2
+			public const int syncing = 2131558642;
 			
-			// aapt resource value: 0x7f0d013a
-			public const int theme = 2131558714;
+			// aapt resource value: 0x7f0d0156
+			public const int tap_details = 2131558742;
 			
 			// aapt resource value: 0x7f0d013b
-			public const int theme_dialog = 2131558715;
+			public const int theme = 2131558715;
+			
+			// aapt resource value: 0x7f0d013c
+			public const int theme_dialog = 2131558716;
 			
 			// aapt resource value: 0x7f0d00c4
 			public const int timer = 2131558596;
 			
-			// aapt resource value: 0x7f0d0149
-			public const int timout = 2131558729;
-			
-			// aapt resource value: 0x7f0d0114
-			public const int title = 2131558676;
-			
-			// aapt resource value: 0x7f0d0145
-			public const int undo = 2131558725;
-			
-			// aapt resource value: 0x7f0d011c
-			public const int undo_change = 2131558684;
-			
-			// aapt resource value: 0x7f0d00df
-			public const int unfork = 2131558623;
-			
-			// aapt resource value: 0x7f0d010b
-			public const int unfork_playlist = 2131558667;
-			
 			// aapt resource value: 0x7f0d014a
-			public const int unknow = 2131558730;
+			public const int timout = 2131558730;
+			
+			// aapt resource value: 0x7f0d0115
+			public const int title = 2131558677;
+			
+			// aapt resource value: 0x7f0d0146
+			public const int undo = 2131558726;
+			
+			// aapt resource value: 0x7f0d011d
+			public const int undo_change = 2131558685;
+			
+			// aapt resource value: 0x7f0d00e0
+			public const int unfork = 2131558624;
+			
+			// aapt resource value: 0x7f0d010c
+			public const int unfork_playlist = 2131558668;
+			
+			// aapt resource value: 0x7f0d014b
+			public const int unknow = 2131558731;
 			
 			// aapt resource value: 0x7f0d00bb
 			public const int up_next = 2131558587;
 			
-			// aapt resource value: 0x7f0d014f
-			public const int up_to_date = 2131558735;
+			// aapt resource value: 0x7f0d0150
+			public const int up_to_date = 2131558736;
 			
-			// aapt resource value: 0x7f0d0124
-			public const int up_to_date_status = 2131558692;
-			
-			// aapt resource value: 0x7f0d014d
-			public const int update = 2131558733;
+			// aapt resource value: 0x7f0d0125
+			public const int up_to_date_status = 2131558693;
 			
 			// aapt resource value: 0x7f0d014e
-			public const int update_message = 2131558734;
+			public const int update = 2131558734;
 			
-			// aapt resource value: 0x7f0d014c
-			public const int update_no_internet = 2131558732;
+			// aapt resource value: 0x7f0d014f
+			public const int update_message = 2131558735;
 			
-			// aapt resource value: 0x7f0d0152
-			public const int updating = 2131558738;
+			// aapt resource value: 0x7f0d014d
+			public const int update_no_internet = 2131558733;
+			
+			// aapt resource value: 0x7f0d0153
+			public const int updating = 2131558739;
 			
 			// aapt resource value: 0x7f0d003e
 			public const int v7_preference_off = 2131558462;
@@ -8044,35 +8053,35 @@ namespace Opus
 			// aapt resource value: 0x7f0d003f
 			public const int v7_preference_on = 2131558463;
 			
-			// aapt resource value: 0x7f0d0140
-			public const int version = 2131558720;
+			// aapt resource value: 0x7f0d0141
+			public const int version = 2131558721;
 			
-			// aapt resource value: 0x7f0d0134
-			public const int volume = 2131558708;
+			// aapt resource value: 0x7f0d0135
+			public const int volume = 2131558709;
 			
-			// aapt resource value: 0x7f0d013c
-			public const int white_theme = 2131558716;
+			// aapt resource value: 0x7f0d013d
+			public const int white_theme = 2131558717;
 			
-			// aapt resource value: 0x7f0d012d
-			public const int yes = 2131558701;
+			// aapt resource value: 0x7f0d012e
+			public const int yes = 2131558702;
 			
-			// aapt resource value: 0x7f0d0148
-			public const int youtube_endpoint = 2131558728;
+			// aapt resource value: 0x7f0d0149
+			public const int youtube_endpoint = 2131558729;
 			
-			// aapt resource value: 0x7f0d00fd
-			public const int youtube_loading_error = 2131558653;
+			// aapt resource value: 0x7f0d00fe
+			public const int youtube_loading_error = 2131558654;
 			
-			// aapt resource value: 0x7f0d00ff
-			public const int youtube_playlist_empty = 2131558655;
+			// aapt resource value: 0x7f0d0100
+			public const int youtube_playlist_empty = 2131558656;
 			
-			// aapt resource value: 0x7f0d00fb
-			public const int youtube_playlists = 2131558651;
+			// aapt resource value: 0x7f0d00fc
+			public const int youtube_playlists = 2131558652;
 			
 			// aapt resource value: 0x7f0d00b6
 			public const int youtube_search = 2131558582;
 			
-			// aapt resource value: 0x7f0d0117
-			public const int youtubeid = 2131558679;
+			// aapt resource value: 0x7f0d0118
+			public const int youtubeid = 2131558680;
 			
 			static String()
 			{

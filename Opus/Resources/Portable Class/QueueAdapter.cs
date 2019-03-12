@@ -12,6 +12,7 @@ using Opus.Resources.values;
 using Square.Picasso;
 using System;
 using System.Collections.Generic;
+using PopupMenu = Android.Support.V7.Widget.PopupMenu;
 
 namespace Opus.Resources.Portable_Class
 {
@@ -62,6 +63,16 @@ namespace Opus.Resources.Portable_Class
                             MusicPlayer.useAutoPlay = true;
                             NotifyItemChanged(ItemCount - 1, "UseAutoplay");
                         }
+                    };
+                }
+                if (!holder.More.HasOnClickListeners)
+                {
+                    holder.More.Click += (sender, e) =>
+                    {
+                        PopupMenu menu = new PopupMenu(MainActivity.instance, holder.More);
+                        menu.Inflate(Resource.Menu.queue_more);
+                        menu.SetOnMenuItemClickListener(Queue.instance);
+                        menu.Show();
                     };
                 }
                 return;

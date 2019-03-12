@@ -350,15 +350,13 @@ namespace Opus.Resources.Portable_Class
                 else if (YoutubeID != null && YoutubeID != "")
                 {
                     Activity.FindViewById<TextView>(Resource.Id.headerAuthor).Text = author;
-                    Activity.FindViewById<TextView>(Resource.Id.headerNumber).Text = count.ToString() + " songs";
+                    Activity.FindViewById<TextView>(Resource.Id.headerNumber).Text = count.ToString() + " " + GetString(Resource.String.songs);
                     if (count == -1)
-                        Activity.FindViewById<TextView>(Resource.Id.headerNumber).Text = "NaN songs";
+                        Activity.FindViewById<TextView>(Resource.Id.headerNumber).Text = "NaN" + " " + GetString(Resource.String.songs);
 
                     Picasso.With(Android.App.Application.Context).Load(thumnailURI).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(Activity.FindViewById<ImageView>(Resource.Id.headerArt));
                 }
                 Activity.FindViewById(Resource.Id.collapsingToolbar).RequestLayout();
-                System.Console.WriteLine("&Height: " + Activity.FindViewById(Resource.Id.playlistHeader).Height);
-                System.Console.WriteLine("&Image Height: " + Activity.FindViewById(Resource.Id.headerArt).Height);
             }
         }
 

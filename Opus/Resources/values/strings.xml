@@ -30,6 +30,7 @@
   <string name="playing">Playing</string>
   <string name="paused">Paused</string>
   <string name="removed_from_queue"> has been removed from the queue.</string>
+  <string name="save_as_playlist">Save queue as playlist</string>
   
   <!--Autoplay-->
   <string name="autoplay">Autoplay</string>

@@ -602,6 +602,14 @@ namespace Opus.Resources.Portable_Class
             Downloader.instance.StartDownload();
         }
 
+        public static void DownloadFiles(Song[] items, string playlist)
+        {
+            string[] names = items.ToList().ConvertAll(x => x.Title).ToArray();
+            string[] videoIDs = items.ToList().ConvertAll(x => x.YoutubeID).ToArray();
+
+            DownloadFiles(names, videoIDs, playlist);
+        }
+
         public static async void DownloadFiles(string[] names, string[] videoIDs, string playlist)
         {
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Android.App.Application.Context);
@@ -626,7 +634,8 @@ namespace Opus.Resources.Portable_Class
             List<DownloadFile> files = new List<DownloadFile>();
             for (int i = 0; i < names.Length; i++)
             {
-                files.Add(new DownloadFile(names[i], videoIDs[i], playlist));
+                if(videoIDs[i] != null && videoIDs[i] != "")
+                    files.Add(new DownloadFile(names[i], videoIDs[i], playlist));
             }
 
             Downloader.instance.downloadPath = prefManager.GetString("downloadPath", Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryMusic).ToString());
@@ -728,14 +737,14 @@ namespace Opus.Resources.Portable_Class
             }
         }
 
-        public async static void AddToPlaylist(Song item, string YoutubeID)
+        public async static void AddToPlaylist(Song item, string PlaylistYtID)
         {
             try
             {
                 Google.Apis.YouTube.v3.Data.PlaylistItem playlistItem = new Google.Apis.YouTube.v3.Data.PlaylistItem();
                 PlaylistItemSnippet snippet = new PlaylistItemSnippet
                 {
-                    PlaylistId = YoutubeID
+                    PlaylistId = PlaylistYtID
                 };
                 ResourceId resourceId = new ResourceId
                 {
@@ -752,24 +761,39 @@ namespace Opus.Resources.Portable_Class
             {
                 MainActivity.instance.Timout();
             }
+        }
 
-            ////Check if this playlist is synced, if it his, add the song to the local playlist
-            //if (SyncBehave)
-            //{
-            //    PlaylistItem SyncedPlaylist = null;
-            //    await Task.Run(() =>
-            //    {
-            //        SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "SyncedPlaylists.sqlite"));
-            //        db.CreateTable<PlaylistItem>();
+        public async static void AddToPlaylist(Song[] items, string PlaylistYtID)
+        {
+            Google.Apis.YouTube.v3.Data.PlaylistItem playlistItem = new Google.Apis.YouTube.v3.Data.PlaylistItem();
+            PlaylistItemSnippet snippet = new PlaylistItemSnippet
+            {
+                PlaylistId = PlaylistYtID
+            };
 
-            //        SyncedPlaylist = db.Table<PlaylistItem>().ToList().Find(x => x.YoutubeID == YoutubeID);
-            //    });
+            foreach(Song item in items)
+            {
+                if(item != null && item.IsYt)
+                {
+                    try
+                    {
+                        ResourceId resourceId = new ResourceId
+                        {
+                            Kind = "youtube#video",
+                            VideoId = item.YoutubeID
+                        };
+                        snippet.ResourceId = resourceId;
+                        playlistItem.Snippet = snippet;
 
-            //    if (SyncedPlaylist != null)
-            //    {
-            //        Download(item.Title, item.youtubeID, playlistName);
-            //    }
-            //}
+                        var insertRequest = youtubeService.PlaylistItems.Insert(playlistItem, "snippet");
+                        await insertRequest.ExecuteAsync();
+                    }
+                    catch (System.Net.Http.HttpRequestException)
+                    {
+                        MainActivity.instance.Timout();
+                    }
+                }
+            }
         }
 
         public async static void CreatePlaylist(string playlistName, Song item)
@@ -787,6 +811,28 @@ namespace Opus.Resources.Portable_Class
                 Google.Apis.YouTube.v3.Data.Playlist response = await createRequest.ExecuteAsync();
 
                 AddToPlaylist(item, response.Id);
+            }
+            catch (System.Net.Http.HttpRequestException)
+            {
+                MainActivity.instance.Timout();
+            }
+        }
+
+        public async static void CreatePlaylist(string playlistName, Song[] items)
+        {
+            try
+            {
+                Google.Apis.YouTube.v3.Data.Playlist playlist = new Google.Apis.YouTube.v3.Data.Playlist();
+                PlaylistSnippet snippet = new PlaylistSnippet();
+                PlaylistStatus status = new PlaylistStatus();
+                snippet.Title = playlistName;
+                playlist.Snippet = snippet;
+                playlist.Status = status;
+
+                var createRequest = youtubeService.Playlists.Insert(playlist, "snippet, status");
+                Google.Apis.YouTube.v3.Data.Playlist response = await createRequest.ExecuteAsync();
+
+                AddToPlaylist(items, response.Id);
             }
             catch (System.Net.Http.HttpRequestException)
             {
@@ -1021,13 +1067,13 @@ namespace Opus.Resources.Portable_Class
                 nextPageToken = ytPlaylist.NextPageToken;
             }
 
-            DownloadFiles(names.ToArray(), videoIDs.ToArray(), playlist);
+            if(names.Count > 0)
+                DownloadFiles(names.ToArray(), videoIDs.ToArray(), playlist);
         }
 
         public override void OnSaveInstanceState(Bundle outState)
         {
             outState.PutString("Query", Query);
-            Console.WriteLine("&Youtube engine state saved - query = " + Query);
             base.OnSaveInstanceState(outState);
         }
     }

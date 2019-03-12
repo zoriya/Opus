@@ -354,7 +354,7 @@ namespace Opus.Resources.Portable_Class
             List<PlaylistItem> SyncedPlaylists = new List<PlaylistItem>();
             await Task.Run(() =>
             {
-                SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "SyncedPlaylists.sqlite"));
+                SQLiteConnection db = new SQLiteConnection(Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "SyncedPlaylists.sqlite"));
                 db.CreateTable<PlaylistItem>();
 
                 SyncedPlaylists = db.Table<PlaylistItem>().ToList();
@@ -556,6 +556,38 @@ namespace Opus.Resources.Portable_Class
             }
         }
 
+        public async static void AddToPlaylist(Song[] items, string playList, long LocalID, bool saveAsSynced = false)
+        {
+            if (LocalID == -1)
+            {
+                LocalID = GetPlaylistID(playList);
+                if (LocalID == -1)
+                    CreatePlaylist(playList, items, saveAsSynced);
+                else
+                    AddToPlaylist(items, playList, LocalID);
+            }
+            else
+            {
+                await CheckWritePermission();
+
+                ContentResolver resolver = MainActivity.instance.ContentResolver;
+                List<ContentValues> values = new List<ContentValues>();
+
+                foreach (Song item in items)
+                {
+                    if(item != null && item.Id != 0 && item.Id != -1)
+                    {
+                        ContentValues value = new ContentValues();
+                        value.Put(MediaStore.Audio.Playlists.Members.AudioId, item.Id);
+                        value.Put(MediaStore.Audio.Playlists.Members.PlayOrder, 0);
+                        values.Add(value);
+                    }
+                }
+                
+                resolver.BulkInsert(MediaStore.Audio.Playlists.Members.GetContentUri("external", LocalID), values.ToArray());
+            }
+        }
+
         public static void CreatePlalistDialog(Song item)
         {
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme);
@@ -582,6 +614,38 @@ namespace Opus.Resources.Portable_Class
                     case 2:
                         CreatePlaylist(view.FindViewById<EditText>(Resource.Id.playlistName).Text, item, true);
                         YoutubeEngine.CreatePlaylist(view.FindViewById<EditText>(Resource.Id.playlistName).Text, item);
+                        break;
+                }
+            });
+            builder.Show();
+        }
+
+        public static void CreatePlalistDialog(Song[] songs)
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme);
+            builder.SetTitle(Resource.String.new_playlist);
+            View view = MainActivity.instance.LayoutInflater.Inflate(Resource.Layout.CreatePlaylistDialog, null);
+            builder.SetView(view);
+            PlaylistLocationAdapter adapter = new PlaylistLocationAdapter(MainActivity.instance, Android.Resource.Layout.SimpleSpinnerItem, new string[] { MainActivity.instance.GetString(Resource.String.create_local), MainActivity.instance.GetString(Resource.String.create_youtube), MainActivity.instance.GetString(Resource.String.create_synced) })
+            {
+                YoutubeWorkflow = true
+            };
+            adapter.SetDropDownViewResource(Android.Resource.Layout.SimpleSpinnerDropDownItem);
+            view.FindViewById<Spinner>(Resource.Id.playlistLocation).Adapter = adapter;
+            builder.SetNegativeButton(Resource.String.cancel, (senderAlert, args) => { });
+            builder.SetPositiveButton(Resource.String.ok, (senderAlert, args) =>
+            {
+                switch (view.FindViewById<Spinner>(Resource.Id.playlistLocation).SelectedItemPosition)
+                {
+                    case 0:
+                        CreatePlaylist(view.FindViewById<EditText>(Resource.Id.playlistName).Text, songs);
+                        break;
+                    case 1:
+                        YoutubeEngine.CreatePlaylist(view.FindViewById<EditText>(Resource.Id.playlistName).Text, songs);
+                        break;
+                    case 2:
+                        CreatePlaylist(view.FindViewById<EditText>(Resource.Id.playlistName).Text, songs, true);
+                        YoutubeEngine.CreatePlaylist(view.FindViewById<EditText>(Resource.Id.playlistName).Text, songs);
                         break;
                 }
             });
@@ -619,10 +683,61 @@ namespace Opus.Resources.Portable_Class
                 cursor.Close();
             }
 
-            if (item.Id == 0 || item.Id == -1)
-                YoutubeEngine.Download(item.Title, item.YoutubeID, name);
-            else
-                AddToPlaylist(item, name, playlistID);
+            if(item != null)
+            {
+                if (item.Id == 0 || item.Id == -1)
+                    YoutubeEngine.Download(item.Title, item.YoutubeID, name);
+                else
+                    AddToPlaylist(item, name, playlistID);
+            }
+
+            if (syncedPlaylist)
+            {
+                await Task.Run(() =>
+                {
+                    SQLiteConnection db = new SQLiteConnection(Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "SyncedPlaylists.sqlite"));
+                    db.CreateTable<PlaylistItem>();
+                    db.InsertOrReplace(new PlaylistItem(name, playlistID, null));
+                });
+            }
+        }
+
+        public async static void CreatePlaylist(string name, Song[] items, bool syncedPlaylist = false)
+        {
+            await CheckWritePermission();
+
+            ContentResolver resolver = MainActivity.instance.ContentResolver;
+            Uri uri = MediaStore.Audio.Playlists.ExternalContentUri;
+            ContentValues value = new ContentValues();
+            value.Put(MediaStore.Audio.Playlists.InterfaceConsts.Name, name);
+            resolver.Insert(uri, value);
+
+            long playlistID = 0;
+
+            CursorLoader loader = new CursorLoader(Android.App.Application.Context, uri, null, null, null, null);
+            ICursor cursor = (ICursor)loader.LoadInBackground();
+
+            if (cursor != null && cursor.MoveToFirst())
+            {
+                int nameID = cursor.GetColumnIndex(MediaStore.Audio.Playlists.InterfaceConsts.Name);
+                int getplaylistID = cursor.GetColumnIndex(MediaStore.Audio.Playlists.InterfaceConsts.Id);
+                do
+                {
+                    string playlistName = cursor.GetString(nameID);
+                    long id = cursor.GetLong(getplaylistID);
+
+                    if (playlistName == name)
+                        playlistID = id;
+                }
+                while (cursor.MoveToNext());
+                cursor.Close();
+            }
+
+            if (items != null && items.Length > 0) 
+            {
+                AddToPlaylist(items, name, playlistID); //Will only add files already downloaded
+                YoutubeEngine.DownloadFiles(items, name); //Will download missing files and add them
+            }
 
             if (syncedPlaylist)
             {
