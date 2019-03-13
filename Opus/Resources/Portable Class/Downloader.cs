@@ -211,48 +211,17 @@ namespace Opus.Resources.Portable_Class
                 meta.Tag.Performers = new string[] { artist };
                 meta.Tag.Album = title + " - " + artist;
                 meta.Tag.Comment = youtubeID;
-
-                for (int i = 0; i < 3; i++)
+                IPicture[] pictures = new IPicture[1];
+                Bitmap bitmap = Picasso.With(Application.Context).Load(await MainActivity.GetBestThumb(thumbnails)).Transform(new RemoveBlackBorder(true)).Get();
+                byte[] data;
+                using (var MemoryStream = new MemoryStream())
                 {
-                    bool? canContinue = false;
-                    WebClient webClient = new WebClient();
-                    webClient.DownloadDataCompleted += (sender, e) =>
-                    {
-                        System.Console.WriteLine("&Error with thumb " + i + ": " + e.Error);
-                        if (e.Error == null)
-                        {
-                            IPicture[] pictures = new IPicture[1];
-                            Bitmap bitmap = Picasso.With(Application.Context).Load(thumbnails[i]).Transform(new RemoveBlackBorder(true)).Get();
-                            byte[] data;
-                            using (var MemoryStream = new MemoryStream())
-                            {
-                                bitmap.Compress(Bitmap.CompressFormat.Png, 0, MemoryStream);
-                                data = MemoryStream.ToArray();
-                            }
-                            bitmap.Recycle();
-                            pictures[0] = new Picture(data);
-                            meta.Tag.Pictures = pictures;
-                            canContinue = null;
-                        }
-                        else
-                            canContinue = true;
-                    };
-                    try
-                    {
-                        await webClient.DownloadDataTaskAsync(new System.Uri(thumbnails[i]));
-                    }
-                    catch { } //catch 404 errors
-
-                    while (canContinue == false)
-                        await Task.Delay(10);
-
-                    if (canContinue == null)
-                    {
-                        meta.Save();
-                        stream.Dispose();
-                        return;
-                    }
+                    bitmap.Compress(Bitmap.CompressFormat.Png, 0, MemoryStream);
+                    data = MemoryStream.ToArray();
                 }
+                bitmap.Recycle();
+                pictures[0] = new Picture(data);
+                meta.Tag.Pictures = pictures;
 
                 meta.Save();
                 stream.Dispose();

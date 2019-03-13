@@ -285,7 +285,6 @@ namespace Opus.Resources.Portable_Class
             intent.PutExtra("file", item.Path);
             context.StartService(intent);
 
-            MainActivity.instance.ShowSmallPlayer();
             MainActivity.instance.ShowPlayer();
             MusicPlayer.UpdateQueueDataBase();
         }

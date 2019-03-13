@@ -49,7 +49,6 @@ namespace Opus
         {
             instance = this;
             View view = inflater.Inflate(Resource.Layout.player, container, false);
-            Console.WriteLine("&Play button: " + view.FindViewById<ImageButton>(Resource.Id.playButton));
             if (!view.FindViewById<ImageButton>(Resource.Id.playButton).HasOnClickListeners)
             {
                 view.FindViewById<ImageButton>(Resource.Id.downButton).Click += Down_Click;
@@ -67,6 +66,16 @@ namespace Opus
             {
                 if (!MusicPlayer.isLiveStream)
                     timer.Text = string.Format("{0} | {1}", DurationToTimer(e.Progress), DurationToTimer((int)MusicPlayer.Duration));
+            };
+            bar.StartTrackingTouch += (sender, e) =>
+            {
+                MusicPlayer.autoUpdateSeekBar = false;
+            };
+            bar.StopTrackingTouch += async (sender, e) =>
+            {
+                MusicPlayer.autoUpdateSeekBar = true;
+                if (!(await MusicPlayer.GetItem()).IsLiveStream)
+                    MusicPlayer.SeekTo(e.SeekBar.Progress);
             };
 
             DrawerLayout = view.FindViewById<DrawerLayout>(Resource.Id.queueDrawer);
@@ -91,7 +100,7 @@ namespace Opus
 
             Song current = await MusicPlayer.GetItem();
 
-            if (current.IsYt && current.Album == null)
+            if (current == null || (current.IsYt && current.Album == null))
                 return;
 
             FrameLayout smallPlayer = MainActivity.instance.FindViewById<FrameLayout>(Resource.Id.smallPlayer);
@@ -196,6 +205,9 @@ namespace Opus
                 while (MusicPlayer.Duration < 2)
                     await Task.Delay(100);
 
+                if(spBar == null)
+                    spBar = Activity.FindViewById<ProgressBar>(Resource.Id.spProgress);
+
                 if (current.IsLiveStream)
                 {
                     bar.Max = 1;
@@ -206,8 +218,8 @@ namespace Opus
                 }
                 else
                 {
+                    Console.WriteLine("&Bar: " + bar + " timer: " + timer + " spBar: " + spBar);
                     bar.Max = (int)MusicPlayer.Duration;
-                    MusicPlayer.SetSeekBar(bar);
                     timer.Text = string.Format("{0} | {1}", DurationToTimer((int)MusicPlayer.CurrentPosition), DurationToTimer((int)MusicPlayer.Duration));
                     spBar.Max = (int)MusicPlayer.Duration;
                     spBar.Progress = (int)MusicPlayer.CurrentPosition;
@@ -287,7 +299,7 @@ namespace Opus
                 timer.Text = string.Format("{0} | {1}", DurationToTimer((int)MusicPlayer.CurrentPosition), DurationToTimer((int)MusicPlayer.Duration));
             }
             spBar.Progress = (int)MusicPlayer.CurrentPosition;
-            handler.PostDelayed(UpdateSeekBar, 1000);
+            handler.PostDelayed(UpdateSeekBar, 100);
         }
 
         private string DurationToTimer(int duration)

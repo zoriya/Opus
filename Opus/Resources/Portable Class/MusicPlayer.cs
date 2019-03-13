@@ -1052,45 +1052,12 @@ namespace Opus.Resources.Portable_Class
             return currentID;
         }
 
-        public static void SetSeekBar(SeekBar bar)
+        public static void SeekTo(long positionMS)
         {
             if (!UseCastPlayer)
-            {
-                bar.Max = (int)player.Duration;
-                bar.Progress = (int)player.CurrentPosition;
-                bar.ProgressChanged += (sender, e) =>
-                {
-                    int Progress = e.Progress;
-
-                    if (player != null && player.Duration - Progress <= 1500 && player.Duration - Progress > 0)
-                        ParseNextSong();
-                };
-                bar.StartTrackingTouch += (sender, e) =>
-                {
-                    autoUpdateSeekBar = false;
-                };
-                bar.StopTrackingTouch += (sender, e) =>
-                {
-                    autoUpdateSeekBar = true;
-                    if (!queue[CurrentID()].IsLiveStream)
-                        player.SeekTo(e.SeekBar.Progress);
-                };
-            }
+                player.SeekTo(positionMS);
             else
-            {
-                bar.Max = (int)RemotePlayer.StreamDuration;
-                bar.Progress = (int)RemotePlayer.ApproximateStreamPosition;
-                bar.StartTrackingTouch += (sender, e) =>
-                {
-                    autoUpdateSeekBar = false;
-                };
-                bar.StopTrackingTouch += (sender, e) =>
-                {
-                    autoUpdateSeekBar = true;
-                    if (!queue[CurrentID()].IsLiveStream)
-                        RemotePlayer.Seek(e.SeekBar.Progress);
-                };
-            }
+                RemotePlayer.Seek(positionMS);
         }
 
         void AddSongToDataBase(Song item)

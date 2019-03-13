@@ -533,10 +533,56 @@ namespace Opus.Resources.Portable_Class
                 }),
                 new BottomSheetAction(Resource.Drawable.Delete, Resources.GetString(Resource.String.delete), (sender, eventArg) =>
                 {
-                    if (local)
-                        RemovePlaylist(Position, item.LocalID);
+                    if(item.SyncState == SyncState.True || item.SyncState == SyncState.Loading)
+                    {
+                        AlertDialog dialog = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme)
+                            .SetTitle(GetString(Resource.String.delete_playlist, item.Name))
+                            .SetPositiveButton(Resource.String.yes, async (s, e) =>
+                            {
+                                try
+                                {
+                                    PlaylistsResource.DeleteRequest deleteRequest = YoutubeEngine.youtubeService.Playlists.Delete(item.YoutubeID);
+                                    await deleteRequest.ExecuteAsync();
+
+                                    YoutubePlaylists.RemoveAt(Position - LocalPlaylists.Count);
+                                    adapter.NotifyItemRemoved(Position);
+
+                                    if (YoutubePlaylists.Count == 1)
+                                    {
+                                        YoutubePlaylists.Add(new PlaylistItem("EMPTY", null) { Owner = Resources.GetString(Resource.String.youtube_playlist_empty) });
+                                        adapter.NotifyItemInserted(LocalPlaylists.Count + YoutubePlaylists.Count);
+                                    }
+                                }
+                                catch (System.Net.Http.HttpRequestException)
+                                {
+                                    MainActivity.instance.Timout();
+                                    return;
+                                }
+
+                                await Task.Run(() =>
+                                {
+                                    SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "SyncedPlaylists.sqlite"));
+                                    db.CreateTable<PlaylistItem>();
+
+                                    db.Delete(db.Table<PlaylistItem>().ToList().Find(x => x.LocalID == item.LocalID));
+                                });
+
+                                ContentResolver resolver = Activity.ContentResolver;
+                                Android.Net.Uri uri = Playlists.ExternalContentUri;
+                                resolver.Delete(Playlists.ExternalContentUri, Playlists.InterfaceConsts.Id + "=?", new string[] { item.LocalID.ToString() });
+                            })
+                            .SetNegativeButton(Resource.String.no, (s, e) => { })
+                            .Create();
+                        dialog.Show();
+                    }
                     else
-                        DeleteYoutubePlaylist(Position, item.YoutubeID);
+                    {
+                        if (local)
+                            RemovePlaylist(Position, item.LocalID);
+                        else
+                            DeleteYoutubePlaylist(Position, item.YoutubeID);
+                    }
+                    
                     bottomSheet.Dismiss();
                 })});
             }
@@ -624,8 +670,7 @@ namespace Opus.Resources.Portable_Class
                 while (MusicPlayer.instance == null)
                     await Task.Delay(10);
 
-                foreach (Song song in songs)
-                    MusicPlayer.instance.AddToQueue(song);
+                MusicPlayer.instance.AddToQueue(songs.ToArray());
             }
         }
 
@@ -986,9 +1031,6 @@ namespace Opus.Resources.Portable_Class
 
                         YoutubePlaylists.RemoveAt(position - LocalPlaylists.Count);
                         adapter.NotifyItemRemoved(position);
-
-                        foreach (PlaylistItem item in YoutubePlaylists)
-                            System.Console.WriteLine(item.Name);
 
                         if (YoutubePlaylists.Count == 1)
                         {

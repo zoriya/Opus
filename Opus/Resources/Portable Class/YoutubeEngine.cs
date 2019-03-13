@@ -613,7 +613,8 @@ namespace Opus.Resources.Portable_Class
         public static async void DownloadFiles(string[] names, string[] videoIDs, string playlist)
         {
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Android.App.Application.Context);
-            if (prefManager.GetString("downloadPath", null) == null)
+            string downloadPath = prefManager.GetString("downloadPath", null);
+            if (downloadPath == null)
             {
                 Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), Resource.String.download_path_not_set, Snackbar.LengthLong).SetAction(Resource.String.set_path, (v) =>
                 {
@@ -622,6 +623,12 @@ namespace Opus.Resources.Portable_Class
                 });
                 snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
                 snackBar.Show();
+
+                ISharedPreferencesEditor editor = prefManager.Edit();
+                editor.PutString("downloadPath", Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryMusic).ToString());
+                editor.Commit();
+
+                downloadPath = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryMusic).ToString();
             }
 
             Context context = Android.App.Application.Context;
@@ -638,7 +645,7 @@ namespace Opus.Resources.Portable_Class
                     files.Add(new DownloadFile(names[i], videoIDs[i], playlist));
             }
 
-            Downloader.instance.downloadPath = prefManager.GetString("downloadPath", Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryMusic).ToString());
+            Downloader.instance.downloadPath = downloadPath;
             Downloader.instance.maxDownload = prefManager.GetInt("maxDownload", 4);
             Downloader.queue.AddRange(files);
 

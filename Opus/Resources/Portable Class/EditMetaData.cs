@@ -2,6 +2,7 @@
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
+using Android.Graphics;
 using Android.OS;
 using Android.Preferences;
 using Android.Provider;
@@ -19,6 +20,7 @@ using System.Threading.Tasks;
 using TagLib;
 using YoutubeExplode;
 using YoutubeExplode.Models;
+using Picture = TagLib.Picture;
 
 namespace Opus.Resources.Portable_Class
 {
@@ -31,6 +33,7 @@ namespace Opus.Resources.Portable_Class
         private TextView title, artist, album, youtubeID;
         private ImageView albumArt;
         private Android.Net.Uri artURI;
+        private string ytThumbUri;
         private bool tempFile = false;
         private bool hasPermission = false;
         private const int RequestCode = 8539;
@@ -81,18 +84,10 @@ namespace Opus.Resources.Portable_Class
             youtubeID.Text = song.YoutubeID;
             albumArt.Click += AlbumArt_Click;
 
-            if (song.AlbumArt == -1 || song.IsYt)
-            {
-                var songAlbumArtUri = Android.Net.Uri.Parse(song.Album);
-                Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(albumArt);
-            }
-            else
-            {
-                var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
-                var songAlbumArtUri = ContentUris.WithAppendedId(songCover, song.AlbumArt);
+            var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
+            var songAlbumArtUri = ContentUris.WithAppendedId(songCover, song.AlbumArt);
 
-                Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(albumArt);
-            }
+            Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Into(albumArt);
         }
 
         private void AlbumArt_Click(object sender, System.EventArgs e)
@@ -198,11 +193,30 @@ namespace Opus.Resources.Portable_Class
             meta.Tag.Album = album.Text;
             meta.Tag.Comment = youtubeID.Text;
 
-            if (artURI != null)
+            if (ytThumbUri != null)
+            {
+                await Task.Run(() => 
+                { 
+                    IPicture[] pictures = new IPicture[1];
+                    Bitmap bitmap = Picasso.With(Application.Context).Load(ytThumbUri).Transform(new RemoveBlackBorder(true)).Get();
+                    byte[] data;
+                    using (var MemoryStream = new MemoryStream())
+                    {
+                        bitmap.Compress(Bitmap.CompressFormat.Png, 0, MemoryStream);
+                        data = MemoryStream.ToArray();
+                    }
+                    bitmap.Recycle();
+                    pictures[0] = new Picture(data);
+                    meta.Tag.Pictures = pictures;
+
+                    ytThumbUri = null;
+                });
+            }
+            else if (artURI != null)
             {
                 IPicture[] pictures = new IPicture[1];
 
-                Android.Graphics.Bitmap bitmap = null;
+                Bitmap bitmap = null;
                 if (tempFile)
                 {
                     await Task.Run(() => 
@@ -219,7 +233,7 @@ namespace Opus.Resources.Portable_Class
                 }
 
                 MemoryStream memoryStream = new MemoryStream();
-                bitmap.Compress(Android.Graphics.Bitmap.CompressFormat.Jpeg, 100, memoryStream);
+                bitmap.Compress(Bitmap.CompressFormat.Jpeg, 100, memoryStream);
                 byte[] data = memoryStream.ToArray();
                 pictures[0] = new Picture(data);
                 meta.Tag.Pictures = pictures;
@@ -288,48 +302,8 @@ namespace Opus.Resources.Portable_Class
                 album.Text = video.Title + " - " + video.Author;
             }
 
-            string[] thumbnails = new string[] { video.Thumbnails.MaxResUrl, video.Thumbnails.StandardResUrl, video.Thumbnails.HighResUrl };
-
-            for (int i = 0; i < 3; i++)
-            {
-                ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(this);
-                string tempArt = Path.Combine(prefManager.GetString("downloadPath", Environment.GetExternalStoragePublicDirectory(Environment.DirectoryMusic).ToString()), "albumArt" + Path.GetExtension(thumbnails[i]));
-                if (System.IO.File.Exists(tempArt))
-                {
-                    await Task.Run(() => { System.IO.File.Delete(tempArt); });
-                }
-
-                bool? canContinue = false;
-                WebClient webClient = new WebClient();
-                webClient.DownloadDataCompleted += (sender, e) =>
-                {
-                    System.Console.WriteLine("&Error with thumb " + i + ": "  + e.Error);
-                    if (e.Error == null)
-                    {
-                        System.Console.WriteLine("&Error = null");
-                        System.IO.File.WriteAllBytes(tempArt, e.Result);
-
-                        Android.Net.Uri uri = Android.Net.Uri.FromFile(new Java.IO.File(tempArt));
-                        Picasso.With(this).Load(uri).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).MemoryPolicy(MemoryPolicy.NoCache, MemoryPolicy.NoStore).Into(albumArt);
-                        artURI = uri;
-                        tempFile = true;
-                        canContinue = null;
-                    }
-                    else
-                        canContinue = true;
-                };
-                try
-                {
-                    await webClient.DownloadDataTaskAsync(new System.Uri(thumbnails[i]));
-                }
-                catch { } //catch 404 errors
-
-                while (canContinue == false)
-                    await Task.Delay(10);
-
-                if (canContinue == null)
-                    return;
-            }
+            ytThumbUri = await MainActivity.GetBestThumb(new string[] { video.Thumbnails.MaxResUrl, video.Thumbnails.StandardResUrl, video.Thumbnails.HighResUrl });
+            Picasso.With(this).Load(ytThumbUri).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).MemoryPolicy(MemoryPolicy.NoCache, MemoryPolicy.NoStore).Into(albumArt);
         }
 
         void UndoChange()
@@ -339,20 +313,13 @@ namespace Opus.Resources.Portable_Class
             album.Text = song.Album;
             youtubeID.Text = song.YoutubeID;
 
-            if (song.AlbumArt == -1 || song.IsYt)
-            {
-                var songAlbumArtUri = Android.Net.Uri.Parse(song.Album);
-                Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(albumArt);
-            }
-            else
-            {
-                var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
-                var songAlbumArtUri = ContentUris.WithAppendedId(songCover, song.AlbumArt);
+            var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
+            var songAlbumArtUri = ContentUris.WithAppendedId(songCover, song.AlbumArt);
 
-                Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(albumArt);
-            }
+            Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Into(albumArt);
 
-            albumArt = null;
+            artURI = null;
+            ytThumbUri = null;
             tempFile = false;
         }
 
