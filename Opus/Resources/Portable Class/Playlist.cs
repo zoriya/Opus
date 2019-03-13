@@ -665,7 +665,6 @@ namespace Opus.Resources.Portable_Class
                 MusicPlayer.queue.Clear();
                 Browse.Play(songs[0]);
                 songs.RemoveAt(0);
-                songs.Reverse();
 
                 while (MusicPlayer.instance == null)
                     await Task.Delay(10);

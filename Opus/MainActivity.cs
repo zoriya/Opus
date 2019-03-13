@@ -748,6 +748,7 @@ namespace Opus
             FindViewById(Resource.Id.playerContainer).Alpha = 1;
             FindViewById(Resource.Id.smallPlayer).Alpha = 0;
             SheetBehavior.State = BottomSheetBehavior.StateExpanded;
+            FindViewById<FrameLayout>(Resource.Id.contentView).SetPadding(0, 0, 0, DpToPx(70));
         }
 
         public void ShowSmallPlayer()

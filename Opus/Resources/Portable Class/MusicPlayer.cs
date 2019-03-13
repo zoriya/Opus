@@ -571,8 +571,10 @@ namespace Opus.Resources.Portable_Class
 
             if (action == "Play")
             {
-                if(showPlayer)
+                if (showPlayer)
                     MainActivity.instance.ShowPlayer();
+                else
+                    MainActivity.instance.ShowSmallPlayer();
 
                 Song song = new Song(title ?? "", artist ?? "", thumbnailURL, videoID, -1, -1, null, true, false);
                 queue.Clear();
