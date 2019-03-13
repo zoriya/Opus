@@ -1139,6 +1139,7 @@ namespace Opus.Resources.Portable_Class
                     MainActivity.instance.RunOnUiThread(() => 
                     {
                         MainActivity.instance.HideSmallPlayer();
+                        MainActivity.instance.SkipStop = false;
                     });
                 }
             });
@@ -1579,8 +1580,9 @@ namespace Opus.Resources.Portable_Class
                     Home.adapterItems?.RemoveAt(0);
                 }
             }
-            
 
+
+            MainActivity.instance.SkipStop = false;
             noisyReceiver = null;
             noisyRegistered = false;
             isRunning = false;
