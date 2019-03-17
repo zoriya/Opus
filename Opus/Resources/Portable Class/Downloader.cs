@@ -395,7 +395,7 @@ namespace Opus.Resources.Portable_Class
 
             notification = new NotificationCompat.Builder(Application.Context, "Opus.Channel")
                 .SetVisibility(NotificationCompat.VisibilityPublic)
-                .SetSmallIcon(Resource.Drawable.MusicIcon)
+                .SetSmallIcon(Resource.Drawable.NotificationIcon)
                 .SetContentTitle(GetString(Resource.String.downloading_notification))
                 .SetContentText(downloadCount > 1 ? GetString(Resource.String.tap_details) : title)
                 .SetContentIntent(queueIntent)

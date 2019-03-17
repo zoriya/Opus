@@ -10,8 +10,7 @@
     android:layout_centerVertical="true"
     android:layout_alignParentLeft="true"
     android:paddingLeft="8dp"
-    android:padding="5dp"
-    android:src="@drawable/MusicIcon" />
+    android:padding="5dp" />
   <LinearLayout
     android:orientation="vertical"
     android:layout_width="fill_parent"

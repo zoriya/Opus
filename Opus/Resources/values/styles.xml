@@ -33,6 +33,8 @@
   
   <style name="SplashScreen" parent="DarkTheme">
     <item name="android:windowBackground">@drawable/splashScreen</item>
+    <item name="android:statusBarColor">@color/splashColor</item>
+    <item name="android:navigationBarColor">@color/splashColor</item>
   </style>
 
   <style name="DarkPopup" parent="ThemeOverlay.AppCompat.Light">

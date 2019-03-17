@@ -1290,7 +1290,7 @@ namespace Opus.Resources.Portable_Class
 
             notification = new NotificationCompat.Builder(Application.Context, "Opus.Channel")
                 .SetVisibility(NotificationCompat.VisibilityPublic)
-                .SetSmallIcon(Resource.Drawable.MusicIcon)
+                .SetSmallIcon(Resource.Drawable.NotificationIcon)
 
                 .AddAction(Resource.Drawable.SkipPrevious, "Previous", previousIntent)
                 .AddAction(Resource.Drawable.Pause, "Pause", pauseIntent)

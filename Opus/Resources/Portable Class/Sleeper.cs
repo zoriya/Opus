@@ -40,7 +40,7 @@ namespace Opus.Resources.Portable_Class
                     timer = time;
                     NotificationCompat.Builder notification = new NotificationCompat.Builder(Application.Context, "Opus.Channel")
                         .SetVisibility(NotificationCompat.VisibilityPublic)
-                        .SetSmallIcon(Resource.Drawable.MusicIcon)
+                        .SetSmallIcon(Resource.Drawable.NotificationIcon)
                         .SetContentTitle(GetString(Resource.String.sleep_timer))
                         .SetContentText(timer + " " + GetString(Resource.String.minutes))
                         .SetOngoing(true);
@@ -64,7 +64,7 @@ namespace Opus.Resources.Portable_Class
 
             NotificationCompat.Builder notification = new NotificationCompat.Builder(Application.Context, "Opus.Channel")
                 .SetVisibility(NotificationCompat.VisibilityPublic)
-                .SetSmallIcon(Resource.Drawable.MusicIcon)
+                .SetSmallIcon(Resource.Drawable.NotificationIcon)
                 .SetContentTitle(GetString(Resource.String.sleep_timer))
                 .SetContentText(timer + " " + GetString(Resource.String.minutes))
                 .SetContentIntent(defaultIntent)

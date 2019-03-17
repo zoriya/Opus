@@ -11,8 +11,7 @@
     android:layout_height="90dp"
     android:padding="5dp"
     android:layout_alignParentLeft="true"
-    android:gravity="center_vertical"
-    android:src="@drawable/MusicIcon" />
+    android:gravity="center_vertical" />
   <LinearLayout
     android:orientation="vertical"
     android:layout_width="fill_parent"

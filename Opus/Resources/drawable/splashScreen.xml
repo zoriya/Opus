@@ -2,11 +2,11 @@
 <layer-list 
   xmlns:android="http://schemas.android.com/apk/res/android" 
   android:opacity="opaque" >
-  <item android:drawable="@color/splashColor"/>
-  <item android:left="50dp"
-        android:right="50dp">
+  <item 
+    android:drawable="@color/splashColor"/>
+  <item>
     <bitmap
-      android:src="@drawable/launcher_icon"
-      android:gravity="center"/>
+      android:src="@drawable/SplashArt"
+      android:gravity="center" />
   </item>
 </layer-list>

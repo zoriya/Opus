@@ -49,7 +49,7 @@ using TransportType = Android.Net.TransportType;
 
 namespace Opus
 {
-    [Activity(Label = "Opus", MainLauncher = true, Icon = "@drawable/launcher_icon", Theme = "@style/SplashScreen", ScreenOrientation = ScreenOrientation.Portrait, LaunchMode = LaunchMode.SingleTask)]
+    [Activity(Label = "Opus", MainLauncher = true, Icon = "@drawable/Icon", Theme = "@style/SplashScreen", ScreenOrientation = ScreenOrientation.Portrait, LaunchMode = LaunchMode.SingleTask)]
     [IntentFilter(new[] {Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, DataHost = "www.youtube.com", DataMimeType = "text/*")]
     [IntentFilter(new[] {Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, DataHost = "m.youtube.com", DataMimeType = "text/plain")]
     [IntentFilter(new[] { Intent.ActionView }, Categories = new[] { Intent.CategoryDefault }, DataMimeTypes = new[] { "audio/*", "application/ogg", "application/x-ogg", "application/itunes" })]
@@ -771,7 +771,7 @@ namespace Opus
 
         public bool HasReadPermission()
         {
-            if (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(this, Manifest.Permission.ReadExternalStorage) == (int)Permission.Granted)
+            if (ContextCompat.CheckSelfPermission(this, Manifest.Permission.ReadExternalStorage) == (int)Permission.Granted)
                 return true;
             else
                 return false;
@@ -1132,7 +1132,7 @@ namespace Opus
 
                 NotificationCompat.Builder notification = new NotificationCompat.Builder(Application.Context, "Opus.Channel")
                     .SetVisibility(NotificationCompat.VisibilityPublic)
-                    .SetSmallIcon(Resource.Drawable.MusicIcon)
+                    .SetSmallIcon(Resource.Drawable.NotificationIcon)
                     .SetContentTitle(Application.Context.GetString(Resource.String.updating))
                     .SetOngoing(true);
 

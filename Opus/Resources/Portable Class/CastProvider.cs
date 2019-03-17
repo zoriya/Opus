@@ -15,7 +15,7 @@ namespace Opus
             NotificationOptions notification = new NotificationOptions.Builder()
                 .SetActions(new List<string> { MediaIntentReceiver.ActionSkipPrev, MediaIntentReceiver.ActionTogglePlayback, MediaIntentReceiver.ActionSkipNext }, new int[] { 1 })
                 .SetTargetActivityClassName(Java.Lang.Class.FromType(typeof(MainActivity)).Name)
-                .SetSmallIconDrawableResId(Resource.Drawable.MusicIcon)
+                .SetSmallIconDrawableResId(Resource.Drawable.NotificationIcon)
                 .SetSkipPrevDrawableResId(Resource.Drawable.SkipPrevious)
                 .SetPauseDrawableResId(Resource.Drawable.Pause)
                 .SetPlayDrawableResId(Resource.Drawable.Play)

@@ -1050,6 +1050,12 @@ namespace Opus.Resources.Portable_Class
             if (!await MainActivity.instance.WaitForYoutube())
                 return;
 
+            if (!await MainActivity.instance.GetReadPermission())
+                return;
+
+            if (!await MainActivity.instance.GetWritePermission())
+                return;
+
             if (showToast)
                 Toast.MakeText(Android.App.Application.Context, Resource.String.syncing, ToastLength.Short).Show();
 

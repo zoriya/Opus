@@ -11,8 +11,7 @@
     android:layout_height="80dp"
     android:layout_alignParentLeft="true"
     android:paddingLeft="20dp"
-    android:gravity="center"
-    android:src="@drawable/MusicIcon" />
+    android:gravity="center" />
   <Button
     android:id="@+id/action"
     android:layout_centerVertical="true"
