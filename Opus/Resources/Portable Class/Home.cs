@@ -373,46 +373,6 @@ namespace Opus.Resources.Portable_Class
             }
         }
 
-        public async Task AddHomeTopics()
-        {
-            List<Song> channelLits = new List<Song>();
-
-            string nextPageToken = "";
-            while (nextPageToken != null)
-            {
-                try
-                {
-                    YouTubeService youtube = YoutubeEngine.youtubeService;
-                    SubscriptionsResource.ListRequest request = youtube.Subscriptions.List("snippet,contentDetails");
-                    request.ChannelId = "UCRPb0XKQwDoHbgvtawH-gGw";
-                    request.MaxResults = 50;
-                    request.PageToken = nextPageToken;
-
-                    SubscriptionListResponse response = await request.ExecuteAsync();
-
-                    foreach (var item in response.Items)
-                    {
-                        Song channel = new Song(item.Snippet.Title.Substring(0, item.Snippet.Title.IndexOf(" - Topic")), item.Snippet.Description, item.Snippet.Thumbnails.Default__.Url, item.Snippet.ResourceId.ChannelId, -1, -1, null, true);
-                        channelLits.Add(channel);
-                    }
-
-                    nextPageToken = response.NextPageToken;
-                }
-                catch(Exception ex)
-                {
-                    Console.WriteLine("&ERROR FOUND (on home topics load) " + ex.Message);
-                    return;
-                }
-            }
-
-            Random r = new Random();
-            List<Song> channels = channelLits.OrderBy(x => r.Next()).ToList();
-            channels.RemoveAll(x => selectedTopics.Contains(x.Title));
-
-            HomeSection TopicSelector = new HomeSection(Resources.GetString(Resource.String.music_genres), SectionType.TopicSelector, channels);
-            adapter.AddToList(new List<HomeSection> { TopicSelector });
-        }
-
         public void AddQueue()
         {
             if (adapterItems[0].SectionTitle != "Queue")

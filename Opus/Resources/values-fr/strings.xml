@@ -184,7 +184,7 @@
   <string name="youtube_endpoint">L\'algorithme youtube a changé, l\'application ne peut plus lire cette vidéo. Attendez la prochaine mise a jour.</string>
   <string name="timout">Timout, vérifier votre connection internet.</string>
   <string name="unknow">Une erreur inconnue est survenue.</string>
-  <string name="country_blocked">Cette musique n'est pas disponible dans votre pays.</string>
+  <string name="country_blocked">Cette musique n\'est pas disponible dans votre pays.</string>
   <string name="not_streamable"> ne peut pas être lu, l\'audio n\'est pas disponible.</string> <!--//A song title will be placed before this sentence-->
   <string name="update_no_internet">Vous n\'êtes pas connecté a internet, impossible de verifier si des mises à jour existent.</string>
   <string name="update">La version %1$s est disponible</string> <!--//%1$s will be replaced with the version number-->

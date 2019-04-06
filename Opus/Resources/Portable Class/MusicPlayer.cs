@@ -53,8 +53,9 @@ namespace Opus.Resources.Portable_Class
         public static List<Song> queue = new List<Song>();
         public static List<int> WaitForIndex = new List<int>();
         public static List<Song> autoPlay = new List<Song>();
-        public MediaSessionCompat mediaSession;
-        public AudioManager audioManager;
+        private MediaSessionCompat mediaSession;
+        private AudioManager audioManager;
+        private AudioFocusRequestClass audioFocusRequest;
         public NotificationManager notificationManager;
         private bool noisyRegistered;
         public static bool isRunning = false;
@@ -110,14 +111,14 @@ namespace Opus.Resources.Portable_Class
 
                 case "Pause":
                     if(isRunning)
-                        Pause(true);
+                        Pause();
                     else
                         Resume();
                     break;
 
                 case "ForcePause":
                     if (isRunning)
-                        Pause(true);
+                        Pause();
                     break;
 
                 case "ForceResume":
@@ -296,13 +297,13 @@ namespace Opus.Resources.Portable_Class
 
                 if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
                 {
-                    AudioFocusRequestClass focusRequest = new AudioFocusRequestClass.Builder(AudioFocus.Gain)
+                   audioFocusRequest = new AudioFocusRequestClass.Builder(AudioFocus.Gain)
                         .SetAudioAttributes(attributes)
                         .SetAcceptsDelayedFocusGain(true)
                         .SetWillPauseWhenDucked(true)
                         .SetOnAudioFocusChangeListener(this)
                         .Build();
-                    AudioFocusRequest audioFocus = audioManager.RequestAudioFocus(focusRequest);
+                    AudioFocusRequest audioFocus = audioManager.RequestAudioFocus(audioFocusRequest);
 
                     if (audioFocus != AudioFocusRequest.Granted)
                     {
@@ -400,13 +401,13 @@ namespace Opus.Resources.Portable_Class
 
                 if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
                 {
-                    AudioFocusRequestClass focusRequest = new AudioFocusRequestClass.Builder(AudioFocus.Gain)
+                    audioFocusRequest = new AudioFocusRequestClass.Builder(AudioFocus.Gain)
                         .SetAudioAttributes(attributes)
                         .SetAcceptsDelayedFocusGain(true)
                         .SetWillPauseWhenDucked(true)
                         .SetOnAudioFocusChangeListener(this)
                         .Build();
-                    AudioFocusRequest audioFocus = audioManager.RequestAudioFocus(focusRequest);
+                    AudioFocusRequest audioFocus = audioManager.RequestAudioFocus(audioFocusRequest);
 
                     if (audioFocus != AudioFocusRequest.Granted)
                     {
@@ -430,15 +431,15 @@ namespace Opus.Resources.Portable_Class
 #pragma warning restore CS0618
                 }
 
-                if (progress != -1)
+                player.PlayWhenReady = true;
+                player.Prepare(mediaSource, true, true);
+                CreateNotification(song.Title, song.Artist, song.AlbumArt, song.Album);
+
+                if (progress != -1) //I'm seeking after the prepare because with some format, exoplayer's prepare reset the position
                 {
                     player.SeekTo(progress);
                     MainActivity.instance?.FindViewById<ImageButton>(Resource.Id.playButton).SetImageResource(Resource.Drawable.Pause);
                 }
-
-                player.PlayWhenReady = true;
-                player.Prepare(mediaSource, true, true);
-                CreateNotification(song.Title, song.Artist, song.AlbumArt, song.Album);
             }
             else
             {
@@ -1018,7 +1019,7 @@ namespace Opus.Resources.Portable_Class
                 }
                 else
                 {
-                    Pause(true);
+                    Pause();
                     return;
                 }
             }
@@ -1033,12 +1034,6 @@ namespace Opus.Resources.Portable_Class
         public async void SwitchQueue(int position, bool showPlayer = false, bool StartFromOldPosition = true)
         {
             Song song = await GetItem(position);
-
-            if (player == null)
-                InitializeService();
-
-            if (currentID == position && StartFromOldPosition)
-                player.SeekTo(LastTimer);
 
             currentID = position;
             if(showPlayer)
@@ -1067,7 +1062,7 @@ namespace Opus.Resources.Portable_Class
                 }
             }
             else
-                Play(song, -1, false);
+                Play(song, StartFromOldPosition ? LastTimer : -1, false);
 
             Queue.instance?.RefreshAP();
         }
@@ -1335,14 +1330,12 @@ namespace Opus.Resources.Portable_Class
             StartForeground(notificationID, notification);
         }
 
-        public void Pause(bool userRequested)
+        public void Pause()
         {
-            if (userRequested)
-                ShouldResumePlayback = false;
+            ShouldResumePlayback = false;
 
             if (!UseCastPlayer && player != null && isRunning)
             {
-                SaveTimer(CurrentPosition);
                 isRunning = false;
 
                 Intent tmpPauseIntent = new Intent(Application.Context, typeof(MusicPlayer));
@@ -1579,6 +1572,7 @@ namespace Opus.Resources.Portable_Class
 
             if (SaveQueue)
             {
+                Console.WriteLine("&Saving the queue");
                 ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
                 ISharedPreferencesEditor editor = pref.Edit();
                 editor.PutInt("currentID", currentID);
@@ -1606,6 +1600,12 @@ namespace Opus.Resources.Portable_Class
                 }
             }
 
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
+                audioManager.AbandonAudioFocusRequest(audioFocusRequest);
+            else
+#pragma warning disable CS0618 // Type or member is obsolete
+                audioManager.AbandonAudioFocus(this);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             MainActivity.instance.SkipStop = false;
             noisyReceiver = null;
@@ -1628,6 +1628,8 @@ namespace Opus.Resources.Portable_Class
                 RemotePlayer.Stop();
                 StopSelf();
             }
+
+            Player.instance?.Ready(); //Refresh play/pause state
         }
 
         private void SleepPause()
@@ -1656,12 +1658,11 @@ namespace Opus.Resources.Portable_Class
                     break;
 
                 case AudioFocus.Loss:
-                    Pause(false);
-                    ShouldResumePlayback = false;
+                    Pause();
                     break;
 
                 case AudioFocus.LossTransient:
-                    Pause(false);
+                    Pause();
                     ShouldResumePlayback = true;
                     break;
 

@@ -63,11 +63,6 @@ namespace Opus.Resources.Portable_Class
             //    View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.HomePlaylists, parent, false);
             //    return new LineSongHolder(itemView, OnClick, OnLongClick);
             //}
-            else if(viewType == 3)
-            {
-                View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.HomeTopic, parent, false);
-                return new LineSongHolder(itemView, OnClick, OnLongClick);
-            }
             else
             {
                 View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.ShuffleButton, parent, false);
@@ -213,8 +208,6 @@ namespace Opus.Resources.Portable_Class
                 return 1;
             else if (items[position].contentType == SectionType.PlaylistList)
                 return 2;
-            else if (items[position].contentType == SectionType.TopicSelector)
-                return 3;
             else
                 return 4;
         }

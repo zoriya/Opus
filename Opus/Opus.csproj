@@ -610,9 +610,6 @@
     <AndroidResource Include="Resources\layout\HomePlaylists.xml" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\layout\HomeTopic.xml" />
-  </ItemGroup>
-  <ItemGroup>
     <AndroidAsset Include="Assets\Version.txt" />
   </ItemGroup>
   <ItemGroup>
