@@ -944,6 +944,18 @@ namespace Opus
             snackBar.Show();
         }
 
+        public void Unplayable(string msg)
+        {
+            if (msg.Contains("country"))
+            {
+                Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), Resource.String.country_blocked, Snackbar.LengthLong);
+                snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+                snackBar.Show();
+            }
+            else
+                UnknowError();
+        }
+
         public void NotStreamable(string title)
         {
             Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), title + Resource.String.not_streamable, Snackbar.LengthLong);

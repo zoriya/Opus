@@ -66,8 +66,6 @@
   <string name="more">MORE</string>
   <string name="queue">Queue</string>
   <string name="featured">Featured</string>
-  <string name="music_genres">Music Genres</string>
-  <string name="recommendation_explanation">used for your recommendation</string>
   
   <!--Browse tab-->
   <string name="songs">Songs</string>
@@ -186,6 +184,7 @@
   <string name="youtube_endpoint">The way youtube play video has changed, the app can\'t play this video now. Wait for the next update.</string>
   <string name="timout">Timout, check if you\'re still connected to internet.</string>
   <string name="unknow">An unknown error has occured.</string>
+  <string name="country_blocked">This song is not available in your country.</string>
   <string name="not_streamable"> can\'t be played. No audio streams are availables.</string> <!--A song title will be placed before this sentence-->
   <string name="update_no_internet">You are not connected to internet, can\'t check for updates.</string>
   <string name="update">The version %1$s is available</string> <!--//%1$s will be replaced with the version number-->

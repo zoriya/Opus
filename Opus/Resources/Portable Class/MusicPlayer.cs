@@ -555,7 +555,18 @@ namespace Opus.Resources.Portable_Class
                 song.IsParsed = false;
                 return song;
             }
+            catch(YoutubeExplode.Exceptions.VideoUnplayableException ex)
+            {
+                Console.WriteLine("&Parse error: " + ex.Message);
+                MainActivity.instance.Unplayable(ex.Message);
+                if (MainActivity.instance != null)
+                    MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
 
+                song.IsParsed = false;
+                if (position != -1)
+                    RemoveFromQueue(position); //Remove the song from the queue since it can't be played.
+                return song;
+            }
             return song;
         }
 
@@ -886,6 +897,20 @@ namespace Opus.Resources.Portable_Class
 
         public static void RemoveFromQueue(int position)
         {
+            if(CurrentID() == position)
+            {
+                if (position > 0)
+                    currentID--;
+                else if (queue.Count > position - 1)
+                    currentID++;
+                else
+                    currentID = -1;
+
+                Player.instance?.RefreshPlayer();
+                Player.instance?.Ready();
+                Queue.instance?.RefreshCurrent();
+            }
+
             queue.RemoveAt(position);
             Home.instance?.NotifyQueueRemoved(position);
             Queue.instance?.NotifyItemRemoved(position);
