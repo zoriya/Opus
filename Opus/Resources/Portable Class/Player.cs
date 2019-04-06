@@ -440,8 +440,6 @@ namespace Opus
 
         void Sleep(int time)
         {
-            time = 1; //This is for test
-
             Intent intent = new Intent(MainActivity.instance, typeof(Sleeper));
             intent.PutExtra("time", time);
             MainActivity.instance.StartService(intent);
