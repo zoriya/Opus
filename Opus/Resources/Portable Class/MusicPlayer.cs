@@ -355,7 +355,7 @@ namespace Opus.Resources.Portable_Class
         {
             if (song.IsParsed != true)
             {
-                song = await ParseSong(song);
+                await ParseSong(song, -1, true);
                 return;
             }
 
@@ -364,7 +364,7 @@ namespace Opus.Resources.Portable_Class
                 queue?.Clear();
                 currentID = -1;
             }
-
+            
             isLiveStream = song.IsLiveStream;
 
             isRunning = true;
@@ -554,19 +554,30 @@ namespace Opus.Resources.Portable_Class
                 if (MainActivity.instance != null)
                     MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
                 song.IsParsed = false;
-                return song;
+                return null;
             }
             catch(YoutubeExplode.Exceptions.VideoUnplayableException ex)
             {
                 Console.WriteLine("&Parse error: " + ex.Message);
-                MainActivity.instance.Unplayable(ex.Message);
+                MainActivity.instance.Unplayable(song.Title, ex.Message);
                 if (MainActivity.instance != null)
                     MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
 
                 song.IsParsed = false;
                 if (position != -1)
                     RemoveFromQueue(position); //Remove the song from the queue since it can't be played.
-                return song;
+                return null;
+            }
+            catch(YoutubeExplode.Exceptions.VideoUnavailableException)
+            {
+                MainActivity.instance.NotStreamable(song.Title);
+                if (MainActivity.instance != null)
+                    MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
+
+                song.IsParsed = false;
+                if (position != -1)
+                    RemoveFromQueue(position); //Remove the song from the queue since it can't be played.
+                return null;
             }
             return song;
         }
@@ -600,6 +611,8 @@ namespace Opus.Resources.Portable_Class
             else
             {
                 Song song = await ParseSong(new Song(title, artist, thumbnailURL, videoID, -1, -1, null, true, false));
+                if (song == null) //The song can't be played, do not add it to the queue
+                    return;
 
                 switch (action)
                 {
@@ -898,11 +911,11 @@ namespace Opus.Resources.Portable_Class
 
         public static void RemoveFromQueue(int position)
         {
-            if(CurrentID() == position)
+            if (CurrentID() == position)
             {
                 if (position > 0)
                     currentID--;
-                else if (queue.Count > position - 1)
+                else if (queue.Count > position + 1)
                     currentID++;
                 else
                     currentID = -1;
@@ -913,8 +926,22 @@ namespace Opus.Resources.Portable_Class
             }
 
             queue.RemoveAt(position);
-            Home.instance?.NotifyQueueRemoved(position);
-            Queue.instance?.NotifyItemRemoved(position);
+
+            if (queue.Count == 0)
+            {
+                MainActivity.instance.HideSmallPlayer();
+                if (Home.instance != null && Home.adapterItems?.Count > 0 && Home.adapterItems[0]?.SectionTitle == "Queue")
+                {
+                    Home.instance?.adapter?.NotifyItemRemoved(0);
+                    Home.adapterItems?.RemoveAt(0);
+                }
+                Queue.instance?.NotifyItemRemoved(position);
+            }
+            else
+            {
+                Home.instance?.NotifyQueueRemoved(position);
+                Queue.instance?.NotifyItemRemoved(position);
+            }
 
             if (UseCastPlayer)
                 RemotePlayer.QueueRemoveItem(RemotePlayer.MediaQueue.ItemIdAtIndex(position), null);
@@ -1031,16 +1058,16 @@ namespace Opus.Resources.Portable_Class
                 SwitchQueue(CurrentID() + 1);
         }
 
-        public async void SwitchQueue(int position, bool showPlayer = false, bool StartFromOldPosition = true)
+        public async void SwitchQueue(int position, bool showPlayer = false, bool StartFromOldPosition = false)
         {
             Song song = await GetItem(position);
 
-            currentID = position;
             if(showPlayer)
                 MainActivity.instance.ShowPlayer();
 
             if (UseCastPlayer)
             {
+                currentID = position;
                 Console.WriteLine("&Switching to item at " + position + " with itemID: " + RemotePlayer.MediaQueue.ItemIdAtIndex(position));
                 RemotePlayer.QueueJumpToItem(RemotePlayer.MediaQueue.ItemIdAtIndex(position), null);
             }
@@ -1055,6 +1082,11 @@ namespace Opus.Resources.Portable_Class
                 }
                 await ParseSong(song, position, !UseCastPlayer, true);
 
+                if (song != null) //Check if the parse has succeed, the song is set to null if there is an error
+                    currentID = position;
+                else
+                    Player.instance?.Ready(); //Remove player's loading bar since we'll not load this song
+
                 if (MainActivity.instance != null && showPlayer)
                 {
                     ProgressBar parseProgress = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress);
@@ -1062,7 +1094,10 @@ namespace Opus.Resources.Portable_Class
                 }
             }
             else
+            {
+                currentID = position;
                 Play(song, StartFromOldPosition ? LastTimer : -1, false);
+            }
 
             Queue.instance?.RefreshAP();
         }
@@ -1187,6 +1222,7 @@ namespace Opus.Resources.Portable_Class
         {
             ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
             int queueSlot = pref.GetInt("currentID", 0);
+            Console.WriteLine("&Retrieved queue slot: " + queueSlot);
             return queueSlot == -1 ? 0 : queueSlot;
         }
 
@@ -1577,6 +1613,8 @@ namespace Opus.Resources.Portable_Class
                 ISharedPreferencesEditor editor = pref.Edit();
                 editor.PutInt("currentID", currentID);
                 editor.Apply();
+
+                Console.WriteLine("&CurrentID: " + currentID);
 
                 if (player != null && CurrentPosition != 0)
                     SaveTimer(CurrentPosition);

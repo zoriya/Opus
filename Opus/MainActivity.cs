@@ -944,11 +944,17 @@ namespace Opus
             snackBar.Show();
         }
 
-        public void Unplayable(string msg)
+        public void Unplayable(string title, string msg)
         {
             if (msg.Contains("country"))
             {
-                Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), Resource.String.country_blocked, Snackbar.LengthLong);
+                Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), title + " " + GetString(Resource.String.country_blocked), Snackbar.LengthLong);
+                snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+                snackBar.Show();
+            }
+            else if(msg.Contains("not available"))
+            {
+                Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), title + " " + GetString(Resource.String.not_streamable), Snackbar.LengthLong);
                 snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
                 snackBar.Show();
             }
@@ -1006,7 +1012,7 @@ namespace Opus
 
             return false;
         }
-
+        
         private async void SyncPlaylists()
         {
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(this);
@@ -1208,7 +1214,7 @@ namespace Opus
         {
             YoutubeEngine.instances = null;
 
-            if (MusicPlayer.instance != null && !MusicPlayer.isRunning && Preferences.instance == null && Queue.instance == null && EditMetaData.instance == null)
+            if (MusicPlayer.instance != null && !MusicPlayer.isRunning && Preferences.instance == null && EditMetaData.instance == null)
             {
                 Intent intent = new Intent(this, typeof(MusicPlayer));
                 intent.SetAction("Stop");

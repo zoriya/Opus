@@ -26,6 +26,8 @@ namespace Opus.Resources.Portable_Class
                 return;
             }
 
+            if (MusicPlayer.CurrentID() < 0) //If there is no current item, do not draw the header
+                return;
 
             if (parent.ChildCount > 1 && parent.Width > 0)
             {

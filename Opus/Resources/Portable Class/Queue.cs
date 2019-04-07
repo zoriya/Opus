@@ -111,7 +111,7 @@ public class Queue : Fragment, RecyclerView.IOnItemTouchListener, PopupMenu.IOnM
             {
                 Song song = MusicPlayer.queue[i - 1];
                 RecyclerHolder holder = (RecyclerHolder)ListView.GetChildViewHolder(((LinearLayoutManager)ListView.GetLayoutManager()).FindViewByPosition(i));
-                if (MusicPlayer.queue[MusicPlayer.CurrentID()] == song)
+                if (MusicPlayer.CurrentID() > -1 && MusicPlayer.queue[MusicPlayer.CurrentID()] == song)
                 {
                     holder.status.Visibility = ViewStates.Visible;
                     holder.status.SetTextColor(MusicPlayer.isRunning ? Color.Argb(255, 244, 81, 30) : Color.Argb(255, 66, 165, 245));
