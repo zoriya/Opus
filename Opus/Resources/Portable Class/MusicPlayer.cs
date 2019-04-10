@@ -1083,7 +1083,10 @@ namespace Opus.Resources.Portable_Class
                 await ParseSong(song, position, !UseCastPlayer, true);
 
                 if (song != null) //Check if the parse has succeed, the song is set to null if there is an error
+                {
                     currentID = position;
+                    Queue.instance?.RefreshCurrent();
+                }
                 else
                     Player.instance?.Ready(); //Remove player's loading bar since we'll not load this song
 
@@ -1638,12 +1641,15 @@ namespace Opus.Resources.Portable_Class
                 }
             }
 
-            if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
-                audioManager.AbandonAudioFocusRequest(audioFocusRequest);
-            else
+            if(audioFocusRequest != null)
+            {
+                if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
+                    audioManager.AbandonAudioFocusRequest(audioFocusRequest);
+                else
 #pragma warning disable CS0618 // Type or member is obsolete
-                audioManager.AbandonAudioFocus(this);
+                    audioManager.AbandonAudioFocus(this);
 #pragma warning restore CS0618 // Type or member is obsolete
+            }
 
             MainActivity.instance.SkipStop = false;
             noisyReceiver = null;

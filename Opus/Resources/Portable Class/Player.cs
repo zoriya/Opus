@@ -218,7 +218,6 @@ namespace Opus
                 }
                 else
                 {
-                    Console.WriteLine("&Bar: " + bar + " timer: " + timer + " spBar: " + spBar);
                     bar.Max = (int)MusicPlayer.Duration;
                     timer.Text = string.Format("{0} | {1}", DurationToTimer((int)MusicPlayer.CurrentPosition), DurationToTimer((int)MusicPlayer.Duration));
                     spBar.Max = (int)MusicPlayer.Duration;
