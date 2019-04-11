@@ -191,10 +191,18 @@ namespace Opus.Resources.Portable_Class
 
         /* This method will return all playlists available on the local storage in the array "playlists".
          * If there is an error, the Task will return an error message to display to the user. */
-        public static async Task<(List<PlaylistItem>, string)> GetLocalPlaylists()
+        public static async Task<(List<PlaylistItem>, string)> GetLocalPlaylists(bool askForPermission = true)
         {
-            if (!await MainActivity.instance.GetReadPermission())
-                return (null, Application.Context.GetString(Resource.String.no_permission));
+            if(askForPermission)
+            {
+                if (!await MainActivity.instance.GetReadPermission())
+                    return (null, Application.Context.GetString(Resource.String.no_permission));
+            }
+            else
+            {
+                if (!MainActivity.instance.HasReadPermission())
+                    return (null, Application.Context.GetString(Resource.String.no_permission));
+            }
 
             List<PlaylistItem> playlists = new List<PlaylistItem>();
 

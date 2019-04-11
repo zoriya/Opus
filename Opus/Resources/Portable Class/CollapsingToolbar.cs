@@ -15,7 +15,7 @@ public class CollapsingToolbar : CollapsingToolbarLayout
 
     protected override void OnMeasure(int widthMeasureSpec, int heightMeasureSpec)
     {
-        if (PlaylistTracks.instance != null)
+        if (PlaylistTracks.instance != null && PlaylistTracks.instance.useHeader)
             heightMeasureSpec = widthMeasureSpec;
 
 

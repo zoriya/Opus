@@ -61,6 +61,102 @@ namespace Opus.Resources.Portable_Class
             MainActivity.instance.SupportActionBar.Title = playlistName;
         }
 
+        public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+        {
+            View view = inflater.Inflate(Resource.Layout.RecyclerFragment, container, false);
+            ListView = view.FindViewById<RecyclerView>(Resource.Id.recycler);
+            ListView.SetLayoutManager(new Android.Support.V7.Widget.LinearLayoutManager(MainActivity.instance));
+            ListView.SetAdapter(new PlaylistTrackAdapter(new List<Song>()));
+            ListView.ScrollChange += ListView_ScrollChange;
+
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            PopulateList();
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            if(useHeader)
+                CreateHeader();
+            return view;
+        }
+
+        private void ListView_ScrollChange(object sender, View.ScrollChangeEventArgs e)
+        {
+            if (((Android.Support.V7.Widget.LinearLayoutManager)ListView?.GetLayoutManager())?.FindLastVisibleItemPosition() == adapter?.ItemCount - 1)
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                LoadMore();
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+        }
+
+        void CreateHeader()
+        {
+            Activity.FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Visible;
+            ((AppBarLayout.LayoutParams)Activity.FindViewById<CollapsingToolbarLayout>(Resource.Id.collapsingToolbar).LayoutParameters).ScrollFlags = AppBarLayout.LayoutParams.ScrollFlagScroll | AppBarLayout.LayoutParams.ScrollFlagExitUntilCollapsed;
+            Activity.FindViewById<AppBarLayout>(Resource.Id.appbar).AddOnOffsetChangedListener(this);
+            Activity.FindViewById<TextView>(Resource.Id.headerTitle).Text = playlistName;
+
+            if (!Activity.FindViewById<ImageButton>(Resource.Id.headerPlay).HasOnClickListeners)
+                Activity.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { PlayInOrder(0); };
+            if (!Activity.FindViewById<ImageButton>(Resource.Id.headerShuffle).HasOnClickListeners)
+                Activity.FindViewById<ImageButton>(Resource.Id.headerShuffle).Click += (sender, e0) => { RandomPlay(); };
+            if (!Activity.FindViewById<ImageButton>(Resource.Id.headerMore).HasOnClickListeners)
+                Activity.FindViewById<ImageButton>(Resource.Id.headerMore).Click += PlaylistMore;
+
+            if (LocalID != 0 && thumnailURI == null)
+            {
+                Activity.FindViewById<TextView>(Resource.Id.headerAuthor).Text = MainActivity.account == null ? "by me" : "by " + MainActivity.account.DisplayName;
+            }
+            else if (YoutubeID != null && YoutubeID != "")
+            {
+                Activity.FindViewById<TextView>(Resource.Id.headerAuthor).Text = author;
+                Activity.FindViewById<TextView>(Resource.Id.headerNumber).Text = count.ToString() + " " + GetString(Resource.String.songs);
+                if (count == -1)
+                    Activity.FindViewById<TextView>(Resource.Id.headerNumber).Text = "NaN" + " " + GetString(Resource.String.songs);
+
+                Picasso.With(Android.App.Application.Context).Load(thumnailURI).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(Activity.FindViewById<ImageView>(Resource.Id.headerArt));
+            }
+            Activity.FindViewById(Resource.Id.collapsingToolbar).RequestLayout();
+        }
+
+        public override void OnDestroyView()
+        {
+            Activity.FindViewById<ImageButton>(Resource.Id.headerMore).Click -= PlaylistMore;
+
+            if (!MainActivity.instance.Paused)
+            {
+                Activity.FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Gone;
+
+                MainActivity.instance.HideSearch();
+                MainActivity.instance.SupportActionBar.SetHomeButtonEnabled(false);
+                MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(false);
+                MainActivity.instance.SupportActionBar.SetDisplayShowTitleEnabled(true);
+                MainActivity.instance.SupportActionBar.SetDisplayShowTitleEnabled(false);
+                MainActivity.instance.FindViewById(Resource.Id.toolbarLogo).Visibility = ViewStates.Visible;
+
+                MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
+                Activity.FindViewById<AppBarLayout>(Resource.Id.appbar).RemoveOnOffsetChangedListener(this);
+
+
+                if (YoutubeEngine.instances != null)
+                {
+                    MainActivity.instance.FindViewById<TabLayout>(Resource.Id.tabs).Visibility = ViewStates.Visible;
+                    Android.Support.V7.Widget.SearchView searchView = (Android.Support.V7.Widget.SearchView)MainActivity.instance.menu.FindItem(Resource.Id.search).ActionView;
+                    searchView.Focusable = false;
+                    MainActivity.instance.menu.FindItem(Resource.Id.search).ExpandActionView();
+                    searchView.SetQuery(YoutubeEngine.instances[0].Query, false);
+                    searchView.ClearFocus();
+
+                    int selectedTab = 0;
+                    for (int i = 0; i < YoutubeEngine.instances.Length; i++)
+                    {
+                        if (YoutubeEngine.instances[i].IsFocused)
+                            selectedTab = i;
+                    }
+                }
+                instance = null;
+            }
+            base.OnDestroyView();
+        }
+
+
+        //Header more click
         public bool OnMenuItemClick(IMenuItem item)
         {
             switch (item.ItemId)
@@ -239,46 +335,6 @@ namespace Opus.Resources.Portable_Class
             dialog.Show();
         }
 
-        public override void OnDestroyView()
-        {
-            Activity.FindViewById<ImageButton>(Resource.Id.headerMore).Click -= PlaylistMore;
-
-            if (!MainActivity.instance.Paused)
-            {
-                Activity.FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Gone;
-
-                MainActivity.instance.HideSearch();
-                MainActivity.instance.SupportActionBar.SetHomeButtonEnabled(false);
-                MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(false);
-                MainActivity.instance.SupportActionBar.SetDisplayShowTitleEnabled(true);
-                MainActivity.instance.SupportActionBar.SetDisplayShowTitleEnabled(false);
-                MainActivity.instance.FindViewById(Resource.Id.toolbarLogo).Visibility = ViewStates.Visible;
-
-                MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
-                Activity.FindViewById<AppBarLayout>(Resource.Id.appbar).RemoveOnOffsetChangedListener(this);
-
-
-                if (YoutubeEngine.instances != null)
-                {
-                    MainActivity.instance.FindViewById<TabLayout>(Resource.Id.tabs).Visibility = ViewStates.Visible;
-                    Android.Support.V7.Widget.SearchView searchView = (Android.Support.V7.Widget.SearchView)MainActivity.instance.menu.FindItem(Resource.Id.search).ActionView;
-                    searchView.Focusable = false;
-                    MainActivity.instance.menu.FindItem(Resource.Id.search).ExpandActionView();
-                    searchView.SetQuery(YoutubeEngine.instances[0].Query, false);
-                    searchView.ClearFocus();
-
-                    int selectedTab = 0;
-                    for (int i = 0; i < YoutubeEngine.instances.Length; i++)
-                    {
-                        if (YoutubeEngine.instances[i].IsFocused)
-                            selectedTab = i;
-                    }
-                }
-                instance = null;
-            }
-            base.OnDestroyView();
-        }
-
         public static async Task<Song> CompleteItem(Song song, string YoutubeID)
         {
             if (song.YoutubeID == null)
@@ -306,58 +362,6 @@ namespace Opus.Resources.Portable_Class
                 MainActivity.instance.Timout();
 
             return song;
-        }
-
-        public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-        {
-            View view = inflater.Inflate(Resource.Layout.RecyclerFragment, container, false);
-            ListView = view.FindViewById<RecyclerView>(Resource.Id.recycler);
-            ListView.SetLayoutManager(new Android.Support.V7.Widget.LinearLayoutManager(MainActivity.instance));
-            ListView.SetAdapter(new PlaylistTrackAdapter(new List<Song>()));
-            ListView.ScrollChange += ListView_ScrollChange;
-
-            PopulateList();
-            CreateHeader();
-            return view;
-        }
-
-        private void ListView_ScrollChange(object sender, View.ScrollChangeEventArgs e)
-        {
-            if (((Android.Support.V7.Widget.LinearLayoutManager)ListView?.GetLayoutManager())?.FindLastVisibleItemPosition() == adapter?.ItemCount - 1)
-                LoadMore();
-        }
-
-        void CreateHeader()
-        {
-            if (useHeader)
-            {
-                Activity.FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Visible;
-                ((AppBarLayout.LayoutParams)Activity.FindViewById<CollapsingToolbarLayout>(Resource.Id.collapsingToolbar).LayoutParameters).ScrollFlags = AppBarLayout.LayoutParams.ScrollFlagScroll | AppBarLayout.LayoutParams.ScrollFlagExitUntilCollapsed;
-                Activity.FindViewById<AppBarLayout>(Resource.Id.appbar).AddOnOffsetChangedListener(this);
-                Activity.FindViewById<TextView>(Resource.Id.headerTitle).Text = playlistName;
-
-                if(!Activity.FindViewById<ImageButton>(Resource.Id.headerPlay).HasOnClickListeners)
-                    Activity.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { PlayInOrder(0); };
-                if(!Activity.FindViewById<ImageButton>(Resource.Id.headerShuffle).HasOnClickListeners)
-                    Activity.FindViewById<ImageButton>(Resource.Id.headerShuffle).Click += (sender, e0) => { RandomPlay(); };
-                if (!Activity.FindViewById<ImageButton>(Resource.Id.headerMore).HasOnClickListeners)
-                    Activity.FindViewById<ImageButton>(Resource.Id.headerMore).Click += PlaylistMore;
-
-                if (LocalID != 0 && thumnailURI == null)
-                {
-                    Activity.FindViewById<TextView>(Resource.Id.headerAuthor).Text = MainActivity.account == null ? "by me" : "by " + MainActivity.account.DisplayName;
-                }
-                else if (YoutubeID != null && YoutubeID != "")
-                {
-                    Activity.FindViewById<TextView>(Resource.Id.headerAuthor).Text = author;
-                    Activity.FindViewById<TextView>(Resource.Id.headerNumber).Text = count.ToString() + " " + GetString(Resource.String.songs);
-                    if (count == -1)
-                        Activity.FindViewById<TextView>(Resource.Id.headerNumber).Text = "NaN" + " " + GetString(Resource.String.songs);
-
-                    Picasso.With(Android.App.Application.Context).Load(thumnailURI).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(Activity.FindViewById<ImageView>(Resource.Id.headerArt));
-                }
-                Activity.FindViewById(Resource.Id.collapsingToolbar).RequestLayout();
-            }
         }
 
         void RandomPlay()
@@ -811,12 +815,15 @@ namespace Opus.Resources.Portable_Class
             base.OnResume();
             instance = this;
 
-            if (!Activity.FindViewById<ImageButton>(Resource.Id.headerPlay).HasOnClickListeners)
-                Activity.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { instance.PlayInOrder(0); };
-            if (!Activity.FindViewById<ImageButton>(Resource.Id.headerShuffle).HasOnClickListeners)
-                Activity.FindViewById<ImageButton>(Resource.Id.headerShuffle).Click += (sender, e0) => { RandomPlay(); };
-            if (!Activity.FindViewById<ImageButton>(Resource.Id.headerMore).HasOnClickListeners)
-                Activity.FindViewById<ImageButton>(Resource.Id.headerMore).Click += PlaylistMore;
+            if(useHeader)
+            {
+                if (!Activity.FindViewById<ImageButton>(Resource.Id.headerPlay).HasOnClickListeners)
+                    Activity.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { instance.PlayInOrder(0); };
+                if (!Activity.FindViewById<ImageButton>(Resource.Id.headerShuffle).HasOnClickListeners)
+                    Activity.FindViewById<ImageButton>(Resource.Id.headerShuffle).Click += (sender, e0) => { RandomPlay(); };
+                if (!Activity.FindViewById<ImageButton>(Resource.Id.headerMore).HasOnClickListeners)
+                    Activity.FindViewById<ImageButton>(Resource.Id.headerMore).Click += PlaylistMore;
+            }
         }
 
         public void OnOffsetChanged(AppBarLayout appBarLayout, int verticalOffset)

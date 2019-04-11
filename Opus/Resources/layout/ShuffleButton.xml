@@ -9,7 +9,9 @@
   android:layout_marginRight="20dp"
   android:layout_marginBottom="10dp"
   app:cardCornerRadius="16dp"
-  app:cardElevation="14dp" >
+  app:cardElevation="14dp"
+  android:foreground="?android:attr/selectableItemBackground"
+  android:clickable="true" >
   <LinearLayout
     android:gravity="center"
     android:layout_width="fill_parent"

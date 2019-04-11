@@ -1,4 +1,5 @@
-﻿using SQLite;
+﻿using Opus.Resources.values;
+using SQLite;
 using System;
 
 namespace Opus.Resources.Portable_Class
@@ -40,6 +41,16 @@ namespace Opus.Resources.Portable_Class
             this.Name = Name;
             this.LocalID = LocalID;
             this.YoutubeID = YoutubeID;
+        }
+
+        public Song ToSong()
+        {
+            return new Song(Name, Owner, ImageURL, YoutubeID, -1, LocalID, null, false, HasWritePermission);
+        }
+
+        public static Song ToSong(PlaylistItem item)
+        {
+            return new Song(item.Name, item.Owner, item.ImageURL, item.YoutubeID, -1, item.LocalID, null, false, item.HasWritePermission);
         }
     }
 
