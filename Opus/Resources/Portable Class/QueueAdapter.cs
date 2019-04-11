@@ -149,14 +149,9 @@ namespace Opus.Resources.Portable_Class
                         if (MusicPlayer.useAutoPlay)
                         {
                             MusicPlayer.repeat = false;
-                            //Queue.instance.menu.FindItem(Resource.Id.repeat).Icon.ClearColorFilter();
+                            NotifyItemChanged(0);
                         }
                     };
-
-                    //holder.MixButton.Click += async (sender, e) =>
-                    //{
-                    //    YoutubeEngine.CreateMix(await MusicPlayer.GetItem());
-                    //};
                 }
             }
             else

@@ -76,6 +76,28 @@
       android:layout_marginBottom="25dp">
       <RelativeLayout
         android:layout_width="match_parent"
+        android:layout_height="40dp" >
+        <ImageButton
+          android:id="@+id/repeat"
+          android:layout_width="35dp"
+          android:layout_height="35dp"
+          android:layout_margin="12dp"
+          android:layout_alignParentLeft="true"
+          android:tint="#ffffff"
+          android:background="@null"
+          android:src="@drawable/repeat" />
+        <ImageButton
+          android:id="@+id/fav"
+          android:layout_width="35dp"
+          android:layout_height="35dp"
+          android:layout_margin="12dp"
+          android:layout_alignParentRight="true"
+          android:tint="#ffffff"
+          android:background="@null"
+          android:src="@drawable/Fav" />
+      </RelativeLayout>
+      <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="80dp" >
         <ImageButton
           android:id="@+id/showQueue"

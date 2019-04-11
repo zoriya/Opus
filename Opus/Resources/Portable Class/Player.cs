@@ -57,6 +57,8 @@ namespace Opus
                 view.FindViewById<ImageButton>(Resource.Id.playButton).Click += Play_Click;
                 view.FindViewById<ImageButton>(Resource.Id.nextButton).Click += Next_Click;
                 view.FindViewById<ImageButton>(Resource.Id.moreButton).Click += More;
+                view.FindViewById<ImageButton>(Resource.Id.repeat).Click += Repeat;
+                view.FindViewById<ImageButton>(Resource.Id.fav).Click += Fav;
             }
 
             albumArt = view.FindViewById<ImageView>(Resource.Id.playerAlbum);
@@ -362,6 +364,32 @@ namespace Opus
             Intent intent = new Intent(MainActivity.instance, typeof(MusicPlayer));
             intent.SetAction("Next");
             MainActivity.instance.StartService(intent);
+        }
+
+        private void Repeat(object sender, EventArgs e)
+        {
+            MusicPlayer.repeat = !MusicPlayer.repeat;
+
+            if (MusicPlayer.UseCastPlayer)
+                MusicPlayer.RemotePlayer.QueueSetRepeatMode(MusicPlayer.repeat ? 1 : 0, null);
+
+            if (MusicPlayer.repeat)
+            {
+                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.repeat).SetColorFilter(Color.Argb(255, 21, 183, 237), PorterDuff.Mode.Multiply);
+                MusicPlayer.useAutoPlay = false;
+                Queue.instance.NotifyItemChanged(MusicPlayer.queue.Count, "UseAutoplay");
+            }
+            else
+            {
+                MainActivity.instance.FindViewById<ImageButton>(Resource.Id.repeat).ClearColorFilter();
+                MusicPlayer.useAutoPlay = true;
+                Queue.instance.NotifyItemChanged(MusicPlayer.queue.Count, "UseAutoplay");
+            }
+        }
+
+        private void Fav(object sender, EventArgs e)
+        {
+
         }
 
         private async void More(object s, EventArgs e)
