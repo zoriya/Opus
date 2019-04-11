@@ -964,7 +964,7 @@ namespace Opus
 
         public void NotStreamable(string title)
         {
-            Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), title + Resource.String.not_streamable, Snackbar.LengthLong);
+            Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), title + GetString(Resource.String.not_streamable), Snackbar.LengthLong);
             snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
             snackBar.Show();
         }

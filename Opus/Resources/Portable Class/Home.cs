@@ -56,12 +56,12 @@ namespace Opus.Resources.Portable_Class
             if (adapter != null)
                 ListView.SetAdapter(adapter);
             else
-                PopulateSongs();
+                PopulateView();
             return view;
         }
 #pragma warning restore CS4014 
 
-        private /*async Task */ void PopulateSongs()
+        private /*async Task */ void PopulateView()
         {
             if (!populating)
             {
@@ -398,7 +398,7 @@ namespace Opus.Resources.Portable_Class
 
         public async Task Refresh()
         {
-            /*await*/ PopulateSongs();
+            /*await*/ PopulateView();
             await Task.Delay(0); //WE DONT NEED TO TALK ABOUT THIS
         }
 

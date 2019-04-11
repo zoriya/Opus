@@ -554,6 +554,9 @@ namespace Opus.Resources.Portable_Class
                 if (MainActivity.instance != null)
                     MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
                 song.IsParsed = false;
+
+                if (startPlaybackWhenPosible)
+                    Player.instance?.Ready();
                 return null;
             }
             catch(YoutubeExplode.Exceptions.VideoUnplayableException ex)
@@ -566,6 +569,9 @@ namespace Opus.Resources.Portable_Class
                 song.IsParsed = false;
                 if (position != -1)
                     RemoveFromQueue(position); //Remove the song from the queue since it can't be played.
+
+                if(startPlaybackWhenPosible)
+                    Player.instance?.Ready();
                 return null;
             }
             catch(YoutubeExplode.Exceptions.VideoUnavailableException)
@@ -577,6 +583,9 @@ namespace Opus.Resources.Portable_Class
                 song.IsParsed = false;
                 if (position != -1)
                     RemoveFromQueue(position); //Remove the song from the queue since it can't be played.
+
+                if (startPlaybackWhenPosible)
+                    Player.instance?.Ready();
                 return null;
             }
             return song;

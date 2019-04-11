@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using static Android.Provider.MediaStore.Audio;
 using CursorLoader = Android.Support.V4.Content.CursorLoader;
+using Application = Android.App.Application;
 
 namespace Opus.Resources.Portable_Class
 {
@@ -64,70 +65,34 @@ namespace Opus.Resources.Portable_Class
             {
                 populating = true;
 
-                //Synced playlists
-                List<PlaylistItem> SyncedPlaylists = new List<PlaylistItem>();
-                await Task.Run(() =>
-                {
-                    SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "SyncedPlaylists.sqlite"));
-                    db.CreateTable<PlaylistItem>();
-
-                    SyncedPlaylists = db.Table<PlaylistItem>().ToList();
-                });
-
                 //Initialisation
                 LocalPlaylists.Clear();
                 YoutubePlaylists.Clear();
                 LocalPlaylists.Add(new PlaylistItem("Header", -1));
                 YoutubePlaylists.Add(new PlaylistItem("Header", null));
                 PlaylistItem Loading = new PlaylistItem("Loading", null);
+                
+                //Get all local playlist and display an error message if we have an error.
+                (List<PlaylistItem> locPlaylists, string error) = await GetLocalPlaylists();
 
-                if (await MainActivity.instance.GetReadPermission())
-                {
-                    //Local playlists
-                    Android.Net.Uri uri = Playlists.ExternalContentUri;
-                    CursorLoader loader = new CursorLoader(Android.App.Application.Context, uri, null, null, null, null);
-                    ICursor cursor = (ICursor)loader.LoadInBackground();
+                if (instance == null)
+                    return;
 
-                    if (cursor != null && cursor.MoveToFirst())
-                    {
-                        int nameID = cursor.GetColumnIndex(Playlists.InterfaceConsts.Name);
-                        int listID = cursor.GetColumnIndex(Playlists.InterfaceConsts.Id);
-                        do
-                        {
-                            string name = cursor.GetString(nameID);
-                            long id = cursor.GetLong(listID);
+                if (locPlaylists == null) //an error has occured
+                    LocalPlaylists.Add(new PlaylistItem("EMPTY", -1) { Owner = error });
 
-                            PlaylistItem ytPlaylist = SyncedPlaylists.Find(x => x.LocalID == id);
-                            if (ytPlaylist == null)
-                            {
-                                Android.Net.Uri musicUri = Playlists.Members.GetContentUri("external", id);
-                                CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
-                                ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
 
-                                LocalPlaylists.Add(new PlaylistItem(name, id, musicCursor.Count));
-                            }
-                            else
-                            {
-                                if (ytPlaylist.YoutubeID == null)
-                                    ytPlaylist.SyncState = SyncState.Loading;
-                                else
-                                    ytPlaylist.SyncState = SyncState.True;
+                //Handle synced playlist from the local playlist array we had before.
+                (List<PlaylistItem> loc, List<PlaylistItem> SyncedPlaylists) = await ProcessSyncedPlaylists(locPlaylists);
 
-                                YoutubePlaylists.Add(ytPlaylist);
-                            }
-                        }
-                        while (cursor.MoveToNext());
-                        cursor.Close();
-                    }
+                if (instance == null)
+                    return;
 
-                    if (LocalPlaylists.Count == 1)
-                        LocalPlaylists.Add(new PlaylistItem("EMPTY", -1) { Owner = Resources.GetString(Resource.String.local_playlist_empty) });
-                }
-                else
-                {
-                    LocalPlaylists.Add(new PlaylistItem("EMPTY", -1) { Owner = Resources.GetString(Resource.String.no_permission) });
-                }
+                LocalPlaylists.AddRange(loc);
+                YoutubePlaylists.AddRange(SyncedPlaylists);
 
+
+                //Display this for now, we'll load non synced youtube playlist in the background.
                 YoutubePlaylists.Add(Loading);
                 adapter = new PlaylistAdapter(LocalPlaylists, YoutubePlaylists);
                 ListView.SetAdapter(adapter);
@@ -135,218 +100,322 @@ namespace Opus.Resources.Portable_Class
                 adapter.ItemLongCLick += ListView_ItemLongClick;
                 ListView.SetItemAnimator(new DefaultItemAnimator());
 
-                //Youtube playlists
-                if (!await MainActivity.instance.WaitForYoutube())
+                //Youtube owned playlists
+                (List<PlaylistItem> yt, string err) = await GetOwnedYoutubePlaylists(SyncedPlaylists);
+
+                if (instance == null)
+                    return;
+
+                if (yt == null)
                 {
                     YoutubePlaylists.Remove(Loading);
                     adapter.NotifyItemRemoved(LocalPlaylists.Count + YoutubePlaylists.Count);
-
-                    for (int i = 1; i < YoutubePlaylists.Count; i++)
-                    {
-                        YoutubePlaylists[i].SyncState = SyncState.Error;
-                        PlaylistHolder holder = (PlaylistHolder)ListView.GetChildViewHolder(ListView.GetChildAt(LocalPlaylists.Count + i));
-                        holder.sync.SetImageResource(Resource.Drawable.SyncError);
-                        holder.sync.Visibility = ViewStates.Visible;
-                        holder.SyncLoading.Visibility = ViewStates.Gone;
-                        if (MainActivity.Theme == 1)
-                            holder.sync.SetColorFilter(Color.White);
-                    }
-
-                    YoutubePlaylists.Add(new PlaylistItem("Error", null));
+                    YoutubePlaylists.Add(new PlaylistItem("Error", null)); //Should use the "err" var here
                     adapter.NotifyItemInserted(LocalPlaylists.Count + YoutubePlaylists.Count);
                     populating = false;
+                    SyncError();
                     return;
                 }
-                int YtCount = YoutubePlaylists.Count;
-
-                try
+                else
                 {
-                    YouTubeService youtube = YoutubeEngine.youtubeService;
-
-                    PlaylistsResource.ListRequest request = youtube.Playlists.List("snippet,contentDetails");
-                    request.Mine = true;
-                    request.MaxResults = 25;
-                    PlaylistListResponse response = await request.ExecuteAsync();
-
-                    if (instance == null)
-                        return;
-
-                    for (int i = 0; i < response.Items.Count; i++)
-                    {
-                        Google.Apis.YouTube.v3.Data.Playlist playlist = response.Items[i];
-                        PlaylistItem item = new PlaylistItem(playlist.Snippet.Title, playlist.Id, playlist, (int)playlist.ContentDetails.ItemCount)
-                        {
-                            Owner = playlist.Snippet.ChannelTitle,
-                            ImageURL = playlist.Snippet.Thumbnails.High.Url,
-                            HasWritePermission = true
-                        };
-
-                        PlaylistItem syncedItem = SyncedPlaylists.Find(x => x.YoutubeID == item.YoutubeID);
-                        if (SyncedPlaylists.Find(x => x.YoutubeID == item.YoutubeID) != null)
-                        {
-                            int position = YoutubePlaylists.FindIndex(x => x.Name == item.Name);
-                            YoutubePlaylists[position].Snippet = item.Snippet;
-                            YoutubePlaylists[position].Count = item.Count;
-                            SyncedPlaylists.RemoveAll(x => x.YoutubeID == item.YoutubeID);
-                        }
-                        else if (SyncedPlaylists.Find(x => x.Name == item.Name) != null)
-                        {
-                            item.LocalID = SyncedPlaylists.Find(x => x.Name == item.Name).LocalID;
-                            int position = YoutubePlaylists.FindIndex(x => x.Name == item.Name);
-                            YoutubePlaylists[position] = item;
-                            YoutubePlaylists[position].SyncState = SyncState.True;
-
-                            PlaylistHolder holder = (PlaylistHolder)ListView.GetChildViewHolder(ListView.GetChildAt(LocalPlaylists.Count + position));
-                            holder.Owner.Text = item.Owner;
-                            Picasso.With(Android.App.Application.Context).Load(item.ImageURL).Placeholder(Resource.Color.background_material_dark).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
-                            holder.edit.Visibility = ViewStates.Visible;
-                            if (MainActivity.Theme == 1)
-                                holder.edit.SetColorFilter(Color.White);
-                            holder.sync.SetImageResource(Resource.Drawable.Sync);
-                            holder.sync.Visibility = ViewStates.Visible;
-                            holder.SyncLoading.Visibility = ViewStates.Gone;
-                            if (MainActivity.Theme == 1)
-                                holder.sync.SetColorFilter(Color.White);
-
-                            Task.Run(() =>
-                            {
-                                SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "SyncedPlaylists.sqlite"));
-                                db.CreateTable<PlaylistItem>();
-                                db.InsertOrReplace(item);
-                            });
-                            SyncedPlaylists.RemoveAll(x => x.LocalID == item.LocalID);
-                        }
-                        else
-                            YoutubePlaylists.Add(item);
-                    }
-
-                    if(YtCount != YoutubePlaylists.Count)
-                    {
-                        YoutubePlaylists.Remove(Loading);
-                        YoutubePlaylists.Add(Loading);
-                        adapter.NotifyItemMoved(LocalPlaylists.Count + YoutubePlaylists.IndexOf(Loading), LocalPlaylists.Count + YoutubePlaylists.Count);
-                    }
-                    adapter.NotifyItemRangeInserted(LocalPlaylists.Count + YoutubePlaylists.Count + 1 - YtCount, YoutubePlaylists.Count - YtCount);
-                    YtCount = YoutubePlaylists.Count;
-
-                    //Saved playlists
-                    ChannelSectionsResource.ListRequest forkedRequest = youtube.ChannelSections.List("snippet,contentDetails");
-                    forkedRequest.Mine = true;
-                    ChannelSectionListResponse forkedResponse = await forkedRequest.ExecuteAsync();
-                    if (instance == null)
-                        return;
-
-                    foreach (ChannelSection section in forkedResponse.Items)
-                    {
-                        if (section.Snippet.Title == "Saved Playlists")
-                        {
-                            for (int i = 0; i < section.ContentDetails.Playlists.Count; i++)
-                            {
-                                PlaylistsResource.ListRequest plRequest = youtube.Playlists.List("snippet, contentDetails");
-                                plRequest.Id = section.ContentDetails.Playlists[i];
-                                PlaylistListResponse plResponse = await plRequest.ExecuteAsync();
-
-                                if (instance == null)
-                                    return;
-
-                                Google.Apis.YouTube.v3.Data.Playlist playlist = plResponse.Items[i];
-                                playlist.Kind = "youtube#saved";
-                                PlaylistItem item = new PlaylistItem(playlist.Snippet.Title, playlist.Id, playlist, (int)playlist.ContentDetails.ItemCount)
-                                {
-                                    Owner = playlist.Snippet.ChannelTitle,
-                                    ImageURL = playlist.Snippet.Thumbnails.High.Url,
-                                    HasWritePermission = false
-                                };
-
-                                if (SyncedPlaylists.Find(x => x.YoutubeID == item.YoutubeID) != null)
-                                {
-                                    int position = YoutubePlaylists.FindIndex(x => x.Name == item.Name);
-                                    YoutubePlaylists[position].Snippet = item.Snippet;
-                                    YoutubePlaylists[position].Count = item.Count;
-                                    YoutubePlaylists[position].SyncState = SyncState.True;
-                                    SyncedPlaylists.RemoveAll(x => x.YoutubeID == item.YoutubeID);
-                                }
-                                else if (SyncedPlaylists.Find(x => x.Name == item.Name) != null)
-                                {
-                                    item.LocalID = SyncedPlaylists.Find(x => x.Name == item.Name).LocalID;
-                                    int position = YoutubePlaylists.FindIndex(x => x.Name == item.Name);
-                                    YoutubePlaylists[position] = item;
-                                    YoutubePlaylists[position].SyncState = SyncState.True;
-
-                                    PlaylistHolder holder = (PlaylistHolder)ListView.GetChildViewHolder(ListView.GetChildAt(LocalPlaylists.Count + position));
-                                    holder.Owner.Text = item.Owner;
-                                    Picasso.With(Android.App.Application.Context).Load(item.ImageURL).Placeholder(Resource.Color.background_material_dark).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
-                                    holder.edit.Visibility = ViewStates.Gone;
-                                    holder.sync.SetImageResource(Resource.Drawable.Sync);
-                                    holder.sync.Visibility = ViewStates.Visible;
-                                    holder.SyncLoading.Visibility = ViewStates.Gone;
-                                    if (MainActivity.Theme == 1)
-                                        holder.sync.SetColorFilter(Color.White);
-
-                                    Task.Run(() =>
-                                    {
-                                        SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "SyncedPlaylists.sqlite"));
-                                        db.CreateTable<PlaylistItem>();
-                                        db.InsertOrReplace(item);
-                                    });
-                                    SyncedPlaylists.RemoveAll(x => x.LocalID == item.LocalID);
-                                }
-                                else
-                                    YoutubePlaylists.Add(item);
-                            }
-                        }
-                    }
-
-                    YoutubePlaylists.Remove(Loading);
-                    adapter.NotifyItemRemoved(LocalPlaylists.Count + YtCount);
-
-                    if (YoutubePlaylists.Count == 1)
-                    {
-                        YoutubePlaylists.Add(new PlaylistItem("EMPTY", null) { Owner = Resources.GetString(Resource.String.youtube_playlist_empty) });
-                    }
-                    adapter.NotifyItemRangeInserted(LocalPlaylists.Count + YoutubePlaylists.Count + 1 - YtCount, YoutubePlaylists.Count - YtCount);
-                    adapter.forkSaved = true;
-
-                    if (SyncedPlaylists.Count > 0)
-                    {
-                        List<PlaylistItem> BadSync = SyncedPlaylists.FindAll(x => x.SyncState == SyncState.Loading);
-                        LocalPlaylists.AddRange(BadSync);
-
-                        for (int i = 0; i < SyncedPlaylists.Count; i++)
-                            SyncedPlaylists[i].SyncState = SyncState.Error;
-
-                        if(BadSync.Count > 0)
-                        {
-                            if (LocalPlaylists[1].Name == "EMPTY")
-                            {
-                                LocalPlaylists.RemoveAt(1);
-                                adapter.NotifyItemRemoved(1);
-                            }
-                            adapter.NotifyItemRangeInserted(LocalPlaylists.Count - SyncedPlaylists.Count, BadSync.Count);
-                        }
-                    }
+                    int startPos = YoutubePlaylists.Count - 1;
+                    YoutubePlaylists.InsertRange(startPos, yt);
+                    adapter.NotifyItemRangeInserted(LocalPlaylists.Count + startPos, yt.Count);
                 }
-                catch (System.Net.Http.HttpRequestException)
+
+                //Youtube saved playlists
+                (yt, error) = await GetSavedYoutubePlaylists(SyncedPlaylists);
+
+                if (instance == null)
+                    return;
+
+                if (yt == null)
                 {
                     YoutubePlaylists.Remove(Loading);
                     adapter.NotifyItemRemoved(LocalPlaylists.Count + YoutubePlaylists.Count);
-
-                    for (int i = 1; i < YoutubePlaylists.Count; i++)
-                    {
-                        YoutubePlaylists[i].SyncState = SyncState.Error;
-                        PlaylistHolder holder = (PlaylistHolder)ListView.GetChildViewHolder(ListView.GetChildAt(LocalPlaylists.Count + i));
-                        holder.sync.SetImageResource(Resource.Drawable.SyncError);
-                        holder.sync.Visibility = ViewStates.Visible;
-                        holder.SyncLoading.Visibility = ViewStates.Gone;
-                        if (MainActivity.Theme == 1)
-                            holder.sync.SetColorFilter(Color.White);
-                    }
-
-                    YoutubePlaylists.Add(new PlaylistItem("Error", null));
+                    YoutubePlaylists.Add(new PlaylistItem("Error", null)); //Should use the "error" var here
                     adapter.NotifyItemInserted(LocalPlaylists.Count + YoutubePlaylists.Count);
+                    populating = false;
+                    SyncError();
+                    return;
                 }
+                else
+                {
+                    YoutubePlaylists.Remove(Loading);
+                    int loadPos = LocalPlaylists.Count + YoutubePlaylists.Count;
+                    YoutubePlaylists.AddRange(yt);
+                    adapter.NotifyItemChanged(loadPos);
+                    adapter.NotifyItemRangeInserted(loadPos + 1, yt.Count - 1);
+                    adapter.forkSaved = true;
+                }
+
+                if (SyncedPlaylists.Count > 0)
+                {
+                    List<PlaylistItem> BadSync = SyncedPlaylists.FindAll(x => x.SyncState == SyncState.Loading);
+                    for (int i = 0; i < SyncedPlaylists.Count; i++)
+                        SyncedPlaylists[i].SyncState = SyncState.Error;
+
+                    LocalPlaylists.AddRange(BadSync);
+
+                    if (BadSync.Count > 0)
+                    {
+                        if (LocalPlaylists[1].Name == "EMPTY")
+                        {
+                            LocalPlaylists.RemoveAt(1);
+                            adapter.NotifyItemRemoved(1);
+                        }
+                        adapter.NotifyItemRangeInserted(LocalPlaylists.Count - SyncedPlaylists.Count, BadSync.Count);
+                    }
+                }
+
                 populating = false;
             }
+        }
+
+        private void SyncError()
+        {
+            for (int i = 1; i < YoutubePlaylists.Count; i++)
+            {
+                if(YoutubePlaylists[i].SyncState == SyncState.Loading)
+                {
+                    YoutubePlaylists[i].SyncState = SyncState.Error;
+                    PlaylistHolder holder = (PlaylistHolder)ListView.GetChildViewHolder(ListView.GetChildAt(LocalPlaylists.Count + i));
+                    holder.sync.SetImageResource(Resource.Drawable.SyncError);
+                    holder.sync.Visibility = ViewStates.Visible;
+                    holder.SyncLoading.Visibility = ViewStates.Gone;
+                    if (MainActivity.Theme == 1)
+                        holder.sync.SetColorFilter(Color.White);
+                }
+            }
+        }
+
+        /* This method will return all playlists available on the local storage in the array "playlists".
+         * If there is an error, the Task will return an error message to display to the user. */
+        public static async Task<(List<PlaylistItem>, string)> GetLocalPlaylists()
+        {
+            if (!await MainActivity.instance.GetReadPermission())
+                return (null, Application.Context.GetString(Resource.String.no_permission));
+
+            List<PlaylistItem> playlists = new List<PlaylistItem>();
+
+            Android.Net.Uri uri = Playlists.ExternalContentUri;
+            CursorLoader loader = new CursorLoader(Application.Context, uri, null, null, null, null);
+            ICursor cursor = (ICursor)loader.LoadInBackground();
+
+            if (cursor != null && cursor.MoveToFirst())
+            {
+                int nameID = cursor.GetColumnIndex(Playlists.InterfaceConsts.Name);
+                int listID = cursor.GetColumnIndex(Playlists.InterfaceConsts.Id);
+                do
+                {
+                    string name = cursor.GetString(nameID);
+                    long id = cursor.GetLong(listID);
+
+                    Android.Net.Uri musicUri = Playlists.Members.GetContentUri("external", id);
+                    CursorLoader cursorLoader = new CursorLoader(Application.Context, musicUri, null, null, null, null);
+                    ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
+
+                    playlists.Add(new PlaylistItem(name, id, musicCursor.Count));
+                }
+                while (cursor.MoveToNext());
+                cursor.Close();
+            }
+
+            if (playlists.Count == 1)
+                return (null, Application.Context.GetString(Resource.String.local_playlist_empty));
+            else
+                return (playlists, null);
+        }
+
+        /* This method will proceed the local playlists and remove synced one from the imput.
+         * It will return as first ouput an array containing the true local playlist and as second output the synced youtube playlists.
+         * The outputed youtube playlists will already have the right sync state set (loading, synced...) */
+        public static async Task<(List<PlaylistItem>, List<PlaylistItem>)> ProcessSyncedPlaylists(List<PlaylistItem> localPlaylists)
+        {
+            List<PlaylistItem> syncedPlaylists = new List<PlaylistItem>();
+            await Task.Run(() =>
+            {
+                SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "SyncedPlaylists.sqlite"));
+                db.CreateTable<PlaylistItem>();
+
+                syncedPlaylists = db.Table<PlaylistItem>().ToList();
+            });
+
+            foreach (PlaylistItem synced in syncedPlaylists)
+            {
+                PlaylistItem local = localPlaylists?.Find(x => x.LocalID == synced.LocalID);
+                if (local != null)
+                {
+                    localPlaylists.Remove(local); //This playlist is a synced one, we don't want to display it in the "local" collumn but in the youtube one.
+
+                    //Set sync state of the playlist (SyncState can't be false since we take the playlist in the synced database)
+                    if (synced.YoutubeID == null)
+                        synced.SyncState = SyncState.Loading;
+                    else
+                        synced.SyncState = SyncState.True;
+                }
+                else
+                {
+                    //If local is null, we had an error loading local playlists or another thing (can be read permission denied for example) 
+                    synced.SyncState = SyncState.Error;
+                }
+            }
+
+            return (localPlaylists, syncedPlaylists);
+        }
+
+
+        /* This method return all youtube playlists owned by the user and process synced playlist if you give an array of know youtube synced playlists 
+         * The YoutubePlaylists array should contains the synced playlist availables. Warning, this will return your initial array (proceded if there is synced playlist) + owned playlists
+         * The second outputed var (the string) is the error message that should be displayed to the user (the list will be null if there is an error)*/
+        public static async Task<(List<PlaylistItem>, string)> GetOwnedYoutubePlaylists(List<PlaylistItem> SyncedPlaylists)
+        {
+            if (!await MainActivity.instance.WaitForYoutube())
+                return (null, "Error"); //Should have a better error handling
+
+            List<PlaylistItem> YoutubePlaylists = new List<PlaylistItem>();
+
+            try
+            {
+                YouTubeService youtube = YoutubeEngine.youtubeService;
+
+                PlaylistsResource.ListRequest request = youtube.Playlists.List("snippet,contentDetails");
+                request.Mine = true;
+                request.MaxResults = 25;
+                PlaylistListResponse response = await request.ExecuteAsync();
+
+                for (int i = 0; i < response.Items.Count; i++)
+                {
+                    Google.Apis.YouTube.v3.Data.Playlist playlist = response.Items[i];
+                    PlaylistItem item = new PlaylistItem(playlist.Snippet.Title, playlist.Id, playlist, (int)playlist.ContentDetails.ItemCount)
+                    {
+                        Owner = playlist.Snippet.ChannelTitle,
+                        ImageURL = playlist.Snippet.Thumbnails.High.Url,
+                        HasWritePermission = true
+                    };
+
+                    AddItemWithSyncCheck(item, SyncedPlaylists, YoutubePlaylists);
+                }
+
+                return (YoutubePlaylists, null);
+            }
+            catch (System.Net.Http.HttpRequestException)
+            {
+                return (null, "Error"); //Should handle precise error here
+            }
+        }
+
+        /* This method return all youtube playlists saved by the user and process synced playlist if you give an array of know youtube synced playlists 
+         * The YoutubePlaylists array should contains the synced playlist availables. Warning, this will return your initial array (proceded if there is synced playlist) + saved playlists
+         * The second outputed var (the string) is the error message that should be displayed to the user (the list will be null if there is an error)*/
+        public static async Task<(List<PlaylistItem>, string)> GetSavedYoutubePlaylists(List<PlaylistItem> SyncedPlaylists)
+        {
+            if (!await MainActivity.instance.WaitForYoutube())
+                return (null, "Error"); //Should have a better error handling
+
+            List<PlaylistItem> YoutubePlaylists = new List<PlaylistItem>();
+
+            try
+            {
+                YouTubeService youtube = YoutubeEngine.youtubeService;
+
+                ChannelSectionsResource.ListRequest forkedRequest = youtube.ChannelSections.List("snippet,contentDetails");
+                forkedRequest.Mine = true;
+                ChannelSectionListResponse forkedResponse = await forkedRequest.ExecuteAsync();
+
+                foreach (ChannelSection section in forkedResponse.Items)
+                {
+                    if (section.Snippet.Title == "Saved Playlists")
+                    {
+                        for (int i = 0; i < section.ContentDetails.Playlists.Count; i++)
+                        {
+                            PlaylistsResource.ListRequest plRequest = youtube.Playlists.List("snippet, contentDetails");
+                            plRequest.Id = section.ContentDetails.Playlists[i];
+                            PlaylistListResponse plResponse = await plRequest.ExecuteAsync();
+
+                            Google.Apis.YouTube.v3.Data.Playlist playlist = plResponse.Items[i];
+                            playlist.Kind = "youtube#saved";
+                            PlaylistItem item = new PlaylistItem(playlist.Snippet.Title, playlist.Id, playlist, (int)playlist.ContentDetails.ItemCount)
+                            {
+                                Owner = playlist.Snippet.ChannelTitle,
+                                ImageURL = playlist.Snippet.Thumbnails.High.Url,
+                                HasWritePermission = false
+                            };
+
+                            AddItemWithSyncCheck(item, SyncedPlaylists, YoutubePlaylists);
+                        }
+                    }
+                }
+
+                return (YoutubePlaylists, null);
+            }
+            catch (System.Net.Http.HttpRequestException)
+            {
+                return (null, "Error"); //Should handle precise error here
+            }
+        }
+
+        //All change are made here because PlaylistItem and List are classes witch mean that they will be updated automatically on the others methods
+        public static void AddItemWithSyncCheck(PlaylistItem item, List<PlaylistItem> SyncedPlaylists, List<PlaylistItem> YoutubePlaylists)
+        {
+            PlaylistItem syncedItem = SyncedPlaylists?.Find(x => x.YoutubeID == item.YoutubeID);
+            if (syncedItem != null)
+            {
+                syncedItem.Snippet = item.Snippet;
+                syncedItem.Count = item.Count;
+            }
+            else if (SyncedPlaylists?.Find(x => x.Name == item.Name) != null)
+            {
+                /*We couldn't find a match of a synced playlist with the exact youtube id but we found a synced playlist with the exact same name as this one (item). 
+                * We bind them and complete the database for future calls. */
+                syncedItem = SyncedPlaylists.Find(x => x.Name == item.Name);
+                int syncIndex = SyncedPlaylists.IndexOf(syncedItem);
+                item.LocalID = syncedItem.LocalID;
+                item.SyncState = SyncState.True;
+
+                SyncedPlaylists[syncIndex] = item;
+
+                if(instance != null)
+                    MainActivity.instance.RunOnUiThread(() => { instance.YoutubeItemSynced(item, syncIndex); });
+
+                Task.Run(() =>
+                {
+                    SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "SyncedPlaylists.sqlite"));
+                    db.CreateTable<PlaylistItem>();
+                    db.InsertOrReplace(item);
+                });
+            }
+            else
+                YoutubePlaylists.Add(item);
+        }
+
+        //We give the item and the index since the public "YoutubePlaylists" array is not updated yet.
+        private void YoutubeItemSynced(PlaylistItem item, int syncedPlaylistIndex)
+        {
+            /*The display order is 
+             *  - Local Header
+             *  - Local Playlists
+             *  - Youtube Header
+             *  - Synced Playlists
+             *  Since local header and local playlists are both contained in the "LocalPlaylists" array, to get the position of the syncedPlaylist,
+             *  we need to sum the LocalPlaylists count (this sum get the position of the youtube header) and then we add the syncedPlaylistIndex.
+             *  We need to add one for the youtube header (witch is not in the syncedplaylists array)*/
+            PlaylistHolder holder = (PlaylistHolder)ListView.FindViewHolderForAdapterPosition(LocalPlaylists.Count + syncedPlaylistIndex + 1);
+            holder.Owner.Text = item.Owner;
+            Picasso.With(Application.Context).Load(item.ImageURL).Placeholder(Resource.Color.background_material_dark).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
+
+            if(item.HasWritePermission)
+            {
+                holder.edit.Visibility = ViewStates.Visible;
+                if (MainActivity.Theme == 1)
+                    holder.edit.SetColorFilter(Color.White);
+            }
+
+            holder.sync.SetImageResource(Resource.Drawable.Sync);
+            holder.sync.Visibility = ViewStates.Visible;
+            holder.SyncLoading.Visibility = ViewStates.Gone;
+            if (MainActivity.Theme == 1)
+                holder.sync.SetColorFilter(Color.White);
         }
 
         public static Fragment NewInstance()
