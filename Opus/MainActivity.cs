@@ -1231,10 +1231,10 @@ namespace Opus
 
         public override void OnBackPressed()
         {
-            if (SheetBehavior.State == BottomSheetBehavior.StateExpanded)
+            if (Player.instance?.DrawerLayout.IsDrawerOpen((int)GravityFlags.Start) == true)
+                Player.instance?.DrawerLayout.CloseDrawer((int)GravityFlags.Start);
+            else if (SheetBehavior.State == BottomSheetBehavior.StateExpanded)
                 SheetBehavior.State = BottomSheetBehavior.StateCollapsed;
-            else if (PlaylistTracks.instance != null)
-                SupportFragmentManager.BeginTransaction().Remove(PlaylistTracks.instance).Commit();
             else
                 base.OnBackPressed();
         }
