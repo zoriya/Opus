@@ -8,7 +8,6 @@
     <item name="android:windowActivityTransitions">true</item>
     <item name="android:windowContentTransitions">true</item>
     <item name="android:windowTranslucentStatus">true</item>
-    <item name="android:navigationBarColor">#ffffff</item>
     <item name="android:dropDownListViewStyle">@style/LightDropDown</item>
     <item name="preferenceTheme">@style/LightPreferences</item>
     <item name="colorAccent">#A3BBDC</item>

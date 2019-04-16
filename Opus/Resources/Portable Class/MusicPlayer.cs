@@ -539,8 +539,6 @@ namespace Opus.Resources.Portable_Class
                     }
                 }
 
-                Player.instance?.RefreshPlayer();
-
                 if (!song.IsLiveStream)
                     song.ExpireDate = mediaStreamInfo.ValidUntil;
 
@@ -1024,6 +1022,29 @@ namespace Opus.Resources.Portable_Class
                 SwitchQueue(CurrentID() - 1);
         }
 
+        public static void Repeat()
+        {
+            repeat = !repeat;
+
+            if (UseCastPlayer)
+                RemotePlayer.QueueSetRepeatMode(repeat ? 1 : 0, null);
+
+            if (repeat)
+            {
+                Queue.instance?.NotifyItemChanged(-1, "Repeat");
+                Player.instance?.Repeat(true);
+                useAutoPlay = false;
+                Queue.instance?.NotifyItemChanged(queue.Count, "UseAutoplay");
+            }
+            else
+            {
+                Queue.instance?.NotifyItemChanged(-1, "Repeat");
+                Player.instance?.Repeat(false);
+                useAutoPlay = true;
+                Queue.instance?.NotifyItemChanged(queue.Count, "UseAutoplay");
+            }
+        }
+
         public void PlayNext()
         {
             Player.instance.playNext = true;
@@ -1095,6 +1116,7 @@ namespace Opus.Resources.Portable_Class
                 {
                     currentID = position;
                     Queue.instance?.RefreshCurrent();
+                    Player.instance?.RefreshPlayer();
                 }
                 else
                     Player.instance?.Ready(); //Remove player's loading bar since we'll not load this song

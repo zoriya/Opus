@@ -42,29 +42,15 @@ namespace Opus.Resources.Portable_Class
                         MainActivity.instance.StartService(intent);
                     };
                 }
+
+                if (MusicPlayer.repeat)
+                    holder.Repeat.SetColorFilter(Color.Argb(255, 21, 183, 237), PorterDuff.Mode.Multiply);
+                else
+                    holder.Repeat.ClearColorFilter();
+
                 if (!holder.Repeat.HasOnClickListeners)
-                {
-                    holder.Repeat.Click += (sender, e) =>
-                    {
-                        MusicPlayer.repeat = !MusicPlayer.repeat;
+                    holder.Repeat.Click += (sender, e) => { MusicPlayer.Repeat(); };
 
-                        if (MusicPlayer.UseCastPlayer)
-                            MusicPlayer.RemotePlayer.QueueSetRepeatMode(MusicPlayer.repeat ? 1 : 0, null);
-
-                        if (MusicPlayer.repeat)
-                        {
-                            holder.Repeat.SetColorFilter(Color.Argb(255, 21, 183, 237), PorterDuff.Mode.Multiply);
-                            MusicPlayer.useAutoPlay = false;
-                            NotifyItemChanged(ItemCount - 1, "UseAutoplay");
-                        }
-                        else
-                        {
-                            holder.Repeat.ClearColorFilter();
-                            MusicPlayer.useAutoPlay = true;
-                            NotifyItemChanged(ItemCount - 1, "UseAutoplay");
-                        }
-                    };
-                }
                 if (!holder.More.HasOnClickListeners)
                 {
                     holder.More.Click += (sender, e) =>
@@ -263,7 +249,16 @@ namespace Opus.Resources.Portable_Class
         {
             if (payloads.Count > 0)
             {
-                if(payloads[0].ToString() == "UseAutoplay")
+                if (payloads[0].ToString() == "Repeat")
+                {
+                    QueueHeader holder = (QueueHeader)viewHolder;
+
+                    if (MusicPlayer.repeat)
+                        holder.Repeat.SetColorFilter(Color.Argb(255, 21, 183, 237), PorterDuff.Mode.Multiply);
+                    else
+                        holder.Repeat.ClearColorFilter();
+                }
+                else if (payloads[0].ToString() == "UseAutoplay")
                 {
                     QueueFooter holder = (QueueFooter)viewHolder;
                     holder.SwitchButton.Checked = MusicPlayer.useAutoPlay;

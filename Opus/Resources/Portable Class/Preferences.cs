@@ -43,20 +43,33 @@ namespace Opus.Resources.Portable_Class
                     Finish();
                 else if (DownloadFragment.instance != null)
                 {
-                    ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(this);
-                    ISharedPreferencesEditor editor = prefManager.Edit();
-                    editor.PutString("downloadPath", DownloadFragment.instance.path);
-                    editor.Apply();
-                    Preference downloadPref = PreferencesFragment.instance.PreferenceScreen.FindPreference("downloadPath");
-                    downloadPref.Summary = DownloadFragment.instance.path ?? Environment.GetExternalStoragePublicDirectory(Environment.DirectoryMusic).ToString();
-                    PreferencesFragment.instance.path = DownloadFragment.instance.path;
-
-                    DownloadFragment.instance = null;
-                    SupportFragmentManager.PopBackStack();
+                    DownloadFolderBack();
                 }
             };
 
             SupportFragmentManager.BeginTransaction().Replace(Resource.Id.PreferenceFragment, new PreferencesFragment()).Commit();
+        }
+
+        public override void OnBackPressed()
+        {
+            if (DownloadFragment.instance != null)
+                DownloadFolderBack();
+            else
+                base.OnBackPressed();
+        }
+
+        private void DownloadFolderBack()
+        {
+            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(this);
+            ISharedPreferencesEditor editor = prefManager.Edit();
+            editor.PutString("downloadPath", DownloadFragment.instance.path);
+            editor.Apply();
+            Preference downloadPref = PreferencesFragment.instance.PreferenceScreen.FindPreference("downloadPath");
+            downloadPref.Summary = DownloadFragment.instance.path ?? Environment.GetExternalStoragePublicDirectory(Environment.DirectoryMusic).ToString();
+            PreferencesFragment.instance.path = DownloadFragment.instance.path;
+
+            DownloadFragment.instance = null;
+            SupportFragmentManager.PopBackStack();
         }
 
         protected override void OnStop()
