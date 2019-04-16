@@ -67,7 +67,7 @@ namespace Opus
         public bool SkipStop = false;
         public PlayerBehavior SheetBehavior;
 
-        private const int RequestCode = 8539;
+        public const int RequestCode = 8539;
         private const int WriteRequestCode = 2659;
         public const int NotifUpdateID = 4626;
         private const string versionURI = "https://raw.githubusercontent.com/AnonymusRaccoon/Opus/master/Opus/Assets/Version.txt";
@@ -794,7 +794,7 @@ namespace Opus
         public async Task<bool> GetWritePermission()
         {
             const string permission = Manifest.Permission.WriteExternalStorage;
-            if (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(this, permission) == (int)Permission.Granted)
+            if (ContextCompat.CheckSelfPermission(this, permission) == (int)Permission.Granted)
             {
                 return true;
             }

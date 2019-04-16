@@ -1,11 +1,15 @@
-﻿using Android.App;
+﻿using Android;
+using Android.App;
 using Android.Content;
+using Android.Content.PM;
 using Android.Content.Res;
 using Android.Gms.Auth.Api;
 using Android.Gms.Auth.Api.SignIn;
+using Android.Graphics;
 using Android.OS;
 using Android.Preferences;
 using Android.Runtime;
+using Android.Support.Design.Widget;
 using Android.Support.V7.App;
 using Android.Support.V7.Preferences;
 using Android.Views;
@@ -13,6 +17,7 @@ using Android.Widget;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using AlertDialog = Android.Support.V7.App.AlertDialog;
 using Preference = Android.Support.V7.Preferences.Preference;
 using PreferenceManager = Android.Support.V7.Preferences.PreferenceManager;
@@ -25,6 +30,7 @@ namespace Opus.Resources.Portable_Class
     {
         public static Preferences instance;
         public Toolbar toolbar;
+        private bool? PermissionGot;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -78,9 +84,42 @@ namespace Opus.Resources.Portable_Class
             instance = null;
         }
 
+        public async Task<bool> GetReadPermission()
+        {
+            if (MainActivity.instance.HasReadPermission())
+                return true;
+
+            PermissionGot = null;
+            string[] permissions = new string[] { Manifest.Permission.ReadExternalStorage };
+            RequestPermissions(permissions, MainActivity.RequestCode);
+
+            while (PermissionGot == null)
+                await Task.Delay(10);
+
+            return (bool)PermissionGot;
+        }
+
+        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, Permission[] grantResults)
+        {
+            if (requestCode == MainActivity.RequestCode)
+            {
+                if (grantResults.Length > 0)
+                {
+                    if (grantResults[0] == Permission.Granted)
+                        PermissionGot = true;
+                    else
+                    {
+                        PermissionGot = false;
+                        Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.PreferenceFragment), Resource.String.no_permission, Snackbar.LengthLong);
+                        snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+                        snackBar.Show();
+                    }
+                }
+            }
+        }
+
         protected override void OnActivityResult(int requestCode, [GeneratedEnum] Result resultCode, Intent data)
         {
-            base.OnActivityResult(requestCode, resultCode, data);
             if (requestCode == 5981)
             {
                 GoogleSignInResult result = Auth.GoogleSignInApi.GetSignInResultFromIntent(data);
@@ -95,6 +134,7 @@ namespace Opus.Resources.Portable_Class
                     MainActivity.instance.waitingForYoutube = false;
                 }
             }
+            base.OnActivityResult(requestCode, resultCode, data);
         }
 
         protected override void OnResume()
@@ -202,10 +242,13 @@ namespace Opus.Resources.Portable_Class
         }
 
         #region Download location
-        private void DownloadClick(object sender, Preference.PreferenceClickEventArgs e)
+        private async void DownloadClick(object sender, Preference.PreferenceClickEventArgs e)
         {
-            Preferences.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.PreferenceFragment, DownloadFragment.NewInstance(path)).AddToBackStack(null).Commit();
-            Preferences.instance.toolbar.Title = "Download Location";
+            if(await Preferences.instance.GetReadPermission())
+            {
+                Preferences.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.PreferenceFragment, DownloadFragment.NewInstance(path)).AddToBackStack(null).Commit();
+                Preferences.instance.toolbar.Title = "Download Location";
+            }
         }
         #endregion
 
