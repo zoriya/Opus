@@ -453,7 +453,7 @@ namespace Opus.Resources.Portable_Class
             position--;
 
             Song song = MusicPlayer.queue[position];
-            Queue.RemoveFromQueue(position);
+            MusicPlayer.RemoveFromQueue(position);
             Snackbar snackbar = Snackbar.Make(Player.instance.View, (song.Title.Length > 20 ? song.Title.Substring(0, 17) + "..." : song.Title) + Queue.instance.GetString(Resource.String.removed_from_queue), Snackbar.LengthShort)
                 .SetAction(Queue.instance.GetString(Resource.String.undo), (view) =>
                 {

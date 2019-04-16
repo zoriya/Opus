@@ -210,7 +210,7 @@ public class Queue : Fragment, RecyclerView.IOnItemTouchListener, PopupMenu.IOnM
         List<BottomSheetAction> actions = new List<BottomSheetAction>
         {
             new BottomSheetAction(Resource.Drawable.Play, Resources.GetString(Resource.String.play), (sender, eventArg) => { ListView_ItemClick(null, position); bottomSheet.Dismiss(); }),
-            new BottomSheetAction(Resource.Drawable.Close, Resources.GetString(Resource.String.remove_from_queue), (sender, eventArg) => { RemoveFromQueue(position); bottomSheet.Dismiss(); }),
+            new BottomSheetAction(Resource.Drawable.Close, Resources.GetString(Resource.String.remove_from_queue), (sender, eventArg) => { MusicPlayer.RemoveFromQueue(position); bottomSheet.Dismiss(); }),
             new BottomSheetAction(Resource.Drawable.PlaylistAdd, Resources.GetString(Resource.String.add_to_playlist), (sender, eventArg) => { Browse.GetPlaylist(item); bottomSheet.Dismiss(); })
         };
 
@@ -264,20 +264,6 @@ public class Queue : Fragment, RecyclerView.IOnItemTouchListener, PopupMenu.IOnM
         }
 
         MusicPlayer.InsertToQueue(position, item);
-    }
-
-    public static void RemoveFromQueue(int position)
-    {
-        if (MusicPlayer.CurrentID() > position)
-        {
-            MusicPlayer.currentID--;
-            MusicPlayer.SaveQueueSlot();
-        }
-
-        MusicPlayer.RemoveFromQueue(position);
-
-        if (instance != null && instance.adapter.ItemCount - position < 4)
-            instance.RefreshAP();
     }
 
     public override void OnResume()

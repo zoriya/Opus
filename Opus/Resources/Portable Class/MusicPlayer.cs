@@ -918,7 +918,9 @@ namespace Opus.Resources.Portable_Class
 
         public static void RemoveFromQueue(int position)
         {
-            if (CurrentID() == position)
+            if (CurrentID() > position)
+                currentID--;
+            else if (CurrentID() == position)
             {
                 if (position > 0)
                     currentID--;
@@ -932,6 +934,7 @@ namespace Opus.Resources.Portable_Class
                 Queue.instance?.RefreshCurrent();
             }
 
+            SaveQueueSlot();
             queue.RemoveAt(position);
 
             if (queue.Count == 0)
@@ -948,6 +951,8 @@ namespace Opus.Resources.Portable_Class
             {
                 Home.instance?.NotifyQueueRemoved(position);
                 Queue.instance?.NotifyItemRemoved(position);
+                if (Queue.instance != null && queue.Count - position < 3)
+                    Queue.instance?.RefreshAP();
             }
 
             if (UseCastPlayer)
