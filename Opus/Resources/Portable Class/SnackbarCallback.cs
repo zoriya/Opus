@@ -2,6 +2,7 @@
 using Android.Net;
 using Android.Provider;
 using Android.Support.Design.Widget;
+using Opus.DataStructure;
 using Opus.Resources.values;
 
 namespace Opus.Resources.Portable_Class

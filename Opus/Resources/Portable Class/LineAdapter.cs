@@ -7,6 +7,8 @@ using Android.Support.Design.Widget;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
+using Opus.DataStructure;
+using Opus.Fragments;
 using Opus.Resources.values;
 using Square.Picasso;
 using System.Collections.Generic;
@@ -65,7 +67,7 @@ namespace Opus.Resources.Portable_Class
             }
             else
             {
-                RecyclerHolder holder = (RecyclerHolder)viewHolder;
+                SongHolder holder = (SongHolder)viewHolder;
 
                 Song song = songList.Count <= position ? null : songList[position];
 
@@ -102,7 +104,7 @@ namespace Opus.Resources.Portable_Class
         {
             if (payloads.Count > 0)
             {
-                RecyclerHolder holder = (RecyclerHolder)viewHolder;
+                SongHolder holder = (SongHolder)viewHolder;
 
                 if(payloads[0].ToString() == holder.Title.Text)
                     return;
@@ -130,7 +132,7 @@ namespace Opus.Resources.Portable_Class
             if (viewType == 0)
             {
                 View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.LineSong, parent, false);
-                return new RecyclerHolder(itemView, OnClick, OnLongClick);
+                return new SongHolder(itemView, OnClick, OnLongClick);
             }
             else
             {
@@ -193,7 +195,7 @@ namespace Opus.Resources.Portable_Class
                 List<BottomSheetAction> actions = new List<BottomSheetAction>
                 {
                     new BottomSheetAction(Resource.Drawable.Play, MainActivity.instance.Resources.GetString(Resource.String.play), (sender, eventArg) => { OnClick(position); bottomSheet.Dismiss(); }),
-                    new BottomSheetAction(Resource.Drawable.Close, MainActivity.instance.Resources.GetString(Resource.String.remove_from_queue), (sender, eventArg) => { Queue.RemoveFromQueue(position); bottomSheet.Dismiss(); }),
+                    new BottomSheetAction(Resource.Drawable.Close, MainActivity.instance.Resources.GetString(Resource.String.remove_from_queue), (sender, eventArg) => { MusicPlayer.RemoveFromQueue(position); bottomSheet.Dismiss(); }),
                     new BottomSheetAction(Resource.Drawable.PlaylistAdd, MainActivity.instance.Resources.GetString(Resource.String.add_to_playlist), (sender, eventArg) => { Browse.GetPlaylist(item); bottomSheet.Dismiss(); })
                 };
 

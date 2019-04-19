@@ -1,4 +1,5 @@
-﻿using Opus.Resources.values;
+﻿using Opus.DataStructure;
+using Opus.Resources.values;
 
 namespace Opus.Resources.Portable_Class
 {

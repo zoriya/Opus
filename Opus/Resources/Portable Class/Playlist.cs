@@ -19,6 +19,8 @@ using System.Threading.Tasks;
 using static Android.Provider.MediaStore.Audio;
 using CursorLoader = Android.Support.V4.Content.CursorLoader;
 using Application = Android.App.Application;
+using Opus.Fragments;
+using Opus.DataStructure;
 
 namespace Opus.Resources.Portable_Class
 {

@@ -3,6 +3,7 @@ using Android.Support.Design.Widget;
 using Android.Support.V4.App;
 using Android.Support.V4.View;
 using Android.Views;
+using Opus.Fragments;
 
 namespace Opus.Resources.Portable_Class
 {

@@ -2,7 +2,7 @@
 using Android.Views;
 using System;
 
-namespace Opus.Resources.Portable_Class
+namespace Opus.DataStructure
 {
     public class UslessHolder : RecyclerView.ViewHolder
     {

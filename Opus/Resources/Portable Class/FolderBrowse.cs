@@ -11,6 +11,8 @@ using Android.Support.V7.App;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
+using Opus.DataStructure;
+using Opus.Fragments;
 using Opus.Resources.values;
 using System.Collections.Generic;
 using System.Threading.Tasks;

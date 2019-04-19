@@ -10,6 +10,8 @@ using Android.Views;
 using Android.Widget;
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
+using Opus.DataStructure;
+using Opus.Fragments;
 using Opus.Resources.values;
 using SQLite;
 using Square.Picasso;

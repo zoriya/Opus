@@ -12,6 +12,7 @@ using Android.Support.V7.App;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
+using Opus.DataStructure;
 using Opus.Resources.values;
 using Square.Picasso;
 using System.IO;

@@ -11,6 +11,7 @@ using Android.Support.V4.App;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
+using Opus.Fragments;
 using Opus.Resources.values;
 using SQLite;
 using Square.Picasso;

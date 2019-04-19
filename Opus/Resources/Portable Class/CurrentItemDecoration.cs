@@ -5,6 +5,7 @@ using Android.Support.V7.Widget;
 using Android.Text;
 using Android.Text.Style;
 using Android.Views;
+using Opus.DataStructure;
 using Opus.Resources.values;
 using Square.Picasso;
 
@@ -47,7 +48,7 @@ namespace Opus.Resources.Portable_Class
                     header.Layout(0, 0, header.MeasuredWidth, header.MeasuredHeight);
 
                     header.FindViewById(Resource.Id.topDivider).Visibility = ViewStates.Gone;
-                    BindHolder(new RecyclerHolder(header, null, null));
+                    BindHolder(new SongHolder(header, null, null));
                     Queue.instance.HeaderHeight = header.MeasuredHeight;
 
                     c.Save();
@@ -68,7 +69,7 @@ namespace Opus.Resources.Portable_Class
                     header.Layout(0, 0, header.MeasuredWidth, header.MeasuredHeight);
 
                     header.FindViewById(Resource.Id.bottomDivider).Visibility = ViewStates.Gone;
-                    BindHolder(new RecyclerHolder(header, null, null));
+                    BindHolder(new SongHolder(header, null, null));
                     Queue.instance.HeaderHeight = -header.MeasuredHeight;
 
                     c.Save();
@@ -84,7 +85,7 @@ namespace Opus.Resources.Portable_Class
                 }
             }
 
-            void BindHolder(RecyclerHolder holder)
+            void BindHolder(SongHolder holder)
             {
                 Song current = MusicPlayer.queue[MusicPlayer.CurrentID()];
 

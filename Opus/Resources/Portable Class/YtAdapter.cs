@@ -5,6 +5,7 @@ using Android.Support.V7.Preferences;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
+using Opus.DataStructure;
 using Opus.Resources.values;
 using Square.Picasso;
 using System;
@@ -34,7 +35,7 @@ namespace Opus.Resources.Portable_Class
 
             if(items[position].Kind == YtKind.Video)
             {
-                RecyclerHolder holder = (RecyclerHolder)viewHolder;
+                SongHolder holder = (SongHolder)viewHolder;
 
                 holder.Title.Text = song.Title;
                 holder.Artist.Text = song.Artist;
@@ -165,7 +166,7 @@ namespace Opus.Resources.Portable_Class
             if(viewType == 0)
             {
                 View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.SongList, parent, false);
-                return new RecyclerHolder(itemView, OnClick, OnLongClick);
+                return new SongHolder(itemView, OnClick, OnLongClick);
             }
             else if(viewType == 1)
             {

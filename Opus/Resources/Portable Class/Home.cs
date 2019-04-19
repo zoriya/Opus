@@ -10,6 +10,7 @@ using Android.Support.V7.Widget.Helper;
 using Android.Views;
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
+using Opus.DataStructure;
 using Opus.Resources.values;
 using System;
 using System.Collections.Generic;

@@ -12,6 +12,8 @@ using Android.Text.Style;
 using Android.Views;
 using Android.Widget;
 using Opus;
+using Opus.DataStructure;
+using Opus.Fragments;
 using Opus.Resources.Portable_Class;
 using Opus.Resources.values;
 using Square.Picasso;
@@ -110,7 +112,7 @@ public class Queue : Fragment, RecyclerView.IOnItemTouchListener, PopupMenu.IOnM
             if(i > 0)
             {
                 Song song = MusicPlayer.queue[i - 1];
-                RecyclerHolder holder = (RecyclerHolder)ListView.GetChildViewHolder(((LinearLayoutManager)ListView.GetLayoutManager()).FindViewByPosition(i));
+                SongHolder holder = (SongHolder)ListView.GetChildViewHolder(((LinearLayoutManager)ListView.GetLayoutManager()).FindViewByPosition(i));
                 if (MusicPlayer.CurrentID() > -1 && MusicPlayer.queue[MusicPlayer.CurrentID()] == song)
                 {
                     holder.status.Visibility = ViewStates.Visible;

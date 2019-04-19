@@ -1,18 +1,17 @@
 ﻿using Android.Content;
-using Android.Database;
 using Android.Net;
 using Android.OS;
-using Android.Provider;
 using Android.Support.Design.Widget;
 using Android.Support.V4.App;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
-using Opus.Resources.values;
+using Opus.Adapter;
+using Opus.DataStructure;
+using Opus.Fragments;
 using Square.Picasso;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using CursorLoader = Android.Support.V4.Content.CursorLoader;
 
 namespace Opus.Resources.Portable_Class
 {
@@ -68,116 +67,116 @@ namespace Opus.Resources.Portable_Class
 
         void PopulateList()
         {
-            Uri musicUri = MediaStore.Audio.Media.GetContentUriForPath(path);
+            //Uri musicUri = MediaStore.Audio.Media.GetContentUriForPath(path);
 
-            CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
-            ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
+            //CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
+            //ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
 
-            tracks = new List<Song>();
+            //tracks = new List<Song>();
 
-            if (musicCursor != null && musicCursor.MoveToFirst())
-            {
-                int titleID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Title);
-                int artistID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Artist);
-                int albumID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Album);
-                int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
-                int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
-                do
-                {
-                    string path = musicCursor.GetString(pathID);
+            //if (musicCursor != null && musicCursor.MoveToFirst())
+            //{
+            //    int titleID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Title);
+            //    int artistID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Artist);
+            //    int albumID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Album);
+            //    int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
+            //    int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
+            //    do
+            //    {
+            //        string path = musicCursor.GetString(pathID);
 
-                    if (!path.Contains(this.path))
-                        continue;
+            //        if (!path.Contains(this.path))
+            //            continue;
 
-                    string Artist = musicCursor.GetString(artistID);
-                    string Title = musicCursor.GetString(titleID);
-                    string Album = musicCursor.GetString(albumID);
-                    long AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
-                    long id = musicCursor.GetLong(thisID);
+            //        string Artist = musicCursor.GetString(artistID);
+            //        string Title = musicCursor.GetString(titleID);
+            //        string Album = musicCursor.GetString(albumID);
+            //        long AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
+            //        long id = musicCursor.GetLong(thisID);
 
-                    if (Title == null)
-                        Title = "Unknown Title";
-                    if (Artist == null)
-                        Artist = "Unknow Artist";
-                    if (Album == null)
-                        Album = "Unknow Album";
+            //        if (Title == null)
+            //            Title = "Unknown Title";
+            //        if (Artist == null)
+            //            Artist = "Unknow Artist";
+            //        if (Album == null)
+            //            Album = "Unknow Album";
 
-                    tracks.Add(new Song(Title, Artist, Album, null, AlbumArt, id, path));
-                }
-                while (musicCursor.MoveToNext());
-                musicCursor.Close();
-            }
+            //        tracks.Add(new Song(Title, Artist, Album, null, AlbumArt, id, path));
+            //    }
+            //    while (musicCursor.MoveToNext());
+            //    musicCursor.Close();
+            //}
 
-            adapter = new BrowseAdapter(tracks, false);
-            adapter.ItemClick += ListView_ItemClick;
-            adapter.ItemLongCLick += ListView_ItemLongClick;
-            ListView.SetAdapter(adapter);
+            //adapter = new BrowseAdapter(tracks, false);
+            //adapter.ItemClick += ListView_ItemClick;
+            //adapter.ItemLongCLick += ListView_ItemLongClick;
+            //ListView.SetAdapter(adapter);
         }
 
         private void OnRefresh(object sender, System.EventArgs e)
         {
-            tracks.Clear();
+            //tracks.Clear();
 
-            Uri musicUri = MediaStore.Audio.Media.GetContentUriForPath(path);
+            //Uri musicUri = MediaStore.Audio.Media.GetContentUriForPath(path);
 
-            CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
-            ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
+            //CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
+            //ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
 
 
-            if (musicCursor != null && musicCursor.MoveToFirst())
-            {
-                int titleID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Title);
-                int artistID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Artist);
-                int albumID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Album);
-                int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
-                int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
-                do
-                {
-                    string path = musicCursor.GetString(pathID);
+            //if (musicCursor != null && musicCursor.MoveToFirst())
+            //{
+            //    int titleID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Title);
+            //    int artistID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Artist);
+            //    int albumID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Album);
+            //    int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
+            //    int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
+            //    do
+            //    {
+            //        string path = musicCursor.GetString(pathID);
 
-                    if (!path.Contains(this.path))
-                        continue;
+            //        if (!path.Contains(this.path))
+            //            continue;
 
-                    string Artist = musicCursor.GetString(artistID);
-                    string Title = musicCursor.GetString(titleID);
-                    string Album = musicCursor.GetString(albumID);
-                    long AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
-                    long id = musicCursor.GetLong(thisID);
+            //        string Artist = musicCursor.GetString(artistID);
+            //        string Title = musicCursor.GetString(titleID);
+            //        string Album = musicCursor.GetString(albumID);
+            //        long AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
+            //        long id = musicCursor.GetLong(thisID);
 
-                    if (Title == null)
-                        Title = "Unknown Title";
-                    if (Artist == null)
-                        Artist = "Unknow Artist";
-                    if (Album == null)
-                        Album = "Unknow Album";
+            //        if (Title == null)
+            //            Title = "Unknown Title";
+            //        if (Artist == null)
+            //            Artist = "Unknow Artist";
+            //        if (Album == null)
+            //            Album = "Unknow Album";
 
-                    tracks.Add(new Song(Title, Artist, Album, null, AlbumArt, id, path));
-                }
-                while (musicCursor.MoveToNext());
-                musicCursor.Close();
-            }
+            //        tracks.Add(new Song(Title, Artist, Album, null, AlbumArt, id, path));
+            //    }
+            //    while (musicCursor.MoveToNext());
+            //    musicCursor.Close();
+            //}
 
-            adapter = new BrowseAdapter(tracks, false);
-            adapter.ItemClick += ListView_ItemClick;
-            adapter.ItemLongCLick += ListView_ItemLongClick;
-            ListView.SetAdapter(adapter);
-            MainActivity.instance.contentRefresh.Refreshing = false;
+            //adapter = new BrowseAdapter(tracks, false);
+            //adapter.ItemClick += ListView_ItemClick;
+            //adapter.ItemLongCLick += ListView_ItemLongClick;
+            //ListView.SetAdapter(adapter);
+            //MainActivity.instance.contentRefresh.Refreshing = false;
         }
 
         public void Search(string search)
         {
-            result = new List<Song>();
-            foreach (Song item in tracks)
-            {
-                if (item.Title.ToLower().Contains(search.ToLower()) || item.Artist.ToLower().Contains(search.ToLower()))
-                {
-                    result.Add(item);
-                }
-            }
-            adapter = new BrowseAdapter(result, false);
-            adapter.ItemClick += ListView_ItemClick;
-            adapter.ItemLongCLick += ListView_ItemLongClick;
-            ListView.SetAdapter(adapter);
+            //result = new List<Song>();
+            //foreach (Song item in tracks)
+            //{
+            //    if (item.Title.ToLower().Contains(search.ToLower()) || item.Artist.ToLower().Contains(search.ToLower()))
+            //    {
+            //        result.Add(item);
+            //    }
+            //}
+            //adapter = new BrowseAdapter(result, false);
+            //adapter.ItemClick += ListView_ItemClick;
+            //adapter.ItemLongCLick += ListView_ItemLongClick;
+            //ListView.SetAdapter(adapter);
         }
 
         private async void ListView_ItemClick(object sender, int position)

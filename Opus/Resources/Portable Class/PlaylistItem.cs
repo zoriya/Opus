@@ -1,4 +1,5 @@
-﻿using Opus.Resources.values;
+﻿using Opus.DataStructure;
+using Opus.Resources.values;
 using SQLite;
 using System;
 

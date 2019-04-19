@@ -5,6 +5,7 @@ using Android.Graphics.Drawables;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
+using Opus.DataStructure;
 using Opus.Resources.values;
 using Square.Picasso;
 using System;

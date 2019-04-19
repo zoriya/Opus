@@ -36,6 +36,8 @@ using CursorLoader = Android.Support.V4.Content.CursorLoader;
 using MediaInfo = Android.Gms.Cast.MediaInfo;
 using MediaMetadata = Android.Gms.Cast.MediaMetadata;
 using Uri = Android.Net.Uri;
+using Opus.Fragments;
+using Opus.DataStructure;
 
 namespace Opus.Resources.Portable_Class
 {

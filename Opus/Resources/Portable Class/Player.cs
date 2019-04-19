@@ -16,6 +16,8 @@ using Android.Text.Style;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
+using Opus.DataStructure;
+using Opus.Fragments;
 using Opus.Resources.Portable_Class;
 using Opus.Resources.values;
 using Square.Picasso;
@@ -376,7 +378,9 @@ namespace Opus
 
         private void Fav(object sender, EventArgs e)
         {
-
+            Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById<CoordinatorLayout>(Resource.Id.snackBar), "Comming Soon", Snackbar.LengthLong);
+            snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+            snackBar.Show();
         }
 
         private async void More(object s, EventArgs e)

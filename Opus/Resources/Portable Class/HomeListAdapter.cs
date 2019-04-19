@@ -6,6 +6,7 @@ using Android.Support.V7.Preferences;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
+using Opus.DataStructure;
 using Opus.Resources.values;
 using Square.Picasso;
 using System.Collections.Generic;
@@ -43,7 +44,7 @@ namespace Opus.Resources.Portable_Class
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position)
         {
-            RecyclerHolder holder = (RecyclerHolder)viewHolder;
+            SongHolder holder = (SongHolder)viewHolder;
 
             if(UseChannel)
             {
@@ -80,12 +81,12 @@ namespace Opus.Resources.Portable_Class
             if(UseChannel)
             {
                 View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.HomeChannel, parent, false);
-                return new RecyclerHolder(itemView, OnClick, OnLongClick);
+                return new SongHolder(itemView, OnClick, OnLongClick);
             }
             else
             {
                 View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.HomePlaylist, parent, false);
-                return new RecyclerHolder(itemView, OnClick, OnLongClick);
+                return new SongHolder(itemView, OnClick, OnLongClick);
             }
         }
 
