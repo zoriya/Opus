@@ -46,10 +46,10 @@ namespace Opus.Fragments
                 SetTheme(Resource.Style.DarkTheme);
 
             SetContentView(Resource.Layout.EditMetaData);
-            Window.SetStatusBarColor(Android.Graphics.Color.Argb(70, 00, 00, 00));
+            Window.SetStatusBarColor(Color.Argb(70, 00, 00, 00));
 
             instance = this;
-            song = (Song) Intent.GetStringExtra("Song");
+            song = (Song)Intent.GetStringExtra("Song");
 
             Android.Support.V7.Widget.Toolbar toolbar = FindViewById<Android.Support.V7.Widget.Toolbar>(Resource.Id.backToolbar);
             DisplayMetrics metrics = new DisplayMetrics();
@@ -170,9 +170,11 @@ namespace Opus.Fragments
 
         async Task ValidateChanges()
         {
+            System.Console.WriteLine("&Validaing changes");
             if (song.Title == title.Text && song.Artist == artist.Text && song.YoutubeID == youtubeID.Text && song.Album == album.Text && artURI == null)
                 return;
 
+            System.Console.WriteLine("&Requesting permission");
             const string permission = Manifest.Permission.WriteExternalStorage;
             hasPermission = Android.Support.V4.Content.ContextCompat.CheckSelfPermission(this, permission) == (int)Permission.Granted;
             if (!hasPermission)
@@ -184,9 +186,11 @@ namespace Opus.Fragments
                     await Task.Delay(1000);
             }
 
+            System.Console.WriteLine("&Creating write stream");
             Stream stream = new FileStream(song.Path, FileMode.Open, FileAccess.ReadWrite);
             var meta = TagLib.File.Create(new StreamFileAbstraction(song.Path, stream, stream));
 
+            System.Console.WriteLine("&Writing tags");
             meta.Tag.Title = title.Text;
             meta.Tag.Performers = new string[] { artist.Text };
             meta.Tag.Album = album.Text;
@@ -194,6 +198,7 @@ namespace Opus.Fragments
 
             if (ytThumbUri != null)
             {
+                System.Console.WriteLine("&Writing YT Thumb");
                 await Task.Run(() => 
                 { 
                     IPicture[] pictures = new IPicture[1];
@@ -213,6 +218,7 @@ namespace Opus.Fragments
             }
             else if (artURI != null)
             {
+                System.Console.WriteLine("&Writing ArtURI");
                 IPicture[] pictures = new IPicture[1];
 
                 Bitmap bitmap = null;
@@ -243,9 +249,11 @@ namespace Opus.Fragments
                 ContentResolver.Delete(ContentUris.WithAppendedId(Android.Net.Uri.Parse("content://media/external/audio/albumart"), song.AlbumArt), null, null);
             }
 
+            System.Console.WriteLine("&Saving");
             meta.Save();
             stream.Dispose();
 
+            System.Console.WriteLine("&Deleting temp file");
             if (tempFile)
             {
                 tempFile = false;
@@ -253,6 +261,7 @@ namespace Opus.Fragments
                 artURI = null;
             }
 
+            System.Console.WriteLine("&Scanning file");
             await Task.Delay(10);
             Android.Media.MediaScannerConnection.ScanFile(this, new string[] { song.Path }, null, null);
 
@@ -263,7 +272,7 @@ namespace Opus.Fragments
         {
             if (requestCode == RequestCode)
             {
-                if (grantResults.Length > 0)
+                if (grantResults != null && grantResults.Length > 0)
                 {
                     if (grantResults[0] == Permission.Granted)
                         hasPermission = true;
@@ -326,11 +335,6 @@ namespace Opus.Fragments
         {
             base.OnResume();
             instance = this;
-        }
-
-        protected override void OnDestroy()
-        {
-            base.OnDestroy();
         }
     }
 }
