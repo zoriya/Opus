@@ -5,14 +5,15 @@ using Android.Graphics;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
+using Opus.Api;
 using Opus.DataStructure;
-using Opus.Resources.values;
+using Opus.Fragments;
+using Opus.Others;
 using Square.Picasso;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
-namespace Opus.Resources.Portable_Class
+namespace Opus.Adapter
 {
     public class PlaylistTrackAdapter : RecyclerView.Adapter, IItemTouchAdapter
     {
@@ -26,26 +27,6 @@ namespace Opus.Resources.Portable_Class
         public PlaylistTrackAdapter(List<Song> songList)
         {
             this.songList = songList;
-        }
-
-        public void AddToList(List<Song> songList)
-        {
-            int positionStart = this.songList.Count;
-            this.songList.AddRange(songList);
-            NotifyItemRangeInserted(positionStart, songList.Count);
-        }
-
-        public void Insert(int position, Song item)
-        {
-            songList.Add(item);
-            NotifyItemInserted(position);
-        }
-
-        public void Remove(Song song)
-        {
-            int position = songList.IndexOf(song);
-            songList.Remove(song);
-            NotifyItemRemoved(position);
         }
 
         public override int ItemCount
@@ -80,29 +61,10 @@ namespace Opus.Resources.Portable_Class
                 header.FindViewById<TextView>(Resource.Id.headerNumber).Text = songList.Count + " " + (songList.Count < 2 ? MainActivity.instance.GetString(Resource.String.element) : MainActivity.instance.GetString(Resource.String.elements));
                 if (!header.FindViewById<ImageButton>(Resource.Id.headerPlay).HasOnClickListeners)
                 {
-                    header.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { PlaylistTracks.instance.PlayInOrder(0); };
+                    header.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { PlaylistManager.PlayInOrder(PlaylistTracks.instance.item); };
                     header.FindViewById<ImageButton>(Resource.Id.headerShuffle).Click += (sender, e0) =>
                     {
-                        if (PlaylistTracks.instance.tracks[0].IsYt)
-                        {
-                            Random r = new Random();
-                            Song[] songs = PlaylistTracks.instance.tracks.OrderBy(x => r.Next()).ToArray();
-                            YoutubeEngine.PlayFiles(songs);
-                        }
-                        else
-                        {
-                            List<string> tracksPath = new List<string>();
-                            foreach (Song song in PlaylistTracks.instance.tracks)
-                                tracksPath.Add(song.Path);
-
-                            Intent intent = new Intent(MainActivity.instance, typeof(MusicPlayer));
-                            intent.PutStringArrayListExtra("files", tracksPath);
-                            intent.SetAction("RandomPlay");
-                            MainActivity.instance.StartService(intent);
-
-                            MainActivity.instance.ShowSmallPlayer();
-                            MainActivity.instance.ShowPlayer();
-                        }
+                        PlaylistManager.Shuffle(PlaylistTracks.instance.item);
                     };
                     header.FindViewById<ImageButton>(Resource.Id.headerMore).Click += (sender, e0) =>
                     {
@@ -221,7 +183,7 @@ namespace Opus.Resources.Portable_Class
 
         public void ItemDismissed(int position)
         {
-            PlaylistTracks.instance.DeleteDialog(position);
+            PlaylistTracks.instance.RemoveFromPlaylist(songList[position], position);
         }
     }
 }

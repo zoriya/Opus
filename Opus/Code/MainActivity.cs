@@ -27,8 +27,12 @@ using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
 using Newtonsoft.Json.Linq;
+using Opus.Api;
+using Opus.Api.Services;
+using Opus.DataStructure;
+using Opus.Fragments;
+using Opus.Others;
 using Opus.Resources.Portable_Class;
-using Opus.Resources.values;
 using SQLite;
 using Square.Picasso;
 using System;
@@ -41,13 +45,11 @@ using YoutubeExplode;
 using CursorLoader = Android.Support.V4.Content.CursorLoader;
 using Environment = Android.OS.Environment;
 using Fragment = Android.Support.V4.App.Fragment;
-using Playlist = Opus.Resources.Portable_Class.Playlist;
+using Playlist = Opus.Fragments.Playlist;
 using Request = Square.OkHttp.Request;
 using SearchView = Android.Support.V7.Widget.SearchView;
 using Toolbar = Android.Support.V7.Widget.Toolbar;
 using TransportType = Android.Net.TransportType;
-using Opus.Fragments;
-using Opus.DataStructure;
 
 namespace Opus
 {
@@ -345,7 +347,7 @@ namespace Opus
 
                     JToken json = JObject.Parse(response);
                     GoogleCredential credential = GoogleCredential.FromAccessToken((string)json.SelectToken("access_token"));
-                    YoutubeEngine.youtubeService = new YouTubeService(new BaseClientService.Initializer()
+                    YoutubeSearch.youtubeService = new YouTubeService(new BaseClientService.Initializer()
                     {
                         HttpClientInitializer = credential,
                         ApplicationName = "Opus"
@@ -411,7 +413,7 @@ namespace Opus
 
                     JToken json = JObject.Parse(response);
                     GoogleCredential credential = GoogleCredential.FromAccessToken((string)json.SelectToken("access_token"));
-                    YoutubeEngine.youtubeService = new YouTubeService(new BaseClientService.Initializer()
+                    YoutubeSearch.youtubeService = new YouTubeService(new BaseClientService.Initializer()
                     {
                         HttpClientInitializer = credential,
                         ApplicationName = "Opus"
@@ -444,14 +446,14 @@ namespace Opus
 
         public async Task<bool> WaitForYoutube()
         {
-            if(YoutubeEngine.youtubeService == null)
+            if(YoutubeSearch.youtubeService == null)
             {
                 if(!waitingForYoutube)
                     Login(true);
 
                 waitingForYoutube = true;
 
-                while (YoutubeEngine.youtubeService == null)
+                while (YoutubeSearch.youtubeService == null)
                 {
                     if (waitingForYoutube == false)
                         return false;
@@ -522,7 +524,7 @@ namespace Opus
                     SupportFragmentManager.PopBackStack();
                     //SupportFragmentManager.BeginTransaction().Remove(PlaylistTracks.instance).Commit();
                 }
-                else if (YoutubeEngine.instances != null)
+                else if (YoutubeSearch.instances != null)
                 {
                     var searchView = menu.FindItem(Resource.Id.search).ActionView.JavaCast<SearchView>();
                     menu.FindItem(Resource.Id.search).CollapseActionView();
@@ -530,7 +532,7 @@ namespace Opus
                     searchView.Iconified = true;
                     searchView.SetQuery("", false);
                     SupportActionBar.SetDisplayHomeAsUpEnabled(false);
-                    YoutubeEngine.instances = null;
+                    YoutubeSearch.instances = null;
                 }
                 //else if (FolderTracks.instance != null)
                 //{
@@ -552,7 +554,7 @@ namespace Opus
         public bool OnMenuItemActionCollapse(IMenuItem item) //Youtube search collapse
         {
             Console.WriteLine("&Youtube Search Collapse");
-            if (YoutubeEngine.instances == null || SearchableActivity.IgnoreMyself)
+            if (YoutubeSearch.instances == null || SearchableActivity.IgnoreMyself)
                 return true;
 
             Console.WriteLine("&Youtube instnace != null");
@@ -632,7 +634,7 @@ namespace Opus
         {
             contentRefresh.Refreshing = false;
 
-            if (YoutubeEngine.instances != null)
+            if (YoutubeSearch.instances != null)
             {
                 var searchView = menu.FindItem(Resource.Id.search).ActionView.JavaCast<SearchView>();
                 menu.FindItem(Resource.Id.search).CollapseActionView();
@@ -912,7 +914,9 @@ namespace Opus
             while (MusicPlayer.instance == null)
                 await Task.Delay(10);
 
-            MusicPlayer.instance.RandomPlay(songs, true);
+            Random r = new Random();
+            songs = songs.OrderBy(x => r.Next()).ToList();
+            MusicPlayer.instance.AddToQueue(songs.ToArray());
 
             ShowSmallPlayer();
             ShowPlayer();
@@ -1039,7 +1043,7 @@ namespace Opus
             {
                 if (item.YoutubeID != null)
                 {
-                    YoutubeEngine.DownloadPlaylist(item.Name, item.YoutubeID, false);
+                    YoutubeManager.DownloadPlaylist(item.Name, item.YoutubeID, false);
                 }
             }
         }
@@ -1214,7 +1218,7 @@ namespace Opus
 
         protected override void OnDestroy()
         {
-            YoutubeEngine.instances = null;
+            YoutubeSearch.instances = null;
 
             if (MusicPlayer.instance != null && !MusicPlayer.isRunning && Preferences.instance == null && EditMetaData.instance == null)
             {

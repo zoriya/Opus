@@ -1,4 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <resources>
   <color name="splashColor">#212121</color>
+  <color name="placeholder">#212121</color>
 </resources>

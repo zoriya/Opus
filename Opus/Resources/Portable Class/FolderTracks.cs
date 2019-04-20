@@ -7,8 +7,11 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Opus.Adapter;
+using Opus.Api;
+using Opus.Api.Services;
 using Opus.DataStructure;
 using Opus.Fragments;
+using Opus.Others;
 using Square.Picasso;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -190,7 +193,7 @@ namespace Opus.Resources.Portable_Class
             }
             queue.Reverse();
 
-            Browse.Play(item);
+            SongManager.Play(item);
 
             while(MusicPlayer.instance == null)
                 await Task.Delay(10);
@@ -240,7 +243,7 @@ namespace Opus.Resources.Portable_Class
                     }
                     queue.Reverse();
 
-                    Browse.Play(item);
+                    SongManager.Play(item);
 
                     while (MusicPlayer.instance == null)
                         await Task.Delay(10);
@@ -250,10 +253,10 @@ namespace Opus.Resources.Portable_Class
 
                     bottomSheet.Dismiss();
                 }),
-                new BottomSheetAction(Resource.Drawable.PlaylistPlay, Resources.GetString(Resource.String.play_next), (sender, eventArg) => { Browse.PlayNext(item); bottomSheet.Dismiss(); }),
-                new BottomSheetAction(Resource.Drawable.Queue, Resources.GetString(Resource.String.play_last), (sender, eventArg) => { Browse.PlayLast(item); bottomSheet.Dismiss(); }),
-                new BottomSheetAction(Resource.Drawable.PlaylistAdd, Resources.GetString(Resource.String.add_to_playlist), (sender, eventArg) => { Browse.GetPlaylist(item); bottomSheet.Dismiss(); }),
-                new BottomSheetAction(Resource.Drawable.Edit, Resources.GetString(Resource.String.edit_metadata), (sender, eventArg) => { Browse.EditMetadata(item); bottomSheet.Dismiss(); })
+                new BottomSheetAction(Resource.Drawable.PlaylistPlay, Resources.GetString(Resource.String.play_next), (sender, eventArg) => { SongManager.PlayNext(item); bottomSheet.Dismiss(); }),
+                new BottomSheetAction(Resource.Drawable.Queue, Resources.GetString(Resource.String.play_last), (sender, eventArg) => { SongManager.PlayLast(item); bottomSheet.Dismiss(); }),
+                new BottomSheetAction(Resource.Drawable.PlaylistAdd, Resources.GetString(Resource.String.add_to_playlist), (sender, eventArg) => { PlaylistManager.AddSongToPlaylistDialog(item); bottomSheet.Dismiss(); }),
+                new BottomSheetAction(Resource.Drawable.Edit, Resources.GetString(Resource.String.edit_metadata), (sender, eventArg) => { LocalManager.EditMetadata(item); bottomSheet.Dismiss(); })
             });
             bottomSheet.Show();
         }

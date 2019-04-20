@@ -5,21 +5,6 @@ using System;
 
 namespace Opus.Resources.Portable_Class
 {
-    public class HeaderHolder : RecyclerView.ViewHolder
-    {
-        public TextView headerText;
-
-        public HeaderHolder(View itemView, Action<int> listener, Action<int> longListener) : base(itemView)
-        {
-            headerText = itemView.FindViewById<TextView>(Android.Resource.Id.Title);
-            if(listener != null)
-            {
-                itemView.Click += (sender, e) => listener(AdapterPosition);
-                itemView.LongClick += (sender, e) => longListener(AdapterPosition);
-            }
-        }
-    }
-
     public class HomeHolder : RecyclerView.ViewHolder
     {
         public LinearLayout textLayout;

@@ -1,0 +1,491 @@
+﻿using Android.Graphics;
+using Android.OS;
+using Android.Support.Design.Widget;
+using Android.Support.V4.App;
+using Android.Support.V7.Widget;
+using Android.Views;
+using Android.Widget;
+using Google.Apis.YouTube.v3;
+using Opus.Adapter;
+using Opus.Api;
+using Opus.DataStructure;
+using Opus.Others;
+using Opus.Resources.Portable_Class;
+using Square.Picasso;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Web;
+using SearchView = Android.Support.V7.Widget.SearchView;
+
+namespace Opus.Fragments
+{
+    public class YoutubeSearch : Fragment
+    {
+        public static YoutubeSearch[] instances;
+        public static YouTubeService youtubeService;
+        public string Query;
+        private string nextPageToken = null;
+        public string querryType;
+
+        public bool IsFocused = false;
+        public RecyclerView ListView;
+        public List<YtFile> result;
+
+        private YtAdapter adapter;
+        public TextView EmptyView;
+        public ProgressBar LoadingView;
+        private bool searching;
+
+
+        public YoutubeSearch(string Query, string querryType)
+        {
+            this.Query = Query;
+            this.querryType = querryType;
+        }
+
+        public override void OnCreate(Bundle savedInstanceState)
+        {
+            base.OnCreate(savedInstanceState);
+            MainActivity.instance.contentRefresh.Refresh += OnRefresh;
+        }
+
+        private async void OnRefresh(object sender, EventArgs e)
+        {
+            if (IsFocused)
+            {
+                await Search(Query, querryType, false);
+                MainActivity.instance.contentRefresh.Refreshing = false;
+            }
+        }
+
+        private void OnScroll(object sender, View.ScrollChangeEventArgs e)
+        {
+            if (((LinearLayoutManager)ListView.GetLayoutManager()).FindLastVisibleItemPosition() == result.Count - 1)
+                LoadMore();
+        }
+
+        async void LoadMore()
+        {
+            if(nextPageToken != null && !searching)
+            {
+                try
+                {
+                    searching = true;
+                    SearchResource.ListRequest searchResult = youtubeService.Search.List("snippet");
+                    searchResult.Q = Query.Replace(" ", "+-");
+                    searchResult.PageToken = nextPageToken;
+                    searchResult.TopicId = "/m/04rlf";
+                    switch (querryType)
+                    {
+                        case "All":
+                            searchResult.Type = "video,channel,playlist";
+                            searchResult.EventType = null;
+                            break;
+                        case "Tracks":
+                            searchResult.Type = "video";
+                            searchResult.EventType = null;
+                            break;
+                        case "Playlists":
+                            searchResult.Type = "playlist";
+                            searchResult.EventType = null;
+                            break;
+                        case "Lives":
+                            searchResult.Type = "video";
+                            searchResult.EventType = SearchResource.ListRequest.EventTypeEnum.Live;
+                            break;
+                        case "Channels":
+                            searchResult.Type = "channel";
+                            searchResult.EventType = null;
+                            break;
+                        default:
+                            searchResult.Type = "video";
+                            searchResult.EventType = null;
+                            break;
+                    }
+                    searchResult.MaxResults = 50;
+
+                    var searchReponse = await searchResult.ExecuteAsync();
+                    nextPageToken = searchReponse.NextPageToken;
+
+                    int loadPos = result.Count - 1;
+                    result.RemoveAt(loadPos);
+                    adapter.NotifyItemRemoved(loadPos);
+
+                    foreach (var video in searchReponse.Items)
+                    {
+                        Song videoInfo = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.High.Url, null, -1, -1, null, true, false);
+                        YtKind kind = YtKind.Null;
+
+                        if (video.Snippet.LiveBroadcastContent == "live")
+                            videoInfo.IsLiveStream = true;
+
+                        switch (video.Id.Kind)
+                        {
+                            case "youtube#video":
+                                kind = YtKind.Video;
+                                videoInfo.YoutubeID = video.Id.VideoId;
+                                break;
+                            case "youtube#playlist":
+                                kind = YtKind.Playlist;
+                                videoInfo.YoutubeID = video.Id.PlaylistId;
+                                break;
+                            case "youtube#channel":
+                                kind = YtKind.Channel;
+                                videoInfo.YoutubeID = video.Id.ChannelId;
+                                break;
+                            default:
+                                Console.WriteLine("&Kind = " + video.Id.Kind);
+                                break;
+                        }
+                        result.Add(new YtFile(videoInfo, kind));
+                    }
+
+                    if (nextPageToken != null)
+                        result.Add(new YtFile(new Song(), YtKind.Loading));
+
+                    adapter.NotifyItemRangeInserted(loadPos, result.Count - loadPos);
+                    searching = false;
+                }
+                catch (System.Net.Http.HttpRequestException)
+                {
+                    MainActivity.instance.Timout();
+                }
+            }
+        }
+
+        public void OnFocus() { }
+        public void OnUnfocus() { }
+
+        public static Fragment[] NewInstances(string searchQuery)
+        {
+            instances = new YoutubeSearch[]
+            {
+                new YoutubeSearch(searchQuery, "All"),
+                new YoutubeSearch(searchQuery, "Tracks"),
+                new YoutubeSearch(searchQuery, "Playlists"),
+                new YoutubeSearch(searchQuery, "Lives"),
+                new YoutubeSearch(searchQuery, "Channels")
+            };
+            return instances;
+        }
+
+        public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+        {
+            View view = inflater.Inflate(Resource.Layout.CompleteRecycler, container, false);
+            EmptyView = view.FindViewById<TextView>(Resource.Id.empty);
+            LoadingView = view.FindViewById<ProgressBar>(Resource.Id.loading);
+            ListView = view.FindViewById<RecyclerView>(Resource.Id.recycler);
+            ListView.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
+            ListView.SetItemAnimator(new DefaultItemAnimator());
+            ListView.ScrollChange += OnScroll;
+
+            if (savedInstanceState != null)
+                Query = savedInstanceState.GetString("Query");
+
+#pragma warning disable CS4014
+            Search(Query, querryType, true);
+            return view;
+        }
+
+        public async Task Search(string search, string querryType, bool loadingBar)
+        {
+            SearchableActivity.IgnoreMyself = true;
+            IMenuItem searchItem = MainActivity.instance.menu.FindItem(Resource.Id.search);
+            searchItem.ExpandActionView();
+            SearchView searchView = (SearchView)searchItem.ActionView;
+            searchView.SetQuery(search, false);
+            searchView.ClearFocus();
+            searchView.Focusable = false;
+
+            if (search == null || search == "")
+                return;
+
+            searching = true;
+            Query = search;
+
+            if (loadingBar)
+            {
+                adapter = null;
+                ListView.SetAdapter(null);
+                EmptyView.Visibility = ViewStates.Gone;
+                LoadingView.Visibility = ViewStates.Visible;
+            }
+
+            SearchableActivity.IgnoreMyself = false;
+
+            if (!await MainActivity.instance.WaitForYoutube())
+            {
+                ListView.SetAdapter(null);
+                EmptyView.Text = MainActivity.instance.GetString(Resource.String.youtube_loading_error);
+                EmptyView.SetTextColor(Color.Red);
+                EmptyView.Visibility = ViewStates.Visible;
+                return;
+            }
+
+            try
+            {
+                SearchResource.ListRequest searchResult = youtubeService.Search.List("snippet");
+                searchResult.Q = search.Replace(" ", "+-");
+                searchResult.TopicId = "/m/04rlf";
+                switch (querryType)
+                {
+                    case "All":
+                        searchResult.Type = "video,channel,playlist";
+                        searchResult.EventType = null;
+                        break;
+                    case "Tracks":
+                        searchResult.Type = "video";
+                        searchResult.EventType = null;
+                        break;
+                    case "Playlists":
+                        searchResult.Type = "playlist";
+                        searchResult.EventType = null;
+                        break;
+                    case "Lives":
+                        searchResult.Type = "video";
+                        searchResult.EventType = SearchResource.ListRequest.EventTypeEnum.Live;
+                        break;
+                    case "Channels":
+                        searchResult.Type = "channel";
+                        searchResult.EventType = null;
+                        break;
+                    default:
+                        searchResult.Type = "video";
+                        searchResult.EventType = null;
+                        break;
+                }
+                searchResult.MaxResults = 50;
+
+                var searchReponse = await searchResult.ExecuteAsync();
+                nextPageToken = searchReponse.NextPageToken;
+                result = new List<YtFile>();
+
+                foreach (var video in searchReponse.Items)
+                {
+                    Song videoInfo = new Song(HttpUtility.HtmlDecode(video.Snippet.Title), HttpUtility.HtmlDecode(video.Snippet.ChannelTitle), video.Snippet.Thumbnails.High.Url, null, -1, -1, video.Snippet.ChannelId, true, false);
+                    YtKind kind = YtKind.Null;
+
+                    if (video.Snippet.LiveBroadcastContent == "live")
+                        videoInfo.IsLiveStream = true;
+
+                    switch (video.Id.Kind)
+                    {
+                        case "youtube#video":
+                            kind = YtKind.Video;
+                            videoInfo.YoutubeID = video.Id.VideoId;
+                            break;
+                        case "youtube#playlist":
+                            kind = YtKind.Playlist;
+                            videoInfo.YoutubeID = video.Id.PlaylistId;
+                            break;
+                        case "youtube#channel":
+                            kind = YtKind.Channel;
+                            videoInfo.YoutubeID = video.Id.ChannelId;
+                            break;
+                        default:
+                            Console.WriteLine("&Kind = " + video.Id.Kind);
+                            break;
+                    }
+                    result.Add(new YtFile(videoInfo, kind));
+                }
+
+                LoadingView.Visibility = ViewStates.Gone;
+                if (nextPageToken != null)
+                    result.Add(new YtFile(new Song(), YtKind.Loading));
+
+                if(result.Count > 0 && result[0].Kind == YtKind.Channel && result.Count(x => x.song.Artist == result[0].song.Title && x.Kind == YtKind.Video) > 0)
+                {
+                    YtFile channelPreview = new YtFile(result[0].song, YtKind.ChannelPreview);
+                    result.Insert(0, channelPreview);
+                }
+                else if (result.Count > 0 && querryType == "All" || querryType == "Channels")
+                {
+                    IEnumerable<string> artist = result.GetRange(0, (result.Count > 20 ? 20 : result.Count)).GroupBy(x => x.song.Artist).Where(x => x.Count() > 5).Select(x => x.Key);
+                    if (artist.Count() == 1)
+                    {
+                        Song channel = null;
+                        if (result.Find(x => x.Kind == YtKind.Channel && x.song.Title == artist.First()) != null)
+                            channel = result.Find(x => x.song.Title == artist.First() && x.Kind == YtKind.Channel).song;
+                        //else
+                        //{
+                        //    string channelID = result.Find(x => x.item.Artist == artist.First()).item.Path;
+                        //    ChannelsResource.ListRequest request = youtubeService.Channels.List("snippet");
+                        //    request.Id = channelID;
+                        //    ChannelListResponse response = await request.ExecuteAsync();
+                        //    channel = new Song(response.Items[0].Snippet.Title, null, response.Items[0].Snippet.Thumbnails.High.Url, channelID, -1, -1, null);
+                        //}
+
+                        if (channel != null)
+                        {
+                            YtFile channelPreview = new YtFile(channel, YtKind.ChannelPreview);
+                            result.Insert(0, channelPreview);
+                        }
+                    }
+                }
+
+                adapter = new YtAdapter(result);
+                adapter.ItemClick += ListView_ItemClick;
+                adapter.ItemLongCLick += ListView_ItemLongClick;
+                ListView.SetAdapter(adapter);
+                searching = false;
+
+                if (result.Count == 0)
+                {
+                    EmptyView.Visibility = ViewStates.Visible;
+                    switch (querryType)
+                    {
+                        case "All":
+                            EmptyView.Text = GetString(Resource.String.no_result) + " " + search;
+                            break;
+                        case "Tracks":
+                            EmptyView.Text = GetString(Resource.String.no_track) + " " + search;
+                            break;
+                        case "Playlists":
+                            EmptyView.Text = GetString(Resource.String.no_playlist) + " " + search;
+                            break;
+                        case "Lives":
+                            EmptyView.Text = GetString(Resource.String.no_lives) + " " + search;
+                            break;
+                        case "Channels":
+                            EmptyView.Text = GetString(Resource.String.no_channel) + " " + search;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                else
+                    EmptyView.Visibility = ViewStates.Gone;
+            }
+            catch (System.Net.Http.HttpRequestException)
+            {
+                MainActivity.instance.Timout();
+                EmptyView.Text = GetString(Resource.String.timout);
+                EmptyView.Visibility = ViewStates.Visible;
+            }
+        }
+
+        private void ListView_ItemClick(object sender, int position)
+        {
+            switch (result[position].Kind)
+            {
+                case YtKind.Video:
+                    YoutubeManager.Play(result[position].song);
+                    break;
+                case YtKind.Playlist:
+                    SearchableActivity.IgnoreMyself = true;
+                    MainActivity.instance.menu.FindItem(Resource.Id.search).CollapseActionView();
+                    MainActivity.instance.FindViewById<TabLayout>(Resource.Id.tabs).Visibility = ViewStates.Gone;
+                    MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(result[position].playlist, false)).AddToBackStack("Playlist Track").Commit();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void ListView_ItemLongClick(object sender, int position)
+        {
+            if(result[position].Kind == YtKind.Video)
+            {
+                Song item = result[position].song;
+                More(item);
+            }
+            else if(result[position].Kind == YtKind.Playlist)
+            {
+                PlaylistItem item = result[position].playlist;
+                PlaylistMore(item);
+            }
+        }
+
+        public void More(Song item)
+        {
+            BottomSheetDialog bottomSheet = new BottomSheetDialog(MainActivity.instance);
+            View bottomView = MainActivity.instance.LayoutInflater.Inflate(Resource.Layout.BottomSheet, null);
+            bottomView.FindViewById<TextView>(Resource.Id.bsTitle).Text = item.Title;
+            bottomView.FindViewById<TextView>(Resource.Id.bsArtist).Text = item.Artist;
+            Picasso.With(MainActivity.instance).Load(item.Album).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
+            bottomSheet.SetContentView(bottomView);
+
+            bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, new List<BottomSheetAction>
+            {
+                new BottomSheetAction(Resource.Drawable.Play, Resources.GetString(Resource.String.play), (sender, eventArg) =>
+                {
+                    YoutubeManager.Play(item);
+                    bottomSheet.Dismiss();
+                }),
+                new BottomSheetAction(Resource.Drawable.PlaylistPlay, Resources.GetString(Resource.String.play_next), (sender, eventArg) =>
+                {
+                    YoutubeManager.PlayNext(item);
+                    bottomSheet.Dismiss();
+                }),
+                new BottomSheetAction(Resource.Drawable.Queue, Resources.GetString(Resource.String.play_last), (sender, eventArg) =>
+                {
+                    YoutubeManager.PlayLast(item);
+                    bottomSheet.Dismiss();
+                }),
+                new BottomSheetAction(Resource.Drawable.PlayCircle, Resources.GetString(Resource.String.create_mix_from_song), (sender, eventArg) =>
+                {
+                    YoutubeManager.CreateMixFromSong(item);
+                    bottomSheet.Dismiss();
+                }),
+                new BottomSheetAction(Resource.Drawable.PlaylistAdd, Resources.GetString(Resource.String.add_to_playlist), (sender, eventArg) => { PlaylistManager.AddSongToPlaylistDialog(item); bottomSheet.Dismiss(); }),
+                new BottomSheetAction(Resource.Drawable.Download, Resources.GetString(Resource.String.download), (sender, eventArg) =>
+                {
+                    YoutubeManager.Download(new[] { item }, null);
+                    bottomSheet.Dismiss();
+                })
+            });
+            bottomSheet.Show();
+        }
+
+        public void PlaylistMore(PlaylistItem item)
+        {
+            BottomSheetDialog bottomSheet = new BottomSheetDialog(MainActivity.instance);
+            View bottomView = MainActivity.instance.LayoutInflater.Inflate(Resource.Layout.BottomSheet, null);
+            bottomView.FindViewById<TextView>(Resource.Id.bsTitle).Text = item.Name;
+            bottomView.FindViewById<TextView>(Resource.Id.bsArtist).Text = item.Owner;
+            Picasso.With(MainActivity.instance).Load(item.ImageURL).Placeholder(Resource.Color.background_material_dark).Transform(new RemoveBlackBorder(true)).Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
+            bottomSheet.SetContentView(bottomView);
+
+            List<BottomSheetAction> actions = new List<BottomSheetAction>
+            {
+                new BottomSheetAction(Resource.Drawable.Play, MainActivity.instance.Resources.GetString(Resource.String.play_in_order), (sender, eventArg) =>
+                {
+                    PlaylistManager.PlayInOrder(item);
+                    bottomSheet.Dismiss();
+                }),
+                new BottomSheetAction(Resource.Drawable.Shuffle, MainActivity.instance.Resources.GetString(Resource.String.random_play), (sender, eventArg) =>
+                {
+                    PlaylistManager.Shuffle(item);
+                    bottomSheet.Dismiss();
+                }),
+                new BottomSheetAction(Resource.Drawable.Queue, MainActivity.instance.Resources.GetString(Resource.String.add_to_queue), (sender, eventArg) =>
+                {
+                    PlaylistManager.AddToQueue(item);
+                    bottomSheet.Dismiss();
+                }),
+                new BottomSheetAction(Resource.Drawable.LibraryAdd, MainActivity.instance.Resources.GetString(Resource.String.add_to_library), (sender, eventArg) =>
+                {
+                    PlaylistManager.ForkPlaylist(item.YoutubeID);
+                    bottomSheet.Dismiss();
+                }),
+                new BottomSheetAction(Resource.Drawable.Download, MainActivity.instance.Resources.GetString(Resource.String.download), (sender, eventArg) =>
+                {
+                    YoutubeManager.DownloadPlaylist(item.Name, item.YoutubeID);
+                    bottomSheet.Dismiss();
+                })
+            };
+
+            bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, actions);
+            bottomSheet.Show();
+        }
+
+        public override void OnSaveInstanceState(Bundle outState)
+        {
+            outState.PutString("Query", Query);
+            base.OnSaveInstanceState(outState);
+        }
+    }
+}
+ 

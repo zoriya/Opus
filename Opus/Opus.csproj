@@ -106,8 +106,8 @@
     <Reference Include="Google.Apis.Core, Version=1.38.2.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
       <HintPath>..\packages\Google.Apis.Core.1.38.2\lib\netstandard2.0\Google.Apis.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Google.Apis.YouTube.v3, Version=1.38.0.1488, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
-      <HintPath>..\packages\Google.Apis.YouTube.v3.1.38.0.1488\lib\netstandard2.0\Google.Apis.YouTube.v3.dll</HintPath>
+    <Reference Include="Google.Apis.YouTube.v3, Version=1.38.2.1488, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Apis.YouTube.v3.1.38.2.1488\lib\netstandard2.0\Google.Apis.YouTube.v3.dll</HintPath>
     </Reference>
     <Reference Include="Java.Interop" />
     <Reference Include="Microsoft.CSharp" />
@@ -322,75 +322,77 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Code\Adapter\BaseCursor.cs" />
+    <Compile Include="Code\UI\Adapter\BaseCursor.cs" />
+    <Compile Include="Code\Api\LocalManager.cs" />
+    <Compile Include="Code\Api\PlaylistManager.cs" />
+    <Compile Include="Code\Api\SongManager.cs" />
+    <Compile Include="Code\Api\YoutubeManager.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Code\MainActivity.cs" />
-    <Compile Include="Resources\Portable Class\AccountPreference.cs" />
+    <Compile Include="Code\UI\Views\AccountPreference.cs" />
     <Compile Include="Resources\Portable Class\AccountTarget.cs" />
-    <Compile Include="Code\Adapter\BrowseAdapter.cs" />
-    <Compile Include="Resources\Portable Class\AddToPlaylistAdapter.cs" />
-    <Compile Include="Resources\Portable Class\AudioStopper.cs" />
-    <Compile Include="Resources\Portable Class\BottomSheetAdapter.cs" />
-    <Compile Include="Code\Fragments\Browse.cs" />
-    <Compile Include="Resources\Portable Class\CastCallback.cs" />
+    <Compile Include="Code\UI\Adapter\BrowseAdapter.cs" />
+    <Compile Include="Code\UI\Adapter\AddToPlaylistAdapter.cs" />
+    <Compile Include="Code\Others\AudioStopper.cs" />
+    <Compile Include="Code\UI\Adapter\BottomSheetAdapter.cs" />
+    <Compile Include="Code\UI\Fragments\Browse.cs" />
+    <Compile Include="Code\Others\CastCallback.cs" />
     <Compile Include="Resources\Portable Class\CastProvider.cs" />
-    <Compile Include="Resources\Portable Class\CastQueueManager.cs" />
+    <Compile Include="Code\Others\CastQueueManager.cs" />
     <Compile Include="Resources\Portable Class\ChannelPreviewHolder.cs" />
-    <Compile Include="Resources\Portable Class\CircleTransformation.cs" />
-    <Compile Include="Resources\Portable Class\CollapsingToolbar.cs" />
-    <Compile Include="Resources\Portable Class\CurrentItemDecoration.cs" />
-    <Compile Include="Resources\Portable Class\DownloadQueue.cs" />
-    <Compile Include="Resources\Portable Class\DownloadQueueAdapter.cs" />
+    <Compile Include="Code\Others\CircleTransformation.cs" />
+    <Compile Include="Code\UI\Views\CollapsingToolbar.cs" />
+    <Compile Include="Code\UI\Views\CurrentItemDecoration.cs" />
+    <Compile Include="Code\UI\Fragments\DownloadQueue.cs" />
+    <Compile Include="Code\UI\Adapter\DownloadQueueAdapter.cs" />
     <Compile Include="Resources\Portable Class\FixedLinearLayoutManager.cs" />
     <Compile Include="Resources\Portable Class\FixedNestedScrollView.cs" />
     <Compile Include="Resources\Portable Class\PlayerBehavior.cs" />
-    <Compile Include="Resources\Portable Class\PlaylistHolder.cs" />
-    <Compile Include="Resources\Portable Class\PlaylistLocationAdapter.cs" />
+    <Compile Include="Code\UI\Adapter\PlaylistLocationAdapter.cs" />
     <Compile Include="Resources\Portable Class\PlaylistTrackAdapter.cs" />
-    <Compile Include="Resources\Portable Class\RemoveBlackBorder.cs" />
-    <Compile Include="Resources\Portable Class\SearchableActivity.cs" />
-    <Compile Include="Resources\Portable Class\Downloader.cs" />
-    <Compile Include="Resources\Portable Class\DownloadFragment.cs" />
-    <Compile Include="Resources\Portable Class\EditMetaData.cs" />
-    <Compile Include="Resources\Portable Class\FolderAdapter.cs" />
+    <Compile Include="Code\Others\RemoveBlackBorder.cs" />
+    <Compile Include="Code\UI\Fragments\SearchableActivity.cs" />
+    <Compile Include="Code\Api\Services\Downloader.cs" />
+    <Compile Include="Code\UI\Fragments\DownloadFragment.cs" />
+    <Compile Include="Code\UI\Fragments\EditMetaData.cs" />
+    <Compile Include="Code\UI\Adapter\FolderAdapter.cs" />
     <Compile Include="Resources\Portable Class\FolderBrowse.cs" />
     <Compile Include="Resources\Portable Class\FolderTracks.cs" />
     <Compile Include="Resources\Portable Class\HeadphonesActions.cs" />
-    <Compile Include="Resources\Portable Class\Home.cs" />
-    <Compile Include="Resources\Portable Class\HomeAdapter.cs" />
-    <Compile Include="Resources\Portable Class\HomeListAdapter.cs" />
+    <Compile Include="Code\UI\Fragments\Home.cs" />
+    <Compile Include="Code\UI\Adapter\HomeAdapter.cs" />
+    <Compile Include="Code\UI\Adapter\HomeListAdapter.cs" />
     <Compile Include="Resources\Portable Class\HomeHolder.cs" />
     <Compile Include="Resources\Portable Class\HomeMultipleSong.cs" />
-    <Compile Include="Resources\Portable Class\ItemTouchCallback.cs" />
-    <Compile Include="Resources\Portable Class\LineAdapter.cs" />
+    <Compile Include="Code\Others\ItemTouchCallback.cs" />
+    <Compile Include="Code\UI\Adapter\LineAdapter.cs" />
     <Compile Include="Resources\Portable Class\LineSongHolder.cs" />
-    <Compile Include="Resources\Portable Class\MusicPlayer.cs" />
+    <Compile Include="Code\Api\Services\MusicPlayer.cs" />
     <Compile Include="Resources\Portable Class\PagerFragment.cs" />
     <Compile Include="Resources\Portable Class\PercentTransform.cs" />
-    <Compile Include="Resources\Portable Class\Player.cs" />
-    <Compile Include="Resources\Portable Class\Playlist.cs" />
-    <Compile Include="Resources\Portable Class\PlaylistAdapter.cs" />
-    <Compile Include="Resources\Portable Class\PlaylistTracks.cs" />
-    <Compile Include="Resources\Portable Class\Preferences.cs" />
-    <Compile Include="Resources\Portable Class\Queue.cs" />
+    <Compile Include="Code\UI\Views\Player.cs" />
+    <Compile Include="Code\UI\Fragments\Playlist.cs" />
+    <Compile Include="Code\UI\Adapter\PlaylistAdapter.cs" />
+    <Compile Include="Code\UI\Fragments\PlaylistTracks.cs" />
+    <Compile Include="Code\UI\Fragments\Preferences.cs" />
+    <Compile Include="Code\UI\Fragments\Queue.cs" />
     <Compile Include="Resources\Portable Class\QueueHolder.cs" />
-    <Compile Include="Resources\Portable Class\QueueAdapter.cs" />
-    <Compile Include="Resources\Portable Class\SeekbarPreference.cs" />
+    <Compile Include="Code\UI\Adapter\QueueAdapter.cs" />
+    <Compile Include="Code\UI\Views\SeekbarPreference.cs" />
     <Compile Include="Resources\Portable Class\Sleeper.cs" />
-    <Compile Include="Resources\Portable Class\SnackbarCallback.cs" />
-    <Compile Include="Resources\Portable Class\SuggestionAdapter.cs" />
-    <Compile Include="Resources\Portable Class\PlaylistItem.cs" />
+    <Compile Include="Code\Others\RemoveTrackFromPlaylistCallback.cs" />
+    <Compile Include="Code\UI\Adapter\SuggestionAdapter.cs" />
+    <Compile Include="Code\DataStructure\PlaylistItem.cs" />
     <Compile Include="Resources\Portable Class\TwoLineAdapter.cs" />
     <Compile Include="Code\DataStructure\UslessHolder.cs" />
     <Compile Include="Resources\Portable Class\ViewPagerAdapter.cs" />
-    <Compile Include="Resources\Portable Class\YoutubeEngine.cs" />
-    <Compile Include="Resources\Portable Class\YtAdapter.cs" />
-    <Compile Include="Resources\Portable Class\YtFile.cs" />
+    <Compile Include="Code\UI\Fragments\YoutubeSearch.cs" />
+    <Compile Include="Code\UI\Adapter\YtAdapter.cs" />
+    <Compile Include="Code\DataStructure\YtFile.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\Portable Class\ChannelHolder.cs" />
-    <Compile Include="Resources\Portable Class\DownloadFile.cs" />
-    <Compile Include="Resources\Portable Class\EmptyCategoryHolder.cs" />
+    <Compile Include="Code\DataStructure\DownloadFile.cs" />
     <Compile Include="Resources\Portable Class\Folder.cs" />
     <Compile Include="Resources\Portable Class\FolderHolder.cs" />
     <Compile Include="Resources\Portable Class\Holder.cs" />
@@ -400,7 +402,7 @@
     <Compile Include="Resources\Portable Class\PaddingChange.cs" />
     <Compile Include="Code\DataStructure\Song.cs" />
     <Compile Include="Resources\Portable Class\Suggestion.cs" />
-    <Compile Include="Resources\Portable Class\TwoLineHolder.cs" />
+    <Compile Include="Code\DataStructure\TwoLineHolder.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -897,9 +899,7 @@
       <SubType>Designer</SubType>
     </AndroidResource>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Code\API\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Android.Support.Animated.Vector.Drawable.25.4.0.2\build\MonoAndroid70\Xamarin.Android.Support.Animated.Vector.Drawable.targets" Condition="Exists('..\packages\Xamarin.Android.Support.Animated.Vector.Drawable.25.4.0.2\build\MonoAndroid70\Xamarin.Android.Support.Animated.Vector.Drawable.targets')" />
   <Import Project="..\packages\Xamarin.Android.Support.v7.Preference.25.4.0.2\build\MonoAndroid70\Xamarin.Android.Support.v7.Preference.targets" Condition="Exists('..\packages\Xamarin.Android.Support.v7.Preference.25.4.0.2\build\MonoAndroid70\Xamarin.Android.Support.v7.Preference.targets')" />

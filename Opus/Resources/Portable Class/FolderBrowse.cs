@@ -11,6 +11,9 @@ using Android.Support.V7.App;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
+using Opus.Adapter;
+using Opus.Api;
+using Opus.Api.Services;
 using Opus.DataStructure;
 using Opus.Fragments;
 using Opus.Resources.values;
@@ -224,7 +227,7 @@ namespace Opus.Resources.Portable_Class
                 musicCursor.Close();
 
                 songs.Reverse();
-                Browse.Play(songs[0]);
+                SongManager.Play(songs[0]);
 
                 while (MusicPlayer.instance == null)
                     await Task.Delay(10);
@@ -278,7 +281,7 @@ namespace Opus.Resources.Portable_Class
 
             else
             {
-                await Browse.CheckWritePermission();
+                await MainActivity.instance.GetWritePermission();
 
                 List<ContentValues> values = new List<ContentValues>();
                 ContentResolver resolver = MainActivity.instance.ContentResolver;
@@ -334,7 +337,7 @@ namespace Opus.Resources.Portable_Class
 
         public async void CreatePlaylist(string name, string path)
         {
-            await Browse.CheckWritePermission();
+            await MainActivity.instance.GetWritePermission();
 
             ContentResolver resolver = MainActivity.instance.ContentResolver;
             Uri uri = MediaStore.Audio.Playlists.ExternalContentUri;

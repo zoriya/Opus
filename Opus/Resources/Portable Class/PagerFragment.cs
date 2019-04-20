@@ -83,7 +83,7 @@ namespace Opus.Resources.Portable_Class
                 tabs.AddTab(tabs.NewTab().SetText(Resources.GetString(Resource.String.channels)));
 
                 ViewPagerAdapter adapter = new ViewPagerAdapter(ChildFragmentManager);
-                Fragment[] fragment = YoutubeEngine.NewInstances(query);
+                Fragment[] fragment = YoutubeSearch.NewInstances(query);
                 adapter.AddFragment(fragment[0], Resources.GetString(Resource.String.all));
                 adapter.AddFragment(fragment[1], Resources.GetString(Resource.String.songs));
                 adapter.AddFragment(fragment[2], Resources.GetString(Resource.String.playlists));
@@ -100,8 +100,8 @@ namespace Opus.Resources.Portable_Class
                 tabs.TabMode = TabLayout.ModeScrollable;
                 tabs.SetScrollPosition(pos, 0f, true);
 
-                YoutubeEngine.instances[pos].IsFocused = true;
-                YoutubeEngine.instances[pos].OnFocus();
+                YoutubeSearch.instances[pos].IsFocused = true;
+                YoutubeSearch.instances[pos].OnFocus();
             }
             return view;
         }
@@ -115,9 +115,9 @@ namespace Opus.Resources.Portable_Class
                 else
                     FolderBrowse.instance.ListView.SmoothScrollToPosition(0);
             }
-            if (YoutubeEngine.instances != null)
+            if (YoutubeSearch.instances != null)
             {
-                foreach (YoutubeEngine instance in YoutubeEngine.instances)
+                foreach (YoutubeSearch instance in YoutubeSearch.instances)
                 {
                     if (instance.IsFocused)
                     {
@@ -157,16 +157,16 @@ namespace Opus.Resources.Portable_Class
                     MainActivity.instance.HideSearch();
                 }
             }
-            else if (YoutubeEngine.instances != null)
+            else if (YoutubeSearch.instances != null)
             {
-                foreach (YoutubeEngine instance in YoutubeEngine.instances)
+                foreach (YoutubeSearch instance in YoutubeSearch.instances)
                 {
                     if (instance.IsFocused)
                         instance.OnUnfocus();
                     instance.IsFocused = false;
                 }
-                YoutubeEngine.instances[position].IsFocused = true;
-                YoutubeEngine.instances[position].OnFocus();
+                YoutubeSearch.instances[position].IsFocused = true;
+                YoutubeSearch.instances[position].OnFocus();
             }
         }
 
@@ -175,7 +175,7 @@ namespace Opus.Resources.Portable_Class
             base.OnDestroyView();
             Browse.instance = null;
             FolderBrowse.instance = null;
-            YoutubeEngine.instances = null;
+            YoutubeSearch.instances = null;
 
             adapter?.Dispose();
 

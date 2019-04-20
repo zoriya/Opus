@@ -1,13 +1,13 @@
-﻿using Android.Content;
-using Android.Graphics;
+﻿using Android.Graphics;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
-using Opus.Resources.values;
+using Opus.DataStructure;
+using Opus.Resources.Portable_Class;
 using System;
 using System.Collections.Generic;
 
-namespace Opus.Resources.Portable_Class
+namespace Opus.Adapter
 {
     public class TwoLineAdapter : RecyclerView.Adapter
     {
