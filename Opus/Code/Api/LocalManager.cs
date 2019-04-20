@@ -79,7 +79,9 @@ namespace Opus.Api
 
             await Task.Run(() => 
             {
-                Looper.Prepare();
+                if (Looper.MyLooper() == null)
+                    Looper.Prepare();
+
                 CursorLoader cursorLoader = new CursorLoader(Application.Context, musicUri, null, null, null, null);
                 ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
                 if (musicCursor != null && musicCursor.MoveToFirst())
@@ -166,6 +168,9 @@ namespace Opus.Api
             Uri uri = MediaStore.Audio.Playlists.Members.GetContentUri("external", playlistID);
             return await Task.Run(() => 
             {
+                if (Looper.MyLooper() == null)
+                    Looper.Prepare();
+
                 CursorLoader loader = new CursorLoader(Application.Context, uri, null, null, null, null);
                 ICursor cursor = (ICursor)loader.LoadInBackground();
 

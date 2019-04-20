@@ -3,7 +3,6 @@ using Android.Database;
 using Android.Graphics;
 using Android.Provider;
 using Android.Support.Design.Widget;
-using Android.Support.V4.Content;
 using Android.Support.V7.Preferences;
 using Android.Views;
 using Android.Widget;
@@ -12,7 +11,6 @@ using Google.Apis.YouTube.v3.Data;
 using Opus.Api.Services;
 using Opus.DataStructure;
 using Opus.Fragments;
-using Opus.Resources.Portable_Class;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -48,7 +46,7 @@ namespace Opus.Api
             intent.PutExtra("file", item.YoutubeID);
             intent.PutExtra("title", item.Title);
             intent.PutExtra("artist", item.Artist);
-            intent.PutExtra("thumbnailURI", item.Path);
+            intent.PutExtra("thumbnailURI", item.Album);
             intent.PutExtra("addToQueue", true);
             intent.PutExtra("showPlayer", true);
             Android.App.Application.Context.StartService(intent);
@@ -66,7 +64,7 @@ namespace Opus.Api
             intent.PutExtra("file", item.YoutubeID);
             intent.PutExtra("title", item.Title);
             intent.PutExtra("artist", item.Artist);
-            intent.PutExtra("thumbnailURI", item.Path);
+            intent.PutExtra("thumbnailURI", item.Album);
             Android.App.Application.Context.StartService(intent);
         }
 
@@ -82,7 +80,7 @@ namespace Opus.Api
             intent.PutExtra("file", item.YoutubeID);
             intent.PutExtra("title", item.Title);
             intent.PutExtra("artist", item.Artist);
-            intent.PutExtra("thumbnailURI", item.Path);
+            intent.PutExtra("thumbnailURI", item.Album);
             Android.App.Application.Context.StartService(intent);
         }
         #endregion

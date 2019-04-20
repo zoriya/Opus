@@ -257,7 +257,7 @@ namespace Opus.Api.Services
             queue?.Clear();
             currentID = -1;
             Queue.instance?.Refresh();
-            Home.instance?.RefreshQueue();
+            Home.instance?.RefreshQueue(false);
 
             Song song = null;
             if (title == null)
@@ -530,6 +530,7 @@ namespace Opus.Api.Services
                 song.Title = video.Title;
                 song.Artist = video.Author;
                 song.Album = await MainActivity.GetBestThumb(new string[] { video.Thumbnails.MaxResUrl, video.Thumbnails.StandardResUrl, video.Thumbnails.HighResUrl });
+                Player.instance?.RefreshPlayer();
 
                 if (startPlaybackWhenPosible)
                 {

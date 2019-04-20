@@ -187,7 +187,12 @@ namespace Opus.Fragments
         public void NotifyQueueInserted(int position)
         {
             if (adapterItems.Count > 0)
-                QueueAdapter?.NotifyItemInserted(position);
+            {
+                if (MusicPlayer.queue.Count == 1)
+                    QueueAdapter?.NotifyItemChanged(0);
+                else
+                    QueueAdapter?.NotifyItemInserted(position);
+            }
         }
 
         public void NotifyQueueRangeInserted(int position, int count)

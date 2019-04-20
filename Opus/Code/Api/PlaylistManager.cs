@@ -2,7 +2,6 @@
 using Android.Content;
 using Android.Database;
 using Android.Graphics;
-using Android.Net;
 using Android.OS;
 using Android.Provider;
 using Android.Support.Design.Widget;
@@ -14,7 +13,6 @@ using Google.Apis.YouTube.v3.Data;
 using Opus.Adapter;
 using Opus.Api.Services;
 using Opus.DataStructure;
-using Opus.Fragments;
 using Opus.Others;
 using SQLite;
 using System;
@@ -56,15 +54,22 @@ namespace Opus.Api
         {
             List<Song> tracks = await GetTracksFromLocalPlaylist(LocalID);
 
-            MusicPlayer.queue.Clear();
+            if (tracks.Count == 0)
+                return;
+
             SongManager.Play(tracks[startingPosition]);
             tracks.RemoveAt(startingPosition);
+
+            await Task.Delay(1000);
 
             while (MusicPlayer.instance == null)
                 await Task.Delay(10);
 
-            MusicPlayer.instance.AddToQueue(tracks.GetRange(startingPosition, tracks.Count - startingPosition).ToArray());
             MusicPlayer.instance.InsertToQueue(0, tracks.GetRange(0, startingPosition).ToArray());
+            MusicPlayer.currentID = startingPosition;
+            Queue.instance?.RefreshCurrent();
+            Player.instance?.RefreshPlayer();
+            MusicPlayer.instance.AddToQueue(tracks.GetRange(startingPosition, tracks.Count - startingPosition).ToArray());
         }
 
         /// <summary>
@@ -76,7 +81,6 @@ namespace Opus.Api
         {
             List<Song> tracks = await GetTracksFromYoutubePlaylist(YoutubeID, (song) => 
             {
-                MusicPlayer.queue?.Clear();
                 SongManager.Play(song);
             }, startingPosition);
 
@@ -85,11 +89,15 @@ namespace Opus.Api
 
             tracks.RemoveAt(startingPosition);
 
+            await Task.Delay(1000);
             while (MusicPlayer.instance == null)
                 await Task.Delay(10);
 
-            MusicPlayer.instance.AddToQueue(tracks.GetRange(startingPosition, tracks.Count - startingPosition).ToArray());
             MusicPlayer.instance.InsertToQueue(0, tracks.GetRange(0, startingPosition).ToArray());
+            MusicPlayer.currentID = startingPosition;
+            Queue.instance?.RefreshCurrent();
+            Player.instance?.RefreshPlayer();
+            MusicPlayer.instance.AddToQueue(tracks.GetRange(startingPosition, tracks.Count - startingPosition).ToArray());
         }
         #endregion
 
@@ -119,10 +127,10 @@ namespace Opus.Api
             Random r = new Random();
             tracks = tracks.OrderBy(x => r.Next()).ToList();
 
-            MusicPlayer.queue.Clear();
             SongManager.Play(tracks[0]);
             tracks.RemoveAt(0);
 
+            await Task.Delay(1000);
             while (MusicPlayer.instance == null)
                 await Task.Delay(10);
 
@@ -139,7 +147,6 @@ namespace Opus.Api
             int playPos = r.Next(50);
             List<Song> tracks = await GetTracksFromYoutubePlaylist(YoutubeID, (song) => 
             {
-                MusicPlayer.queue.Clear();
                 MusicPlayer.currentID = -1;
                 SongManager.Play(song);
             }, playPos);
@@ -559,7 +566,9 @@ namespace Opus.Api
             Uri uri = Playlists.ExternalContentUri;
             await Task.Run(() => 
             {
-                Looper.Prepare();
+                if (Looper.MyLooper() == null)
+                    Looper.Prepare();
+
                 CursorLoader loader = new CursorLoader(Application.Context, uri, null, null, null, null);
                 ICursor cursor = (ICursor)loader.LoadInBackground();
 
@@ -778,10 +787,16 @@ namespace Opus.Api
         /// <returns></returns>
         public async static Task<List<Song>> GetTracksFromLocalPlaylist(long LocalID)
         {
+            if (Looper.MyLooper() == null)
+                Looper.Prepare();
+
             List<Song> songs = new List<Song>();
             Uri musicUri = Playlists.Members.GetContentUri("external", LocalID);
             await Task.Run(() => 
             {
+                if (Looper.MyLooper() == null)
+                    Looper.Prepare();
+
                 CursorLoader cursorLoader = new CursorLoader(Application.Context, musicUri, null, null, null, null);
                 ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
 
@@ -815,7 +830,6 @@ namespace Opus.Api
                 }
             });
 
-            songs.Reverse();
             return songs;
         }
 
@@ -866,6 +880,9 @@ namespace Opus.Api
             Uri uri = MediaStore.Audio.Playlists.ExternalContentUri;
             return await Task.Run(() =>
             {
+                if (Looper.MyLooper() == null)
+                    Looper.Prepare();
+
                 CursorLoader loader = new CursorLoader(Application.Context, uri, null, null, null, null);
                 ICursor cursor = (ICursor)loader.LoadInBackground();
 
@@ -950,7 +967,6 @@ namespace Opus.Api
                     nextPageToken = ytPlaylist.NextPageToken;
                 }
 
-                tracks.Reverse();
                 return tracks;
             }
             catch (System.Net.Http.HttpRequestException)
