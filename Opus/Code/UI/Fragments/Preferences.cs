@@ -15,7 +15,6 @@ using Android.Support.V7.Preferences;
 using Android.Views;
 using Android.Widget;
 using Opus.Api.Services;
-using Opus.Resources.Portable_Class;
 using System.IO;
 using System.Threading.Tasks;
 using AlertDialog = Android.Support.V7.App.AlertDialog;

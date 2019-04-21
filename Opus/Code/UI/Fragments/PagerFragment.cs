@@ -3,9 +3,9 @@ using Android.Support.Design.Widget;
 using Android.Support.V4.App;
 using Android.Support.V4.View;
 using Android.Views;
-using Opus.Fragments;
+using Opus.Adapter;
 
-namespace Opus.Resources.Portable_Class
+namespace Opus.Fragments
 {
     public class Pager : Fragment, ViewPager.IOnPageChangeListener
     {
@@ -39,13 +39,6 @@ namespace Opus.Resources.Portable_Class
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            if (savedInstanceState != null)
-            {
-                System.Console.WriteLine("&Instance state restored");
-                //type = savedInstanceState.GetInt("type");
-                //pos = savedInstanceState.GetInt("pos");
-            }
-
             View view = inflater.Inflate(Resource.Layout.ViewPager, container, false);
             TabLayout tabs = Activity.FindViewById<TabLayout>(Resource.Id.tabs);
             ViewPager pager = view.FindViewById<ViewPager>(Resource.Id.pager);
@@ -187,19 +180,5 @@ namespace Opus.Resources.Portable_Class
 
             instance = null;
         }
-
-        public override void OnViewStateRestored(Bundle savedInstanceState)
-        {
-            base.OnViewStateRestored(savedInstanceState);
-            System.Console.WriteLine("&View state restored");
-        }
-
-        //public override void OnSaveInstanceState(Bundle outState)
-        //{
-        //    base.OnSaveInstanceState(outState);
-        //    System.Console.WriteLine("&Pager insatnce state saved");
-        //    outState.PutInt("type", type);
-        //    outState.PutInt("pos", View.FindViewById<ViewPager>(Resource.Id.pager).CurrentItem);
-        //}
     }
 }

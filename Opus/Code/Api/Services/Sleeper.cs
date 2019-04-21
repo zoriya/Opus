@@ -5,7 +5,7 @@ using Android.Support.V4.App;
 using Opus.Api.Services;
 using System.Threading.Tasks;
 
-namespace Opus.Resources.Portable_Class
+namespace Opus.Api.Services
 {
     [Service]
     public class Sleeper : Service

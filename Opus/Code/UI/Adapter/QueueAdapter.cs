@@ -11,7 +11,6 @@ using Android.Widget;
 using Opus.Api.Services;
 using Opus.DataStructure;
 using Opus.Others;
-using Opus.Resources.Portable_Class;
 using Square.Picasso;
 using System;
 using System.Collections.Generic;

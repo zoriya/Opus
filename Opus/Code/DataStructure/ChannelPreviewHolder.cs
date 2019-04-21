@@ -2,7 +2,7 @@
 using Android.Views;
 using Android.Widget;
 
-namespace Opus.Resources.Portable_Class
+namespace Opus.DataStructure
 {
     public class ChannelPreviewHolder : RecyclerView.ViewHolder
     {

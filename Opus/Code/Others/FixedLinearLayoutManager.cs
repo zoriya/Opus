@@ -5,7 +5,7 @@ using Android.Util;
 using Java.Lang;
 using System;
 
-namespace Opus.Resources.Portable_Class
+namespace Opus.Others
 {
     public class FixedLinearLayoutManager : LinearLayoutManager
     {

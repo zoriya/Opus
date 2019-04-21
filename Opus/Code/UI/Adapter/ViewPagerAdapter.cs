@@ -4,7 +4,7 @@ using System;
 using Java.Lang;
 using Android.Support.V4.App;
 
-namespace Opus.Resources.Portable_Class
+namespace Opus.Adapter
 {
     public class ViewPagerAdapter : FragmentStatePagerAdapter
     {

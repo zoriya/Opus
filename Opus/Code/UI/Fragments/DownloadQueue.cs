@@ -7,7 +7,7 @@ using Android.Views;
 using Opus.Adapter;
 using Opus.Api.Services;
 using Opus.DataStructure;
-using Opus.Resources.Portable_Class;
+using Opus.Others;
 
 namespace Opus.Fragments
 {

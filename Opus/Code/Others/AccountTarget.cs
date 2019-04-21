@@ -2,7 +2,7 @@
 using Android.Graphics.Drawables;
 using Square.Picasso;
 
-namespace Opus.Resources.Portable_Class
+namespace Opus.Others
 {
     public class AccountTarget : Java.Lang.Object, ITarget
     {

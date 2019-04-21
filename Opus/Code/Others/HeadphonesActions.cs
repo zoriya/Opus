@@ -3,7 +3,7 @@ using Android.Content;
 using Android.Support.V4.Media.Session;
 using Opus.Api.Services;
 
-namespace Opus.Resources.Portable_Class
+namespace Opus.Others
 {
     public class HeadphonesActions : MediaSessionCompat.Callback
     {

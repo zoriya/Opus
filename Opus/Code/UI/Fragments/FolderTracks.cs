@@ -10,13 +10,12 @@ using Opus.Adapter;
 using Opus.Api;
 using Opus.Api.Services;
 using Opus.DataStructure;
-using Opus.Fragments;
 using Opus.Others;
 using Square.Picasso;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Opus.Resources.Portable_Class
+namespace Opus.Fragments
 {
     public class FolderTracks : Fragment
     {

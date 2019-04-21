@@ -5,7 +5,7 @@ using Android.Support.V7.Preferences;
 using Android.Util;
 using Opus;
 using Opus.Api.Services;
-using Opus.Resources.Portable_Class;
+using Opus.Others;
 using Org.Adw.Library.Widgets.Discreteseekbar;
 using System;
 

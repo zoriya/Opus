@@ -279,6 +279,11 @@ namespace Opus.Fragments
                     else
                         Snackbar.Make(FindViewById<View>(Resource.Id.contentView), Resource.String.no_permission, Snackbar.LengthShort).Show();
                 }
+                else
+                {
+                    hasPermission = false;
+                    Snackbar.Make(FindViewById<View>(Resource.Id.contentView), Resource.String.no_permission, Snackbar.LengthShort).Show();
+                }
             }
         }
 

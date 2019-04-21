@@ -24,7 +24,6 @@ using Newtonsoft.Json;
 using Opus.DataStructure;
 using Opus.Fragments;
 using Opus.Others;
-using Opus.Resources.Portable_Class;
 using Org.Json;
 using SQLite;
 using Square.Picasso;

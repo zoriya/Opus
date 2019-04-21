@@ -6,8 +6,6 @@ using Android.Views;
 using Opus.Api.Services;
 using Opus.DataStructure;
 using Opus.Fragments;
-using Opus.Resources.Portable_Class;
-using Opus.Resources.values;
 using System;
 using System.Collections.Generic;
 

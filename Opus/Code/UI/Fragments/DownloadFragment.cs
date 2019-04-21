@@ -6,7 +6,7 @@ using Android.Views;
 using Android.Widget;
 using Java.IO;
 using Opus.Adapter;
-using Opus.Resources.values;
+using Opus.DataStructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;

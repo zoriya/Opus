@@ -5,7 +5,6 @@ using Android.Support.V7.Widget.Helper;
 using Opus.Adapter;
 using Opus.Api.Services;
 using Opus.Fragments;
-using Opus.Resources.Portable_Class;
 
 namespace Opus.Others
 {

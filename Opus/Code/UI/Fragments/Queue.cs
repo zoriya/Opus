@@ -17,7 +17,6 @@ using Opus.Api;
 using Opus.Api.Services;
 using Opus.DataStructure;
 using Opus.Others;
-using Opus.Resources.Portable_Class;
 using Opus.Views;
 using Square.Picasso;
 using System.Collections.Generic;

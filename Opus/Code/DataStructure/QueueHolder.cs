@@ -1,9 +1,8 @@
 ﻿using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
-using System;
 
-namespace Opus.Resources.Portable_Class
+namespace Opus.DataStructure
 {
     public class QueueHeader : RecyclerView.ViewHolder
     {

@@ -3,7 +3,6 @@ using Android.App;
 using Android.Content;
 using Android.Content.PM;
 using Android.Content.Res;
-using Android.Database;
 using Android.Gms.Auth.Api;
 using Android.Gms.Auth.Api.SignIn;
 using Android.Gms.Cast.Framework;
@@ -13,7 +12,6 @@ using Android.Gms.Common.Apis;
 using Android.Graphics;
 using Android.Net;
 using Android.OS;
-using Android.Provider;
 using Android.Runtime;
 using Android.Support.Design.Widget;
 using Android.Support.V4.App;
@@ -32,7 +30,6 @@ using Opus.Api.Services;
 using Opus.DataStructure;
 using Opus.Fragments;
 using Opus.Others;
-using Opus.Resources.Portable_Class;
 using SQLite;
 using Square.Picasso;
 using System;
@@ -42,7 +39,6 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using YoutubeExplode;
-using CursorLoader = Android.Support.V4.Content.CursorLoader;
 using Environment = Android.OS.Environment;
 using Fragment = Android.Support.V4.App.Fragment;
 using Playlist = Opus.Fragments.Playlist;
@@ -781,13 +777,17 @@ namespace Opus
                 return false;
         }
 
-        public async Task<bool> GetReadPermission()
+        public async Task<bool> GetReadPermission(bool ask = true)
         {
             if (HasReadPermission())
                 return true;
             PermissionGot = null;
-            string[] permissions = new string[] { Manifest.Permission.ReadExternalStorage };
-            RequestPermissions(permissions, RequestCode);
+
+            if(ask)
+            {
+                string[] permissions = new string[] { Manifest.Permission.ReadExternalStorage };
+                RequestPermissions(permissions, RequestCode);
+            }
 
             while (PermissionGot == null)
                 await Task.Delay(10);
@@ -862,64 +862,6 @@ namespace Opus
             }
 
             return thumbnails.Last();
-        }
-
-        public async void ShuffleAll()
-        {
-            List<Song> songs = new List<Song>();
-            Android.Net.Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
-
-            CursorLoader cursorLoader = new CursorLoader(this, musicUri, null, null, null, null);
-            ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
-            if (musicCursor != null && musicCursor.MoveToFirst())
-            {
-                int titleID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Title);
-                int artistID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Artist);
-                int albumID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Album);
-                int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
-                int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
-                do
-                {
-                    string Artist = musicCursor.GetString(artistID);
-                    string Title = musicCursor.GetString(titleID);
-                    string Album = musicCursor.GetString(albumID);
-                    long AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
-                    long id = musicCursor.GetLong(thisID);
-                    string path = musicCursor.GetString(pathID);
-
-                    if (Title == null)
-                        Title = "Unknown Title";
-                    if (Artist == null)
-                        Artist = "Unknow Artist";
-                    if (Album == null)
-                        Album = "Unknow Album";
-
-                    songs.Add(new Song(Title, Artist, Album, null, AlbumArt, id, path));
-                }
-                while (musicCursor.MoveToNext());
-                musicCursor.Close();
-            }
-
-            if (songs.Count == 0)
-            {
-                Snackbar snackBar = Snackbar.Make(FindViewById<CoordinatorLayout>(Resource.Id.snackBar), Resource.String.no_song_mix, Snackbar.LengthLong);
-                snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
-                snackBar.Show();
-                return;
-            }
-
-            Intent intent = new Intent(this, typeof(MusicPlayer));
-            StartService(intent);
-
-            while (MusicPlayer.instance == null)
-                await Task.Delay(10);
-
-            Random r = new Random();
-            songs = songs.OrderBy(x => r.Next()).ToList();
-            MusicPlayer.instance.AddToQueue(songs.ToArray());
-
-            ShowSmallPlayer();
-            ShowPlayer();
         }
 
         public void YoutubeEndPointChanged()

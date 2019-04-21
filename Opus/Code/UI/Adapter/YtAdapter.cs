@@ -6,8 +6,6 @@ using Opus.Api;
 using Opus.DataStructure;
 using Opus.Fragments;
 using Opus.Others;
-using Opus.Resources.Portable_Class;
-using Opus.Resources.values;
 using Square.Picasso;
 using System;
 using System.Collections.Generic;

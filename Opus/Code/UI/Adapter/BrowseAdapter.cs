@@ -94,7 +94,7 @@ namespace Opus.Adapter
 
         public override void HeaderClicked(int position)
         {
-            MainActivity.instance.ShuffleAll();
+            LocalManager.ShuffleAll();
         }
 
         public override void Clicked(Song song)

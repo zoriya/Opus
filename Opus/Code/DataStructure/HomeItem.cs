@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Opus.Resources.values
+namespace Opus.DataStructure
 {
     [System.Serializable]
     public class HomeItem

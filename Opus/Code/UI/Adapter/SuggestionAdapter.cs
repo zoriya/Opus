@@ -2,8 +2,8 @@
 using Android.Graphics;
 using Android.Views;
 using Android.Widget;
+using Opus.DataStructure;
 using Opus.Fragments;
-using Opus.Resources.values;
 using System.Collections.Generic;
 
 namespace Opus.Adapter

@@ -1,9 +1,7 @@
 ﻿using Android.Support.V7.Widget;
-using Opus.DataStructure;
-using Opus.Resources.Portable_Class;
 using System.Collections.Generic;
 
-namespace Opus.Resources.values
+namespace Opus.DataStructure
 {
     [System.Serializable]
     public class HomeSection

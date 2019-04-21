@@ -5,12 +5,10 @@ using Android.Support.V4.App;
 using Android.Support.V7.Widget;
 using Android.Support.V7.Widget.Helper;
 using Android.Views;
-using Google.Apis.YouTube.v3.Data;
 using Opus.Adapter;
 using Opus.Api;
 using Opus.Api.Services;
 using Opus.DataStructure;
-using Opus.Resources.values;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -217,7 +215,7 @@ namespace Opus.Fragments
         {
             if(adapterItems[position].contentType == SectionType.Shuffle)
             {
-                MainActivity.instance.ShuffleAll();
+                LocalManager.ShuffleAll();
             }
         }
 

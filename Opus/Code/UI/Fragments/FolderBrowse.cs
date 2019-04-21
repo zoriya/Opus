@@ -1,6 +1,4 @@
-﻿using Android;
-using Android.Content;
-using Android.Content.PM;
+﻿using Android.Content;
 using Android.Database;
 using Android.Net;
 using Android.OS;
@@ -15,21 +13,19 @@ using Opus.Adapter;
 using Opus.Api;
 using Opus.Api.Services;
 using Opus.DataStructure;
-using Opus.Fragments;
-using Opus.Resources.values;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CursorLoader = Android.Support.V4.Content.CursorLoader;
 
-namespace Opus.Resources.Portable_Class
+namespace Opus.Fragments
 {
     public class FolderBrowse : Fragment
     {
         public static FolderBrowse instance;
+        public RecyclerView ListView;
         public List<string> pathDisplay = new List<string>();
         public List<string> paths = new List<string>();
         public List<int> pathUse = new List<int>();
-        public RecyclerView ListView;
         public TwoLineAdapter adapter;
         public TextView EmptyView;
         public bool IsFocused = false;
@@ -38,7 +34,6 @@ namespace Opus.Resources.Portable_Class
         public override void OnActivityCreated(Bundle savedInstanceState)
         {
             base.OnActivityCreated(savedInstanceState);
-            
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
         }
 
@@ -56,10 +51,11 @@ namespace Opus.Resources.Portable_Class
             ListView = view.FindViewById<RecyclerView>(Resource.Id.recycler);
             ListView.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
             ListView.SetItemAnimator(new DefaultItemAnimator());
-            //ListView.ScrollChange += (s, e) => { MainActivity.instance.contentRefresh.Enabled = e. == 0; };
             ListView.NestedScrollingEnabled = true;
 
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             PopulateList();
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             return view;
         }
 
@@ -69,40 +65,51 @@ namespace Opus.Resources.Portable_Class
             return instance;
         }
 
-        public void PopulateList()
+        public async Task PopulateList()
         {
-            if (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(Android.App.Application.Context, Manifest.Permission.ReadExternalStorage) != (int)Permission.Granted)
+            if (await MainActivity.instance.GetReadPermission(false) == false)
+            {
+                MainActivity.instance.FindViewById(Resource.Id.loading).Visibility = ViewStates.Gone;
+                EmptyView.Visibility = ViewStates.Visible;
+                EmptyView.Text = GetString(Resource.String.no_permission);
                 return;
+            }
 
             pathDisplay.Clear();
             paths.Clear();
             pathUse.Clear();
 
-            Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
-            CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
-            ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
-
-            if (musicCursor != null && musicCursor.MoveToFirst())
+            await Task.Run(() => 
             {
-                int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
-                do
-                {
-                    string path = musicCursor.GetString(pathID);
-                    path = path.Substring(0, path.LastIndexOf("/"));
-                    string displayPath = path.Substring(path.LastIndexOf("/") + 1, path.Length - (path.LastIndexOf("/") + 1));
+                if (Looper.MyLooper() == null)
+                    Looper.Prepare();
 
-                    if (!paths.Contains(path))
+                Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
+                CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
+                ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
+
+                if (musicCursor != null && musicCursor.MoveToFirst())
+                {
+                    int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
+                    do
                     {
-                        pathDisplay.Add(displayPath);
-                        paths.Add(path);
-                        pathUse.Add(1);
+                        string path = musicCursor.GetString(pathID);
+                        path = path.Substring(0, path.LastIndexOf("/"));
+                        string displayPath = path.Substring(path.LastIndexOf("/") + 1, path.Length - (path.LastIndexOf("/") + 1));
+
+                        if (!paths.Contains(path))
+                        {
+                            pathDisplay.Add(displayPath);
+                            paths.Add(path);
+                            pathUse.Add(1);
+                        }
+                        else
+                            pathUse[paths.IndexOf(path)] += 1;
                     }
-                    else
-                        pathUse[paths.IndexOf(path)] += 1;
+                    while (musicCursor.MoveToNext());
+                    musicCursor.Close();
                 }
-                while (musicCursor.MoveToNext());
-                musicCursor.Close();
-            }
+            });
 
             adapter = new TwoLineAdapter(pathDisplay, pathUse);
             adapter.ItemClick += ListView_ItemClick;
@@ -116,17 +123,17 @@ namespace Opus.Resources.Portable_Class
             }
         }
 
-        private void OnRefresh(object sender, System.EventArgs e)
+        private async void OnRefresh(object sender, System.EventArgs e)
         {
             if (!IsFocused)
                 return;
-            Refresh();
+            await Refresh();
             MainActivity.instance.contentRefresh.Refreshing = false;
         }
 
-        public void Refresh()
+        public async Task Refresh()
         {
-            PopulateList();
+            await PopulateList();
         }
 
         public void ListView_ItemClick(object sender, int position)
@@ -165,7 +172,7 @@ namespace Opus.Resources.Portable_Class
                 }),
                 new BottomSheetAction(Resource.Drawable.Shuffle, Resources.GetString(Resource.String.random_play), (sender, eventArg) =>
                 {
-                    RandomPlay(path);
+                    LocalManager.ShuffleAll(path);
                     bottomSheet.Dismiss();
                 }),
                 new BottomSheetAction(Resource.Drawable.PlaylistAdd, Resources.GetString(Resource.String.add_to_playlist), (sender, eventArg) =>
@@ -232,10 +239,7 @@ namespace Opus.Resources.Portable_Class
                 while (MusicPlayer.instance == null)
                     await Task.Delay(10);
 
-                foreach (Song song in songs)
-                {
-                    MusicPlayer.instance.AddToQueue(song);
-                }
+                MusicPlayer.instance.AddToQueue(songs.ToArray());
             }
         }
 
@@ -367,38 +371,6 @@ namespace Opus.Resources.Portable_Class
             }
 
             AddToPlaylist(path, "foo", playlistID);
-        }
-
-        void RandomPlay(string folderPath)
-        {
-            List<string> trackPaths = new List<string>();
-            Uri musicUri = MediaStore.Audio.Media.ExternalContentUri;
-
-            CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
-            ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
-
-
-            if (musicCursor != null && musicCursor.MoveToFirst())
-            {
-                int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
-                do
-                {
-                    string path = musicCursor.GetString(pathID);
-
-                    if (path.Contains(folderPath))
-                        trackPaths.Add(path);
-                }
-                while (musicCursor.MoveToNext());
-                musicCursor.Close();
-            }
-
-
-            Intent intent = new Intent(Android.App.Application.Context, typeof(MusicPlayer));
-            intent.PutStringArrayListExtra("files", trackPaths.ToArray());
-            intent.SetAction("RandomPlay");
-            Activity.StartService(intent);
-            MainActivity.instance.ShowSmallPlayer();
-            MainActivity.instance.ShowPlayer();
         }
 
         public override void OnResume()

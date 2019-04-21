@@ -1,6 +1,6 @@
 ﻿using Org.Adw.Library.Widgets.Discreteseekbar;
 
-namespace Opus.Resources.Portable_Class
+namespace Opus.Others
 {
     public class PercentTransform : DiscreteSeekBar.NumericTransformer
     {

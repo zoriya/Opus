@@ -1,6 +1,6 @@
 ﻿using SQLite;
 
-namespace Opus.Resources.values
+namespace Opus.DataStructure
 {
     [System.Serializable]
     [Table("Suggestion")]
