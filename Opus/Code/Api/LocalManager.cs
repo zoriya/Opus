@@ -66,7 +66,7 @@ namespace Opus.Api
         /// <summary>
         /// RandomPlay all file in the folder you selected or all file on the device if the folderPath = null.
         /// </summary>
-        /// <param name="folderPath"></param>
+        /// <param name="folderPath">The path of a folder if you want to shuffle files from this folder only.</param>
         public async static void ShuffleAll(string folderPath = null)
         {
             List<Song> songs = new List<Song>();
@@ -118,6 +118,70 @@ namespace Opus.Api
 
             Random r = new Random();
             songs = songs.OrderBy(x => r.Next()).ToList();
+            SongManager.Play(songs[0]);
+            songs.RemoveAt(0);
+
+            await Task.Delay(1000);
+            while (MusicPlayer.instance == null)
+                await Task.Delay(10);
+
+            MusicPlayer.instance.AddToQueue(songs.ToArray());
+        }
+
+        /// <summary>
+        /// Play all file from a folder in order.
+        /// </summary>
+        /// <param name="folderPath"></param>
+        public async static void PlayInOrder(string folderPath)
+        {
+            List<Song> songs = new List<Song>();
+
+            await Task.Run(() =>
+            {
+                if (Looper.MyLooper() == null)
+                    Looper.Prepare();
+
+                CursorLoader cursorLoader = new CursorLoader(Application.Context, MediaStore.Audio.Media.ExternalContentUri, null, MediaStore.Audio.Media.InterfaceConsts.Data + " LIKE '%" + folderPath + "%'", null, null);
+                ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
+                if (musicCursor != null && musicCursor.MoveToFirst())
+                {
+                    int titleID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Title);
+                    int artistID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Artist);
+                    int albumID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Album);
+                    int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
+                    int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
+                    do
+                    {
+                        string Artist = musicCursor.GetString(artistID);
+                        string Title = musicCursor.GetString(titleID);
+                        string Album = musicCursor.GetString(albumID);
+                        long AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
+                        long id = musicCursor.GetLong(thisID);
+                        string path = musicCursor.GetString(pathID);
+
+                        if (Title == null)
+                            Title = "Unknown Title";
+                        if (Artist == null)
+                            Artist = "Unknow Artist";
+                        if (Album == null)
+                            Album = "Unknow Album";
+
+                        songs.Add(new Song(Title, Artist, Album, null, AlbumArt, id, path));
+                    }
+                    while (musicCursor.MoveToNext());
+                    musicCursor.Close();
+                }
+            });
+
+            if (songs.Count == 0)
+            {
+                Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById<CoordinatorLayout>(Resource.Id.snackBar), Resource.String.no_song_mix, Snackbar.LengthLong);
+                snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+                snackBar.Show();
+                return;
+            }
+
+            songs.Reverse();
             SongManager.Play(songs[0]);
             songs.RemoveAt(0);
 

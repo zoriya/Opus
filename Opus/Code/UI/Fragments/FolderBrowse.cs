@@ -11,8 +11,6 @@ using Android.Views;
 using Android.Widget;
 using Opus.Adapter;
 using Opus.Api;
-using Opus.Api.Services;
-using Opus.DataStructure;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CursorLoader = Android.Support.V4.Content.CursorLoader;
@@ -167,7 +165,7 @@ namespace Opus.Fragments
                 }),
                 new BottomSheetAction(Resource.Drawable.Play, Resources.GetString(Resource.String.play_in_order), (sender, eventArg) =>
                 {
-                    PlayInOrder(path);
+                    LocalManager.PlayInOrder(path);
                     bottomSheet.Dismiss();
                 }),
                 new BottomSheetAction(Resource.Drawable.Shuffle, Resources.GetString(Resource.String.random_play), (sender, eventArg) =>
@@ -192,55 +190,6 @@ namespace Opus.Fragments
             act.SupportActionBar.Title = displayPath;
 
             MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, FolderTracks.NewInstance(path, displayPath)).AddToBackStack(null).Commit();
-        }
-
-        async void PlayInOrder(string folderPath)
-        {
-            List<Song> songs = new List<Song>();
-            Uri musicUri = MediaStore.Audio.Media.GetContentUriForPath(folderPath);
-            CursorLoader cursorLoader = new CursorLoader(Android.App.Application.Context, musicUri, null, null, null, null);
-            ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
-
-            if (musicCursor != null && musicCursor.MoveToFirst())
-            {
-                int titleID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Title);
-                int artistID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Artist);
-                int albumID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Album);
-                int thisID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
-                int pathID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
-                do
-                {
-                    string path = musicCursor.GetString(pathID);
-
-                    if (!path.Contains(folderPath))
-                        continue;
-
-                    string Artist = musicCursor.GetString(artistID);
-                    string Title = musicCursor.GetString(titleID);
-                    string Album = musicCursor.GetString(albumID);
-                    long AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(MediaStore.Audio.Albums.InterfaceConsts.AlbumId));
-                    long id = musicCursor.GetLong(thisID);
-
-                    if (Title == null)
-                        Title = "Unknown Title";
-                    if (Artist == null)
-                        Artist = "Unknow Artist";
-                    if (Album == null)
-                        Album = "Unknow Album";
-
-                    songs.Add(new Song(Title, Artist, Album, null, AlbumArt, id, path));
-                }
-                while (musicCursor.MoveToNext());
-                musicCursor.Close();
-
-                songs.Reverse();
-                SongManager.Play(songs[0]);
-
-                while (MusicPlayer.instance == null)
-                    await Task.Delay(10);
-
-                MusicPlayer.instance.AddToQueue(songs.ToArray());
-            }
         }
 
         public void GetPlaylist(string path)
