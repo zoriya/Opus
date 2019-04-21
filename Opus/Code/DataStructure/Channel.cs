@@ -6,6 +6,20 @@ using System;
 namespace Opus.DataStructure
 {
     [Serializable]
+    public class Channel
+    {
+        public string Name;
+        public string YoutubeID;
+        public string ImageURL;
+
+        public Channel(string name, string youtubeID, string imageURL)
+        {
+            Name = name;
+            YoutubeID = youtubeID;
+            ImageURL = imageURL;
+        }
+    }
+
     public class ChannelHolder
     {
         public LinearLayout textLayout;

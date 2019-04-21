@@ -5,6 +5,7 @@
     {
         public Song song;
         public PlaylistItem playlist;
+        public Channel channel;
         public YtKind Kind;
 
         public YtFile(Song song, YtKind kind)
@@ -18,7 +19,13 @@
             this.playlist = playlist;
             Kind = kind;
         }
-    }
 
-    public enum YtKind { Null, Video, Playlist, Channel, ChannelPreview, Loading }
+        public YtFile(Channel channel, YtKind kind)
+        {
+            this.channel = channel;
+            Kind = kind;
+        }
+    }
 }
+
+public enum YtKind { Null, Video, Playlist, Channel, ChannelPreview, Loading }

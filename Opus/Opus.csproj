@@ -390,7 +390,7 @@
     <Compile Include="Code\DataStructure\YtFile.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Code\DataStructure\ChannelHolder.cs" />
+    <Compile Include="Code\DataStructure\Channel.cs" />
     <Compile Include="Code\DataStructure\DownloadFile.cs" />
     <Compile Include="Code\DataStructure\Folder.cs" />
     <Compile Include="Code\DataStructure\HomeItem.cs" />

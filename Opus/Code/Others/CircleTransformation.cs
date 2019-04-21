@@ -1,4 +1,6 @@
 ﻿using Android.Graphics;
+using Android.Graphics.Drawables;
+using Android.Support.V4.Graphics.Drawable;
 using Square.Picasso;
 using System;
 

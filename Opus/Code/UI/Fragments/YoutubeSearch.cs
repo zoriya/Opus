@@ -6,6 +6,7 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Google.Apis.YouTube.v3;
+using Google.Apis.YouTube.v3.Data;
 using Opus.Adapter;
 using Opus.Api;
 using Opus.DataStructure;
@@ -15,7 +16,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Web;
+using Channel = Opus.DataStructure.Channel;
+using PlaylistItem = Opus.DataStructure.PlaylistItem;
 using SearchView = Android.Support.V7.Widget.SearchView;
 
 namespace Opus.Fragments
@@ -114,31 +116,7 @@ namespace Opus.Fragments
 
                     foreach (var video in searchReponse.Items)
                     {
-                        Song videoInfo = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.High.Url, null, -1, -1, null, true, false);
-                        YtKind kind = YtKind.Null;
-
-                        if (video.Snippet.LiveBroadcastContent == "live")
-                            videoInfo.IsLiveStream = true;
-
-                        switch (video.Id.Kind)
-                        {
-                            case "youtube#video":
-                                kind = YtKind.Video;
-                                videoInfo.YoutubeID = video.Id.VideoId;
-                                break;
-                            case "youtube#playlist":
-                                kind = YtKind.Playlist;
-                                videoInfo.YoutubeID = video.Id.PlaylistId;
-                                break;
-                            case "youtube#channel":
-                                kind = YtKind.Channel;
-                                videoInfo.YoutubeID = video.Id.ChannelId;
-                                break;
-                            default:
-                                Console.WriteLine("&Kind = " + video.Id.Kind);
-                                break;
-                        }
-                        result.Add(new YtFile(videoInfo, kind));
+                        result.Add(GetYtFileFromSearchResult(video));
                     }
 
                     if (nextPageToken != null)
@@ -262,59 +240,23 @@ namespace Opus.Fragments
                 result = new List<YtFile>();
 
                 foreach (var video in searchReponse.Items)
-                {
-                    Song videoInfo = new Song(HttpUtility.HtmlDecode(video.Snippet.Title), HttpUtility.HtmlDecode(video.Snippet.ChannelTitle), video.Snippet.Thumbnails.High.Url, null, -1, -1, video.Snippet.ChannelId, true, false);
-                    YtKind kind = YtKind.Null;
-
-                    if (video.Snippet.LiveBroadcastContent == "live")
-                        videoInfo.IsLiveStream = true;
-
-                    switch (video.Id.Kind)
-                    {
-                        case "youtube#video":
-                            kind = YtKind.Video;
-                            videoInfo.YoutubeID = video.Id.VideoId;
-                            break;
-                        case "youtube#playlist":
-                            kind = YtKind.Playlist;
-                            videoInfo.YoutubeID = video.Id.PlaylistId;
-                            break;
-                        case "youtube#channel":
-                            kind = YtKind.Channel;
-                            videoInfo.YoutubeID = video.Id.ChannelId;
-                            break;
-                        default:
-                            Console.WriteLine("&Kind = " + video.Id.Kind);
-                            break;
-                    }
-                    result.Add(new YtFile(videoInfo, kind));
-                }
+                    result.Add(GetYtFileFromSearchResult(video));
 
                 LoadingView.Visibility = ViewStates.Gone;
                 if (nextPageToken != null)
                     result.Add(new YtFile(new Song(), YtKind.Loading));
 
-                if(result.Count > 0 && result[0].Kind == YtKind.Channel && result.Count(x => x.song.Artist == result[0].song.Title && x.Kind == YtKind.Video) > 0)
+                if(result.Count > 0 && result[0].Kind == YtKind.Channel && result.Count(x => x.Kind == YtKind.Video && x.song.Artist == result[0].channel.Name) > 1)
                 {
-                    YtFile channelPreview = new YtFile(result[0].song, YtKind.ChannelPreview);
+                    YtFile channelPreview = new YtFile(result[0].channel, YtKind.ChannelPreview);
                     result.Insert(0, channelPreview);
                 }
                 else if (result.Count > 0 && querryType == "All" || querryType == "Channels")
                 {
-                    IEnumerable<string> artist = result.GetRange(0, (result.Count > 20 ? 20 : result.Count)).GroupBy(x => x.song.Artist).Where(x => x.Count() > 5).Select(x => x.Key);
+                    IEnumerable<string> artist = result.GetRange(0, result.Count > 20 ? 20 : result.Count).GroupBy(x => x.song?.Artist).Where(x => x.Count() > 5).Select(x => x.Key);
                     if (artist.Count() == 1)
                     {
-                        Song channel = null;
-                        if (result.Find(x => x.Kind == YtKind.Channel && x.song.Title == artist.First()) != null)
-                            channel = result.Find(x => x.song.Title == artist.First() && x.Kind == YtKind.Channel).song;
-                        //else
-                        //{
-                        //    string channelID = result.Find(x => x.item.Artist == artist.First()).item.Path;
-                        //    ChannelsResource.ListRequest request = youtubeService.Channels.List("snippet");
-                        //    request.Id = channelID;
-                        //    ChannelListResponse response = await request.ExecuteAsync();
-                        //    channel = new Song(response.Items[0].Snippet.Title, null, response.Items[0].Snippet.Thumbnails.High.Url, channelID, -1, -1, null);
-                        //}
+                        Channel channel = result.Find(x => x.Kind == YtKind.Channel && x.channel.Name == artist.First())?.channel;
 
                         if (channel != null)
                         {
@@ -362,6 +304,33 @@ namespace Opus.Fragments
                 MainActivity.instance.Timout();
                 EmptyView.Text = GetString(Resource.String.timout);
                 EmptyView.Visibility = ViewStates.Visible;
+            }
+        }
+
+        private YtFile GetYtFileFromSearchResult(SearchResult result)
+        {
+            switch (result.Id.Kind)
+            {
+                case "youtube#video":
+                    Song videoInfo = new Song(result.Snippet.Title, result.Snippet.ChannelTitle, result.Snippet.Thumbnails.High.Url, result.Id.VideoId, -1, -1, null, true, false);
+                    if (result.Snippet.LiveBroadcastContent == "live")
+                        videoInfo.IsLiveStream = true;
+
+                    return new YtFile(videoInfo, YtKind.Video);
+                case "youtube#playlist":
+                    PlaylistItem playlistInfo = new PlaylistItem(result.Snippet.Title, -1, result.Id.PlaylistId)
+                    {
+                        HasWritePermission = false,
+                        ImageURL = result.Snippet.Thumbnails.High.Url,
+                        Owner = result.Snippet.ChannelTitle
+                    };
+                    return new YtFile(playlistInfo, YtKind.Playlist);
+                case "youtube#channel":
+                    Channel channelInfo = new Channel(result.Snippet.Title, result.Id.ChannelId, result.Snippet.Thumbnails.High.Url);
+                    return new YtFile(channelInfo, YtKind.Channel);
+                default:
+                    Console.WriteLine("&Kind = " + result.Id.Kind);
+                    return null;
             }
         }
 

@@ -38,7 +38,7 @@ namespace Opus.Adapter
                 holder.reorder.Visibility = ViewStates.Gone;
 
                 var songAlbumArtUri = Android.Net.Uri.Parse(song.Album);
-                Picasso.With(Android.App.Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Color.background_material_dark).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
+                Picasso.With(Android.App.Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Color.placeholder).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
 
                 holder.more.Tag = position;
                 if (!holder.more.HasOnClickListeners)
@@ -89,7 +89,7 @@ namespace Opus.Adapter
                 holder.Owner.Text = playlist.Owner;
 
                 var songAlbumArtUri = Android.Net.Uri.Parse(playlist.ImageURL);
-                Picasso.With(Android.App.Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Color.background_material_dark).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
+                Picasso.With(Android.App.Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Color.placeholder).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
 
                 holder.more.Tag = position;
                 if (!holder.more.HasOnClickListeners)
@@ -112,16 +112,16 @@ namespace Opus.Adapter
             else if(items[position].Kind == YtKind.Channel)
             {
                 RecyclerChannelHolder holder = (RecyclerChannelHolder)viewHolder;
-                Song song = items[position].song; // SHOULD USE A CHANNEL STRUCTURE
+                Channel channel = items[position].channel;
 
-                holder.Title.Text = song.Title;
-                Picasso.With(Android.App.Application.Context).Load(song.Album).Placeholder(Resource.Color.background_material_dark).Transform(new CircleTransformation(false)).Into(holder.AlbumArt);
+                holder.Title.Text = channel.Name;
+                Picasso.With(Android.App.Application.Context).Load(channel.ImageURL).Transform(new CircleTransformation(false)).Into(holder.AlbumArt);
 
                 if (!holder.action.HasOnClickListeners)
                 {
                     holder.action.Click += (sender, e) =>
                     {
-                        YoutubeManager.MixFromChannel(song.YoutubeID);
+                        YoutubeManager.MixFromChannel(channel.YoutubeID);
                     };
                 }
 
@@ -133,12 +133,12 @@ namespace Opus.Adapter
             else if(items[position].Kind == YtKind.ChannelPreview)
             {
                 ChannelPreviewHolder holder = (ChannelPreviewHolder)viewHolder;
-                Song song = items[position].song;
+                Channel channel = items[position].channel;
 
-                holder.Name.Text = song.Title;
-                Picasso.With(Android.App.Application.Context).Load(song.Album).Placeholder(Resource.Color.background_material_dark).Transform(new CircleTransformation(true)).Into(holder.Logo);
+                holder.Name.Text = channel.Name;
+                Picasso.With(Android.App.Application.Context).Load(channel.ImageURL).Placeholder(Resource.Color.placeholder).Transform(new CircleTransformation(true)).Into(holder.Logo);
 
-                List<YtFile> files = items.FindAll(x => x.song.Artist == song.Title && x.Kind == YtKind.Video);
+                List<YtFile> files = items.FindAll(x => x.Kind == YtKind.Video && x.song.Artist == channel.Name);
                 if(files.Count > 0)
                     Picasso.With(Android.App.Application.Context).Load(files[0].song.Album).Transform(new RemoveBlackBorder()).Into(holder.MixOne);
                 if (files.Count > 1)
@@ -146,14 +146,14 @@ namespace Opus.Adapter
 
                 holder.MixOne.ViewTreeObserver.Draw += (sender, e) => 
                 {
-                    Picasso.With(Android.App.Application.Context).Load(song.Album).Placeholder(Resource.Color.background_material_dark).Fit().CenterCrop().Into(holder.ChannelLogo);
+                    Picasso.With(Android.App.Application.Context).Load(channel.ImageURL).Placeholder(Resource.Color.placeholder).Fit().CenterCrop().Into(holder.ChannelLogo);
                 };
 
                 if (!holder.MixHolder.HasOnClickListeners)
                 {
                     holder.MixHolder.Click += (sender, e) => 
                     {
-                        YoutubeManager.MixFromChannel(song.YoutubeID);
+                        YoutubeManager.MixFromChannel(channel.YoutubeID);
                     };
                 }
 
