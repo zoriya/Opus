@@ -52,7 +52,17 @@ namespace Opus.Fragments
             ListView = view.FindViewById<RecyclerView>(Resource.Id.recycler);
             ListView.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
             ListView.SetItemAnimator(new DefaultItemAnimator());
-            adapter = new BrowseAdapter();
+            adapter = new BrowseAdapter((song, position) => 
+            {
+                song = LocalManager.CompleteItem(song);
+                SongManager.Play(song);
+            }, (song, position) => 
+            {
+                More(song);
+            }, (position) => 
+            {
+                LocalManager.ShuffleAll();
+            });
             ListView.SetAdapter(adapter);
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
@@ -86,7 +96,7 @@ namespace Opus.Fragments
             string selection;
             if (query != null)
             {
-                selection = MediaStore.Audio.Media.InterfaceConsts.Title + " LIKE '%" + query + "%' OR " + MediaStore.Audio.Media.InterfaceConsts.Artist + " LIKE '%" + query + "%'";
+                selection = MediaStore.Audio.Media.InterfaceConsts.Title + " LIKE \"%" + query + "%\" OR " + MediaStore.Audio.Media.InterfaceConsts.Artist + " LIKE \"%" + query + "%\"";
                 adapter.displayShuffle = false;
             }
             else

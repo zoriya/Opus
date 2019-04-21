@@ -8,6 +8,7 @@ using Opus.Api;
 using Opus.DataStructure;
 using Opus.Fragments;
 using Square.Picasso;
+using System;
 
 namespace Opus.Adapter
 {
@@ -16,17 +17,17 @@ namespace Opus.Adapter
         public bool displayShuffle;
         public override int ItemBefore => (displayShuffle && BaseCount != 0) ? 1 : 0;
 
+        private Action<Song, int> clickAction;
+        private Action<Song, int> longClickAction;
+        private Action<int> headerAction;
 
-        public BrowseAdapter()
+        public BrowseAdapter(Action<Song, int> clickAction, Action<Song, int> longClickAction, Action<int> headerAction = null)
         {
             cursor = null;
             displayShuffle = true;
-        }
-
-        public BrowseAdapter(ICursor cursor, bool displayShuffle)
-        {
-            this.cursor = cursor;
-            this.displayShuffle = displayShuffle;
+            this.clickAction = clickAction;
+            this.longClickAction = longClickAction;
+            this.headerAction = headerAction;
         }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position)
@@ -94,18 +95,17 @@ namespace Opus.Adapter
 
         public override void HeaderClicked(int position)
         {
-            LocalManager.ShuffleAll();
+            headerAction?.Invoke(position);
         }
 
-        public override void Clicked(Song song)
+        public override void Clicked(Song song, int position)
         {
-            song = LocalManager.CompleteItem(song);
-            SongManager.Play(song);
+            clickAction?.Invoke(song, position);
         }
 
-        public override void LongClicked(Song song)
+        public override void LongClicked(Song song, int position)
         {
-            Browse.instance?.More(song);
+            longClickAction?.Invoke(song, position);
         }
 
         public override Song Convert(ICursor cursor)

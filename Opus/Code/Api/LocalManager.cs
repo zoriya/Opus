@@ -76,7 +76,7 @@ namespace Opus.Api
                 if (Looper.MyLooper() == null)
                     Looper.Prepare();
 
-                CursorLoader cursorLoader = new CursorLoader(Application.Context, MediaStore.Audio.Media.ExternalContentUri, null, MediaStore.Audio.Media.InterfaceConsts.Data + " LIKE '%" + folderPath + "%'", null, null);
+                CursorLoader cursorLoader = new CursorLoader(Application.Context, MediaStore.Audio.Media.ExternalContentUri, null, MediaStore.Audio.Media.InterfaceConsts.Data + " LIKE \"%" + folderPath + "%\"", null, null);
                 ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
                 if (musicCursor != null && musicCursor.MoveToFirst())
                 {
@@ -131,17 +131,24 @@ namespace Opus.Api
         /// <summary>
         /// Play all file from a folder in order.
         /// </summary>
-        /// <param name="folderPath"></param>
-        public async static void PlayInOrder(string folderPath)
+        /// <param name="folderPath">The path of a folder you want to play.</param>
+        /// <param name="startingPosition">The position you want to start playing.</param>
+        /// <param name="customSelection">If you want to have custom selection for your query (can be because the user searched...).</param>
+        public async static void PlayInOrder(string folderPath, int startingPosition = 0, string customSelection = null)
         {
-            List<Song> songs = new List<Song>();
+            List<Song> tracks = new List<Song>();
 
             await Task.Run(() =>
             {
                 if (Looper.MyLooper() == null)
                     Looper.Prepare();
 
-                CursorLoader cursorLoader = new CursorLoader(Application.Context, MediaStore.Audio.Media.ExternalContentUri, null, MediaStore.Audio.Media.InterfaceConsts.Data + " LIKE '%" + folderPath + "%'", null, null);
+                CursorLoader cursorLoader;
+                if(customSelection == null)
+                    cursorLoader = new CursorLoader(Application.Context, MediaStore.Audio.Media.ExternalContentUri, null, MediaStore.Audio.Media.InterfaceConsts.Data + " LIKE \"%" + folderPath + "%\"", null, null);
+                else
+                    cursorLoader = new CursorLoader(Application.Context, MediaStore.Audio.Media.ExternalContentUri, null, customSelection + " AND " + MediaStore.Audio.Media.InterfaceConsts.Data + " LIKE \"%" + folderPath + "%\"", null, null);
+
                 ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
                 if (musicCursor != null && musicCursor.MoveToFirst())
                 {
@@ -166,14 +173,14 @@ namespace Opus.Api
                         if (Album == null)
                             Album = "Unknow Album";
 
-                        songs.Add(new Song(Title, Artist, Album, null, AlbumArt, id, path));
+                        tracks.Add(new Song(Title, Artist, Album, null, AlbumArt, id, path));
                     }
                     while (musicCursor.MoveToNext());
                     musicCursor.Close();
                 }
             });
 
-            if (songs.Count == 0)
+            if (tracks.Count == 0)
             {
                 Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById<CoordinatorLayout>(Resource.Id.snackBar), Resource.String.no_song_mix, Snackbar.LengthLong);
                 snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
@@ -181,15 +188,18 @@ namespace Opus.Api
                 return;
             }
 
-            songs.Reverse();
-            SongManager.Play(songs[0]);
-            songs.RemoveAt(0);
+            SongManager.Play(tracks[startingPosition]);
+            tracks.RemoveAt(startingPosition);
 
             await Task.Delay(1000);
             while (MusicPlayer.instance == null)
                 await Task.Delay(10);
 
-            MusicPlayer.instance.AddToQueue(songs.ToArray());
+            MusicPlayer.instance.InsertToQueue(0, tracks.GetRange(0, startingPosition).ToArray());
+            MusicPlayer.currentID = startingPosition;
+            Queue.instance?.RefreshCurrent();
+            Player.instance?.RefreshPlayer();
+            MusicPlayer.instance.AddToQueue(tracks.GetRange(startingPosition, tracks.Count - startingPosition).ToArray());
         }
         #endregion
 

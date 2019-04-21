@@ -51,12 +51,12 @@ namespace Opus.Adapter
             if (position >= ItemBefore)
             {
                 cursor.MoveToPosition(position - ItemBefore);
-                Clicked(Convert(cursor));
+                Clicked(Convert(cursor), position - ItemBefore);
             }
             else
                 HeaderClicked(position);
         }
-        public abstract void Clicked(T item);
+        public abstract void Clicked(T item, int position);
         public virtual void HeaderClicked(int position) { }
 
         public void OnLongClick(int position)
@@ -64,12 +64,12 @@ namespace Opus.Adapter
             if (position >= ItemBefore)
             {
                 cursor.MoveToPosition(position - ItemBefore);
-                LongClicked(Convert(cursor));
+                LongClicked(Convert(cursor), position - ItemBefore);
             }
             else
                 HeaderLongClicked(position);
         }
-        public abstract void LongClicked(T item);
+        public abstract void LongClicked(T item, int positon);
         public virtual void HeaderLongClicked(int position) { }
 
         public abstract T Convert(ICursor cursor);
