@@ -33,6 +33,7 @@ namespace Opus.DataStructure
         public PlaylistItem(string Name, string YoutubeID, Google.Apis.YouTube.v3.Data.Playlist Snippet = null, int Count = 0)
         {
             this.Name = Name;
+            LocalID = -1;
             this.YoutubeID = YoutubeID;
             this.Snippet = Snippet;
             this.Count = Count;

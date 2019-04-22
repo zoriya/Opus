@@ -1,6 +1,7 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.Content.Res;
+using Android.Database;
 using Android.Graphics;
 using Android.Support.V7.Widget;
 using Android.Views;
@@ -10,55 +11,62 @@ using Opus.DataStructure;
 using Opus.Fragments;
 using Opus.Others;
 using Square.Picasso;
-using System;
-using System.Collections.Generic;
 
 namespace Opus.Adapter
 {
-    public class PlaylistTrackAdapter : RecyclerView.Adapter, IItemTouchAdapter
+    public class PlaylistTrackAdapter : BaseCursor<Song>, IItemTouchAdapter
     {
-        public List<Song> songList;
-        public event EventHandler<int> ItemClick;
-        public event EventHandler<int> ItemLongClick;
-        public int listPadding;
-        public bool IsEmpty = false;
+        public SearchableList<Song> tracks;
         public bool IsSliding { get; set; }
 
-        public PlaylistTrackAdapter(List<Song> songList)
+
+        public PlaylistTrackAdapter() { }
+        public PlaylistTrackAdapter(SearchableList<Song> tracks)
         {
-            this.songList = songList;
+            this.tracks = tracks;
+            cursor = null;
         }
 
-        public override int ItemCount
+        public override int ItemBefore
         {
             get
             {
-                int count = songList.Count + (PlaylistTracks.instance.fullyLoadded ? 0 : 1) + (PlaylistTracks.instance.useHeader ? 0 : 1);
-                if (count == 0 || (count == 1 && !PlaylistTracks.instance.useHeader))
-                {
-                    IsEmpty = true;
+                int count = PlaylistTracks.instance.useHeader ? 0 : 1; //Display the smallheader if the playlist doesnt use the big header
+                if (BaseCount == 0 && PlaylistTracks.instance.fullyLoadded) //Display an empty view if the playlist is fully loaded and there is no tracks
                     count++;
-                }
 
                 return count;
             }
         }
 
+        private int ItemAfter
+        {
+            get
+            {
+                return PlaylistTracks.instance.fullyLoadded ? 0 : 1; //Display a loading bar if the playlist is not fully loaded 
+            }
+        }
+
+        public override int BaseCount => tracks == null ? base.BaseCount : tracks.Count;
+        public override int ItemCount => base.ItemCount + ItemAfter;
+
+
         public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position)
         {
-            if(IsEmpty && position + 1 == ItemCount)
+            if (position == ItemCount - 1 && !PlaylistTracks.instance.fullyLoadded)
+            {
+                int pad = MainActivity.instance.DpToPx(30);
+                ((RecyclerView.LayoutParams)viewHolder.ItemView.LayoutParameters).TopMargin = pad;
+                ((RecyclerView.LayoutParams)viewHolder.ItemView.LayoutParameters).BottomMargin = pad;
+            }
+            else if (BaseCount == 0 && position == 0)
             {
                 ((TextView)viewHolder.ItemView).Text = MainActivity.instance.GetString(Resource.String.playlist_empty);
-                return;
             }
-
-            if (!PlaylistTracks.instance.useHeader) 
-                position--;
-
-            if(position == -1 && !PlaylistTracks.instance.useHeader)
+            else if (position == 0 && !PlaylistTracks.instance.useHeader)
             {
                 View header = viewHolder.ItemView;
-                header.FindViewById<TextView>(Resource.Id.headerNumber).Text = songList.Count + " " + (songList.Count < 2 ? MainActivity.instance.GetString(Resource.String.element) : MainActivity.instance.GetString(Resource.String.elements));
+                header.FindViewById<TextView>(Resource.Id.headerNumber).Text = tracks.Count + " " + (tracks.Count < 2 ? MainActivity.instance.GetString(Resource.String.element) : MainActivity.instance.GetString(Resource.String.elements));
                 if (!header.FindViewById<ImageButton>(Resource.Id.headerPlay).HasOnClickListeners)
                 {
                     header.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { PlaylistManager.PlayInOrder(PlaylistTracks.instance.item); };
@@ -82,32 +90,34 @@ namespace Opus.Adapter
                     header.FindViewById<ImageButton>(Resource.Id.headerShuffle).ImageTintList = ColorStateList.ValueOf(Color.Black);
                     header.FindViewById<ImageButton>(Resource.Id.headerMore).ImageTintList = ColorStateList.ValueOf(Color.Black);
                 }
-
-                return;
             }
+            else if (tracks != null)
+                OnBindViewHolder(viewHolder, tracks[position - ItemBefore]);
+            else
+                base.OnBindViewHolder(viewHolder, position);
+        }
 
-            if(position >= songList.Count)
-                return;
-
+        public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, Song item)
+        {
             SongHolder holder = (SongHolder)viewHolder;
 
-            holder.Title.Text = songList[position].Title;
-            holder.Artist.Text = songList[position].Artist;
+            holder.Title.Text = item.Title;
+            holder.Artist.Text = item.Artist;
 
-            if (songList[position].AlbumArt == -1 || songList[position].IsYt)
+            if (item.AlbumArt == -1 || item.IsYt)
             {
-                var songAlbumArtUri = Android.Net.Uri.Parse(songList[position].Album);
-                Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Color.background_material_dark).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
+                var songAlbumArtUri = Android.Net.Uri.Parse(item.Album);
+                Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Color.placeholder).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
             }
             else
             {
                 var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
-                var songAlbumArtUri = ContentUris.WithAppendedId(songCover, songList[position].AlbumArt);
+                var songAlbumArtUri = ContentUris.WithAppendedId(songCover, item.AlbumArt);
 
-                Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Color.background_material_dark).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
+                Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Color.placeholder).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
             }
 
-            if (songList[position].IsLiveStream)
+            if (item.IsLiveStream)
                 holder.Live.Visibility = ViewStates.Visible;
             else
                 holder.Live.Visibility = ViewStates.Gone;
@@ -116,7 +126,7 @@ namespace Opus.Adapter
             {
                 holder.more.Click += (sender, e) =>
                 {
-                    PlaylistTracks.instance.More(holder.AdapterPosition);
+                    PlaylistTracks.instance.More(tracks == null ? GetItem(holder.AdapterPosition) : tracks[holder.AdapterPosition], holder.AdapterPosition);
                 };
             }
 
@@ -129,6 +139,37 @@ namespace Opus.Adapter
                 holder.Artist.SetTextColor(Color.White);
                 holder.Artist.Alpha = 0.7f;
             }
+        }
+
+        public override void OnClick(int position)
+        {
+            if (tracks != null && position >= ItemBefore)
+                Clicked(tracks[position - ItemBefore], position - ItemBefore);
+            else
+                base.OnClick(position);
+        }
+
+        public override void Clicked(Song item, int position)
+        {
+            PlaylistManager.PlayInOrder(PlaylistTracks.instance.item, position);
+        }
+
+        public override void OnLongClick(int position)
+        {
+            if (tracks != null && position >= ItemBefore)
+                LongClicked(tracks[position - ItemBefore], position - ItemBefore);
+            else
+                base.OnLongClick(position);
+        }
+
+        public override void LongClicked(Song item, int position)
+        {
+            PlaylistTracks.instance.More(item, position);
+        }
+
+        public override Song Convert(ICursor cursor)
+        {
+            return Song.FromCursor(cursor);
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
@@ -157,25 +198,16 @@ namespace Opus.Adapter
 
         public override int GetItemViewType(int position)
         {
-            if (IsEmpty && position + 1 == ItemCount)
+            if (position == ItemCount - 1 && !PlaylistTracks.instance.fullyLoadded)
+                return 1;
+            else if (BaseCount == 0 && position == 0)
                 return 3;
 
             if (position == 0 && !PlaylistTracks.instance.useHeader)
                 return 2;
-            else if (position - (PlaylistTracks.instance.useHeader ? 0 : 1) >= songList.Count)
-                return 1;
             return 0;
         }
 
-        void OnClick(int position)
-        {
-            ItemClick?.Invoke(this, position);
-        }
-
-        void OnLongClick(int position)
-        {
-            ItemLongClick?.Invoke(this, position);
-        }
 
         public void ItemMoved(int fromPosition, int toPosition) { }
 
@@ -183,7 +215,7 @@ namespace Opus.Adapter
 
         public void ItemDismissed(int position)
         {
-            PlaylistTracks.instance.RemoveFromPlaylist(songList[position], position);
+            PlaylistTracks.instance.RemoveFromPlaylist(tracks[position], position);
         }
     }
 }

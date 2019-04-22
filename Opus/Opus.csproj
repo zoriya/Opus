@@ -322,6 +322,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Code\DataStructure\SearchableList.cs" />
     <Compile Include="Code\UI\Adapter\BaseCursor.cs" />
     <Compile Include="Code\Api\LocalManager.cs" />
     <Compile Include="Code\Api\PlaylistManager.cs" />
@@ -515,7 +516,7 @@
     <AndroidResource Include="Resources\drawable\needProcessing.png" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\layout\RecyclerFragment.xml">
+    <AndroidResource Include="Resources\layout\LonelyRecycler.xml">
       <SubType>Designer</SubType>
     </AndroidResource>
   </ItemGroup>

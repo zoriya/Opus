@@ -48,7 +48,8 @@ namespace Opus.Fragments
 #pragma warning disable CS4014
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            view = inflater.Inflate(Resource.Layout.RecyclerFragment, container, false);
+            view = inflater.Inflate(Resource.Layout.CompleteRecycler, container, false);
+            view.FindViewById(Resource.Id.loading).Visibility = ViewStates.Visible;
             ListView = view.FindViewById<RecyclerView>(Resource.Id.recycler);
             ListView.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
 
@@ -122,6 +123,7 @@ namespace Opus.Fragments
                     }
                 }
 
+                view.FindViewById(Resource.Id.loading).Visibility = ViewStates.Gone;
                 adapter = new HomeAdapter(adapterItems);
                 ListView.SetAdapter(adapter);
                 adapter.ItemClick += ListView_ItemClick;

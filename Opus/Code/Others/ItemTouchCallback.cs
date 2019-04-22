@@ -23,7 +23,7 @@ namespace Opus.Others
                 if (alwaysAllowSwap)
                     return true;
 
-                if (PlaylistTracks.instance != null && (!PlaylistTracks.instance.item.HasWritePermission || ((PlaylistTrackAdapter)adapter)?.IsEmpty == true))
+                if (PlaylistTracks.instance != null && (!PlaylistTracks.instance.item.HasWritePermission || ((PlaylistTrackAdapter)adapter)?.BaseCount == 0))
                     return false;
                 return true;
             }

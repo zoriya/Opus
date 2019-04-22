@@ -36,7 +36,7 @@ public class Queue : Fragment, RecyclerView.IOnItemTouchListener, PopupMenu.IOnM
 
     public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        View view = inflater.Inflate(Resource.Layout.RecyclerFragment, container, false);
+        View view = inflater.Inflate(Resource.Layout.LonelyRecycler, container, false);
         instance = this;
         ListView = view.FindViewById<RecyclerView>(Resource.Id.recycler);
         ListView.SetLayoutManager(new LinearLayoutManager(Application.Context));

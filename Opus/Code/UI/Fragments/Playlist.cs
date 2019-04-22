@@ -25,6 +25,7 @@ namespace Opus.Fragments
         public static Playlist instance;
         public RecyclerView ListView;
         private PlaylistAdapter adapter;
+        private View LoadingView;
         private bool populating = false;
 
         private List<PlaylistItem> LocalPlaylists = new List<PlaylistItem>();
@@ -46,7 +47,9 @@ namespace Opus.Fragments
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            View view = inflater.Inflate(Resource.Layout.RecyclerFragment, container, false);
+            View view = inflater.Inflate(Resource.Layout.CompleteRecycler, container, false);
+            LoadingView = view.FindViewById(Resource.Id.loading);
+            LoadingView.Visibility = ViewStates.Visible;
             ListView = view.FindViewById<RecyclerView>(Resource.Id.recycler);
             ListView.SetLayoutManager(new LinearLayoutManager(Application.Context));
             instance = this;
@@ -92,6 +95,7 @@ namespace Opus.Fragments
                 YoutubePlaylists.AddRange(SyncedPlaylists);
 
                 //Display this for now, we'll load non synced youtube playlist in the background.
+                LoadingView.Visibility = ViewStates.Gone;
                 YoutubePlaylists.Add(Loading);
                 adapter = new PlaylistAdapter(LocalPlaylists, YoutubePlaylists);
                 ListView.SetAdapter(adapter);

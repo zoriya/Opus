@@ -4,7 +4,6 @@ using Android.Database;
 using Android.Graphics;
 using Android.Support.V7.Widget;
 using Android.Views;
-using Opus.Api;
 using Opus.DataStructure;
 using Opus.Fragments;
 using Square.Picasso;
@@ -17,9 +16,9 @@ namespace Opus.Adapter
         public bool displayShuffle;
         public override int ItemBefore => (displayShuffle && BaseCount != 0) ? 1 : 0;
 
-        private Action<Song, int> clickAction;
-        private Action<Song, int> longClickAction;
-        private Action<int> headerAction;
+        private readonly Action<Song, int> clickAction;
+        private readonly Action<Song, int> longClickAction;
+        private readonly Action<int> headerAction;
 
         public BrowseAdapter(Action<Song, int> clickAction, Action<Song, int> longClickAction, Action<int> headerAction = null)
         {

@@ -11,7 +11,7 @@ namespace Opus.Adapter
         /// This is the number of items (for example headers) there is before the list represented by the cursor.
         /// </summary>
         public abstract int ItemBefore { get; }
-        public int BaseCount { get { return cursor != null ? cursor.Count : 0; } }
+        public virtual int BaseCount { get { return cursor != null ? cursor.Count : 0; } }
         public override int ItemCount => BaseCount + ItemBefore;
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
@@ -21,14 +21,16 @@ namespace Opus.Adapter
         }
         public abstract void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, T item);
 
-        public void SwapCursor(ICursor newCursor)
+        public void SwapCursor(ICursor newCursor, bool loadingHandling = true)
         {
             if (newCursor == cursor)
                 return;
 
             if (newCursor != null)
             {
-                MainActivity.instance.FindViewById(Resource.Id.loading).Visibility = ViewStates.Gone;
+                if(loadingHandling)
+                    MainActivity.instance.FindViewById(Resource.Id.loading).Visibility = ViewStates.Gone;
+
                 cursor = newCursor;
                 NotifyDataSetChanged();
             }
@@ -36,7 +38,9 @@ namespace Opus.Adapter
             {
                 NotifyItemRangeRemoved(0, ItemCount);
                 cursor = null;
-                MainActivity.instance.FindViewById(Resource.Id.loading).Visibility = ViewStates.Visible;
+
+                if(loadingHandling)
+                    MainActivity.instance.FindViewById(Resource.Id.loading).Visibility = ViewStates.Visible;
             }
         }
 
@@ -46,7 +50,7 @@ namespace Opus.Adapter
             return Convert(cursor);
         }
 
-        public void OnClick(int position)
+        public virtual void OnClick(int position)
         {
             if (position >= ItemBefore)
             {
@@ -59,7 +63,7 @@ namespace Opus.Adapter
         public abstract void Clicked(T item, int position);
         public virtual void HeaderClicked(int position) { }
 
-        public void OnLongClick(int position)
+        public virtual void OnLongClick(int position)
         {
             if (position >= ItemBefore)
             {
@@ -69,7 +73,7 @@ namespace Opus.Adapter
             else
                 HeaderLongClicked(position);
         }
-        public abstract void LongClicked(T item, int positon);
+        public abstract void LongClicked(T item, int position);
         public virtual void HeaderLongClicked(int position) { }
 
         public abstract T Convert(ICursor cursor);
