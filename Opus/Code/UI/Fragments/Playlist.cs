@@ -51,15 +51,15 @@ namespace Opus.Fragments
             ListView.SetLayoutManager(new LinearLayoutManager(Application.Context));
             instance = this;
 
-#pragma warning disable CS4014
             populating = false;
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             PopulateView();
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             return view;
         }
 
         public async Task PopulateView()
         {
-            System.Console.WriteLine("&Populating - " + populating);
             if (!populating)
             {
                 populating = true;
@@ -72,18 +72,18 @@ namespace Opus.Fragments
                 PlaylistItem Loading = new PlaylistItem("Loading", null);
 
                 //Get all local playlist and display an error message if we have an error.
-                System.Console.WriteLine("&Getting local playlists");
                 (List<PlaylistItem> locPlaylists, string error) = await PlaylistManager.GetLocalPlaylists();
-                System.Console.WriteLine("&Local playlist got");
                 if (instance == null)
                     return;
 
                 if (locPlaylists == null) //an error has occured
                     LocalPlaylists.Add(new PlaylistItem("EMPTY", -1) { Owner = error });
 
-                System.Console.WriteLine("&LocalPlaylist got");
                 //Handle synced playlist from the local playlist array we had before.
                 (List<PlaylistItem> loc, List<PlaylistItem> SyncedPlaylists) = await PlaylistManager.ProcessSyncedPlaylists(locPlaylists);
+
+                if (loc.Count == 0) //Every local playlist is a synced one
+                    LocalPlaylists.Add(new PlaylistItem("EMPTY", -1) { Owner = GetString(Resource.String.local_playlist_empty) });
 
                 if (instance == null)
                     return;
@@ -91,7 +91,6 @@ namespace Opus.Fragments
                 LocalPlaylists.AddRange(loc);
                 YoutubePlaylists.AddRange(SyncedPlaylists);
 
-                System.Console.WriteLine("&Synced got");
                 //Display this for now, we'll load non synced youtube playlist in the background.
                 YoutubePlaylists.Add(Loading);
                 adapter = new PlaylistAdapter(LocalPlaylists, YoutubePlaylists);
@@ -99,7 +98,6 @@ namespace Opus.Fragments
                 adapter.ItemClick += ListView_ItemClick;
                 adapter.ItemLongCLick += ListView_ItemLongClick;
                 ListView.SetItemAnimator(new DefaultItemAnimator());
-                System.Console.WriteLine("&ListView created");
 
                 //Youtube owned playlists
                 (List<PlaylistItem> yt, string err) = await PlaylistManager.GetOwnedYoutubePlaylists(SyncedPlaylists, YoutubeItemSynced);
@@ -360,12 +358,39 @@ namespace Opus.Fragments
             {
                 actions.AddRange(new BottomSheetAction[]{ new BottomSheetAction(Resource.Drawable.Edit, Resources.GetString(Resource.String.rename), (sender, eventArg) =>
                 {
-                    PlaylistManager.Rename(item);
+                    PlaylistManager.Rename(item, () => 
+                    {
+                        adapter.NotifyItemChanged(Position);
+                    });
                     bottomSheet.Dismiss();
                 }),
                 new BottomSheetAction(Resource.Drawable.Delete, Resources.GetString(Resource.String.delete), (sender, eventArg) =>
                 {
-                    PlaylistManager.Delete(item, null);    
+                    PlaylistManager.Delete(item, () => 
+                    {
+                        if(local)
+                        {
+                            LocalPlaylists.RemoveAt(Position);
+                            adapter.NotifyItemRemoved(Position);
+
+                            if (LocalPlaylists.Count == 1)
+                            {
+                                LocalPlaylists.Add(new PlaylistItem("EMPTY", -1) { Owner = Resources.GetString(Resource.String.local_playlist_empty) });
+                                adapter.NotifyItemInserted(1);
+                            }
+                        }
+                        else
+                        {
+                            YoutubePlaylists.RemoveAt(Position - LocalPlaylists.Count);
+                            adapter.NotifyItemRemoved(Position);
+
+                            if (YoutubePlaylists.Count == 1)
+                            {
+                                YoutubePlaylists.Add(new PlaylistItem("EMPTY", null) { Owner = Resources.GetString(Resource.String.youtube_playlist_empty) });
+                                adapter.NotifyItemInserted(LocalPlaylists.Count + YoutubePlaylists.Count);
+                            }
+                        }
+                    });    
                     bottomSheet.Dismiss();
                 })});
             }

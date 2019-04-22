@@ -167,9 +167,9 @@ namespace Opus.Fragments
                     break;
 
                 case Resource.Id.rename:
-                    PlaylistManager.Rename(item, (newName) => 
+                    PlaylistManager.Rename(item, () => 
                     {
-                        MainActivity.instance.FindViewById<TextView>(Resource.Id.headerTitle).Text = newName;
+                        MainActivity.instance.FindViewById<TextView>(Resource.Id.headerTitle).Text = item.Name;
                     });
                     break;
 

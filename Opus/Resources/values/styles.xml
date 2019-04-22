@@ -47,10 +47,10 @@
   </style>
   
   <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
-    <item name="colorAccent">#15b7ed</item>
+    <item name="colorAccent">#A3BBDC</item>
   </style>
   <style name="AppCompatDarkAlertDialogStyle" parent="Theme.AppCompat.Dialog.Alert">
-    <item name="colorAccent">#15b7ed</item>
+    <item name="colorAccent">#A3BBDC</item>
   </style>
 
   <style name="LightPreferences" parent="PreferenceThemeOverlay">

@@ -25,6 +25,7 @@ using Environment = System.Environment;
 using Path = System.IO.Path;
 using Playlist = Google.Apis.YouTube.v3.Data.Playlist;
 using PlaylistItem = Opus.DataStructure.PlaylistItem;
+using AlertDialog = Android.Support.V7.App.AlertDialog;
 using Uri = Android.Net.Uri;
 
 namespace Opus.Api
@@ -218,7 +219,7 @@ namespace Opus.Api
             builder.SetView(view);
             PlaylistLocationAdapter adapter = new PlaylistLocationAdapter(MainActivity.instance, Android.Resource.Layout.SimpleSpinnerItem, new string[] { MainActivity.instance.GetString(Resource.String.create_local), MainActivity.instance.GetString(Resource.String.create_youtube), MainActivity.instance.GetString(Resource.String.create_synced) })
             {
-                YoutubeWorkflow = true
+                YoutubeWorkflow = songs.Length == 1 && songs[0].YoutubeID == null ? false : true
             };
             adapter.SetDropDownViewResource(Android.Resource.Layout.SimpleSpinnerDropDownItem);
             view.FindViewById<Spinner>(Resource.Id.playlistLocation).Adapter = adapter;
@@ -248,6 +249,9 @@ namespace Opus.Api
         /// <param name="item"></param>
         public static async void AddSongToPlaylistDialog(Song item)
         {
+            if (item.YoutubeID == null)
+                item = LocalManager.CompleteItem(item);
+
             List<PlaylistItem> playlists = new List<PlaylistItem>();
             List<PlaylistItem> synced = new List<PlaylistItem>();
 
@@ -298,16 +302,13 @@ namespace Opus.Api
                 }
                 else
                 {
-                    if (playlist.SyncState == SyncState.True && playlist.YoutubeID != null && playlist.LocalID != 0)
-                    {
-                        if (item.TrackID == null)
-                            item = await CompleteItem(item, playlist.YoutubeID);
-                    }
+                    if (playlist.YoutubeID != null && item.TrackID == null)
+                        item = await CompleteItem(item, playlist.YoutubeID);
+
 
                     if (item.TrackID != null)
-                    {
                         RemoveFromYoutubePlaylist(item.TrackID);
-                    }
+
                     if (playlist.LocalID != 0)
                     {
                         ContentResolver resolver = MainActivity.instance.ContentResolver;
@@ -323,7 +324,6 @@ namespace Opus.Api
 
             if (item.YoutubeID == null)
             {
-                item = LocalManager.CompleteItem(item);
                 if (item.YoutubeID == null)
                 {
                     Toast.MakeText(MainActivity.instance, Resource.String.playlist_add_song_not_found, ToastLength.Long).Show();
@@ -364,15 +364,19 @@ namespace Opus.Api
         /// </summary>
         /// <param name="item">The playlist you want to rename</param>
         /// <param name="UiCallback">A callback called after the rename</param>
-        public static void Rename(PlaylistItem item, Action<string> UiCallback = null)
+        public static void Rename(PlaylistItem item, Action UiCallback = null)
         {
-            AlertDialog.Builder builder = new AlertDialog.Builder(Application.Context, MainActivity.dialogTheme);
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme);
             builder.SetTitle(Resource.String.rename_playlist);
             View view = MainActivity.instance.LayoutInflater.Inflate(Resource.Layout.CreatePlaylistDialog, null);
+            view.FindViewById(Resource.Id.playlistLocation).Visibility = ViewStates.Gone;
             builder.SetView(view);
             builder.SetNegativeButton(Resource.String.cancel, (senderAlert, args) => { });
             builder.SetPositiveButton(Resource.String.rename, async (senderAlert, args) =>
             {
+                if (item.LocalID != 0 && !await MainActivity.instance.GetWritePermission())
+                    return;
+
                 string newName = view.FindViewById<EditText>(Resource.Id.playlistName).Text;
 
                 if (item.YoutubeID != null)
@@ -401,7 +405,7 @@ namespace Opus.Api
                 }
 
                 item.Name = newName;
-                UiCallback?.Invoke(newName);
+                UiCallback?.Invoke();
             });
             builder.Show();
         }
@@ -417,6 +421,9 @@ namespace Opus.Api
                 .SetTitle(MainActivity.instance.GetString(Resource.String.delete_playlist, item.Name))
                 .SetPositiveButton(Resource.String.yes, async (sender, e) =>
                 {
+                    if (item.LocalID != 0 && !await MainActivity.instance.GetWritePermission())
+                        return;
+
                     if (item.SyncState != SyncState.False)
                         StopSyncing(item);
 
@@ -752,6 +759,17 @@ namespace Opus.Api
             {
                 syncedItem.Snippet = item.Snippet;
                 syncedItem.Count = item.Count;
+
+                if(syncedItem.ImageURL == null)
+                {
+                    syncedItem.ImageURL = item.ImageURL;
+                    Task.Run(() =>
+                    {
+                        SQLiteConnection db = new SQLiteConnection(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "SyncedPlaylists.sqlite"));
+                        db.CreateTable<PlaylistItem>();
+                        db.InsertOrReplace(syncedItem);
+                    });
+                }
             }
             else if (SyncedPlaylists?.Find(x => x.Name == item.Name) != null)
             {
@@ -762,6 +780,10 @@ namespace Opus.Api
                 item.LocalID = syncedItem.LocalID;
                 item.SyncState = SyncState.True;
 
+                //If the URL is the youtube "no thumb", we don't want to save this in the database. We'll wait for the next real thumb.
+                if (item.Count == 0)
+                    item.ImageURL = null;
+
                 SyncedPlaylists[syncIndex] = item;
 
                 if (UiCallback != null)
@@ -769,7 +791,7 @@ namespace Opus.Api
 
                 Task.Run(() =>
                 {
-                    SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "SyncedPlaylists.sqlite"));
+                    SQLiteConnection db = new SQLiteConnection(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "SyncedPlaylists.sqlite"));
                     db.CreateTable<PlaylistItem>();
                     db.InsertOrReplace(item);
                 });
@@ -845,11 +867,9 @@ namespace Opus.Api
                 return;
 
             //Create the playlist in the local storage db.
-            ContentResolver resolver = MainActivity.instance.ContentResolver;
-            Uri uri = MediaStore.Audio.Playlists.ExternalContentUri;
             ContentValues value = new ContentValues();
-            value.Put(MediaStore.Audio.Playlists.InterfaceConsts.Name, name);
-            await Task.Run(() => { resolver.Insert(uri, value); });
+            value.Put(Playlists.InterfaceConsts.Name, name);
+            MainActivity.instance.ContentResolver.Insert(Playlists.ExternalContentUri, value);
 
             long playlistID = await GetPlaylistID(name);
 
@@ -877,7 +897,7 @@ namespace Opus.Api
         /// <returns></returns>
         public async static Task<long> GetPlaylistID(string playlistName)
         {
-            Uri uri = MediaStore.Audio.Playlists.ExternalContentUri;
+            Uri uri = Playlists.ExternalContentUri;
             return await Task.Run(() =>
             {
                 if (Looper.MyLooper() == null)
@@ -1008,25 +1028,25 @@ namespace Opus.Api
         /// Will set the TrackID of the song using the playlist given with the YoutubeID var. (The trackID represent a track in a youtube playlist).
         /// </summary>
         /// <param name="song"></param>
-        /// <param name="YoutubeID"></param>
+        /// <param name="PlaylistYoutubeID"></param>
         /// <returns></returns>
-        public static async Task<Song> CompleteItem(Song song, string YoutubeID)
+        public static async Task<Song> CompleteItem(Song song, string PlaylistYoutubeID)
         {
-            if (song.YoutubeID == null)
-                song = LocalManager.CompleteItem(song);
-
             song.TrackID = null;
             if (await MainActivity.instance.WaitForYoutube())
             {
                 try
                 {
                     var request = YoutubeManager.YoutubeService.PlaylistItems.List("snippet");
-                    request.PlaylistId = YoutubeID;
+                    request.PlaylistId = PlaylistYoutubeID;
                     request.VideoId = song.YoutubeID;
                     request.MaxResults = 1;
 
                     var result = await request.ExecuteAsync();
-                    song.TrackID = result.Items[0].Id;
+                    if (result.Items.Count > 0)
+                        song.TrackID = result.Items[0].Id;
+                    else
+                        song.Title = null;
                 }
                 catch (System.Net.Http.HttpRequestException)
                 {
@@ -1045,6 +1065,9 @@ namespace Opus.Api
         /// <param name="TrackID"></param>
         public static async void RemoveFromYoutubePlaylist(string TrackID)
         {
+            if (TrackID == null)
+                return;
+
             try
             {
                 await YoutubeManager.YoutubeService.PlaylistItems.Delete(TrackID).ExecuteAsync();
