@@ -52,7 +52,7 @@ namespace Opus.Fragments
                 }
             };
 
-            SupportFragmentManager.BeginTransaction().Replace(Resource.Id.PreferenceFragment, new PreferencesFragment()).Commit();
+            SupportFragmentManager.BeginTransaction().Replace(Android.Resource.Id.ListContainer, new PreferencesFragment()).Commit();
         }
 
         public override void OnBackPressed()
@@ -109,7 +109,7 @@ namespace Opus.Fragments
                     else
                     {
                         PermissionGot = false;
-                        Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.PreferenceFragment), Resource.String.no_permission, Snackbar.LengthLong);
+                        Snackbar snackBar = Snackbar.Make(PreferencesFragment.instance.view, Resource.String.no_permission, Snackbar.LengthLong);
                         snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
                         snackBar.Show();
                     }
@@ -142,11 +142,12 @@ namespace Opus.Fragments
         }
     }
 
+    [Register("Opus/Fragments/PreferencesFragment")]
     public class PreferencesFragment : PreferenceFragmentCompat
     {
         public static PreferencesFragment instance;
         public string path;
-        private View view;
+        public View view;
 
         public override void OnCreatePreferences(Bundle savedInstanceState, string rootKey)
         {
@@ -227,7 +228,7 @@ namespace Opus.Fragments
         {
             view = base.OnCreateView(inflater, container, savedInstanceState);
             if (MainActivity.Theme == 1)
-                view.SetBackgroundColor(Android.Graphics.Color.Argb(225, 33, 33, 33));
+                view.SetBackgroundColor(Color.Argb(225, 33, 33, 33));
             return view;
         }
 
@@ -245,7 +246,7 @@ namespace Opus.Fragments
         {
             if(await Preferences.instance.GetReadPermission())
             {
-                Preferences.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.PreferenceFragment, DownloadFragment.NewInstance(path)).AddToBackStack(null).Commit();
+                Preferences.instance.SupportFragmentManager.BeginTransaction().Replace(Android.Resource.Id.ListContainer, DownloadFragment.NewInstance(path)).AddToBackStack(null).Commit();
                 Preferences.instance.toolbar.Title = "Download Location";
             }
         }

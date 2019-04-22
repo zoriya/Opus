@@ -4992,10 +4992,7 @@ namespace Opus
 			public const int META = 2131427429;
 			
 			// aapt resource value: 0x7f0b01b3
-			public const int PreferenceFragment = 2131427763;
-			
-			// aapt resource value: 0x7f0b01b4
-			public const int PreferenceScreen = 2131427764;
+			public const int PreferenceScreen = 2131427763;
 			
 			// aapt resource value: 0x7f0b0066
 			public const int SHIFT = 2131427430;
@@ -5003,8 +5000,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b0067
 			public const int SYM = 2131427431;
 			
-			// aapt resource value: 0x7f0b01b6
-			public const int accountPreference = 2131427766;
+			// aapt resource value: 0x7f0b01b5
+			public const int accountPreference = 2131427765;
 			
 			// aapt resource value: 0x7f0b00fd
 			public const int action = 2131427581;
@@ -5090,8 +5087,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b0057
 			public const int add = 2131427415;
 			
-			// aapt resource value: 0x7f0b01d3
-			public const int addToQueue = 2131427795;
+			// aapt resource value: 0x7f0b01d2
+			public const int addToQueue = 2131427794;
 			
 			// aapt resource value: 0x7f0b00cc
 			public const int added = 2131427532;
@@ -5114,11 +5111,11 @@ namespace Opus
 			// aapt resource value: 0x7f0b0068
 			public const int always = 2131427432;
 			
-			// aapt resource value: 0x7f0b01be
-			public const int apAlbum = 2131427774;
+			// aapt resource value: 0x7f0b01bd
+			public const int apAlbum = 2131427773;
 			
-			// aapt resource value: 0x7f0b01c0
-			public const int apTitle = 2131427776;
+			// aapt resource value: 0x7f0b01bf
+			public const int apTitle = 2131427775;
 			
 			// aapt resource value: 0x7f0b0119
 			public const int appbar = 2131427609;
@@ -5135,8 +5132,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b004b
 			public const int auto = 2131427403;
 			
-			// aapt resource value: 0x7f0b01bd
-			public const int autoplay = 2131427773;
+			// aapt resource value: 0x7f0b01bc
+			public const int autoplay = 2131427772;
 			
 			// aapt resource value: 0x7f0b011d
 			public const int backToolbar = 2131427613;
@@ -5150,8 +5147,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b005f
 			public const int beginning = 2131427423;
 			
-			// aapt resource value: 0x7f0b01b5
-			public const int behavior = 2131427765;
+			// aapt resource value: 0x7f0b01b4
+			public const int behavior = 2131427764;
 			
 			// aapt resource value: 0x7f0b008e
 			public const int blocking = 2131427470;
@@ -5162,14 +5159,14 @@ namespace Opus
 			// aapt resource value: 0x7f0b006d
 			public const int bottom = 2131427437;
 			
-			// aapt resource value: 0x7f0b01bb
-			public const int bottomDivider = 2131427771;
+			// aapt resource value: 0x7f0b01ba
+			public const int bottomDivider = 2131427770;
 			
 			// aapt resource value: 0x7f0b0138
 			public const int bottomView = 2131427640;
 			
-			// aapt resource value: 0x7f0b01ce
-			public const int browseLayout = 2131427790;
+			// aapt resource value: 0x7f0b01cd
+			public const int browseLayout = 2131427789;
 			
 			// aapt resource value: 0x7f0b00d7
 			public const int browseList = 2131427543;
@@ -5333,8 +5330,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b009e
 			public const int default_activity_button = 2131427486;
 			
-			// aapt resource value: 0x7f0b01d0
-			public const int delete = 2131427792;
+			// aapt resource value: 0x7f0b01cf
+			public const int delete = 2131427791;
 			
 			// aapt resource value: 0x7f0b010e
 			public const int design_bottom_sheet = 2131427598;
@@ -5360,11 +5357,11 @@ namespace Opus
 			// aapt resource value: 0x7f0b0192
 			public const int downButton = 2131427730;
 			
-			// aapt resource value: 0x7f0b01d9
-			public const int download = 2131427801;
+			// aapt resource value: 0x7f0b01d8
+			public const int download = 2131427800;
 			
-			// aapt resource value: 0x7f0b01d1
-			public const int downloadMDfromYT = 2131427793;
+			// aapt resource value: 0x7f0b01d0
+			public const int downloadMDfromYT = 2131427792;
 			
 			// aapt resource value: 0x7f0b0116
 			public const int downloadStatus = 2131427606;
@@ -5492,8 +5489,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b0087
 			public const int filled = 2131427463;
 			
-			// aapt resource value: 0x7f0b01d6
-			public const int filter = 2131427798;
+			// aapt resource value: 0x7f0b01d5
+			public const int filter = 2131427797;
 			
 			// aapt resource value: 0x7f0b0092
 			public const int fit = 2131427474;
@@ -5519,8 +5516,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b008f
 			public const int forever = 2131427471;
 			
-			// aapt resource value: 0x7f0b01da
-			public const int fork = 2131427802;
+			// aapt resource value: 0x7f0b01d9
+			public const int fork = 2131427801;
 			
 			// aapt resource value: 0x7f0b0017
 			public const int ghost_view = 2131427351;
@@ -5558,8 +5555,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b00a0
 			public const int icon = 2131427488;
 			
-			// aapt resource value: 0x7f0b01c7
-			public const int icon1 = 2131427783;
+			// aapt resource value: 0x7f0b01c6
+			public const int icon1 = 2131427782;
 			
 			// aapt resource value: 0x7f0b0126
 			public const int icon_frame = 2131427622;
@@ -5585,8 +5582,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b01a2
 			public const int infoPanel = 2131427746;
 			
-			// aapt resource value: 0x7f0b01b9
-			public const int isLive = 2131427769;
+			// aapt resource value: 0x7f0b01b8
+			public const int isLive = 2131427768;
 			
 			// aapt resource value: 0x7f0b0090
 			public const int italic = 2131427472;
@@ -5615,8 +5612,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b0029
 			public const int line1 = 2131427369;
 			
-			// aapt resource value: 0x7f0b01ca
-			public const int line2 = 2131427786;
+			// aapt resource value: 0x7f0b01c9
+			public const int line2 = 2131427785;
 			
 			// aapt resource value: 0x7f0b002a
 			public const int line3 = 2131427370;
@@ -5651,17 +5648,17 @@ namespace Opus
 			// aapt resource value: 0x7f0b0100
 			public const int logo = 2131427584;
 			
-			// aapt resource value: 0x7f0b01cc
-			public const int masked = 2131427788;
+			// aapt resource value: 0x7f0b01cb
+			public const int masked = 2131427787;
 			
-			// aapt resource value: 0x7f0b01c5
-			public const int maxValue = 2131427781;
+			// aapt resource value: 0x7f0b01c4
+			public const int maxValue = 2131427780;
 			
 			// aapt resource value: 0x7f0b017f
 			public const int media_actions = 2131427711;
 			
-			// aapt resource value: 0x7f0b01d7
-			public const int media_route_menu_item = 2131427799;
+			// aapt resource value: 0x7f0b01d6
+			public const int media_route_menu_item = 2131427798;
 			
 			// aapt resource value: 0x7f0b00cb
 			public const int message = 2131427531;
@@ -5690,8 +5687,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b0061
 			public const int middle = 2131427425;
 			
-			// aapt resource value: 0x7f0b01c4
-			public const int minValue = 2131427780;
+			// aapt resource value: 0x7f0b01c3
+			public const int minValue = 2131427779;
 			
 			// aapt resource value: 0x7f0b0081
 			public const int mini = 2131427457;
@@ -5858,8 +5855,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b0058
 			public const int multiply = 2131427416;
 			
-			// aapt resource value: 0x7f0b01cd
-			public const int musicLayout = 2131427789;
+			// aapt resource value: 0x7f0b01cc
+			public const int musicLayout = 2131427788;
 			
 			// aapt resource value: 0x7f0b00ff
 			public const int name = 2131427583;
@@ -5900,8 +5897,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b0088
 			public const int outline = 2131427464;
 			
-			// aapt resource value: 0x7f0b01c9
-			public const int pager = 2131427785;
+			// aapt resource value: 0x7f0b01c8
+			public const int pager = 2131427784;
 			
 			// aapt resource value: 0x7f0b007f
 			public const int parallax = 2131427455;
@@ -5948,8 +5945,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b0132
 			public const int playlistHeader = 2131427634;
 			
-			// aapt resource value: 0x7f0b01cf
-			public const int playlistLayout = 2131427791;
+			// aapt resource value: 0x7f0b01ce
+			public const int playlistLayout = 2131427790;
 			
 			// aapt resource value: 0x7f0b0108
 			public const int playlistLocation = 2131427592;
@@ -5957,8 +5954,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b0107
 			public const int playlistName = 2131427591;
 			
-			// aapt resource value: 0x7f0b01c1
-			public const int playlistURL = 2131427777;
+			// aapt resource value: 0x7f0b01c0
+			public const int playlistURL = 2131427776;
 			
 			// aapt resource value: 0x7f0b0118
 			public const int progress = 2131427608;
@@ -5984,8 +5981,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b019f
 			public const int queueParent = 2131427743;
 			
-			// aapt resource value: 0x7f0b01bc
-			public const int queueSwitch = 2131427772;
+			// aapt resource value: 0x7f0b01bb
+			public const int queueSwitch = 2131427771;
 			
 			// aapt resource value: 0x7f0b00b6
 			public const int radio = 2131427510;
@@ -5996,14 +5993,14 @@ namespace Opus
 			// aapt resource value: 0x7f0b01af
 			public const int recycler_view = 2131427759;
 			
-			// aapt resource value: 0x7f0b01c8
-			public const int refine = 2131427784;
+			// aapt resource value: 0x7f0b01c7
+			public const int refine = 2131427783;
 			
-			// aapt resource value: 0x7f0b01d4
-			public const int rename = 2131427796;
+			// aapt resource value: 0x7f0b01d3
+			public const int rename = 2131427795;
 			
-			// aapt resource value: 0x7f0b01c6
-			public const int reorder = 2131427782;
+			// aapt resource value: 0x7f0b01c5
+			public const int reorder = 2131427781;
 			
 			// aapt resource value: 0x7f0b0195
 			public const int repeat = 2131427733;
@@ -6014,8 +6011,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b012d
 			public const int rightButtons = 2131427629;
 			
-			// aapt resource value: 0x7f0b01bf
-			public const int rightIcon = 2131427775;
+			// aapt resource value: 0x7f0b01be
+			public const int rightIcon = 2131427774;
 			
 			// aapt resource value: 0x7f0b0187
 			public const int right_icon = 2131427719;
@@ -6023,8 +6020,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b0183
 			public const int right_side = 2131427715;
 			
-			// aapt resource value: 0x7f0b01d5
-			public const int saveAsPlaylist = 2131427797;
+			// aapt resource value: 0x7f0b01d4
+			public const int saveAsPlaylist = 2131427796;
 			
 			// aapt resource value: 0x7f0b0019
 			public const int save_image_matrix = 2131427353;
@@ -6053,11 +6050,11 @@ namespace Opus
 			// aapt resource value: 0x7f0b0085
 			public const int scrollable = 2131427461;
 			
-			// aapt resource value: 0x7f0b01c2
-			public const int search = 2131427778;
+			// aapt resource value: 0x7f0b01c1
+			public const int search = 2131427777;
 			
-			// aapt resource value: 0x7f0b01c3
-			public const int searchSuggestions = 2131427779;
+			// aapt resource value: 0x7f0b01c2
+			public const int searchSuggestions = 2131427778;
 			
 			// aapt resource value: 0x7f0b00c0
 			public const int search_badge = 2131427520;
@@ -6107,8 +6104,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b0077
 			public const int selected = 2131427447;
 			
-			// aapt resource value: 0x7f0b01d8
-			public const int settings = 2131427800;
+			// aapt resource value: 0x7f0b01d7
+			public const int settings = 2131427799;
 			
 			// aapt resource value: 0x7f0b00b2
 			public const int shortcut = 2131427506;
@@ -6152,8 +6149,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b019a
 			public const int songTimer = 2131427738;
 			
-			// aapt resource value: 0x7f0b01b8
-			public const int songView = 2131427768;
+			// aapt resource value: 0x7f0b01b7
+			public const int songView = 2131427767;
 			
 			// aapt resource value: 0x7f0b013e
 			public const int spArt = 2131427646;
@@ -6332,8 +6329,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b006e
 			public const int top = 2131427438;
 			
-			// aapt resource value: 0x7f0b01b7
-			public const int topDivider = 2131427767;
+			// aapt resource value: 0x7f0b01b6
+			public const int topDivider = 2131427766;
 			
 			// aapt resource value: 0x7f0b00ac
 			public const int topPanel = 2131427500;
@@ -6356,8 +6353,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b0020
 			public const int transition_transform = 2131427360;
 			
-			// aapt resource value: 0x7f0b01d2
-			public const int undoChange = 2131427794;
+			// aapt resource value: 0x7f0b01d1
+			public const int undoChange = 2131427793;
 			
 			// aapt resource value: 0x7f0b005d
 			public const int uniform = 2131427421;
@@ -6377,8 +6374,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b0028
 			public const int view_offset_helper = 2131427368;
 			
-			// aapt resource value: 0x7f0b01cb
-			public const int visible = 2131427787;
+			// aapt resource value: 0x7f0b01ca
+			public const int visible = 2131427786;
 			
 			// aapt resource value: 0x7f0b016a
 			public const int volume_item_container = 2131427690;
@@ -6392,8 +6389,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b005e
 			public const int wrap_content = 2131427422;
 			
-			// aapt resource value: 0x7f0b01ba
-			public const int youtubeIcon = 2131427770;
+			// aapt resource value: 0x7f0b01b9
+			public const int youtubeIcon = 2131427769;
 			
 			// aapt resource value: 0x7f0b0135
 			public const int ytProgress = 2131427637;
