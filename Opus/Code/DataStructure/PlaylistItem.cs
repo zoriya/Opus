@@ -13,7 +13,7 @@ namespace Opus.DataStructure
         [PrimaryKey, Unique]
         public long LocalID { get; set; }
         public string YoutubeID { get; set; }
-        public int Count;
+        public int Count = -1;
         public Google.Apis.YouTube.v3.Data.Playlist Snippet;
         public string Owner { get; set; }
         public string ImageURL { get; set; }
@@ -23,14 +23,14 @@ namespace Opus.DataStructure
 
         public PlaylistItem() { }
 
-        public PlaylistItem(string Name, long LocalID, int Count = 0)
+        public PlaylistItem(string Name, long LocalID, int Count = -1)
         {
             this.Name = Name;
             this.LocalID = LocalID;
             this.Count = Count;
         }
 
-        public PlaylistItem(string Name, string YoutubeID, Google.Apis.YouTube.v3.Data.Playlist Snippet = null, int Count = 0)
+        public PlaylistItem(string Name, string YoutubeID, Google.Apis.YouTube.v3.Data.Playlist Snippet = null, int Count = -1)
         {
             this.Name = Name;
             LocalID = -1;

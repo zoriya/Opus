@@ -616,7 +616,7 @@ namespace Opus.Api
             List<PlaylistItem> syncedPlaylists = new List<PlaylistItem>();
             await Task.Run(() =>
             {
-                SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "SyncedPlaylists.sqlite"));
+                SQLiteConnection db = new SQLiteConnection(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "SyncedPlaylists.sqlite"));
                 db.CreateTable<PlaylistItem>();
 
                 syncedPlaylists = db.Table<PlaylistItem>().ToList();
@@ -627,6 +627,7 @@ namespace Opus.Api
                 PlaylistItem local = localPlaylists?.Find(x => x.LocalID == synced.LocalID);
                 if (local != null)
                 {
+                    synced.Count = local.Count;
                     localPlaylists.Remove(local); //This playlist is a synced one, we don't want to display it in the "local" collumn but in the youtube one.
 
                     //Set sync state of the playlist (SyncState can't be false since we take the playlist in the synced database)

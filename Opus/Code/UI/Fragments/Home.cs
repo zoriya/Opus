@@ -54,7 +54,10 @@ namespace Opus.Fragments
             ListView.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
 
             if (adapter != null)
+            {
                 ListView.SetAdapter(adapter);
+                view.FindViewById(Resource.Id.loading).Visibility = ViewStates.Gone;
+            }
             else
                 PopulateView();
             return view;
