@@ -217,6 +217,11 @@ namespace Opus.Fragments
             }
         }
 
+        public override void OnResume()
+        {
+            base.OnResume();
+            instance = this;
+        }
 
         public override void OnDestroy()
         {
