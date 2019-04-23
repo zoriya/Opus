@@ -868,7 +868,7 @@ namespace Opus.Api.Services
             }
         }
 
-        public async void AddToQueue(Song[] songs)
+        public async void AddToQueue(IEnumerable<Song> songs)
         {
             queue.AddRange(songs);
             Home.instance?.RefreshQueue();

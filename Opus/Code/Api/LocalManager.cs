@@ -125,7 +125,7 @@ namespace Opus.Api
             while (MusicPlayer.instance == null)
                 await Task.Delay(10);
 
-            MusicPlayer.instance.AddToQueue(songs.ToArray());
+            MusicPlayer.instance.AddToQueue(songs);
         }
 
         /// <summary>
@@ -199,7 +199,7 @@ namespace Opus.Api
             MusicPlayer.currentID = startingPosition;
             Queue.instance?.RefreshCurrent();
             Player.instance?.RefreshPlayer();
-            MusicPlayer.instance.AddToQueue(tracks.GetRange(startingPosition, tracks.Count - startingPosition).ToArray());
+            MusicPlayer.instance.AddToQueue(tracks.GetRange(startingPosition, tracks.Count - startingPosition));
         }
         #endregion
 

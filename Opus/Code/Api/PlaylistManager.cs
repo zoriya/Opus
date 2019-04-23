@@ -70,7 +70,7 @@ namespace Opus.Api
             MusicPlayer.currentID = startingPosition;
             Queue.instance?.RefreshCurrent();
             Player.instance?.RefreshPlayer();
-            MusicPlayer.instance.AddToQueue(tracks.GetRange(startingPosition, tracks.Count - startingPosition).ToArray());
+            MusicPlayer.instance.AddToQueue(tracks.GetRange(startingPosition, tracks.Count - startingPosition));
         }
 
         /// <summary>
@@ -98,7 +98,7 @@ namespace Opus.Api
             MusicPlayer.currentID = startingPosition;
             Queue.instance?.RefreshCurrent();
             Player.instance?.RefreshPlayer();
-            MusicPlayer.instance.AddToQueue(tracks.GetRange(startingPosition, tracks.Count - startingPosition).ToArray());
+            MusicPlayer.instance.AddToQueue(tracks.GetRange(startingPosition, tracks.Count - startingPosition));
         }
         #endregion
 
@@ -135,7 +135,7 @@ namespace Opus.Api
             while (MusicPlayer.instance == null)
                 await Task.Delay(10);
 
-            MusicPlayer.instance.AddToQueue(tracks.ToArray());
+            MusicPlayer.instance.AddToQueue(tracks);
         }
 
         /// <summary>
@@ -157,7 +157,7 @@ namespace Opus.Api
 
             tracks.RemoveAt(playPos);
             tracks = tracks.OrderBy(x => r.Next()).ToList();
-            MusicPlayer.instance.AddToQueue(tracks.ToArray());
+            MusicPlayer.instance.AddToQueue(tracks);
         }
         #endregion
 
@@ -187,7 +187,7 @@ namespace Opus.Api
             }
 
             List<Song> tracks = await GetTracksFromLocalPlaylist(LocalID);
-            MusicPlayer.instance.AddToQueue(tracks.ToArray());
+            MusicPlayer.instance.AddToQueue(tracks);
         }
 
         /// <summary>
@@ -202,7 +202,7 @@ namespace Opus.Api
                 return;
             }
 
-            MusicPlayer.instance.AddToQueue((await GetTracksFromYoutubePlaylist(YoutubeID)).ToArray());
+            MusicPlayer.instance.AddToQueue((await GetTracksFromYoutubePlaylist(YoutubeID)));
         }
         #endregion
 

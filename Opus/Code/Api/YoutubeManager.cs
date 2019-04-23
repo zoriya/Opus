@@ -330,7 +330,7 @@ namespace Opus.Api
             while (MusicPlayer.instance == null)
                 await Task.Delay(100);
 
-            MusicPlayer.instance.AddToQueue(tracks.ToArray());
+            MusicPlayer.instance.AddToQueue(tracks);
             MainActivity.instance.ShowPlayer();
             Home.instance?.RefreshQueue();
             Queue.instance?.Refresh();
@@ -376,7 +376,7 @@ namespace Opus.Api
             while (MusicPlayer.instance == null)
                 await Task.Delay(10);
 
-            MusicPlayer.instance.AddToQueue(songs.ToArray());
+            MusicPlayer.instance.AddToQueue(songs);
         }
         #endregion
 

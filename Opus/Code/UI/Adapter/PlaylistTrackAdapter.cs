@@ -53,15 +53,16 @@ namespace Opus.Adapter
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position)
         {
+            System.Console.WriteLine("&Binding at " + position);
+            System.Console.WriteLine("&ItemCount " + ItemCount);
+            System.Console.WriteLine("&ItemBefore " + ItemBefore);
+            System.Console.WriteLine("&ItemAfter " + ItemAfter);
+
             if (position == ItemCount - 1 && !PlaylistTracks.instance.fullyLoadded)
             {
                 int pad = MainActivity.instance.DpToPx(30);
                 ((RecyclerView.LayoutParams)viewHolder.ItemView.LayoutParameters).TopMargin = pad;
                 ((RecyclerView.LayoutParams)viewHolder.ItemView.LayoutParameters).BottomMargin = pad;
-            }
-            else if (BaseCount == 0 && position == 0)
-            {
-                ((TextView)viewHolder.ItemView).Text = MainActivity.instance.GetString(Resource.String.playlist_empty);
             }
             else if (position == 0 && !PlaylistTracks.instance.useHeader)
             {
@@ -69,10 +70,10 @@ namespace Opus.Adapter
                 header.FindViewById<TextView>(Resource.Id.headerNumber).Text = tracks.Count + " " + (tracks.Count < 2 ? MainActivity.instance.GetString(Resource.String.element) : MainActivity.instance.GetString(Resource.String.elements));
                 if (!header.FindViewById<ImageButton>(Resource.Id.headerPlay).HasOnClickListeners)
                 {
-                    header.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { PlaylistManager.PlayInOrder(PlaylistTracks.instance.item); };
+                    header.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { SongManager.PlayInOrder(tracks); };
                     header.FindViewById<ImageButton>(Resource.Id.headerShuffle).Click += (sender, e0) =>
                     {
-                        PlaylistManager.Shuffle(PlaylistTracks.instance.item);
+                        SongManager.Shuffle(tracks);
                     };
                     header.FindViewById<ImageButton>(Resource.Id.headerMore).Click += (sender, e0) =>
                     {
@@ -90,6 +91,10 @@ namespace Opus.Adapter
                     header.FindViewById<ImageButton>(Resource.Id.headerShuffle).ImageTintList = ColorStateList.ValueOf(Color.Black);
                     header.FindViewById<ImageButton>(Resource.Id.headerMore).ImageTintList = ColorStateList.ValueOf(Color.Black);
                 }
+            }
+            else if (BaseCount == 0)
+            {
+                ((TextView)viewHolder.ItemView).Text = MainActivity.instance.GetString(Resource.String.playlist_empty);
             }
             else if (tracks != null)
                 OnBindViewHolder(viewHolder, tracks[position - ItemBefore]);
@@ -151,7 +156,10 @@ namespace Opus.Adapter
 
         public override void Clicked(Song item, int position)
         {
-            PlaylistManager.PlayInOrder(PlaylistTracks.instance.item, position);
+            if (PlaylistTracks.instance.useHeader)
+                PlaylistManager.PlayInOrder(PlaylistTracks.instance.item, position);
+            else
+                SongManager.Play(item);
         }
 
         public override void OnLongClick(int position)
@@ -200,12 +208,12 @@ namespace Opus.Adapter
         {
             if (position == ItemCount - 1 && !PlaylistTracks.instance.fullyLoadded)
                 return 1;
-            else if (BaseCount == 0 && position == 0)
-                return 3;
-
-            if (position == 0 && !PlaylistTracks.instance.useHeader)
+            else if (position == 0 && !PlaylistTracks.instance.useHeader)
                 return 2;
-            return 0;
+            else if (BaseCount == 0)
+                return 3;
+            else
+                return 0;
         }
 
 

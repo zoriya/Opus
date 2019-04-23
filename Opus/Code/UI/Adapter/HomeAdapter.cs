@@ -82,7 +82,7 @@ namespace Opus.Adapter
                         position = holder.AdapterPosition;
                         MainActivity.instance.contentRefresh.Refresh -= Home.instance.OnRefresh;
                         Home.instance = null;
-                        //MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(items[position].contentValue, items[position].SectionTitle)).AddToBackStack(null).Commit();
+                        MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(items[position].contentValue, items[position].SectionTitle)).AddToBackStack(null).Commit();
                     };
                 }
 

@@ -175,7 +175,10 @@ namespace Opus.Fragments
                     break;
 
                 case Resource.Id.addToQueue:
-                    PlaylistManager.AddToQueue(item);
+                    if (useHeader)
+                        PlaylistManager.AddToQueue(item);
+                    else
+                        SongManager.AddToQueue(adapter.tracks);
                     break;
 
                 case Resource.Id.rename:
@@ -223,16 +226,15 @@ namespace Opus.Fragments
             menu.Show();
         }
 
-        //public static Fragment NewInstance(List<Song> songs, string playlistName)
-        //{
-        //    instance = new PlaylistTracks { Arguments = new Bundle() };
-        //    instance.tracks = songs;
-        //    instance.playlistName = playlistName;
-        //    instance.useHeader = false;
-        //    instance.fullyLoadded = true;
-        //    instance.hasWriteAcess = false;
-        //    return instance;
-        //}
+        public static Fragment NewInstance(List<Song> songs, string playlistName)
+        {
+            instance = new PlaylistTracks { Arguments = new Bundle() };
+            instance.item = new PlaylistItem() { Name = playlistName, Count = songs.Count, HasWritePermission = false, LocalID = -1, YoutubeID = null };
+            instance.useHeader = false;
+            instance.fullyLoadded = true;
+            instance.adapter = new PlaylistTrackAdapter(new SearchableList<Song>(songs));
+            return instance;
+        }
 
         public static Fragment NewInstance(PlaylistItem item, bool forked)
         {
@@ -246,7 +248,7 @@ namespace Opus.Fragments
 
         async Task PopulateList()
         {
-            if (item.LocalID == -1 && item.YoutubeID == ""/* && tracks.Count == 0*/)
+            if (item.LocalID == -1 && item.YoutubeID == null && adapter?.tracks.Count == 0)
                 return;
 
             if (item.LocalID != -1)
@@ -311,13 +313,10 @@ namespace Opus.Fragments
                     MainActivity.instance.Timout();
                 }
             }
-            //else if(tracks.Count != 0)
-            //{
-            //    adapter = new PlaylistTrackAdapter(tracks);
-            //    adapter.ItemClick += ListView_ItemClick;
-            //    adapter.ItemLongClick += ListView_ItemLongClick;
-            //    ListView.SetAdapter(adapter);
-            //}
+            else if (adapter?.tracks.Count != 0)
+            {
+                ListView.SetAdapter(adapter);
+            }
         }
 
         public Android.Support.V4.Content.Loader OnCreateLoader(int id, Bundle args)
@@ -464,7 +463,10 @@ namespace Opus.Fragments
             {
                 new BottomSheetAction(Resource.Drawable.Play, Resources.GetString(Resource.String.play), (sender, eventArg) => 
                 {
-                    PlaylistManager.PlayInOrder(item, position);
+                    if(useHeader)
+                        PlaylistManager.PlayInOrder(item, position);
+                    else
+                        SongManager.Play(song);
                     bottomSheet.Dismiss();
                 }),
                 new BottomSheetAction(Resource.Drawable.PlaylistPlay, Resources.GetString(Resource.String.play_next), (sender, eventArg) =>
