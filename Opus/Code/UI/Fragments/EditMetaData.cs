@@ -164,15 +164,15 @@ namespace Opus.Fragments
 
         async void LeaveAndValidate()
         {
-            await ValidateChanges();
-            Finish();
+            if(await ValidateChanges(true))
+                Finish();
         }
 
-        async Task ValidateChanges()
+        async Task<bool> ValidateChanges(bool displayActionIfMountFail = false)
         {
             System.Console.WriteLine("&Validaing changes");
             if (song.Title == title.Text && song.Artist == artist.Text && song.YoutubeID == youtubeID.Text && song.Album == album.Text && artURI == null)
-                return;
+                return true;
 
             System.Console.WriteLine("&Requesting permission");
             const string permission = Manifest.Permission.WriteExternalStorage;
@@ -184,6 +184,21 @@ namespace Opus.Fragments
 
                 while (!hasPermission)
                     await Task.Delay(1000);
+            }
+
+            if(!Environment.MediaMounted.Equals(Environment.GetExternalStorageState(new Java.IO.File(song.Path))))
+            {
+                Snackbar snackBar = Snackbar.Make(FindViewById<CoordinatorLayout>(Resource.Id.snackBar), Resource.String.mount_error, Snackbar.LengthLong);
+                snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+                if(displayActionIfMountFail)
+                {
+                    snackBar.SetAction(Resource.String.mount_error_action, (v) =>
+                    {
+                        Finish();
+                    });
+                }
+                snackBar.Show();
+                return false;
             }
 
             System.Console.WriteLine("&Creating write stream");
@@ -266,6 +281,7 @@ namespace Opus.Fragments
             Android.Media.MediaScannerConnection.ScanFile(this, new string[] { song.Path }, null, null);
 
             Toast.MakeText(this, Resource.String.changes_saved, ToastLength.Short).Show();
+            return true;
         }
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, Permission[] grantResults)

@@ -133,6 +133,8 @@
   <string name="undo_change">Undo changes</string>
   <string name="changes_saved">Changes saved.</string>
   <string name="metdata_error_noid">Can\'t get meta data on youtube, Youtube ID isn\'t set.</string>
+  <string name="mount_error">There is a probleme with your storage, please stop using your storage elsewhere and try again.</string>
+  <string name="mount_error_action">DISCARD AND LEAVE</string>
   
   <!--Download Queue-->
   <string name="download_queue">Download Queue</string>
