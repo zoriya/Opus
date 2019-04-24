@@ -188,8 +188,6 @@ namespace Opus
 
         public  void Login(bool canAsk = true, bool skipSilentLog = false, bool skipLastSigned = false)
         {
-            CreateYoutube(false);
-            return;
             waitingForYoutube = true;
 
             //if (!skipLastSigned)
@@ -247,6 +245,10 @@ namespace Opus
             //{
                 ResumeKiller = true;
                 StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);
+            //}
+            //else
+            //{
+            //    CreateYoutube(false);
             //}
         }
 
