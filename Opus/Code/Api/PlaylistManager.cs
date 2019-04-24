@@ -656,7 +656,7 @@ namespace Opus.Api
         /// <returns></returns>
         public static async Task<(List<PlaylistItem>, string)> GetOwnedYoutubePlaylists(List<PlaylistItem> SyncedPlaylists, System.Action<PlaylistItem, int> UiCallback)
         {
-            if (!await MainActivity.instance.WaitForYoutube())
+            if (!await MainActivity.instance.WaitForYoutube() || YoutubeManager.IsUsingAPI)
                 return (null, "Error"); //Should have a better error handling
 
             List<PlaylistItem> YoutubePlaylists = new List<PlaylistItem>();

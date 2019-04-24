@@ -688,7 +688,7 @@ namespace Opus.Api.Services
                 YoutubeClient client = new YoutubeClient();
                 Video video = await client.GetVideoAsync(youtubeID);
 
-                var ytPlaylistRequest = YoutubeSearch.youtubeService.PlaylistItems.List("snippet, contentDetails");
+                var ytPlaylistRequest = YoutubeManager.YoutubeService.PlaylistItems.List("snippet, contentDetails");
                 ytPlaylistRequest.PlaylistId = video.GetVideoMixPlaylistId();
                 ytPlaylistRequest.MaxResults = 15;
 

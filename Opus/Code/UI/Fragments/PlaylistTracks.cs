@@ -282,7 +282,7 @@ namespace Opus.Fragments
 
                 try
                 {
-                    var ytPlaylistRequest = YoutubeSearch.youtubeService.PlaylistItems.List("snippet, contentDetails");
+                    var ytPlaylistRequest = YoutubeManager.YoutubeService.PlaylistItems.List("snippet, contentDetails");
                     ytPlaylistRequest.PlaylistId = item.YoutubeID;
                     ytPlaylistRequest.MaxResults = 50;
 
@@ -375,7 +375,7 @@ namespace Opus.Fragments
             loading = true;
             try
             {
-                var ytPlaylistRequest = YoutubeSearch.youtubeService.PlaylistItems.List("snippet, contentDetails");
+                var ytPlaylistRequest = YoutubeManager.YoutubeService.PlaylistItems.List("snippet, contentDetails");
                 ytPlaylistRequest.PlaylistId = item.YoutubeID;
                 ytPlaylistRequest.MaxResults = 50;
                 ytPlaylistRequest.PageToken = nextPageToken;

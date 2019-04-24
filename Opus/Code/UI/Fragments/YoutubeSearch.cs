@@ -25,7 +25,6 @@ namespace Opus.Fragments
     public class YoutubeSearch : Fragment
     {
         public static YoutubeSearch[] instances;
-        public static YouTubeService youtubeService;
         public string Query;
         private string nextPageToken = null;
         public string querryType;
@@ -74,7 +73,7 @@ namespace Opus.Fragments
                 try
                 {
                     searching = true;
-                    SearchResource.ListRequest searchResult = youtubeService.Search.List("snippet");
+                    SearchResource.ListRequest searchResult = YoutubeManager.YoutubeService.Search.List("snippet");
                     searchResult.Q = Query;
                     searchResult.PageToken = nextPageToken;
                     searchResult.TopicId = "/m/04rlf";
@@ -203,7 +202,7 @@ namespace Opus.Fragments
 
             try
             {
-                SearchResource.ListRequest searchResult = youtubeService.Search.List("snippet");
+                SearchResource.ListRequest searchResult = YoutubeManager.YoutubeService.Search.List("snippet");
                 searchResult.Q = search;
                 searchResult.TopicId = "/m/04rlf";
                 switch (querryType)

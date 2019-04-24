@@ -10,6 +10,7 @@ using Android.Views;
 using Android.Widget;
 using Google.Apis.YouTube.v3;
 using Opus;
+using Opus.Api;
 using Opus.Fragments;
 using Opus.Others;
 using Square.Picasso;
@@ -97,7 +98,7 @@ public class AccountPreference : Preference, IResultCallback
     private async void LogOut()
     {
         MainActivity.account = null;
-        YoutubeSearch.youtubeService = null;
+        YoutubeManager.YoutubeService = null;
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DefaultSignIn)
                 .RequestIdToken(Preferences.instance.GetString(Resource.String.clientID))

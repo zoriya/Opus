@@ -25,13 +25,8 @@ namespace Opus.Api
 {
     public class YoutubeManager
     {
-        public static YouTubeService YoutubeService
-        {
-            get
-            {
-                return YoutubeSearch.youtubeService; //Will change that with the rework of the youtubeengine class.
-            }
-        }
+        public static YouTubeService YoutubeService;
+        public static bool IsUsingAPI = false;
 
         #region Playback
         /// <summary>

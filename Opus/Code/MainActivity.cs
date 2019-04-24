@@ -127,7 +127,7 @@ namespace Opus
 
             CheckForUpdate(this, false);
             HandleIntent(Intent);
-            Login();
+            Login(true);
             SyncPlaylists();
         }
 
@@ -188,20 +188,22 @@ namespace Opus
 
         public  void Login(bool canAsk = true, bool skipSilentLog = false, bool skipLastSigned = false)
         {
+            CreateYoutube(false);
+            return;
             waitingForYoutube = true;
 
-            if (!skipLastSigned)
-            {
-                if (account == null)
-                    account = GoogleSignIn.GetLastSignedInAccount(this);
+            //if (!skipLastSigned)
+            //{
+            //    if (account == null)
+            //        account = GoogleSignIn.GetLastSignedInAccount(this);
 
 
-                if (account != null)
-                {
-                    CreateYoutube();
-                    return;
-                }
-            }
+            //    if (account != null)
+            //    {
+            //        CreateYoutube();
+            //        return;
+            //    }
+            //}
 
             //This will be used only when the access has been revoked, when the refresh token has been lost or for the first loggin. 
             //In each case we want a refresh token so we call RequestServerAuthCode with true as the second parameter.
@@ -217,35 +219,35 @@ namespace Opus
 
             googleClient.Connect();
 
-            if (!skipSilentLog)
-            {
-                OptionalPendingResult silentLog = Auth.GoogleSignInApi.SilentSignIn(googleClient);
-                if (silentLog.IsDone)
-                {
-                    GoogleSignInResult result = (GoogleSignInResult)silentLog.Get();
-                    if (result.IsSuccess)
-                    {
-                        account = result.SignInAccount;
-                        RunOnUiThread(() => { Picasso.With(this).Load(account.PhotoUrl).Transform(new CircleTransformation()).Into(new AccountTarget()); });
-                        CreateYoutube();
-                    }
-                }
-                else if (silentLog != null)
-                {
-                    AskIntent = Auth.GoogleSignInApi.GetSignInIntent(googleClient);
-                    silentLog.SetResultCallback(this);
-                }
-                else if (canAsk)
-                {
-                    ResumeKiller = true;
-                    StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);
-                }
-            }
-            else if (canAsk)
-            {
+            //if (!skipSilentLog)
+            //{
+            //    OptionalPendingResult silentLog = Auth.GoogleSignInApi.SilentSignIn(googleClient);
+            //    if (silentLog.IsDone)
+            //    {
+            //        GoogleSignInResult result = (GoogleSignInResult)silentLog.Get();
+            //        if (result.IsSuccess)
+            //        {
+            //            account = result.SignInAccount;
+            //            RunOnUiThread(() => { Picasso.With(this).Load(account.PhotoUrl).Transform(new CircleTransformation()).Into(new AccountTarget()); });
+            //            CreateYoutube();
+            //        }
+            //    }
+            //    else if (silentLog != null)
+            //    {
+            //        AskIntent = Auth.GoogleSignInApi.GetSignInIntent(googleClient);
+            //        silentLog.SetResultCallback(this);
+            //    }
+            //    else if (canAsk)
+            //    {
+            //        ResumeKiller = true;
+            //        StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);
+            //    }
+            //}
+            //else if (canAsk)
+            //{
                 ResumeKiller = true;
                 StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);
-            }
+            //}
         }
 
         protected override void OnActivityResult(int requestCode, [GeneratedEnum] Result resultCode, Intent data)
@@ -254,6 +256,7 @@ namespace Opus
             if(requestCode == 1598)
             {
                 GoogleSignInResult result = Auth.GoogleSignInApi.GetSignInResultFromIntent(data);
+                Console.WriteLine("&Result: " + result.ToString());
                 if (result.IsSuccess)
                 {
                     account = result.SignInAccount;
@@ -262,6 +265,7 @@ namespace Opus
                 }
                 else
                 {
+                    Console.WriteLine("&Loging error: " + result.Status);
                     waitingForYoutube = false;
                 }
             }
@@ -283,8 +287,21 @@ namespace Opus
             }
         }
 
-        public async void CreateYoutube()
+        public async void CreateYoutube(bool UseToken = true)
         {
+            if(!UseToken)
+            {
+                YoutubeManager.YoutubeService = new YouTubeService(new BaseClientService.Initializer()
+                {
+                    ApiKey = GetString(Resource.String.yt_api_key),
+                    ApplicationName = "Opus"
+                });
+                YoutubeManager.IsUsingAPI = true;
+                Console.WriteLine("&Youtube service created - " + YoutubeManager.YoutubeService);
+                return;
+            }
+
+            YoutubeManager.IsUsingAPI = false;
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(this);
             string refreshToken = prefManager.GetString("refresh-token", null);
             Console.WriteLine("&Current refresh token: " + refreshToken);
@@ -305,7 +322,7 @@ namespace Opus
                 {
                     { "grant_type", "authorization_code" },
                     { "client_id", GetString(Resource.String.clientID) },
-                    { "client_secret", GetString(Resource.String.clientSecret) },
+                    //{ "client_secret", GetString(Resource.String.clientSecret) },
                     { "redirect_uri", "" },
                     { "code", account.ServerAuthCode },
                     { "id_token", account.IdToken },
@@ -343,7 +360,7 @@ namespace Opus
 
                     JToken json = JObject.Parse(response);
                     GoogleCredential credential = GoogleCredential.FromAccessToken((string)json.SelectToken("access_token"));
-                    YoutubeSearch.youtubeService = new YouTubeService(new BaseClientService.Initializer()
+                    YoutubeManager.YoutubeService = new YouTubeService(new BaseClientService.Initializer()
                     {
                         HttpClientInitializer = credential,
                         ApplicationName = "Opus"
@@ -373,7 +390,7 @@ namespace Opus
                 {
                     { "refresh_token", refreshToken },
                     { "client_id", GetString(Resource.String.clientID) },
-                    { "client_secret", GetString(Resource.String.clientSecret) },
+                    //{ "client_secret", GetString(Resource.String.clientSecret) },
                     { "grant_type", "refresh_token" },
                 };
 
@@ -409,7 +426,7 @@ namespace Opus
 
                     JToken json = JObject.Parse(response);
                     GoogleCredential credential = GoogleCredential.FromAccessToken((string)json.SelectToken("access_token"));
-                    YoutubeSearch.youtubeService = new YouTubeService(new BaseClientService.Initializer()
+                    YoutubeManager.YoutubeService = new YouTubeService(new BaseClientService.Initializer()
                     {
                         HttpClientInitializer = credential,
                         ApplicationName = "Opus"
@@ -440,21 +457,38 @@ namespace Opus
             Console.WriteLine("&Connection Failed: " + result.ErrorMessage);
         }
 
-        public async Task<bool> WaitForYoutube()
+        public async Task<bool> WaitForYoutube(bool silentWait = false)
         {
-            if(YoutubeSearch.youtubeService == null)
+            if(YoutubeManager.YoutubeService == null)
             {
                 if(!waitingForYoutube)
-                    Login(true);
+                    Login(!silentWait);
 
                 waitingForYoutube = true;
 
-                while (YoutubeSearch.youtubeService == null)
+                if(silentWait)
                 {
-                    if (waitingForYoutube == false)
-                        return false;
+                    int i = 0;
+                    while (true)
+                    {
+                        await Task.Delay(10);
+                        i++;
 
-                    await Task.Delay(10);
+                        if (YoutubeManager.YoutubeService == null)
+                            return true;
+                        else if (i > 1000) //10 seconds timout
+                            return false;
+                    }
+                }
+                else
+                {
+                    while (YoutubeManager.YoutubeService == null)
+                    {
+                        if (waitingForYoutube == false)
+                            return false;
+
+                        await Task.Delay(10);
+                    }
                 }
             }
             else if(NextRefreshDate == null || NextRefreshDate <= DateTime.UtcNow) //Acess token has expired
@@ -963,6 +997,9 @@ namespace Opus
         
         private async void SyncPlaylists()
         {
+            if (!await WaitForYoutube())
+                return;
+
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(this);
             DateTime lastSync = DateTime.Parse(prefManager.GetString("syncDate", DateTime.MinValue.ToString()));
 
