@@ -24,7 +24,7 @@ using Toolbar = Android.Support.V7.Widget.Toolbar;
 
 namespace Opus.Fragments
 {
-    [Activity(Label = "Settings", Theme = "@style/Theme")]
+    [Activity(Label = "Settings", Theme = "@style/Theme", ScreenOrientation = ScreenOrientation.Portrait)]
     public class Preferences : AppCompatActivity
     {
         public static Preferences instance;

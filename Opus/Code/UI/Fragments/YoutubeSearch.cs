@@ -75,7 +75,7 @@ namespace Opus.Fragments
                 {
                     searching = true;
                     SearchResource.ListRequest searchResult = youtubeService.Search.List("snippet");
-                    searchResult.Q = Query.Replace(" ", "+-");
+                    searchResult.Q = Query;
                     searchResult.PageToken = nextPageToken;
                     searchResult.TopicId = "/m/04rlf";
                     switch (querryType)
@@ -204,7 +204,7 @@ namespace Opus.Fragments
             try
             {
                 SearchResource.ListRequest searchResult = youtubeService.Search.List("snippet");
-                searchResult.Q = search.Replace(" ", "+-");
+                searchResult.Q = search;
                 searchResult.TopicId = "/m/04rlf";
                 switch (querryType)
                 {
@@ -312,7 +312,8 @@ namespace Opus.Fragments
             switch (result.Id.Kind)
             {
                 case "youtube#video":
-                    Song videoInfo = new Song(result.Snippet.Title, result.Snippet.ChannelTitle, result.Snippet.Thumbnails.High.Url, result.Id.VideoId, -1, -1, null, true, false);
+                    Console.WriteLine("&Name: " + result.Snippet.Title);
+                    Song videoInfo = new Song(System.Net.WebUtility.HtmlDecode(result.Snippet.Title), result.Snippet.ChannelTitle, result.Snippet.Thumbnails.High.Url, result.Id.VideoId, -1, -1, null, true, false);
                     if (result.Snippet.LiveBroadcastContent == "live")
                         videoInfo.IsLiveStream = true;
 
