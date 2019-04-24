@@ -302,7 +302,7 @@ namespace Opus.Api
                 }
                 else
                 {
-                    if (playlist.YoutubeID != null && item.TrackID == null)
+                    if (playlist.YoutubeID != null)
                         item = await CompleteItem(item, playlist.YoutubeID);
 
 
