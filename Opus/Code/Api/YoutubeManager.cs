@@ -299,7 +299,7 @@ namespace Opus.Api
                 {
                     if (ytItem.Snippet.Title != "[Deleted video]" && ytItem.Snippet.Title != "Private video" && ytItem.Snippet.Title != "Deleted video" && !MusicPlayer.queue.Exists(x => x.YoutubeID == ytItem.ContentDetails.VideoId))
                     {
-                        Song song = new Song(ytItem.Snippet.Title, ytItem.Snippet.ChannelTitle, ytItem.Snippet.Thumbnails.High.Url, ytItem.ContentDetails.VideoId, -1, -1, ytItem.ContentDetails.VideoId, true, false);
+                        Song song = new Song(System.Net.WebUtility.HtmlDecode(ytItem.Snippet.Title), ytItem.Snippet.ChannelTitle, ytItem.Snippet.Thumbnails.High.Url, ytItem.ContentDetails.VideoId, -1, -1, ytItem.ContentDetails.VideoId, true, false);
                         tracks.Add(song);
                     }
                 }
@@ -354,7 +354,7 @@ namespace Opus.Api
 
                 foreach (var video in searchReponse.Items)
                 {
-                    Song song = new Song(video.Snippet.Title, video.Snippet.ChannelTitle, video.Snippet.Thumbnails.High.Url, video.Id.VideoId, -1, -1, null, true, false);
+                    Song song = new Song(System.Net.WebUtility.HtmlDecode(video.Snippet.Title), video.Snippet.ChannelTitle, video.Snippet.Thumbnails.High.Url, video.Id.VideoId, -1, -1, null, true, false);
                     songs.Add(song);
                 }
             }

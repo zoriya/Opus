@@ -699,7 +699,7 @@ namespace Opus.Api.Services
                 {
                     if (item.Snippet.Title != "[Deleted video]" && item.Snippet.Title != "Private video" && item.Snippet.Title != "Deleted video")
                     {
-                        Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.High.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
+                        Song song = new Song(System.Net.WebUtility.HtmlDecode(item.Snippet.Title), item.Snippet.ChannelTitle, item.Snippet.Thumbnails.High.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false);
                         if (!queue.Exists(x => x.YoutubeID == song.YoutubeID) && !autoPlay.Exists(x => x.YoutubeID == song.YoutubeID))
                         {
                             allSongs.Add(song);
@@ -1017,9 +1017,9 @@ namespace Opus.Api.Services
                 SwitchQueue(CurrentID() - 1);
         }
 
-        public static void Repeat()
+        public static void Repeat(bool? forceRepeatState = null)
         {
-            repeat = !repeat;
+            repeat = forceRepeatState ?? !repeat;
 
             if (UseCastPlayer)
                 RemotePlayer.QueueSetRepeatMode(repeat ? 1 : 0, null);

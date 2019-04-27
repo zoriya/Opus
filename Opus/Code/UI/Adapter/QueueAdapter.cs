@@ -87,17 +87,10 @@ namespace Opus.Adapter
                     {
                         holder.RightIcon.Visibility = ViewStates.Visible;
 
-                        if (MainActivity.Theme != 1)
-                            holder.RightIcon.ImageTintList = ColorStateList.ValueOf(Color.Black);
-
                         Song ap = MusicPlayer.autoPlay[0];
                         holder.NextTitle.Text = ap.Title;
 
-                        if (MainActivity.Theme == 1)
-                            holder.NextTitle.SetTextColor(Color.White);
-                        else
-                            holder.NextTitle.SetTextColor(Color.Black);
-
+                        holder.NextTitle.SetTextColor(Color.White);
                         holder.NextTitle.SetBackgroundResource(Android.Resource.Color.Transparent);
                         if (ap.IsYt)
                             Picasso.With(MainActivity.instance).Load(ap.Album).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(holder.NextAlbum);
@@ -134,11 +127,16 @@ namespace Opus.Adapter
                     holder.SwitchButton.Click += (sender, e) =>
                     {
                         MusicPlayer.useAutoPlay = !MusicPlayer.useAutoPlay;
+                        NotifyItemChanged(ItemCount - 1, "UseAutoplay");
+
                         if (MusicPlayer.useAutoPlay)
                         {
-                            MusicPlayer.repeat = false;
-                            NotifyItemChanged(0);
+                            MusicPlayer.Repeat(false);
+                            if (MusicPlayer.autoPlay?.Count == 0)
+                                MusicPlayer.instance.GenerateAutoPlay(false);
                         }
+                        else
+                            MusicPlayer.autoPlay.Clear();
                     };
                 }
             }
@@ -281,17 +279,10 @@ namespace Opus.Adapter
                         {
                             holder.RightIcon.Visibility = ViewStates.Visible;
 
-                            if (MainActivity.Theme != 1)
-                                holder.RightIcon.ImageTintList = ColorStateList.ValueOf(Color.Black);
-
                             Song ap = MusicPlayer.autoPlay[0];
                             holder.NextTitle.Text = ap.Title;
 
-                            if (MainActivity.Theme == 1)
-                                holder.NextTitle.SetTextColor(Color.White);
-                            else
-                                holder.NextTitle.SetTextColor(Color.Black);
-
+                            holder.NextTitle.SetTextColor(Color.White);
                             holder.NextTitle.SetBackgroundResource(Android.Resource.Color.Transparent);
                             if (ap.IsYt)
                                 Picasso.With(MainActivity.instance).Load(ap.Album).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(holder.NextAlbum);

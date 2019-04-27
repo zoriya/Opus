@@ -75,7 +75,7 @@ namespace Opus
         public static GoogleSignInAccount account;
         private Intent AskIntent;
         public bool waitingForYoutube;
-        private DateTime NextRefreshDate;
+        private DateTime? NextRefreshDate;
         private bool? PermissionGot;
         public bool ResumeKiller;
 
@@ -188,7 +188,7 @@ namespace Opus
 
         public  void Login(bool canAsk = true, bool skipSilentLog = false, bool skipLastSigned = false)
         {
-            waitingForYoutube = true;
+            //waitingForYoutube = true;
 
             //if (!skipLastSigned)
             //{
@@ -205,17 +205,17 @@ namespace Opus
 
             //This will be used only when the access has been revoked, when the refresh token has been lost or for the first loggin. 
             //In each case we want a refresh token so we call RequestServerAuthCode with true as the second parameter.
-            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DefaultSignIn)
-                .RequestIdToken(GetString(Resource.String.clientID))
-                .RequestServerAuthCode(GetString(Resource.String.clientID), true)
-                .RequestScopes(new Scope(YouTubeService.Scope.Youtube))
-                .Build();
+            //GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DefaultSignIn)
+            //    .RequestIdToken(GetString(Resource.String.clientID))
+            //    .RequestServerAuthCode(GetString(Resource.String.clientID), true)
+            //    .RequestScopes(new Scope(YouTubeService.Scope.Youtube))
+            //    .Build();
 
-            GoogleApiClient googleClient = new GoogleApiClient.Builder(this)
-                .AddApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                .Build();
+            //GoogleApiClient googleClient = new GoogleApiClient.Builder(this)
+            //    .AddApi(Auth.GOOGLE_SIGN_IN_API, gso)
+            //    .Build();
 
-            googleClient.Connect();
+            //googleClient.Connect();
 
             //if (!skipSilentLog)
             //{
@@ -243,12 +243,12 @@ namespace Opus
             //}
             //else if (canAsk)
             //{
-                ResumeKiller = true;
-                StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);
+            //ResumeKiller = true;
+            //StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);
             //}
             //else
             //{
-            //    CreateYoutube(false);
+            CreateYoutube(false);
             //}
         }
 
@@ -269,6 +269,7 @@ namespace Opus
                 {
                     Console.WriteLine("&Loging error: " + result.Status);
                     waitingForYoutube = false;
+                    CreateYoutube(false);
                 }
             }
         }
@@ -287,166 +288,174 @@ namespace Opus
                 StartActivityForResult(AskIntent, 1598);
                 AskIntent = null;
             }
+            else
+            {
+                CreateYoutube(false);
+            }
         }
 
-        public async void CreateYoutube(bool UseToken = true)
+        public /*async*/ void CreateYoutube(bool UseToken = true)
         {
-            if(!UseToken)
-            {
+            //if(/*!UseToken &&*/ YoutubeManager.YoutubeService == null)
+            //{
                 YoutubeManager.YoutubeService = new YouTubeService(new BaseClientService.Initializer()
                 {
                     ApiKey = GetString(Resource.String.yt_api_key),
                     ApplicationName = "Opus"
                 });
                 YoutubeManager.IsUsingAPI = true;
+                NextRefreshDate = DateTime.MaxValue;
                 Console.WriteLine("&Youtube service created - " + YoutubeManager.YoutubeService);
                 return;
-            }
+            //}
 
-            YoutubeManager.IsUsingAPI = false;
-            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(this);
-            string refreshToken = prefManager.GetString("refresh-token", null);
-            Console.WriteLine("&Current refresh token: " + refreshToken);
+            //YoutubeManager.IsUsingAPI = false;
+            //NextRefreshDate = null;
+            //ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(this);
+            //string refreshToken = prefManager.GetString("refresh-token", null);
+            //Console.WriteLine("&Current refresh token: " + refreshToken);
 
             //This method do not return refresh-token if the app has already been aprouved by google for this user, should force request
-            if (refreshToken == null)
-            {
-                Console.WriteLine("&Getting refresh-token and creating a youtube service");
-                Console.WriteLine("&Code = " + account.ServerAuthCode);
+            //if (refreshToken == null)
+            //{
+                //Console.WriteLine("&Getting refresh-token and creating a youtube service");
+                //Console.WriteLine("&Code = " + account.ServerAuthCode);
 
-                if (account.ServerAuthCode == null)
-                {
-                    Login(true, false, true);
-                    return;
-                }
+                //if (account.ServerAuthCode == null)
+                //{
+                //    Login(true, false, true);
+                //    return;
+                //}
 
-                Dictionary<string, string> fields = new Dictionary<string, string>
-                {
-                    { "grant_type", "authorization_code" },
-                    { "client_id", GetString(Resource.String.clientID) },
-                    //{ "client_secret", GetString(Resource.String.clientSecret) },
-                    { "redirect_uri", "" },
-                    { "code", account.ServerAuthCode },
-                    { "id_token", account.IdToken },
-                };
+                //Dictionary<string, string> fields = new Dictionary<string, string>
+                //{
+                //    { "grant_type", "authorization_code" },
+                //    { "client_id", GetString(Resource.String.clientID) },
+                //    { "client_secret", GetString(Resource.String.clientSecret) },
+                //    { "redirect_uri", "" },
+                //    { "code", account.ServerAuthCode },
+                //    { "id_token", account.IdToken },
+                //};
 
-                var items = from kvp in fields
-                            select kvp.Key + "=" + kvp.Value;
+                //var items = from kvp in fields
+                //            select kvp.Key + "=" + kvp.Value;
 
-                string content = string.Join("&", items);
+                //string content = string.Join("&", items);
 
-                try
-                {
-                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://www.googleapis.com/oauth2/v4/token");
-                    request.Host = "www.googleapis.com";
+                //try
+                //{
+                //    HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://www.googleapis.com/oauth2/v4/token");
+                //    request.Host = "www.googleapis.com";
 
-                    request.Method = "POST";
-                    request.ContentType = "application/x-www-form-urlencoded";
-                    request.ContentLength = content.Length;
+                //    request.Method = "POST";
+                //    request.ContentType = "application/x-www-form-urlencoded";
+                //    request.ContentLength = content.Length;
 
-                    using (StreamWriter writer = new StreamWriter(request.GetRequestStream()))
-                    {
-                        writer.Write(content);
-                    }
+                //    using (StreamWriter writer = new StreamWriter(request.GetRequestStream()))
+                //    {
+                //        writer.Write(content);
+                //    }
 
-                    Console.WriteLine("&Content: " + content);
+                //    Console.WriteLine("&Content: " + content);
 
-                    HttpWebResponse resp = (HttpWebResponse)await request.GetResponseAsync();
+                //    HttpWebResponse resp = (HttpWebResponse)await request.GetResponseAsync();
 
-                    string response;
-                    using (StreamReader responseReader = new StreamReader(request.GetResponse().GetResponseStream()))
-                    {
-                        response = responseReader.ReadToEnd();
-                    }
-                    Console.WriteLine("&Response: " + response);
+                //    string response;
+                //    using (StreamReader responseReader = new StreamReader(request.GetResponse().GetResponseStream()))
+                //    {
+                //        response = responseReader.ReadToEnd();
+                //    }
+                //    Console.WriteLine("&Response: " + response);
 
-                    JToken json = JObject.Parse(response);
-                    GoogleCredential credential = GoogleCredential.FromAccessToken((string)json.SelectToken("access_token"));
-                    YoutubeManager.YoutubeService = new YouTubeService(new BaseClientService.Initializer()
-                    {
-                        HttpClientInitializer = credential,
-                        ApplicationName = "Opus"
-                    });
+                //    JToken json = JObject.Parse(response);
+                //    GoogleCredential credential = GoogleCredential.FromAccessToken((string)json.SelectToken("access_token"));
+                //    YoutubeManager.YoutubeService = new YouTubeService(new BaseClientService.Initializer()
+                //    {
+                //        HttpClientInitializer = credential,
+                //        ApplicationName = "Opus"
+                //    });
 
-                    refreshToken = (string)json.SelectToken("refresh_token");
-                    if (refreshToken != null)
-                    {
-                        ISharedPreferencesEditor editor = prefManager.Edit();
-                        editor.PutString("refresh-token", refreshToken);
-                        editor.Apply();
-                    }
+                //    refreshToken = (string)json.SelectToken("refresh_token");
+                //    if (refreshToken != null)
+                //    {
+                //        ISharedPreferencesEditor editor = prefManager.Edit();
+                //        editor.PutString("refresh-token", refreshToken);
+                //        editor.Apply();
+                //    }
 
-                    int expireIn = (int)json.SelectToken("expires_in");
-                    NextRefreshDate = DateTime.UtcNow.AddSeconds(expireIn - 30); //Should refresh a bit before the expiration of the acess token
-                }
-                catch (WebException ex)
-                {
-                    Console.WriteLine("&Refresh token get error: " + ex.Message);
-                    UnknowError(new Action(() => { CreateYoutube(); }));
-                }
-            }
-            else if (account != null)
-            {
-                Console.WriteLine("&Getting a new access-token and creating a youtube service");
-                Dictionary<string, string> fields = new Dictionary<string, string>
-                {
-                    { "refresh_token", refreshToken },
-                    { "client_id", GetString(Resource.String.clientID) },
-                    //{ "client_secret", GetString(Resource.String.clientSecret) },
-                    { "grant_type", "refresh_token" },
-                };
+                //    int expireIn = (int)json.SelectToken("expires_in");
+                //    NextRefreshDate = DateTime.UtcNow.AddSeconds(expireIn - 30); //Should refresh a bit before the expiration of the acess token
+                //}
+                //catch (WebException ex)
+                //{
+                //    Console.WriteLine("&Refresh token get error: " + ex.Message);
+                //    CreateYoutube(false);
+                //    UnknowError(new Action(() => { CreateYoutube(); }));
+                //}
+            //}
+            //else if (account != null)
+            //{
+            //    Console.WriteLine("&Getting a new access-token and creating a youtube service");
+            //    Dictionary<string, string> fields = new Dictionary<string, string>
+            //    {
+            //        { "refresh_token", refreshToken },
+            //        { "client_id", GetString(Resource.String.clientID) },
+            //        { "client_secret", GetString(Resource.String.clientSecret) },
+            //        { "grant_type", "refresh_token" },
+            //    };
 
-                var items = from kvp in fields
-                            select kvp.Key + "=" + kvp.Value;
+            //    var items = from kvp in fields
+            //                select kvp.Key + "=" + kvp.Value;
 
-                string content = string.Join("&", items);
+            //    string content = string.Join("&", items);
 
-                try
-                {
-                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://www.googleapis.com/oauth2/v4/token");
-                    request.Host = "www.googleapis.com";
+            //    try
+            //    {
+            //        HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://www.googleapis.com/oauth2/v4/token");
+            //        request.Host = "www.googleapis.com";
 
-                    request.Method = "POST";
-                    request.ContentType = "application/x-www-form-urlencoded";
-                    request.ContentLength = content.Length;
+            //        request.Method = "POST";
+            //        request.ContentType = "application/x-www-form-urlencoded";
+            //        request.ContentLength = content.Length;
 
-                    using (StreamWriter writer = new StreamWriter(request.GetRequestStream()))
-                    {
-                        writer.Write(content);
-                    }
+            //        using (StreamWriter writer = new StreamWriter(request.GetRequestStream()))
+            //        {
+            //            writer.Write(content);
+            //        }
 
-                    Console.WriteLine("&Content: " + content);
+            //        Console.WriteLine("&Content: " + content);
 
-                    HttpWebResponse resp = (HttpWebResponse)await request.GetResponseAsync();
+            //        HttpWebResponse resp = (HttpWebResponse)await request.GetResponseAsync();
 
-                    string response;
-                    using (StreamReader responseReader = new StreamReader(request.GetResponse().GetResponseStream()))
-                    {
-                        response = responseReader.ReadToEnd();
-                    }
-                    Console.WriteLine("&Response: " + response);
+            //        string response;
+            //        using (StreamReader responseReader = new StreamReader(request.GetResponse().GetResponseStream()))
+            //        {
+            //            response = responseReader.ReadToEnd();
+            //        }
+            //        Console.WriteLine("&Response: " + response);
 
-                    JToken json = JObject.Parse(response);
-                    GoogleCredential credential = GoogleCredential.FromAccessToken((string)json.SelectToken("access_token"));
-                    YoutubeManager.YoutubeService = new YouTubeService(new BaseClientService.Initializer()
-                    {
-                        HttpClientInitializer = credential,
-                        ApplicationName = "Opus"
-                    });
+            //        JToken json = JObject.Parse(response);
+            //        GoogleCredential credential = GoogleCredential.FromAccessToken((string)json.SelectToken("access_token"));
+            //        YoutubeManager.YoutubeService = new YouTubeService(new BaseClientService.Initializer()
+            //        {
+            //            HttpClientInitializer = credential,
+            //            ApplicationName = "Opus"
+            //        });
 
-                    int expireIn = (int)json.SelectToken("expires_in");
-                    NextRefreshDate = DateTime.UtcNow.AddSeconds(expireIn - 30); //Should refresh a bit before the expiration of the acess token
-                }
-                catch (WebException ex)
-                {
-                    Console.WriteLine("&New access token get error: " + ex.Message);
-                    UnknowError(new Action(() => { CreateYoutube(); }));
-                }
-            }
-            else
-            {
-                Login(true);
-            }
+            //        int expireIn = (int)json.SelectToken("expires_in");
+            //        NextRefreshDate = DateTime.UtcNow.AddSeconds(expireIn - 30); //Should refresh a bit before the expiration of the acess token
+            //    }
+            //    catch (WebException ex)
+            //    {
+            //        Console.WriteLine("&New access token get error: " + ex.Message + " - " + ex.StackTrace);
+            //        CreateYoutube(false);
+            //        UnknowError(new Action(() => { CreateYoutube(); }));
+            //    }
+            //}
+            //else
+            //{
+            //    Login(true);
+            //}
         }
 
         public void OnFailure(Request request, Java.IO.IOException iOException)

@@ -190,6 +190,7 @@ namespace Opus.Fragments
             }
 
             SearchableActivity.IgnoreMyself = false;
+            Console.WriteLine("&Waiting for youtube");
 
             if (!await MainActivity.instance.WaitForYoutube())
             {
@@ -199,6 +200,8 @@ namespace Opus.Fragments
                 EmptyView.Visibility = ViewStates.Visible;
                 return;
             }
+
+            Console.WriteLine("&Request");
 
             try
             {
@@ -237,6 +240,8 @@ namespace Opus.Fragments
                 var searchReponse = await searchResult.ExecuteAsync();
                 nextPageToken = searchReponse.NextPageToken;
                 result = new List<YtFile>();
+
+                Console.WriteLine("&Request done");
 
                 foreach (var video in searchReponse.Items)
                     result.Add(GetYtFileFromSearchResult(video));
@@ -311,7 +316,6 @@ namespace Opus.Fragments
             switch (result.Id.Kind)
             {
                 case "youtube#video":
-                    Console.WriteLine("&Name: " + result.Snippet.Title);
                     Song videoInfo = new Song(System.Net.WebUtility.HtmlDecode(result.Snippet.Title), result.Snippet.ChannelTitle, result.Snippet.Thumbnails.High.Url, result.Id.VideoId, -1, -1, null, true, false);
                     if (result.Snippet.LiveBroadcastContent == "live")
                         videoInfo.IsLiveStream = true;
