@@ -11,7 +11,7 @@
     android:layout_marginLeft="8dp"
     android:layout_marginRight="8dp"
     android:layout_marginBottom="4dp"
-    android:text="You can add any youtube playlist by entering the playlist url in this field. You can find a playlist url by clicking the share button on the youtube app then click Copy Link. \nWarning: it will add a section  &quot;Saved Playlists&quot; on your youtube channel."/>
+    android:text="@string/playlist_fork"/>
   <EditText
     android:id="@+id/playlistURL"
     android:inputType="text"

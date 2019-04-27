@@ -7,6 +7,29 @@ using System;
 namespace Opus.DataStructure
 {
     [Serializable]
+    public class SavedPlaylist : PlaylistItem
+    {
+        [PrimaryKey, Unique]
+        public new string YoutubeID { get; set; }
+        public new long LocalID { get; set; }
+
+        public SavedPlaylist() { }
+
+        public SavedPlaylist(PlaylistItem item)
+        {
+            Name = item.Name;
+            LocalID = item.LocalID;
+            YoutubeID = item.YoutubeID;
+            Count = item.Count;
+            Snippet = item.Snippet;
+            Owner = item.Owner;
+            ImageURL = item.ImageURL;
+            HasWritePermission = item.HasWritePermission;
+            SyncState = item.SyncState;
+        }
+    }
+
+    [Serializable]
     public class PlaylistItem
     {
         public string Name { get; set; }

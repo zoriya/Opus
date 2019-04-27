@@ -32,6 +32,32 @@ namespace Opus.Api
 {
     public class PlaylistManager
     {
+        /// <summary>
+        /// Return a complete PlaylistItem object from the youtube id of the playlist
+        /// </summary>
+        /// <param name="playlistID"></param>
+        /// <returns></returns>
+        public static async Task<PlaylistItem> GetPlaylist(string playlistID)
+        {
+            PlaylistsResource.ListRequest request = YoutubeManager.YoutubeService.Playlists.List("snippet");
+            request.Id = playlistID;
+
+            PlaylistListResponse response = await request.ExecuteAsync();
+
+            if (response.Items.Count > 0)
+            {
+                Playlist result = response.Items[0];
+                return new PlaylistItem(result.Snippet.Title, -1, playlistID)
+                {
+                    HasWritePermission = false,
+                    ImageURL = result.Snippet.Thumbnails.High.Url,
+                    Owner = result.Snippet.ChannelTitle
+                };
+            }
+            else
+                return null;
+        }
+
         #region PlayInOrder
         /// <summary>
         /// Play all tracks of a playlist in the default order. Handle both youtube and local playlists.
@@ -349,14 +375,22 @@ namespace Opus.Api
                 holder.Status.SetImageResource(Resource.Drawable.Sync);
             });
 
-            foreach (PlaylistItem playlist in youtube)
-                playlist.SongContained = await YoutubeManager.SongIsContained(item.YoutubeID, playlist.YoutubeID);
+            if(youtube != null)
+            {
+                foreach (PlaylistItem playlist in youtube)
+                    playlist.SongContained = await YoutubeManager.SongIsContained(item.YoutubeID, playlist.YoutubeID);
 
-            int positionStart = playlists.IndexOf(Loading);
-            playlists.Remove(Loading);
-            playlists.AddRange(youtube);
-            adapter.NotifyItemRangeInserted(positionStart, youtube.Count - 1);
-            adapter.NotifyItemChanged(playlists.Count);
+                int positionStart = playlists.IndexOf(Loading);
+                playlists.Remove(Loading);
+                playlists.AddRange(youtube);
+                adapter.NotifyItemRangeInserted(positionStart, youtube.Count - 1);
+                adapter.NotifyItemChanged(playlists.Count);
+            }
+            else
+            {
+                playlists.Remove(Loading);
+                adapter.NotifyItemRemoved(playlists.Count);
+            }
         }
 
         /// <summary>
@@ -654,7 +688,7 @@ namespace Opus.Api
         /// <param name="SyncedPlaylists"></param>
         /// <param name="UiCallback">A callback that will tell the ui to update a synced playlist with the new data got from the item.</param>
         /// <returns></returns>
-        public static async Task<(List<PlaylistItem>, string)> GetOwnedYoutubePlaylists(List<PlaylistItem> SyncedPlaylists, System.Action<PlaylistItem, int> UiCallback)
+        public static async Task<(List<PlaylistItem>, string)> GetOwnedYoutubePlaylists(List<PlaylistItem> SyncedPlaylists, Action<PlaylistItem, int> UiCallback)
         {
             if (!await MainActivity.instance.WaitForYoutube() || YoutubeManager.IsUsingAPI)
                 return (null, "Error"); //Should have a better error handling
@@ -699,51 +733,23 @@ namespace Opus.Api
         /// <param name="SyncedPlaylists"></param>
         /// <param name="UiCallback">A callback that will tell the ui to update a synced playlist with the new data got from the item.</param>
         /// <returns></returns>
-        public static async Task<(List<PlaylistItem>, string)> GetSavedYoutubePlaylists(List<PlaylistItem> SyncedPlaylists, System.Action<PlaylistItem, int> UiCallback)
+        public static async Task<List<PlaylistItem>> GetSavedYoutubePlaylists(List<PlaylistItem> SyncedPlaylists, Action<PlaylistItem, int> UiCallback)
         {
-            if (!await MainActivity.instance.WaitForYoutube())
-                return (null, "Error"); //Should have a better error handling
+            List<PlaylistItem> SavedPlaylists = new List<PlaylistItem>();
+            await Task.Run(() =>
+            {
+                SQLiteConnection db = new SQLiteConnection(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "SavedPlaylists.sqlite"));
+                db.CreateTable<SavedPlaylist>();
+
+                SavedPlaylists = db.Table<SavedPlaylist>().ToList().ConvertAll(x => { PlaylistItem y = x; y.YoutubeID = x.YoutubeID; y.LocalID = -1; return y; });
+            });
 
             List<PlaylistItem> YoutubePlaylists = new List<PlaylistItem>();
 
-            try
-            {
-                YouTubeService youtube = YoutubeManager.YoutubeService;
+            foreach (PlaylistItem item in SavedPlaylists)
+                ProcessPlaylistSyncState(item, SyncedPlaylists, YoutubePlaylists, UiCallback);
 
-                ChannelSectionsResource.ListRequest forkedRequest = youtube.ChannelSections.List("snippet,contentDetails");
-                forkedRequest.Mine = true;
-                ChannelSectionListResponse forkedResponse = await forkedRequest.ExecuteAsync();
-
-                foreach (ChannelSection section in forkedResponse.Items)
-                {
-                    if (section.Snippet.Title == "Saved Playlists")
-                    {
-                        for (int i = 0; i < section.ContentDetails.Playlists.Count; i++)
-                        {
-                            PlaylistsResource.ListRequest plRequest = youtube.Playlists.List("snippet, contentDetails");
-                            plRequest.Id = section.ContentDetails.Playlists[i];
-                            PlaylistListResponse plResponse = await plRequest.ExecuteAsync();
-
-                            Playlist playlist = plResponse.Items[i];
-                            playlist.Kind = "youtube#saved";
-                            PlaylistItem item = new PlaylistItem(playlist.Snippet.Title, playlist.Id, playlist, (int)playlist.ContentDetails.ItemCount)
-                            {
-                                Owner = playlist.Snippet.ChannelTitle,
-                                ImageURL = playlist.Snippet.Thumbnails.High.Url,
-                                HasWritePermission = false
-                            };
-
-                            ProcessPlaylistSyncState(item, SyncedPlaylists, YoutubePlaylists, UiCallback);
-                        }
-                    }
-                }
-
-                return (YoutubePlaylists, null);
-            }
-            catch (System.Net.Http.HttpRequestException)
-            {
-                return (null, "Error"); //Should handle precise error here
-            }
+            return YoutubePlaylists;
         }
 
         /// <summary>
@@ -753,7 +759,7 @@ namespace Opus.Api
         /// <param name="SyncedPlaylists">An array of known synced playlists (Will be updated)</param>
         /// <param name="YoutubePlaylists">An array of youtube playlists. (Will be updated)</param>
         /// <param name="UiCallback">A callback that will tell the ui to update a synced playlist with the new data got from the item.</param>
-        public static void ProcessPlaylistSyncState(PlaylistItem item, List<PlaylistItem> SyncedPlaylists, List<PlaylistItem> YoutubePlaylists, System.Action<PlaylistItem, int> UiCallback)
+        public static void ProcessPlaylistSyncState(PlaylistItem item, List<PlaylistItem> SyncedPlaylists, List<PlaylistItem> YoutubePlaylists, Action<PlaylistItem, int> UiCallback)
         {
             PlaylistItem syncedItem = SyncedPlaylists?.Find(x => x.YoutubeID == item.YoutubeID);
             if (syncedItem != null)
@@ -1080,111 +1086,58 @@ namespace Opus.Api
         }
         #endregion
 
-        //Not handled yet
         #region YoutubeFork
         /// <summary>
-        /// Fork playlist (not implemeted yet)
+        /// Return true if the playlist is already forked.
         /// </summary>
-        /// <param name="playlistID"></param>
+        /// <param name="item"></param>
         /// <returns></returns>
-        public static /*async*/ void ForkPlaylist(string playlistID)
+        public async static Task<bool> IsForked(PlaylistItem item)
         {
-            //ChannelSectionsResource.ListRequest forkedRequest = youtubeService.ChannelSections.List("snippet,contentDetails");
-            //forkedRequest.Mine = true;
-            //ChannelSectionListResponse forkedResponse = await forkedRequest.ExecuteAsync();
-
-            //foreach (ChannelSection section in forkedResponse.Items)
-            //{
-            //    if (section.Snippet.Title == "Saved Playlists")
-            //    {
-            //        //AddToSection
-            //        if (section.ContentDetails.Playlists.Contains(playlistID))
-            //        {
-            //            Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById<CoordinatorLayout>(Resource.Id.snackBar), Resource.String.playlist_already_saved, Snackbar.LengthLong);
-            //            snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
-            //            snackBar.Show();
-            //            return;
-            //        }
-            //        else
-            //        {
-            //            try
-            //            {
-            //                section.ContentDetails.Playlists.Add(playlistID);
-            //                ChannelSectionsResource.UpdateRequest request = youtubeService.ChannelSections.Update(section, "snippet,contentDetails");
-            //                ChannelSection response = await request.ExecuteAsync();
-            //            }
-            //            catch (System.Net.Http.HttpRequestException)
-            //            {
-            //                MainActivity.instance.Timout();
-            //            }
-            //            return;
-            //        }
-            //    }
-            //}
-            ////CreateSection and add to it
-            //ChannelSection newSection = new ChannelSection();
-            //ChannelSectionContentDetails details = new ChannelSectionContentDetails();
-            //ChannelSectionSnippet snippet = new ChannelSectionSnippet();
-
-            //details.Playlists = new List<string>() { playlistID };
-            //snippet.Title = "Saved Playlists";
-            //snippet.Type = "multiplePlaylists";
-            //snippet.Style = "horizontalRow";
-
-            //newSection.ContentDetails = details;
-            //newSection.Snippet = snippet;
-
-            //ChannelSectionsResource.InsertRequest insert = youtubeService.ChannelSections.Insert(newSection, "snippet,contentDetails");
-            //ChannelSection insertResponse = await insert.ExecuteAsync();
+            List<PlaylistItem> SavedPlaylistt = await GetSavedYoutubePlaylists(null, null);
+            if (SavedPlaylistt.Count(x => x.YoutubeID == item.YoutubeID) > 0)
+                return true;
+            else
+                return false;
         }
 
-        public static void Unfork(int position, string playlistID)
+        /// <summary>
+        /// Save a playlist in the user library.
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public static async void ForkPlaylist(PlaylistItem item)
         {
-            //AlertDialog dialog = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme)
-            //    .SetTitle(GetString(Resource.String.unfork_playlist, YoutubePlaylists[position - LocalPlaylists.Count].Name))
-            //    .SetPositiveButton(Resource.String.yes, async (sender, e) =>
-            //    {
-            //        try
-            //        {
-            //            ChannelSectionsResource.ListRequest forkedRequest = YoutubeEngine.youtubeService.ChannelSections.List("snippet,contentDetails");
-            //            forkedRequest.Mine = true;
-            //            ChannelSectionListResponse forkedResponse = await forkedRequest.ExecuteAsync();
+            SavedPlaylist pl = new SavedPlaylist(item);
+            await Task.Run(() =>
+            {
+                SQLiteConnection db = new SQLiteConnection(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "SavedPlaylists.sqlite"));
+                db.CreateTable<SavedPlaylist>();
+                db.InsertOrReplace(pl);
+            });
 
-            //            foreach (ChannelSection section in forkedResponse.Items)
-            //            {
-            //                if (section.Snippet.Title == "Saved Playlists")
-            //                {
-            //                    if (section.ContentDetails.Playlists.Count > 1)
-            //                    {
-            //                        section.ContentDetails.Playlists.Remove(playlistID);
-            //                        ChannelSectionsResource.UpdateRequest request = YoutubeEngine.youtubeService.ChannelSections.Update(section, "snippet,contentDetails");
-            //                        ChannelSection response = await request.ExecuteAsync();
-            //                    }
-            //                    else
-            //                    {
-            //                        ChannelSectionsResource.DeleteRequest delete = YoutubeEngine.youtubeService.ChannelSections.Delete(section.Id);
-            //                        await delete.ExecuteAsync();
-            //                    }
-            //                }
-            //            }
+            Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), MainActivity.instance.GetString(Resource.String.playlist_saved), Snackbar.LengthLong);
+            snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+            snackBar.Show();
+        }
 
-            //            YoutubePlaylists.RemoveAt(position - LocalPlaylists.Count - 1);
-            //            adapter.NotifyItemRemoved(position);
+        /// <summary>
+        /// Remove a playlist from the user library.
+        /// </summary>
+        /// <param name="item"></param>
+        public static async void Unfork(PlaylistItem item)
+        {
+            SavedPlaylist pl = new SavedPlaylist(item);
+            await Task.Run(() =>
+            {
+                SQLiteConnection db = new SQLiteConnection(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "SavedPlaylists.sqlite"));
+                db.CreateTable<SavedPlaylist>();
+                db.Delete(pl);
+            });
 
-            //            if (YoutubePlaylists.Count == 1)
-            //            {
-            //                YoutubePlaylists.Add(new PlaylistItem("EMPTY", null) { Owner = Resources.GetString(Resource.String.youtube_playlist_empty) });
-            //                adapter.NotifyItemInserted(LocalPlaylists.Count + YoutubePlaylists.Count);
-            //            }
-            //        }
-            //        catch (System.Net.Http.HttpRequestException)
-            //        {
-            //            MainActivity.instance.Timout();
-            //        }
-            //    })
-            //    .SetNegativeButton(Resource.String.no, (sender, e) => { })
-            //    .Create();
-            //dialog.Show();
+            Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), MainActivity.instance.GetString(Resource.String.playlist_unsaved), Snackbar.LengthLong);
+            snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+            snackBar.Show();
         }
         #endregion
     }

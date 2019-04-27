@@ -103,15 +103,19 @@
   <string name="playlist_empty">This playlist is empty.</string>
   <string name="remove_from_playlist">Remove %1$s from playlist?</string> <!--%1$s will be replaced by the song name-->
   <string name="removed_from_playlist"> has been removed from the playlist.</string>
+  <string name="playlist_saved">This playlist has been added to your library.</string>
   <string name="playlist_already_saved">Playlist already added to your library.</string>
+  <string name="playlist_unsaved">This playlist has been removed from your library.</string>
   <string name="playlist_not_found">No playlist exist with this id or link.</string>
   <string name="playlist_add_song_not_found">Song can\'t be found on youtube, can\'t add it to a youtube playlist.</string>
   <string name="delete_playlist">Do you want to delete the playlist \"%1$s\"?</string> <!--%1$s will be replaced by the playlist name-->
   <string name="rename_playlist">Enter a new name for this playlist</string>
   <string name="stop_syncing">Do you want to stop syncing the playlist \"%1$s\"?</string> <!--%1$s will be replaced by the playlist name-->
   <string name="unfork_playlist">Do you want to remove  \"%1$s"\" from your library?</string> <!--%1$s will be replaced by the playlist name-->
-  <string name="add_playlist_msg">Enter the url or the id of the playlist you want to add</string> <!--%1$s will be replaced by the playlist name-->
-  
+  <string name="add_playlist_msg">Enter the url or the id of the playlist you want to add</string> 
+  <string name="playlist_fork">Add a youtube playlist to your library by using it\'s url.</string>
+  <string name="badplaylisturl">Can\'t find a playlist with this URL.</string>
+
   <!--Add song to playlist-->
   <string name="create_playlist">Create a new playlist</string>
   <string name="save_playlist">Save song to...</string>

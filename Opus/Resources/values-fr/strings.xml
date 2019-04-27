@@ -103,7 +103,9 @@
   <string name="playlist_empty">Cette playlist est vide.</string>
   <string name="remove_from_playlist">Enlever %1$s de la playlist ?</string> <!--%1$s will be replaced by the song name-->
   <string name="removed_from_playlist"> a été enlevé de la playlist.</string>
+  <string name="playlist_saved">Cette playlist a été ajoutée à votre bibliothèque.</string>
   <string name="playlist_already_saved">Cette playlist a déja été ajoutée à votre bibliothèque.</string>
+  <string name="playlist_unsaved">Cette playlist a été enlevée de votre bibliothèque.</string>
   <string name="playlist_not_found">Aucune playlist n\'existe avec cet id ou cette url.</string>
   <string name="playlist_add_song_not_found">Musique non trouvée sur youtube, impossible de l\'ajouter à une playlist youtube.</string>
   <string name="delete_playlist">Voulez vous supprimer la playlist  \"%1$s\" ?</string> <!--%1$s will be replaced by the playlist name-->
@@ -111,6 +113,8 @@
   <string name="stop_syncing">Voulez vous arreter de synchroniser la playlist \"%1s$\" ?</string> <!--%1$s will be replaced by the playlist name-->
   <string name="unfork_playlist">Voulez vous supprimer la playlist \"%1$s"\" de votre bibliothèque ?</string> <!--%1$s will be replaced by the playlist name-->
   <string name="add_playlist_msg">Entrer l\'url ou l\'id de la playlist que vous voulez ajouter</string> <!--%1$s will be replaced by the playlist name-->
+  <string name="playlist_fork">Ajoutez une playlist a votre bibliothèque en utilisant son URL.</string>
+  <string name="badplaylisturl">Impossible de trouver une playlist correspondant a cette URL.</string>
 
   <!--Add song to playlist-->
   <string name="create_playlist">Créer une nouvelle playlist</string>
@@ -133,6 +137,8 @@
   <string name="undo_change">Annuler les modifications</string>
   <string name="changes_saved">Changement sauvegardé.</string>
   <string name="metdata_error_noid">Impossible de télécharger les metadatas depuis youtube, l\'id youtube n\'est pas défni.</string>
+  <string name="mount_error">Il y a un problème avec votre disque de stockage, veuillez arreter de l\'utiliser ailleur et réessayer après.</string>
+  <string name="mount_error_action">ABANDONNER ET QUITER</string>
 
   <!--Download Queue-->
   <string name="download_queue">Liste de téléchargement</string>

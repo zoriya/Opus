@@ -29,16 +29,6 @@ namespace Opus.Adapter
             this.YoutubePlaylists = YoutubePlaylists;
         }
 
-        public void UpdateElement(int position, PlaylistItem newPlaylist)
-        {
-            if(position < LocalPlaylists.Count)
-                LocalPlaylists[position] = newPlaylist;
-            else
-                YoutubePlaylists[position] = newPlaylist;
-
-            NotifyItemChanged(position);
-        }
-
         public override int ItemCount => LocalPlaylists.Count + YoutubePlaylists.Count + (forkSaved ? 1 : 0);
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position)
@@ -126,8 +116,23 @@ namespace Opus.Adapter
                 PlaylistItem playlist = YoutubePlaylists[position - LocalPlaylists.Count];
 
                 holder.Title.Text = playlist.Name;
-                holder.Owner.Text = playlist.Owner;
-                Picasso.With(Application.Context).Load(playlist.ImageURL).Placeholder(Resource.Color.background_material_dark).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
+                Picasso.With(Application.Context).Load(playlist.ImageURL).Placeholder(Resource.Color.placeholder).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
+
+                if (playlist.Owner == null)
+                {
+                    holder.Owner.Text = "      ";
+                    holder.Owner.SetTextColor(Color.Transparent);
+                    holder.Owner.SetBackgroundResource(Resource.Color.placeholder);
+                }
+                else
+                {
+                    holder.Owner.Text = playlist.Owner;
+                    holder.Owner.SetBackgroundColor(Color.Transparent);
+                    if (MainActivity.Theme == 1)
+                        holder.Owner.SetTextColor(Color.White);
+                    else
+                        holder.Owner.SetTextColor(Color.Black);
+                }
 
                 if (playlist.HasWritePermission)
                 {

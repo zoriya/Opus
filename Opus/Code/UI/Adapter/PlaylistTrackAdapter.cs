@@ -53,11 +53,6 @@ namespace Opus.Adapter
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position)
         {
-            System.Console.WriteLine("&Binding at " + position);
-            System.Console.WriteLine("&ItemCount " + ItemCount);
-            System.Console.WriteLine("&ItemBefore " + ItemBefore);
-            System.Console.WriteLine("&ItemAfter " + ItemAfter);
-
             if (position == ItemCount - 1 && !PlaylistTracks.instance.fullyLoadded)
             {
                 int pad = MainActivity.instance.DpToPx(30);

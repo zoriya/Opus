@@ -36,10 +36,10 @@ namespace Opus.Fragments
         private string query;
         private string nextPageToken = null;
         public bool fullyLoadded = true;
-        public bool forked;
         public bool lastVisible = false;
         public bool useHeader = true;
         public bool navigating = false;
+        private bool isForked;
         private bool loading = false;
 
 
@@ -171,7 +171,12 @@ namespace Opus.Fragments
                     break;
 
                 case Resource.Id.fork:
-                    PlaylistManager.ForkPlaylist(item.YoutubeID);
+                    if (isForked)
+                        PlaylistManager.Unfork(item);
+                    else
+                        PlaylistManager.ForkPlaylist(item);
+
+                    isForked = !isForked;
                     break;
 
                 case Resource.Id.addToQueue:
@@ -208,12 +213,12 @@ namespace Opus.Fragments
         void PlaylistMore(object sender,  System.EventArgs eventArgs)
         {
             PopupMenu menu = new PopupMenu(MainActivity.instance, MainActivity.instance.FindViewById<ImageButton>(Resource.Id.headerMore));
-            if (item.LocalID == 0 && item.HasWritePermission)
+            if (item.LocalID == -1 && item.HasWritePermission)
                 menu.Inflate(Resource.Menu.ytplaylist_header_more);
-            else if (item.LocalID == 0 && forked)
+            else if (item.LocalID == -1 && isForked)
+                menu.Inflate(Resource.Menu.ytplaylistnowrite_forked_header_more);
+            else if (item.LocalID == -1)
                 menu.Inflate(Resource.Menu.ytplaylistnowrite_header_more);
-            else if (item.LocalID == 0)
-                menu.Inflate(Resource.Menu.ytplaylist_nowrite_nofork_header_more);
             else
                 menu.Inflate(Resource.Menu.playlist_header_more);
 
@@ -236,13 +241,17 @@ namespace Opus.Fragments
             return instance;
         }
 
-        public static Fragment NewInstance(PlaylistItem item, bool forked)
+        public static Fragment NewInstance(PlaylistItem item)
         {
             instance = new PlaylistTracks { Arguments = new Bundle() };
             instance.item = item;
-            instance.forked = forked;
             instance.useHeader = true;
             instance.fullyLoadded = item.LocalID != 0 && item.LocalID != -1;
+
+            Task.Run(async () =>
+            {
+                instance.isForked = await PlaylistManager.IsForked(item);
+            });
             return instance;
         }
 
@@ -256,7 +265,6 @@ namespace Opus.Fragments
                 if (await MainActivity.instance.GetReadPermission() == false)
                 {
                     MainActivity.instance.FindViewById(Resource.Id.loading).Visibility = ViewStates.Gone;
-                    //adapter.ErrorMSG = GetString(Resource.String.no_permission);
                     return;
                 }
 

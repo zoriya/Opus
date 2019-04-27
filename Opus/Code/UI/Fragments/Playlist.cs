@@ -103,8 +103,21 @@ namespace Opus.Fragments
                 adapter.ItemLongCLick += ListView_ItemLongClick;
                 ListView.SetItemAnimator(new DefaultItemAnimator());
 
+                //Youtube saved playlists
+                List<PlaylistItem> yt = await PlaylistManager.GetSavedYoutubePlaylists(SyncedPlaylists, YoutubeItemSynced);
+
+                if (instance == null)
+                    return;
+
+                if (yt != null)
+                {
+                    int startPos = YoutubePlaylists.Count - 1;
+                    YoutubePlaylists.InsertRange(startPos, yt);
+                    adapter.NotifyItemRangeInserted(LocalPlaylists.Count + startPos, yt.Count);
+                }
+
                 //Youtube owned playlists
-                (List<PlaylistItem> yt, string err) = await PlaylistManager.GetOwnedYoutubePlaylists(SyncedPlaylists, YoutubeItemSynced);
+                (yt, error) = await PlaylistManager.GetOwnedYoutubePlaylists(SyncedPlaylists, YoutubeItemSynced);
 
                 if (instance == null)
                     return;
@@ -117,29 +130,7 @@ namespace Opus.Fragments
                     adapter.NotifyItemInserted(LocalPlaylists.Count + YoutubePlaylists.Count);
                     populating = false;
                     SyncError();
-                    return;
-                }
-                else
-                {
-                    int startPos = YoutubePlaylists.Count - 1;
-                    YoutubePlaylists.InsertRange(startPos, yt);
-                    adapter.NotifyItemRangeInserted(LocalPlaylists.Count + startPos, yt.Count);
-                }
-
-                //Youtube saved playlists
-                (yt, error) = await PlaylistManager.GetSavedYoutubePlaylists(SyncedPlaylists, YoutubeItemSynced);
-
-                if (instance == null)
-                    return;
-
-                if (yt == null)
-                {
-                    YoutubePlaylists.Remove(Loading);
-                    adapter.NotifyItemRemoved(LocalPlaylists.Count + YoutubePlaylists.Count);
-                    YoutubePlaylists.Add(new PlaylistItem("Error", null)); //Should use the "error" var here
-                    adapter.NotifyItemInserted(LocalPlaylists.Count + YoutubePlaylists.Count);
-                    populating = false;
-                    SyncError();
+                    adapter.forkSaved = true;
                     return;
                 }
                 else
@@ -272,24 +263,26 @@ namespace Opus.Fragments
                     .SetTitle(Resource.String.add_playlist_msg)
                     .SetView(view)
                     .SetNegativeButton(Resource.String.cancel, (s, eventArgs) => { })
-                    .SetPositiveButton(Resource.String.add, /*async*/ (s, eventArgs) => 
+                    .SetPositiveButton(Resource.String.add, async (s, eventArgs) => 
                     {
-                        string url = view.FindViewById<EditText>(Resource.Id.playlistURL).Text;
-                        string shrinkedURL = url.Substring(url.IndexOf('=') + 1);
-                        string playlistID = shrinkedURL;
-                        if (shrinkedURL.Contains("&"))
+                        if(YoutubeExplode.YoutubeClient.TryParsePlaylistId(view.FindViewById<EditText>(Resource.Id.playlistURL).Text, out string playlistID))
                         {
-                            playlistID = shrinkedURL.Substring(0, shrinkedURL.IndexOf("&"));
-                        }
-                        /*await*/ PlaylistManager.ForkPlaylist(playlistID);
+                            PlaylistManager.ForkPlaylist(await PlaylistManager.GetPlaylist(playlistID));
 
-                        if (YoutubePlaylists.Count == 3 && YoutubePlaylists[1].Name == "EMPTY")
-                        {
-                            YoutubePlaylists.RemoveAt(1);
-                            adapter.NotifyItemChanged(LocalPlaylists.Count + YoutubePlaylists.Count - 1);
+                            if (YoutubePlaylists.Count == 3 && YoutubePlaylists[1].Name == "EMPTY")
+                            {
+                                YoutubePlaylists.RemoveAt(1);
+                                adapter.NotifyItemChanged(LocalPlaylists.Count + YoutubePlaylists.Count - 1);
+                            }
+                            else
+                                adapter.NotifyItemInserted(LocalPlaylists.Count + YoutubePlaylists.Count);
                         }
                         else
-                            adapter.NotifyItemInserted(LocalPlaylists.Count + YoutubePlaylists.Count);
+                        {
+                            Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), MainActivity.instance.GetString(Resource.String.badplaylisturl), Snackbar.LengthLong);
+                            snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+                            snackBar.Show();
+                        }
                     })
                     .Show();
                 return;
@@ -309,7 +302,7 @@ namespace Opus.Fragments
             MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
             MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
 
-            MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist, false)).AddToBackStack("Playlist Track").Commit();
+            MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(playlist)).AddToBackStack("Playlist Track").Commit();
         }
 
         private void ListView_ItemLongClick(object sender, int position)
@@ -441,7 +434,9 @@ namespace Opus.Fragments
                 {
                     actions.Add(new BottomSheetAction(Resource.Drawable.Delete, Resources.GetString(Resource.String.unfork), (sender, eventArg) =>
                     {
-                        PlaylistManager.Unfork(Position, item.YoutubeID);
+                        PlaylistManager.Unfork(item);
+                        YoutubePlaylists.RemoveAt(Position - LocalPlaylists.Count);
+                        adapter.NotifyItemRemoved(Position);
                         bottomSheet.Dismiss();
                     }));
                 }

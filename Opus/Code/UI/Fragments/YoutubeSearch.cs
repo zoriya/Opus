@@ -190,7 +190,6 @@ namespace Opus.Fragments
             }
 
             SearchableActivity.IgnoreMyself = false;
-            Console.WriteLine("&Waiting for youtube");
 
             if (!await MainActivity.instance.WaitForYoutube())
             {
@@ -200,8 +199,6 @@ namespace Opus.Fragments
                 EmptyView.Visibility = ViewStates.Visible;
                 return;
             }
-
-            Console.WriteLine("&Request");
 
             try
             {
@@ -240,8 +237,6 @@ namespace Opus.Fragments
                 var searchReponse = await searchResult.ExecuteAsync();
                 nextPageToken = searchReponse.NextPageToken;
                 result = new List<YtFile>();
-
-                Console.WriteLine("&Request done");
 
                 foreach (var video in searchReponse.Items)
                     result.Add(GetYtFileFromSearchResult(video));
@@ -349,7 +344,7 @@ namespace Opus.Fragments
                     SearchableActivity.IgnoreMyself = true;
                     MainActivity.instance.menu.FindItem(Resource.Id.search).CollapseActionView();
                     MainActivity.instance.FindViewById<TabLayout>(Resource.Id.tabs).Visibility = ViewStates.Gone;
-                    MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(result[position].playlist, false)).AddToBackStack("Playlist Track").Commit();
+                    MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(result[position].playlist)).AddToBackStack("Playlist Track").Commit();
                     break;
                 default:
                     break;
@@ -439,7 +434,7 @@ namespace Opus.Fragments
                 }),
                 new BottomSheetAction(Resource.Drawable.LibraryAdd, MainActivity.instance.Resources.GetString(Resource.String.add_to_library), (sender, eventArg) =>
                 {
-                    PlaylistManager.ForkPlaylist(item.YoutubeID);
+                    PlaylistManager.ForkPlaylist(item);
                     bottomSheet.Dismiss();
                 }),
                 new BottomSheetAction(Resource.Drawable.Download, MainActivity.instance.Resources.GetString(Resource.String.download), (sender, eventArg) =>

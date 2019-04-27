@@ -98,7 +98,7 @@ namespace Opus.Adapter
             {
                 MainActivity.instance.contentRefresh.Refresh -= Home.instance.OnRefresh;
                 Home.instance = null;
-                MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(playlists[position], false)).AddToBackStack("Playlist Track").Commit();
+                MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(playlists[position])).AddToBackStack("Playlist Track").Commit();
             }
         }
 

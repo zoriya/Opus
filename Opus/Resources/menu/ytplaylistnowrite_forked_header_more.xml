@@ -5,7 +5,7 @@
     android:title="@string/sync" />
   <item
     android:id="@+id/fork"
-    android:title="@string/add_to_library" />
+    android:title="@string/unfork" />
   <item
     android:id="@+id/addToQueue"
     android:title="@string/add_to_queue" />
