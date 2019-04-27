@@ -245,7 +245,7 @@ namespace Opus.Api
             builder.SetView(view);
             PlaylistLocationAdapter adapter = new PlaylistLocationAdapter(MainActivity.instance, Android.Resource.Layout.SimpleSpinnerItem, new string[] { MainActivity.instance.GetString(Resource.String.create_local), MainActivity.instance.GetString(Resource.String.create_youtube), MainActivity.instance.GetString(Resource.String.create_synced) })
             {
-                YoutubeWorkflow = songs.Length == 1 && songs[0].YoutubeID == null ? false : true
+                YoutubeWorkflow = YoutubeManager.IsUsingAPI || (songs.Length == 1 && songs[0].YoutubeID == null) ? false : true
             };
             adapter.SetDropDownViewResource(Android.Resource.Layout.SimpleSpinnerDropDownItem);
             view.FindViewById<Spinner>(Resource.Id.playlistLocation).Adapter = adapter;
@@ -359,7 +359,7 @@ namespace Opus.Api
                 }
             }
 
-            if (!await MainActivity.instance.WaitForYoutube())
+            if (YoutubeManager.IsUsingAPI || !await MainActivity.instance.WaitForYoutube())
             {
                 Toast.MakeText(MainActivity.instance, Resource.String.youtube_loading_error, ToastLength.Long).Show();
                 playlists.Remove(Loading);
