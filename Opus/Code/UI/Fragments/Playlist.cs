@@ -75,23 +75,27 @@ namespace Opus.Fragments
                 PlaylistItem Loading = new PlaylistItem("Loading", null);
 
                 //Get all local playlist and display an error message if we have an error.
-                (List<PlaylistItem> locPlaylists, string error) = await PlaylistManager.GetLocalPlaylists();
+                (List<PlaylistItem> locPlaylists, string error) = await PlaylistManager.GetLocalPlaylists(false);
                 if (instance == null)
                     return;
 
-                if (locPlaylists == null) //an error has occured
-                    LocalPlaylists.Add(new PlaylistItem("EMPTY", -1) { Owner = error });
+                if (error != null) //an error has occured
+                    LocalPlaylists.Add(new PlaylistItem("Error", -1) { Owner = error });
 
                 //Handle synced playlist from the local playlist array we had before.
                 (List<PlaylistItem> loc, List<PlaylistItem> SyncedPlaylists) = await PlaylistManager.ProcessSyncedPlaylists(locPlaylists);
 
-                if (loc.Count == 0) //Every local playlist is a synced one
-                    LocalPlaylists.Add(new PlaylistItem("EMPTY", -1) { Owner = GetString(Resource.String.local_playlist_empty) });
-
                 if (instance == null)
                     return;
 
-                LocalPlaylists.AddRange(loc);
+                if(error == null)
+                {
+                    if (loc == null || loc.Count == 0) //Every local playlist is a synced one
+                        LocalPlaylists.Add(new PlaylistItem("EMPTY", -1) { Owner = GetString(Resource.String.local_playlist_empty) });
+                    else
+                        LocalPlaylists.AddRange(loc);
+                }
+
                 YoutubePlaylists.AddRange(SyncedPlaylists);
 
                 //Display this for now, we'll load non synced youtube playlist in the background.
@@ -252,6 +256,38 @@ namespace Opus.Fragments
         public async Task Refresh()
         {
             await PopulateView();
+        }
+
+        public async void RefreshLocalPlaylists()
+        {
+            int count = LocalPlaylists.Count;
+            LocalPlaylists.Clear();
+            LocalPlaylists.Add(new PlaylistItem("Header", -1));
+
+            (List<PlaylistItem> locPlaylists, string error) = await PlaylistManager.GetLocalPlaylists(true);
+            if (instance == null)
+                return;
+
+            if (error != null) //an error has occured
+                LocalPlaylists.Add(new PlaylistItem("Error", -1) { Owner = error });
+
+            //Handle synced playlist from the local playlist array we had before.
+            (List<PlaylistItem> loc, List<PlaylistItem> SyncedPlaylists) = await PlaylistManager.ProcessSyncedPlaylists(locPlaylists);
+
+            if (instance == null)
+                return;
+
+            if (error == null)
+            {
+                if (loc == null || loc.Count == 0) //Every local playlist is a synced one
+                    LocalPlaylists.Add(new PlaylistItem("EMPTY", -1) { Owner = GetString(Resource.String.local_playlist_empty) });
+                else
+                    LocalPlaylists.AddRange(loc);
+            }
+
+            adapter.NotifyItemRangeChanged(1, count - 1);
+            if(LocalPlaylists.Count > count)
+                adapter.NotifyItemRangeInserted(count, LocalPlaylists.Count - count);
         }
 
         private void ListView_ItemClick(object sender, int Position)

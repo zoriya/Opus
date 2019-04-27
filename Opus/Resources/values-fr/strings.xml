@@ -98,6 +98,7 @@
   <string name="youtube_loading_error">Erreur de chargement. \nVérifiez avoir séléctionné un compte et votre connection internet.</string>
   <string name="local_playlist_empty">Vous n\'avez aucune playlist sur cet appareil.</string>
   <string name="youtube_playlist_empty">Vous n\'avez aucune playlist sur ce compte youtube \nAttention : seulement les playlists présentes sur votre compte google sont affichées.</string>
+  <string name="localpl_noperm">&lt;font color=red>Impossible de lister les playlists locales.&lt;/font>&lt;br>&lt;u>Clicez ici&lt;/u> pour donner les droits de lectures a l'application.</string>
   <string name="element">titre</string>
   <string name="elements">titres</string>
   <string name="playlist_empty">Cette playlist est vide.</string>

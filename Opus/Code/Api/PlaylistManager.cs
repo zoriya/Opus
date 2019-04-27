@@ -594,12 +594,12 @@ namespace Opus.Api
             if (askForPermission)
             {
                 if (!await MainActivity.instance.GetReadPermission())
-                    return (null, Application.Context.GetString(Resource.String.no_permission));
+                    return (null, Application.Context.GetString(Resource.String.localpl_noperm));
             }
             else
             {
                 if (!MainActivity.instance.HasReadPermission())
-                    return (null, Application.Context.GetString(Resource.String.no_permission));
+                    return (null, Application.Context.GetString(Resource.String.localpl_noperm));
             }
 
             List<PlaylistItem> playlists = new List<PlaylistItem>();
@@ -634,7 +634,7 @@ namespace Opus.Api
             });
 
             if (playlists.Count == 0)
-                return (null, Application.Context.GetString(Resource.String.local_playlist_empty));
+                return (null, "EMPTY");
             else
                 return (playlists, null);
         }

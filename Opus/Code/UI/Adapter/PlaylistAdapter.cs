@@ -2,6 +2,7 @@
 using Android.Content.Res;
 using Android.Graphics;
 using Android.Support.V7.Widget;
+using Android.Text;
 using Android.Views;
 using Android.Widget;
 using Opus.Api.Services;
@@ -33,6 +34,7 @@ namespace Opus.Adapter
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position)
         {
+            //Headers
             if (position == 0)
             {
                 HeaderHolder holder = (HeaderHolder)viewHolder;
@@ -43,6 +45,8 @@ namespace Opus.Adapter
                 HeaderHolder holder = (HeaderHolder)viewHolder;
                 holder.headerText.Text = MainActivity.instance.Resources.GetString(Resource.String.youtube_playlists);
             }
+
+            //Empty views
             else if (position == 1 && LocalPlaylists[1].Name == "EMPTY")
             {
                 EmptyHolder holder = (EmptyHolder)viewHolder;
@@ -53,6 +57,8 @@ namespace Opus.Adapter
                 EmptyHolder holder = (EmptyHolder)viewHolder;
                 holder.text.Text = YoutubePlaylists[1].Owner;
             }
+
+            //End button
             else if (position == LocalPlaylists.Count + YoutubePlaylists.Count)
             {
                 UslessHolder holder = (UslessHolder)viewHolder;
@@ -70,13 +76,32 @@ namespace Opus.Adapter
                 else
                     holder.ItemView.SetPadding((int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f), (int)(8 * scale + 0.5f));
             }
+
+            //Loading
             else if(position >= LocalPlaylists.Count && YoutubePlaylists[position - LocalPlaylists.Count].Name == "Loading" && YoutubePlaylists[position - LocalPlaylists.Count].YoutubeID == null) { }
+
+            //Error views
+            else if (position < LocalPlaylists.Count && LocalPlaylists[position].Name == "Error" && LocalPlaylists[position].LocalID == -1)
+            {
+                EmptyHolder holder = (EmptyHolder)viewHolder;
+                holder.text.TextFormatted  = Html.FromHtml(LocalPlaylists[position].Owner, FromHtmlOptions.OptionUseCssColors);
+
+                if (!holder.text.HasOnClickListeners)
+                {
+                    holder.text.Click += (s, e) =>
+                    {
+                        Playlist.instance.RefreshLocalPlaylists();
+                    };
+                }
+            }
             else if(position >= LocalPlaylists.Count && YoutubePlaylists[position - LocalPlaylists.Count].Name == "Error" && YoutubePlaylists[position - LocalPlaylists.Count].YoutubeID == null)
             {
                 EmptyHolder holder = (EmptyHolder)viewHolder;
                 holder.text.Text = MainActivity.instance.Resources.GetString(Resource.String.youtube_loading_error);
                 holder.text.SetTextColor(Color.Red);
             }
+
+            //Playlists binding
             else if (LocalPlaylists.Count >= position)
             {
                 TwoLineHolder holder = (TwoLineHolder) viewHolder;
@@ -228,6 +253,8 @@ namespace Opus.Adapter
         {
             if (position == 0 || position - LocalPlaylists.Count == 0)
                 return 0;
+            else if (position < LocalPlaylists.Count && LocalPlaylists[position].Name == "Error" && LocalPlaylists[position].LocalID == -1)
+                return 5;
             else if (LocalPlaylists.Count >= position && (LocalPlaylists.Count > 2 || LocalPlaylists[1].Name != "EMPTY"))
                 return 1;
             else if (position == LocalPlaylists.Count + YoutubePlaylists.Count)
