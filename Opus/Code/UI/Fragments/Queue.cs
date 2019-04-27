@@ -109,7 +109,7 @@ public class Queue : Fragment, RecyclerView.IOnItemTouchListener, PopupMenu.IOnM
         int last = ((LinearLayoutManager)ListView.GetLayoutManager()).FindLastVisibleItemPosition();
         for (int i = first; i <= last; i++)
         {
-            if(i > 0 && MusicPlayer.queue.Count > i)
+            if(i > 0 && MusicPlayer.queue.Count > i - 1)
             {
                 Song song = MusicPlayer.queue[i - 1];
                 SongHolder holder = (SongHolder)ListView.GetChildViewHolder(((LinearLayoutManager)ListView.GetLayoutManager()).FindViewByPosition(i));
