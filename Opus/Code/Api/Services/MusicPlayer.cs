@@ -239,7 +239,7 @@ namespace Opus.Api.Services
                 }
             }
             UseCastPlayer = RemotePlayer != null;
-            player.PlayWhenReady = !UseCastPlayer;
+            //player.PlayWhenReady = !UseCastPlayer;
         }
 
         public void ChangeVolume(float volume)
@@ -248,129 +248,8 @@ namespace Opus.Api.Services
                 player.Volume = volume * (volumeDuked ? 0.2f : 1);
         }
 
-        public async void Play(string filePath, string title = null, string artist = null, string youtubeID = null, string thumbnailURI = null, bool isLive = false, DateTimeOffset? expireDate = null)
+        public void Prepare(Song song)
         {
-            isRunning = true;
-            if (player == null)
-                InitializeService();
-
-            queue?.Clear();
-            currentID = -1;
-            Queue.instance?.Refresh();
-            Home.instance?.RefreshQueue(false);
-
-            Song song = null;
-            if (title == null)
-                song = await LocalManager.GetSong(filePath);
-            else
-            {
-                song = new Song(title, artist, thumbnailURI, youtubeID, -1, -1, filePath, true);
-            }
-
-            song.IsLiveStream = isLive;
-            isLiveStream = isLive;
-
-            if (!UseCastPlayer)
-            {
-                if (mediaSession == null)
-                {
-                    mediaSession = new MediaSessionCompat(Application.Context, "Opus");
-                    mediaSession.SetFlags(MediaSessionCompat.FlagHandlesMediaButtons | MediaSessionCompat.FlagHandlesTransportControls);
-                    PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder().SetActions(PlaybackStateCompat.ActionPlay | PlaybackStateCompat.ActionPause | PlaybackStateCompat.ActionSkipToNext | PlaybackStateCompat.ActionSkipToPrevious);
-                    mediaSession.SetPlaybackState(builder.Build());
-                    mediaSession.SetCallback(new HeadphonesActions());
-                }
-
-                DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(Application.Context, "Opus");
-                IExtractorsFactory extractorFactory = new DefaultExtractorsFactory();
-                Handler handler = new Handler();
-
-                IMediaSource mediaSource = null;
-                if (isLive)
-                    mediaSource = new HlsMediaSource(Uri.Parse(filePath), dataSourceFactory, handler, null);
-                else if (title == null)
-                    mediaSource = new ExtractorMediaSource(Uri.FromFile(new Java.IO.File(filePath)), dataSourceFactory, extractorFactory, handler, null);
-                else
-                    mediaSource = new ExtractorMediaSource(Uri.Parse(filePath), dataSourceFactory, extractorFactory, handler, null);
-
-                AudioAttributes attributes = new AudioAttributes.Builder()
-                    .SetUsage(AudioUsageKind.Media)
-                    .SetContentType(AudioContentType.Music)
-                    .Build();
-
-                if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
-                {
-                   audioFocusRequest = new AudioFocusRequestClass.Builder(AudioFocus.Gain)
-                        .SetAudioAttributes(attributes)
-                        .SetAcceptsDelayedFocusGain(true)
-                        .SetWillPauseWhenDucked(true)
-                        .SetOnAudioFocusChangeListener(this)
-                        .Build();
-                    AudioFocusRequest audioFocus = audioManager.RequestAudioFocus(audioFocusRequest);
-
-                    if (audioFocus != AudioFocusRequest.Granted)
-                    {
-                        Console.WriteLine("Can't Get Audio Focus");
-                        return;
-                    }
-                }
-                else
-                {
-#pragma warning disable CS0618 // Type or member is obsolete
-
-                    AudioManager am = (AudioManager)MainActivity.instance.GetSystemService(AudioService);
-
-                    AudioFocusRequest audioFocus = am.RequestAudioFocus(this, Stream.Music, AudioFocus.Gain);
-
-                    if (audioFocus != AudioFocusRequest.Granted)
-                    {
-                        Console.WriteLine("Can't Get Audio Focus");
-                        return;
-                    }
-#pragma warning restore CS0618
-                }
-
-                player.PlayWhenReady = true;
-                player.Prepare(mediaSource, true, true);
-                CreateNotification(song.Title, song.Artist, song.AlbumArt, song.Album);
-                AddToQueue(song);
-                currentID = CurrentID() + 1;
-            }
-            else
-            {
-                RemotePlayer.Load(GetMediaInfo(song), new MediaLoadOptions.Builder().SetAutoplay(true).Build());
-                RemotePlayer.Play();
-                queue = new List<Song> { song };
-                currentID = 0;
-            }
-
-            autoPlay.Clear();
-
-            SaveQueueSlot();
-            Player.instance?.RefreshPlayer();
-            Home.instance?.AddQueue();
-            ParseNextSong();
-            if (useAutoPlay)
-                GenerateAutoPlay(false);
-        }
-
-        public async void Play(Song song, long progress = -1, bool addToQueue = true)
-        {
-            if (song.IsParsed != true)
-            {
-                await ParseSong(song, -1, true);
-                return;
-            }
-
-            if (addToQueue)
-            {
-                queue?.Clear();
-                currentID = -1;
-            }
-            
-            isLiveStream = song.IsLiveStream;
-
-            isRunning = true;
             if (player == null)
                 InitializeService();
 
@@ -396,46 +275,121 @@ namespace Opus.Api.Services
                     mediaSource = new ExtractorMediaSource(Uri.FromFile(new Java.IO.File(song.Path)), dataSourceFactory, extractorFactory, handler, null);
                 else
                     mediaSource = new ExtractorMediaSource(Uri.Parse(song.Path), dataSourceFactory, extractorFactory, handler, null);
+                player.Prepare(mediaSource, true, true);
+            }
+            else
+                RemotePlayer.Load(GetMediaInfo(song), new MediaLoadOptions.Builder().SetAutoplay(true).Build());
+        }
 
-                AudioAttributes attributes = new AudioAttributes.Builder()
+        public void RequestAudioFocus()
+        {
+            AudioAttributes attributes = new AudioAttributes.Builder()
                     .SetUsage(AudioUsageKind.Media)
                     .SetContentType(AudioContentType.Music)
                     .Build();
 
-                if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
-                {
-                    audioFocusRequest = new AudioFocusRequestClass.Builder(AudioFocus.Gain)
-                        .SetAudioAttributes(attributes)
-                        .SetAcceptsDelayedFocusGain(true)
-                        .SetWillPauseWhenDucked(true)
-                        .SetOnAudioFocusChangeListener(this)
-                        .Build();
-                    AudioFocusRequest audioFocus = audioManager.RequestAudioFocus(audioFocusRequest);
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
+            {
+                audioFocusRequest = new AudioFocusRequestClass.Builder(AudioFocus.Gain)
+                    .SetAudioAttributes(attributes)
+                    .SetAcceptsDelayedFocusGain(true)
+                    .SetWillPauseWhenDucked(true)
+                    .SetOnAudioFocusChangeListener(this)
+                    .Build();
+                AudioFocusRequest audioFocus = audioManager.RequestAudioFocus(audioFocusRequest);
 
-                    if (audioFocus != AudioFocusRequest.Granted)
-                    {
-                        Console.WriteLine("Can't Get Audio Focus");
-                        return;
-                    }
-                }
-                else
+                if (audioFocus != AudioFocusRequest.Granted)
                 {
+                    Console.WriteLine("Can't Get Audio Focus");
+                    return;
+                }
+            }
+            else
+            {
 #pragma warning disable CS0618 // Type or member is obsolete
 
-                    AudioManager am = (AudioManager)MainActivity.instance.GetSystemService(AudioService);
+                AudioManager am = (AudioManager)MainActivity.instance.GetSystemService(AudioService);
 
-                    AudioFocusRequest audioFocus = am.RequestAudioFocus(this, Stream.Music, AudioFocus.Gain);
+                AudioFocusRequest audioFocus = am.RequestAudioFocus(this, Stream.Music, AudioFocus.Gain);
 
-                    if (audioFocus != AudioFocusRequest.Granted)
-                    {
-                        Console.WriteLine("Can't Get Audio Focus");
-                        return;
-                    }
-#pragma warning restore CS0618
+                if (audioFocus != AudioFocusRequest.Granted)
+                {
+                    Console.WriteLine("Can't Get Audio Focus");
+                    return;
                 }
+#pragma warning restore CS0618
+            }
+        }
 
+        public async void Play(string filePath, string title = null, string artist = null, string youtubeID = null, string thumbnailURI = null, bool isLive = false, DateTimeOffset? expireDate = null)
+        {
+            isRunning = true;
+            queue?.Clear();
+            currentID = -1;
+            Queue.instance?.Refresh();
+            Home.instance?.RefreshQueue(false);
+
+            Song song = null;
+            if (title == null)
+                song = await LocalManager.GetSong(filePath);
+            else
+            {
+                song = new Song(title, artist, thumbnailURI, youtubeID, -1, -1, filePath, true);
+            }
+
+            song.IsLiveStream = isLive;
+            isLiveStream = isLive;
+            Prepare(song);
+
+            if (!UseCastPlayer)
+            {
+                RequestAudioFocus();
                 player.PlayWhenReady = true;
-                player.Prepare(mediaSource, true, true);
+                CreateNotification(song.Title, song.Artist, song.AlbumArt, song.Album);
+                AddToQueue(song);
+                currentID = CurrentID() + 1;
+            }
+            else
+            {
+                RemotePlayer.Play();
+                queue = new List<Song> { song };
+                currentID = 0;
+            }
+
+            autoPlay.Clear();
+
+            SaveQueueSlot();
+            Player.instance?.RefreshPlayer();
+            Home.instance?.AddQueue();
+            ParseNextSong();
+            if (useAutoPlay)
+                GenerateAutoPlay(false);
+        }
+
+        public async void Play(Song song, long progress = -1, bool addToQueue = true)
+        {
+            if (song.IsParsed == false)
+                await ParseSong(song, -1);
+            else if (song.IsParsed == null)
+            {
+                await ParseSong(song, -1, true);
+                return;
+            }
+
+            if (addToQueue)
+            {
+                queue?.Clear();
+                currentID = -1;
+            }
+            
+            isLiveStream = song.IsLiveStream;
+            isRunning = true;
+
+            Prepare(song);
+            if(!UseCastPlayer)
+            {
+                RequestAudioFocus();
+                player.PlayWhenReady = true;
                 CreateNotification(song.Title, song.Artist, song.AlbumArt, song.Album);
 
                 if (progress != -1) //I'm seeking after the prepare because with some format, exoplayer's prepare reset the position
@@ -539,6 +493,7 @@ namespace Opus.Api.Services
                 song.Title = video.Title;
                 song.Artist = video.Author;
                 song.Album = await MainActivity.GetBestThumb(new string[] { video.Thumbnails.MaxResUrl, video.Thumbnails.StandardResUrl, video.Thumbnails.HighResUrl });
+                song.Duration = (int)video.Duration.TotalMilliseconds;
                 Player.instance?.RefreshPlayer();
 
                 if (startPlaybackWhenPosible)
@@ -1012,11 +967,11 @@ namespace Opus.Api.Services
             Queue.instance?.NotifyItemInserted(queue.Count - 1);
         }
 
-        public void PlayPrevious()
+        public async void PlayPrevious()
         {
             Player.instance.playNext = false;
             Player.instance.Buffering();
-            if(CurrentPosition > Duration * 0.2f || CurrentID() - 1 < 0)
+            if(CurrentPosition > await Duration() * 0.2f || CurrentID() - 1 < 0)
             {
                 if (player != null)
                     player.SeekTo(0);
@@ -1147,12 +1102,32 @@ namespace Opus.Api.Services
             return currentID;
         }
 
-        public static void SeekTo(long positionMS)
+        public async static void SeekTo(long positionMS)
         {
             if (!UseCastPlayer)
-                player.SeekTo(positionMS);
+            {
+                if (player != null)
+                    player.SeekTo(positionMS);
+                else
+                {
+                    Player.instance?.Buffering();
+
+                    if(instance == null)
+                    {
+                        Intent intent = new Intent(MainActivity.instance, typeof(MusicPlayer));
+                        MainActivity.instance.StartService(intent);
+
+                        while (instance == null)
+                            await Task.Delay(10);
+                    }
+
+                    instance.Play(await GetItem(), positionMS, false);
+                }
+            }
             else
+            {
                 RemotePlayer.Seek(positionMS);
+            }
         }
 
         void AddSongToDataBase(Song item)
@@ -1303,15 +1278,33 @@ namespace Opus.Api.Services
             }
         }
 
-        public static long Duration
+        public async static Task<int> Duration()
         {
-            get
+            if(!UseCastPlayer)
+                return player == null ? (await GetItem()).Duration : (int)player.Duration;
+            else
+                return RemotePlayer == null ? (await GetItem()).Duration : (int)RemotePlayer.StreamDuration;
+        }
+
+        public async static Task<long> LoadDuration()
+        {
+            int oldDur = await Duration();
+            if (oldDur < 10)
             {
-                if(!UseCastPlayer)
-                    return player == null ? 1 : player.Duration;
-                else
-                    return RemotePlayer == null ? 1 : RemotePlayer.StreamDuration;
+                Song song = await GetItem();
+                if (song.IsYt && song.IsParsed != true)
+                    await ParseSong(song);
+                else if(!song.IsYt)
+                {
+                    MediaMetadataRetriever meta = new MediaMetadataRetriever();
+                    await meta.SetDataSourceAsync(song.Path);
+                    song.Duration = int.Parse(meta.ExtractMetadata(MetadataKey.Duration));
+                    meta.Release();
+                }
+
+                return song.Duration;
             }
+            return oldDur;
         }
 
         public static long CurrentPosition
@@ -1799,7 +1792,8 @@ namespace Opus.Api.Services
             }
             if(state == Com.Google.Android.Exoplayer2.Player.StateBuffering)
             {
-                Player.instance?.Buffering();
+                if(isRunning)
+                    Player.instance?.Buffering();
             }
             if(state == Com.Google.Android.Exoplayer2.Player.StateReady)
             {

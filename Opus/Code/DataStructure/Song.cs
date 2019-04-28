@@ -26,6 +26,7 @@ namespace Opus.DataStructure
         public bool? IsParsed { get; set; }
         public bool IsYt { get; set; }
         public DateTimeOffset? ExpireDate { get; set;}
+        public int Duration { get; set; }
         public bool IsLiveStream = false;
         public string TrackID;
 
