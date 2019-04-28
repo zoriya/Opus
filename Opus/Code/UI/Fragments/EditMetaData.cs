@@ -11,6 +11,7 @@ using Android.Support.V7.App;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
+using Opus.Api;
 using Opus.DataStructure;
 using Opus.Others;
 using Square.Picasso;
@@ -331,7 +332,7 @@ namespace Opus.Fragments
                 album.Text = video.Title + " - " + video.Author;
             }
 
-            ytThumbUri = await MainActivity.GetBestThumb(new string[] { video.Thumbnails.MaxResUrl, video.Thumbnails.StandardResUrl, video.Thumbnails.HighResUrl });
+            ytThumbUri = await YoutubeManager.GetBestThumb(new string[] { video.Thumbnails.MaxResUrl, video.Thumbnails.StandardResUrl, video.Thumbnails.HighResUrl });
             Picasso.With(this).Load(ytThumbUri).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).MemoryPolicy(MemoryPolicy.NoCache, MemoryPolicy.NoStore).Into(albumArt);
         }
 

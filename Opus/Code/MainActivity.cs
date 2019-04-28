@@ -21,10 +21,8 @@ using Android.Support.V7.App;
 using Android.Support.V7.Preferences;
 using Android.Views;
 using Android.Widget;
-using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
-using Newtonsoft.Json.Linq;
 using Opus.Api;
 using Opus.Api.Services;
 using Opus.DataStructure;
@@ -128,7 +126,7 @@ namespace Opus
             CheckForUpdate(this, false);
             HandleIntent(Intent);
             Login(true);
-            SyncPlaylists();
+            YoutubeManager.SyncPlaylists();
         }
 
         private void HandleIntent(Intent intent)
@@ -170,6 +168,69 @@ namespace Opus
             }
         }
 
+        protected override void OnStart()
+        {
+            base.OnStart();
+            CastContext = CastContext.GetSharedInstance(this);
+            CastContext.SessionManager.AddSessionManagerListener(this);
+        }
+
+        protected override void OnResume()
+        {
+            base.OnResume();
+            Paused = false;
+            instance = this;
+
+            if (CastContext.SessionManager.CurrentSession == null && MusicPlayer.CurrentID() == -1)
+                MusicPlayer.currentID = MusicPlayer.RetrieveQueueSlot();
+            else if (MusicPlayer.UseCastPlayer)
+                MusicPlayer.GetQueueFromCast();
+
+            if (SearchableActivity.instance != null && SearchableActivity.instance.SearchQuery != null && SearchableActivity.instance.SearchQuery != "")
+            {
+                SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(SearchableActivity.instance.SearchQuery, 0)).AddToBackStack("Youtube").Commit();
+                SearchableActivity.instance = null;
+            }
+
+            if (SheetBehavior != null && SheetBehavior.State == BottomSheetBehavior.StateExpanded)
+                FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Visible;
+        }
+
+        protected override void OnDestroy()
+        {
+            YoutubeSearch.instances = null;
+
+            if (MusicPlayer.instance != null && !MusicPlayer.isRunning && Preferences.instance == null && EditMetaData.instance == null)
+            {
+                Intent intent = new Intent(this, typeof(MusicPlayer));
+                intent.SetAction("Stop");
+                StartService(intent);
+            }
+            base.OnDestroy();
+        }
+
+        protected override void OnPause()
+        {
+            base.OnPause();
+            Paused = true;
+        }
+
+        public override void OnBackPressed()
+        {
+            if (Player.instance?.DrawerLayout.IsDrawerOpen((int)GravityFlags.Start) == true)
+                Player.instance?.DrawerLayout.CloseDrawer((int)GravityFlags.Start);
+            else if (SheetBehavior.State == BottomSheetBehavior.StateExpanded)
+                SheetBehavior.State = BottomSheetBehavior.StateCollapsed;
+            else
+                base.OnBackPressed();
+        }
+
+        protected override void OnNewIntent(Intent intent)
+        {
+            base.OnNewIntent(intent);
+            HandleIntent(intent);
+        }
+
         public void SwitchTheme(int themeID)
         {
             Theme = themeID;
@@ -185,345 +246,9 @@ namespace Opus
             }
         }
 
+        //UI PART
 
-        public  void Login(bool canAsk = true, bool skipSilentLog = false, bool skipLastSigned = false)
-        {
-            //waitingForYoutube = true;
-
-            //if (!skipLastSigned)
-            //{
-            //    if (account == null)
-            //        account = GoogleSignIn.GetLastSignedInAccount(this);
-
-
-            //    if (account != null)
-            //    {
-            //        CreateYoutube();
-            //        return;
-            //    }
-            //}
-
-            //This will be used only when the access has been revoked, when the refresh token has been lost or for the first loggin. 
-            //In each case we want a refresh token so we call RequestServerAuthCode with true as the second parameter.
-            //GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DefaultSignIn)
-            //    .RequestIdToken(GetString(Resource.String.clientID))
-            //    .RequestServerAuthCode(GetString(Resource.String.clientID), true)
-            //    .RequestScopes(new Scope(YouTubeService.Scope.Youtube))
-            //    .Build();
-
-            //GoogleApiClient googleClient = new GoogleApiClient.Builder(this)
-            //    .AddApi(Auth.GOOGLE_SIGN_IN_API, gso)
-            //    .Build();
-
-            //googleClient.Connect();
-
-            //if (!skipSilentLog)
-            //{
-            //    OptionalPendingResult silentLog = Auth.GoogleSignInApi.SilentSignIn(googleClient);
-            //    if (silentLog.IsDone)
-            //    {
-            //        GoogleSignInResult result = (GoogleSignInResult)silentLog.Get();
-            //        if (result.IsSuccess)
-            //        {
-            //            account = result.SignInAccount;
-            //            RunOnUiThread(() => { Picasso.With(this).Load(account.PhotoUrl).Transform(new CircleTransformation()).Into(new AccountTarget()); });
-            //            CreateYoutube();
-            //        }
-            //    }
-            //    else if (silentLog != null)
-            //    {
-            //        AskIntent = Auth.GoogleSignInApi.GetSignInIntent(googleClient);
-            //        silentLog.SetResultCallback(this);
-            //    }
-            //    else if (canAsk)
-            //    {
-            //        ResumeKiller = true;
-            //        StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);
-            //    }
-            //}
-            //else if (canAsk)
-            //{
-            //ResumeKiller = true;
-            //StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);
-            //}
-            //else
-            //{
-            CreateYoutube(false);
-            //}
-        }
-
-        protected override void OnActivityResult(int requestCode, [GeneratedEnum] Result resultCode, Intent data)
-        {
-            base.OnActivityResult(requestCode, resultCode, data);
-            if(requestCode == 1598)
-            {
-                GoogleSignInResult result = Auth.GoogleSignInApi.GetSignInResultFromIntent(data);
-                Console.WriteLine("&Result: " + result.ToString());
-                if (result.IsSuccess)
-                {
-                    account = result.SignInAccount;
-                    RunOnUiThread(() => { Picasso.With(this).Load(account.PhotoUrl).Transform(new CircleTransformation()).Into(new AccountTarget()); });
-                    CreateYoutube();
-                }
-                else
-                {
-                    Console.WriteLine("&Loging error: " + result.Status);
-                    waitingForYoutube = false;
-                    CreateYoutube(false);
-                }
-            }
-        }
-
-        public void OnResult(Java.Lang.Object result) //Silent log result
-        {
-            account = ((GoogleSignInResult)result).SignInAccount;
-            if (account != null)
-            {
-                RunOnUiThread(() => { Picasso.With(this).Load(account.PhotoUrl).Transform(new CircleTransformation()).Into(new AccountTarget()); });
-                CreateYoutube();
-            }
-            else if(AskIntent != null)
-            {
-                ResumeKiller = true;
-                StartActivityForResult(AskIntent, 1598);
-                AskIntent = null;
-            }
-            else
-            {
-                CreateYoutube(false);
-            }
-        }
-
-        public /*async*/ void CreateYoutube(bool UseToken = true)
-        {
-            //if(/*!UseToken &&*/ YoutubeManager.YoutubeService == null)
-            //{
-                YoutubeManager.YoutubeService = new YouTubeService(new BaseClientService.Initializer()
-                {
-                    ApiKey = GetString(Resource.String.yt_api_key),
-                    ApplicationName = "Opus"
-                });
-                YoutubeManager.IsUsingAPI = true;
-                NextRefreshDate = DateTime.MaxValue;
-                Console.WriteLine("&Youtube service created - " + YoutubeManager.YoutubeService);
-                return;
-            //}
-
-            //YoutubeManager.IsUsingAPI = false;
-            //NextRefreshDate = null;
-            //ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(this);
-            //string refreshToken = prefManager.GetString("refresh-token", null);
-            //Console.WriteLine("&Current refresh token: " + refreshToken);
-
-            //This method do not return refresh-token if the app has already been aprouved by google for this user, should force request
-            //if (refreshToken == null)
-            //{
-                //Console.WriteLine("&Getting refresh-token and creating a youtube service");
-                //Console.WriteLine("&Code = " + account.ServerAuthCode);
-
-                //if (account.ServerAuthCode == null)
-                //{
-                //    Login(true, false, true);
-                //    return;
-                //}
-
-                //Dictionary<string, string> fields = new Dictionary<string, string>
-                //{
-                //    { "grant_type", "authorization_code" },
-                //    { "client_id", GetString(Resource.String.clientID) },
-                //    { "client_secret", GetString(Resource.String.clientSecret) },
-                //    { "redirect_uri", "" },
-                //    { "code", account.ServerAuthCode },
-                //    { "id_token", account.IdToken },
-                //};
-
-                //var items = from kvp in fields
-                //            select kvp.Key + "=" + kvp.Value;
-
-                //string content = string.Join("&", items);
-
-                //try
-                //{
-                //    HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://www.googleapis.com/oauth2/v4/token");
-                //    request.Host = "www.googleapis.com";
-
-                //    request.Method = "POST";
-                //    request.ContentType = "application/x-www-form-urlencoded";
-                //    request.ContentLength = content.Length;
-
-                //    using (StreamWriter writer = new StreamWriter(request.GetRequestStream()))
-                //    {
-                //        writer.Write(content);
-                //    }
-
-                //    Console.WriteLine("&Content: " + content);
-
-                //    HttpWebResponse resp = (HttpWebResponse)await request.GetResponseAsync();
-
-                //    string response;
-                //    using (StreamReader responseReader = new StreamReader(request.GetResponse().GetResponseStream()))
-                //    {
-                //        response = responseReader.ReadToEnd();
-                //    }
-                //    Console.WriteLine("&Response: " + response);
-
-                //    JToken json = JObject.Parse(response);
-                //    GoogleCredential credential = GoogleCredential.FromAccessToken((string)json.SelectToken("access_token"));
-                //    YoutubeManager.YoutubeService = new YouTubeService(new BaseClientService.Initializer()
-                //    {
-                //        HttpClientInitializer = credential,
-                //        ApplicationName = "Opus"
-                //    });
-
-                //    refreshToken = (string)json.SelectToken("refresh_token");
-                //    if (refreshToken != null)
-                //    {
-                //        ISharedPreferencesEditor editor = prefManager.Edit();
-                //        editor.PutString("refresh-token", refreshToken);
-                //        editor.Apply();
-                //    }
-
-                //    int expireIn = (int)json.SelectToken("expires_in");
-                //    NextRefreshDate = DateTime.UtcNow.AddSeconds(expireIn - 30); //Should refresh a bit before the expiration of the acess token
-                //}
-                //catch (WebException ex)
-                //{
-                //    Console.WriteLine("&Refresh token get error: " + ex.Message);
-                //    CreateYoutube(false);
-                //    UnknowError(new Action(() => { CreateYoutube(); }));
-                //}
-            //}
-            //else if (account != null)
-            //{
-            //    Console.WriteLine("&Getting a new access-token and creating a youtube service");
-            //    Dictionary<string, string> fields = new Dictionary<string, string>
-            //    {
-            //        { "refresh_token", refreshToken },
-            //        { "client_id", GetString(Resource.String.clientID) },
-            //        { "client_secret", GetString(Resource.String.clientSecret) },
-            //        { "grant_type", "refresh_token" },
-            //    };
-
-            //    var items = from kvp in fields
-            //                select kvp.Key + "=" + kvp.Value;
-
-            //    string content = string.Join("&", items);
-
-            //    try
-            //    {
-            //        HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://www.googleapis.com/oauth2/v4/token");
-            //        request.Host = "www.googleapis.com";
-
-            //        request.Method = "POST";
-            //        request.ContentType = "application/x-www-form-urlencoded";
-            //        request.ContentLength = content.Length;
-
-            //        using (StreamWriter writer = new StreamWriter(request.GetRequestStream()))
-            //        {
-            //            writer.Write(content);
-            //        }
-
-            //        Console.WriteLine("&Content: " + content);
-
-            //        HttpWebResponse resp = (HttpWebResponse)await request.GetResponseAsync();
-
-            //        string response;
-            //        using (StreamReader responseReader = new StreamReader(request.GetResponse().GetResponseStream()))
-            //        {
-            //            response = responseReader.ReadToEnd();
-            //        }
-            //        Console.WriteLine("&Response: " + response);
-
-            //        JToken json = JObject.Parse(response);
-            //        GoogleCredential credential = GoogleCredential.FromAccessToken((string)json.SelectToken("access_token"));
-            //        YoutubeManager.YoutubeService = new YouTubeService(new BaseClientService.Initializer()
-            //        {
-            //            HttpClientInitializer = credential,
-            //            ApplicationName = "Opus"
-            //        });
-
-            //        int expireIn = (int)json.SelectToken("expires_in");
-            //        NextRefreshDate = DateTime.UtcNow.AddSeconds(expireIn - 30); //Should refresh a bit before the expiration of the acess token
-            //    }
-            //    catch (WebException ex)
-            //    {
-            //        Console.WriteLine("&New access token get error: " + ex.Message + " - " + ex.StackTrace);
-            //        CreateYoutube(false);
-            //        UnknowError(new Action(() => { CreateYoutube(); }));
-            //    }
-            //}
-            //else
-            //{
-            //    Login(true);
-            //}
-        }
-
-        public void OnFailure(Request request, Java.IO.IOException iOException)
-        {
-            Console.WriteLine("&Failure");
-        }
-
-        public void OnConnectionFailed(ConnectionResult result)
-        {
-            Console.WriteLine("&Connection Failed: " + result.ErrorMessage);
-        }
-
-        public async Task<bool> WaitForYoutube(bool silentWait = false)
-        {
-            if(YoutubeManager.YoutubeService == null)
-            {
-                if(!waitingForYoutube)
-                    Login(!silentWait);
-
-                waitingForYoutube = true;
-
-                if(silentWait)
-                {
-                    int i = 0;
-                    while (true)
-                    {
-                        await Task.Delay(10);
-                        i++;
-
-                        if (YoutubeManager.YoutubeService == null)
-                            return true;
-                        else if (i > 1000) //10 seconds timout
-                            return false;
-                    }
-                }
-                else
-                {
-                    while (YoutubeManager.YoutubeService == null)
-                    {
-                        if (waitingForYoutube == false)
-                            return false;
-
-                        await Task.Delay(10);
-                    }
-                }
-            }
-            else if(NextRefreshDate == null || NextRefreshDate <= DateTime.UtcNow) //Acess token has expired
-            {
-                waitingForYoutube = true;
-                CreateYoutube();
-            }
-            waitingForYoutube = false;
-            return true;
-        }
-
-        public void Scroll(object sender, AbsListView.ScrollEventArgs e)
-        {
-            contentRefresh.Enabled = e.FirstVisibleItem == 0;
-
-            if(PlaylistTracks.instance != null)
-            {
-                if (e.FirstVisibleItem + e.VisibleItemCount == e.TotalItemCount)
-                    PlaylistTracks.instance.lastVisible = true;
-                else
-                    PlaylistTracks.instance.lastVisible = false;
-            }
-        }
-
+        #region Toolbar menu (right items)
         public override bool OnCreateOptionsMenu(IMenu menu)
         {
             if (NoToolbarMenu)
@@ -563,7 +288,6 @@ namespace Opus
                     }
 
                     SupportFragmentManager.PopBackStack();
-                    //SupportFragmentManager.BeginTransaction().Remove(PlaylistTracks.instance).Commit();
                 }
                 else if (YoutubeSearch.instances != null)
                 {
@@ -575,10 +299,6 @@ namespace Opus
                     SupportActionBar.SetDisplayHomeAsUpEnabled(false);
                     YoutubeSearch.instances = null;
                 }
-                //else if (FolderTracks.instance != null)
-                //{
-                //    SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(0, 1)).Commit();
-                //}
             }
             else if(item.ItemId == Resource.Id.search)
             {
@@ -594,15 +314,9 @@ namespace Opus
 
         public bool OnMenuItemActionCollapse(IMenuItem item) //Youtube search collapse
         {
-            Console.WriteLine("&Youtube Search Collapse");
             if (YoutubeSearch.instances == null || SearchableActivity.IgnoreMyself)
                 return true;
 
-            Console.WriteLine("&Youtube instnace != null");
-            for (int i = 0; i < SupportFragmentManager.BackStackEntryCount; i++)
-            {
-                Console.WriteLine("&Back stack entry " + i + ": " + SupportFragmentManager.GetBackStackEntryAt(i));
-            }
             SupportFragmentManager.PopBackStack();
             return true;
         }
@@ -665,7 +379,9 @@ namespace Opus
             searchView.ClearFocus();
             searchView.OnActionViewCollapsed();
         }
+        #endregion
 
+        #region BottomNavigation
         private void PreNavigate(object sender, BottomNavigationView.NavigationItemSelectedEventArgs e)
         {
             Navigate(e.Item.ItemId);
@@ -737,7 +453,9 @@ namespace Opus
 
             SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, fragment).SetCustomAnimations(Android.Resource.Animation.FadeIn, Android.Resource.Animation.FadeOut).Commit();
         }
+        #endregion
 
+        #region SmallPlayer
         public void PrepareSmallPlayer()
         {
             FrameLayout smallPlayer = FindViewById<FrameLayout>(Resource.Id.smallPlayer);
@@ -813,102 +531,9 @@ namespace Opus
             SheetBehavior.State = BottomSheetBehavior.StateHidden;
             FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Gone;
         }
+        #endregion
 
-        public bool HasReadPermission()
-        {
-            if (ContextCompat.CheckSelfPermission(this, Manifest.Permission.ReadExternalStorage) == (int)Permission.Granted)
-                return true;
-            else
-                return false;
-        }
-
-        public async Task<bool> GetReadPermission(bool ask = true)
-        {
-            if (HasReadPermission())
-                return true;
-            PermissionGot = null;
-
-            if(ask)
-            {
-                string[] permissions = new string[] { Manifest.Permission.ReadExternalStorage };
-                RequestPermissions(permissions, RequestCode);
-            }
-
-            while (PermissionGot == null)
-                await Task.Delay(10);
-
-            return (bool)PermissionGot;
-        }
-
-        public async Task<bool> GetWritePermission()
-        {
-            const string permission = Manifest.Permission.WriteExternalStorage;
-            if (ContextCompat.CheckSelfPermission(this, permission) == (int)Permission.Granted)
-            {
-                return true;
-            }
-            PermissionGot = null;
-            string[] permissions = new string[] { permission };
-            RequestPermissions(permissions, RequestCode);
-
-            while (PermissionGot == null)
-                await Task.Delay(10);
-
-            return (bool)PermissionGot;
-        }
-
-        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, Permission[] grantResults)
-        {
-            if (requestCode == RequestCode)
-            {
-                if (grantResults.Length > 0)
-                {
-                    if (grantResults[0] == Permission.Granted)
-                        PermissionGot = true;
-                    else
-                    {
-                        PermissionGot = false;
-                        Snackbar snackBar = Snackbar.Make(FindViewById<CoordinatorLayout>(Resource.Id.snackBar), Resource.String.no_permission, Snackbar.LengthLong);
-                        snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
-                        snackBar.Show();
-                    }
-                }
-            }
-            else if (requestCode == WriteRequestCode)
-            {
-                if (grantResults[0] == Permission.Granted)
-                    PermissionGot = true;
-                else
-                {
-                    PermissionGot = false;
-                    Snackbar snackBar = Snackbar.Make(FindViewById<CoordinatorLayout>(Resource.Id.snackBar), Resource.String.no_permission, Snackbar.LengthLong);
-                    snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
-                    snackBar.Show();
-                }
-            }
-        }
-
-        public async static Task<string> GetBestThumb(string[] thumbnails)
-        {
-            foreach (string thumb in thumbnails)
-            {
-                HttpWebRequest request = new HttpWebRequest(new System.Uri(thumb))
-                {
-                    Method = "HEAD"
-                };
-                try
-                {
-                    HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
-
-                    if (response.StatusCode == HttpStatusCode.OK)
-                        return thumb;
-                }
-                catch (WebException) { }
-            }
-
-            return thumbnails.Last();
-        }
-
+        #region Snackbars
         public void YoutubeEndPointChanged()
         {
             FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
@@ -930,7 +555,7 @@ namespace Opus
         {
             Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), Resource.String.unknow, Snackbar.LengthIndefinite);
             if (action != null)
-                snackBar.SetAction("Try Again", (sender) => { action.Invoke();  snackBar.Dismiss(); });
+                snackBar.SetAction("Try Again", (sender) => { action.Invoke(); snackBar.Dismiss(); });
             else
                 snackBar.SetAction("Dismiss", (sender) => { snackBar.Dismiss(); });
             snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
@@ -945,7 +570,7 @@ namespace Opus
                 snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
                 snackBar.Show();
             }
-            else if(msg.Contains("not available"))
+            else if (msg.Contains("not available"))
             {
                 Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), title + " " + GetString(Resource.String.not_streamable), Snackbar.LengthLong);
                 snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
@@ -961,86 +586,12 @@ namespace Opus
             snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
             snackBar.Show();
         }
+        #endregion
 
-        public int DpToPx(int dx)
-        {
-            float scale = Resources.DisplayMetrics.Density;
-            return (int) (dx * scale + 0.5f);
-        }
-
-        public static bool HasInternet()
-        {
-            ConnectivityManager connectivityManager = (ConnectivityManager)Application.Context.GetSystemService(ConnectivityService);
-            NetworkInfo activeNetworkInfo = connectivityManager.ActiveNetworkInfo;
-            if (activeNetworkInfo == null || !activeNetworkInfo.IsConnected)
-                return false;
-
-            return true;
-        }
-
-        bool HasWifi()
-        {
-            ConnectivityManager connectivityManager = (ConnectivityManager)Application.Context.GetSystemService(ConnectivityService);
-            if(Build.VERSION.SdkInt >= BuildVersionCodes.M)
-            {
-                Network network = connectivityManager.ActiveNetwork;
-                if (network == null)
-                    return false;
-
-                NetworkCapabilities capabilities = connectivityManager.GetNetworkCapabilities(network);
-                if (capabilities.HasTransport(TransportType.Wifi) || capabilities.HasTransport(TransportType.Ethernet))
-                    return true;
-            }
-            else
-            {
-                Network[] allNetworks = connectivityManager.GetAllNetworks();
-                for (int i = 0; i < allNetworks.Length; i++)
-                {
-#pragma warning disable CS0618 // Type or member is obsolete
-                    if (allNetworks[i] != null && connectivityManager.GetNetworkInfo(allNetworks[i]).IsConnected && connectivityManager.GetNetworkInfo(allNetworks[i]).Type == ConnectivityType.Wifi)
-#pragma warning restore CS0618 // Type or member is obsolete
-                        return true;
-                }
-            }
-
-            return false;
-        }
-        
-        private async void SyncPlaylists()
-        {
-            if (!await WaitForYoutube())
-                return;
-
-            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(this);
-            DateTime lastSync = DateTime.Parse(prefManager.GetString("syncDate", DateTime.MinValue.ToString()));
-
-            if (lastSync.AddHours(1) > DateTime.Now || !HasWifi()) //Make a time check, do not check if the user is downloading or if the user has just started the app two times
-                return;
-
-            ISharedPreferencesEditor editor = prefManager.Edit();
-            editor.PutString("syncDate", DateTime.Now.ToString());
-
-            List<PlaylistItem> SyncedPlaylists = new List<PlaylistItem>();
-            await Task.Run(() =>
-            {
-                SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "SyncedPlaylists.sqlite"));
-                db.CreateTable<PlaylistItem>();
-
-                SyncedPlaylists = db.Table<PlaylistItem>().ToList();
-            });
-
-            foreach (PlaylistItem item in SyncedPlaylists)
-            {
-                if (item.YoutubeID != null)
-                {
-                    YoutubeManager.DownloadPlaylist(item.Name, item.YoutubeID, false);
-                }
-            }
-        }
-
+        #region Updater
         public async static void CheckForUpdate(Activity activity, bool displayToast)
         {
-            if(!HasInternet())
+            if (!HasInternet())
             {
                 if (displayToast)
                 {
@@ -1050,7 +601,7 @@ namespace Opus
                         snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
                         snackBar.Show();
                     }
-                    if(Preferences.instance != null)
+                    if (Preferences.instance != null)
                     {
                         Snackbar snackBar = Snackbar.Make(Preferences.instance.FindViewById(Android.Resource.Id.Content), activity.GetString(Resource.String.update_no_internet), Snackbar.LengthLong);
                         snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
@@ -1078,7 +629,7 @@ namespace Opus
             string downloadPath;
             bool beta = false;
 
-            using(WebClient client = new WebClient())
+            using (WebClient client = new WebClient())
             {
                 string GitVersion = await client.DownloadStringTaskAsync(new System.Uri(versionURI));
                 gitVersionID = GitVersion.Substring(9, 5);
@@ -1167,82 +718,462 @@ namespace Opus
                 Application.Context.StartActivity(intent);
             }
         }
+        #endregion
 
-        protected override void OnStart()
+        //API PART THAT NEED CONTEXT TO WORK (SO THEY ARE HERE)
+
+        #region Login with google services and creation of the youtube service object
+        public void Login(bool canAsk = true, bool skipSilentLog = false, bool skipLastSigned = false)
         {
-            base.OnStart();
-            CastContext = CastContext.GetSharedInstance(this);
-            CastContext.SessionManager.AddSessionManagerListener(this);
+            //waitingForYoutube = true;
+
+            //if (!skipLastSigned)
+            //{
+            //    if (account == null)
+            //        account = GoogleSignIn.GetLastSignedInAccount(this);
+
+
+            //    if (account != null)
+            //    {
+            //        CreateYoutube();
+            //        return;
+            //    }
+            //}
+
+            //This will be used only when the access has been revoked, when the refresh token has been lost or for the first loggin. 
+            //In each case we want a refresh token so we call RequestServerAuthCode with true as the second parameter.
+            //GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DefaultSignIn)
+            //    .RequestIdToken(GetString(Resource.String.clientID))
+            //    .RequestServerAuthCode(GetString(Resource.String.clientID), true)
+            //    .RequestScopes(new Scope(YouTubeService.Scope.Youtube))
+            //    .Build();
+
+            //GoogleApiClient googleClient = new GoogleApiClient.Builder(this)
+            //    .AddApi(Auth.GOOGLE_SIGN_IN_API, gso)
+            //    .Build();
+
+            //googleClient.Connect();
+
+            //if (!skipSilentLog)
+            //{
+            //    OptionalPendingResult silentLog = Auth.GoogleSignInApi.SilentSignIn(googleClient);
+            //    if (silentLog.IsDone)
+            //    {
+            //        GoogleSignInResult result = (GoogleSignInResult)silentLog.Get();
+            //        if (result.IsSuccess)
+            //        {
+            //            account = result.SignInAccount;
+            //            RunOnUiThread(() => { Picasso.With(this).Load(account.PhotoUrl).Transform(new CircleTransformation()).Into(new AccountTarget()); });
+            //            CreateYoutube();
+            //        }
+            //    }
+            //    else if (silentLog != null)
+            //    {
+            //        AskIntent = Auth.GoogleSignInApi.GetSignInIntent(googleClient);
+            //        silentLog.SetResultCallback(this);
+            //    }
+            //    else if (canAsk)
+            //    {
+            //        ResumeKiller = true;
+            //        StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);
+            //    }
+            //}
+            //else if (canAsk)
+            //{
+            //ResumeKiller = true;
+            //StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 1598);
+            //}
+            //else
+            //{
+            CreateYoutube(false);
+            //}
         }
 
-        protected override void OnResume()
+        protected override void OnActivityResult(int requestCode, [GeneratedEnum] Result resultCode, Intent data)
         {
-            base.OnResume();
-            Paused = false;
-            instance = this;
-
-            if (CastContext.SessionManager.CurrentSession == null && MusicPlayer.CurrentID() == -1)
-                MusicPlayer.currentID = MusicPlayer.RetrieveQueueSlot();
-            else if(MusicPlayer.UseCastPlayer)
-                MusicPlayer.GetQueueFromCast();
-
-            if (SearchableActivity.instance != null && SearchableActivity.instance.SearchQuery != null && SearchableActivity.instance.SearchQuery != "")
+            base.OnActivityResult(requestCode, resultCode, data);
+            if (requestCode == 1598)
             {
-//                if (YoutubeEngine.instances != null)
-//                {
-//#pragma warning disable CS4014
-//                    foreach (YoutubeEngine instance in YoutubeEngine.instances)
-//                        instance.Search(SearchableActivity.instance.SearchQuery, instance.querryType, true);
-
-//                    SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.instance).AddToBackStack("Youtube").Commit();
-//                }
-//                else
-                    SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(SearchableActivity.instance.SearchQuery, 0)).AddToBackStack("Youtube").Commit();
-
-                SearchableActivity.instance = null;
+                GoogleSignInResult result = Auth.GoogleSignInApi.GetSignInResultFromIntent(data);
+                Console.WriteLine("&Result: " + result.ToString());
+                if (result.IsSuccess)
+                {
+                    account = result.SignInAccount;
+                    RunOnUiThread(() => { Picasso.With(this).Load(account.PhotoUrl).Transform(new CircleTransformation()).Into(new AccountTarget()); });
+                    CreateYoutube();
+                }
+                else
+                {
+                    Console.WriteLine("&Loging error: " + result.Status);
+                    waitingForYoutube = false;
+                    CreateYoutube(false);
+                }
             }
-
-            if (SheetBehavior != null && SheetBehavior.State == BottomSheetBehavior.StateExpanded)
-                FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Visible;
         }
 
-        protected override void OnDestroy()
+        public void OnResult(Java.Lang.Object result) //Silent log result
         {
-            YoutubeSearch.instances = null;
-
-            if (MusicPlayer.instance != null && !MusicPlayer.isRunning && Preferences.instance == null && EditMetaData.instance == null)
+            account = ((GoogleSignInResult)result).SignInAccount;
+            if (account != null)
             {
-                Intent intent = new Intent(this, typeof(MusicPlayer));
-                intent.SetAction("Stop");
-                StartService(intent);
+                RunOnUiThread(() => { Picasso.With(this).Load(account.PhotoUrl).Transform(new CircleTransformation()).Into(new AccountTarget()); });
+                CreateYoutube();
             }
-            base.OnDestroy();
-        }
-
-        protected override void OnPause()
-        {
-            base.OnPause();
-            Paused = true;
-        }
-
-        public override void OnBackPressed()
-        {
-            if (Player.instance?.DrawerLayout.IsDrawerOpen((int)GravityFlags.Start) == true)
-                Player.instance?.DrawerLayout.CloseDrawer((int)GravityFlags.Start);
-            else if (SheetBehavior.State == BottomSheetBehavior.StateExpanded)
-                SheetBehavior.State = BottomSheetBehavior.StateCollapsed;
+            else if (AskIntent != null)
+            {
+                ResumeKiller = true;
+                StartActivityForResult(AskIntent, 1598);
+                AskIntent = null;
+            }
             else
-                base.OnBackPressed();
+            {
+                CreateYoutube(false);
+            }
         }
 
-        protected override void OnNewIntent(Intent intent)
+        public /*async*/ void CreateYoutube(bool UseToken = true)
         {
-            base.OnNewIntent(intent);
-            HandleIntent(intent);
+            //if(/*!UseToken &&*/ YoutubeManager.YoutubeService == null)
+            //{
+            YoutubeManager.YoutubeService = new YouTubeService(new BaseClientService.Initializer()
+            {
+                ApiKey = GetString(Resource.String.yt_api_key),
+                ApplicationName = "Opus"
+            });
+            YoutubeManager.IsUsingAPI = true;
+            NextRefreshDate = DateTime.MaxValue;
+            Console.WriteLine("&Youtube service created - " + YoutubeManager.YoutubeService);
+            return;
+            //}
+
+            //YoutubeManager.IsUsingAPI = false;
+            //NextRefreshDate = null;
+            //ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(this);
+            //string refreshToken = prefManager.GetString("refresh-token", null);
+            //Console.WriteLine("&Current refresh token: " + refreshToken);
+
+            //This method do not return refresh-token if the app has already been aprouved by google for this user, should force request
+            //if (refreshToken == null)
+            //{
+            //Console.WriteLine("&Getting refresh-token and creating a youtube service");
+            //Console.WriteLine("&Code = " + account.ServerAuthCode);
+
+            //if (account.ServerAuthCode == null)
+            //{
+            //    Login(true, false, true);
+            //    return;
+            //}
+
+            //Dictionary<string, string> fields = new Dictionary<string, string>
+            //{
+            //    { "grant_type", "authorization_code" },
+            //    { "client_id", GetString(Resource.String.clientID) },
+            //    { "client_secret", GetString(Resource.String.clientSecret) },
+            //    { "redirect_uri", "" },
+            //    { "code", account.ServerAuthCode },
+            //    { "id_token", account.IdToken },
+            //};
+
+            //var items = from kvp in fields
+            //            select kvp.Key + "=" + kvp.Value;
+
+            //string content = string.Join("&", items);
+
+            //try
+            //{
+            //    HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://www.googleapis.com/oauth2/v4/token");
+            //    request.Host = "www.googleapis.com";
+
+            //    request.Method = "POST";
+            //    request.ContentType = "application/x-www-form-urlencoded";
+            //    request.ContentLength = content.Length;
+
+            //    using (StreamWriter writer = new StreamWriter(request.GetRequestStream()))
+            //    {
+            //        writer.Write(content);
+            //    }
+
+            //    Console.WriteLine("&Content: " + content);
+
+            //    HttpWebResponse resp = (HttpWebResponse)await request.GetResponseAsync();
+
+            //    string response;
+            //    using (StreamReader responseReader = new StreamReader(request.GetResponse().GetResponseStream()))
+            //    {
+            //        response = responseReader.ReadToEnd();
+            //    }
+            //    Console.WriteLine("&Response: " + response);
+
+            //    JToken json = JObject.Parse(response);
+            //    GoogleCredential credential = GoogleCredential.FromAccessToken((string)json.SelectToken("access_token"));
+            //    YoutubeManager.YoutubeService = new YouTubeService(new BaseClientService.Initializer()
+            //    {
+            //        HttpClientInitializer = credential,
+            //        ApplicationName = "Opus"
+            //    });
+
+            //    refreshToken = (string)json.SelectToken("refresh_token");
+            //    if (refreshToken != null)
+            //    {
+            //        ISharedPreferencesEditor editor = prefManager.Edit();
+            //        editor.PutString("refresh-token", refreshToken);
+            //        editor.Apply();
+            //    }
+
+            //    int expireIn = (int)json.SelectToken("expires_in");
+            //    NextRefreshDate = DateTime.UtcNow.AddSeconds(expireIn - 30); //Should refresh a bit before the expiration of the acess token
+            //}
+            //catch (WebException ex)
+            //{
+            //    Console.WriteLine("&Refresh token get error: " + ex.Message);
+            //    CreateYoutube(false);
+            //    UnknowError(new Action(() => { CreateYoutube(); }));
+            //}
+            //}
+            //else if (account != null)
+            //{
+            //    Console.WriteLine("&Getting a new access-token and creating a youtube service");
+            //    Dictionary<string, string> fields = new Dictionary<string, string>
+            //    {
+            //        { "refresh_token", refreshToken },
+            //        { "client_id", GetString(Resource.String.clientID) },
+            //        { "client_secret", GetString(Resource.String.clientSecret) },
+            //        { "grant_type", "refresh_token" },
+            //    };
+
+            //    var items = from kvp in fields
+            //                select kvp.Key + "=" + kvp.Value;
+
+            //    string content = string.Join("&", items);
+
+            //    try
+            //    {
+            //        HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://www.googleapis.com/oauth2/v4/token");
+            //        request.Host = "www.googleapis.com";
+
+            //        request.Method = "POST";
+            //        request.ContentType = "application/x-www-form-urlencoded";
+            //        request.ContentLength = content.Length;
+
+            //        using (StreamWriter writer = new StreamWriter(request.GetRequestStream()))
+            //        {
+            //            writer.Write(content);
+            //        }
+
+            //        Console.WriteLine("&Content: " + content);
+
+            //        HttpWebResponse resp = (HttpWebResponse)await request.GetResponseAsync();
+
+            //        string response;
+            //        using (StreamReader responseReader = new StreamReader(request.GetResponse().GetResponseStream()))
+            //        {
+            //            response = responseReader.ReadToEnd();
+            //        }
+            //        Console.WriteLine("&Response: " + response);
+
+            //        JToken json = JObject.Parse(response);
+            //        GoogleCredential credential = GoogleCredential.FromAccessToken((string)json.SelectToken("access_token"));
+            //        YoutubeManager.YoutubeService = new YouTubeService(new BaseClientService.Initializer()
+            //        {
+            //            HttpClientInitializer = credential,
+            //            ApplicationName = "Opus"
+            //        });
+
+            //        int expireIn = (int)json.SelectToken("expires_in");
+            //        NextRefreshDate = DateTime.UtcNow.AddSeconds(expireIn - 30); //Should refresh a bit before the expiration of the acess token
+            //    }
+            //    catch (WebException ex)
+            //    {
+            //        Console.WriteLine("&New access token get error: " + ex.Message + " - " + ex.StackTrace);
+            //        CreateYoutube(false);
+            //        UnknowError(new Action(() => { CreateYoutube(); }));
+            //    }
+            //}
+            //else
+            //{
+            //    Login(true);
+            //}
         }
 
+        public void OnFailure(Request request, Java.IO.IOException iOException)
+        {
+            Console.WriteLine("&Failure");
+        }
 
-        //SessionManagerListener
+        public void OnConnectionFailed(ConnectionResult result)
+        {
+            Console.WriteLine("&Connection Failed: " + result.ErrorMessage);
+        }
+
+        public async Task<bool> WaitForYoutube(bool silentWait = false)
+        {
+            if (YoutubeManager.YoutubeService == null)
+            {
+                if (!waitingForYoutube)
+                    Login(!silentWait);
+
+                waitingForYoutube = true;
+
+                if (silentWait)
+                {
+                    int i = 0;
+                    while (true)
+                    {
+                        await Task.Delay(10);
+                        i++;
+
+                        if (YoutubeManager.YoutubeService == null)
+                            return true;
+                        else if (i > 1000) //10 seconds timout
+                            return false;
+                    }
+                }
+                else
+                {
+                    while (YoutubeManager.YoutubeService == null)
+                    {
+                        if (waitingForYoutube == false)
+                            return false;
+
+                        await Task.Delay(10);
+                    }
+                }
+            }
+            else if (NextRefreshDate == null || NextRefreshDate <= DateTime.UtcNow) //Acess token has expired
+            {
+                waitingForYoutube = true;
+                CreateYoutube();
+            }
+            waitingForYoutube = false;
+            return true;
+        }
+        #endregion
+
+        #region Permission Request
+        public bool HasReadPermission()
+        {
+            if (ContextCompat.CheckSelfPermission(this, Manifest.Permission.ReadExternalStorage) == (int)Permission.Granted)
+                return true;
+            else
+                return false;
+        }
+
+        public async Task<bool> GetReadPermission(bool ask = true)
+        {
+            if (HasReadPermission())
+                return true;
+            PermissionGot = null;
+
+            if (ask)
+            {
+                string[] permissions = new string[] { Manifest.Permission.ReadExternalStorage };
+                RequestPermissions(permissions, RequestCode);
+            }
+
+            while (PermissionGot == null)
+                await Task.Delay(10);
+
+            return (bool)PermissionGot;
+        }
+
+        public async Task<bool> GetWritePermission()
+        {
+            const string permission = Manifest.Permission.WriteExternalStorage;
+            if (ContextCompat.CheckSelfPermission(this, permission) == (int)Permission.Granted)
+            {
+                return true;
+            }
+            PermissionGot = null;
+            string[] permissions = new string[] { permission };
+            RequestPermissions(permissions, RequestCode);
+
+            while (PermissionGot == null)
+                await Task.Delay(10);
+
+            return (bool)PermissionGot;
+        }
+
+        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, Permission[] grantResults)
+        {
+            if (requestCode == RequestCode)
+            {
+                if (grantResults.Length > 0)
+                {
+                    if (grantResults[0] == Permission.Granted)
+                        PermissionGot = true;
+                    else
+                    {
+                        PermissionGot = false;
+                        Snackbar snackBar = Snackbar.Make(FindViewById<CoordinatorLayout>(Resource.Id.snackBar), Resource.String.no_permission, Snackbar.LengthLong);
+                        snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+                        snackBar.Show();
+                    }
+                }
+            }
+            else if (requestCode == WriteRequestCode)
+            {
+                if (grantResults[0] == Permission.Granted)
+                    PermissionGot = true;
+                else
+                {
+                    PermissionGot = false;
+                    Snackbar snackBar = Snackbar.Make(FindViewById<CoordinatorLayout>(Resource.Id.snackBar), Resource.String.no_permission, Snackbar.LengthLong);
+                    snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+                    snackBar.Show();
+                }
+            }
+        }
+        #endregion
+
+        #region Has Wifi
+        public static bool HasInternet()
+        {
+            ConnectivityManager connectivityManager = (ConnectivityManager)Application.Context.GetSystemService(ConnectivityService);
+            NetworkInfo activeNetworkInfo = connectivityManager.ActiveNetworkInfo;
+            if (activeNetworkInfo == null || !activeNetworkInfo.IsConnected)
+                return false;
+
+            return true;
+        }
+
+        public bool HasWifi()
+        {
+            ConnectivityManager connectivityManager = (ConnectivityManager)Application.Context.GetSystemService(ConnectivityService);
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.M)
+            {
+                Network network = connectivityManager.ActiveNetwork;
+                if (network == null)
+                    return false;
+
+                NetworkCapabilities capabilities = connectivityManager.GetNetworkCapabilities(network);
+                if (capabilities.HasTransport(TransportType.Wifi) || capabilities.HasTransport(TransportType.Ethernet))
+                    return true;
+            }
+            else
+            {
+                Network[] allNetworks = connectivityManager.GetAllNetworks();
+                for (int i = 0; i < allNetworks.Length; i++)
+                {
+#pragma warning disable CS0618 // Type or member is obsolete
+                    if (allNetworks[i] != null && connectivityManager.GetNetworkInfo(allNetworks[i]).IsConnected && connectivityManager.GetNetworkInfo(allNetworks[i]).Type == ConnectivityType.Wifi)
+#pragma warning restore CS0618 // Type or member is obsolete
+                        return true;
+                }
+            }
+
+            return false;
+        }
+        #endregion
+
+        #region Convert density pixels to screen pixels
+        public int DpToPx(int dx)
+        {
+            float scale = Resources.DisplayMetrics.Density;
+            return (int)(dx * scale + 0.5f);
+        }
+        #endregion
+
+        #region Chromcast session manager
         public void OnSessionEnded(Java.Lang.Object session, int error)
         {
             Console.WriteLine("&Session Ended");
@@ -1333,5 +1264,6 @@ namespace Opus
                 }
             }
         }
+#endregion
     }
 }

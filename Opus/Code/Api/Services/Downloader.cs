@@ -215,7 +215,7 @@ namespace Opus.Api.Services
                 meta.Tag.Album = title + " - " + artist;
                 meta.Tag.Comment = youtubeID;
                 IPicture[] pictures = new IPicture[1];
-                Bitmap bitmap = Picasso.With(Application.Context).Load(await MainActivity.GetBestThumb(thumbnails)).Transform(new RemoveBlackBorder(true)).Get();
+                Bitmap bitmap = Picasso.With(Application.Context).Load(await YoutubeManager.GetBestThumb(thumbnails)).Transform(new RemoveBlackBorder(true)).Get();
                 byte[] data;
                 using (var MemoryStream = new MemoryStream())
                 {

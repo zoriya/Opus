@@ -11,15 +11,18 @@ using Google.Apis.YouTube.v3.Data;
 using Opus.Api.Services;
 using Opus.DataStructure;
 using Opus.Fragments;
+using SQLite;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using TagLib;
 using YoutubeExplode;
 using YoutubeExplode.Models;
 using CursorLoader = Android.Support.V4.Content.CursorLoader;
+using PlaylistItem = Opus.DataStructure.PlaylistItem;
 
 namespace Opus.Api
 {
@@ -187,6 +190,41 @@ namespace Opus.Api
 
             if (names.Count > 0)
                 DownloadFiles(names.ToArray(), videoIDs.ToArray(), playlist);
+        }
+
+        /// <summary>
+        /// Update all playlists that should be synced.
+        /// </summary>
+        public async static void SyncPlaylists()
+        {
+            if (!await MainActivity.instance.WaitForYoutube())
+                return;
+
+            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(MainActivity.instance);
+            DateTime lastSync = DateTime.Parse(prefManager.GetString("syncDate", DateTime.MinValue.ToString()));
+
+            if (lastSync.AddHours(1) > DateTime.Now || !MainActivity.instance.HasWifi()) //Make a time check, do not check if the user is downloading or if the user has just started the app two times
+                return;
+
+            ISharedPreferencesEditor editor = prefManager.Edit();
+            editor.PutString("syncDate", DateTime.Now.ToString());
+
+            List<PlaylistItem> SyncedPlaylists = new List<PlaylistItem>();
+            await Task.Run(() =>
+            {
+                SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "SyncedPlaylists.sqlite"));
+                db.CreateTable<PlaylistItem>();
+
+                SyncedPlaylists = db.Table<PlaylistItem>().ToList();
+            });
+
+            foreach (PlaylistItem item in SyncedPlaylists)
+            {
+                if (item.YoutubeID != null)
+                {
+                    DownloadPlaylist(item.Name, item.YoutubeID, false);
+                }
+            }
         }
         #endregion
 
@@ -376,6 +414,33 @@ namespace Opus.Api
         #endregion
 
         #region Metadata
+        /// <summary>
+        /// Return the thumbnail with the greatest quality.
+        /// </summary>
+        /// <param name="thumbnails">This array should contains the urls of the thumbnails in this order: MaxResUrl, StandardResUrl, HighResUrl</param>
+        /// <returns></returns>
+        public async static Task<string> GetBestThumb(string[] thumbnails)
+        {
+            foreach (string thumb in thumbnails)
+            {
+                HttpWebRequest request = new HttpWebRequest(new Uri(thumb))
+                {
+                    Method = "HEAD"
+                };
+                try
+                {
+                    HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
+
+                    if (response.StatusCode == HttpStatusCode.OK)
+                        return thumb;
+                }
+                catch (WebException) { }
+            }
+
+            return thumbnails.Last();
+        }
+
+
         /// <summary>
         /// Return the local path of a youtube video (if downloaded). If the video is not downloaded, return null.
         /// </summary>
