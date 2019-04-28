@@ -76,6 +76,7 @@ namespace Opus.Adapter
                     holder.Progress.Visibility = ViewStates.Invisible;
                     holder.Title.SetTextColor(Color.Argb(255, 76, 175, 80));
                     break;
+                case DownloadState.Error:
                 case DownloadState.Canceled:
                     holder.Status.Visibility = ViewStates.Gone;
                     holder.Progress.Visibility = ViewStates.Invisible;

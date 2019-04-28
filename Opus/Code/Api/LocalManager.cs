@@ -361,10 +361,10 @@ namespace Opus.Api
 
                     foreach (Song item in items)
                     {
-                        if (item != null && item.Id != 0 && item.Id != -1)
+                        if (item != null && item.LocalID != 0 && item.LocalID != -1)
                         {
                             ContentValues value = new ContentValues();
-                            value.Put(MediaStore.Audio.Playlists.Members.AudioId, item.Id);
+                            value.Put(MediaStore.Audio.Playlists.Members.AudioId, item.LocalID);
                             value.Put(MediaStore.Audio.Playlists.Members.PlayOrder, 0);
                             values.Add(value);
                         }

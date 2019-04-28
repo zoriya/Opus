@@ -27,6 +27,7 @@
         Completed,
         Canceled,
         UpToDate,
-        None
+        None,
+        Error
     }
 }

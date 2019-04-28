@@ -8,6 +8,7 @@ using Android.Net;
 using Android.OS;
 using Android.Provider;
 using Android.Support.V4.App;
+using Android.Support.V7.Preferences;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
@@ -82,7 +83,9 @@ namespace Opus.Api.Services
 
         public async void StartDownload()
         {
-            while(downloadCount < maxDownload && queue.Count(x => x.State == DownloadState.None) > 0)
+            await SyncWithPlaylists();
+
+            while (downloadCount < maxDownload && queue.Count(x => x.State == DownloadState.None) > 0)
             {
 #pragma warning disable CS4014
                 Task.Run(() => { DownloadAudio(queue.FindIndex(x => x.State == DownloadState.None), downloadPath); }, cancellation.Token);
@@ -120,8 +123,23 @@ namespace Opus.Api.Services
                 YoutubeClient client = new YoutubeClient();
                 Video video = await client.GetVideoAsync(queue[position].videoID);
                 MediaStreamInfoSet mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(queue[position].videoID);
-                AudioStreamInfo streamInfo = mediaStreamInfo.Audio.Where(x => x.Container == Container.Mp4).OrderBy(s => s.Bitrate).Last();
+                MediaStreamInfo streamInfo;
 
+                if (mediaStreamInfo.Audio.Count > 0)
+                    streamInfo = mediaStreamInfo.Audio.Where(x => x.Container == Container.Mp4).OrderBy(s => s.Bitrate).Last();
+                else if (mediaStreamInfo.Muxed.Count > 0)
+                    streamInfo = mediaStreamInfo.Muxed.Where(x => x.Container == Container.Mp4).OrderBy(x => x.Resolution).Last();
+                else
+                {
+                    queue[position].State = DownloadState.Error;
+                    downloadCount--;
+                    if (queue.Count != 0)
+                        DownloadAudio(queue.FindIndex(x => x.State == DownloadState.None), path);
+
+                    Playlist.instance?.CheckForSync();
+                    return;
+                }
+                    
                 queue[position].State = DownloadState.Downloading;
                 UpdateList(position);
                 string title = video.Title;
@@ -259,11 +277,21 @@ namespace Opus.Api.Services
             }
         }
 
-        public async void SyncWithPlaylist(string playlistName, bool keepDeleted)
+        public async Task SyncWithPlaylists()
+        {
+            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
+            bool keepDeleted = prefManager.GetBoolean("keepDeleted", true);
+
+            List<string> playlists = queue.ConvertAll(x => x.playlist).Distinct().ToList();
+            foreach(string playlist in playlists)
+                await SyncWithPlaylist(playlist, keepDeleted);
+        }
+
+        public async Task SyncWithPlaylist(string playlistName, bool keepDeleted)
         {
             Playlist.instance?.StartSyncing(playlistName);
             long LocalID = await PlaylistManager.GetPlaylistID(playlistName);
-            SyncWithPlaylist(LocalID, keepDeleted);
+            await SyncWithPlaylist(LocalID, keepDeleted);
 
             await Task.Run(() =>
             {
@@ -276,63 +304,48 @@ namespace Opus.Api.Services
             Playlist.instance?.CheckForSync();
         }
 
-        public void SyncWithPlaylist(long LocalID, bool keepDeleted)
+        public async Task SyncWithPlaylist(long LocalID, bool keepDeleted)
         {
             if (LocalID != -1)
             {
-                Uri musicUri = Playlists.Members.GetContentUri("external", LocalID);
+                List<Song> songs = await PlaylistManager.GetTracksFromLocalPlaylist(LocalID);
 
-                CursorLoader cursorLoader = new CursorLoader(Application.Context, musicUri, null, null, null, null);
-                ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
-
-                List<string> paths = new List<string>();
-                List<long> localIDs = new List<long>();
-                List<string> videoIDs = new List<string>();
-
-                if (musicCursor != null && musicCursor.MoveToFirst())
+                await Task.Run(() => 
                 {
-                    int songID = musicCursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
-                    int pathID = musicCursor.GetColumnIndex(Media.InterfaceConsts.Data);
-                    do
+                    foreach (Song song in songs)
+                        LocalManager.CompleteItem(song);
+                });
+
+                for (int i = 0; i < queue.Count; i++)
+                {
+                    Song song = songs.Find(x => x.YoutubeID == queue[i].videoID);
+                    if (song != null)
                     {
-                        string path = musicCursor.GetString(pathID);
-                        long id = musicCursor.GetLong(songID);
-                        paths.Add(path);
-                        localIDs.Add(id);
-                        videoIDs.Add(LocalManager.GetYtID(path));
+                        //Video is already downloaded:
+                        if (queue[i].State == DownloadState.None)
+                            queue[i].State = DownloadState.UpToDate;
+
+                        currentStrike++;
+                        songs.Remove(song);
                     }
-                    while (musicCursor.MoveToNext());
-                    musicCursor.Close();
+                }
 
+                await Task.Run(() => 
+                {
+                    if (Looper.MyLooper() == null)
+                        Looper.Prepare();
 
-                    for (int i = 0; i < queue.Count; i++)
-                    {
-                        if (videoIDs.Contains(queue[i].videoID))
-                        {
-                            //Video is already downloaded:
-                            if (queue[i].State == DownloadState.None)
-                                queue[i].State = DownloadState.UpToDate;
-
-                            currentStrike++;
-                            int Index = videoIDs.FindIndex(x => x == queue[i].videoID);
-                            paths.RemoveAt(Index);
-                            localIDs.RemoveAt(Index);
-                            videoIDs.RemoveAt(Index);
-                        }
-                    }
-
-
-                    for (int i = 0; i < paths.Count; i++)
+                    for (int i = 0; i < songs.Count; i++)
                     {
                         //Video has been removed from the playlist but still exist on local storage
                         ContentResolver resolver = Application.ContentResolver;
                         Uri uri = Playlists.Members.GetContentUri("external", LocalID);
-                        resolver.Delete(uri, Playlists.Members.Id + "=?", new string[] { localIDs[i].ToString() });
+                        resolver.Delete(uri, Playlists.Members.Id + "=?", new string[] { songs[i].LocalID.ToString() });
 
-                        if(!keepDeleted)
-                            File.Delete(paths[i]);
+                        if (!keepDeleted)
+                            File.Delete(songs[i].Path);
                     }
-                }
+                });
             }
             Playlist.instance?.CheckForSync();
         }

@@ -91,8 +91,8 @@ namespace Opus.Api
         /// <param name="playlist"></param>
         public static void Download(Song[] items, string playlist)
         {
-            string[] names = items.ToList().Where(x => x.Id == -1).ToList().ConvertAll(x => x.Title).ToArray();
-            string[] videoIDs = items.ToList().Where(x => x.Id == -1).ToList().ConvertAll(x => x.YoutubeID).ToArray();
+            string[] names = items.ToList().Where(x => x.LocalID == -1).ToList().ConvertAll(x => x.Title).ToArray();
+            string[] videoIDs = items.ToList().Where(x => x.LocalID == -1).ToList().ConvertAll(x => x.YoutubeID).ToArray();
 
             DownloadFiles(names, videoIDs, playlist);
         }
@@ -185,11 +185,8 @@ namespace Opus.Api
                 nextPageToken = ytPlaylist.NextPageToken;
             }
 
-            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Android.App.Application.Context);
-            Downloader.instance.SyncWithPlaylist(playlist, prefManager.GetBoolean("keepDeleted", true));
-
             if (names.Count > 0)
-                DownloadFiles(names.ToArray(), videoIDs.ToArray(), playlist);
+                DownloadFiles(names.ToArray(), videoIDs.ToArray(), playlist);            
         }
 
         /// <summary>

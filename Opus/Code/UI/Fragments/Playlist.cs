@@ -108,7 +108,7 @@ namespace Opus.Fragments
                 ListView.SetItemAnimator(new DefaultItemAnimator());
 
                 //Youtube saved playlists
-                List<PlaylistItem> yt = await PlaylistManager.GetSavedYoutubePlaylists(SyncedPlaylists, YoutubeItemSynced);
+                List<PlaylistItem> yt = await PlaylistManager.GetSavedYoutubePlaylists(YoutubePlaylists, YoutubeItemSynced);
 
                 if (instance == null)
                     return;
@@ -121,7 +121,7 @@ namespace Opus.Fragments
                 }
 
                 //Youtube owned playlists
-                (yt, error) = await PlaylistManager.GetOwnedYoutubePlaylists(SyncedPlaylists, YoutubeItemSynced);
+                (yt, error) = await PlaylistManager.GetOwnedYoutubePlaylists(YoutubePlaylists, YoutubeItemSynced);
 
                 if (instance == null)
                     return;
@@ -220,24 +220,26 @@ namespace Opus.Fragments
              *  - Youtube Header
              *  - Synced Playlists
              *  Since local header and local playlists are both contained in the "LocalPlaylists" array, to get the position of the syncedPlaylist,
-             *  we need to sum the LocalPlaylists count (this sum get the position of the youtube header) and then we add the syncedPlaylistIndex.
-             *  We need to add one for the youtube header (witch is not in the syncedplaylists array)*/
-            PlaylistHolder holder = (PlaylistHolder)ListView.FindViewHolderForAdapterPosition(LocalPlaylists.Count + syncedPlaylistIndex + 1);
-            holder.Owner.Text = item.Owner;
-            Picasso.With(Application.Context).Load(item.ImageURL).Placeholder(Resource.Color.background_material_dark).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
-
-            if(item.HasWritePermission)
+             *  we need to sum the LocalPlaylists count (this sum get the position of the youtube header) and then we add the syncedPlaylistIndex.*/
+            PlaylistHolder holder = (PlaylistHolder)ListView.FindViewHolderForAdapterPosition(LocalPlaylists.Count + syncedPlaylistIndex);
+            if(holder != null)
             {
-                holder.edit.Visibility = ViewStates.Visible;
-                if (MainActivity.Theme == 1)
-                    holder.edit.SetColorFilter(Color.White);
-            }
+                holder.Owner.Text = item.Owner;
+                Picasso.With(Application.Context).Load(item.ImageURL).Placeholder(Resource.Color.background_material_dark).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
 
-            holder.sync.SetImageResource(Resource.Drawable.Sync);
-            holder.sync.Visibility = ViewStates.Visible;
-            holder.SyncLoading.Visibility = ViewStates.Gone;
-            if (MainActivity.Theme == 1)
-                holder.sync.SetColorFilter(Color.White);
+                if (item.HasWritePermission)
+                {
+                    holder.edit.Visibility = ViewStates.Visible;
+                    if (MainActivity.Theme == 1)
+                        holder.edit.SetColorFilter(Color.White);
+                }
+
+                holder.sync.SetImageResource(Resource.Drawable.Sync);
+                holder.sync.Visibility = ViewStates.Visible;
+                holder.SyncLoading.Visibility = ViewStates.Gone;
+                if (MainActivity.Theme == 1)
+                    holder.sync.SetColorFilter(Color.White);
+            }
         }
 
         public static Fragment NewInstance()

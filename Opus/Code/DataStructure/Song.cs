@@ -21,7 +21,7 @@ namespace Opus.DataStructure
         public string Album { get; set; }
         public long AlbumArt { get; set; }
         public string YoutubeID { get; set; }
-        public long Id { get; set; }
+        public long LocalID { get; set; }
         public string Path { get; set; }
         public bool? IsParsed { get; set; }
         public bool IsYt { get; set; }
@@ -39,7 +39,7 @@ namespace Opus.DataStructure
             Album = album;
             YoutubeID = youtubeID;
             AlbumArt = albumArt;
-            Id = id;
+            LocalID = id;
             Path = path;
             IsYt = isYT;
             IsParsed = isParsed;
@@ -47,7 +47,7 @@ namespace Opus.DataStructure
 
         public override string ToString()
         {
-            return Title + " Artist: " + Artist + " Album: " + Album + " youtubeID: " + YoutubeID + " AlbumArt: " + AlbumArt + " Id: " + Id + " Path: " + Path + " isYT: " + IsYt + " isParsed: " + IsParsed;
+            return Title + " Artist: " + Artist + " Album: " + Album + " youtubeID: " + YoutubeID + " AlbumArt: " + AlbumArt + " Id: " + LocalID + " Path: " + Path + " isYT: " + IsYt + " isParsed: " + IsParsed;
         }
 
         public static Song FromCursor(ICursor cursor)

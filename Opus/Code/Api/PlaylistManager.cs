@@ -285,7 +285,7 @@ namespace Opus.Api
             if (localPlaylists != null)
             {
                 foreach (PlaylistItem playlist in localPlaylists)
-                    playlist.SongContained = await LocalManager.SongIsContained(item.Id, playlist.LocalID);
+                    playlist.SongContained = await LocalManager.SongIsContained(item.LocalID, playlist.LocalID);
 
                 (playlists, synced) = await ProcessSyncedPlaylists(localPlaylists);
                 playlists.AddRange(synced);
@@ -318,7 +318,7 @@ namespace Opus.Api
                 {
                     if (playlist.LocalID != 0)
                     {
-                        if (item.Id == 0 || item.Id == -1)
+                        if (item.LocalID == 0 || item.LocalID == -1)
                             YoutubeManager.Download(new[] { item }, playlist.Name);
                         else
                             LocalManager.AddToPlaylist(new[] { item }, playlist.Name, playlist.LocalID);
@@ -339,7 +339,7 @@ namespace Opus.Api
                     {
                         ContentResolver resolver = MainActivity.instance.ContentResolver;
                         Uri plUri = Playlists.Members.GetContentUri("external", playlist.LocalID);
-                        resolver.Delete(plUri, Playlists.Members.AudioId + "=?", new string[] { item.Id.ToString() });
+                        resolver.Delete(plUri, Playlists.Members.AudioId + "=?", new string[] { item.LocalID.ToString() });
                     }
                 }
             };
@@ -659,6 +659,7 @@ namespace Opus.Api
             foreach (PlaylistItem synced in syncedPlaylists)
             {
                 PlaylistItem local = localPlaylists?.Find(x => x.LocalID == synced.LocalID);
+                Console.WriteLine("&SyncedName: " + synced.Name + " YoutubeID: " + synced.YoutubeID);
                 if (local != null)
                 {
                     synced.Count = local.Count;
@@ -759,18 +760,19 @@ namespace Opus.Api
         /// <param name="SyncedPlaylists">An array of known synced playlists (Will be updated)</param>
         /// <param name="YoutubePlaylists">An array of youtube playlists. (Will be updated)</param>
         /// <param name="UiCallback">A callback that will tell the ui to update a synced playlist with the new data got from the item.</param>
-        public static void ProcessPlaylistSyncState(PlaylistItem item, List<PlaylistItem> SyncedPlaylists, List<PlaylistItem> YoutubePlaylists, Action<PlaylistItem, int> UiCallback)
+        public /*async*/ static void ProcessPlaylistSyncState(PlaylistItem item, List<PlaylistItem> SyncedPlaylists, List<PlaylistItem> YoutubePlaylists, Action<PlaylistItem, int> UiCallback)
         {
             PlaylistItem syncedItem = SyncedPlaylists?.Find(x => x.YoutubeID == item.YoutubeID);
             if (syncedItem != null)
             {
                 syncedItem.Snippet = item.Snippet;
                 syncedItem.Count = item.Count;
+                syncedItem.SyncState = SyncState.True;
 
                 if(syncedItem.ImageURL == null)
                 {
                     syncedItem.ImageURL = item.ImageURL;
-                    Task.Run(() =>
+                    /*await*/ Task.Run(() =>
                     {
                         SQLiteConnection db = new SQLiteConnection(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "SyncedPlaylists.sqlite"));
                         db.CreateTable<PlaylistItem>();
@@ -780,12 +782,15 @@ namespace Opus.Api
             }
             else if (SyncedPlaylists?.Find(x => x.Name == item.Name) != null)
             {
+                Console.WriteLine("&Match found");
                 /*We couldn't find a match of a synced playlist with the exact youtube id but we found a synced playlist with the exact same name as this one (item). 
                 * We bind them and complete the database for future calls. */
                 syncedItem = SyncedPlaylists.Find(x => x.Name == item.Name);
                 int syncIndex = SyncedPlaylists.IndexOf(syncedItem);
                 item.LocalID = syncedItem.LocalID;
                 item.SyncState = SyncState.True;
+
+                Console.WriteLine("&YoutubeID: " + item.YoutubeID);
 
                 //If the URL is the youtube "no thumb", we don't want to save this in the database. We'll wait for the next real thumb.
                 if (item.Count == 0)
@@ -796,7 +801,7 @@ namespace Opus.Api
                 if (UiCallback != null)
                     MainActivity.instance.RunOnUiThread(() => { UiCallback.Invoke(item, syncIndex); });
 
-                Task.Run(() =>
+                /*await*/ Task.Run(() =>
                 {
                     SQLiteConnection db = new SQLiteConnection(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "SyncedPlaylists.sqlite"));
                     db.CreateTable<PlaylistItem>();
@@ -944,7 +949,7 @@ namespace Opus.Api
             {
                 ContentResolver resolver = MainActivity.instance.ContentResolver;
                 Uri uri = MediaStore.Audio.Playlists.Members.GetContentUri("external", LocalPlaylistID);
-                resolver.Delete(uri, MediaStore.Audio.Playlists.Members.AudioId + "=?", new string[] { song.Id.ToString() });
+                resolver.Delete(uri, MediaStore.Audio.Playlists.Members.AudioId + "=?", new string[] { song.LocalID.ToString() });
             });
         }
         #endregion

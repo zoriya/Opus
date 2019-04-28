@@ -142,9 +142,24 @@ namespace Opus.Fragments
                 if(playlists != null)
                 {
                     (List<PlaylistItem> pl, List<PlaylistItem> sp) = await PlaylistManager.ProcessSyncedPlaylists(playlists);
+                    Console.WriteLine("&sp count before: " + sp.Count);
+                    List<PlaylistItem> saved = await PlaylistManager.GetSavedYoutubePlaylists(sp, null);
+                    Console.WriteLine("&sp count afer: " + sp.Count);
+                    sp.AddRange(saved);
                     sp.AddRange(pl);
+
                     adapterItems.Add(new HomeSection(GetString(Resource.String.playlists), SectionType.PlaylistList, sp));
                     adapter.NotifyItemInserted(adapterItems.Count - 1);
+                }
+                else
+                {
+                    List<PlaylistItem> saved = await PlaylistManager.GetSavedYoutubePlaylists(null, null);
+
+                    if(saved != null && saved.Count > 0)
+                    {
+                        adapterItems.Add(new HomeSection(GetString(Resource.String.playlists), SectionType.PlaylistList, saved));
+                        adapter.NotifyItemInserted(adapterItems.Count - 1);
+                    }
                 }
 
                 populating = false;
