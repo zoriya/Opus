@@ -182,6 +182,7 @@
   <string name="logged_in">Logged in as</string>
   <string name="log_in">LOG IN</string>
   <string name="log_out">LOG OUT</string>
+  <string name="login_disabled">Login behaviors has been disabled for now due to a restriction from google.</string>
 
   <!--Snackbars and others-->
   <string name="undo">Undo</string>

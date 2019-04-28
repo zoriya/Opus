@@ -103,7 +103,6 @@ public class Queue : Fragment, RecyclerView.IOnItemTouchListener, PopupMenu.IOnM
 
     public void RefreshCurrent()
     {
-        System.Console.WriteLine("&Queue Count: " + MusicPlayer.queue.Count + " Adapter Count: " + adapter.ItemCount);
         ListView.InvalidateItemDecorations();
 
         int first = ((LinearLayoutManager)ListView.GetLayoutManager()).FindFirstVisibleItemPosition();
@@ -112,10 +111,8 @@ public class Queue : Fragment, RecyclerView.IOnItemTouchListener, PopupMenu.IOnM
         {
             if(i > 0 && MusicPlayer.queue.Count > i - 1)
             {
-                System.Console.WriteLine("&i: " + i);
                 Song song = MusicPlayer.queue[i - 1];
-                SongHolder holder = ListView.GetChildViewHolder(((LinearLayoutManager)ListView.GetLayoutManager()).FindViewByPosition(i)) as SongHolder;
-                if(holder != null)
+                if (ListView.GetChildViewHolder(((LinearLayoutManager)ListView.GetLayoutManager()).FindViewByPosition(i)) is SongHolder holder)
                 {
                     if (MusicPlayer.CurrentID() > -1 && MusicPlayer.queue[MusicPlayer.CurrentID()] == song)
                     {

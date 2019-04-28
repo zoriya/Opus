@@ -4,6 +4,7 @@ using Android.Gms.Auth.Api.SignIn;
 using Android.Gms.Common.Apis;
 using Android.Graphics;
 using Android.Runtime;
+using Android.Support.Design.Widget;
 using Android.Support.V7.Preferences;
 using Android.Util;
 using Android.Views;
@@ -63,25 +64,29 @@ public class AccountPreference : Preference, IResultCallback
         }
     }
 
-    private async void LogIn()
+    private /*async*/ void LogIn()
     {
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DefaultSignIn)
-            .RequestIdToken(Preferences.instance.GetString(Resource.String.clientID))
-            .RequestServerAuthCode(Preferences.instance.GetString(Resource.String.clientID))
-            .RequestEmail()
-            .RequestScopes(new Scope(YouTubeService.Scope.Youtube))
-            .Build();
+        Snackbar snackBar = Snackbar.Make(Preferences.instance.FindViewById(Android.Resource.Id.Content), Resource.String.login_disabled, Snackbar.LengthLong);
+        snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+        snackBar.Show();
 
-        GoogleApiClient googleClient = new GoogleApiClient.Builder(Preferences.instance)
-            .AddApi(Auth.GOOGLE_SIGN_IN_API, gso)
-            .Build();
+        //GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DefaultSignIn)
+        //    .RequestIdToken(Preferences.instance.GetString(Resource.String.clientID))
+        //    .RequestServerAuthCode(Preferences.instance.GetString(Resource.String.clientID))
+        //    .RequestEmail()
+        //    .RequestScopes(new Scope(YouTubeService.Scope.Youtube))
+        //    .Build();
 
-        googleClient.Connect();
+        //GoogleApiClient googleClient = new GoogleApiClient.Builder(Preferences.instance)
+        //    .AddApi(Auth.GOOGLE_SIGN_IN_API, gso)
+        //    .Build();
 
-        while (!googleClient.IsConnected)
-            await Task.Delay(10);
+        //googleClient.Connect();
 
-        Preferences.instance.StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 5981);
+        //while (!googleClient.IsConnected)
+        //    await Task.Delay(10);
+
+        //Preferences.instance.StartActivityForResult(Auth.GoogleSignInApi.GetSignInIntent(googleClient), 5981);
     }
 
     public void OnSignedIn()

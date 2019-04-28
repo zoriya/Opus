@@ -182,6 +182,7 @@
   <string name="logged_in">Connecté en temps que</string>
   <string name="log_in">CONNECTION</string>
   <string name="log_out">DECONNECTION</string>
+  <string name="login_disabled">Les connections ont été désactivée suite a une restriction de google.</string>
 
   <!--Snackbars and others-->
   <string name="undo">Annuler</string>
