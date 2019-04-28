@@ -54,7 +54,7 @@ namespace Opus.Others
             if (alwaysAllowSwap && (viewHolder.AdapterPosition + 1 == ((QueueAdapter)adapter).ItemCount || viewHolder.AdapterPosition == 0))
                 return MakeFlag(0, 0);
 
-            if (alwaysAllowSwap && MusicPlayer.CurrentID() + 1 == viewHolder.AdapterPosition)
+            if (alwaysAllowSwap && (MusicPlayer.CurrentID() + 1 == viewHolder.AdapterPosition || MusicPlayer.switchPosition + 1 == viewHolder.AdapterPosition))
                 return MakeMovementFlags(dragFlag, 0);
 
             return MakeMovementFlags(dragFlag, swipeFlag);

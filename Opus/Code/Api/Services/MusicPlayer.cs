@@ -63,6 +63,7 @@ namespace Opus.Api.Services
         public static bool isRunning = false;
         private bool generating = false;
         public static int currentID = 0;
+        public static int switchPosition;
         public static bool autoUpdateSeekBar = true;
         public static bool repeat = false;
         public static bool useAutoPlay = true;
@@ -491,6 +492,8 @@ namespace Opus.Api.Services
                 return song; //Song is a class, the youtube id will be updated with another method
             }
 
+            switchPosition = position;
+
             try
             {
                 YoutubeClient client = new YoutubeClient();
@@ -516,12 +519,19 @@ namespace Opus.Api.Services
                 }
                 song.IsParsed = true;
 
-                if (position != -1)
-                    Queue.instance?.NotifyItemChanged(position, Resource.Drawable.PublicIcon);
+                if (switchPosition != -1)
+                    Queue.instance?.NotifyItemChanged(switchPosition, Resource.Drawable.PublicIcon);
 
                 if (startPlaybackWhenPosible && song.Album != null)
                 {
-                    instance.Play(song, -1, position == -1);
+                    if(switchPosition != -1)
+                    {
+                        currentID = switchPosition;
+                        Queue.instance?.RefreshCurrent();
+                        Player.instance?.RefreshPlayer();
+                    }
+
+                    instance.Play(song, -1, switchPosition == -1);
                     startPlaybackWhenPosible = false;
                 }
 
@@ -533,20 +543,20 @@ namespace Opus.Api.Services
 
                 if (startPlaybackWhenPosible)
                 {
-                    instance.Play(song, -1, position == -1);
+                    instance.Play(song, -1, switchPosition == -1);
 
-                    if (position != -1)
+                    if (switchPosition != -1)
                     {
-                        Queue.instance?.NotifyItemChanged(position, song.Artist);
-                        Home.instance?.NotifyQueueChanged(position, song.Artist);
+                        Queue.instance?.NotifyItemChanged(switchPosition, song.Artist);
+                        Home.instance?.NotifyQueueChanged(switchPosition, song.Artist);
                     }
                 }
 
                 if (!song.IsLiveStream)
                     song.ExpireDate = mediaStreamInfo.ValidUntil;
 
-                if(position != -1)
-                    UpdateQueueItemDB(song, position);
+                if(switchPosition != -1)
+                    UpdateQueueItemDB(song, switchPosition);
             }
             catch (System.Net.Http.HttpRequestException)
             {
@@ -568,8 +578,8 @@ namespace Opus.Api.Services
                     MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
 
                 song.IsParsed = false;
-                if (position != -1)
-                    RemoveFromQueue(position); //Remove the song from the queue since it can't be played.
+                if (switchPosition != -1)
+                    RemoveFromQueue(switchPosition); //Remove the song from the queue since it can't be played.
 
                 if(startPlaybackWhenPosible)
                     Player.instance?.Ready();
@@ -582,8 +592,8 @@ namespace Opus.Api.Services
                     MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
 
                 song.IsParsed = false;
-                if (position != -1)
-                    RemoveFromQueue(position); //Remove the song from the queue since it can't be played.
+                if (switchPosition != -1)
+                    RemoveFromQueue(switchPosition); //Remove the song from the queue since it can't be played.
 
                 if (startPlaybackWhenPosible)
                     Player.instance?.Ready();
@@ -924,6 +934,10 @@ namespace Opus.Api.Services
                 Queue.instance?.RefreshCurrent();
             }
 
+            //Switch position is the position of the song that will be played just after the parsing.
+            if (switchPosition > position)
+                switchPosition--;
+
             SaveQueueSlot();
             queue.RemoveAt(position);
 
@@ -1107,13 +1121,7 @@ namespace Opus.Api.Services
                 }
                 await ParseSong(song, position, !UseCastPlayer, true);
 
-                if (song != null) //Check if the parse has succeed, the song is set to null if there is an error
-                {
-                    currentID = position;
-                    Queue.instance?.RefreshCurrent();
-                    Player.instance?.RefreshPlayer();
-                }
-                else
+                if (song == null) //Check if the parse has succeed, the song is set to null if there is an error
                     Player.instance?.Ready(); //Remove player's loading bar since we'll not load this song
 
                 if (MainActivity.instance != null && showPlayer)
