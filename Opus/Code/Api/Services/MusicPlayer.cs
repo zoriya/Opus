@@ -1064,7 +1064,7 @@ namespace Opus.Api.Services
                     Player.instance.Buffering();
                     if (autoPlay.Count > 0)
                     {
-                        queue.Add(autoPlay[0]);
+                        PlayLastInQueue(autoPlay[0]);
                         UpdateQueueItemDB(queue.Last(), queue.Count - 1);
                         autoPlay.RemoveAt(0);
 
@@ -1100,6 +1100,7 @@ namespace Opus.Api.Services
         public async void SwitchQueue(int position, bool showPlayer = false, bool StartFromOldPosition = false)
         {
             Song song = await GetItem(position);
+            Console.WriteLine("&Song is parsed: " + song.IsParsed);
 
             if(showPlayer)
                 MainActivity.instance.ShowPlayer();

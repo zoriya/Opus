@@ -103,6 +103,7 @@ public class Queue : Fragment, RecyclerView.IOnItemTouchListener, PopupMenu.IOnM
 
     public void RefreshCurrent()
     {
+        System.Console.WriteLine("&Queue Count: " + MusicPlayer.queue.Count + " Adapter Count: " + adapter.ItemCount);
         ListView.InvalidateItemDecorations();
 
         int first = ((LinearLayoutManager)ListView.GetLayoutManager()).FindFirstVisibleItemPosition();
@@ -111,20 +112,24 @@ public class Queue : Fragment, RecyclerView.IOnItemTouchListener, PopupMenu.IOnM
         {
             if(i > 0 && MusicPlayer.queue.Count > i - 1)
             {
+                System.Console.WriteLine("&i: " + i);
                 Song song = MusicPlayer.queue[i - 1];
-                SongHolder holder = (SongHolder)ListView.GetChildViewHolder(((LinearLayoutManager)ListView.GetLayoutManager()).FindViewByPosition(i));
-                if (MusicPlayer.CurrentID() > -1 && MusicPlayer.queue[MusicPlayer.CurrentID()] == song)
+                SongHolder holder = ListView.GetChildViewHolder(((LinearLayoutManager)ListView.GetLayoutManager()).FindViewByPosition(i)) as SongHolder;
+                if(holder != null)
                 {
-                    holder.status.Visibility = ViewStates.Visible;
-                    holder.status.SetTextColor(MusicPlayer.isRunning ? Color.Argb(255, 244, 81, 30) : Color.Argb(255, 66, 165, 245));
+                    if (MusicPlayer.CurrentID() > -1 && MusicPlayer.queue[MusicPlayer.CurrentID()] == song)
+                    {
+                        holder.status.Visibility = ViewStates.Visible;
+                        holder.status.SetTextColor(MusicPlayer.isRunning ? Color.Argb(255, 244, 81, 30) : Color.Argb(255, 66, 165, 245));
 
-                    string status = MusicPlayer.isRunning ? GetString(Resource.String.playing) : GetString(Resource.String.paused);
-                    SpannableString statusText = new SpannableString(status);
-                    statusText.SetSpan(new BackgroundColorSpan(Color.ParseColor("#8C000000")), 0, status.Length, SpanTypes.InclusiveInclusive);
-                    holder.status.TextFormatted = statusText;
+                        string status = MusicPlayer.isRunning ? GetString(Resource.String.playing) : GetString(Resource.String.paused);
+                        SpannableString statusText = new SpannableString(status);
+                        statusText.SetSpan(new BackgroundColorSpan(Color.ParseColor("#8C000000")), 0, status.Length, SpanTypes.InclusiveInclusive);
+                        holder.status.TextFormatted = statusText;
+                    }
+                    else
+                        holder.status.Visibility = ViewStates.Gone;
                 }
-                else
-                    holder.status.Visibility = ViewStates.Gone;
             }
         }
     }
