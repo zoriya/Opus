@@ -69,6 +69,8 @@ namespace Opus.Fragments
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             if(useHeader)
                 CreateHeader();
+            if (item.SyncState == SyncState.Error)
+                CreateSyncBanner();
             return view;
         }
 
@@ -107,6 +109,11 @@ namespace Opus.Fragments
             }
             Activity.FindViewById(Resource.Id.collapsingToolbar).RequestLayout();
         }
+
+        //void CreateSyncBanner()
+        //{
+        //    MainActivity.instance.FindViewById(Resource.Id.banner).Visibility = ViewStates.Visible;
+        //}
 
         void HeaderPlay(object sender, System.EventArgs e)
         {
