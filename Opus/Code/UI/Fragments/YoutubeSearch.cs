@@ -406,7 +406,7 @@ namespace Opus.Fragments
             bottomSheet.Show();
         }
 
-        public void PlaylistMore(PlaylistItem item)
+        public async void PlaylistMore(PlaylistItem item)
         {
             BottomSheetDialog bottomSheet = new BottomSheetDialog(MainActivity.instance);
             View bottomView = MainActivity.instance.LayoutInflater.Inflate(Resource.Layout.BottomSheet, null);
@@ -432,17 +432,29 @@ namespace Opus.Fragments
                     PlaylistManager.AddToQueue(item);
                     bottomSheet.Dismiss();
                 }),
-                new BottomSheetAction(Resource.Drawable.LibraryAdd, MainActivity.instance.Resources.GetString(Resource.String.add_to_library), (sender, eventArg) =>
-                {
-                    PlaylistManager.ForkPlaylist(item);
-                    bottomSheet.Dismiss();
-                }),
                 new BottomSheetAction(Resource.Drawable.Download, MainActivity.instance.Resources.GetString(Resource.String.download), (sender, eventArg) =>
                 {
                     YoutubeManager.DownloadPlaylist(item.Name, item.YoutubeID);
                     bottomSheet.Dismiss();
                 })
             };
+
+            if(await PlaylistManager.IsForked(item))
+            {
+                actions.Add(new BottomSheetAction(Resource.Drawable.Delete, MainActivity.instance.Resources.GetString(Resource.String.unfork), (sender, eventArg) =>
+                {
+                    PlaylistManager.Unfork(item);
+                    bottomSheet.Dismiss();
+                }));
+            }
+            else
+            {
+                actions.Add(new BottomSheetAction(Resource.Drawable.LibraryAdd, MainActivity.instance.Resources.GetString(Resource.String.add_to_library), (sender, eventArg) =>
+                {
+                    PlaylistManager.ForkPlaylist(item);
+                    bottomSheet.Dismiss();
+                }));
+            }
 
             bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, actions);
             bottomSheet.Show();
