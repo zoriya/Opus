@@ -1,10 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.sdg.opus" android:installLocation="preferExternal" android:versionName="3.3.0" android:versionCode="40">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.sdg.opus" android:installLocation="preferExternal" android:versionName="3.3.4" android:versionCode="44">
 	<uses-sdk android:minSdkVersion="21" android:targetSdkVersion="28" />
 	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 	<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 	<uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+	<uses-permission android:name="android.permission.INTERNET" />
 	<application android:allowBackup="true" android:label="Opus" android:icon="@drawable/Icon">
 		<meta-data android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME" android:value="Opus.CastProvider" />
 		<provider android:name="android.support.v4.content.FileProvider" android:authorities="${applicationId}.provider" android:exported="false" android:grantUriPermissions="true">

@@ -19,9 +19,14 @@ namespace Opus.Others
                 int size = (int)(source.Width * 0.5625f);
                 int x = (int)(source.Width * 0.21875f);  //(source.Width - source.Width * 0.5625f) / 2 = source.Width * (1 - 0.5625) / 2
                 int y = (source.Height - size) / 2;
-                Bitmap bitmap = Bitmap.CreateBitmap(source, x, y, size, size);
-                source.Recycle();
-                return bitmap;
+                if (size > 0)
+                {
+                    Bitmap bitmap = Bitmap.CreateBitmap(source, x, y, size, size);
+                    source.Recycle();
+                    return bitmap;
+                }
+                else
+                    return source;
             }
             else
             {
