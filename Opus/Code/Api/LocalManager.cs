@@ -69,6 +69,9 @@ namespace Opus.Api
         /// <param name="folderPath">The path of a folder if you want to shuffle files from this folder only.</param>
         public async static void ShuffleAll(string folderPath = null)
         {
+            if (!await MainActivity.instance.GetReadPermission())
+                return;
+
             List<Song> songs = new List<Song>();
 
             await Task.Run(() => 

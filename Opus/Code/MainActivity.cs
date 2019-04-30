@@ -171,8 +171,14 @@ namespace Opus
         protected override void OnStart()
         {
             base.OnStart();
-            CastContext = CastContext.GetSharedInstance(this);
-            CastContext.SessionManager.AddSessionManagerListener(this);
+
+            if (GoogleApiAvailability.Instance.IsGooglePlayServicesAvailable(this) == ConnectionResult.Success)
+            {
+                CastContext = CastContext.GetSharedInstance(this);
+                CastContext.SessionManager.AddSessionManagerListener(this);
+            }
+            else
+                CastContext = null;
         }
 
         protected override void OnResume()
@@ -181,7 +187,7 @@ namespace Opus
             Paused = false;
             instance = this;
 
-            if (CastContext.SessionManager.CurrentSession == null && MusicPlayer.CurrentID() == -1)
+            if ((CastContext == null || CastContext.SessionManager.CurrentSession == null) && MusicPlayer.CurrentID() == -1)
                 MusicPlayer.currentID = MusicPlayer.RetrieveQueueSlot();
             else if (MusicPlayer.UseCastPlayer)
                 MusicPlayer.GetQueueFromCast();
