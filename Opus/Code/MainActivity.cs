@@ -184,8 +184,8 @@ namespace Opus
         protected override void OnResume()
         {
             base.OnResume();
-            Paused = false;
             instance = this;
+            Paused = false;
 
             if ((CastContext == null || CastContext.SessionManager.CurrentSession == null) && MusicPlayer.CurrentID() == -1)
                 MusicPlayer.currentID = MusicPlayer.RetrieveQueueSlot();

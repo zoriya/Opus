@@ -140,7 +140,6 @@ namespace Opus.Fragments
                 MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(false);
                 MainActivity.instance.SupportActionBar.SetDisplayShowTitleEnabled(true);
                 MainActivity.instance.SupportActionBar.SetDisplayShowTitleEnabled(false);
-                MainActivity.instance.FindViewById(Resource.Id.toolbarLogo).Visibility = ViewStates.Visible;
 
                 MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
                 Activity.FindViewById<AppBarLayout>(Resource.Id.appbar).RemoveOnOffsetChangedListener(this);
@@ -164,7 +163,7 @@ namespace Opus.Fragments
                 }
                 instance = null;
             }
-            base.OnDestroyView();
+            base.OnDestroyView();                
         }
 
 
@@ -558,7 +557,7 @@ namespace Opus.Fragments
             base.OnResume();
             instance = this;
 
-            if(useHeader)
+            if (useHeader)
             {
                 if (!Activity.FindViewById<ImageButton>(Resource.Id.headerPlay).HasOnClickListeners)
                     Activity.FindViewById<ImageButton>(Resource.Id.headerPlay).Click += (sender, e0) => { PlaylistManager.PlayInOrder(item); };
@@ -584,6 +583,12 @@ namespace Opus.Fragments
                 Activity.FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Invisible;
                 MainActivity.instance.SupportActionBar.SetDisplayShowTitleEnabled(true);
             }
+        }
+
+        public override void OnDestroy()
+        {
+            base.OnDestroy();
+            MainActivity.instance.FindViewById(Resource.Id.toolbarLogo).Visibility = ViewStates.Visible;
         }
     }
 }
