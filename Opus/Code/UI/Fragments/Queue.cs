@@ -201,7 +201,7 @@ public class Queue : Fragment, RecyclerView.IOnItemTouchListener, PopupMenu.IOnM
                 }),
                 new BottomSheetAction(Resource.Drawable.Download, Resources.GetString(Resource.String.download), (sender, eventArg) =>
                 {
-                    YoutubeManager.Download(new[] { item }, null);
+                    YoutubeManager.Download(new[] { item });
                     bottomSheet.Dismiss();
                 })
             });

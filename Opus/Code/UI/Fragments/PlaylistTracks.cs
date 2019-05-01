@@ -172,7 +172,7 @@ namespace Opus.Fragments
             switch (menuItem.ItemId)
             {
                 case Resource.Id.download:
-                    YoutubeManager.DownloadPlaylist(item.Name, item.YoutubeID);
+                    YoutubeManager.DownloadPlaylist(item.Name, item.YoutubeID, true, true);
                     break;
 
                 case Resource.Id.fork:
@@ -527,7 +527,7 @@ namespace Opus.Fragments
                     }),
                     new BottomSheetAction(Resource.Drawable.Download, Resources.GetString(Resource.String.download), (sender, eventArg) =>
                     {
-                        YoutubeManager.Download(new[] { song }, null);
+                        YoutubeManager.Download(new[] { song });
                         bottomSheet.Dismiss();
                     })
                 });

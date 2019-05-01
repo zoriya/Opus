@@ -399,7 +399,7 @@ namespace Opus.Fragments
                 new BottomSheetAction(Resource.Drawable.PlaylistAdd, Resources.GetString(Resource.String.add_to_playlist), (sender, eventArg) => { PlaylistManager.AddSongToPlaylistDialog(item); bottomSheet.Dismiss(); }),
                 new BottomSheetAction(Resource.Drawable.Download, Resources.GetString(Resource.String.download), (sender, eventArg) =>
                 {
-                    YoutubeManager.Download(new[] { item }, null);
+                    YoutubeManager.Download(new[] { item });
                     bottomSheet.Dismiss();
                 })
             });
@@ -434,7 +434,7 @@ namespace Opus.Fragments
                 }),
                 new BottomSheetAction(Resource.Drawable.Download, MainActivity.instance.Resources.GetString(Resource.String.download), (sender, eventArg) =>
                 {
-                    YoutubeManager.DownloadPlaylist(item.Name, item.YoutubeID);
+                    YoutubeManager.DownloadPlaylist(item.Name, item.YoutubeID, true, false);
                     bottomSheet.Dismiss();
                 })
             };

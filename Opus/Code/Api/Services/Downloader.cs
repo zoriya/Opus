@@ -2,11 +2,11 @@
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
-using Android.Database;
+using Android.Graphics;
 using Android.Media;
 using Android.Net;
 using Android.OS;
-using Android.Provider;
+using Android.Support.Design.Widget;
 using Android.Support.V4.App;
 using Android.Support.V7.Preferences;
 using Android.Support.V7.Widget;
@@ -16,7 +16,6 @@ using Opus.Adapter;
 using Opus.DataStructure;
 using Opus.Fragments;
 using Opus.Others;
-using SQLite;
 using Square.Picasso;
 using System.Collections.Generic;
 using System.IO;
@@ -29,8 +28,9 @@ using YoutubeExplode.Models;
 using YoutubeExplode.Models.MediaStreams;
 using static Android.Provider.MediaStore.Audio;
 using Bitmap = Android.Graphics.Bitmap;
-using CursorLoader = Android.Support.V4.Content.CursorLoader;
 using File = System.IO.File;
+using Path = System.IO.Path;
+using Picture = TagLib.Picture;
 using Playlist = Opus.Fragments.Playlist;
 using Stream = System.IO.Stream;
 
@@ -81,14 +81,49 @@ namespace Opus.Api.Services
             return StartCommandResult.Sticky;
         }
 
+        public async static Task Init()
+        {
+            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
+            string downloadPath = prefManager.GetString("downloadPath", null);
+            if (downloadPath == null)
+            {
+                Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), Resource.String.download_path_not_set, Snackbar.LengthLong).SetAction(Resource.String.set_path, (v) =>
+                {
+                    Intent pref = new Intent(Application.Context, typeof(Preferences));
+                    MainActivity.instance.StartActivity(pref);
+                });
+                snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+                snackBar.Show();
+
+                ISharedPreferencesEditor editor = prefManager.Edit();
+                editor.PutString("downloadPath", Environment.GetExternalStoragePublicDirectory(Environment.DirectoryMusic).ToString());
+                editor.Commit();
+
+                downloadPath = Environment.GetExternalStoragePublicDirectory(Environment.DirectoryMusic).ToString();
+            }
+
+            if (queue == null)
+                queue = new List<DownloadFile>();
+
+            Context context = Application.Context;
+            Intent intent = new Intent(context, typeof(Downloader));
+            context.StartService(intent);
+
+            while (instance == null)
+                await Task.Delay(10);
+
+            instance.downloadPath = downloadPath;
+            instance.maxDownload = prefManager.GetInt("maxDownload", 4);
+        }
+
+        #region Downloading of the queue
         public async void StartDownload()
         {
-            await SyncWithPlaylists();
-
             while (downloadCount < maxDownload && queue.Count(x => x.State == DownloadState.None) > 0)
             {
-#pragma warning disable CS4014
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 Task.Run(() => { DownloadAudio(queue.FindIndex(x => x.State == DownloadState.None), downloadPath); }, cancellation.Token);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 await Task.Delay(10);
             }
         }
@@ -276,61 +311,39 @@ namespace Opus.Api.Services
                 });
             }
         }
+        #endregion
 
-        public async Task SyncWithPlaylists()
-        {
-            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
-            bool keepDeleted = prefManager.GetBoolean("keepDeleted", true);
-
-            List<string> playlists = queue.ConvertAll(x => x.playlist).Distinct().ToList();
-            foreach(string playlist in playlists)
-                await SyncWithPlaylist(playlist, keepDeleted);
-        }
-
-        public async Task SyncWithPlaylist(string playlistName, bool keepDeleted)
-        {
-            Playlist.instance?.StartSyncing(playlistName);
-            long LocalID = await PlaylistManager.GetPlaylistID(playlistName);
-            await SyncWithPlaylist(LocalID, keepDeleted);
-
-            await Task.Run(() =>
-            {
-                SQLiteConnection db = new SQLiteConnection(Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "SyncedPlaylists.sqlite"));
-                db.CreateTable<PlaylistItem>();
-                db.InsertOrReplace(new PlaylistItem(playlistName, LocalID, null));
-            });
-
-            await Task.Delay(1000);
-            Playlist.instance?.CheckForSync();
-        }
-
-        public async Task SyncWithPlaylist(long LocalID, bool keepDeleted)
+        #region Playlist downloading
+        public async void DownloadPlaylist(List<DownloadFile> files, long LocalID, bool keepDeleted)
         {
             if (LocalID != -1)
             {
                 List<Song> songs = await PlaylistManager.GetTracksFromLocalPlaylist(LocalID);
 
-                await Task.Run(() => 
+                await Task.Run(() =>
                 {
                     foreach (Song song in songs)
                         LocalManager.CompleteItem(song);
                 });
 
-                for (int i = 0; i < queue.Count; i++)
+                for (int i = 0; i < files.Count; i++)
                 {
-                    Song song = songs.Find(x => x.YoutubeID == queue[i].videoID);
+                    Song song = songs.Find(x => x.YoutubeID == files[i].videoID);
                     if (song != null)
                     {
                         //Video is already downloaded:
-                        if (queue[i].State == DownloadState.None)
-                            queue[i].State = DownloadState.UpToDate;
+                        if (files[i].State == DownloadState.None)
+                            files[i].State = DownloadState.UpToDate;
 
                         currentStrike++;
                         songs.Remove(song);
                     }
                 }
 
-                await Task.Run(() => 
+                queue.AddRange(files);
+                StartDownload();
+
+                await Task.Run(() =>
                 {
                     if (Looper.MyLooper() == null)
                         Looper.Prepare();
@@ -347,9 +360,13 @@ namespace Opus.Api.Services
                     }
                 });
             }
+
+            await Task.Delay(1000);
             Playlist.instance?.CheckForSync();
         }
+        #endregion
 
+        #region Cancel Handle
         void Cancel()
         {
             cancellation.Cancel(true);
@@ -376,7 +393,9 @@ namespace Opus.Api.Services
             cancellation = new CancellationTokenSource();
             Playlist.instance?.SyncCanceled();
         }
+        #endregion
 
+        #region Notification / Queue callbacks
         void UpdateList(int position)
         {
             DownloadQueue.instance?.RunOnUiThread(() => { DownloadQueue.instance?.ListView.GetAdapter().NotifyItemChanged(position); });
@@ -441,6 +460,7 @@ namespace Opus.Api.Services
               
             StartForeground(notificationID, notification.Build());
         }
+        #endregion
     }
 }
  

@@ -17,6 +17,11 @@
             this.videoID = videoID;
             this.playlist = playlist;
         }
+
+        public static DownloadFile From(Song song, string playlistName)
+        {
+            return new DownloadFile(song.Title, song.YoutubeID, playlistName);
+        }
     }
 
     public enum DownloadState

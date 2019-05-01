@@ -206,7 +206,7 @@ namespace Opus.Adapter
                         }),
                         new BottomSheetAction(Resource.Drawable.Download, MainActivity.instance.Resources.GetString(Resource.String.download), (sender, eventArg) =>
                         {
-                            YoutubeManager.Download(new[] { item }, null);
+                            YoutubeManager.Download(new[] { item });
                             bottomSheet.Dismiss();
                         })
                     });
@@ -285,7 +285,7 @@ namespace Opus.Adapter
                         }),
                         new BottomSheetAction(Resource.Drawable.Download, MainActivity.instance.Resources.GetString(Resource.String.download), (sender, eventArg) =>
                         {
-                            YoutubeManager.Download(new[] { item }, null);
+                            YoutubeManager.Download(new[] { item });
                             bottomSheet.Dismiss();
                         })
                     });

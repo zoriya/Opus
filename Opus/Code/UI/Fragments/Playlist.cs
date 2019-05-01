@@ -186,12 +186,15 @@ namespace Opus.Fragments
             }
 
             int YoutubeIndex = YoutubePlaylists.FindIndex(x => x.Name == playlistName);
-            YoutubePlaylists[YoutubeIndex].SyncState = SyncState.Loading;
-            PlaylistHolder holder = (PlaylistHolder)ListView.GetChildViewHolder(ListView.GetChildAt(LocalPlaylists.Count + YoutubeIndex));
-            holder.sync.Visibility = ViewStates.Gone;
-            holder.SyncLoading.Visibility = ViewStates.Visible;
-            if (MainActivity.Theme == 1)
-                holder.SyncLoading.IndeterminateTintList = ColorStateList.ValueOf(Color.White);
+            if(YoutubeIndex != -1)
+            {
+                YoutubePlaylists[YoutubeIndex].SyncState = SyncState.Loading;
+                PlaylistHolder holder = (PlaylistHolder)ListView.GetChildViewHolder(ListView.GetChildAt(LocalPlaylists.Count + YoutubeIndex));
+                holder.sync.Visibility = ViewStates.Gone;
+                holder.SyncLoading.Visibility = ViewStates.Visible;
+                if (MainActivity.Theme == 1)
+                    holder.SyncLoading.IndeterminateTintList = ColorStateList.ValueOf(Color.White);
+            }
         }
 
         private void SyncError()
@@ -434,7 +437,7 @@ namespace Opus.Fragments
             {
                 actions.AddRange(new BottomSheetAction[]{ new BottomSheetAction(Resource.Drawable.Sync, Resources.GetString(Resource.String.sync_now), (sender, eventArg) =>
                 {
-                    YoutubeManager.DownloadPlaylist(item.Name, item.YoutubeID);
+                    YoutubeManager.DownloadPlaylist(item.Name, item.YoutubeID, true, true);
                     bottomSheet.Dismiss();
                 }),
                 new BottomSheetAction(Resource.Drawable.SyncDisabled, Resources.GetString(Resource.String.stop_sync), (sender, eventArg) =>
@@ -464,7 +467,7 @@ namespace Opus.Fragments
             {
                 actions.Add(new BottomSheetAction(Resource.Drawable.Sync, Resources.GetString(Resource.String.sync), (sender, eventArg) => 
                 {
-                    YoutubeManager.DownloadPlaylist(item.Name, item.YoutubeID);
+                    YoutubeManager.DownloadPlaylist(item.Name, item.YoutubeID, true, true);
                     bottomSheet.Dismiss();
                 }));
 

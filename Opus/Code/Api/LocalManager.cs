@@ -294,11 +294,13 @@ namespace Opus.Api
         /// Open the EditMetadata page for a song.
         /// </summary>
         /// <param name="item"></param>
-        public static void EditMetadata(Song item)
+        /// <param name="queuePosition">Set this to a position of the song in the queue, it will update the queue slot after the edit.</param>
+        public static void EditMetadata(Song item, int queuePosition = -1)
         {
             item = CompleteItem(item);
             Intent intent = new Intent(Application.Context, typeof(EditMetaData));
             intent.PutExtra("Song", item.ToString());
+            intent.PutExtra("Position", queuePosition);
             MainActivity.instance.StartActivity(intent);
         }
         #endregion

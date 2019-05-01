@@ -280,10 +280,7 @@ namespace Opus.Fragments
                 prefButton.Summary = pref.GetInt("maxDownload", 2).ToString();
 
                 if(Downloader.instance != null && Downloader.queue.Count > 0)
-                {
                     Downloader.instance.maxDownload = pref.GetInt("maxDownload", 4);
-                    Downloader.instance.StartDownload();
-                } 
             });
             builder.SetNegativeButton(Resources.GetString(Resource.String.cancel), (s, eventArg) => { });
             builder.Show();

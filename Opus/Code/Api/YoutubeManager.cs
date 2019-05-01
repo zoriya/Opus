@@ -21,7 +21,9 @@ using System.Threading.Tasks;
 using TagLib;
 using YoutubeExplode;
 using YoutubeExplode.Models;
+using static Android.Provider.MediaStore.Audio;
 using CursorLoader = Android.Support.V4.Content.CursorLoader;
+using Playlist = Opus.Fragments.Playlist;
 using PlaylistItem = Opus.DataStructure.PlaylistItem;
 
 namespace Opus.Api
@@ -85,61 +87,44 @@ namespace Opus.Api
 
         #region Downloader
         /// <summary>
-        /// Download every youtube song in the items array and add them to the local playlist that you named in the second var.
+        /// Download every youtube song in the items array.
         /// </summary>
         /// <param name="items"></param>
-        /// <param name="playlist"></param>
-        public static void Download(Song[] items, string playlist)
+        public static void Download(Song[] items)
         {
             string[] names = items.ToList().Where(x => x.LocalID == -1).ToList().ConvertAll(x => x.Title).ToArray();
             string[] videoIDs = items.ToList().Where(x => x.LocalID == -1).ToList().ConvertAll(x => x.YoutubeID).ToArray();
 
-            DownloadFiles(names, videoIDs, playlist);
+            DownloadFiles(names, videoIDs);
         }
 
         /// <summary>
-        /// Download songs using there id and there name (for the queue). Then, they will be added to the playlist that you named.
+        /// Download songs using there id and there name (for the queue).
         /// </summary>
         /// <param name="names"></param>
         /// <param name="videoIDs"></param>
-        /// <param name="playlist"></param>
-        public static async void DownloadFiles(string[] names, string[] videoIDs, string playlist)
+        public static async void DownloadFiles(string[] names, string[] videoIDs)
         {
-            ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Android.App.Application.Context);
-            string downloadPath = prefManager.GetString("downloadPath", null);
-            if (downloadPath == null)
-            {
-                Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), Resource.String.download_path_not_set, Snackbar.LengthLong).SetAction(Resource.String.set_path, (v) =>
-                {
-                    Intent pref = new Intent(Android.App.Application.Context, typeof(Preferences));
-                    MainActivity.instance.StartActivity(pref);
-                });
-                snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
-                snackBar.Show();
-
-                ISharedPreferencesEditor editor = prefManager.Edit();
-                editor.PutString("downloadPath", Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryMusic).ToString());
-                editor.Commit();
-
-                downloadPath = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryMusic).ToString();
-            }
-
-            Context context = Android.App.Application.Context;
-            Intent intent = new Intent(context, typeof(Downloader));
-            context.StartService(intent);
-
-            while (Downloader.instance == null)
-                await Task.Delay(10);
-
             List<DownloadFile> files = new List<DownloadFile>();
             for (int i = 0; i < names.Length; i++)
             {
                 if (videoIDs[i] != null && videoIDs[i] != "")
-                    files.Add(new DownloadFile(names[i], videoIDs[i], playlist));
+                    files.Add(new DownloadFile(names[i], videoIDs[i], null));
             }
 
-            Downloader.instance.downloadPath = downloadPath;
-            Downloader.instance.maxDownload = prefManager.GetInt("maxDownload", 4);
+            await DownloadFiles(files);
+        }
+
+        public static async Task DownloadFiles(IEnumerable<DownloadFile> files)
+        {
+            if (!await MainActivity.instance.GetReadPermission())
+                return;
+
+            if (!await MainActivity.instance.GetWritePermission())
+                return;
+
+            await Downloader.Init();
+
             Downloader.queue.AddRange(files);
             Downloader.instance.StartDownload();
         }
@@ -147,10 +132,11 @@ namespace Opus.Api
         /// <summary>
         /// Download a playlist or update the local playlist with new songs.
         /// </summary>
-        /// <param name="playlist">The name of the playlist (local one)</param>
-        /// <param name="playlistID">The youtube id of your playlist</param>
+        /// <param name="playlistName">The name of the playlist (local one)</param>
+        /// <param name="YoutubeID">The youtube id of your playlist</param>
+        /// <param name="keepPlaylistSynced">True if you want to add the playlist in the keep synced database (warning, this wont add the playlist to the saved ones) </param>
         /// <param name="showToast">True if you want this method to display that the download has started</param>
-        public static async void DownloadPlaylist(string playlist, string playlistID, bool showToast = true)
+        public static async void DownloadPlaylist(string playlistName, string YoutubeID, bool keepPlaylistSynced, bool showToast)
         {
             if (!await MainActivity.instance.WaitForYoutube())
                 return;
@@ -164,13 +150,36 @@ namespace Opus.Api
             if (showToast)
                 Toast.MakeText(Android.App.Application.Context, Resource.String.syncing, ToastLength.Short).Show();
 
+
+            long LocalID = await PlaylistManager.GetPlaylistID(playlistName);
+            if(LocalID == -1)
+            {
+                ContentValues value = new ContentValues();
+                value.Put(Playlists.InterfaceConsts.Name, playlistName);
+                MainActivity.instance.ContentResolver.Insert(Playlists.ExternalContentUri, value);
+
+                LocalID = await PlaylistManager.GetPlaylistID(playlistName);
+            }
+
+            Playlist.instance?.StartSyncing(playlistName);
+
+            if (keepPlaylistSynced)
+            {
+                await Task.Run(() =>
+                {
+                    SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "SyncedPlaylists.sqlite"));
+                    db.CreateTable<PlaylistItem>();
+                    db.InsertOrReplace(new PlaylistItem(playlistName, LocalID, YoutubeID));
+                });
+            }
+
             List<string> names = new List<string>();
             List<string> videoIDs = new List<string>();
             string nextPageToken = "";
             while (nextPageToken != null)
             {
                 var ytPlaylistRequest = YoutubeService.PlaylistItems.List("snippet, contentDetails");
-                ytPlaylistRequest.PlaylistId = playlistID;
+                ytPlaylistRequest.PlaylistId = YoutubeID;
                 ytPlaylistRequest.MaxResults = 50;
                 ytPlaylistRequest.PageToken = nextPageToken;
 
@@ -186,7 +195,19 @@ namespace Opus.Api
             }
 
             if (names.Count > 0)
-                DownloadFiles(names.ToArray(), videoIDs.ToArray(), playlist);            
+            {
+                await Downloader.Init();
+
+                List<DownloadFile> files = new List<DownloadFile>();
+                for (int i = 0; i < names.Count; i++)
+                {
+                    if (videoIDs[i] != null && videoIDs[i] != "")
+                        files.Add(new DownloadFile(names[i], videoIDs[i], playlistName));
+                }
+
+                ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Android.App.Application.Context);
+                Downloader.instance.DownloadPlaylist(files, LocalID, prefManager.GetBoolean("keepDeleted", true));
+            }
         }
 
         /// <summary>
@@ -219,7 +240,7 @@ namespace Opus.Api
             {
                 if (item.YoutubeID != null)
                 {
-                    DownloadPlaylist(item.Name, item.YoutubeID, false);
+                    DownloadPlaylist(item.Name, item.YoutubeID, false, false);
                 }
             }
         }

@@ -12,6 +12,7 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using Opus.Api;
+using Opus.Api.Services;
 using Opus.DataStructure;
 using Opus.Others;
 using Square.Picasso;
@@ -29,6 +30,7 @@ namespace Opus.Fragments
     {
         public static EditMetaData instance;
         public Song song;
+        private int queuePosition;
 
         private TextView title, artist, album, youtubeID;
         private ImageView albumArt;
@@ -51,6 +53,7 @@ namespace Opus.Fragments
 
             instance = this;
             song = (Song)Intent.GetStringExtra("Song");
+            queuePosition = Intent.GetIntExtra("Position", -1);
 
             Android.Support.V7.Widget.Toolbar toolbar = FindViewById<Android.Support.V7.Widget.Toolbar>(Resource.Id.backToolbar);
             DisplayMetrics metrics = new DisplayMetrics();
@@ -167,6 +170,8 @@ namespace Opus.Fragments
         {
             if(await ValidateChanges(true))
                 Finish();
+
+            Player.instance?.RefreshPlayer();
         }
 
         async Task<bool> ValidateChanges(bool displayActionIfMountFail = false)
@@ -208,9 +213,18 @@ namespace Opus.Fragments
 
             System.Console.WriteLine("&Writing tags");
             meta.Tag.Title = title.Text;
+            song.Title = title.Text;
             meta.Tag.Performers = new string[] { artist.Text };
+            song.Artist = artist.Text;
             meta.Tag.Album = album.Text;
+            song.Album = album.Text;
             meta.Tag.Comment = youtubeID.Text;
+            if (queuePosition != -1 && MusicPlayer.queue.Count > queuePosition)
+            {
+                MusicPlayer.queue[queuePosition] = song;
+                Player.instance?.RefreshPlayer();
+                Queue.instance.NotifyItemChanged(queuePosition);
+            }
 
             if (ytThumbUri != null)
             {

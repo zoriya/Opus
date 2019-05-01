@@ -425,7 +425,7 @@ namespace Opus
                     }),
                     new BottomSheetAction(Resource.Drawable.Download, Resources.GetString(Resource.String.download), (sender, eventArg) =>
                     {
-                        YoutubeManager.Download(new[]{ item }, null);
+                        YoutubeManager.Download(new[]{ item });
                         bottomSheet.Dismiss();
                     }),
                     new BottomSheetAction(Resource.Drawable.OpenInBrowser, Resources.GetString(Resource.String.open_youtube), (sender, eventArg) =>
@@ -440,7 +440,7 @@ namespace Opus
             {
                 actions.Add(new BottomSheetAction(Resource.Drawable.Edit, Resources.GetString(Resource.String.edit_metadata), (sender, eventArg) =>
                 {
-                    LocalManager.EditMetadata(item);
+                    LocalManager.EditMetadata(item, MusicPlayer.CurrentID());
                     bottomSheet.Dismiss();
                 }));
             }
