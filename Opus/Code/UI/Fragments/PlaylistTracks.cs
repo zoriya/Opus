@@ -38,7 +38,6 @@ namespace Opus.Fragments
         public bool fullyLoadded = true;
         public bool lastVisible = false;
         public bool useHeader = true;
-        public bool navigating = false;
         private bool isForked;
         private bool loading = false;
 
@@ -349,7 +348,7 @@ namespace Opus.Fragments
         {
             adapter.SwapCursor((ICursor)data, false);
 
-            if (item.LocalID != -1)
+            if (query == null && item.LocalID != -1 && adapter.BaseCount > 0)
             {
                 Activity.FindViewById<TextView>(Resource.Id.headerNumber).Text = item.Count.ToString() + " " + GetString(Resource.String.elements);
                 var songCover = Uri.Parse("content://media/external/audio/albumart");
@@ -542,13 +541,19 @@ namespace Opus.Fragments
         {
             PlaylistManager.RemoveTrackFromPlaylistDialog(this.item, item, () =>
             {
-                adapter.NotifyItemRemoved(position);
+                if (position == 0)
+                    adapter.NotifyItemChanged(0);
+                else
+                    adapter.NotifyItemRemoved(position);
             }, () =>
             {
                 adapter.NotifyItemChanged(position);
             }, () =>
             {
-                adapter.NotifyItemInserted(position);
+                if (position == 0)
+                    adapter.NotifyItemChanged(position);
+                else
+                    adapter.NotifyItemInserted(position);
             });
         }
 

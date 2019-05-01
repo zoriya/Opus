@@ -25,10 +25,10 @@ namespace Opus.Others
                 {
                     PlaylistManager.RemoveFromYoutubePlaylist(song.TrackID);
                 }
-                if (LocalPlaylistID != 0)
-                {
-                    PlaylistManager.RemoveFromLocalPlaylist(song, LocalPlaylistID);
-                }
+            }
+            else if (LocalPlaylistID != 0)
+            {
+                LocalManager.AddToPlaylist(new[] { song }, null, LocalPlaylistID);
             }
         }
 

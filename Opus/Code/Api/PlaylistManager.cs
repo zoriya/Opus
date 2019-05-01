@@ -551,21 +551,27 @@ namespace Opus.Api
         /// <param name="RemovedCallback">A callback called when the user click ok in the dialog. You just need to remove the track from the UI, everything else is already handled.</param>
         /// <param name="CancelledCallback">A callback called when the user click cancel in the dialog</param>
         /// <param name="UndoCallback">A callback called when the user click undo in the snackbar</param>
-        public static void RemoveTrackFromPlaylistDialog(PlaylistItem item, Song song, Action RemovedCallback, Action CancelledCallback, Action UndoCallback)
+        public async static void RemoveTrackFromPlaylistDialog(PlaylistItem item, Song song, Action RemovedCallback, Action CancelledCallback, Action UndoCallback)
         {
+            if (!await MainActivity.instance.GetWritePermission())
+                return;
+
             AlertDialog dialog = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme)
                 .SetTitle(MainActivity.instance.GetString(Resource.String.remove_from_playlist, song.Title))
                 .SetPositiveButton(Resource.String.yes, async (sender, e) =>
                 {
-                    RemovedCallback?.Invoke();
+                    if(item.LocalID != -1)
+                        RemoveFromLocalPlaylist(song, item.LocalID);
 
                     if (item.YoutubeID != null)
                     {
                         if (song.TrackID == null)
                             song = await CompleteItem(song, item.YoutubeID);
                     }
-                    RemoveTrackFromPlaylistCallback callback = new RemoveTrackFromPlaylistCallback(song, item.LocalID);
 
+                    RemovedCallback?.Invoke();
+
+                    RemoveTrackFromPlaylistCallback callback = new RemoveTrackFromPlaylistCallback(song, item.LocalID);
                     Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), (song.Title.Length > 20 ? song.Title.Substring(0, 17) + "..." : song.Title) + MainActivity.instance.GetString(Resource.String.removed_from_playlist), Snackbar.LengthLong)
                         .SetAction(MainActivity.instance.GetString(Resource.String.undo), (v) =>
                         {
@@ -626,7 +632,7 @@ namespace Opus.Api
                         CursorLoader cursorLoader = new CursorLoader(Application.Context, musicUri, null, null, null, null);
                         ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
 
-                        playlists.Add(new PlaylistItem(name, id, musicCursor.Count));
+                        playlists.Add(new PlaylistItem(name, id, musicCursor.Count) { HasWritePermission = true });
                     }
                     while (cursor.MoveToNext());
                     cursor.Close();
@@ -943,14 +949,20 @@ namespace Opus.Api
         /// </summary>
         /// <param name="song"></param>
         /// <param name="LocalPlaylistID"></param>
-        public async static void RemoveFromLocalPlaylist(Song song, long LocalPlaylistID)
+        public /*async*/ static void RemoveFromLocalPlaylist(Song song, long LocalPlaylistID)
         {
-            await Task.Run(() => 
-            {
+            Console.WriteLine("&Remove Track From Local Playlist Called");
+            Console.WriteLine("&Song localID: " + song.LocalID + " LocalPlaylistID: " + LocalPlaylistID);
+
+            //await Task.Run(() => 
+            //{
+            //    if (Looper.MyLooper() == null)
+            //        Looper.Prepare();
+
                 ContentResolver resolver = MainActivity.instance.ContentResolver;
-                Uri uri = MediaStore.Audio.Playlists.Members.GetContentUri("external", LocalPlaylistID);
-                resolver.Delete(uri, MediaStore.Audio.Playlists.Members.AudioId + "=?", new string[] { song.LocalID.ToString() });
-            });
+                Uri uri = Playlists.Members.GetContentUri("external", LocalPlaylistID);
+                resolver.Delete(uri, Playlists.Members.Id + "=?", new string[] { song.LocalID.ToString() });
+            //});
         }
         #endregion
 
