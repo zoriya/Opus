@@ -116,6 +116,7 @@
   <string name="add_playlist_msg">Entrer l\'url ou l\'id de la playlist que vous voulez ajouter</string> <!--%1$s will be replaced by the playlist name-->
   <string name="playlist_fork">Ajoutez une playlist a votre bibliothèque en utilisant son URL.</string>
   <string name="badplaylisturl">Impossible de trouver une playlist correspondant a cette URL.</string>
+  <string name="playlist_uptodate">Cette playlist est déjà a jour.</string>
 
   <!--Add song to playlist-->
   <string name="create_playlist">Créer une nouvelle playlist</string>

@@ -116,6 +116,7 @@
   <string name="add_playlist_msg">Enter the url or the id of the playlist you want to add</string> 
   <string name="playlist_fork">Add a youtube playlist to your library by using it\'s url.</string>
   <string name="badplaylisturl">Can\'t find a playlist with this URL.</string>
+  <string name="playlist_uptodate">This playlist is up to date.</string>
 
   <!--Add song to playlist-->
   <string name="create_playlist">Create a new playlist</string>

@@ -286,7 +286,6 @@ namespace Opus.Api.Services
             MediaScannerConnection.ScanFile(this, new string[] { filePath }, null, this);
 
             queue[position].State = DownloadState.Completed;
-            UpdateList(position);
 
             if (!queue.Exists(x => x.State == DownloadState.None || x.State == DownloadState.Downloading || x.State == DownloadState.Initialization || x.State == DownloadState.MetaData))
             {
@@ -294,6 +293,8 @@ namespace Opus.Api.Services
                 DownloadQueue.instance?.Finish();
                 queue.Clear();
             }
+            else
+                UpdateList(position);
         }
 
         public void OnScanCompleted(string path, Uri uri)
@@ -340,8 +341,16 @@ namespace Opus.Api.Services
                     }
                 }
 
-                queue.AddRange(files);
-                StartDownload();
+                queue.RemoveAll(x => x.State == DownloadState.Completed || x.State == DownloadState.UpToDate || x.State == DownloadState.Canceled);
+                if(files.Count(x => x.State == DownloadState.None) > 0)
+                {
+                    queue.AddRange(files);
+                    StartDownload();
+                }
+                else
+                {
+                    Toast.MakeText(MainActivity.instance, Resource.String.playlist_uptodate, ToastLength.Long).Show();
+                }
 
                 await Task.Run(() =>
                 {

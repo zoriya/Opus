@@ -33,8 +33,6 @@ namespace Opus.Fragments
             SupportActionBar.Title = GetString(Resource.String.download_queue);
             SupportActionBar.SetHomeAsUpIndicator(Resource.Drawable.Close);
             SupportActionBar.SetDisplayHomeAsUpEnabled(true);
-            Window.SetStatusBarColor(Color.Argb(255, 33, 33, 33));
-
 
             ListView = FindViewById<RecyclerView>(Resource.Id.list);
             ListView.SetLayoutManager(new FixedLinearLayoutManager(this));
@@ -50,7 +48,6 @@ namespace Opus.Fragments
         protected override void OnStop()
         {
             instance = null;
-            Window.SetStatusBarColor(Color.Transparent);
             base.OnStop();
         }
 
