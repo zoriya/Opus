@@ -141,6 +141,7 @@
   <string name="metdata_error_noid">Can\'t get meta data on youtube, Youtube ID isn\'t set.</string>
   <string name="mount_error">There is a probleme with your storage, please stop using your storage elsewhere and try again.</string>
   <string name="mount_error_action">DISCARD AND LEAVE</string>
+  <string name="format_unsupported">The format of this song doesn\'t support metadatas.</string>
   
   <!--Download Queue-->
   <string name="download_queue">Download Queue</string>

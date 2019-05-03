@@ -283,11 +283,19 @@ namespace Opus.Api
         /// <returns></returns>
         public static string GetYtID(string path)
         {
-            Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
-            var meta = TagLib.File.Create(new StreamFileAbstraction(path, stream, stream));
-            string ytID = meta.Tag.Comment;
-            stream.Dispose();
-            return ytID;
+            try
+            {
+                Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
+                var meta = TagLib.File.Create(new StreamFileAbstraction(path, stream, stream));
+                string ytID = meta.Tag.Comment;
+                stream.Dispose();
+                return ytID;
+            }
+            catch
+            {
+                System.Console.WriteLine("&GetYtID Error: The format of the file at " + path + " is probably unsupported.");
+                return null;
+            }
         }
 
         /// <summary>

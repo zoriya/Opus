@@ -207,81 +207,89 @@ namespace Opus.Fragments
                 return false;
             }
 
-            System.Console.WriteLine("&Creating write stream");
-            Stream stream = new FileStream(song.Path, FileMode.Open, FileAccess.ReadWrite);
-            var meta = TagLib.File.Create(new StreamFileAbstraction(song.Path, stream, stream));
-
-            System.Console.WriteLine("&Writing tags");
-            meta.Tag.Title = title.Text;
-            song.Title = title.Text;
-            meta.Tag.Performers = new string[] { artist.Text };
-            song.Artist = artist.Text;
-            meta.Tag.Album = album.Text;
-            song.Album = album.Text;
-            meta.Tag.Comment = youtubeID.Text;
-            if (queuePosition != -1 && MusicPlayer.queue.Count > queuePosition)
+            try
             {
-                MusicPlayer.queue[queuePosition] = song;
-                Player.instance?.RefreshPlayer();
-                Queue.instance.NotifyItemChanged(queuePosition);
-            }
+                System.Console.WriteLine("&Creating write stream");
+                Stream stream = new FileStream(song.Path, FileMode.Open, FileAccess.ReadWrite);
+                var meta = TagLib.File.Create(new StreamFileAbstraction(song.Path, stream, stream));
 
-            if (ytThumbUri != null)
-            {
-                System.Console.WriteLine("&Writing YT Thumb");
-                await Task.Run(() => 
-                { 
+                System.Console.WriteLine("&Writing tags");
+                meta.Tag.Title = title.Text;
+                song.Title = title.Text;
+                meta.Tag.Performers = new string[] { artist.Text };
+                song.Artist = artist.Text;
+                meta.Tag.Album = album.Text;
+                song.Album = album.Text;
+                meta.Tag.Comment = youtubeID.Text;
+                if (queuePosition != -1 && MusicPlayer.queue.Count > queuePosition)
+                {
+                    MusicPlayer.queue[queuePosition] = song;
+                    Player.instance?.RefreshPlayer();
+                    Queue.instance.NotifyItemChanged(queuePosition);
+                }
+
+                if (ytThumbUri != null)
+                {
+                    System.Console.WriteLine("&Writing YT Thumb");
+                    await Task.Run(() => 
+                    { 
+                        IPicture[] pictures = new IPicture[1];
+                        Bitmap bitmap = Picasso.With(Application.Context).Load(ytThumbUri).Transform(new RemoveBlackBorder(true)).Get();
+                        byte[] data;
+                        using (var MemoryStream = new MemoryStream())
+                        {
+                            bitmap.Compress(Bitmap.CompressFormat.Png, 0, MemoryStream);
+                            data = MemoryStream.ToArray();
+                        }
+                        bitmap.Recycle();
+                        pictures[0] = new Picture(data);
+                        meta.Tag.Pictures = pictures;
+
+                        ytThumbUri = null;
+                    });
+                }
+                else if (artURI != null)
+                {
+                    System.Console.WriteLine("&Writing ArtURI");
                     IPicture[] pictures = new IPicture[1];
-                    Bitmap bitmap = Picasso.With(Application.Context).Load(ytThumbUri).Transform(new RemoveBlackBorder(true)).Get();
-                    byte[] data;
-                    using (var MemoryStream = new MemoryStream())
+
+                    Bitmap bitmap = null;
+                    if (tempFile)
                     {
-                        bitmap.Compress(Bitmap.CompressFormat.Png, 0, MemoryStream);
-                        data = MemoryStream.ToArray();
+                        await Task.Run(() => 
+                        {
+                            bitmap = Picasso.With(this).Load(artURI).Transform(new RemoveBlackBorder(true)).Get();
+                        });
                     }
-                    bitmap.Recycle();
+                    else
+                    {
+                        await Task.Run(() =>
+                        {
+                            bitmap = Picasso.With(this).Load(artURI).Get();
+                        });
+                    }
+
+                    MemoryStream memoryStream = new MemoryStream();
+                    bitmap.Compress(Bitmap.CompressFormat.Jpeg, 100, memoryStream);
+                    byte[] data = memoryStream.ToArray();
                     pictures[0] = new Picture(data);
                     meta.Tag.Pictures = pictures;
 
-                    ytThumbUri = null;
-                });
+                    if(!tempFile)
+                        artURI = null;
+
+                    ContentResolver.Delete(ContentUris.WithAppendedId(Android.Net.Uri.Parse("content://media/external/audio/albumart"), song.AlbumArt), null, null);
+                }
+
+                System.Console.WriteLine("&Saving");
+                meta.Save();
+                stream.Dispose();
             }
-            else if (artURI != null)
+            catch(System.Exception e)
             {
-                System.Console.WriteLine("&Writing ArtURI");
-                IPicture[] pictures = new IPicture[1];
-
-                Bitmap bitmap = null;
-                if (tempFile)
-                {
-                    await Task.Run(() => 
-                    {
-                        bitmap = Picasso.With(this).Load(artURI).Transform(new RemoveBlackBorder(true)).Get();
-                    });
-                }
-                else
-                {
-                    await Task.Run(() =>
-                    {
-                        bitmap = Picasso.With(this).Load(artURI).Get();
-                    });
-                }
-
-                MemoryStream memoryStream = new MemoryStream();
-                bitmap.Compress(Bitmap.CompressFormat.Jpeg, 100, memoryStream);
-                byte[] data = memoryStream.ToArray();
-                pictures[0] = new Picture(data);
-                meta.Tag.Pictures = pictures;
-
-                if(!tempFile)
-                    artURI = null;
-
-                ContentResolver.Delete(ContentUris.WithAppendedId(Android.Net.Uri.Parse("content://media/external/audio/albumart"), song.AlbumArt), null, null);
+                Toast.MakeText(this, Resource.String.format_unsupported, ToastLength.Long).Show();
+                System.Console.WriteLine("&EditMetadata Validate exception: (probably due to an unsupported format) - " + e.Message);
             }
-
-            System.Console.WriteLine("&Saving");
-            meta.Save();
-            stream.Dispose();
 
             System.Console.WriteLine("&Deleting temp file");
             if (tempFile)

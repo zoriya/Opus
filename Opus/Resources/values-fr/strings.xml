@@ -141,7 +141,8 @@
   <string name="metdata_error_noid">Impossible de télécharger les metadatas depuis youtube, l\'id youtube n\'est pas défni.</string>
   <string name="mount_error">Il y a un problème avec votre disque de stockage, veuillez arreter de l\'utiliser ailleur et réessayer après.</string>
   <string name="mount_error_action">ABANDONNER ET QUITER</string>
-
+  <string name="format_unsupported">Le format de ce son ne supporte pas les métadatas.</string>
+  
   <!--Download Queue-->
   <string name="download_queue">Liste de téléchargement</string>
   <string name="deleted_file">Fichier supprimé</string>
