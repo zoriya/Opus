@@ -23,5 +23,6 @@ The code of the app is devided in 4 differents folders:
      - The MusicPlayer service, which is the most complicated but the most used. It's the one which manage the playback.
      - The Downloader, allowing you to download songs or playlists. This service is the one with the more UI callbacks.
      - The Sleeper which is the one managing the sleep timer.
+  - The Other folder which contains classes that are not really usful in itself but are needed. Like images transformaters (things that remove black borders in image, make them in circles...)
 
 If you find an issues or want to contribute to the project, open a request here. 
