@@ -1,3 +1,3 @@
-Version: 3.3.4
+Version: 3.3.5
 Beta: False
-Link: https://github.com/AnonymusRaccoon/Opus/releases/download/3.3.4/Opus.v3.3.4.apk
+Link: https://github.com/AnonymusRaccoon/Opus/releases/download/3.3.5/Opus.v3.3.5.apk

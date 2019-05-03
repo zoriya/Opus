@@ -575,12 +575,13 @@ namespace Opus.Api
 
                     RemoveTrackFromPlaylistCallback callback = new RemoveTrackFromPlaylistCallback(song, item.LocalID);
                     Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), (song.Title.Length > 20 ? song.Title.Substring(0, 17) + "..." : song.Title) + MainActivity.instance.GetString(Resource.String.removed_from_playlist), Snackbar.LengthLong)
-                        .SetAction(MainActivity.instance.GetString(Resource.String.undo), (v) =>
-                        {
-                            callback.canceled = true;
-                            UndoCallback?.Invoke();
-                        });
-                    snackBar.AddCallback(callback);
+                    ;
+                    //    .SetAction(MainActivity.instance.GetString(Resource.String.undo), (v) =>
+                    //    {
+                    //        callback.canceled = true;
+                    //        UndoCallback?.Invoke();
+                    //    });
+                    //snackBar.AddCallback(callback);
                     snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
                     snackBar.Show();
                 })
