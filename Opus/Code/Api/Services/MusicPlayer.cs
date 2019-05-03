@@ -447,9 +447,9 @@ namespace Opus.Api.Services
             }
 
             switchPosition = position;
-
             try
             {
+                song.IsParsed = null;
                 YoutubeClient client = new YoutubeClient();
                 var mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(song.YoutubeID);
                 if (mediaStreamInfo.HlsLiveStreamUrl != null)
@@ -569,6 +569,7 @@ namespace Opus.Api.Services
 
             if (action == "Play")
             {
+                Console.WriteLine("&Parse and play, action PLAY");
                 if (showPlayer)
                     MainActivity.instance.ShowPlayer();
                 else
