@@ -9,7 +9,7 @@ Like every android app, every layouts are ine the Resources/layout folder.
 
 The code of the app is devided in 4 differents folders:
 
- - The DataStructure project which contains classes/objects that are used to represents basic objects of the app (like songs or playlists). This folder also contains ViewHolders (classes that are used to bind layouts with data)
+ - The DataStructure folder which contains classes/objects that are used to represents basic objects of the app (like songs or playlists). This folder also contains ViewHolders (classes that are used to bind layouts with data)
  - The UI folder which contains itself 3 folders:
    - The Fragment folder, containing every tab of the app (the youtube search, the playlist tab...)
    - The Adaptet folder, containing every adapter of the app. An adapter is something that bind a list (of songs, of playlists...) to a listview so the user can scroll, click...
