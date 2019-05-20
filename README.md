@@ -5,6 +5,8 @@ If you want to download the app, check on the Release tabs.
 
 **This ReadMe is for developers only, if you want to see what the app can do, please take a look at this website: https://www.raccoon-sdg.fr/en**
 
+## How to find the part of the code that interest you
+
 Like every android app, every layouts are ine the Resources/layout folder.
 
 The code of the app is devided in 4 differents folders:
@@ -24,5 +26,16 @@ The code of the app is devided in 4 differents folders:
      - The Downloader, allowing you to download songs or playlists. This service is the one with the more UI callbacks.
      - The Sleeper which is the one managing the sleep timer.
   - The Other folder which contains classes that are not really usful in itself but are needed. Like images transformaters (things that remove black borders in image, make them in circles...). It also contains some callbacks (Chromecast one, some for the snackbars...).
+  
+  ## How to build the app
+  
+   To build the app, you'll need the following elements:
+    - Visual Studio (2017 or 2019)
+    - The xamarin addon of visual studio
+    - The android SDK of the target android version (visual studio will ask you to download the right version when you open the project)
+    
+   With all of these components, you then need to download the packages that the app need. For that, simply right click in the solution tab of visual studio and click "Restore NuGet packages". With that, you'll be able to build the app. For precise details on how to build for debugging, emulators or release builds please refer to the xamarin doc. 
+    
+    
 
 If you find an issues or want to contribute to the project, open a request here. 
