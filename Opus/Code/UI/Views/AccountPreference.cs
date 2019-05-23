@@ -100,33 +100,33 @@ public class AccountPreference : Preference, IResultCallback
     }
 
 
-    private async void LogOut()
+    private /*async*/ void LogOut()
     {
-        MainActivity.account = null;
-        YoutubeManager.YoutubeService = null;
+        //MainActivity.account = null;
+        //YoutubeManager.YoutubeService = null;
 
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DefaultSignIn)
-                .RequestIdToken(Preferences.instance.GetString(Resource.String.clientID))
-                .RequestServerAuthCode(Preferences.instance.GetString(Resource.String.clientID))
-                .RequestEmail()
-                .RequestScopes(new Scope(YouTubeService.Scope.Youtube))
-                .Build();
+        //GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DefaultSignIn)
+        //        .RequestIdToken(Preferences.instance.GetString(Resource.String.clientID))
+        //        .RequestServerAuthCode(Preferences.instance.GetString(Resource.String.clientID))
+        //        .RequestEmail()
+        //        .RequestScopes(new Scope(YouTubeService.Scope.Youtube))
+        //        .Build();
 
-        GoogleApiClient googleClient = new GoogleApiClient.Builder(Preferences.instance)
-                .AddApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                .Build();
+        //GoogleApiClient googleClient = new GoogleApiClient.Builder(Preferences.instance)
+        //        .AddApi(Auth.GOOGLE_SIGN_IN_API, gso)
+        //        .Build();
 
-        googleClient.Connect();
+        //googleClient.Connect();
 
-        while (!googleClient.IsConnected)
-            await Task.Delay(10);
+        //while (!googleClient.IsConnected)
+        //    await Task.Delay(10);
 
-        Auth.GoogleSignInApi.RevokeAccess(googleClient).SetResultCallback(this);
+        //Auth.GoogleSignInApi.RevokeAccess(googleClient).SetResultCallback(this);
 
-        ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Preferences.instance);
-        ISharedPreferencesEditor editor = prefManager.Edit();
-        editor.Remove("refresh-token");
-        editor.Apply();
+        //ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Preferences.instance);
+        //ISharedPreferencesEditor editor = prefManager.Edit();
+        //editor.Remove("refresh-token");
+        //editor.Apply();
     }
 
     //Log out result

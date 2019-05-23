@@ -268,7 +268,7 @@ namespace Opus.Api.Services
                 IExtractorsFactory extractorFactory = new DefaultExtractorsFactory();
                 Handler handler = new Handler();
 
-                IMediaSource mediaSource = null;
+                IMediaSource mediaSource;
                 if (song.IsLiveStream)
                     mediaSource = new HlsMediaSource(Uri.Parse(song.Path), dataSourceFactory, handler, null);
                 else if (!song.IsYt)
@@ -321,7 +321,7 @@ namespace Opus.Api.Services
             }
         }
 
-        public async void Play(string filePath, string title = null, string artist = null, string youtubeID = null, string thumbnailURI = null, bool isLive = false, DateTimeOffset? expireDate = null)
+        public async void Play(string filePath, string title = null, string artist = null, string youtubeID = null, string thumbnailURI = null, bool isLive = false)
         {
             isRunning = true;
             queue?.Clear();
@@ -329,13 +329,11 @@ namespace Opus.Api.Services
             Queue.instance?.Refresh();
             Home.instance?.RefreshQueue(false);
 
-            Song song = null;
+            Song song;
             if (title == null)
                 song = await LocalManager.GetSong(filePath);
             else
-            {
                 song = new Song(title, artist, thumbnailURI, youtubeID, -1, -1, filePath, true);
-            }
 
             song.IsLiveStream = isLive;
             isLiveStream = isLive;
@@ -447,6 +445,7 @@ namespace Opus.Api.Services
             }
 
             switchPosition = position;
+
             try
             {
                 song.IsParsed = null;
@@ -512,6 +511,8 @@ namespace Opus.Api.Services
 
                 if(switchPosition != -1)
                     UpdateQueueItemDB(song, switchPosition);
+
+                switchPosition = -1;
             }
             catch (System.Net.Http.HttpRequestException)
             {
@@ -523,6 +524,8 @@ namespace Opus.Api.Services
 
                 if (startPlaybackWhenPosible)
                     Player.instance?.Ready();
+
+                switchPosition = -1;
                 return null;
             }
             catch(YoutubeExplode.Exceptions.VideoUnplayableException ex)
@@ -538,6 +541,8 @@ namespace Opus.Api.Services
 
                 if(startPlaybackWhenPosible)
                     Player.instance?.Ready();
+
+                switchPosition = -1;
                 return null;
             }
             catch(YoutubeExplode.Exceptions.VideoUnavailableException)
@@ -552,6 +557,8 @@ namespace Opus.Api.Services
 
                 if (startPlaybackWhenPosible)
                     Player.instance?.Ready();
+
+                switchPosition = -1;
                 return null;
             }
             return song;
@@ -785,7 +792,7 @@ namespace Opus.Api.Services
 
         public async void AddToQueue(string filePath, string title = null, string artist = null, string youtubeID = null, string thumbnailURI = null, bool isLive = false)
         {
-            Song song = null;
+            Song song;
             if(title == null)
                 song = await LocalManager.GetSong(filePath);
             else
@@ -1129,17 +1136,6 @@ namespace Opus.Api.Services
             {
                 RemotePlayer.Seek(positionMS);
             }
-        }
-
-        void AddSongToDataBase(Song item)
-        {
-            Task.Run(() =>
-            {
-                SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), "Queue.sqlite"));
-                db.CreateTable<Song>();
-
-                db.InsertOrReplace(item);
-            });
         }
 
         public static void UpdateQueueDataBase()

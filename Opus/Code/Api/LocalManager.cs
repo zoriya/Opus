@@ -285,11 +285,11 @@ namespace Opus.Api
         {
             try
             {
-                Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
-                var meta = TagLib.File.Create(new StreamFileAbstraction(path, stream, stream));
-                string ytID = meta.Tag.Comment;
-                stream.Dispose();
-                return ytID;
+                using (Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read))
+                {
+                    var meta = TagLib.File.Create(new StreamFileAbstraction(path, stream, stream));
+                    return meta.Tag.Comment;
+                }
             }
             catch
             {
