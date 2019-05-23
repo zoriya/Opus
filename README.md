@@ -27,16 +27,16 @@ The code of the app is devided in 4 differents folders:
      - The Sleeper which is the one managing the sleep timer.
   - The Other folder which contains classes that are not really usful in itself but are needed. Like images transformaters (things that remove black borders in image, make them in circles...). It also contains some callbacks (Chromecast one, some for the snackbars...).
   
-  ## How to build the app
-  
-   To build the app, you'll need the following elements:
-    - Visual Studio (2017 or 2019)
-    - The xamarin addon of visual studio
-    - The android SDK of the target android version (visual studio will ask you to download the right version when you open the project)
+## How to build the app
+
+To build the app, you'll need the following elements:
+  - Visual Studio (2017 or 2019)
+  - The xamarin addon of visual studio
+  - The android SDK of the target android version (visual studio will ask you to download the right version when you open the project)
     
-   With all of these components, you then need to download the packages that the app need. For that, simply right click in the solution tab of visual studio and click "Restore NuGet packages". With that, you'll be able to build the app. For precise details on how to build for debugging, emulators or release builds please refer to the xamarin doc. 
+With all of these components, you then need to download the packages that the app need. For that, simply right click in the solution tab of visual studio and click "Restore NuGet packages". With that, you'll be able to build the app. For precise details on how to build for debugging, emulators or release builds please refer to the xamarin doc. 
    
-   You'll also need to change the package name and the package signin-key (or simply disable it). It's because android will only allow new versions of the app if the newer version is signed with the same key as the older version so the easiest way to have your custom version is to change the package name, like that android won't even know that the two apps (your version and mine) are related.
+You'll also need to change the package name and the package signin-key (or simply disable it). It's because android will only allow new versions of the app if the newer version is signed with the same key as the older version so the easiest way to have your custom version is to change the package name, like that android won't even know that the two apps (your version and mine) are related.
     
 
 If you find an issues or want to contribute to the project, open a request here. 
