@@ -39,4 +39,4 @@ With all of these components, you then need to download the packages that the ap
 You'll also need to change the package name and the package signin-key (or simply disable it). It's because android will only allow new versions of the app if the newer version is signed with the same key as the older version so the easiest way to have your custom version is to change the package name, like that android won't even know that the two apps (your version and mine) are related.
     
 
-If you find an issues or want to contribute to the project, open a request here. 
+**If you find an issues or want to contribute to the project, open a request here.** 
