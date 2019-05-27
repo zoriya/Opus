@@ -27,7 +27,7 @@ The code of the app is devided in 4 differents folders:
      - The [MusicPlayer](https://github.com/AnonymusRaccoon/Opus/blob/master/Opus/Code/Api/Services/MusicPlayer.cs) service, which is the most complicated but the most used. It's the one which manage the playback.
      - The [Downloader](https://github.com/AnonymusRaccoon/Opus/blob/master/Opus/Code/Api/Services/Downloader.cs), allowing you to download songs or playlists. This service is the one with the more UI callbacks.
      - The [Sleeper](https://github.com/AnonymusRaccoon/Opus/blob/master/Opus/Code/Api/Services/Sleeper.cs) which is the one managing the sleep timer.
-  - The [Other](https://github.com/AnonymusRaccoon/Opus/tree/master/Opus/Code/Others) folder which contains classes that are not really usful in itself but are needed. Like images transformaters (things that remove black borders in image, make them in circles...). It also contains some callbacks (Chromecast one, some for the snackbars...).
+  - The [Other](https://github.com/AnonymusRaccoon/Opus/tree/master/Opus/Code/Others) folder which contains classes that are not really useful in itself but are needed. Like images transformaters (things that remove black borders in image, make them in circles...). It also contains some callbacks (Chromecast one, some for the snackbars...).
   
 ## How to build the app
 
