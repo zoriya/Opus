@@ -7,7 +7,7 @@ If you want to download the app, check on the Release tabs.
 
 ## How to find the part of the code that interest you
 
-Like every android app, every layouts are in the Resources/layout folder.
+Like every android app, every layouts are in the [Resources/layout](https://github.com/AnonymusRaccoon/Opus/tree/master/Opus/Resources/layout) folder.
 
 The code of the app is devided in 4 differents folders:
 
