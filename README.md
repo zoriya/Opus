@@ -29,6 +29,7 @@ The code of the app is devided in 4 differents folders:
   
 ## How to build the app
 
+### Installation of the environement
 To build the app, you'll need the following elements:
   - Visual Studio (2017 or 2019)
   - The xamarin addon of visual studio
