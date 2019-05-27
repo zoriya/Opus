@@ -9,6 +9,8 @@ If you want to download the app, check on the Release tabs.
 
 Like every android app, every layouts are in the [Resources/layout](https://github.com/AnonymusRaccoon/Opus/tree/master/Opus/Resources/layout) folder.
 
+The first thing that the app will load is the [MainActivity](https://github.com/AnonymusRaccoon/Opus/blob/master/Opus/Code/MainActivity.cs) file. It will also display the [Main Layout](https://github.com/AnonymusRaccoon/Opus/blob/master/Opus/Resources/layout/Main.xml) that is used everywhere in the app. For code of a specifc section of the app, check the list bellow.
+
 The code of the app is devided in 4 differents folders:
 
  - The [DataStructure](https://github.com/AnonymusRaccoon/Opus/tree/master/Opus/Code/DataStructure) folder which contains classes/objects that are used to represents basic objects of the app (like songs or playlists). This folder also contains ViewHolders (classes that are used to bind layouts with data)
