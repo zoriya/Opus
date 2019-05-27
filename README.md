@@ -34,8 +34,25 @@ To build the app, you'll need the following elements:
   - The xamarin addon of visual studio
   - The android SDK of the target android version (visual studio will ask you to download the right version when you open the project)
     
-With all of these components, you then need to download the packages that the app need. For that, simply right click in the solution tab of visual studio and click "Restore NuGet packages". With that, you'll be able to build the app. For precise details on how to build for debugging, emulators or release builds please refer to the xamarin doc. 
-   
+With all of these components, you then need to download the packages that the app need. For that, simply right click in the solution tab of visual studio and click "Restore NuGet packages". With that, you'll be able to build the app. For precise details on how to build for debugging, emulators or release builds please refer to the xamarin doc.
+
+### Youtube API Key
+After that, you'll need an API key to use the youtube API.
+#### Creating an API Key
+To create an API KEY, go to https://console.developers.google.com and sign in with your google account. Then find and click on the "Create a Project" button. One your project has been created, go to the "Library" tab and select "Youtube Data API v3". On this tab, click on "Enable". You now have allowed your project to use the youtube api.
+Then, you'll need to really create the key that will allow you to communicate with the google servers. On the same website, select the "Credentials" tab. Then click on "Create credentials" and select API key. You'll have a popup with your new API key. Copy this, you'll need it in the next step. *Please note that you can restrict your API key to one app, one website or one API. Since I'm using xamarin, the API key can't be restricted to the app only but you can allow this api key to work for youtube only.*
+ 
+#### Using the API Key inside Opus
+To use your newly created API key, create an xml file in the Resources/values folder. You can name it how you want, that doesn't change a thing. Inside this file, paste this:
+```xml
+<?xml version="1.0" encoding="utf-8" ?>
+<resources>
+  <string name="yt_api_key">REPLACE-THIS-WITH-YOUR-API-KEY</string>
+</resources>
+```
+Please remember that your api key shouldn't be public. I recommend you to add this file in your git-ignore.
+
+### Allow app installation
 You'll also need to change the package name and the package signin-key (or simply disable it). It's because android will only allow new versions of the app if the newer version is signed with the same key as the older version so the easiest way to have your custom version is to change the package name, like that android won't even know that the two apps (your version and mine) are related.
     
 
