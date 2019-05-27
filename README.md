@@ -17,14 +17,14 @@ The code of the app is devided in 4 differents folders:
    - The [Adapter](https://github.com/AnonymusRaccoon/Opus/tree/master/Opus/Code/UI/Adapter) folder, containing every adapter of the app. An adapter is something that bind a list (of songs, of playlists...) to a listview so the user can scroll, click...
    - The [Views](https://github.com/AnonymusRaccoon/Opus/tree/master/Opus/Code/UI/Views) folder, containing other views that are a bit more compext than other tabs (like the player or the queue). It also contains custom views that need custom calculations for a random reason.
  - The [API](https://github.com/AnonymusRaccoon/Opus/tree/master/Opus/Code/Api) folder which contains statics methodes that are used everywhere in the app. Inside this folder, you have:
-   - The LocalManager contains methods used to manage local songs. Inside this you have methodes like the shuffle all, a method to play a local song...
-   - The YoutubeManager contains methods to manage youtube songs. It's the same as the LocalManager but for youtube songs.
-   - The SongManager contains generics methods for a song (like play methods). It will check how to interpret the song and use the correct method (local or youtube one).
-   - The PlaylistManager contains methods for playlists (both locals and youtubes one).
+   - The [LocalManager](https://github.com/AnonymusRaccoon/Opus/blob/master/Opus/Code/Api/LocalManager.cs) contains methods used to manage local songs. Inside this you have methodes like the shuffle all, a method to play a local song...
+   - The [YoutubeManager](https://github.com/AnonymusRaccoon/Opus/blob/master/Opus/Code/Api/YoutubeManager.cs) contains methods to manage youtube songs. It's the same as the LocalManager but for youtube songs.
+   - The [SongManager](https://github.com/AnonymusRaccoon/Opus/blob/master/Opus/Code/Api/SongManager.cs) contains generics methods for a song (like play methods). It will check how to interpret the song and use the correct method (local or youtube one).
+   - The [PlaylistManager](https://github.com/AnonymusRaccoon/Opus/blob/master/Opus/Code/Api/PlaylistManager.cs) contains methods for playlists (both locals and youtubes one).
    - This folder also contains a subfolder named [Services](https://github.com/AnonymusRaccoon/Opus/tree/master/Opus/Code/Api/Services). This folder contains things that run in background without a UI implementation. These classes behave without the help of other classes. You have:
-     - The MusicPlayer service, which is the most complicated but the most used. It's the one which manage the playback.
-     - The Downloader, allowing you to download songs or playlists. This service is the one with the more UI callbacks.
-     - The Sleeper which is the one managing the sleep timer.
+     - The [MusicPlayer](https://github.com/AnonymusRaccoon/Opus/blob/master/Opus/Code/Api/Services/MusicPlayer.cs) service, which is the most complicated but the most used. It's the one which manage the playback.
+     - The [Downloader](https://github.com/AnonymusRaccoon/Opus/blob/master/Opus/Code/Api/Services/Downloader.cs), allowing you to download songs or playlists. This service is the one with the more UI callbacks.
+     - The [Sleeper](https://github.com/AnonymusRaccoon/Opus/blob/master/Opus/Code/Api/Services/Sleeper.cs) which is the one managing the sleep timer.
   - The [Other](https://github.com/AnonymusRaccoon/Opus/tree/master/Opus/Code/Others) folder which contains classes that are not really usful in itself but are needed. Like images transformaters (things that remove black borders in image, make them in circles...). It also contains some callbacks (Chromecast one, some for the snackbars...).
   
 ## How to build the app
