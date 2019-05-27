@@ -33,7 +33,7 @@ The code of the app is devided in 4 differents folders:
 
 ### Installation of the environement
 To build the app, you'll need the following elements:
-  - Visual Studio (2017 or 2019)
+  - [Visual Studio](https://visualstudio.microsoft.com/) (2017 or 2019)
   - The xamarin addon of visual studio
   - The android SDK of the target android version (visual studio will ask you to download the right version when you open the project)
     
