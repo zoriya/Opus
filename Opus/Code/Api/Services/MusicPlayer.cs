@@ -1394,9 +1394,14 @@ namespace Opus.Api.Services
             StartForeground(notificationID, notification);
         }
 
-        public void Pause()
+        public async void Pause()
         {
             ShouldResumePlayback = false;
+            FrameLayout smallPlayer = MainActivity.instance.FindViewById<FrameLayout>(Resource.Id.smallPlayer);
+            smallPlayer?.FindViewById<ImageButton>(Resource.Id.spPlay)?.SetImageResource(Resource.Drawable.Play);
+
+            MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton)?.SetImageResource(Resource.Drawable.Play);
+            Queue.instance?.RefreshCurrent();
 
             if (!UseCastPlayer && player != null && isRunning)
             {
@@ -1408,7 +1413,15 @@ namespace Opus.Api.Services
                 notification.Actions[1] = new Notification.Action(Resource.Drawable.Play, "Play", pauseIntent);
                 notificationManager.Notify(notificationID, notification);
 
+                float initialVolume = player.Volume;
+                for (int i = 0; i < 25; i++)
+                {
+                    player.Volume = (float)(player.Volume * 0.90);
+                    await Task.Delay(10);
+                }
+
                 player.PlayWhenReady = false;
+                player.Volume = initialVolume;
                 StopForeground(false);
 
                 if (!ShouldResumePlayback && noisyRegistered)
@@ -1424,11 +1437,6 @@ namespace Opus.Api.Services
             }
 
             SaveTimer(CurrentPosition);
-            FrameLayout smallPlayer = MainActivity.instance.FindViewById<FrameLayout>(Resource.Id.smallPlayer);
-            smallPlayer?.FindViewById<ImageButton>(Resource.Id.spPlay)?.SetImageResource(Resource.Drawable.Play);
-
-            MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton)?.SetImageResource(Resource.Drawable.Play);
-            Queue.instance?.RefreshCurrent();
         }
 
         public void Resume()
