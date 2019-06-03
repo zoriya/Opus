@@ -21,6 +21,7 @@ using Com.Google.Android.Exoplayer2.Trackselection;
 using Com.Google.Android.Exoplayer2.Upstream;
 using Com.Google.Android.Exoplayer2.Util;
 using Newtonsoft.Json;
+using Opus.Code.Api;
 using Opus.DataStructure;
 using Opus.Fragments;
 using Opus.Others;
@@ -63,7 +64,6 @@ namespace Opus.Api.Services
         public static bool isRunning = false;
         private bool generating = false;
         public static int currentID = 0;
-        public static int switchPosition;
         public static bool autoUpdateSeekBar = true;
         public static bool repeat = false;
         public static bool useAutoPlay = true;
@@ -367,10 +367,10 @@ namespace Opus.Api.Services
         public async void Play(Song song, long progress = -1, bool addToQueue = true)
         {
             if (song.IsParsed == false)
-                await ParseSong(song, -1);
+                await new SongParser().ParseSong(song, -1);
             else if (song.IsParsed == null)
             {
-                await ParseSong(song, -1, true);
+                await new SongParser().ParseSong(song, -1, true);
                 return;
             }
 
@@ -423,147 +423,6 @@ namespace Opus.Api.Services
                 GenerateAutoPlay(false);
         }
 
-        private static async Task<Song> ParseSong(Song song, int position = -1, bool startPlaybackWhenPosible = false, bool forceParse = false)
-        {
-            if ((!forceParse && song.IsParsed == true) || !song.IsYt)
-            {
-                if (startPlaybackWhenPosible)
-                    instance.Play(song, -1, position == -1);
-
-                return song;
-            }
-
-            if (song.IsParsed == null)
-            {
-                while (song.IsParsed == null)
-                    await Task.Delay(10);
-
-                if (startPlaybackWhenPosible && (await GetItem()).YoutubeID != song.YoutubeID)
-                    instance.Play(song, -1, position == -1);
-
-                return song; //Song is a class, the youtube id will be updated with another method
-            }
-
-            switchPosition = position;
-
-            try
-            {
-                song.IsParsed = null;
-                YoutubeClient client = new YoutubeClient();
-                var mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(song.YoutubeID);
-                if (mediaStreamInfo.HlsLiveStreamUrl != null)
-                {
-                    song.Path = mediaStreamInfo.HlsLiveStreamUrl;
-                    song.IsLiveStream = true;
-                }
-                else
-                {
-                    song.IsLiveStream = false;
-
-                    if (mediaStreamInfo.Audio.Count > 0)
-                        song.Path = mediaStreamInfo.Audio.OrderBy(s => s.Bitrate).Last().Url;
-                    else if (mediaStreamInfo.Muxed.Count > 0)
-                        song.Path = mediaStreamInfo.Muxed.OrderBy(x => x.Resolution).Last().Url;
-                    else
-                    {
-                        MainActivity.instance.NotStreamable(song.Title);
-                        return null;
-                    }
-                }
-                song.IsParsed = true;
-
-                if (switchPosition != -1)
-                    Queue.instance?.NotifyItemChanged(switchPosition, Resource.Drawable.PublicIcon);
-
-                if (startPlaybackWhenPosible && song.Album != null)
-                {
-                    if(switchPosition != -1)
-                    {
-                        currentID = switchPosition;
-                        Queue.instance?.RefreshCurrent();
-                        Player.instance?.RefreshPlayer();
-                    }
-
-                    instance.Play(song, -1, switchPosition == -1);
-                    startPlaybackWhenPosible = false;
-                }
-
-                Video video = await client.GetVideoAsync(song.YoutubeID);
-                song.Title = video.Title;
-                song.Artist = video.Author;
-                song.Album = await YoutubeManager.GetBestThumb(new string[] { video.Thumbnails.MaxResUrl, video.Thumbnails.StandardResUrl, video.Thumbnails.HighResUrl });
-                song.Duration = (int)video.Duration.TotalMilliseconds;
-                Player.instance?.RefreshPlayer();
-
-                if (startPlaybackWhenPosible)
-                {
-                    instance.Play(song, -1, switchPosition == -1);
-
-                    if (switchPosition != -1)
-                    {
-                        Queue.instance?.NotifyItemChanged(switchPosition, song.Artist);
-                        Home.instance?.NotifyQueueChanged(switchPosition, song.Artist);
-                    }
-                }
-
-                if (!song.IsLiveStream)
-                    song.ExpireDate = mediaStreamInfo.ValidUntil;
-
-                if(switchPosition != -1)
-                    UpdateQueueItemDB(song, switchPosition);
-
-                switchPosition = -1;
-            }
-            catch (System.Net.Http.HttpRequestException)
-            {
-                Console.WriteLine("&Parse time out");
-                MainActivity.instance.Timout();
-                if (MainActivity.instance != null)
-                    MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
-                song.IsParsed = false;
-
-                if (startPlaybackWhenPosible)
-                    Player.instance?.Ready();
-
-                switchPosition = -1;
-                return null;
-            }
-            catch(YoutubeExplode.Exceptions.VideoUnplayableException ex)
-            {
-                Console.WriteLine("&Parse error: " + ex.Message);
-                MainActivity.instance.Unplayable(song.Title, ex.Message);
-                if (MainActivity.instance != null)
-                    MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
-
-                song.IsParsed = false;
-                if (switchPosition != -1)
-                    RemoveFromQueue(switchPosition); //Remove the song from the queue since it can't be played.
-
-                if(startPlaybackWhenPosible)
-                    Player.instance?.Ready();
-
-                switchPosition = -1;
-                return null;
-            }
-            catch(YoutubeExplode.Exceptions.VideoUnavailableException)
-            {
-                MainActivity.instance.NotStreamable(song.Title);
-                if (MainActivity.instance != null)
-                    MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
-
-                song.IsParsed = false;
-                if (switchPosition != -1)
-                    RemoveFromQueue(switchPosition); //Remove the song from the queue since it can't be played.
-
-                if (startPlaybackWhenPosible)
-                    Player.instance?.Ready();
-
-                switchPosition = -1;
-                return null;
-            }
-            return song;
-        }
-
         private async void ParseAndPlay(string action, string videoID, string title, string artist, string thumbnailURL, bool showPlayer = true)
         {
             if (MainActivity.instance != null && action == "Play")
@@ -589,11 +448,11 @@ namespace Opus.Api.Services
                 Queue.instance?.Refresh();
                 Player.instance?.RefreshPlayer();
                 currentID = 0;
-                await ParseSong(song, 0, true);
+                await new SongParser().ParseSong(song, 0, true);
             }
             else
             {
-                Song song = await ParseSong(new Song(title, artist, thumbnailURL, videoID, -1, -1, null, true, false));
+                Song song = await new SongParser().ParseSong(new Song(title, artist, thumbnailURL, videoID, -1, -1, null, true, false));
                 if (song == null) //The song can't be played, do not add it to the queue
                     return;
 
@@ -763,6 +622,7 @@ namespace Opus.Api.Services
 
         private void RandomizeQueue()
         {
+            SongParser.CancelAll();
             Random r = new Random();
             if (UseCastPlayer)
             {
@@ -799,6 +659,7 @@ namespace Opus.Api.Services
                 song = new Song(title, artist, thumbnailURI, youtubeID, -1, -1, filePath, true);
 
             song.IsLiveStream = isLive;
+            SongParser.QueueSlotAdded(CurrentID() + 1);
             queue.Insert(CurrentID() + 1, song);
             Home.instance?.NotifyQueueInserted(CurrentID() + 1);
             Queue.instance?.NotifyItemInserted(CurrentID() + 1);
@@ -821,6 +682,7 @@ namespace Opus.Api.Services
 
         public void AddToQueue(Song song)
         {
+            SongParser.QueueSlotAdded(CurrentID() + 1);
             queue.Insert(CurrentID() + 1, song);
             Home.instance?.NotifyQueueInserted(CurrentID() + 1);
             Queue.instance?.NotifyItemInserted(CurrentID() + 1);
@@ -843,6 +705,7 @@ namespace Opus.Api.Services
 
         public async void AddToQueue(IEnumerable<Song> songs)
         {
+            SongParser.CancelAll();
             queue.AddRange(songs);
             Home.instance?.RefreshQueue();
             Queue.instance?.Refresh();
@@ -851,12 +714,13 @@ namespace Opus.Api.Services
             if (UseCastPlayer)
             {
                 foreach (Song song in songs)
-                    RemotePlayer.QueueAppendItem(GetQueueItem(await ParseSong(song)), null);
+                    RemotePlayer.QueueAppendItem(GetQueueItem(await new SongParser().ParseSong(song)), null);
             }
         }
 
         public static void InsertToQueue(int position, Song song)
         {
+            SongParser.QueueSlotAdded(position);
             queue.Insert(position, song);
             Home.instance?.NotifyQueueInserted(position);
             Queue.instance?.NotifyItemInserted(position);
@@ -869,6 +733,7 @@ namespace Opus.Api.Services
 
         public void InsertToQueue(int position, Song[] songs)
         {
+            SongParser.QueueSlotAdded(position);
             queue.InsertRange(position, songs);
             Home.instance?.NotifyQueueRangeInserted(position, songs.Length);
             Queue.instance?.NotifyItemRangeInserted(position, songs.Length);
@@ -897,9 +762,7 @@ namespace Opus.Api.Services
                 Queue.instance?.RefreshCurrent();
             }
 
-            //Switch position is the position of the song that will be played just after the parsing.
-            if (switchPosition > position)
-                switchPosition--;
+            SongParser.QueueSlotRemoved(position);
 
             SaveQueueSlot();
             queue.RemoveAt(position);
@@ -1083,7 +946,7 @@ namespace Opus.Api.Services
                     parseProgress.Visibility = ViewStates.Visible;
                     parseProgress.ScaleY = 6;
                 }
-                await ParseSong(song, position, !UseCastPlayer, true);
+                await new SongParser().ParseSong(song, position, !UseCastPlayer, true);
 
                 if (song == null) //Check if the parse has succeed, the song is set to null if there is an error
                     Player.instance?.Ready(); //Remove player's loading bar since we'll not load this song
@@ -1262,7 +1125,7 @@ namespace Opus.Api.Services
                     Song song = autoPlay[0];
                     if (song.IsParsed != false || !song.IsYt)
                         return;
-                    await ParseSong(song);
+                    await new SongParser().ParseSong(song);
                 }
             }
             else
@@ -1271,7 +1134,7 @@ namespace Opus.Api.Services
                 if (song.IsParsed != false || !song.IsYt)
                     return;
 
-                await ParseSong(song, currentID + 1);
+                await new SongParser().ParseSong(song, currentID + 1);
             }
         }
 
@@ -1290,7 +1153,7 @@ namespace Opus.Api.Services
             {
                 Song song = await GetItem();
                 if (song.IsYt && song.IsParsed != true)
-                    await ParseSong(song);
+                    await new SongParser().ParseSong(song);
                 else if(!song.IsYt)
                 {
                     MediaMetadataRetriever meta = new MediaMetadataRetriever();
@@ -1578,7 +1441,7 @@ namespace Opus.Api.Services
                 for (int i = 0; i < queue.Count; i++)
                 {
                     if (queue[i].IsYt && queue[i].IsParsed != true)
-                        queue[i] = await ParseSong(queue[i], i);
+                        queue[i] = await new SongParser().ParseSong(queue[i], i);
                 }
 
                 if(showToast)

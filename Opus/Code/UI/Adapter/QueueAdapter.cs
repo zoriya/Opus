@@ -1,6 +1,5 @@
 ﻿using Android.App;
 using Android.Content;
-using Android.Content.Res;
 using Android.Graphics;
 using Android.Support.Design.Widget;
 using Android.Support.V7.Widget;
@@ -9,6 +8,7 @@ using Android.Text.Style;
 using Android.Views;
 using Android.Widget;
 using Opus.Api.Services;
+using Opus.Code.Api;
 using Opus.DataStructure;
 using Opus.Others;
 using Square.Picasso;
@@ -326,7 +326,8 @@ namespace Opus.Adapter
 
                     if (int.TryParse(payloads[0].ToString(), out int payload) && payload == Resource.Drawable.PublicIcon)
                     {
-                        holder.youtubeIcon.SetImageResource(Resource.Drawable.PublicIcon);
+                        if(MusicPlayer.queue[position - 1].IsParsed == true)
+                            holder.youtubeIcon.SetImageResource(Resource.Drawable.PublicIcon);
                         return;
                     }
 
@@ -424,6 +425,8 @@ namespace Opus.Adapter
 
             else if (MusicPlayer.CurrentID() == fromPosition)
                 MusicPlayer.currentID = toPosition;
+
+            SongParser.QueueSlotMoved(fromPosition, toPosition);
 
             if (MusicPlayer.UseCastPlayer)
             {
