@@ -30,7 +30,7 @@ namespace Opus.Code.Api
         {
             foreach(SongParser instance in instances)
             {
-                if (newPos < instance.queuePosition)
+                if (instance.queuePosition != -1 && newPos < instance.queuePosition)
                     instance.queuePosition++;
             }
         }
@@ -39,12 +39,15 @@ namespace Opus.Code.Api
         {
             foreach (SongParser instance in instances)
             {
-                if (oldPos == instance.queuePosition)
-                    instance.queuePosition = newPos;
-                else if (oldPos < instance.queuePosition)
-                    instance.queuePosition--;
-                else if (oldPos > instance.queuePosition && newPos < instance.queuePosition)
-                    instance.queuePosition++;
+                if (instance.queuePosition != -1)
+                {
+                    if (oldPos == instance.queuePosition)
+                        instance.queuePosition = newPos;
+                    else if (oldPos < instance.queuePosition)
+                        instance.queuePosition--;
+                    else if (oldPos > instance.queuePosition && newPos < instance.queuePosition)
+                        instance.queuePosition++;
+                }
             }
         }
 
@@ -52,10 +55,13 @@ namespace Opus.Code.Api
         {
             foreach (SongParser instance in instances)
             {
-                if (removedPosition < instance.queuePosition)
-                    instance.queuePosition--;
-                else if (removedPosition == instance.queuePosition)
-                    instance.Cancel();
+                if (instance.queuePosition != -1)
+                {
+                    if (removedPosition < instance.queuePosition)
+                        instance.queuePosition--;
+                    else if (removedPosition == instance.queuePosition)
+                        instance.Cancel();
+                }
             }
         }
         #endregion

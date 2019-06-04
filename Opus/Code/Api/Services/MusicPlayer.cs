@@ -211,9 +211,14 @@ namespace Opus.Api.Services
             audioManager = (AudioManager)Application.Context.GetSystemService(AudioService);
             notificationManager = (NotificationManager)Application.Context.GetSystemService(NotificationService);
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
+
+            //This is for the current version of ExoPlayer
             AdaptiveTrackSelection.Factory trackSelectionFactory = new AdaptiveTrackSelection.Factory(new DefaultBandwidthMeter());
             TrackSelector trackSelector = new DefaultTrackSelector(trackSelectionFactory);
             player = ExoPlayerFactory.NewSimpleInstance(Application.Context, trackSelector);
+            //This is for the newers versions of ExoPlayer
+            //player = ExoPlayerFactory.NewSimpleInstance(Application.Context);
+
             volume = prefManager.GetInt("volumeMultiplier", 100) / 100f;
             player.Volume = volume;
             player.AddListener(this);
@@ -239,7 +244,6 @@ namespace Opus.Api.Services
                 }
             }
             UseCastPlayer = RemotePlayer != null;
-            //player.PlayWhenReady = !UseCastPlayer;
         }
 
         public void ChangeVolume(float volume)
@@ -265,6 +269,8 @@ namespace Opus.Api.Services
                 }
 
                 DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(Application.Context, "Opus");
+
+                //This is for the current version of ExoPlayer
                 IExtractorsFactory extractorFactory = new DefaultExtractorsFactory();
                 Handler handler = new Handler();
 
@@ -275,6 +281,16 @@ namespace Opus.Api.Services
                     mediaSource = new ExtractorMediaSource(Uri.FromFile(new Java.IO.File(song.Path)), dataSourceFactory, extractorFactory, handler, null);
                 else
                     mediaSource = new ExtractorMediaSource(Uri.Parse(song.Path), dataSourceFactory, extractorFactory, handler, null);
+
+                //This is for newers versions of ExoPlayer
+                //IMediaSource mediaSource;
+                //if (song.IsLiveStream)
+                //    mediaSource = new HlsMediaSource.Factory(dataSourceFactory).CreateMediaSource(Uri.Parse(song.Path));
+                //else if (!song.IsYt)
+                //    mediaSource = new ExtractorMediaSource.Factory(dataSourceFactory).CreateMediaSource(Uri.FromFile(new Java.IO.File(song.Path)));
+                //else
+                //    mediaSource = new ExtractorMediaSource.Factory(dataSourceFactory).CreateMediaSource(Uri.Parse(song.Path));
+
                 player.Prepare(mediaSource, true, true);
             }
             else
@@ -1658,12 +1674,12 @@ namespace Opus.Api.Services
             {
                 PlayNext();
             }
-            if(state == Com.Google.Android.Exoplayer2.Player.StateBuffering)
+            if (state == Com.Google.Android.Exoplayer2.Player.StateBuffering)
             {
-                if(isRunning)
+                if (isRunning)
                     Player.instance?.Buffering();
             }
-            if(state == Com.Google.Android.Exoplayer2.Player.StateReady)
+            if (state == Com.Google.Android.Exoplayer2.Player.StateReady)
             {
                 Player.instance?.Ready();
             }
