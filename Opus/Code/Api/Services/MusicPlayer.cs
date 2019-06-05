@@ -1280,12 +1280,11 @@ namespace Opus.Api.Services
             smallPlayer?.FindViewById<ImageButton>(Resource.Id.spPlay)?.SetImageResource(Resource.Drawable.Play);
 
             MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton)?.SetImageResource(Resource.Drawable.Play);
+            isRunning = false;
             Queue.instance?.RefreshCurrent();
 
             if (!UseCastPlayer && player != null && isRunning)
             {
-                isRunning = false;
-
                 Intent tmpPauseIntent = new Intent(Application.Context, typeof(MusicPlayer));
                 tmpPauseIntent.SetAction("Pause");
                 PendingIntent pauseIntent = PendingIntent.GetService(Application.Context, 0, tmpPauseIntent, PendingIntentFlags.UpdateCurrent);
@@ -1310,10 +1309,7 @@ namespace Opus.Api.Services
                 }
             }
             else if(UseCastPlayer && RemotePlayer != null && isRunning)
-            {
-                isRunning = false;
                 RemotePlayer.Pause();
-            }
 
             SaveTimer(CurrentPosition);
         }
