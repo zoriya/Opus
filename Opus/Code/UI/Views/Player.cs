@@ -575,12 +575,12 @@ namespace Opus
 
     public class PlayerCallback : BottomSheetBehavior.BottomSheetCallback
     {
-        private Activity context;
-        private NestedScrollView sheet;
-        private BottomNavigationView bottomView;
-        private FrameLayout smallPlayer;
-        private View playerContainer;
-        private CoordinatorLayout snackBar;
+        private readonly Activity context;
+        private readonly NestedScrollView sheet;
+        private readonly BottomNavigationView bottomView;
+        private readonly FrameLayout smallPlayer;
+        private readonly View playerContainer;
+        private readonly CoordinatorLayout snackBar;
         private bool Refreshed = false;
         private SheetMovement movement = SheetMovement.Unknow;
 
@@ -668,7 +668,7 @@ namespace Opus
 
     public class QueueListener : Java.Lang.Object, DrawerLayout.IDrawerListener
     {
-        private ImageView QueueBackground;
+        private readonly ImageView QueueBackground;
 
         public QueueListener(ImageView queueBackground)
         {

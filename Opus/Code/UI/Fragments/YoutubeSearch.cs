@@ -124,9 +124,11 @@ namespace Opus.Fragments
                     adapter.NotifyItemRangeInserted(loadPos, result.Count - loadPos);
                     searching = false;
                 }
-                catch (System.Net.Http.HttpRequestException)
+                catch (Exception ex)
                 {
-                    MainActivity.instance.Timout();
+                    Console.WriteLine("&Exception catched in the youtube load more (search tab): " + ex.Source + " - " + ex.Message);
+                    if (ex is System.Net.Http.HttpRequestException)
+                        MainActivity.instance.Timout();
                 }
             }
         }
@@ -298,11 +300,15 @@ namespace Opus.Fragments
                 else
                     EmptyView.Visibility = ViewStates.Gone;
             }
-            catch (System.Net.Http.HttpRequestException)
+            catch(Exception ex)
             {
-                MainActivity.instance.Timout();
-                EmptyView.Text = GetString(Resource.String.timout);
-                EmptyView.Visibility = ViewStates.Visible;
+                Console.WriteLine("&Exception catched in the youtube search: " + ex.Source + " - " + ex.Message);
+                if(ex is System.Net.Http.HttpRequestException)
+                {
+                    MainActivity.instance.Timout();
+                    EmptyView.Text = GetString(Resource.String.timout);
+                    EmptyView.Visibility = ViewStates.Visible;
+                }
             }
         }
 
