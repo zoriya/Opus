@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using Opus.Adapter;
 using Opus.DataStructure;
 using SQLite;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -19,7 +20,7 @@ using Toolbar = Android.Support.V7.Widget.Toolbar;
 namespace Opus.Fragments
 {
     [Activity(Label = "SearchableActivity", Theme = "@style/Theme")]
-    public class SearchableActivity : AppCompatActivity, IMenuItemOnActionExpandListener
+    public class SearchableActivity : AppCompatActivity, SearchView.IOnCloseListener
     {
         public static SearchableActivity instance;
         public static bool IgnoreMyself = false;
@@ -118,7 +119,7 @@ namespace Opus.Fragments
                                 suggestions = items.ConvertAll(StringToSugest);
                                 suggestions.InsertRange(0, History.Where(x => x.Text.StartsWith(e.NewText)));
 
-                                if(SearchQuery == null || SearchQuery == "")
+                                if (SearchQuery == null || SearchQuery == "")
                                     RunOnUiThread(new Java.Lang.Runnable(() => { ListView.Adapter = new SuggestionAdapter(instance, Resource.Layout.SuggestionLayout, suggestions); }));
                             }
                         }
@@ -137,12 +138,20 @@ namespace Opus.Fragments
                 SearchQuery = e.NewText;
                 AddQueryToHistory(e.NewText);
                 Finish();
-                OverridePendingTransition(Android.Resource.Animation.FadeIn, Android.Resource.Animation.FadeOut);
+                OverridePendingTransition(0, 0);
                 e.Handled = true;
             };
-            searchItem.SetOnActionExpandListener(this);
-            searchView.SetQuery(((SearchView)MainActivity.instance.menu.FindItem(Resource.Id.search).ActionView).Query, false);
+            searchView.SetOnCloseListener(new SearchableCloseListener());
+            SearchQuery = ((SearchView)MainActivity.instance.menu.FindItem(Resource.Id.search).ActionView).Query;
+            searchView.SetQuery(SearchQuery, false);
             return base.OnCreateOptionsMenu(menu);
+        }
+
+        public bool OnClose()
+        {
+            Finish();
+            OverridePendingTransition(0, 0);
+            return true;
         }
 
         void AddQueryToHistory(string query)
@@ -191,15 +200,6 @@ namespace Opus.Fragments
             if ((SearchQuery == null || SearchQuery == "") && YoutubeSearch.instances == null)
                 MainActivity.instance.CancelSearch();
         }
-
-        public bool OnMenuItemActionCollapse(IMenuItem item)
-        {
-            Finish();
-            OverridePendingTransition(Android.Resource.Animation.FadeIn, Android.Resource.Animation.FadeOut);
-            return true;
-        }
-
-        public bool OnMenuItemActionExpand(IMenuItem item) { return true; }
     }
 
     public class QueryComparer : IEqualityComparer<string>
@@ -212,6 +212,15 @@ namespace Opus.Fragments
         public int GetHashCode(string obj)
         {
             return obj.GetHashCode();
+        }
+    }
+
+    public class SearchableCloseListener : Java.Lang.Object, SearchView.IOnCloseListener
+    {
+        public bool OnClose()
+        {
+            Console.WriteLine("&OnClose");
+            return SearchableActivity.instance.OnClose();
         }
     }
 }

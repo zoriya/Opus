@@ -1275,6 +1275,9 @@ namespace Opus.Api.Services
 
         public async void Pause()
         {
+            if (!isRunning)
+                return;
+
             ShouldResumePlayback = false;
             FrameLayout smallPlayer = MainActivity.instance.FindViewById<FrameLayout>(Resource.Id.smallPlayer);
             smallPlayer?.FindViewById<ImageButton>(Resource.Id.spPlay)?.SetImageResource(Resource.Drawable.Play);
@@ -1283,7 +1286,7 @@ namespace Opus.Api.Services
             isRunning = false;
             Queue.instance?.RefreshCurrent();
 
-            if (!UseCastPlayer && player != null && isRunning)
+            if (!UseCastPlayer && player != null)
             {
                 Intent tmpPauseIntent = new Intent(Application.Context, typeof(MusicPlayer));
                 tmpPauseIntent.SetAction("Pause");
@@ -1308,7 +1311,7 @@ namespace Opus.Api.Services
                     noisyRegistered = false;
                 }
             }
-            else if(UseCastPlayer && RemotePlayer != null && isRunning)
+            else if(UseCastPlayer && RemotePlayer != null)
                 RemotePlayer.Pause();
 
             SaveTimer(CurrentPosition);

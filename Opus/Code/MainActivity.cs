@@ -188,9 +188,18 @@ namespace Opus
             else if (MusicPlayer.UseCastPlayer)
                 MusicPlayer.GetQueueFromCast();
 
+            Console.WriteLine("&Resuming, Search Instance: " + SearchableActivity.instance + " SearchQuery: " + SearchableActivity.instance?.SearchQuery);
             if (SearchableActivity.instance != null && SearchableActivity.instance.SearchQuery != null && SearchableActivity.instance.SearchQuery != "")
             {
-                SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(SearchableActivity.instance.SearchQuery, 0)).AddToBackStack("Youtube").Commit();
+                IMenuItem searchItem = menu.FindItem(Resource.Id.search);
+                searchItem.ExpandActionView();
+                SearchView searchView = (SearchView)searchItem.ActionView;
+                searchView.SetQuery(SearchableActivity.instance.SearchQuery, false);
+                searchView.ClearFocus();
+                searchView.Focusable = false;
+
+                if(SearchableActivity.instance.SearchQuery != YoutubeSearch.instances[0].querryType) //We don't want to redo the query if the user already searched for the exact same query.
+                    SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(SearchableActivity.instance.SearchQuery, 0)).AddToBackStack("Youtube").Commit();
                 SearchableActivity.instance = null;
             }
 
@@ -316,7 +325,7 @@ namespace Opus
 
         public bool OnMenuItemActionCollapse(IMenuItem item) //Youtube search collapse
         {
-            if (YoutubeSearch.instances == null || SearchableActivity.IgnoreMyself)
+            if (YoutubeSearch.instances == null /*|| SearchableActivity.IgnoreMyself*/)
                 return true;
 
             SupportFragmentManager.PopBackStack();
@@ -340,7 +349,7 @@ namespace Opus
 
         public void OnFocusChange(View v, bool hasFocus)
         {
-            if (hasFocus && !SearchableActivity.IgnoreMyself)
+            if (hasFocus /*&& !SearchableActivity.IgnoreMyself*/)
             {
                 Bundle animation = ActivityOptionsCompat.MakeCustomAnimation(this, Android.Resource.Animation.FadeIn, Android.Resource.Animation.FadeOut).ToBundle();
                 StartActivity(new Intent(this, typeof(SearchableActivity)), animation);
@@ -552,9 +561,9 @@ namespace Opus
             snackBar.Show();
         }
 
-        public void UnknowError(Action action = null)
+        public void UnknowError(Action action = null, int Length = Snackbar.LengthIndefinite)
         {
-            Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), Resource.String.unknow, Snackbar.LengthIndefinite);
+            Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), Resource.String.unknow, Length);
             if (action != null)
                 snackBar.SetAction("Try Again", (sender) => { action.Invoke(); snackBar.Dismiss(); });
             else

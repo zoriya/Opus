@@ -1,4 +1,5 @@
-﻿using Android.Views;
+﻿using Android.Support.Design.Widget;
+using Android.Views;
 using Android.Widget;
 using Opus.Api;
 using Opus.Api.Services;
@@ -202,6 +203,18 @@ namespace Opus.Code.Api
                 song.IsParsed = false;
                 if (queuePosition != -1)
                     MusicPlayer.RemoveFromQueue(queuePosition); //Remove the song from the queue since it can't be played.
+
+                if (startPlaybackWhenPosible)
+                    Player.instance?.Ready();
+            }
+            catch //We use this because when the network is reseted, an unknow error is thrown. We also don't want the app to crash at this state so it's ok to use a global catch.
+            {
+                MainActivity.instance.UnknowError(null, Snackbar.LengthLong);
+
+                song.IsParsed = false;
+
+                if (MainActivity.instance != null)
+                    MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
 
                 if (startPlaybackWhenPosible)
                     Player.instance?.Ready();

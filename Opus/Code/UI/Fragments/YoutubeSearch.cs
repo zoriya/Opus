@@ -169,13 +169,13 @@ namespace Opus.Fragments
 
         public async Task Search(string search, string querryType, bool loadingBar)
         {
-            SearchableActivity.IgnoreMyself = true;
-            IMenuItem searchItem = MainActivity.instance.menu.FindItem(Resource.Id.search);
-            searchItem.ExpandActionView();
-            SearchView searchView = (SearchView)searchItem.ActionView;
-            searchView.SetQuery(search, false);
-            searchView.ClearFocus();
-            searchView.Focusable = false;
+            //SearchableActivity.IgnoreMyself = true;
+            //IMenuItem searchItem = MainActivity.instance.menu.FindItem(Resource.Id.search);
+            //searchItem.ExpandActionView();
+            //SearchView searchView = (SearchView)searchItem.ActionView;
+            //searchView.SetQuery(search, false);
+            //searchView.ClearFocus();
+            //searchView.Focusable = false;
 
             if (search == null || search == "")
                 return;
