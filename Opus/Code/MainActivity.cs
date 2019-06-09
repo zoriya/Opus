@@ -735,6 +735,12 @@ namespace Opus
         #region Login with google services and creation of the youtube service object
         public void Login(bool canAsk = true, bool skipSilentLog = false, bool skipLastSigned = false)
         {
+            if(canAsk && skipSilentLog && skipLastSigned)
+            {
+                Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), Resource.String.login_disabled, Snackbar.LengthLong);
+                snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+                snackBar.Show();
+            }
             //waitingForYoutube = true;
 
             //if (!skipLastSigned)
@@ -1005,7 +1011,7 @@ namespace Opus
             //}
         }
 
-        public void OnFailure(Request request, Java.IO.IOException iOException)
+        public void OnFailure()
         {
             Console.WriteLine("&Failure");
         }

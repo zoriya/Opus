@@ -126,11 +126,12 @@ namespace Opus.Fragments
                 if (instance == null)
                     return;
 
-                if (yt == null)
+                if (error != null)
                 {
+                    System.Console.WriteLine("&Error != null");
                     YoutubePlaylists.Remove(Loading);
                     adapter.NotifyItemRemoved(LocalPlaylists.Count + YoutubePlaylists.Count);
-                    YoutubePlaylists.Add(new PlaylistItem("Error", null)); //Should use the "err" var here
+                    YoutubePlaylists.Add(new PlaylistItem("Error", null) { Owner = error, HasWritePermission = yt != null }); //I use this to check witch error is called. Not really clean but it'll go.
                     adapter.NotifyItemInserted(LocalPlaylists.Count + YoutubePlaylists.Count);
                     populating = false;
                     SyncError();

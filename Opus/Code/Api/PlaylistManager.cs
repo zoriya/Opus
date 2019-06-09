@@ -700,8 +700,10 @@ namespace Opus.Api
         /// <returns></returns>
         public static async Task<(List<PlaylistItem>, string)> GetOwnedYoutubePlaylists(List<PlaylistItem> SyncedPlaylists, Action<PlaylistItem, int> UiCallback)
         {
-            if (!await MainActivity.instance.WaitForYoutube() || YoutubeManager.IsUsingAPI)
-                return (null, "Error"); //Should have a better error handling
+            if (YoutubeManager.IsUsingAPI)
+                return (new List<PlaylistItem>(), Application.Context.GetString(Resource.String.youtube_not_logged));
+            if (!await MainActivity.instance.WaitForYoutube())
+                return (null, Application.Context.GetString(Resource.String.youtube_loading_error));
 
             List<PlaylistItem> YoutubePlaylists = new List<PlaylistItem>();
 
@@ -731,7 +733,7 @@ namespace Opus.Api
             }
             catch (System.Net.Http.HttpRequestException)
             {
-                return (null, "Error"); //Should handle precise error here
+                return (null, Application.Context.GetString(Resource.String.youtube_loading_error)); //Should handle precise error here
             }
         }
 

@@ -17,8 +17,8 @@ namespace Opus.Adapter
 {
     public class PlaylistAdapter : RecyclerView.Adapter
     {
-        private List<PlaylistItem> LocalPlaylists = new List<PlaylistItem>();
-        private List<PlaylistItem> YoutubePlaylists = new List<PlaylistItem>();
+        private readonly List<PlaylistItem> LocalPlaylists = new List<PlaylistItem>();
+        private readonly List<PlaylistItem> YoutubePlaylists = new List<PlaylistItem>();
         public bool forkSaved = false;
         public int listPadding;
         public event EventHandler<int> ItemClick;
@@ -97,8 +97,16 @@ namespace Opus.Adapter
             else if(position >= LocalPlaylists.Count && YoutubePlaylists[position - LocalPlaylists.Count].Name == "Error" && YoutubePlaylists[position - LocalPlaylists.Count].YoutubeID == null)
             {
                 EmptyHolder holder = (EmptyHolder)viewHolder;
-                holder.text.Text = MainActivity.instance.Resources.GetString(Resource.String.youtube_loading_error);
-                holder.text.SetTextColor(Color.Red);
+                holder.text.TextFormatted = Html.FromHtml(YoutubePlaylists[position - LocalPlaylists.Count].Owner, FromHtmlOptions.OptionUseCssColors);
+
+                if (!holder.text.HasOnClickListeners)
+                {
+                    holder.text.Click += (s, e) =>
+                    {
+                        if(YoutubePlaylists[position - LocalPlaylists.Count].HasWritePermission)
+                            MainActivity.instance.Login(true, true, true);
+                    };
+                }
             }
 
             //Playlists binding

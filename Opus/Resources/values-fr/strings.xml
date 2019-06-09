@@ -95,7 +95,8 @@
   <string name="local_playlists">Playlists locales</string>
   <string name="youtube_playlists">Playlists youtubes</string>
   <string name="add_playlist">AJOUTER UNE PLAYLIST</string>
-  <string name="youtube_loading_error">Erreur de chargement. \nVérifiez avoir séléctionné un compte et votre connection internet.</string>
+  <string name="youtube_not_logged">Vous n\'êtes pas connecté à youtube.&lt;br>Pour vous connectez, &lt;u>clickez ici&lt;/u>.</string>
+  <string name="youtube_loading_error">&lt;font color=red>Erreur de chargement.&lt;br>Vérifiez votre connection internet.&lt;/font></string>
   <string name="local_playlist_empty">Vous n\'avez aucune playlist sur cet appareil.</string>
   <string name="youtube_playlist_empty">Vous n\'avez aucune playlist sur ce compte youtube \nAttention : seulement les playlists présentes sur votre compte google sont affichées.</string>
   <string name="localpl_noperm">&lt;font color=red>Impossible de lister les playlists locales.&lt;/font>&lt;br>&lt;u>Clicez ici&lt;/u> pour donner les droits de lectures a l\'application.</string>
