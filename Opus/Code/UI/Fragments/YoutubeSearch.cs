@@ -440,7 +440,7 @@ namespace Opus.Fragments
                 }),
                 new BottomSheetAction(Resource.Drawable.Download, MainActivity.instance.Resources.GetString(Resource.String.download), (sender, eventArg) =>
                 {
-                    YoutubeManager.DownloadPlaylist(item.Name, item.YoutubeID, true, false);
+                    YoutubeManager.DownloadPlaylist(item, true, false);
                     bottomSheet.Dismiss();
                 })
             };

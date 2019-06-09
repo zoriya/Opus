@@ -172,7 +172,7 @@ namespace Opus.Fragments
             switch (menuItem.ItemId)
             {
                 case Resource.Id.download:
-                    YoutubeManager.DownloadPlaylist(item.Name, item.YoutubeID, true, true);
+                    YoutubeManager.DownloadPlaylist(item, true, true);
                     break;
 
                 case Resource.Id.fork:

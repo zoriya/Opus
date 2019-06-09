@@ -1027,7 +1027,6 @@ namespace Opus.Api
             }
         }
 
-
         /// <summary>
         /// Will create a youtube playlist and add an array of songs in this playlist
         /// </summary>

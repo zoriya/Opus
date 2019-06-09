@@ -451,7 +451,7 @@ namespace Opus.Fragments
             {
                 actions.AddRange(new BottomSheetAction[]{ new BottomSheetAction(Resource.Drawable.Sync, Resources.GetString(Resource.String.sync_now), (sender, eventArg) =>
                 {
-                    YoutubeManager.DownloadPlaylist(item.Name, item.YoutubeID, true, true);
+                    YoutubeManager.DownloadPlaylist(item, true, true);
                     bottomSheet.Dismiss();
                 }),
                 new BottomSheetAction(Resource.Drawable.SyncDisabled, Resources.GetString(Resource.String.stop_sync), (sender, eventArg) =>
@@ -481,7 +481,7 @@ namespace Opus.Fragments
             {
                 actions.Add(new BottomSheetAction(Resource.Drawable.Sync, Resources.GetString(Resource.String.sync), (sender, eventArg) => 
                 {
-                    YoutubeManager.DownloadPlaylist(item.Name, item.YoutubeID, true, true);
+                    YoutubeManager.DownloadPlaylist(item, true, true);
                     bottomSheet.Dismiss();
                 }));
 

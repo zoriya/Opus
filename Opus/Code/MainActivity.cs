@@ -198,7 +198,7 @@ namespace Opus
                 searchView.ClearFocus();
                 searchView.Focusable = false;
 
-                if(SearchableActivity.instance.SearchQuery != YoutubeSearch.instances[0].querryType) //We don't want to redo the query if the user already searched for the exact same query.
+                if(YoutubeSearch.instances == null || SearchableActivity.instance.SearchQuery != YoutubeSearch.instances[0].querryType) //We don't want to redo the query if the user already searched for the exact same query.
                     SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(SearchableActivity.instance.SearchQuery, 0)).AddToBackStack("Youtube").Commit();
                 SearchableActivity.instance = null;
             }

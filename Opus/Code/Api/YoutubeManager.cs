@@ -132,11 +132,10 @@ namespace Opus.Api
         /// <summary>
         /// Download a playlist or update the local playlist with new songs.
         /// </summary>
-        /// <param name="playlistName">The name of the playlist (local one)</param>
-        /// <param name="YoutubeID">The youtube id of your playlist</param>
+        /// <param name="playlist">The playlist you want to download.</param>
         /// <param name="keepPlaylistSynced">True if you want to add the playlist in the keep synced database (warning, this wont add the playlist to the saved ones) </param>
         /// <param name="showToast">True if you want this method to display that the download has started</param>
-        public static async void DownloadPlaylist(string playlistName, string YoutubeID, bool keepPlaylistSynced, bool showToast)
+        public static async void DownloadPlaylist(PlaylistItem playlist, bool keepPlaylistSynced, bool showToast)
         {
             if (!await MainActivity.instance.WaitForYoutube())
                 return;
@@ -151,17 +150,18 @@ namespace Opus.Api
                 Toast.MakeText(Android.App.Application.Context, Resource.String.syncing, ToastLength.Short).Show();
 
 
-            long LocalID = await PlaylistManager.GetPlaylistID(playlistName);
+            long LocalID = playlist.LocalID != 0 ? playlist.LocalID : await PlaylistManager.GetPlaylistID(playlist.Name);
             if(LocalID == -1)
             {
                 ContentValues value = new ContentValues();
-                value.Put(Playlists.InterfaceConsts.Name, playlistName);
+                value.Put(Playlists.InterfaceConsts.Name, playlist.Name);
                 MainActivity.instance.ContentResolver.Insert(Playlists.ExternalContentUri, value);
 
-                LocalID = await PlaylistManager.GetPlaylistID(playlistName);
+                LocalID = await PlaylistManager.GetPlaylistID(playlist.Name);
             }
+            playlist.LocalID = LocalID;
 
-            Playlist.instance?.StartSyncing(playlistName);
+            Playlist.instance?.StartSyncing(playlist.Name);
 
             if (keepPlaylistSynced)
             {
@@ -169,7 +169,7 @@ namespace Opus.Api
                 {
                     SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "SyncedPlaylists.sqlite"));
                     db.CreateTable<PlaylistItem>();
-                    db.InsertOrReplace(new PlaylistItem(playlistName, LocalID, YoutubeID));
+                    db.InsertOrReplace(playlist);
                 });
             }
 
@@ -179,7 +179,7 @@ namespace Opus.Api
             while (nextPageToken != null)
             {
                 var ytPlaylistRequest = YoutubeService.PlaylistItems.List("snippet, contentDetails");
-                ytPlaylistRequest.PlaylistId = YoutubeID;
+                ytPlaylistRequest.PlaylistId = playlist.YoutubeID;
                 ytPlaylistRequest.MaxResults = 50;
                 ytPlaylistRequest.PageToken = nextPageToken;
 
@@ -202,7 +202,7 @@ namespace Opus.Api
                 for (int i = 0; i < names.Count; i++)
                 {
                     if (videoIDs[i] != null && videoIDs[i] != "")
-                        files.Add(new DownloadFile(names[i], videoIDs[i], playlistName));
+                        files.Add(new DownloadFile(names[i], videoIDs[i], playlist.Name));
                 }
 
                 ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Android.App.Application.Context);
@@ -240,7 +240,7 @@ namespace Opus.Api
             {
                 if (item.YoutubeID != null)
                 {
-                    DownloadPlaylist(item.Name, item.YoutubeID, false, false);
+                    DownloadPlaylist(item, false, false);
                 }
             }
         }
