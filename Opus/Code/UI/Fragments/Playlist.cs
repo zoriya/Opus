@@ -91,7 +91,7 @@ namespace Opus.Fragments
                 if(error == null)
                 {
                     if (loc == null || loc.Count == 0) //Every local playlist is a synced one
-                        LocalPlaylists.Add(new PlaylistItem("EMPTY", -1) { Owner = GetString(Resource.String.local_playlist_empty) });
+                        LocalPlaylists.Add(new PlaylistItem("EMPTY", -1) { Owner = Resources.GetString(Resource.String.local_playlist_empty) });
                     else
                         LocalPlaylists.AddRange(loc);
                 }

@@ -643,7 +643,7 @@ namespace Opus.Api
             });
 
             if (playlists.Count == 0)
-                return (null, "EMPTY");
+                return (null, null);
             else
                 return (playlists, null);
         }
