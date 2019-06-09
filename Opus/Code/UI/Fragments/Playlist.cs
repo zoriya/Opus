@@ -28,8 +28,8 @@ namespace Opus.Fragments
         private View LoadingView;
         private bool populating = false;
 
-        private List<PlaylistItem> LocalPlaylists = new List<PlaylistItem>();
-        private List<PlaylistItem> YoutubePlaylists = new List<PlaylistItem>();
+        private readonly List<PlaylistItem> LocalPlaylists = new List<PlaylistItem>();
+        private readonly List<PlaylistItem> YoutubePlaylists = new List<PlaylistItem>();
 
 
         public override void OnActivityCreated(Bundle savedInstanceState)
@@ -277,7 +277,7 @@ namespace Opus.Fragments
                 LocalPlaylists.Add(new PlaylistItem("Error", -1) { Owner = error });
 
             //Handle synced playlist from the local playlist array we had before.
-            (List<PlaylistItem> loc, List<PlaylistItem> SyncedPlaylists) = await PlaylistManager.ProcessSyncedPlaylists(locPlaylists);
+            (List<PlaylistItem> loc, _) = await PlaylistManager.ProcessSyncedPlaylists(locPlaylists);
 
             if (instance == null)
                 return;
@@ -308,15 +308,28 @@ namespace Opus.Fragments
                     {
                         if(YoutubeExplode.YoutubeClient.TryParsePlaylistId(view.FindViewById<EditText>(Resource.Id.playlistURL).Text, out string playlistID))
                         {
-                            PlaylistManager.ForkPlaylist(await PlaylistManager.GetPlaylist(playlistID));
+                            PlaylistItem addPlaylist = await PlaylistManager.GetPlaylist(playlistID);
+                            PlaylistManager.ForkPlaylist(addPlaylist);
 
-                            if (YoutubePlaylists.Count == 3 && YoutubePlaylists[1].Name == "EMPTY")
+                            if (YoutubePlaylists[YoutubePlaylists.Count - 1].Name == "EMPTY" || YoutubePlaylists[YoutubePlaylists.Count - 1].Name == "Error")
                             {
-                                YoutubePlaylists.RemoveAt(1);
-                                adapter.NotifyItemChanged(LocalPlaylists.Count + YoutubePlaylists.Count - 1);
+                                if (YoutubePlaylists[YoutubePlaylists.Count - 1].Name == "EMPTY")
+                                {
+                                    YoutubePlaylists.Insert(YoutubePlaylists.Count - 2, addPlaylist);
+                                    YoutubePlaylists.RemoveAt(2);
+                                    adapter.NotifyItemChanged(LocalPlaylists.Count + YoutubePlaylists.Count - 2);
+                                }
+                                else
+                                {
+                                    YoutubePlaylists.Insert(YoutubePlaylists.Count - 1, addPlaylist);
+                                    adapter.NotifyItemInserted(LocalPlaylists.Count + YoutubePlaylists.Count - 2);
+                                }
                             }
                             else
-                                adapter.NotifyItemInserted(LocalPlaylists.Count + YoutubePlaylists.Count);
+                            {
+                                YoutubePlaylists.Add(addPlaylist);
+                                adapter.NotifyItemInserted(LocalPlaylists.Count + YoutubePlaylists.Count - 1);
+                            }
                         }
                         else
                         {
