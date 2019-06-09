@@ -477,7 +477,7 @@ namespace Opus.Fragments
                     bottomSheet.Dismiss();
                 })});
             }
-            else if (!local )
+            else if (!local)
             {
                 actions.Add(new BottomSheetAction(Resource.Drawable.Sync, Resources.GetString(Resource.String.sync), (sender, eventArg) => 
                 {
@@ -489,6 +489,9 @@ namespace Opus.Fragments
                 {
                     actions.Add(new BottomSheetAction(Resource.Drawable.Delete, Resources.GetString(Resource.String.unfork), (sender, eventArg) =>
                     {
+                        if (item.SyncState == SyncState.Error)
+                            PlaylistManager.StopSyncing(item);
+
                         PlaylistManager.Unfork(item);
                         YoutubePlaylists.RemoveAt(Position - LocalPlaylists.Count);
                         adapter.NotifyItemRemoved(Position);
