@@ -10,8 +10,9 @@ namespace Opus.Others
 {
     public class ItemTouchCallback : ItemTouchHelper.Callback
     {
-        private IItemTouchAdapter adapter;
+        private readonly IItemTouchAdapter adapter;
         private readonly bool alwaysAllowSwap;
+        private readonly Drawable drawable;
 
         private int from = -1;
         private int to = -1;
@@ -35,9 +36,6 @@ namespace Opus.Others
                 return false;
             }
         }
-
-        private Drawable drawable;
-
 
         public ItemTouchCallback(IItemTouchAdapter adapter, bool alwaysAllowSwap)
         {

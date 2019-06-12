@@ -31,13 +31,14 @@ namespace Opus.Fragments
         public TextView EmptyView;
         public RecyclerView ListView;
         public PlaylistTrackAdapter adapter;
-        private Android.Support.V7.Widget.Helper.ItemTouchHelper itemTouchHelper;
+        public Android.Support.V7.Widget.Helper.ItemTouchHelper itemTouchHelper;
 
         private string query;
         private string nextPageToken = null;
         public bool fullyLoadded = true;
         public bool lastVisible = false;
         public bool useHeader = true;
+        public bool isInEditMode = true;
         private bool isForked;
         private bool loading = false;
 
@@ -341,7 +342,7 @@ namespace Opus.Fragments
             else
                 selection = null;
 
-            return new CursorLoader(Android.App.Application.Context, musicUri, null, selection, null, null);
+            return new CursorLoader(Android.App.Application.Context, musicUri, null, selection, null, Playlists.Members.PlayOrder);
         }
 
         public void OnLoadFinished(Android.Support.V4.Content.Loader loader, Object data)
@@ -362,16 +363,6 @@ namespace Opus.Fragments
         public void OnLoaderReset(Android.Support.V4.Content.Loader loader)
         {
             adapter.SwapCursor(null, false);
-        }
-
-        string SongToName(Song song)
-        {
-            return song.Title;
-        }
-
-        string SongToYtID(Song song)
-        {
-            return song.YoutubeID;
         }
 
         public async void OnRefresh(object sender, System.EventArgs e)

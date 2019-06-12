@@ -44,7 +44,7 @@ namespace Opus.Adapter
             }
         }
 
-        public T GetItem(int position)
+        public virtual T GetItem(int position)
         {
             cursor.MoveToPosition(position - ItemBefore);
             return Convert(cursor);

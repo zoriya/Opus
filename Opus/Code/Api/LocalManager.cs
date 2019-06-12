@@ -369,16 +369,19 @@ namespace Opus.Api
             {
                 if(await MainActivity.instance.GetWritePermission())
                 {
+                    int playlistCount = await PlaylistManager.GetPlaylistCount(LocalID);
+
                     ContentResolver resolver = MainActivity.instance.ContentResolver;
                     List<ContentValues> values = new List<ContentValues>();
 
-                    foreach (Song item in items)
+                    for (int i = 0; i < items.Length; i++)
                     {
+                        Song item = items[i];
                         if (item != null && item.LocalID != 0 && item.LocalID != -1)
                         {
                             ContentValues value = new ContentValues();
                             value.Put(MediaStore.Audio.Playlists.Members.AudioId, item.LocalID);
-                            value.Put(MediaStore.Audio.Playlists.Members.PlayOrder, 0);
+                            value.Put(MediaStore.Audio.Playlists.Members.PlayOrder, playlistCount + i + 1);
                             values.Add(value);
                         }
                     }

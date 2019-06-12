@@ -125,11 +125,31 @@ namespace Opus.Adapter
             else
                 holder.Live.Visibility = ViewStates.Gone;
 
+            if(PlaylistTracks.instance.isInEditMode)
+            {
+                holder.more.Visibility = ViewStates.Gone;
+                holder.reorder.Visibility = ViewStates.Visible;
+            }
+            else
+            {
+                holder.more.Visibility = ViewStates.Visible;
+                holder.reorder.Visibility = ViewStates.Gone;
+            }
+
             if (!holder.more.HasOnClickListeners)
             {
                 holder.more.Click += (sender, e) =>
                 {
-                    PlaylistTracks.instance.More(tracks == null ? GetItem(holder.AdapterPosition) : tracks[holder.AdapterPosition], holder.AdapterPosition);
+                    PlaylistTracks.instance.More(GetItem(holder.AdapterPosition), holder.AdapterPosition);
+                };
+            }
+
+            if (!holder.reorder.HasOnClickListeners)
+            {
+                holder.reorder.Touch += (sender, e) =>
+                {
+                    PlaylistTracks.instance.itemTouchHelper.StartDrag(viewHolder);
+                    MainActivity.instance.contentRefresh.Enabled = false;
                 };
             }
 
@@ -138,10 +158,19 @@ namespace Opus.Adapter
             if (MainActivity.Theme == 1)
             {
                 holder.more.SetColorFilter(Color.White);
+                holder.reorder.SetColorFilter(Color.White);
                 holder.Title.SetTextColor(Color.White);
                 holder.Artist.SetTextColor(Color.White);
                 holder.Artist.Alpha = 0.7f;
             }
+        }
+
+        public override Song GetItem(int position)
+        {
+            if (tracks == null)
+                return base.GetItem(position);
+            else
+                return tracks[position];
         }
 
         public override void OnClick(int position)
@@ -215,13 +244,19 @@ namespace Opus.Adapter
         }
 
 
-        public void ItemMoved(int fromPosition, int toPosition) { }
+        public void ItemMoved(int fromPosition, int toPosition)
+        {
+            NotifyItemMoved(fromPosition, toPosition);
+        }
 
-        public void ItemMoveEnded(int fromPosition, int toPosition) { }
+        public void ItemMoveEnded(int fromPosition, int toPosition)
+        {
+            PlaylistManager.Reorder(PlaylistTracks.instance.item, fromPosition, toPosition);
+        }
 
         public void ItemDismissed(int position)
         {
-            PlaylistTracks.instance.RemoveFromPlaylist(tracks == null ? GetItem(position) : tracks[position], position);
+            PlaylistTracks.instance.RemoveFromPlaylist(GetItem(position), position);
         }
     }
 }

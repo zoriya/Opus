@@ -354,7 +354,6 @@ namespace Opus.Api
             {
                 if (item.YoutubeID == null)
                 {
-                    Toast.MakeText(MainActivity.instance, Resource.String.playlist_add_song_not_found, ToastLength.Long).Show();
                     playlists.Remove(Loading);
                     adapter.NotifyItemRemoved(playlists.Count);
                     return;
@@ -363,7 +362,7 @@ namespace Opus.Api
 
             if (YoutubeManager.IsUsingAPI || !await MainActivity.instance.WaitForYoutube())
             {
-                Toast.MakeText(MainActivity.instance, Resource.String.youtube_loading_error, ToastLength.Long).Show();
+                //Toast.MakeText(MainActivity.instance, Resource.String.youtube_loading_error, ToastLength.Long).Show();
                 playlists.Remove(Loading);
                 adapter.NotifyItemRemoved(playlists.Count);
                 return;
@@ -832,9 +831,6 @@ namespace Opus.Api
         /// <returns></returns>
         public async static Task<List<Song>> GetTracksFromLocalPlaylist(long LocalID)
         {
-            if (Looper.MyLooper() == null)
-                Looper.Prepare();
-
             List<Song> songs = new List<Song>();
             Uri musicUri = Playlists.Members.GetContentUri("external", LocalID);
             await Task.Run(() => 
@@ -842,7 +838,7 @@ namespace Opus.Api
                 if (Looper.MyLooper() == null)
                     Looper.Prepare();
 
-                CursorLoader cursorLoader = new CursorLoader(Application.Context, musicUri, null, null, null, null);
+                CursorLoader cursorLoader = new CursorLoader(Application.Context, musicUri, null, null, null, MediaStore.Audio.Playlists.Members.PlayOrder);
                 ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
 
                 if (musicCursor != null && musicCursor.MoveToFirst())
@@ -970,6 +966,27 @@ namespace Opus.Api
                 Uri uri = Playlists.Members.GetContentUri("external", LocalPlaylistID);
                 resolver.Delete(uri, Playlists.Members.Id + "=?", new string[] { song.LocalID.ToString() });
             //});
+        }
+
+        /// <summary>
+        /// This method will give you the current number of songs in the playlist.
+        /// </summary>
+        /// <param name="LocalID"></param>
+        /// <returns></returns>
+        public async static Task<int> GetPlaylistCount(long LocalID)
+        {
+            int count = 0;
+            await Task.Run(() =>
+            {
+                if (Looper.MyLooper() == null)
+                    Looper.Prepare();
+
+                Uri musicUri = Playlists.Members.GetContentUri("external", LocalID);
+                CursorLoader cursorLoader = new CursorLoader(Application.Context, musicUri, null, null, null, null);
+                ICursor cursor = (ICursor)cursorLoader.LoadInBackground();
+                count = cursor.Count;
+            });
+            return count;
         }
         #endregion
 
@@ -1161,6 +1178,38 @@ namespace Opus.Api
             Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), MainActivity.instance.GetString(Resource.String.playlist_unsaved), Snackbar.LengthLong);
             snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
             snackBar.Show();
+        }
+        #endregion
+
+        #region Reorder
+        /// <summary>
+        /// Set the slot of a song in a playlist. Work with local one, youtube one and synced one.
+        /// </summary>
+        /// <param name="playlist"></param>
+        /// <param name="fromPosition"></param>
+        /// <param name="newPosition"></param>
+        public static void Reorder(PlaylistItem playlist, int fromPosition, int newPosition)
+        {
+            if (playlist.LocalID != 0)
+                Reorder(playlist.LocalID, fromPosition, newPosition);
+
+            //if (playlist.YoutubeID != null)
+            //    Reorder(playlist.YoutubeID, song, newPosition);
+        }
+
+        /// <summary>
+        /// Set the slot of a song in a local playlist
+        /// </summary>
+        /// <param name="PlaylistLocalID"></param>
+        /// <param name="fromPosition"></param>
+        /// <param name="newPosition"></param>
+        public async static void Reorder(long PlaylistLocalID, int fromPosition, int newPosition)
+        {
+            if (!await MainActivity.instance.GetWritePermission())
+                return;
+
+            bool success = Playlists.Members.MoveItem(MainActivity.instance.ContentResolver, PlaylistLocalID, fromPosition, newPosition);
+            Console.WriteLine("&Reorder success: " + success);
         }
         #endregion
     }
