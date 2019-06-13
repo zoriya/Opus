@@ -17,7 +17,7 @@ namespace Opus.Adapter
         public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position)
         {
             DownloadHolder holder = (DownloadHolder)viewHolder;
-            holder.Title.Text = Downloader.queue[position].name;
+            holder.Title.Text = Downloader.queue[position].Name;
 
             switch (Downloader.queue[position].State)
             {
@@ -34,6 +34,17 @@ namespace Opus.Adapter
                     break;
                 case DownloadState.MetaData:
                     holder.Status.Text = Downloader.instance.GetString(Resource.String.metadata);
+                    holder.Status.Visibility = ViewStates.Visible;
+                    holder.Progress.Visibility = ViewStates.Visible;
+                    holder.Progress.Indeterminate = true;
+                    holder.Title.Alpha = 1f;
+                    if (MainActivity.Theme == 1)
+                        holder.Title.SetTextColor(Color.White);
+                    else
+                        holder.Title.SetTextColor(Color.Black);
+                    break;
+                case DownloadState.Playlist:
+                    holder.Status.Text = Downloader.instance.GetString(Resource.String.downloader_playlist);
                     holder.Status.Visibility = ViewStates.Visible;
                     holder.Progress.Visibility = ViewStates.Visible;
                     holder.Progress.Indeterminate = true;

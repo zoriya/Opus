@@ -355,15 +355,16 @@ namespace Opus.Api
         /// <param name="playList">The name of the playlist</param>
         /// <param name="LocalID">The id of the local playlist or -1 if you want to add this song to a playlist that will be created after.</param>
         /// <param name="saveAsSynced">Used only if you want to create a playlist with this method. True if the newly created playlist should be synced on youtube.</param>
-        public async static void AddToPlaylist(Song[] items, string playList, long LocalID, bool saveAsSynced = false)
+        /// <param name="position">If you want to add the first song to a specific position (should only be used if you know the exact position that you want). Experimental Feature.</param>
+        public async static void AddToPlaylist(Song[] items, string playList, long LocalID, bool saveAsSynced = false, int position = -1)
         {
             if (LocalID == -1)
             {
                 LocalID = await PlaylistManager.GetPlaylistID(playList);
                 if (LocalID == -1)
-                    PlaylistManager.CreateLocalPlaylist(playList, items, saveAsSynced);
+                    PlaylistManager.CreateLocalPlaylist(playList, items, saveAsSynced, position);
                 else
-                    AddToPlaylist(items, playList, LocalID);
+                    AddToPlaylist(items, playList, LocalID, saveAsSynced, position);
             }
             else
             {
@@ -381,7 +382,13 @@ namespace Opus.Api
                         {
                             ContentValues value = new ContentValues();
                             value.Put(MediaStore.Audio.Playlists.Members.AudioId, item.LocalID);
-                            value.Put(MediaStore.Audio.Playlists.Members.PlayOrder, playlistCount + i + 1);
+                            if(position != -1)
+                            {
+                                value.Put(MediaStore.Audio.Playlists.Members.PlayOrder, position);
+                                position = -1;
+                            }
+                            else
+                                value.Put(MediaStore.Audio.Playlists.Members.PlayOrder, playlistCount + i + 1);
                             values.Add(value);
                         }
                     }

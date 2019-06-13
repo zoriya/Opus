@@ -508,7 +508,7 @@ namespace Opus.Fragments
         {
             for (int i = 1; i < YoutubePlaylists.Count; i++)
             {
-                if (YoutubePlaylists[i].SyncState != SyncState.False && YoutubePlaylists[i].SyncState != SyncState.Error && Downloader.queue.Find(x => x.playlist == YoutubePlaylists[i].Name && (x.State == DownloadState.Downloading || x.State == DownloadState.Initialization || x.State == DownloadState.MetaData || x.State == DownloadState.None)) == null)
+                if (YoutubePlaylists[i].SyncState != SyncState.False && YoutubePlaylists[i].SyncState != SyncState.Error && Downloader.queue.Find(x => x.PlaylistName == YoutubePlaylists[i].Name && (x.State == DownloadState.Downloading || x.State == DownloadState.Initialization || x.State == DownloadState.MetaData || x.State == DownloadState.None)) == null)
                 {
                     YoutubePlaylists[i].SyncState = SyncState.True;
                     PlaylistHolder holder = (PlaylistHolder)ListView.GetChildViewHolder(ListView.GetChildAt(LocalPlaylists.Count + i));

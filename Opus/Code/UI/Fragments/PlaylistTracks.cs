@@ -192,7 +192,7 @@ namespace Opus.Fragments
                         SongManager.AddToQueue(adapter.tracks);
                     break;
 
-                case Resource.Id.rename:
+                case Resource.Id.name:
                     PlaylistManager.Rename(item, () => 
                     {
                         MainActivity.instance.FindViewById<TextView>(Resource.Id.headerTitle).Text = item.Name;
@@ -219,20 +219,30 @@ namespace Opus.Fragments
         void PlaylistMore(object sender,  System.EventArgs eventArgs)
         {
             PopupMenu menu = new PopupMenu(MainActivity.instance, MainActivity.instance.FindViewById<ImageButton>(Resource.Id.headerMore));
-            if (item.LocalID == -1 && item.HasWritePermission)
-                menu.Inflate(Resource.Menu.ytplaylist_header_more);
-            else if (item.LocalID == -1 && isForked)
-                menu.Inflate(Resource.Menu.ytplaylistnowrite_forked_header_more);
-            else if (item.LocalID == -1)
-                menu.Inflate(Resource.Menu.ytplaylistnowrite_header_more);
-            else
-                menu.Inflate(Resource.Menu.playlist_header_more);
+            menu.Inflate(Resource.Menu.playlist_header_more); //Contains "add to queue"
 
             if (item.SyncState == SyncState.True)
             {
-                menu.Menu.GetItem(0).SetTitle("Sync Now");
-                menu.Menu.Add(Menu.None, Resource.Id.sync, menu.Menu.Size() - 3, "Stop Syncing");
+                menu.Menu.Add(Menu.None, Resource.Id.download, 1, MainActivity.instance.GetString(Resource.String.sync_now));
+                menu.Menu.Add(Menu.None, Resource.Id.sync, 5, MainActivity.instance.GetString(Resource.String.stop_sync));
             }
+            else if(item.YoutubeID != null)
+            {
+                menu.Menu.Add(Menu.None, Resource.Id.download, 1, MainActivity.instance.GetString(Resource.String.sync));
+            }
+
+            if(item.YoutubeID != null)
+            {
+                if(isForked)
+                    menu.Menu.Add(Menu.None, Resource.Id.fork, 2, MainActivity.instance.GetString(Resource.String.unfork));
+                else
+                    menu.Menu.Add(Menu.None, Resource.Id.fork, 2, MainActivity.instance.GetString(Resource.String.add_to_library));
+            }
+
+            if(item.HasWritePermission)
+                menu.Menu.Add(Menu.None, Resource.Id.name, 3, MainActivity.instance.GetString(Resource.String.rename));
+
+            menu.Menu.Add(Menu.None, Resource.Id.delete, 4, MainActivity.instance.GetString(Resource.String.delete));
             menu.SetOnMenuItemClickListener(this);
             menu.Show();
         }

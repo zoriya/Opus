@@ -3,19 +3,19 @@
     [System.Serializable]
     public class DownloadFile
     {
-        public string name;
-        public string videoID;
-        public string playlist;
+        public string Name;
+        public string YoutubeID;
+        public string PlaylistName;
         public DownloadState State = DownloadState.None;
         public int progress = 0;
-        public string path;
+        public string Path;
         public bool skipCheck = false;
 
         public DownloadFile(string name, string videoID, string playlist)
         {
-            this.name = name;
-            this.videoID = videoID;
-            this.playlist = playlist;
+            this.Name = name;
+            this.YoutubeID = videoID;
+            this.PlaylistName = playlist;
         }
 
         public static DownloadFile From(Song song, string playlistName)
@@ -33,6 +33,7 @@
         Canceled,
         UpToDate,
         None,
-        Error
+        Error,
+        Playlist
     }
 }

@@ -5357,8 +5357,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b0192
 			public const int downButton = 2131427730;
 			
-			// aapt resource value: 0x7f0b01d8
-			public const int download = 2131427800;
+			// aapt resource value: 0x7f0b01d7
+			public const int download = 2131427799;
 			
 			// aapt resource value: 0x7f0b01d0
 			public const int downloadMDfromYT = 2131427792;
@@ -5489,8 +5489,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b0087
 			public const int filled = 2131427463;
 			
-			// aapt resource value: 0x7f0b01d5
-			public const int filter = 2131427797;
+			// aapt resource value: 0x7f0b01d4
+			public const int filter = 2131427796;
 			
 			// aapt resource value: 0x7f0b0092
 			public const int fit = 2131427474;
@@ -5657,8 +5657,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b017f
 			public const int media_actions = 2131427711;
 			
-			// aapt resource value: 0x7f0b01d6
-			public const int media_route_menu_item = 2131427798;
+			// aapt resource value: 0x7f0b01d5
+			public const int media_route_menu_item = 2131427797;
 			
 			// aapt resource value: 0x7f0b00cb
 			public const int message = 2131427531;
@@ -5996,8 +5996,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b01c7
 			public const int refine = 2131427783;
 			
-			// aapt resource value: 0x7f0b01d3
-			public const int rename = 2131427795;
+			// aapt resource value: 0x7f0b01d8
+			public const int rename = 2131427800;
 			
 			// aapt resource value: 0x7f0b01c5
 			public const int reorder = 2131427781;
@@ -6020,8 +6020,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b0183
 			public const int right_side = 2131427715;
 			
-			// aapt resource value: 0x7f0b01d4
-			public const int saveAsPlaylist = 2131427796;
+			// aapt resource value: 0x7f0b01d3
+			public const int saveAsPlaylist = 2131427795;
 			
 			// aapt resource value: 0x7f0b0019
 			public const int save_image_matrix = 2131427353;
@@ -6104,8 +6104,8 @@ namespace Opus
 			// aapt resource value: 0x7f0b0077
 			public const int selected = 2131427447;
 			
-			// aapt resource value: 0x7f0b01d7
-			public const int settings = 2131427799;
+			// aapt resource value: 0x7f0b01d6
+			public const int settings = 2131427798;
 			
 			// aapt resource value: 0x7f0b00b2
 			public const int shortcut = 2131427506;
@@ -7186,8 +7186,8 @@ namespace Opus
 			// aapt resource value: 0x7f0d0072
 			public const int abc_toolbar_collapse_description = 2131558514;
 			
-			// aapt resource value: 0x7f0d0133
-			public const int add = 2131558707;
+			// aapt resource value: 0x7f0d0134
+			public const int add = 2131558708;
 			
 			// aapt resource value: 0x7f0d00fa
 			public const int add_playlist = 2131558650;
@@ -7213,11 +7213,11 @@ namespace Opus
 			// aapt resource value: 0x7f0d0080
 			public const int appbar_scrolling_view_behavior = 2131558528;
 			
-			// aapt resource value: 0x7f0d013d
-			public const int appearances = 2131558717;
+			// aapt resource value: 0x7f0d013e
+			public const int appearances = 2131558718;
 			
-			// aapt resource value: 0x7f0d0130
-			public const int apply = 2131558704;
+			// aapt resource value: 0x7f0d0131
+			public const int apply = 2131558705;
 			
 			// aapt resource value: 0x7f0d011a
 			public const int artist = 2131558682;
@@ -7231,11 +7231,11 @@ namespace Opus
 			// aapt resource value: 0x7f0d0110
 			public const int badplaylisturl = 2131558672;
 			
-			// aapt resource value: 0x7f0d0137
-			public const int behavior = 2131558711;
+			// aapt resource value: 0x7f0d0138
+			public const int behavior = 2131558712;
 			
-			// aapt resource value: 0x7f0d0156
-			public const int beta_available = 2131558742;
+			// aapt resource value: 0x7f0d0157
+			public const int beta_available = 2131558743;
 			
 			// aapt resource value: 0x7f0d0081
 			public const int bottom_sheet_behavior = 2131558529;
@@ -7243,17 +7243,17 @@ namespace Opus
 			// aapt resource value: 0x7f0d00b2
 			public const int browse = 2131558578;
 			
-			// aapt resource value: 0x7f0d0131
-			public const int cancel = 2131558705;
+			// aapt resource value: 0x7f0d0132
+			public const int cancel = 2131558706;
 			
-			// aapt resource value: 0x7f0d015c
-			public const int cancelling = 2131558748;
+			// aapt resource value: 0x7f0d015d
+			public const int cancelling = 2131558749;
 			
 			// aapt resource value: 0x7f0d00f0
 			public const int cant_delete = 2131558640;
 			
-			// aapt resource value: 0x7f0d0159
-			public const int cant_play_non_youtube = 2131558745;
+			// aapt resource value: 0x7f0d015a
+			public const int cant_play_non_youtube = 2131558746;
 			
 			// aapt resource value: 0x7f0d00b7
 			public const int cast = 2131558583;
@@ -7336,11 +7336,11 @@ namespace Opus
 			// aapt resource value: 0x7f0d0015
 			public const int cast_play = 2131558421;
 			
-			// aapt resource value: 0x7f0d012e
-			public const int cast_queue_push = 2131558702;
-			
 			// aapt resource value: 0x7f0d012f
-			public const int cast_queue_pushed = 2131558703;
+			public const int cast_queue_push = 2131558703;
+			
+			// aapt resource value: 0x7f0d0130
+			public const int cast_queue_pushed = 2131558704;
 			
 			// aapt resource value: 0x7f0d0016
 			public const int cast_rewind = 2131558422;
@@ -7405,8 +7405,8 @@ namespace Opus
 			// aapt resource value: 0x7f0d0083
 			public const int character_counter_pattern = 2131558531;
 			
-			// aapt resource value: 0x7f0d0143
-			public const int check_updates = 2131558723;
+			// aapt resource value: 0x7f0d0144
+			public const int check_updates = 2131558724;
 			
 			// aapt resource value: 0x7f0d002b
 			public const int common_google_play_services_enable_button = 2131558443;
@@ -7462,11 +7462,11 @@ namespace Opus
 			// aapt resource value: 0x7f0d003b
 			public const int common_signin_button_text_long = 2131558459;
 			
-			// aapt resource value: 0x7f0d012d
-			public const int completed = 2131558701;
+			// aapt resource value: 0x7f0d012e
+			public const int completed = 2131558702;
 			
-			// aapt resource value: 0x7f0d0150
-			public const int country_blocked = 2131558736;
+			// aapt resource value: 0x7f0d0151
+			public const int country_blocked = 2131558737;
 			
 			// aapt resource value: 0x7f0d0116
 			public const int create_local = 2131558678;
@@ -7486,8 +7486,8 @@ namespace Opus
 			// aapt resource value: 0x7f0d0117
 			public const int create_youtube = 2131558679;
 			
-			// aapt resource value: 0x7f0d0141
-			public const int dark_theme = 2131558721;
+			// aapt resource value: 0x7f0d0142
+			public const int dark_theme = 2131558722;
 			
 			// aapt resource value: 0x7f0d00da
 			public const int delete = 2131558618;
@@ -7504,8 +7504,8 @@ namespace Opus
 			// aapt resource value: 0x7f0d011f
 			public const int download_albumart = 2131558687;
 			
-			// aapt resource value: 0x7f0d0139
-			public const int download_directory = 2131558713;
+			// aapt resource value: 0x7f0d013a
+			public const int download_directory = 2131558714;
 			
 			// aapt resource value: 0x7f0d0120
 			public const int download_meta = 2131558688;
@@ -7519,17 +7519,20 @@ namespace Opus
 			// aapt resource value: 0x7f0d0127
 			public const int download_queue = 2131558695;
 			
+			// aapt resource value: 0x7f0d012b
+			public const int downloader_playlist = 2131558699;
+			
 			// aapt resource value: 0x7f0d00ee
 			public const int downloading = 2131558638;
 			
-			// aapt resource value: 0x7f0d015a
-			public const int downloading_notification = 2131558746;
+			// aapt resource value: 0x7f0d015b
+			public const int downloading_notification = 2131558747;
 			
-			// aapt resource value: 0x7f0d012b
-			public const int downloading_status = 2131558699;
+			// aapt resource value: 0x7f0d012c
+			public const int downloading_status = 2131558700;
 			
-			// aapt resource value: 0x7f0d0157
-			public const int downloading_update = 2131558743;
+			// aapt resource value: 0x7f0d0158
+			public const int downloading_update = 2131558744;
 			
 			// aapt resource value: 0x7f0d00d1
 			public const int edit_metadata = 2131558609;
@@ -7672,8 +7675,8 @@ namespace Opus
 			// aapt resource value: 0x7f0d0129
 			public const int initialization = 2131558697;
 			
-			// aapt resource value: 0x7f0d0134
-			public const int later = 2131558708;
+			// aapt resource value: 0x7f0d0135
+			public const int later = 2131558709;
 			
 			// aapt resource value: 0x7f0d00d5
 			public const int list_songs = 2131558613;
@@ -7690,23 +7693,23 @@ namespace Opus
 			// aapt resource value: 0x7f0d00ff
 			public const int localpl_noperm = 2131558655;
 			
-			// aapt resource value: 0x7f0d0147
-			public const int log_in = 2131558727;
-			
 			// aapt resource value: 0x7f0d0148
-			public const int log_out = 2131558728;
-			
-			// aapt resource value: 0x7f0d0146
-			public const int logged_in = 2131558726;
+			public const int log_in = 2131558728;
 			
 			// aapt resource value: 0x7f0d0149
-			public const int login_disabled = 2131558729;
+			public const int log_out = 2131558729;
 			
-			// aapt resource value: 0x7f0d013a
-			public const int max_download = 2131558714;
+			// aapt resource value: 0x7f0d0147
+			public const int logged_in = 2131558727;
+			
+			// aapt resource value: 0x7f0d014a
+			public const int login_disabled = 2131558730;
 			
 			// aapt resource value: 0x7f0d013b
-			public const int max_download_dialog = 2131558715;
+			public const int max_download = 2131558715;
+			
+			// aapt resource value: 0x7f0d013c
+			public const int max_download_dialog = 2131558716;
 			
 			// aapt resource value: 0x7f0d012a
 			public const int metadata = 2131558698;
@@ -7810,8 +7813,8 @@ namespace Opus
 			// aapt resource value: 0x7f0d00bc
 			public const int next_loading = 2131558588;
 			
-			// aapt resource value: 0x7f0d0136
-			public const int no = 2131558710;
+			// aapt resource value: 0x7f0d0137
+			public const int no = 2131558711;
 			
 			// aapt resource value: 0x7f0d00f5
 			public const int no_channel = 2131558645;
@@ -7819,8 +7822,8 @@ namespace Opus
 			// aapt resource value: 0x7f0d00f4
 			public const int no_lives = 2131558644;
 			
-			// aapt resource value: 0x7f0d014b
-			public const int no_permission = 2131558731;
+			// aapt resource value: 0x7f0d014c
+			public const int no_permission = 2131558732;
 			
 			// aapt resource value: 0x7f0d00f3
 			public const int no_playlist = 2131558643;
@@ -7831,17 +7834,17 @@ namespace Opus
 			// aapt resource value: 0x7f0d00e7
 			public const int no_song = 2131558631;
 			
-			// aapt resource value: 0x7f0d014c
-			public const int no_song_mix = 2131558732;
+			// aapt resource value: 0x7f0d014d
+			public const int no_song_mix = 2131558733;
 			
 			// aapt resource value: 0x7f0d00f2
 			public const int no_track = 2131558642;
 			
-			// aapt resource value: 0x7f0d0145
-			public const int not_log = 2131558725;
+			// aapt resource value: 0x7f0d0146
+			public const int not_log = 2131558726;
 			
-			// aapt resource value: 0x7f0d0151
-			public const int not_streamable = 2131558737;
+			// aapt resource value: 0x7f0d0152
+			public const int not_streamable = 2131558738;
 			
 			// aapt resource value: 0x7f0d00bb
 			public const int nothing = 2131558587;
@@ -7849,14 +7852,14 @@ namespace Opus
 			// aapt resource value: 0x7f0d00be
 			public const int off = 2131558590;
 			
-			// aapt resource value: 0x7f0d0132
-			public const int ok = 2131558706;
+			// aapt resource value: 0x7f0d0133
+			public const int ok = 2131558707;
 			
 			// aapt resource value: 0x7f0d00c4
 			public const int open_youtube = 2131558596;
 			
-			// aapt resource value: 0x7f0d0142
-			public const int others = 2131558722;
+			// aapt resource value: 0x7f0d0143
+			public const int others = 2131558723;
 			
 			// aapt resource value: 0x7f0d0088
 			public const int password_toggle_content_description = 2131558536;
@@ -8008,32 +8011,32 @@ namespace Opus
 			// aapt resource value: 0x7f0d00dc
 			public const int sync_now = 2131558620;
 			
-			// aapt resource value: 0x7f0d013c
-			public const int sync_remove = 2131558716;
+			// aapt resource value: 0x7f0d013d
+			public const int sync_remove = 2131558717;
 			
 			// aapt resource value: 0x7f0d00ef
 			public const int syncing = 2131558639;
 			
-			// aapt resource value: 0x7f0d015b
-			public const int tap_details = 2131558747;
-			
-			// aapt resource value: 0x7f0d013e
-			public const int theme = 2131558718;
+			// aapt resource value: 0x7f0d015c
+			public const int tap_details = 2131558748;
 			
 			// aapt resource value: 0x7f0d013f
-			public const int theme_dialog = 2131558719;
+			public const int theme = 2131558719;
+			
+			// aapt resource value: 0x7f0d0140
+			public const int theme_dialog = 2131558720;
 			
 			// aapt resource value: 0x7f0d00c3
 			public const int timer = 2131558595;
 			
-			// aapt resource value: 0x7f0d014e
-			public const int timout = 2131558734;
+			// aapt resource value: 0x7f0d014f
+			public const int timout = 2131558735;
 			
 			// aapt resource value: 0x7f0d0119
 			public const int title = 2131558681;
 			
-			// aapt resource value: 0x7f0d014a
-			public const int undo = 2131558730;
+			// aapt resource value: 0x7f0d014b
+			public const int undo = 2131558731;
 			
 			// aapt resource value: 0x7f0d0121
 			public const int undo_change = 2131558689;
@@ -8044,29 +8047,29 @@ namespace Opus
 			// aapt resource value: 0x7f0d010d
 			public const int unfork_playlist = 2131558669;
 			
-			// aapt resource value: 0x7f0d014f
-			public const int unknow = 2131558735;
+			// aapt resource value: 0x7f0d0150
+			public const int unknow = 2131558736;
 			
 			// aapt resource value: 0x7f0d00ba
 			public const int up_next = 2131558586;
 			
-			// aapt resource value: 0x7f0d0155
-			public const int up_to_date = 2131558741;
+			// aapt resource value: 0x7f0d0156
+			public const int up_to_date = 2131558742;
 			
-			// aapt resource value: 0x7f0d012c
-			public const int up_to_date_status = 2131558700;
-			
-			// aapt resource value: 0x7f0d0153
-			public const int update = 2131558739;
+			// aapt resource value: 0x7f0d012d
+			public const int up_to_date_status = 2131558701;
 			
 			// aapt resource value: 0x7f0d0154
-			public const int update_message = 2131558740;
+			public const int update = 2131558740;
 			
-			// aapt resource value: 0x7f0d0152
-			public const int update_no_internet = 2131558738;
+			// aapt resource value: 0x7f0d0155
+			public const int update_message = 2131558741;
 			
-			// aapt resource value: 0x7f0d0158
-			public const int updating = 2131558744;
+			// aapt resource value: 0x7f0d0153
+			public const int update_no_internet = 2131558739;
+			
+			// aapt resource value: 0x7f0d0159
+			public const int updating = 2131558745;
 			
 			// aapt resource value: 0x7f0d003e
 			public const int v7_preference_off = 2131558462;
@@ -8074,20 +8077,20 @@ namespace Opus
 			// aapt resource value: 0x7f0d003f
 			public const int v7_preference_on = 2131558463;
 			
-			// aapt resource value: 0x7f0d0144
-			public const int version = 2131558724;
+			// aapt resource value: 0x7f0d0145
+			public const int version = 2131558725;
 			
-			// aapt resource value: 0x7f0d0138
-			public const int volume = 2131558712;
+			// aapt resource value: 0x7f0d0139
+			public const int volume = 2131558713;
 			
-			// aapt resource value: 0x7f0d0140
-			public const int white_theme = 2131558720;
+			// aapt resource value: 0x7f0d0141
+			public const int white_theme = 2131558721;
 			
-			// aapt resource value: 0x7f0d0135
-			public const int yes = 2131558709;
+			// aapt resource value: 0x7f0d0136
+			public const int yes = 2131558710;
 			
-			// aapt resource value: 0x7f0d014d
-			public const int youtube_endpoint = 2131558733;
+			// aapt resource value: 0x7f0d014e
+			public const int youtube_endpoint = 2131558734;
 			
 			// aapt resource value: 0x7f0d00fb
 			public const int youtube_loading_error = 2131558651;

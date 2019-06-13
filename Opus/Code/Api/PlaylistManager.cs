@@ -880,7 +880,8 @@ namespace Opus.Api
         /// <param name="name">The name of the playlist</param>
         /// <param name="items">The array of songs you want to add. Can be local one or youtube one, it will download them and add them after.</param>
         /// <param name="syncedPlaylist">True if you want the playlist to be created and synced on youtube too</param>
-        public async static void CreateLocalPlaylist(string name, Song[] items, bool syncedPlaylist = false)
+        /// <param name="position">Property used only for the downloader, see the LocalManager's AddToPlaylist method to see what it does.</param>
+        public async static void CreateLocalPlaylist(string name, Song[] items, bool syncedPlaylist = false, int position = -1)
         {
             if (!await MainActivity.instance.GetWritePermission())
                 return;
@@ -894,7 +895,7 @@ namespace Opus.Api
 
             if (items != null && items.Length > 0)
             {
-                LocalManager.AddToPlaylist(items, name, playlistID); //Will only add files already downloaded
+                LocalManager.AddToPlaylist(items, name, playlistID, false, position); //Will only add files already downloaded
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 YoutubeManager.DownloadFiles(items.ToList().ConvertAll(x => DownloadFile.From(x, name))); //Will download missing files and add them (if there was youtube songs in the items array.
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed

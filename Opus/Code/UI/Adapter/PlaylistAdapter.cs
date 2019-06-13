@@ -176,7 +176,7 @@ namespace Opus.Adapter
                 else
                     holder.edit.Visibility = ViewStates.Gone;
 
-                if (playlist.SyncState == SyncState.Loading || Downloader.queue.Find(x => x.playlist == playlist.Name && (x.State == DownloadState.Downloading || x.State == DownloadState.Initialization || x.State == DownloadState.MetaData || x.State == DownloadState.None)) != null)
+                if (playlist.SyncState == SyncState.Loading || Downloader.queue.Find(x => x.PlaylistName == playlist.Name && (x.State == DownloadState.Downloading || x.State == DownloadState.Initialization || x.State == DownloadState.MetaData || x.State == DownloadState.None)) != null)
                 {
                     holder.sync.Visibility = ViewStates.Gone;
                     holder.SyncLoading.Visibility = ViewStates.Visible;

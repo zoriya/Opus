@@ -149,6 +149,7 @@
   <string name="deleted_file">Fichier supprimé</string>
   <string name="initialization">Initialisation</string>
   <string name="metadata">Metadata</string>
+  <string name="downloader_playlist">Playlist</string>
   <string name="downloading_status">Téléchargement</string>
   <string name="up_to_date_status">Déjà à jour</string>
   <string name="completed">Completé</string>

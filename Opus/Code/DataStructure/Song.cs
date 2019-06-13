@@ -5,6 +5,7 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Newtonsoft.Json;
+using Opus.Fragments;
 using SQLite;
 using System;
 
@@ -57,7 +58,9 @@ namespace Opus.DataStructure
             int albumID = cursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Album);
             int thisID = cursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
             int pathID = cursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
+            int playOrderID = cursor.GetColumnIndex(MediaStore.Audio.Playlists.Members.PlayOrder);
 
+            string playOrder = PlaylistTracks.instance != null ? cursor.GetString(playOrderID) : "";
             string Artist = cursor.GetString(artistID);
             string Title = cursor.GetString(titleID);
             string Album = cursor.GetString(albumID);
@@ -72,7 +75,7 @@ namespace Opus.DataStructure
             if (Album == null)
                 Album = "Unknow Album";
 
-            return new Song(Title, Artist, Album, null, AlbumArt, id, path);
+            return new Song(Title, playOrder, Album, null, AlbumArt, id, path);
         }
 
 

@@ -76,13 +76,13 @@ namespace Opus.Fragments
                 case Resource.Id.delete:
                     if(Downloader.queue[morePosition].State == DownloadState.Completed)
                     {
-                        System.IO.File.Delete(Downloader.queue[morePosition].path);
-                        Downloader.queue[morePosition].name = GetString(Resource.String.deleted_file);
+                        System.IO.File.Delete(Downloader.queue[morePosition].Path);
+                        Downloader.queue[morePosition].Name = GetString(Resource.String.deleted_file);
                         Downloader.queue[morePosition].State = DownloadState.Canceled;
                     }
                     else if(Downloader.queue[morePosition].State == DownloadState.None)
                     {
-                        Downloader.queue[morePosition].name = GetString(Resource.String.deleted_file);
+                        Downloader.queue[morePosition].Name = GetString(Resource.String.deleted_file);
                         Downloader.queue[morePosition].State = DownloadState.Canceled;
                     }
                     else

@@ -151,13 +151,13 @@ namespace Opus.Api.Services
 
             downloadCount++;
             currentStrike++;
-            CreateNotification(queue[position].name);
+            CreateNotification(queue[position].Name);
 
             try
             {
                 YoutubeClient client = new YoutubeClient();
-                Video video = await client.GetVideoAsync(queue[position].videoID);
-                MediaStreamInfoSet mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(queue[position].videoID);
+                Video video = await client.GetVideoAsync(queue[position].YoutubeID);
+                MediaStreamInfoSet mediaStreamInfo = await client.GetVideoMediaStreamInfosAsync(queue[position].YoutubeID);
                 MediaStreamInfo streamInfo;
 
                 if (mediaStreamInfo.Audio.Count > 0)
@@ -187,9 +187,9 @@ namespace Opus.Api.Services
 
                 string outpath = path;
 
-                if (queue[position].playlist != null)
+                if (queue[position].PlaylistName != null)
                 {
-                    outpath = Path.Combine(path, queue[position].playlist);
+                    outpath = Path.Combine(path, queue[position].PlaylistName);
                     Directory.CreateDirectory(outpath);
                 }
 
@@ -209,7 +209,7 @@ namespace Opus.Api.Services
 
                 MediaStream input = await client.GetMediaStreamAsync(streamInfo);
 
-                queue[position].path = filePath;
+                queue[position].Path = filePath;
                 files.Add(filePath);
                 FileStream output = File.Create(filePath);
 
@@ -229,7 +229,7 @@ namespace Opus.Api.Services
                 if (queue.Count == 1)
                     SetNotificationProgress(100, true);
 
-                SetMetaData(position, filePath, video.Title, video.Author, new string[] { video.Thumbnails.MaxResUrl, video.Thumbnails.StandardResUrl, video.Thumbnails.HighResUrl }, queue[position].videoID, queue[position].playlist);
+                SetMetaData(position, video.Title, video.Author, new string[] { video.Thumbnails.MaxResUrl, video.Thumbnails.StandardResUrl, video.Thumbnails.HighResUrl });
                 files.Remove(filePath);
                 downloadCount--;
 
@@ -256,8 +256,10 @@ namespace Opus.Api.Services
             }
         }
 
-        private async void SetMetaData(int position, string filePath, string title, string artist, string[] thumbnails, string youtubeID, string playlist)
+        private async void SetMetaData(int position, string title, string artist, string[] thumbnails)
         {
+            string filePath = queue[position].Path;
+            
             await Task.Run(async () => 
             {
                 Stream stream = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite);
@@ -266,7 +268,7 @@ namespace Opus.Api.Services
                 meta.Tag.Title = title;
                 meta.Tag.Performers = new string[] { artist };
                 meta.Tag.Album = title + " - " + artist;
-                meta.Tag.Comment = youtubeID;
+                meta.Tag.Comment = queue[position].YoutubeID;
                 IPicture[] pictures = new IPicture[1];
                 Bitmap bitmap = Picasso.With(Application.Context).Load(await YoutubeManager.GetBestThumb(thumbnails)).Transform(new RemoveBlackBorder(true)).Get();
                 byte[] data;
@@ -285,9 +287,12 @@ namespace Opus.Api.Services
             
             MediaScannerConnection.ScanFile(this, new string[] { filePath }, null, this);
 
-            queue[position].State = DownloadState.Completed;
+            if (queue[position].PlaylistName == null)
+                queue[position].State = DownloadState.Completed;
+            else
+                queue[position].State = DownloadState.Playlist;
 
-            if (!queue.Exists(x => x.State == DownloadState.None || x.State == DownloadState.Downloading || x.State == DownloadState.Initialization || x.State == DownloadState.MetaData))
+            if (!queue.Exists(x => x.State == DownloadState.None || x.State == DownloadState.Downloading || x.State == DownloadState.Initialization || x.State == DownloadState.MetaData || x.State == DownloadState.Playlist))
             {
                 StopForeground(true);
                 DownloadQueue.instance?.Finish();
@@ -297,20 +302,36 @@ namespace Opus.Api.Services
                 UpdateList(position);
         }
 
-        public void OnScanCompleted(string path, Uri uri)
+        public async void OnScanCompleted(string path, Uri uri)
         {
-            Android.Util.Log.Debug("MusisApp", "Scan Completed with path = " + path + " and uri = " + uri.ToString());
-            string playlist = path.Substring(downloadPath.Length + 1);
+            System.Console.WriteLine("&Scan Completed with path = " + path + " and uri = " + uri.ToString());
 
-            if (playlist.IndexOf('/') != -1)
+            int position = queue.FindIndex(x => x.Path == path && x.State == DownloadState.Playlist);
+            if (position != -1)
             {
-                playlist = playlist.Substring(0, playlist.IndexOf('/'));
-                Handler handler = new Handler(MainActivity.instance.MainLooper);
-                handler.Post(async () =>
+                LocalManager.AddToPlaylist(new[] { await LocalManager.GetSong(path) }, queue[position].PlaylistName, -1, true, position);
+                queue[position].State = DownloadState.Completed;
+
+                if (!queue.Exists(x => x.State == DownloadState.None || x.State == DownloadState.Downloading || x.State == DownloadState.Initialization || x.State == DownloadState.MetaData || x.State == DownloadState.Playlist))
                 {
-                    LocalManager.AddToPlaylist(new[] { await LocalManager.GetSong(path) }, playlist, -1, true);
-                });
+                    StopForeground(true);
+                    DownloadQueue.instance?.Finish();
+                    queue.Clear();
+                }
+                else
+                    UpdateList(position);
             }
+
+
+            //if (playlist.IndexOf('/') != -1)
+            //{
+            //    playlist = playlist.Substring(0, playlist.IndexOf('/'));
+            //    Handler handler = new Handler(MainActivity.instance.MainLooper);
+            //    handler.Post(async () =>
+            //    {
+                    
+            //    });
+            //}
         }
         #endregion
 
@@ -329,7 +350,7 @@ namespace Opus.Api.Services
 
                 for (int i = 0; i < files.Count; i++)
                 {
-                    Song song = songs.Find(x => x.YoutubeID == files[i].videoID);
+                    Song song = songs.Find(x => x.YoutubeID == files[i].YoutubeID);
                     if (song != null)
                     {
                         //Video is already downloaded:
