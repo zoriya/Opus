@@ -235,6 +235,7 @@ namespace Opus.Fragments
             else
             {
                 await MainActivity.instance.GetWritePermission();
+                int playSlot = await PlaylistManager.GetLastPlayCount(playlistID);
 
                 List<ContentValues> values = new List<ContentValues>();
                 ContentResolver resolver = MainActivity.instance.ContentResolver;
@@ -258,8 +259,10 @@ namespace Opus.Fragments
 
                         ContentValues value = new ContentValues();
                         value.Put(MediaStore.Audio.Playlists.Members.AudioId, id);
-                        value.Put(MediaStore.Audio.Playlists.Members.PlayOrder, 0);
+                        value.Put(MediaStore.Audio.Playlists.Members.PlayOrder, playSlot + 1);
                         values.Add(value);
+
+                        playSlot++;
                     }
                     while (musicCursor.MoveToNext());
                     musicCursor.Close();

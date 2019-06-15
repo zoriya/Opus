@@ -348,9 +348,15 @@ namespace Opus.Fragments
             Uri musicUri = Playlists.Members.GetContentUri("external", item.LocalID);
             string selection;
             if (query != null)
+            {
                 selection = Media.InterfaceConsts.Title + " LIKE \"%" + query + "%\" OR " + Media.InterfaceConsts.Artist + " LIKE \"%" + query + "%\"";
+                isInEditMode = false;
+            }
             else
+            {
                 selection = null;
+                isInEditMode = true;
+            }
 
             return new CursorLoader(Android.App.Application.Context, musicUri, null, selection, null, Playlists.Members.PlayOrder);
         }
@@ -540,7 +546,7 @@ namespace Opus.Fragments
 
         public void RemoveFromPlaylist(Song item, int position)
         {
-            PlaylistManager.RemoveTrackFromPlaylistDialog(this.item, item, () =>
+            PlaylistManager.RemoveTrackFromPlaylistDialog(this.item, item, position, () =>
             {
                 if (position == 0)
                     adapter.NotifyItemChanged(0);

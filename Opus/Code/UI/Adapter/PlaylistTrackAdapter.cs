@@ -53,8 +53,6 @@ namespace Opus.Adapter
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position)
         {
-            System.Console.WriteLine("&Binding, position: " + position + " BaseCount: " + BaseCount + " ItemCount: " + ItemCount);
-
             if (position == ItemCount - 1 && !PlaylistTracks.instance.fullyLoadded)
             {
                 int pad = MainActivity.instance.DpToPx(30);
@@ -92,7 +90,6 @@ namespace Opus.Adapter
             else if (BaseCount == 0)
             {
                 ((TextView)viewHolder.ItemView).Text = MainActivity.instance.GetString(Resource.String.playlist_empty);
-                System.Console.WriteLine("&Binding empty view");
             }
             else if (tracks != null)
                 OnBindViewHolder(viewHolder, tracks[position - ItemBefore]);
@@ -249,9 +246,15 @@ namespace Opus.Adapter
             NotifyItemMoved(fromPosition, toPosition);
         }
 
-        public void ItemMoveEnded(int fromPosition, int toPosition)
+        public async void ItemMoveEnded(int fromPosition, int toPosition)
         {
-            PlaylistManager.Reorder(PlaylistTracks.instance.item, fromPosition, toPosition);
+            long LocalID = PlaylistTracks.instance.item.LocalID;
+            if (LocalID != 0)
+            {
+                int fromSlot = await PlaylistManager.GetPlaySlot(LocalID, fromPosition) - 1;
+                int toSlot = await PlaylistManager.GetPlaySlot(LocalID, toPosition) - 1;
+                PlaylistManager.Reorder(LocalID, fromSlot, toSlot);
+            }
         }
 
         public void ItemDismissed(int position)

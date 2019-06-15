@@ -128,7 +128,6 @@ namespace Opus.Fragments
 
                 if (error != null)
                 {
-                    System.Console.WriteLine("&Error != null");
                     YoutubePlaylists.Remove(Loading);
                     adapter.NotifyItemRemoved(LocalPlaylists.Count + YoutubePlaylists.Count);
                     YoutubePlaylists.Add(new PlaylistItem("Error", null) { Owner = error, HasWritePermission = yt != null }); //I use this to check witch error is called. Not really clean but it'll go.
@@ -458,21 +457,21 @@ namespace Opus.Fragments
                 {
                     PlaylistManager.StopSyncingDialog(item, () => 
                     {
+                        PlaylistItem LocalPlaylist = new PlaylistItem(YoutubePlaylists[Position - LocalPlaylists.Count].Name, item.LocalID, YoutubePlaylists[Position - LocalPlaylists.Count].Count);
+                        LocalPlaylists.Add(LocalPlaylist);
+                        if (LocalPlaylists.Count == 3 && LocalPlaylists[1].Name == "EMPTY")
+                        {
+                            LocalPlaylists.RemoveAt(1);
+                            adapter.NotifyItemChanged(1);
+                        }
+                        else
+                            adapter.NotifyItemInserted(LocalPlaylists.Count);
+
                         YoutubePlaylists[Position - LocalPlaylists.Count].LocalID = 0;
                         YoutubePlaylists[Position - LocalPlaylists.Count].SyncState = SyncState.False;
                         PlaylistHolder holder = (PlaylistHolder)ListView.GetChildViewHolder(ListView.GetChildAt(Position));
                         holder.sync.Visibility = ViewStates.Gone;
                         holder.SyncLoading.Visibility = ViewStates.Gone;
-
-                        PlaylistItem LocalPlaylist = new PlaylistItem(YoutubePlaylists[Position - LocalPlaylists.Count].Name, item.LocalID, YoutubePlaylists[Position - LocalPlaylists.Count].Count);
-                        if (LocalPlaylists.Count == 2 && LocalPlaylists[1].Name == "EMPTY")
-                        {
-                            LocalPlaylists.RemoveAt(1);
-                            adapter.NotifyItemRemoved(1);
-                        }
-
-                        LocalPlaylists.Add(LocalPlaylist);
-                        adapter.NotifyItemInserted(LocalPlaylists.Count);
                     });
                     bottomSheet.Dismiss();
                 })});

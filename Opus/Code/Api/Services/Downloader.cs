@@ -46,7 +46,7 @@ namespace Opus.Api.Services
 
         public int currentStrike = 0;
         private static int downloadCount = 0;
-        private static List<string> files = new List<string>();
+        private static readonly List<string> files = new List<string>();
         private NotificationCompat.Builder notification;
         private CancellationTokenSource cancellation = new CancellationTokenSource();
         private const int notificationID = 1001;
@@ -309,7 +309,7 @@ namespace Opus.Api.Services
             int position = queue.FindIndex(x => x.Path == path && x.State == DownloadState.Playlist);
             if (position != -1)
             {
-                LocalManager.AddToPlaylist(new[] { await LocalManager.GetSong(path) }, queue[position].PlaylistName, -1, true, position);
+                PlaylistManager.InsertToLocalPlaylist(await PlaylistManager.GetOrCreateByName(queue[position].PlaylistName), await LocalManager.GetSong(path), position + 1);
                 queue[position].State = DownloadState.Completed;
 
                 if (!queue.Exists(x => x.State == DownloadState.None || x.State == DownloadState.Downloading || x.State == DownloadState.Initialization || x.State == DownloadState.MetaData || x.State == DownloadState.Playlist))
@@ -321,17 +321,6 @@ namespace Opus.Api.Services
                 else
                     UpdateList(position);
             }
-
-
-            //if (playlist.IndexOf('/') != -1)
-            //{
-            //    playlist = playlist.Substring(0, playlist.IndexOf('/'));
-            //    Handler handler = new Handler(MainActivity.instance.MainLooper);
-            //    handler.Post(async () =>
-            //    {
-                    
-            //    });
-            //}
         }
         #endregion
 
@@ -353,6 +342,13 @@ namespace Opus.Api.Services
                     Song song = songs.Find(x => x.YoutubeID == files[i].YoutubeID);
                     if (song != null)
                     {
+                        //Video is already in the playlist, we want to check if this item has been reordered.
+                        if(int.Parse(song.TrackID) != i)
+                        {
+                            //The plus one is because android playlists have one-based indexes.
+                            PlaylistManager.SetQueueSlot(LocalID, song.LocalID, i + 1);
+                        }
+
                         //Video is already downloaded:
                         if (files[i].State == DownloadState.None)
                             files[i].State = DownloadState.UpToDate;

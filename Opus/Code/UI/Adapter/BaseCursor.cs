@@ -11,7 +11,7 @@ namespace Opus.Adapter
         /// This is the number of items (for example headers) there is before the list represented by the cursor.
         /// </summary>
         public abstract int ItemBefore { get; }
-        public virtual int BaseCount { get { return cursor != null ? cursor.Count : 0; } }
+        public virtual int BaseCount { get { try { return cursor != null ? cursor.Count : 0; } catch { return 0; } } }
         public override int ItemCount => BaseCount + ItemBefore;
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)

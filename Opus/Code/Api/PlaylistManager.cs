@@ -20,12 +20,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using static Android.Provider.MediaStore.Audio;
+using AlertDialog = Android.Support.V7.App.AlertDialog;
 using CursorLoader = Android.Support.V4.Content.CursorLoader;
 using Environment = System.Environment;
 using Path = System.IO.Path;
 using Playlist = Google.Apis.YouTube.v3.Data.Playlist;
 using PlaylistItem = Opus.DataStructure.PlaylistItem;
-using AlertDialog = Android.Support.V7.App.AlertDialog;
 using Uri = Android.Net.Uri;
 
 namespace Opus.Api
@@ -323,7 +323,7 @@ namespace Opus.Api
                             YoutubeManager.DownloadFiles(new[] { DownloadFile.From(item, playlist.Name) });
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                         else
-                            LocalManager.AddToPlaylist(new[] { item }, playlist.Name, playlist.LocalID);
+                            AddToLocalPlaylist(playlist.LocalID, new[] { item });
                     }
                     if (playlist.YoutubeID != null)
                         YoutubeManager.AddToPlaylist(new[] { item }, playlist.YoutubeID);
@@ -522,7 +522,7 @@ namespace Opus.Api
         public static void StopSyncingDialog(PlaylistItem item, Action UiCallback)
         {
             AlertDialog dialog = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme)
-                .SetTitle(Resource.String.stop_syncing)
+                .SetTitle(MainActivity.instance.GetString(Resource.String.stop_syncing, item.Name))
                 .SetPositiveButton(Resource.String.yes, (sender, e) => { StopSyncing(item); UiCallback?.Invoke(); })
                 .SetNegativeButton(Resource.String.no, (sender, e) => { })
                 .Create();
@@ -549,10 +549,11 @@ namespace Opus.Api
         /// </summary>
         /// <param name="item">The playlist item</param>
         /// <param name="song">The song item</param>
+        /// <param name="position">The position of the removed item</param>
         /// <param name="RemovedCallback">A callback called when the user click ok in the dialog. You just need to remove the track from the UI, everything else is already handled.</param>
         /// <param name="CancelledCallback">A callback called when the user click cancel in the dialog</param>
         /// <param name="UndoCallback">A callback called when the user click undo in the snackbar</param>
-        public async static void RemoveTrackFromPlaylistDialog(PlaylistItem item, Song song, Action RemovedCallback, Action CancelledCallback, Action UndoCallback)
+        public async static void RemoveTrackFromPlaylistDialog(PlaylistItem item, Song song, int position, Action RemovedCallback, Action CancelledCallback, Action UndoCallback)
         {
             if (!await MainActivity.instance.GetWritePermission())
                 return;
@@ -572,15 +573,14 @@ namespace Opus.Api
 
                     RemovedCallback?.Invoke();
 
-                    RemoveTrackFromPlaylistCallback callback = new RemoveTrackFromPlaylistCallback(song, item.LocalID);
+                    RemoveTrackFromPlaylistCallback callback = new RemoveTrackFromPlaylistCallback(song, item.LocalID, position);
                     Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), (song.Title.Length > 20 ? song.Title.Substring(0, 17) + "..." : song.Title) + MainActivity.instance.GetString(Resource.String.removed_from_playlist), Snackbar.LengthLong)
-                    ;
-                    //    .SetAction(MainActivity.instance.GetString(Resource.String.undo), (v) =>
-                    //    {
-                    //        callback.canceled = true;
-                    //        UndoCallback?.Invoke();
-                    //    });
-                    //snackBar.AddCallback(callback);
+                        .SetAction(MainActivity.instance.GetString(Resource.String.undo), (v) =>
+                        {
+                            callback.canceled = true;
+                            UndoCallback?.Invoke();
+                        });
+                    snackBar.AddCallback(callback);
                     snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
                     snackBar.Show();
                 })
@@ -838,7 +838,7 @@ namespace Opus.Api
                 if (Looper.MyLooper() == null)
                     Looper.Prepare();
 
-                CursorLoader cursorLoader = new CursorLoader(Application.Context, musicUri, null, null, null, MediaStore.Audio.Playlists.Members.PlayOrder);
+                CursorLoader cursorLoader = new CursorLoader(Application.Context, musicUri, null, null, null, Playlists.Members.PlayOrder);
                 ICursor musicCursor = (ICursor)cursorLoader.LoadInBackground();
 
                 if (musicCursor != null && musicCursor.MoveToFirst())
@@ -848,6 +848,7 @@ namespace Opus.Api
                     int albumID = musicCursor.GetColumnIndex(Media.InterfaceConsts.Album);
                     int thisID = musicCursor.GetColumnIndex(Media.InterfaceConsts.Id);
                     int pathID = musicCursor.GetColumnIndex(Media.InterfaceConsts.Data);
+                    int playOrderID = musicCursor.GetColumnIndex(Playlists.Members.PlayOrder);
                     do
                     {
                         string Artist = musicCursor.GetString(artistID);
@@ -856,6 +857,7 @@ namespace Opus.Api
                         long AlbumArt = musicCursor.GetLong(musicCursor.GetColumnIndex(Albums.InterfaceConsts.AlbumId));
                         long id = musicCursor.GetLong(thisID);
                         string path = musicCursor.GetString(pathID);
+                        string playOrder = musicCursor.GetString(playOrderID);
 
                         if (Title == null)
                             Title = "Unknown Title";
@@ -864,7 +866,7 @@ namespace Opus.Api
                         if (Album == null)
                             Album = "Unknow Album";
 
-                        songs.Add(new Song(Title, Artist, Album, null, AlbumArt, id, path));
+                        songs.Add(new Song(Title, Artist, Album, null, AlbumArt, id, path) { TrackID = playOrder });
                     }
                     while (musicCursor.MoveToNext());
                     musicCursor.Close();
@@ -875,16 +877,15 @@ namespace Opus.Api
         }
 
         /// <summary>
-        /// Will create a local playlist and add an array of songs in this playlist
+        /// Will create a local playlist and add this playlist to the synced array if needed.
         /// </summary>
         /// <param name="name">The name of the playlist</param>
-        /// <param name="items">The array of songs you want to add. Can be local one or youtube one, it will download them and add them after.</param>
         /// <param name="syncedPlaylist">True if you want the playlist to be created and synced on youtube too</param>
-        /// <param name="position">Property used only for the downloader, see the LocalManager's AddToPlaylist method to see what it does.</param>
-        public async static void CreateLocalPlaylist(string name, Song[] items, bool syncedPlaylist = false, int position = -1)
+        /// <returns>The id of the playlist will be returned</returns>
+        public async static Task<long> CreateLocalPlaylist(string name, bool syncedPlaylist)
         {
             if (!await MainActivity.instance.GetWritePermission())
-                return;
+                return -1;
 
             //Create the playlist in the local storage db.
             ContentValues value = new ContentValues();
@@ -892,14 +893,6 @@ namespace Opus.Api
             MainActivity.instance.ContentResolver.Insert(Playlists.ExternalContentUri, value);
 
             long playlistID = await GetPlaylistID(name);
-
-            if (items != null && items.Length > 0)
-            {
-                LocalManager.AddToPlaylist(items, name, playlistID, false, position); //Will only add files already downloaded
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                YoutubeManager.DownloadFiles(items.ToList().ConvertAll(x => DownloadFile.From(x, name))); //Will download missing files and add them (if there was youtube songs in the items array.
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-            }
 
             if (syncedPlaylist)
             {
@@ -909,6 +902,30 @@ namespace Opus.Api
                     db.CreateTable<PlaylistItem>();
                     db.InsertOrReplace(new PlaylistItem(name, playlistID, null));
                 });
+            }
+
+            return playlistID;
+        }
+
+        /// <summary>
+        /// Will create a local playlist and add an array of songs in this playlist
+        /// </summary>
+        /// <param name="name">The name of the playlist</param>
+        /// <param name="items">The array of songs you want to add. Can be local one or youtube one, it will download them and add them after.</param>
+        /// <param name="syncedPlaylist">True if you want the playlist to be created and synced on youtube too</param>
+        public async static void CreateLocalPlaylist(string name, Song[] items, bool syncedPlaylist = false)
+        {
+            long playlistID = await CreateLocalPlaylist(name, syncedPlaylist);
+
+            if (playlistID == -1)
+                return;
+
+            if (items != null && items.Length > 0)
+            {
+                AddToLocalPlaylist(playlistID, items); //Will only add files already downloaded
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                YoutubeManager.DownloadFiles(items.ToList().ConvertAll(x => DownloadFile.From(x, name))); //Will download missing files and add them (if there was youtube songs in the items array.
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             }
         }
 
@@ -970,24 +987,25 @@ namespace Opus.Api
         }
 
         /// <summary>
-        /// This method will give you the current number of songs in the playlist.
+        /// This method will give you the play order number of last song in the playlist.
         /// </summary>
         /// <param name="LocalID"></param>
         /// <returns></returns>
-        public async static Task<int> GetPlaylistCount(long LocalID)
+        public async static Task<int> GetLastPlayCount(long LocalID)
         {
-            int count = 0;
+            int playCount = 0;
             await Task.Run(() =>
             {
                 if (Looper.MyLooper() == null)
                     Looper.Prepare();
 
                 Uri musicUri = Playlists.Members.GetContentUri("external", LocalID);
-                CursorLoader cursorLoader = new CursorLoader(Application.Context, musicUri, null, null, null, null);
+                CursorLoader cursorLoader = new CursorLoader(Application.Context, musicUri, null, null, null, Playlists.Members.PlayOrder);
                 ICursor cursor = (ICursor)cursorLoader.LoadInBackground();
-                count = cursor.Count;
+                if(cursor != null && cursor.MoveToLast())
+                    playCount = cursor.Count;
             });
-            return count;
+            return playCount;
         }
         #endregion
 
@@ -1184,33 +1202,130 @@ namespace Opus.Api
 
         #region Reorder
         /// <summary>
-        /// Set the slot of a song in a playlist. Work with local one, youtube one and synced one.
+        /// Get the play slot of a song by giving it's position and it's playlist. (Used for the reorder witch uses these slots)
         /// </summary>
-        /// <param name="playlist"></param>
-        /// <param name="fromPosition"></param>
-        /// <param name="newPosition"></param>
-        public static void Reorder(PlaylistItem playlist, int fromPosition, int newPosition)
+        /// <param name="LocalID"></param>
+        /// <param name="position"></param>
+        /// <returns></returns>
+        public async static Task<int> GetPlaySlot(long LocalID, int position)
         {
-            if (playlist.LocalID != 0)
-                Reorder(playlist.LocalID, fromPosition, newPosition);
+            int playSlot = 0;
+            await Task.Run(() =>
+            {
+                if (Looper.MyLooper() == null)
+                    Looper.Prepare();
 
-            //if (playlist.YoutubeID != null)
-            //    Reorder(playlist.YoutubeID, song, newPosition);
+                Uri musicUri = Playlists.Members.GetContentUri("external", LocalID);
+                CursorLoader cursorLoader = new CursorLoader(Application.Context, musicUri, null, null, null, Playlists.Members.PlayOrder);
+                ICursor cursor = (ICursor)cursorLoader.LoadInBackground();
+                if (cursor != null && cursor.MoveToPosition(position))
+                {
+                    int playOrderID = cursor.GetColumnIndex(Playlists.Members.PlayOrder);
+                    playSlot = cursor.GetInt(playOrderID);
+                    Console.WriteLine("&Song: " + cursor.GetString(cursor.GetColumnIndex(Media.InterfaceConsts.Title)) + " Position: " + position + " slot: " + playSlot);
+                }
+            });
+            return playSlot;
         }
 
         /// <summary>
         /// Set the slot of a song in a local playlist
         /// </summary>
         /// <param name="PlaylistLocalID"></param>
-        /// <param name="fromPosition"></param>
-        /// <param name="newPosition"></param>
-        public async static void Reorder(long PlaylistLocalID, int fromPosition, int newPosition)
+        /// <param name="fromSlot">The PlayOrder slot of the song you want to move</param>
+        /// <param name="toSlot">The PlayOrder slot of the target position</param>
+        public async static void Reorder(long PlaylistLocalID, int fromSlot, int toSlot)
         {
             if (!await MainActivity.instance.GetWritePermission())
                 return;
 
-            bool success = Playlists.Members.MoveItem(MainActivity.instance.ContentResolver, PlaylistLocalID, fromPosition, newPosition);
+            Console.WriteLine("&Reorder called, fromSlot: " + fromSlot + " toSlot: " + toSlot);
+            bool success = Playlists.Members.MoveItem(MainActivity.instance.ContentResolver, PlaylistLocalID, fromSlot, toSlot);
             Console.WriteLine("&Reorder success: " + success);
+        }
+
+        public async static void SetQueueSlot(long PlaylistLocalID, long songID, int newSlot)
+        {
+            if (!await MainActivity.instance.GetWritePermission())
+                return;
+
+            Console.WriteLine("&Setting queue slot to: " + newSlot);
+            ContentResolver resolver = MainActivity.instance.ContentResolver;
+            ContentValues value = new ContentValues();
+            value.Put(Playlists.Members.AudioId, songID);
+            value.Put(Playlists.Members.PlayOrder, newSlot);
+
+            resolver.Update(Playlists.Members.GetContentUri("external", PlaylistLocalID), value, Media.InterfaceConsts.Id + "=?", new[] { songID.ToString() });
+        }
+        #endregion
+
+        #region Adding
+        /// <summary>
+        /// This method will check if a playlist exist with a specific name and if it doesn't, it will create one.
+        /// </summary>
+        /// <param name="playlistName">The name of the playlist</param>
+        /// <param name="saveAsSynced">True if the newly created playlist should be synced on youtube</param>
+        /// <returns>The id of the playlist.</returns>
+        public async static Task<long> GetOrCreateByName(string playlistName, bool saveAsSynced = false)
+        {
+            long playlistID = await GetPlaylistID(playlistName);
+            if (playlistID == -1)
+            {
+                playlistID = await CreateLocalPlaylist(playlistName, saveAsSynced);
+            }
+            return playlistID;
+        }
+
+        /// <summary>
+        /// Add an array of local song in a playlist.
+        /// </summary>
+        /// <param name="LocalID">The id of the local playlist or -1 if you want to add this song to a playlist that will be created after.</param>
+        /// <param name="item">The array of songs you want to add to the playlist. Will only add local file, if you input youtube file in this array, they will be ignored<</param>
+        public async static void AddToLocalPlaylist(long LocalID, Song[] items)
+        {
+            if (await MainActivity.instance.GetWritePermission())
+            {
+                int playlistCount = await GetLastPlayCount(LocalID);
+
+                ContentResolver resolver = MainActivity.instance.ContentResolver;
+                List<ContentValues> values = new List<ContentValues>();
+
+                for (int i = 0; i < items.Length; i++)
+                {
+                    Song item = items[i];
+                    if (item != null && item.LocalID != 0 && item.LocalID != -1)
+                    {
+                        ContentValues value = new ContentValues();
+                        value.Put(Playlists.Members.AudioId, item.LocalID);
+                        value.Put(Playlists.Members.PlayOrder, playlistCount + i + 1);
+                        values.Add(value);
+                    }
+                }
+
+                resolver.BulkInsert(Playlists.Members.GetContentUri("external", LocalID), values.ToArray());
+            }
+        }
+
+        /// <summary>
+        /// Insert a song to the playlist at a specific position.
+        /// </summary>
+        /// <param name="LocalID">The id of the playlist</param>
+        /// <param name="item">The song item you want to add</param>
+        /// <param name="position">The position of this new item</param>
+        public async static void InsertToLocalPlaylist(long LocalID, Song item, int position)
+        {
+            if (await MainActivity.instance.GetWritePermission())
+            {
+                ContentResolver resolver = MainActivity.instance.ContentResolver;
+                if (item.LocalID != 0 && item.LocalID != -1)
+                {
+                    Console.WriteLine("&Adding " + item.Title + " to the playlist with id: " + LocalID);
+                    ContentValues value = new ContentValues();
+                    value.Put(Playlists.Members.AudioId, item.LocalID);
+                    value.Put(Playlists.Members.PlayOrder, position);
+                    resolver.Insert(Playlists.Members.GetContentUri("external", LocalID), value);
+                }
+            }
         }
         #endregion
     }

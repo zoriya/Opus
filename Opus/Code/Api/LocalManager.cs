@@ -15,8 +15,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using TagLib;
-using ContentResolver = Android.Content.ContentResolver;
-using ContentValues = Android.Content.ContentValues;
 using Intent = Android.Content.Intent;
 using Random = System.Random;
 
@@ -346,56 +344,6 @@ namespace Opus.Api
 
                 return false;
             });
-        }
-
-        /// <summary>
-        /// Add an array of local song in a playlist.
-        /// </summary>
-        /// <param name="item">The array of songs you want to add to the playlist. Will only add local file, if you input youtube file in this array, they will be ignored<</param>
-        /// <param name="playList">The name of the playlist</param>
-        /// <param name="LocalID">The id of the local playlist or -1 if you want to add this song to a playlist that will be created after.</param>
-        /// <param name="saveAsSynced">Used only if you want to create a playlist with this method. True if the newly created playlist should be synced on youtube.</param>
-        /// <param name="position">If you want to add the first song to a specific position (should only be used if you know the exact position that you want). Experimental Feature.</param>
-        public async static void AddToPlaylist(Song[] items, string playList, long LocalID, bool saveAsSynced = false, int position = -1)
-        {
-            if (LocalID == -1)
-            {
-                LocalID = await PlaylistManager.GetPlaylistID(playList);
-                if (LocalID == -1)
-                    PlaylistManager.CreateLocalPlaylist(playList, items, saveAsSynced, position);
-                else
-                    AddToPlaylist(items, playList, LocalID, saveAsSynced, position);
-            }
-            else
-            {
-                if(await MainActivity.instance.GetWritePermission())
-                {
-                    int playlistCount = await PlaylistManager.GetPlaylistCount(LocalID);
-
-                    ContentResolver resolver = MainActivity.instance.ContentResolver;
-                    List<ContentValues> values = new List<ContentValues>();
-
-                    for (int i = 0; i < items.Length; i++)
-                    {
-                        Song item = items[i];
-                        if (item != null && item.LocalID != 0 && item.LocalID != -1)
-                        {
-                            ContentValues value = new ContentValues();
-                            value.Put(MediaStore.Audio.Playlists.Members.AudioId, item.LocalID);
-                            if(position != -1)
-                            {
-                                value.Put(MediaStore.Audio.Playlists.Members.PlayOrder, position);
-                                position = -1;
-                            }
-                            else
-                                value.Put(MediaStore.Audio.Playlists.Members.PlayOrder, playlistCount + i + 1);
-                            values.Add(value);
-                        }
-                    }
-
-                    resolver.BulkInsert(MediaStore.Audio.Playlists.Members.GetContentUri("external", LocalID), values.ToArray());
-                }
-            }
         }
         #endregion
     }
