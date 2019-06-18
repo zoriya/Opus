@@ -295,11 +295,6 @@ namespace Opus.Api
             playlists.Add(Loading);
 
             View Layout = MainActivity.instance.LayoutInflater.Inflate(Resource.Layout.AddToPlaylistLayout, null);
-            if (MainActivity.Theme == 1)
-            {
-                Layout.FindViewById<ImageView>(Resource.Id.leftIcon).SetColorFilter(Color.White);
-                Layout.FindViewById<View>(Resource.Id.divider).SetBackgroundColor(Color.White);
-            }
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.instance, MainActivity.dialogTheme);
             builder.SetTitle(Resource.String.save_playlist);
             builder.SetView(Layout);

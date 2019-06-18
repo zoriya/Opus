@@ -11,6 +11,7 @@
   app:cardCornerRadius="16dp"
   app:cardElevation="14dp"
   android:foreground="?android:attr/selectableItemBackground"
+  app:cardBackgroundColor="?defaultColor"
   android:clickable="true" >
   <LinearLayout
     android:gravity="center"

@@ -1,4 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <resources>
   <attr name="defaultColor" format="reference|color" />
+  <attr name="iconColor" format="reference|color" />
 </resources>

@@ -2,8 +2,10 @@
 using Android.Content.Res;
 using Android.Graphics;
 using Android.Graphics.Drawables;
+using Android.Util;
 using Android.Views;
 using Android.Widget;
+using Java.Lang;
 using System;
 using System.Collections.Generic;
 
@@ -41,11 +43,15 @@ namespace Opus.Adapter
 
             ((TextView)convertView).Text = items[position].name;
 
-            Drawable icon = MainActivity.instance.GetDrawable(items[position].Ressource);
-            if(MainActivity.Theme != 1)
-                icon.SetTintList(ColorStateList.ValueOf(Color.Black));
+            Color color;
+            TypedValue value = new TypedValue();
+            if (Context.Theme.ResolveAttribute(Resource.Attribute.iconColor, value, true))
+                color = Color.ParseColor("#" + Integer.ToHexString(value.Data));
             else
-                icon.SetTintList(ColorStateList.ValueOf(Color.White));
+                color = Color.Black;
+
+            Drawable icon = MainActivity.instance.GetDrawable(items[position].Ressource);
+            icon.SetTintList(ColorStateList.ValueOf(color));
 
             ((TextView)convertView).SetCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
 

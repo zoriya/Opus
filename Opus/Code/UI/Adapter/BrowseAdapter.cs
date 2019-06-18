@@ -32,12 +32,7 @@ namespace Opus.Adapter
         public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position)
         {
             if (position == 0 && displayShuffle)
-            {
-                if (MainActivity.Theme == 1)
-                    ((CardView)viewHolder.ItemView).SetCardBackgroundColor(Color.ParseColor("#212121"));
-                else
-                    ((CardView)viewHolder.ItemView).SetCardBackgroundColor(Color.White);
-            }
+                return;
             else
                 base.OnBindViewHolder(viewHolder, position);
         }

@@ -46,8 +46,6 @@ namespace Opus.Adapter
             {
                 holder.Status.Visibility = ViewStates.Gone;
                 holder.SyncLoading.Visibility = ViewStates.Visible;
-                if (MainActivity.Theme == 1)
-                    holder.SyncLoading.IndeterminateTintList = ColorStateList.ValueOf(Color.White);
             }
             else if(Playlists[position].YoutubeID != null)
             {
@@ -58,12 +56,6 @@ namespace Opus.Adapter
             {
                 holder.Status.Visibility = ViewStates.Gone;
                 holder.SyncLoading.Visibility = ViewStates.Gone;
-            }
-
-            if (MainActivity.Theme == 1)
-            {
-                holder.Status.SetColorFilter(Color.White);
-                holder.Title.SetTextColor(Color.White);
             }
         }
 

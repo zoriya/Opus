@@ -36,7 +36,7 @@ using YoutubeExplode;
 using Environment = Android.OS.Environment;
 using Fragment = Android.Support.V4.App.Fragment;
 using Playlist = Opus.Fragments.Playlist;
-using Request = Square.OkHttp.Request;
+//using Request = Square.OkHttp.Request;
 using SearchView = Android.Support.V7.Widget.SearchView;
 using Toolbar = Android.Support.V7.Widget.Toolbar;
 using TransportType = Android.Net.TransportType;

@@ -1119,6 +1119,9 @@ namespace Opus
 			// aapt resource value: 0x7f01008d
 			public const int icon = 2130772109;
 			
+			// aapt resource value: 0x7f01027e
+			public const int iconColor = 2130772606;
+			
 			// aapt resource value: 0x7f0101c9
 			public const int iconEndPadding = 2130772425;
 			

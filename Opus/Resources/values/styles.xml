@@ -11,6 +11,7 @@
     <item name="android:dropDownListViewStyle">@style/LightDropDown</item>
     <item name="preferenceTheme">@style/LightPreferences</item>
     <item name="colorAccent">#A3BBDC</item>
+    <item name="iconColor">#000</item>
     <item name="android:textColor">#000</item>
     <item name="android:textColorPrimary">#000</item>
     <item name="defaultColor">#ffffff</item>
@@ -25,6 +26,7 @@
     <item name="android:navigationBarColor">#212121</item>
     <item name="preferenceTheme">@style/DarkPreferences</item>
     <item name="colorAccent">#A3BBDC</item>
+    <item name="iconColor">#ffffff</item>
     <item name="android:textColor">#ffffff</item>
     <item name="android:textColorPrimary">#ffffff</item>
     <item name="defaultColor">#212121</item>
