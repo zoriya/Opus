@@ -569,20 +569,22 @@ namespace Opus.Api
                     {
                         if (song.TrackID == null)
                             song = await CompleteItem(song, item.YoutubeID);
+
+                        RemoveFromYoutubePlaylist(song.TrackID);
                     }
 
                     RemovedCallback?.Invoke();
 
-                    RemoveTrackFromPlaylistCallback callback = new RemoveTrackFromPlaylistCallback(song, item.LocalID, position);
-                    Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), (song.Title.Length > 20 ? song.Title.Substring(0, 17) + "..." : song.Title) + MainActivity.instance.GetString(Resource.String.removed_from_playlist), Snackbar.LengthLong)
-                        .SetAction(MainActivity.instance.GetString(Resource.String.undo), (v) =>
-                        {
-                            callback.canceled = true;
-                            UndoCallback?.Invoke();
-                        });
-                    snackBar.AddCallback(callback);
-                    snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
-                    snackBar.Show();
+                    //RemoveTrackFromPlaylistCallback callback = new RemoveTrackFromPlaylistCallback(song, item.LocalID, position);
+                    //Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById(Resource.Id.snackBar), (song.Title.Length > 20 ? song.Title.Substring(0, 17) + "..." : song.Title) + MainActivity.instance.GetString(Resource.String.removed_from_playlist), Snackbar.LengthLong)
+                    //    .SetAction(MainActivity.instance.GetString(Resource.String.undo), (v) =>
+                    //    {
+                    //        callback.canceled = true;
+                    //        UndoCallback?.Invoke();
+                    //    });
+                    //snackBar.AddCallback(callback);
+                    //snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+                    //snackBar.Show();
                 })
                 .SetNegativeButton(Resource.String.no, (sender, e) => { CancelledCallback?.Invoke(); })
                 .Create();
@@ -1317,7 +1319,8 @@ namespace Opus.Api
                     ContentValues value = new ContentValues();
                     value.Put(Playlists.Members.AudioId, item.LocalID);
                     value.Put(Playlists.Members.PlayOrder, position);
-                    resolver.Insert(Playlists.Members.GetContentUri("external", LocalID), value);
+                    var info = resolver.Insert(Playlists.Members.GetContentUri("external", LocalID), value);
+                    Console.WriteLine("&Add info: " + info + " - item localID: " + item.LocalID);
                 }
             }
         }

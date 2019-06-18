@@ -20,10 +20,8 @@ namespace Opus.Others
 
         public override void OnDismissed(Java.Lang.Object transientBottomBar, int @event)
         {
-            base.OnDismissed(transientBottomBar, @event);
             if(canceled)
             {
-                MainActivity.instance.SupportFragmentManager.PopBackStack();
                 if (LocalPlaylistID != 0)
                     PlaylistManager.InsertToLocalPlaylist(LocalPlaylistID, song, position);
             }
@@ -32,6 +30,7 @@ namespace Opus.Others
                 if (song.TrackID != null)
                     PlaylistManager.RemoveFromYoutubePlaylist(song.TrackID);
             }
+            base.OnDismissed(transientBottomBar, @event);
         }
 
         public override void OnShown(Java.Lang.Object transientBottomBar)
