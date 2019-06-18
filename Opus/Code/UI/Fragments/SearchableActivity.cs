@@ -19,8 +19,8 @@ using Toolbar = Android.Support.V7.Widget.Toolbar;
 
 namespace Opus.Fragments
 {
-    [Activity(Label = "SearchableActivity", Theme = "@style/Theme")]
-    public class SearchableActivity : AppCompatActivity, SearchView.IOnCloseListener
+    [Activity(Label = "SearchableActivity", Theme = "@style/Theme", ParentActivity = typeof(MainActivity), WindowSoftInputMode = SoftInput.StateAlwaysVisible)]
+    public class SearchableActivity : AppCompatActivity, IMenuItemOnActionExpandListener
     {
         public static SearchableActivity instance;
         public static bool IgnoreMyself = false;
@@ -100,7 +100,7 @@ namespace Opus.Fragments
             IMenuItem searchItem = menu.FindItem(Resource.Id.search);
             searchItem.ExpandActionView();
             searchView = searchItem.ActionView.JavaCast<SearchView>();
-            searchView.MaxWidth = int.MaxValue;
+            //searchView.MaxWidth = int.MaxValue;
             searchView.QueryHint = GetString(Resource.String.youtube_search);
             searchView.QueryTextChange += (s, e) =>
             {
@@ -141,17 +141,10 @@ namespace Opus.Fragments
                 OverridePendingTransition(0, 0);
                 e.Handled = true;
             };
-            searchView.SetOnCloseListener(new SearchableCloseListener());
+            searchItem.SetOnActionExpandListener(this);
             SearchQuery = ((SearchView)MainActivity.instance.menu.FindItem(Resource.Id.search).ActionView).Query;
             searchView.SetQuery(SearchQuery, false);
             return base.OnCreateOptionsMenu(menu);
-        }
-
-        public bool OnClose()
-        {
-            Finish();
-            OverridePendingTransition(0, 0);
-            return true;
         }
 
         void AddQueryToHistory(string query)
@@ -200,6 +193,21 @@ namespace Opus.Fragments
             if ((SearchQuery == null || SearchQuery == "") && YoutubeSearch.instances == null)
                 MainActivity.instance.CancelSearch();
         }
+
+        public override void OnBackPressed()
+        {
+            Finish();
+            OverridePendingTransition(0, 0);
+        }
+
+        public bool OnMenuItemActionCollapse(IMenuItem item)
+        {
+            Finish();
+            OverridePendingTransition(0, 0);
+            return false;
+        }
+
+        public bool OnMenuItemActionExpand(IMenuItem item) { return true; }
     }
 
     public class QueryComparer : IEqualityComparer<string>
@@ -212,15 +220,6 @@ namespace Opus.Fragments
         public int GetHashCode(string obj)
         {
             return obj.GetHashCode();
-        }
-    }
-
-    public class SearchableCloseListener : Java.Lang.Object, SearchView.IOnCloseListener
-    {
-        public bool OnClose()
-        {
-            Console.WriteLine("&OnClose");
-            return SearchableActivity.instance.OnClose();
         }
     }
 }
