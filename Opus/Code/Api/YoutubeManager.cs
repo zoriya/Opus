@@ -266,10 +266,7 @@ namespace Opus.Api
                 if (response.Items.Count > 0)
                     return true;
             }
-            catch (System.Net.Http.HttpRequestException)
-            {
-                MainActivity.instance.Timout();
-            }
+            catch (System.Net.Http.HttpRequestException) { }
             return false;
         }
 
@@ -365,7 +362,7 @@ namespace Opus.Api
                 if (ex is System.Net.Http.HttpRequestException)
                     MainActivity.instance.Timout();
                 else
-                    MainActivity.instance.UnknowError();
+                    MainActivity.instance.UnknowError(ErrorCode.SM1);
 
                 return;
             }

@@ -251,7 +251,7 @@ namespace Opus.Api.Services
             }
             catch
             {
-                MainActivity.instance.UnknowError();
+                MainActivity.instance.UnknowError(ErrorCode.DL1);
                 Cancel();
             }
         }

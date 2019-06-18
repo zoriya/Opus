@@ -169,14 +169,6 @@ namespace Opus.Fragments
 
         public async Task Search(string search, string querryType, bool loadingBar)
         {
-            //SearchableActivity.IgnoreMyself = true;
-            //IMenuItem searchItem = MainActivity.instance.menu.FindItem(Resource.Id.search);
-            //searchItem.ExpandActionView();
-            //SearchView searchView = (SearchView)searchItem.ActionView;
-            //searchView.SetQuery(search, false);
-            //searchView.ClearFocus();
-            //searchView.Focusable = false;
-
             if (search == null || search == "")
                 return;
 
@@ -190,8 +182,6 @@ namespace Opus.Fragments
                 EmptyView.Visibility = ViewStates.Gone;
                 LoadingView.Visibility = ViewStates.Visible;
             }
-
-            SearchableActivity.IgnoreMyself = false;
 
             if (!await MainActivity.instance.WaitForYoutube())
             {
@@ -305,7 +295,6 @@ namespace Opus.Fragments
                 Console.WriteLine("&Exception catched in the youtube search: " + ex.Source + " - " + ex.Message);
                 if(ex is System.Net.Http.HttpRequestException)
                 {
-                    MainActivity.instance.Timout();
                     EmptyView.Text = GetString(Resource.String.timout);
                     EmptyView.Visibility = ViewStates.Visible;
                 }
@@ -347,7 +336,6 @@ namespace Opus.Fragments
                     YoutubeManager.Play(result[position].song);
                     break;
                 case YtKind.Playlist:
-                    SearchableActivity.IgnoreMyself = true;
                     MainActivity.instance.menu.FindItem(Resource.Id.search).CollapseActionView();
                     MainActivity.instance.FindViewById<TabLayout>(Resource.Id.tabs).Visibility = ViewStates.Gone;
                     MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(result[position].playlist)).AddToBackStack("Playlist Track").Commit();

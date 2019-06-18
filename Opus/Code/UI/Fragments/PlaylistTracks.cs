@@ -332,10 +332,7 @@ namespace Opus.Fragments
                     adapter.NotifyDataSetChanged();
 
                 }
-                catch (System.Net.Http.HttpRequestException)
-                {
-                    MainActivity.instance.Timout();
-                }
+                catch (System.Net.Http.HttpRequestException) { }
             }
             else if (adapter?.tracks.Count != 0)
             {

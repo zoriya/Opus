@@ -172,7 +172,6 @@ namespace Opus.Code.Api
             catch (System.Net.Http.HttpRequestException)
             {
                 Console.WriteLine("&Parse time out");
-                MainActivity.instance.Timout();
                 if (MainActivity.instance != null)
                     MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
                 song.IsParsed = false;
@@ -183,7 +182,7 @@ namespace Opus.Code.Api
             catch (YoutubeExplode.Exceptions.VideoUnplayableException ex)
             {
                 Console.WriteLine("&Parse error: " + ex.Message);
-                MainActivity.instance.Unplayable(song.Title, ex.Message);
+                MainActivity.instance.Unplayable(ErrorCode.SP2, song.Title, ex.Message);
                 if (MainActivity.instance != null)
                     MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
 
@@ -209,7 +208,7 @@ namespace Opus.Code.Api
             }
             catch //We use this because when the network is reseted, an unknow error is thrown. We also don't want the app to crash at this state so it's ok to use a global catch.
             {
-                MainActivity.instance.UnknowError(null, Snackbar.LengthLong);
+                MainActivity.instance.UnknowError(ErrorCode.SP1, null, Snackbar.LengthLong);
 
                 song.IsParsed = false;
 

@@ -23,7 +23,6 @@ namespace Opus.Fragments
     public class SearchableActivity : AppCompatActivity, IMenuItemOnActionExpandListener
     {
         public static SearchableActivity instance;
-        public static bool IgnoreMyself = false;
         public SearchView searchView;
         public string SearchQuery = null;
         private ListView ListView;

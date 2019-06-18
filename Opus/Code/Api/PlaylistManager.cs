@@ -1058,7 +1058,6 @@ namespace Opus.Api
             }
             catch (System.Net.Http.HttpRequestException)
             {
-                MainActivity.instance.Timout();
                 return tracks;
             }
         }
@@ -1114,13 +1113,8 @@ namespace Opus.Api
                     else
                         song.Title = null;
                 }
-                catch (System.Net.Http.HttpRequestException)
-                {
-                    MainActivity.instance.Timout();
-                }
+                catch (System.Net.Http.HttpRequestException) { }
             }
-            else
-                MainActivity.instance.Timout();
 
             return song;
         }

@@ -349,12 +349,11 @@ namespace Opus
 
         public void OnFocusChange(View v, bool hasFocus)
         {
-            if (hasFocus /*&& !SearchableActivity.IgnoreMyself*/)
+            if (hasFocus)
             {
                 Bundle animation = ActivityOptionsCompat.MakeCustomAnimation(this, Android.Resource.Animation.FadeIn, Android.Resource.Animation.FadeOut).ToBundle();
                 StartActivity(new Intent(this, typeof(SearchableActivity)), animation);
             }
-            SearchableActivity.IgnoreMyself = false;
         }
 
         public void CancelSearch() //SearchableActivity is finishing and no search has been made
@@ -544,15 +543,15 @@ namespace Opus
         #endregion
 
         #region Snackbars
-        public void YoutubeEndPointChanged()
-        {
-            FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
-            Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), Resource.String.youtube_endpoint, Snackbar.LengthLong);
-            snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
-            snackBar.Show();
+        //public void YoutubeEndPointChanged()
+        //{
+        //    FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
+        //    Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), Resource.String.youtube_endpoint, Snackbar.LengthLong);
+        //    snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
+        //    snackBar.Show();
 
-            Player.instance.Ready();
-        }
+        //    Player.instance.Ready();
+        //}
 
         public void Timout()
         {
@@ -561,18 +560,18 @@ namespace Opus
             snackBar.Show();
         }
 
-        public void UnknowError(Action action = null, int Length = Snackbar.LengthIndefinite)
+        public void UnknowError(ErrorCode code, Action action = null, int Length = Snackbar.LengthIndefinite)
         {
-            Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), Resource.String.unknow, Length);
+            Snackbar snackBar = Snackbar.Make(FindViewById(Resource.Id.snackBar), GetString(Resource.String.unknow) + " (" + code + ")", Length);
             if (action != null)
                 snackBar.SetAction("Try Again", (sender) => { action.Invoke(); snackBar.Dismiss(); });
             else
-                snackBar.SetAction("Dismiss", (sender) => { snackBar.Dismiss(); });
+                snackBar.SetAction("Ok", (sender) => { snackBar.Dismiss(); });
             snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
             snackBar.Show();
         }
 
-        public void Unplayable(string title, string msg)
+        public void Unplayable(ErrorCode code, string title, string msg)
         {
             if (msg.Contains("country"))
             {
@@ -587,7 +586,7 @@ namespace Opus
                 snackBar.Show();
             }
             else
-                UnknowError();
+                UnknowError(code);
         }
 
         public void NotStreamable(string title)
@@ -1281,5 +1280,16 @@ namespace Opus
             }
         }
 #endregion
+    }
+
+    /// <summary>
+    /// From where unknow errors are called. For debugging purpose on a deployed version.
+    /// </summary>
+    public enum ErrorCode
+    {
+        SP1, //Song parser 1
+        SP2, //Song parser 2
+        DL1, //Main downloader loop
+        SM1  //Song Mix 1
     }
 }
