@@ -1597,8 +1597,14 @@ namespace Opus.Api.Services
             Player.instance?.Ready(); //Refresh play/pause state
         }
 
-        private void SleepPause()
+        private async void SleepPause()
         {
+            for (int i = 0; i < 25; i++)
+            {
+                player.Volume = (float)(player.Volume * 0.90);
+                await Task.Delay(10);
+            }
+
             Stop(true);
         }
 

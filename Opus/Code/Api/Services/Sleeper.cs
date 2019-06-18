@@ -78,7 +78,7 @@ namespace Opus.Api.Services
                 notification.SetContentText(timer + " " + (timer > 1 ? GetString(Resource.String.minutes) : GetString(Resource.String.minute)));
                 notificationManager.Notify(1001, notification.Build());
 
-                await Task.Delay(60000); // One minute in ms
+                await Task.Delay(60000); //One minute in ms
                 timer -= 1;
             }
 
