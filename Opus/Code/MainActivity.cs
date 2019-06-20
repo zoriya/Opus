@@ -80,8 +80,7 @@ namespace Opus
         {
             base.OnCreate(savedInstanceState);
 
-            ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(this);
-            SwitchTheme(pref.GetInt("theme", 0));
+            SwitchTheme(GetThemeID(this));
             SetContentView(Resource.Layout.Main);
             instance = this;
 
@@ -240,6 +239,28 @@ namespace Opus
         {
             base.OnNewIntent(intent);
             HandleIntent(intent);
+        }
+
+        public static int GetThemeID(Context context)
+        {
+            ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(context);
+            return pref.GetInt("theme", 0);
+        }
+
+        public static void SetTheme(Context context)
+        {
+            int themeID;
+            switch (GetThemeID(context))
+            {
+                case 0:
+                default:
+                    themeID = Resource.Style.Theme;
+                    break;
+                case 1:
+                    themeID = Resource.Style.DarkTheme;
+                    break;
+            }
+            context.SetTheme(themeID);
         }
 
         public void SwitchTheme(int themeID)

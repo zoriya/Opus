@@ -34,9 +34,7 @@ namespace Opus.Fragments
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            if (MainActivity.Theme == 1)
-                SetTheme(Resource.Style.DarkPreferences);
-
+            MainActivity.SetTheme(this);
             SetContentView(Resource.Layout.PreferenceRoot);
             toolbar = FindViewById<Toolbar>(Resource.Id.toolbar);
             SetSupportActionBar(toolbar);
@@ -232,8 +230,6 @@ namespace Opus.Fragments
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             view = base.OnCreateView(inflater, container, savedInstanceState);
-            if (MainActivity.Theme == 1)
-                view.SetBackgroundColor(Color.Argb(225, 33, 33, 33));
             return view;
         }
 

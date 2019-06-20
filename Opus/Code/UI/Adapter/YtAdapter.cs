@@ -55,15 +55,6 @@ namespace Opus.Adapter
                 else
                     holder.Live.Visibility = ViewStates.Gone;
 
-                if (MainActivity.Theme == 1)
-                {
-                    holder.more.SetColorFilter(Color.White);
-                    holder.reorder.SetColorFilter(Color.White);
-                    holder.Title.SetTextColor(Color.White);
-                    holder.Artist.SetTextColor(Color.White);
-                    holder.Artist.Alpha = 0.7f;
-                }
-
                 float scale = MainActivity.instance.Resources.DisplayMetrics.Density;
                 if (position + 1 == items.Count)
                 {
@@ -100,14 +91,6 @@ namespace Opus.Adapter
                         YoutubeSearch.instances[0].PlaylistMore(items[tagPosition].playlist);
                     };
                 }
-
-                if (MainActivity.Theme == 1)
-                {
-                    holder.more.SetColorFilter(Color.White);
-                    holder.Title.SetTextColor(Color.White);
-                    holder.Owner.SetTextColor(Color.White);
-                    holder.Owner.Alpha = 0.7f;
-                }
             }
             else if(items[position].Kind == YtKind.Channel)
             {
@@ -123,11 +106,6 @@ namespace Opus.Adapter
                     {
                         YoutubeManager.MixFromChannel(channel.YoutubeID);
                     };
-                }
-
-                if (MainActivity.Theme == 1)
-                {
-                    holder.Title.SetTextColor(Color.White);
                 }
             }
             else if(items[position].Kind == YtKind.ChannelPreview)

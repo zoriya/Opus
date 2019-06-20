@@ -85,9 +85,6 @@ namespace Opus.Adapter
                         MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(items[position].contentValue, items[position].SectionTitle)).AddToBackStack(null).Commit();
                     };
                 }
-
-                if (MainActivity.Theme == 1)
-                    holder.ItemView.SetBackgroundColor(Color.Argb(255, 62, 62, 62));
             }
             else if(items[position].contentType == SectionType.ChannelList)
             {
@@ -118,9 +115,6 @@ namespace Opus.Adapter
                         holder.more.Text = "View More";
                     }
                 };
-
-                if (MainActivity.Theme == 1)
-                    holder.ItemView.SetBackgroundColor(Color.Argb(255, 62, 62, 62));
             }
             else if (items[position].contentType == SectionType.PlaylistList)
             {
@@ -129,10 +123,6 @@ namespace Opus.Adapter
                 holder.recycler.SetLayoutManager(new LinearLayoutManager(MainActivity.instance, LinearLayoutManager.Vertical, false));
                 holder.recycler.SetAdapter(new HomeListAdapter(items[position].playlistContent.GetRange(0, items[position].playlistContent.Count > 4 ? 4 : items[position].playlistContent.Count), holder.recycler));
                 holder.more.Click += (sender, e) => { MainActivity.instance.FindViewById<BottomNavigationView>(Resource.Id.bottomView).SelectedItemId = Resource.Id.playlistLayout; };
-
-
-                if (MainActivity.Theme == 1)
-                    holder.ItemView.SetBackgroundColor(Color.Argb(255, 62, 62, 62));
             }
             //else if(items[position].contentType == SectionType.TopicSelector)
             //{
@@ -148,16 +138,14 @@ namespace Opus.Adapter
             //        MainActivity.instance.StartActivity(intent);
             //    };
 
-            //    if (MainActivity.Theme == 1)
-            //        holder.ItemView.SetBackgroundColor(Color.Argb(255, 62, 62, 62));
             //}
-            else if (items[position].contentType == SectionType.Shuffle)
-            {
-                if (MainActivity.Theme == 1)
-                    ((CardView)viewHolder.ItemView).SetCardBackgroundColor(Color.ParseColor("#212121"));
-                else
-                    ((CardView)viewHolder.ItemView).SetCardBackgroundColor(Color.White);
-            }
+            //else if (items[position].contentType == SectionType.Shuffle)
+            //{
+            //    if (MainActivity.Theme == 1)
+            //        ((CardView)viewHolder.ItemView).SetCardBackgroundColor(Color.ParseColor("#212121"));
+            //    else
+            //        ((CardView)viewHolder.ItemView).SetCardBackgroundColor(Color.White);
+            //}
         }
 
         void OnClick(int position)

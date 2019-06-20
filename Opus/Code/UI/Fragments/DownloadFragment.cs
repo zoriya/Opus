@@ -206,8 +206,8 @@ namespace Opus.Fragments
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
-            if (MainActivity.Theme == 1)
-                view.SetBackgroundColor(Color.Argb(225, 33, 33, 33));
+            //if (MainActivity.Theme == 1)
+            //    view.SetBackgroundColor(Color.Argb(225, 33, 33, 33));
             base.OnViewCreated(view, savedInstanceState);
         }
     }

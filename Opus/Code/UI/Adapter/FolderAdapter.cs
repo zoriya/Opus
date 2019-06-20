@@ -1,6 +1,4 @@
 ﻿using Android.Content;
-using Android.Content.Res;
-using Android.Graphics;
 using Android.Views;
 using Android.Widget;
 using Opus.DataStructure;
@@ -13,10 +11,10 @@ namespace Opus.Adapter
     {
         public int selectedPosition;
 
-        private Context context;
-        private List<Folder> folders;
+        private readonly Context context;
+        private readonly List<Folder> folders;
         private LayoutInflater inflater;
-        private int resource;
+        private readonly int resource;
 
 
         public FolderAdapter(Context context, int resource, List<Folder> folders) : base(context, resource, folders)
@@ -30,7 +28,7 @@ namespace Opus.Adapter
         {
             if (inflater == null)
             {
-                inflater = (LayoutInflater)context.GetSystemService(Context.LayoutInflaterService);
+                inflater = Preferences.instance.LayoutInflater;
             }
             if (convertView == null)
             {
@@ -57,17 +55,6 @@ namespace Opus.Adapter
             holder.used.Click += DownloadFragment.instance.Used_Click;
             holder.used.Checked = position == selectedPosition;
             holder.used.SetTag(Resource.Id.folderName, position);
-
-            if(MainActivity.Theme == 1)
-            {
-                holder.Name.SetTextColor(Color.White);
-                holder.expandChild.SetColorFilter(Color.White);
-                holder.used.ButtonTintList = ColorStateList.ValueOf(Color.White);
-            }
-            else
-            {
-                convertView.SetBackgroundColor(Color.White);
-            }
 
             return convertView;
         }

@@ -3,7 +3,7 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_height="wrap_content"
   android:layout_width="fill_parent"
-  android:background="#424242"
+  android:background="?backgroundAccent"
   android:id="@+id/playlistHeader"
   android:elevation="6dp" >
   <TextView
@@ -25,7 +25,7 @@
       android:id="@+id/headerPlay"
       android:layout_width="60dp"
       android:layout_height="60dp"
-      android:tint="#ffffff"
+      android:tint="?iconColor"
       android:src="@drawable/Play"
       android:clickable="true"
       android:background="@null" />
@@ -33,7 +33,7 @@
       android:id="@+id/headerShuffle"
       android:layout_width="60dp"
       android:layout_height="60dp"
-      android:tint="#ffffff"
+      android:tint="?iconColor"
       android:clickable="true"
       android:src="@drawable/Shuffle"
       android:background="@null"/>
@@ -41,7 +41,7 @@
       android:id="@+id/headerMore"
       android:layout_width="60dp"
       android:layout_height="60dp"
-      android:tint="#ffffff"
+      android:tint="?iconColor"
       android:clickable="true"
       android:src="@drawable/More"
       android:background="@null" />

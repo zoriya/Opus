@@ -28,7 +28,6 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:textSize="14dip"
-      android:textColor="#000"
       android:ellipsize="end"
       android:maxLines="1"
       android:textStyle="bold" />
@@ -37,8 +36,8 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:textSize="12dip"
-      android:maxLines="1"
-      android:textColor="#000" />
+      android:alpha="0.7"
+      android:maxLines="1" />
   </LinearLayout>
   <LinearLayout
     android:orientation="horizontal"
@@ -53,6 +52,7 @@
       android:layout_height="30dp"
       android:padding="5dp"
       android:background="@null"
+      android:tint="?iconColor"
       android:src="@drawable/Edit"
       android:visibility="gone" />
     <ProgressBar
@@ -63,12 +63,13 @@
       android:background="@null"
       android:src="@drawable/Sync"
       android:indeterminate="true"
-      android:indeterminateTint="@android:color/black"
+      android:indeterminateTint="?iconColor"
       android:visibility="gone" />
     <ImageView
       android:id="@+id/sync"
       android:layout_width="30dp"
       android:layout_height="30dp"
+      android:tint="?iconColor"
       android:padding="5dp"
       android:visibility="gone" />
     <ImageView
@@ -77,6 +78,7 @@
       android:layout_height="30dp"
       android:padding="5dp"
       android:clickable="true"
+      android:tint="?iconColor"
       android:background="@null"
       android:src="@drawable/More"
       android:gravity="center_vertical"/>

@@ -27,10 +27,6 @@ namespace Opus.Adapter
                     holder.Progress.Visibility = ViewStates.Visible;
                     holder.Progress.Indeterminate = true;
                     holder.Title.Alpha = 1f;
-                    if (MainActivity.Theme == 1)
-                        holder.Title.SetTextColor(Color.White);
-                    else
-                        holder.Title.SetTextColor(Color.Black);
                     break;
                 case DownloadState.MetaData:
                     holder.Status.Text = Downloader.instance.GetString(Resource.String.metadata);
@@ -38,10 +34,6 @@ namespace Opus.Adapter
                     holder.Progress.Visibility = ViewStates.Visible;
                     holder.Progress.Indeterminate = true;
                     holder.Title.Alpha = 1f;
-                    if (MainActivity.Theme == 1)
-                        holder.Title.SetTextColor(Color.White);
-                    else
-                        holder.Title.SetTextColor(Color.Black);
                     break;
                 case DownloadState.Playlist:
                     holder.Status.Text = Downloader.instance.GetString(Resource.String.downloader_playlist);
@@ -49,10 +41,6 @@ namespace Opus.Adapter
                     holder.Progress.Visibility = ViewStates.Visible;
                     holder.Progress.Indeterminate = true;
                     holder.Title.Alpha = 1f;
-                    if (MainActivity.Theme == 1)
-                        holder.Title.SetTextColor(Color.White);
-                    else
-                        holder.Title.SetTextColor(Color.Black);
                     break;
                 case DownloadState.Downloading:
                     holder.Status.Text = Downloader.instance.GetString(Resource.String.downloading_status);
@@ -61,19 +49,11 @@ namespace Opus.Adapter
                     holder.Title.Alpha = 1f;
                     holder.Progress.Indeterminate = false;
                     holder.Progress.Progress = Downloader.queue[position].progress;
-                    if (MainActivity.Theme == 1)
-                        holder.Title.SetTextColor(Color.White);
-                    else
-                        holder.Title.SetTextColor(Color.Black);
                     break;
                 case DownloadState.None:
                     holder.Progress.Visibility = ViewStates.Invisible;
                     holder.Status.Visibility = ViewStates.Gone;
                     holder.Title.Alpha = 1f;
-                    if (MainActivity.Theme == 1)
-                        holder.Title.SetTextColor(Color.White);
-                    else
-                        holder.Title.SetTextColor(Color.Black);
                     break;
                 case DownloadState.Completed:
                     holder.Status.Text = Downloader.instance.GetString(Resource.String.completed);
@@ -104,10 +84,6 @@ namespace Opus.Adapter
                     DownloadQueue.instance.More(tagPosition);
                 };
             }
-
-            if (MainActivity.Theme == 1)
-                holder.more.SetColorFilter(Color.White);
-
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)

@@ -1,6 +1,6 @@
 ﻿using Android.Content;
-using Android.Gms.Auth.Api;
-using Android.Gms.Auth.Api.SignIn;
+//using Android.Gms.Auth.Api;
+//using Android.Gms.Auth.Api.SignIn;
 using Android.Gms.Common.Apis;
 using Android.Graphics;
 using Android.Runtime;
@@ -9,14 +9,14 @@ using Android.Support.V7.Preferences;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
-using Google.Apis.YouTube.v3;
+//using Google.Apis.YouTube.v3;
 using Opus;
-using Opus.Api;
+//using Opus.Api;
 using Opus.Fragments;
 using Opus.Others;
 using Square.Picasso;
 using System;
-using System.Threading.Tasks;
+//using System.Threading.Tasks;
 
 public class AccountPreference : Preference, IResultCallback
 {

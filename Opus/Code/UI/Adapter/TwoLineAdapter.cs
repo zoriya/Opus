@@ -41,14 +41,6 @@ namespace Opus.Adapter
                         FolderBrowse.instance.More(pos);
                 };
             }
-
-            if (MainActivity.Theme == 1)
-            {
-                holder.more.SetColorFilter(Color.White);
-                holder.Line1.SetTextColor(Color.White);
-                holder.Line2.SetTextColor(Color.White);
-                holder.Line2.Alpha = 0.7f;
-            }
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)

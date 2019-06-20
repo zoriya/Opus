@@ -60,17 +60,6 @@ namespace Opus.Adapter
                     holder.RightButtons.FindViewById<ImageButton>(Resource.Id.play).Click += (sender, e) => { PlaylistManager.PlayInOrder(playlists[position]); };
                     holder.RightButtons.FindViewById<ImageButton>(Resource.Id.shuffle).Click += (sender, e) => { PlaylistManager.Shuffle(playlists[position]); };
                 }
-
-                if(MainActivity.Theme == 1)
-                {
-                    holder.RightButtons.FindViewById<ImageButton>(Resource.Id.play).ImageTintList = ColorStateList.ValueOf(Color.White);
-                    holder.RightButtons.FindViewById<ImageButton>(Resource.Id.shuffle).ImageTintList = ColorStateList.ValueOf(Color.White);
-                }
-                else
-                {
-                    holder.RightButtons.FindViewById<ImageButton>(Resource.Id.play).ImageTintList = ColorStateList.ValueOf(Color.Black);
-                    holder.RightButtons.FindViewById<ImageButton>(Resource.Id.shuffle).ImageTintList = ColorStateList.ValueOf(Color.Black);
-                }
             }
         }
 

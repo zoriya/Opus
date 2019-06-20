@@ -333,6 +333,9 @@ namespace Opus
 			// aapt resource value: 0x7f010090
 			public const int background = 2130772112;
 			
+			// aapt resource value: 0x7f01027f
+			public const int backgroundAccent = 2130772607;
+			
 			// aapt resource value: 0x7f010092
 			public const int backgroundSplit = 2130772114;
 			

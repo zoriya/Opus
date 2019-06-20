@@ -10,6 +10,7 @@
     android:layout_marginLeft="18dp"
     android:layout_marginTop="12dp"
     android:layout_marginBottom="12dp"
+    android:tint="?iconColor"
     android:layout_alignParentStart="true"
     android:layout_centerVertical="true" />
   <ImageView
@@ -19,6 +20,7 @@
     android:layout_marginRight="5dp"
     android:layout_alignParentEnd="true"
     android:layout_centerVertical="true"
+    android:tint="?iconColor"
     android:src="@drawable/Refine"/>
   <TextView
     android:id="@+id/text"

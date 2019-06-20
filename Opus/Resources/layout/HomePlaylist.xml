@@ -26,6 +26,7 @@
       android:layout_height="30dp"
       android:layout_margin="6dp"
       android:src="@drawable/play"
+      android:tint="?iconColor"
       android:background="@null"
       android:id="@+id/play" />
     <ImageButton
@@ -33,6 +34,7 @@
       android:layout_height="30dp"
       android:layout_margin="6dp"
       android:src="@drawable/shuffle"
+      android:tint="?iconColor"
       android:background="@null"
       android:id="@+id/shuffle" />
   </LinearLayout>

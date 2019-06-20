@@ -45,9 +45,7 @@ namespace Opus.Fragments
         {
             base.OnCreate(savedInstanceState);
 
-            if(MainActivity.Theme == 1)
-                SetTheme(Resource.Style.DarkTheme);
-
+            MainActivity.SetTheme(this);
             SetContentView(Resource.Layout.EditMetaData);
             Window.SetStatusBarColor(Color.Argb(70, 00, 00, 00));
 
@@ -62,12 +60,6 @@ namespace Opus.Fragments
             toolbar.Parent.RequestLayout();
             toolbar.LayoutParameters.Height = metrics.WidthPixels / 3;
             toolbar.RequestLayout();
-
-            if (MainActivity.Theme == 1)
-            {
-                toolbar.PopupTheme = Resource.Style.DarkPopup;
-            }
-
             SetSupportActionBar(toolbar);
             SupportActionBar.SetDisplayShowTitleEnabled(false);
             SupportActionBar.SetDisplayHomeAsUpEnabled(true);

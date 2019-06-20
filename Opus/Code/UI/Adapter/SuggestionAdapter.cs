@@ -44,12 +44,6 @@ namespace Opus.Adapter
             if (!convertView.FindViewById<ImageView>(Resource.Id.refine).HasOnClickListeners)
                 convertView.FindViewById<ImageView>(Resource.Id.refine).Click += (sender, e) => { SearchableActivity.instance.Refine(position); };
 
-            if (MainActivity.Theme == 1)
-            {
-                convertView.FindViewById<ImageView>(Resource.Id.icon1).SetColorFilter(Color.White);
-                convertView.FindViewById<ImageView>(Resource.Id.refine).SetColorFilter(Color.White);
-            }
-
             return convertView;
         }
     }

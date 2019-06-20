@@ -15,6 +15,7 @@
     <item name="android:textColor">#000</item>
     <item name="android:textColorPrimary">#000</item>
     <item name="defaultColor">#ffffff</item>
+    <item name="backgroundAccent">#fafafa</item>
   </style>
 
   <style name="DarkTheme" parent="Theme.AppCompat">
@@ -30,6 +31,7 @@
     <item name="android:textColor">#ffffff</item>
     <item name="android:textColorPrimary">#ffffff</item>
     <item name="defaultColor">#212121</item>
+    <item name="backgroundAccent">#424242</item>
   </style>
   
   <style name="SplashScreen" parent="DarkTheme">
@@ -57,6 +59,9 @@
 
   <style name="LightPreferences" parent="PreferenceThemeOverlay">
     <item name="preferenceCategoryStyle">@style/PreferenceCategoryStyle</item>
+    <item name="defaultColor">#ffffff</item>
+    <item name="iconColor">#000</item>
+    <item name="backgroundAccent">#fafafa</item>
   </style>
 
   <style name="DarkPreferences" parent="PreferenceThemeOverlay">
@@ -69,6 +74,9 @@
     <item name="windowNoTitle">true</item>
     <item name="windowActionBar">false</item>
     <item name="android:windowContentTransitions">true</item>
+    <item name="defaultColor">#212121</item>
+    <item name="iconColor">#ffffff</item>
+    <item name="backgroundAccent">#424242</item>
   </style>
 
   <style name="PreferenceCategoryStyle" parent="@style/Preference.Category.Material">

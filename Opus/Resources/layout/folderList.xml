@@ -2,6 +2,7 @@
 <RelativeLayout  xmlns:android="http://schemas.android.com/apk/res/android"
    android:layout_width="fill_parent"
    android:layout_height="wrap_content"
+   android:background="?backgroundAccent"
    android:id="@+id/folderList">
     <LinearLayout
        android:orientation="horizontal"
@@ -11,20 +12,20 @@
           android:id="@+id/expendChilds"
           android:layout_width="36dp"
           android:layout_height="36dp"
+          android:tint="?iconColor"
           android:src="@drawable/ArrowDown"
           android:layout_alignParentRight="true" />
         <TextView
           android:id="@+id/folderName"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:textColor="#000"
           android:textSize="16dip" 
           android:singleLine="true"
           android:ellipsize="marquee" />
     </LinearLayout>
     <RadioButton 
       android:id="@+id/folderUsed"
-      android:buttonTint="@android:color/black"
+      android:buttonTint="?iconColor"
       android:focusable="false"
       android:focusableInTouchMode="false"
       android:layout_width="wrap_content"

@@ -41,14 +41,6 @@ namespace Opus.Adapter
         {
             SongHolder holder = (SongHolder)viewHolder;
 
-            if (MainActivity.Theme == 1)
-            {
-                holder.more.SetColorFilter(Color.White);
-                holder.Title.SetTextColor(Color.White);
-                holder.Artist.SetTextColor(Color.White);
-                holder.Artist.Alpha = 0.7f;
-            }
-
             holder.Title.Text = song.Title;
             holder.Artist.Text = song.Artist;
 

@@ -60,7 +60,7 @@ namespace Opus.DataStructure
             int pathID = cursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
             int playOrderID = cursor.GetColumnIndex(MediaStore.Audio.Playlists.Members.PlayOrder);
 
-            string playOrder = PlaylistTracks.instance != null ? cursor.GetString(playOrderID) : "";
+            string playOrder = PlaylistTracks.instance != null ? cursor.GetString(playOrderID) : null;
             string Artist = cursor.GetString(artistID);
             string Title = cursor.GetString(titleID);
             string Album = cursor.GetString(albumID);
@@ -75,7 +75,7 @@ namespace Opus.DataStructure
             if (Album == null)
                 Album = "Unknow Album";
 
-            return new Song(Title, playOrder, Album, null, AlbumArt, id, path);
+            return new Song(Title, playOrder ?? Artist, Album, null, AlbumArt, id, path);
         }
 
 

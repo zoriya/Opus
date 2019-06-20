@@ -22,9 +22,7 @@ namespace Opus.Fragments
         {
             base.OnCreate(savedInstanceState);
 
-            if (MainActivity.Theme == 1)
-                SetTheme(Resource.Style.DarkTheme);
-
+            MainActivity.SetTheme(this);
             instance = this;
             SetContentView(Resource.Layout.DownloadQueue);
 

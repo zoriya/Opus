@@ -34,9 +34,8 @@ namespace Opus.Fragments
         {
             instance = this;
             base.OnCreate(savedInstanceState);
-            if (MainActivity.Theme == 1)
-                SetTheme(Resource.Style.DarkTheme);
 
+            MainActivity.SetTheme(this);
             SetContentView(Resource.Layout.SearchLayout);
 
             SetSupportActionBar(FindViewById<Toolbar>(Resource.Id.toolbar));
@@ -99,7 +98,7 @@ namespace Opus.Fragments
             IMenuItem searchItem = menu.FindItem(Resource.Id.search);
             searchItem.ExpandActionView();
             searchView = searchItem.ActionView.JavaCast<SearchView>();
-            //searchView.MaxWidth = int.MaxValue;
+            searchView.MaxWidth = int.MaxValue;
             searchView.QueryHint = GetString(Resource.String.youtube_search);
             searchView.QueryTextChange += (s, e) =>
             {

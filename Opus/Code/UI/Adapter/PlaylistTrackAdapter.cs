@@ -78,14 +78,6 @@ namespace Opus.Adapter
                         menu.Show();
                     };
                 }
-
-                if (MainActivity.Theme != 1)
-                {
-                    header.SetBackgroundColor(Color.Argb(255, 255, 255, 255));
-                    header.FindViewById<ImageButton>(Resource.Id.headerPlay).ImageTintList = ColorStateList.ValueOf(Color.Black);
-                    header.FindViewById<ImageButton>(Resource.Id.headerShuffle).ImageTintList = ColorStateList.ValueOf(Color.Black);
-                    header.FindViewById<ImageButton>(Resource.Id.headerMore).ImageTintList = ColorStateList.ValueOf(Color.Black);
-                }
             }
             else if (BaseCount == 0)
             {
@@ -148,17 +140,6 @@ namespace Opus.Adapter
                     PlaylistTracks.instance.itemTouchHelper.StartDrag(viewHolder);
                     MainActivity.instance.contentRefresh.Enabled = false;
                 };
-            }
-
-            float scale = MainActivity.instance.Resources.DisplayMetrics.Density;
-
-            if (MainActivity.Theme == 1)
-            {
-                holder.more.SetColorFilter(Color.White);
-                holder.reorder.SetColorFilter(Color.White);
-                holder.Title.SetTextColor(Color.White);
-                holder.Artist.SetTextColor(Color.White);
-                holder.Artist.Alpha = 0.7f;
             }
         }
 

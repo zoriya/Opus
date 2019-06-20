@@ -192,8 +192,6 @@ namespace Opus.Fragments
                 PlaylistHolder holder = (PlaylistHolder)ListView.GetChildViewHolder(ListView.GetChildAt(LocalPlaylists.Count + YoutubeIndex));
                 holder.sync.Visibility = ViewStates.Gone;
                 holder.SyncLoading.Visibility = ViewStates.Visible;
-                if (MainActivity.Theme == 1)
-                    holder.SyncLoading.IndeterminateTintList = ColorStateList.ValueOf(Color.White);
             }
         }
 
@@ -208,8 +206,6 @@ namespace Opus.Fragments
                     holder.sync.SetImageResource(Resource.Drawable.SyncError);
                     holder.sync.Visibility = ViewStates.Visible;
                     holder.SyncLoading.Visibility = ViewStates.Gone;
-                    if (MainActivity.Theme == 1)
-                        holder.sync.SetColorFilter(Color.White);
                 }
             }
         }
@@ -231,17 +227,11 @@ namespace Opus.Fragments
                 Picasso.With(Application.Context).Load(item.ImageURL).Placeholder(Resource.Color.background_material_dark).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
 
                 if (item.HasWritePermission)
-                {
                     holder.edit.Visibility = ViewStates.Visible;
-                    if (MainActivity.Theme == 1)
-                        holder.edit.SetColorFilter(Color.White);
-                }
 
                 holder.sync.SetImageResource(Resource.Drawable.Sync);
                 holder.sync.Visibility = ViewStates.Visible;
                 holder.SyncLoading.Visibility = ViewStates.Gone;
-                if (MainActivity.Theme == 1)
-                    holder.sync.SetColorFilter(Color.White);
             }
         }
 
@@ -514,8 +504,6 @@ namespace Opus.Fragments
                     holder.SyncLoading.Visibility = ViewStates.Gone;
                     holder.sync.SetImageResource(Resource.Drawable.Sync);
                     holder.sync.Visibility = ViewStates.Visible;
-                    if (MainActivity.Theme == 1)
-                        holder.sync.SetColorFilter(Color.White);
                 }
             }
         }

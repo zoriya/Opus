@@ -29,6 +29,5 @@
     android:layout_toLeftOf="@id/action"
     android:paddingLeft="70dp"
     android:textSize="14dip"
-    android:textColor="#000"
     android:textStyle="bold" />
 </RelativeLayout >

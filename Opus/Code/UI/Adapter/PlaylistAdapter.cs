@@ -62,11 +62,6 @@ namespace Opus.Adapter
             else if (position == LocalPlaylists.Count + YoutubePlaylists.Count)
             {
                 UslessHolder holder = (UslessHolder)viewHolder;
-                if (MainActivity.Theme == 1)
-                    ((CardView)viewHolder.ItemView).SetCardBackgroundColor(Color.ParseColor("#212121"));
-                else
-                    ((CardView)viewHolder.ItemView).SetCardBackgroundColor(Color.White);
-
                 holder.ItemView.FindViewById<ImageView>(Resource.Id.icon).SetImageResource(Resource.Drawable.PlaylistAdd);
                 holder.ItemView.FindViewById<TextView>(Resource.Id.text).Text = MainActivity.instance.GetString(Resource.String.add_playlist);
 
@@ -127,20 +122,10 @@ namespace Opus.Adapter
                 if (LocalPlaylists[position].SyncState == SyncState.Error)
                 {
                     holder.sync.Visibility = ViewStates.Visible;
-                    if (MainActivity.Theme == 1)
-                        holder.sync.SetColorFilter(Color.White);
                 }
                 else
                 {
                     holder.sync.Visibility = ViewStates.Gone;
-                }
-
-                if (MainActivity.Theme == 1)
-                {
-                    holder.more.SetColorFilter(Color.White);
-                    holder.Line1.SetTextColor(Color.White);
-                    holder.Line2.SetTextColor(Color.White);
-                    holder.Line2.Alpha = 0.7f;
                 }
             }
             else if (position > LocalPlaylists.Count && YoutubePlaylists.Count >= position - LocalPlaylists.Count)
@@ -168,11 +153,7 @@ namespace Opus.Adapter
                 }
 
                 if (playlist.HasWritePermission)
-                {
                     holder.edit.Visibility = ViewStates.Visible;
-                    if (MainActivity.Theme == 1)
-                        holder.edit.SetColorFilter(Color.White);
-                }
                 else
                     holder.edit.Visibility = ViewStates.Gone;
 
@@ -180,24 +161,18 @@ namespace Opus.Adapter
                 {
                     holder.sync.Visibility = ViewStates.Gone;
                     holder.SyncLoading.Visibility = ViewStates.Visible;
-                    if (MainActivity.Theme == 1)
-                        holder.SyncLoading.IndeterminateTintList = ColorStateList.ValueOf(Color.White);
                 }
                 else if (playlist.SyncState == SyncState.True)
                 {
                     holder.sync.SetImageResource(Resource.Drawable.Sync);
                     holder.sync.Visibility = ViewStates.Visible;
                     holder.SyncLoading.Visibility = ViewStates.Gone;
-                    if (MainActivity.Theme == 1)
-                        holder.sync.SetColorFilter(Color.White);
                 }
                 else if (playlist.SyncState == SyncState.Error)
                 {
                     holder.sync.SetImageResource(Resource.Drawable.SyncError);
                     holder.sync.Visibility = ViewStates.Visible;
                     holder.SyncLoading.Visibility = ViewStates.Gone;
-                    if (MainActivity.Theme == 1)
-                        holder.sync.SetColorFilter(Color.White);
                 }
                 else if (playlist.SyncState == SyncState.False)
                 {
@@ -211,14 +186,6 @@ namespace Opus.Adapter
                     {
                         Playlist.instance.More(holder.AdapterPosition);
                     };
-                }
-
-                if (MainActivity.Theme == 1)
-                {
-                    holder.more.SetColorFilter(Color.White);
-                    holder.Title.SetTextColor(Color.White);
-                    holder.Owner.SetTextColor(Color.White);
-                    holder.Owner.Alpha = 0.7f;
                 }
             }
         }
