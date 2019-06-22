@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <resources>
-  <attr name="defaultColor" format="reference|color" />
-  <attr name="iconColor" format="reference|color" />
-  <attr name="backgroundAccent" format="reference|color" />
-  <attr name="accountIconColor" format="reference|color" />
+  <attr name="accountIconColor" format="reference|color"/>
+  <attr name="navigationBarColor" format="reference|color"/>
+  <attr name="blackSeperatorColor" format="reference|color"/>
 </resources>

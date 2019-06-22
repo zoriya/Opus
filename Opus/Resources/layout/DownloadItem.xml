@@ -10,7 +10,7 @@
     android:layout_height="wrap_content"
     android:src="@drawable/More"
     android:background="@null"
-    android:tint="?iconColor"
+    android:tint="?android:colorForeground"
     android:layout_alignParentRight="true"
     android:paddingBottom="10dp"
     android:id="@+id/more" />

@@ -45,7 +45,7 @@ namespace Opus.Adapter
 
             Color color;
             TypedValue value = new TypedValue();
-            if (Context.Theme.ResolveAttribute(Resource.Attribute.iconColor, value, true))
+            if (Context.Theme.ResolveAttribute(Android.Resource.Attribute.ColorForeground, value, true))
                 color = Color.ParseColor("#" + Integer.ToHexString(value.Data));
             else
                 color = Color.Black;

@@ -24,7 +24,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="@null"
-    android:tint="?iconColor"
+    android:tint="?android:colorForeground"
     android:id="@+id/status"
     android:paddingRight="15dp"
     android:layout_centerVertical="true"
@@ -35,7 +35,7 @@
     android:layout_height="20dp"
     android:paddingRight="15dp"
     android:indeterminate="true"
-    android:indeterminateTint="?iconColor"
+    android:indeterminateTint="?android:colorForeground"
     android:layout_centerVertical="true"
     android:layout_alignParentRight="true"
     android:visibility="gone" />

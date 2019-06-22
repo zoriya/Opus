@@ -74,7 +74,7 @@
       android:layout_height="30dp"
       android:padding="5dp"
       android:background="@null"
-      android:tint="?iconColor"
+      android:tint="?android:colorForeground"
       android:src="@drawable/PublicIcon"
       android:layout_gravity="center_vertical"
       android:visibility="gone" />
@@ -85,7 +85,7 @@
       android:padding="5dp"
       android:clickable="true"
       android:visibility="gone"
-      android:tint="?iconColor"
+      android:tint="?android:colorForeground"
       android:layout_gravity="center_vertical"
       android:src="@drawable/Reorder" />
     <ImageView
@@ -95,7 +95,7 @@
       android:padding="5dp"
       android:clickable="true"
       android:background="@null"
-      android:tint="?iconColor"
+      android:tint="?android:colorForeground"
       android:src="@drawable/More"
       android:gravity="center_vertical" />
   </LinearLayout>

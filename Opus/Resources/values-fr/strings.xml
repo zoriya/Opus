@@ -179,6 +179,7 @@
   <string name="theme_dialog">Choisissez un thème</string>
   <string name="white_theme">Thème clair</string>
   <string name="dark_theme">Thème sombre</string>
+  <string name="black_theme">Thème noir</string>
   <string name="others">Autres</string>
   <string name="check_updates">Rechercher des mises à jour</string>
   <string name="version">Version</string>

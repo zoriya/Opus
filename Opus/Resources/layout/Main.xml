@@ -114,13 +114,20 @@
     </android.support.v4.widget.SwipeRefreshLayout>
   </android.support.design.widget.CoordinatorLayout>
   
+  <View
+    android:layout_width="match_parent"
+    android:layout_height="1dp"
+    android:background="?blackSeperatorColor"
+    app:layout_anchor="@+id/bottomView"
+    app:layout_anchorGravity="top"/>
+  
   <android.support.design.widget.BottomNavigationView
-    android:id="@+id/bottomView"
+    android:id="@id/bottomView"
     android:layout_width="match_parent"
     android:layout_height="56dp"
     android:layout_gravity="bottom"
     android:elevation="12dp"
-    android:background="?attr/defaultColor"
+    android:background="?navigationBarColor"
     app:itemIconTint="@color/color_tint"
     app:itemTextColor="@color/color_tint"
     app:menu="@menu/bottom_items" />

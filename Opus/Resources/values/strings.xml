@@ -179,6 +179,7 @@
   <string name="theme_dialog">Choose a theme</string>
   <string name="white_theme">White Theme</string>
   <string name="dark_theme">Dark Theme</string>
+  <string name="black_theme">Black Theme</string>
   <string name="others">Others</string>
   <string name="check_updates">Check for updates</string>
   <string name="version">Version</string>

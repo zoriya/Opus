@@ -52,7 +52,7 @@
       android:layout_height="30dp"
       android:padding="5dp"
       android:background="@null"
-      android:tint="?iconColor"
+      android:tint="?android:colorForeground"
       android:src="@drawable/Edit"
       android:visibility="gone" />
     <ProgressBar
@@ -63,13 +63,13 @@
       android:background="@null"
       android:src="@drawable/Sync"
       android:indeterminate="true"
-      android:indeterminateTint="?iconColor"
+      android:indeterminateTint="?android:colorForeground"
       android:visibility="gone" />
     <ImageView
       android:id="@+id/sync"
       android:layout_width="30dp"
       android:layout_height="30dp"
-      android:tint="?iconColor"
+      android:tint="?android:colorForeground"
       android:padding="5dp"
       android:visibility="gone" />
     <ImageView
@@ -78,7 +78,7 @@
       android:layout_height="30dp"
       android:padding="5dp"
       android:clickable="true"
-      android:tint="?iconColor"
+      android:tint="?android:colorForeground"
       android:background="@null"
       android:src="@drawable/More"
       android:gravity="center_vertical"/>

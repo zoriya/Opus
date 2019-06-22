@@ -1,8 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<resources>
-  <style name="Theme" parent="Theme.Base"> </style>
-  
-  <style name="Theme.Base" parent="Theme.AppCompat.Light.DarkActionBar">
+<resources>  
+  <style name="Theme" parent="Theme.AppCompat.Light.DarkActionBar">
     <item name="windowNoTitle">true</item>
     <item name="windowActionBar">false</item>
     <item name="android:windowActivityTransitions">true</item>
@@ -11,11 +9,13 @@
     <item name="android:dropDownListViewStyle">@style/LightDropDown</item>
     <item name="preferenceTheme">@style/LightPreferences</item>
     <item name="colorAccent">#A3BBDC</item>
-    <item name="iconColor">#000</item>
-    <item name="android:textColor">#000</item>
-    <item name="android:textColorPrimary">#000</item>
-    <item name="defaultColor">#ffffff</item>
-    <item name="backgroundAccent">#fafafa</item>
+    <item name="navigationBarColor">#ffffff</item>
+    <item name="blackSeperatorColor">#00000000</item>
+    <item name="android:textColor">#000000</item>
+    <item name="android:textColorPrimary">#000000</item>
+    <item name="android:colorBackground">#ffffff</item>
+    <item name="android:panelBackground">#fafafa</item>
+    <item name="android:colorForeground">#000000</item>
   </style>
 
   <style name="DarkTheme" parent="Theme.AppCompat">
@@ -27,11 +27,31 @@
     <item name="android:navigationBarColor">#212121</item>
     <item name="preferenceTheme">@style/DarkPreferences</item>
     <item name="colorAccent">#A3BBDC</item>
-    <item name="iconColor">#ffffff</item>
+    <item name="navigationBarColor">#212121</item>
+    <item name="blackSeperatorColor">#00000000</item>
     <item name="android:textColor">#ffffff</item>
     <item name="android:textColorPrimary">#ffffff</item>
-    <item name="defaultColor">#212121</item>
-    <item name="backgroundAccent">#424242</item>
+    <item name="android:colorBackground">#303030</item>
+    <item name="android:panelBackground">#424242</item>
+    <item name="android:colorForeground">#ffffff</item>
+  </style>
+
+  <style name="BlackTheme" parent="Theme.AppCompat">
+    <item name="windowNoTitle">true</item>
+    <item name="windowActionBar">false</item>
+    <item name="android:windowActivityTransitions">true</item>
+    <item name="android:windowContentTransitions">true</item>
+    <item name="android:windowTranslucentStatus">true</item>
+    <item name="android:navigationBarColor">#000000</item>
+    <item name="preferenceTheme">@style/BlackPreferences</item>
+    <item name="colorAccent">#A3BBDC</item>
+    <item name="navigationBarColor">#000000</item>
+    <item name="blackSeperatorColor">#50ffffff</item>
+    <item name="android:textColor">#ffffff</item>
+    <item name="android:textColorPrimary">#ffffff</item>
+    <item name="android:colorBackground">#000000</item>
+    <item name="android:panelBackground">#000000</item>
+    <item name="android:colorForeground">#ffffff</item>
   </style>
   
   <style name="SplashScreen" parent="DarkTheme">
@@ -53,15 +73,14 @@
   <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
     <item name="colorAccent">#A3BBDC</item>
   </style>
+
   <style name="AppCompatDarkAlertDialogStyle" parent="Theme.AppCompat.Dialog.Alert">
     <item name="colorAccent">#A3BBDC</item>
   </style>
 
   <style name="LightPreferences" parent="PreferenceThemeOverlay">
     <item name="preferenceCategoryStyle">@style/PreferenceCategoryStyle</item>
-    <item name="defaultColor">#ffffff</item>
-    <item name="iconColor">#000</item>
-    <item name="backgroundAccent">#fafafa</item>
+    <item name="android:colorBackground">#ffffff</item>
     <item name="accountIconColor">#808080</item>
   </style>
 
@@ -75,9 +94,21 @@
     <item name="windowNoTitle">true</item>
     <item name="windowActionBar">false</item>
     <item name="android:windowContentTransitions">true</item>
-    <item name="defaultColor">#212121</item>
-    <item name="iconColor">#ffffff</item>
-    <item name="backgroundAccent">#424242</item>
+    <item name="android:colorBackground">#212121</item>
+    <item name="accountIconColor">#ffffff</item>
+  </style>
+
+  <style name="BlackPreferences" parent="PreferenceThemeOverlay">
+    <item name="android:textColor">#FFFFFF</item>
+    <item name="android:textColorPrimary">#ffffff</item>
+    <item name="android:textColorSecondary">#B3FFFFFF</item>
+    <item name="android:windowTranslucentStatus">true</item>
+    <item name="android:navigationBarColor">#000000</item>
+    <item name="preferenceCategoryStyle">@style/PreferenceCategoryStyle</item>
+    <item name="windowNoTitle">true</item>
+    <item name="windowActionBar">false</item>
+    <item name="android:windowContentTransitions">true</item>
+    <item name="android:colorBackground">#000000</item>
     <item name="accountIconColor">#ffffff</item>
   </style>
 

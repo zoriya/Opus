@@ -261,6 +261,10 @@ namespace Opus
                     themeRes = Resource.Style.DarkTheme;
                     dialogTheme = Resource.Style.AppCompatDarkAlertDialogStyle;
                     break;
+                case 2:
+                    themeRes = Resource.Style.BlackTheme;
+                    dialogTheme = Resource.Style.AppCompatDarkAlertDialogStyle;
+                    break;
             }
             context.SetTheme(themeRes);
         }

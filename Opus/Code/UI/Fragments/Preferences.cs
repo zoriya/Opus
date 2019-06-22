@@ -176,7 +176,19 @@ namespace Opus.Fragments
             Preference themePreference = PreferenceScreen.FindPreference("theme");
             themePreference.IconSpaceReserved = false;
             themePreference.PreferenceClick += ChangeTheme;
-            themePreference.Summary = prefManager.GetInt("theme", 0) == 0 ? Resources.GetString(Resource.String.white_theme) : Resources.GetString(Resource.String.dark_theme);
+            switch (prefManager.GetInt("theme", 0))
+            {
+                case 0:
+                default:
+                    themePreference.Summary = Resources.GetString(Resource.String.white_theme);
+                    break;
+                case 1:
+                    themePreference.Summary = Resources.GetString(Resource.String.dark_theme);
+                    break;
+                case 2:
+                    themePreference.Summary = Resources.GetString(Resource.String.black_theme);
+                    break;
+            }
 
             //Check For Update
             Preference updatePreference = PreferenceScreen.FindPreference("update");
@@ -307,7 +319,7 @@ namespace Opus.Fragments
         {
             AlertDialog.Builder builder = new AlertDialog.Builder(Activity, MainActivity.dialogTheme);
             builder.SetTitle(Resources.GetString(Resource.String.theme_dialog));
-            builder.SetItems(new[] { Resources.GetString(Resource.String.white_theme), Resources.GetString(Resource.String.dark_theme) }, (s, args) =>
+            builder.SetItems(new[] { Resources.GetString(Resource.String.white_theme), Resources.GetString(Resource.String.dark_theme), Resources.GetString(Resource.String.black_theme) }, (s, args) =>
             {
                 ISharedPreferences pref = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
                 ISharedPreferencesEditor editor = pref.Edit();
