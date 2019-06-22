@@ -162,6 +162,9 @@ namespace Opus
 		public partial class Attribute
 		{
 			
+			// aapt resource value: 0x7f010280
+			public const int accountIconColor = 2130772608;
+			
 			// aapt resource value: 0x7f0100d1
 			public const int actionBarDivider = 2130772177;
 			

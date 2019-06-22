@@ -45,7 +45,7 @@ namespace Opus.Fragments
         {
             base.OnCreate(savedInstanceState);
 
-            MainActivity.SetTheme(this);
+            MainActivity.LoadTheme(this);
             SetContentView(Resource.Layout.EditMetaData);
             Window.SetStatusBarColor(Color.Argb(70, 00, 00, 00));
 

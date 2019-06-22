@@ -62,6 +62,7 @@
     <item name="defaultColor">#ffffff</item>
     <item name="iconColor">#000</item>
     <item name="backgroundAccent">#fafafa</item>
+    <item name="accountIconColor">#808080</item>
   </style>
 
   <style name="DarkPreferences" parent="PreferenceThemeOverlay">
@@ -77,6 +78,7 @@
     <item name="defaultColor">#212121</item>
     <item name="iconColor">#ffffff</item>
     <item name="backgroundAccent">#424242</item>
+    <item name="accountIconColor">#ffffff</item>
   </style>
 
   <style name="PreferenceCategoryStyle" parent="@style/Preference.Category.Material">

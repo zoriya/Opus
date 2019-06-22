@@ -35,7 +35,7 @@ namespace Opus.Fragments
             instance = this;
             base.OnCreate(savedInstanceState);
 
-            MainActivity.SetTheme(this);
+            MainActivity.LoadTheme(this);
             SetContentView(Resource.Layout.SearchLayout);
 
             SetSupportActionBar(FindViewById<Toolbar>(Resource.Id.toolbar));

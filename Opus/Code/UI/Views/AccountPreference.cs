@@ -9,6 +9,7 @@ using Android.Support.V7.Preferences;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
+using Java.Lang;
 //using Google.Apis.YouTube.v3;
 using Opus;
 //using Opus.Api;
@@ -50,10 +51,15 @@ public class AccountPreference : Preference, IResultCallback
             log.Text = Preferences.instance.Resources.GetString(Resource.String.log_in);
             log.Click += logIn;
 
-            if (MainActivity.Theme == 1)
-                view.FindViewById<ImageView>(Android.Resource.Id.Icon).SetColorFilter(Color.White);
+            Color color;
+            TypedValue value = new TypedValue();
+            if (Context.Theme.ResolveAttribute(Resource.Attribute.accountIconColor, value, true))
+                color = Color.ParseColor("#" + Integer.ToHexString(value.Data));
             else
-                view.FindViewById<ImageView>(Android.Resource.Id.Icon).SetColorFilter(Color.Gray);
+                color = Color.Black;
+
+            view.FindViewById<ImageView>(Android.Resource.Id.Icon).SetColorFilter(color);
+
         }
         else
         {
@@ -137,10 +143,6 @@ public class AccountPreference : Preference, IResultCallback
         log.Text = Preferences.instance.Resources.GetString(Resource.String.log_in);
         Summary = "";
         Picasso.With(Android.App.Application.Context).Load(Resource.Drawable.account).Into(view.FindViewById<ImageView>(Android.Resource.Id.Icon));
-        if (MainActivity.Theme == 1)
-            view.FindViewById<ImageView>(Android.Resource.Id.Icon).SetColorFilter(Color.White);
-        else
-            view.FindViewById<ImageView>(Android.Resource.Id.Icon).SetColorFilter(Color.Gray);
         log.Click -= logOut;
         MainActivity.instance.InvalidateOptionsMenu();
     }

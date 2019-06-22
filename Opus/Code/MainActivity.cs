@@ -50,7 +50,7 @@ namespace Opus
     public class MainActivity : AppCompatActivity, GoogleApiClient.IOnConnectionFailedListener, IResultCallback, IMenuItemOnActionExpandListener, View.IOnFocusChangeListener, ISessionManagerListener
     {
         public static MainActivity instance;
-        public new static int Theme = 1;
+        //public new static int Theme = 1;
         public static int dialogTheme;
 
         public bool NoToolbarMenu = false;
@@ -80,7 +80,7 @@ namespace Opus
         {
             base.OnCreate(savedInstanceState);
 
-            SwitchTheme(GetThemeID(this));
+            LoadTheme(this);
             SetContentView(Resource.Layout.Main);
             instance = this;
 
@@ -247,37 +247,23 @@ namespace Opus
             return pref.GetInt("theme", 0);
         }
 
-        public static void SetTheme(Context context)
+        public static void LoadTheme(Context context)
         {
-            int themeID;
+            int themeRes;
             switch (GetThemeID(context))
             {
                 case 0:
                 default:
-                    themeID = Resource.Style.Theme;
+                    themeRes = Resource.Style.Theme;
+                    dialogTheme = Resource.Style.AppCompatAlertDialogStyle;
                     break;
                 case 1:
-                    themeID = Resource.Style.DarkTheme;
+                    themeRes = Resource.Style.DarkTheme;
+                    dialogTheme = Resource.Style.AppCompatDarkAlertDialogStyle;
                     break;
             }
-            context.SetTheme(themeID);
+            context.SetTheme(themeRes);
         }
-
-        public void SwitchTheme(int themeID)
-        {
-            Theme = themeID;
-            if (themeID == 0)
-            {
-                dialogTheme = Resource.Style.AppCompatAlertDialogStyle;
-                SetTheme(Resource.Style.Theme);
-            }
-            else
-            {
-                SetTheme(Resource.Style.DarkTheme);
-                dialogTheme = Resource.Style.AppCompatDarkAlertDialogStyle;
-            }
-        }
-
         //UI PART
 
         #region Toolbar menu (right items)

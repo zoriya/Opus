@@ -34,7 +34,7 @@ namespace Opus.Fragments
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            MainActivity.SetTheme(this);
+            MainActivity.LoadTheme(this);
             SetContentView(Resource.Layout.PreferenceRoot);
             toolbar = FindViewById<Toolbar>(Resource.Id.toolbar);
             SetSupportActionBar(toolbar);
@@ -317,7 +317,7 @@ namespace Opus.Fragments
                 Preference prefButton = FindPreference("theme");
                 prefButton.Summary = args.Which == 0 ? Resources.GetString(Resource.String.white_theme) : Resources.GetString(Resource.String.dark_theme);
 
-                MainActivity.instance.SwitchTheme(args.Which);
+                MainActivity.LoadTheme(MainActivity.instance);
                 MainActivity.instance.Recreate();
                 Activity.Recreate();
             });

@@ -3,4 +3,5 @@
   <attr name="defaultColor" format="reference|color" />
   <attr name="iconColor" format="reference|color" />
   <attr name="backgroundAccent" format="reference|color" />
+  <attr name="accountIconColor" format="reference|color" />
 </resources>

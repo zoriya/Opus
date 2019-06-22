@@ -3,6 +3,7 @@ using Android.Content.Res;
 using Android.Graphics;
 using Android.Support.V7.Widget;
 using Android.Text;
+using Android.Util;
 using Android.Views;
 using Android.Widget;
 using Opus.Api.Services;
@@ -146,10 +147,14 @@ namespace Opus.Adapter
                 {
                     holder.Owner.Text = playlist.Owner;
                     holder.Owner.SetBackgroundColor(Color.Transparent);
-                    if (MainActivity.Theme == 1)
-                        holder.Owner.SetTextColor(Color.White);
+
+                    Color color;
+                    TypedValue value = new TypedValue();
+                    if (MainActivity.instance.Theme.ResolveAttribute(Resource.Styleable.TextAppearance_android_textColor, value, true))
+                        color = Color.ParseColor("#" + Java.Lang.Integer.ToHexString(value.Data));
                     else
-                        holder.Owner.SetTextColor(Color.Black);
+                        color = Color.Black;
+                    holder.Owner.SetTextColor(color);
                 }
 
                 if (playlist.HasWritePermission)
