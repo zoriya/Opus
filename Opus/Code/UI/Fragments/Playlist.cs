@@ -376,6 +376,67 @@ namespace Opus.Fragments
             }
             bottomSheet.SetContentView(bottomView);
 
+            if(item.SyncState == SyncState.Error)
+            {
+                bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, new List<BottomSheetAction>
+                {
+                    //new BottomSheetAction(Resource.Drawable.SyncDisabled, Resources.GetString(Resource.String.stop_sync), (sender, eventArg) =>
+                    //{
+                    //    PlaylistManager.StopSyncingDialog(item, () =>
+                    //    {
+                    //        PlaylistItem LocalPlaylist = new PlaylistItem(YoutubePlaylists[Position - LocalPlaylists.Count].Name, item.LocalID, YoutubePlaylists[Position - LocalPlaylists.Count].Count);
+                    //        LocalPlaylists.Add(LocalPlaylist);
+                    //        if (LocalPlaylists.Count == 3 && LocalPlaylists[1].Name == "EMPTY")
+                    //        {
+                    //            LocalPlaylists.RemoveAt(1);
+                    //            adapter.NotifyItemChanged(1);
+                    //        }
+                    //        else
+                    //            adapter.NotifyItemInserted(LocalPlaylists.Count);
+
+                    //        YoutubePlaylists[Position - LocalPlaylists.Count].LocalID = 0;
+                    //        YoutubePlaylists[Position - LocalPlaylists.Count].SyncState = SyncState.False;
+                    //        PlaylistHolder holder = (PlaylistHolder)ListView.GetChildViewHolder(ListView.GetChildAt(Position));
+                    //        holder.sync.Visibility = ViewStates.Gone;
+                    //        holder.SyncLoading.Visibility = ViewStates.Gone;
+                    //    });
+                    //    bottomSheet.Dismiss();
+                    //}),
+                    new BottomSheetAction(Resource.Drawable.Delete, Resources.GetString(Resource.String.delete), (sender, eventArg) =>
+                    {
+                        PlaylistManager.Delete(item, () =>
+                        {
+                            if(local)
+                            {
+                                LocalPlaylists.RemoveAt(Position);
+                                adapter.NotifyItemRemoved(Position);
+
+                                if (LocalPlaylists.Count == 1)
+                                {
+                                    LocalPlaylists.Add(new PlaylistItem("EMPTY", -1) { Owner = Resources.GetString(Resource.String.local_playlist_empty) });
+                                    adapter.NotifyItemInserted(1);
+                                }
+                            }
+                            else
+                            {
+                                YoutubePlaylists.RemoveAt(Position - LocalPlaylists.Count);
+                                adapter.NotifyItemRemoved(Position);
+
+                                if (YoutubePlaylists.Count == 1)
+                                {
+                                    YoutubePlaylists.Add(new PlaylistItem("EMPTY", null) { Owner = Resources.GetString(Resource.String.youtube_playlist_empty) });
+                                    adapter.NotifyItemInserted(LocalPlaylists.Count + YoutubePlaylists.Count);
+                                }
+                            }
+                        });
+                        bottomSheet.Dismiss();
+                    })
+                });
+                bottomSheet.Show();
+                return;
+            }
+
+
             List<BottomSheetAction> actions = new List<BottomSheetAction>
             {
                 new BottomSheetAction(Resource.Drawable.Play, Resources.GetString(Resource.String.play_in_order), (sender, eventArg) =>
