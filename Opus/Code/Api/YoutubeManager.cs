@@ -407,7 +407,7 @@ namespace Opus.Api
 
                 foreach (var video in searchReponse.Items)
                 {
-                    Song song = new Song(System.Net.WebUtility.HtmlDecode(video.Snippet.Title), video.Snippet.ChannelTitle, video.Snippet.Thumbnails.High.Url, video.Id.VideoId, -1, -1, null, true, false);
+                    Song song = new Song(WebUtility.HtmlDecode(video.Snippet.Title), video.Snippet.ChannelTitle, video.Snippet.Thumbnails.High.Url, video.Id.VideoId, -1, -1, null, true, false);
                     songs.Add(song);
                 }
             }
@@ -432,10 +432,11 @@ namespace Opus.Api
         /// <summary>
         /// Return the thumbnail with the greatest quality.
         /// </summary>
-        /// <param name="thumbnails">This array should contains the urls of the thumbnails in this order: MaxResUrl, StandardResUrl, HighResUrl</param>
+        /// <param name="thumbnails">This will create an array of the thumbnails in this order: MaxResUrl, StandardResUrl, HighResUrl</param>
         /// <returns></returns>
-        public async static Task<string> GetBestThumb(string[] thumbnails)
+        public async static Task<string> GetBestThumb(ThumbnailSet Thumbnails)
         {
+            string[] thumbnails = new string[] { Thumbnails.MaxResUrl, Thumbnails.StandardResUrl, Thumbnails.HighResUrl };
             foreach (string thumb in thumbnails)
             {
                 HttpWebRequest request = new HttpWebRequest(new Uri(thumb))

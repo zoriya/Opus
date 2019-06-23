@@ -229,7 +229,7 @@ namespace Opus.Api.Services
                 if (queue.Count == 1)
                     SetNotificationProgress(100, true);
 
-                SetMetaData(position, video.Title, video.Author, new string[] { video.Thumbnails.MaxResUrl, video.Thumbnails.StandardResUrl, video.Thumbnails.HighResUrl });
+                SetMetaData(position, video.Title, video.Author, video.Thumbnails);
                 files.Remove(filePath);
                 downloadCount--;
 
@@ -256,7 +256,7 @@ namespace Opus.Api.Services
             }
         }
 
-        private async void SetMetaData(int position, string title, string artist, string[] thumbnails)
+        private async void SetMetaData(int position, string title, string artist, ThumbnailSet thumbnails)
         {
             string filePath = queue[position].Path;
             

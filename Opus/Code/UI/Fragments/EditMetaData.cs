@@ -346,7 +346,7 @@ namespace Opus.Fragments
                 album.Text = video.Title + " - " + video.Author;
             }
 
-            ytThumbUri = await YoutubeManager.GetBestThumb(new string[] { video.Thumbnails.MaxResUrl, video.Thumbnails.StandardResUrl, video.Thumbnails.HighResUrl });
+            ytThumbUri = await YoutubeManager.GetBestThumb(video.Thumbnails);
             Picasso.With(this).Load(ytThumbUri).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).MemoryPolicy(MemoryPolicy.NoCache, MemoryPolicy.NoStore).Into(albumArt);
         }
 

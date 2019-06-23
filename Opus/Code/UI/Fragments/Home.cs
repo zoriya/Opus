@@ -22,10 +22,10 @@ namespace Opus.Fragments
     {
         public static Home instance;
         public RecyclerView ListView;
-        public HomeAdapter adapter;
+        public SectionAdapter adapter;
         public LineAdapter QueueAdapter;
         public ItemTouchHelper itemTouchHelper;
-        public static List<HomeSection> adapterItems = new List<HomeSection>();
+        public static List<Section> adapterItems = new List<Section>();
         public List<string> selectedTopics = new List<string>();
         public List<string> selectedTopicsID = new List<string>();
         public View view;
@@ -69,15 +69,15 @@ namespace Opus.Fragments
             if (!populating)
             {
                 populating = true;
-                adapterItems = new List<HomeSection>();
+                adapterItems = new List<Section>();
 
                 if (MusicPlayer.UseCastPlayer || (MusicPlayer.queue != null && MusicPlayer.queue?.Count > 0))
                 {
-                    HomeSection queue = new HomeSection("Queue", SectionType.SinglePlaylist, MusicPlayer.queue);
+                    Section queue = new Section("Queue", SectionType.SinglePlaylist, MusicPlayer.queue);
                     adapterItems.Add(queue);
                 }
 
-                HomeSection shuffle = new HomeSection(Resources.GetString(Resource.String.shuffle), SectionType.Shuffle);
+                Section shuffle = new Section(Resources.GetString(Resource.String.shuffle), SectionType.Shuffle);
                 adapterItems.Add(shuffle);
 
                 await Task.Run(() => 
@@ -126,14 +126,14 @@ namespace Opus.Fragments
 
                         if (songList.Count > 0)
                         {
-                            HomeSection featured = new HomeSection(Resources.GetString(Resource.String.featured), SectionType.SinglePlaylist, songList.GetRange(0, songList.Count > 50 ? 50 : songList.Count));
+                            Section featured = new Section(Resources.GetString(Resource.String.featured), SectionType.SinglePlaylist, songList.GetRange(0, songList.Count > 50 ? 50 : songList.Count));
                             adapterItems.Add(featured);
                         }
                     }
                 });
 
                 view.FindViewById(Resource.Id.loading).Visibility = ViewStates.Gone;
-                adapter = new HomeAdapter(adapterItems);
+                adapter = new SectionAdapter(adapterItems);
                 ListView.SetAdapter(adapter);
                 adapter.ItemClick += ListView_ItemClick;
                 ListView.SetItemAnimator(new DefaultItemAnimator());
@@ -146,7 +146,7 @@ namespace Opus.Fragments
                     sp.AddRange(saved);
                     sp.AddRange(pl);
 
-                    adapterItems.Add(new HomeSection(GetString(Resource.String.playlists), SectionType.PlaylistList, sp));
+                    adapterItems.Add(new Section(GetString(Resource.String.playlists), SectionType.PlaylistList, sp));
                     adapter.NotifyItemInserted(adapterItems.Count - 1);
                 }
                 else
@@ -155,7 +155,7 @@ namespace Opus.Fragments
 
                     if(saved != null && saved.Count > 0)
                     {
-                        adapterItems.Add(new HomeSection(GetString(Resource.String.playlists), SectionType.PlaylistList, saved));
+                        adapterItems.Add(new Section(GetString(Resource.String.playlists), SectionType.PlaylistList, saved));
                         adapter.NotifyItemInserted(adapterItems.Count - 1);
                     }
                 }
@@ -168,7 +168,7 @@ namespace Opus.Fragments
         {
             if (adapterItems[0].SectionTitle != "Queue")
             {
-                HomeSection queue = new HomeSection("Queue", SectionType.SinglePlaylist, MusicPlayer.queue);
+                Section queue = new Section("Queue", SectionType.SinglePlaylist, MusicPlayer.queue);
                 adapterItems.Insert(0, queue);
                 adapter?.NotifyItemInserted(0);
             }

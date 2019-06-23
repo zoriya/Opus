@@ -50,7 +50,6 @@ namespace Opus
     public class MainActivity : AppCompatActivity, GoogleApiClient.IOnConnectionFailedListener, IResultCallback, IMenuItemOnActionExpandListener, View.IOnFocusChangeListener, ISessionManagerListener
     {
         public static MainActivity instance;
-        //public new static int Theme = 1;
         public static int dialogTheme;
 
         public bool NoToolbarMenu = false;

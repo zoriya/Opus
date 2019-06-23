@@ -331,6 +331,7 @@
     <Compile Include="Code\Api\PlaylistManager.cs" />
     <Compile Include="Code\Api\SongManager.cs" />
     <Compile Include="Code\Api\YoutubeManager.cs" />
+    <Compile Include="Code\UI\Fragments\ChannelDetails.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Code\MainActivity.cs" />
     <Compile Include="Code\UI\Views\AccountPreference.cs" />
@@ -364,7 +365,7 @@
     <Compile Include="Code\UI\Fragments\FolderTracks.cs" />
     <Compile Include="Code\Others\HeadphonesActions.cs" />
     <Compile Include="Code\UI\Fragments\Home.cs" />
-    <Compile Include="Code\UI\Adapter\HomeAdapter.cs" />
+    <Compile Include="Code\UI\Adapter\SectionAdapter.cs" />
     <Compile Include="Code\UI\Adapter\HomeListAdapter.cs" />
     <Compile Include="Code\DataStructure\HomeHolder.cs" />
     <Compile Include="Code\Others\ItemTouchCallback.cs" />

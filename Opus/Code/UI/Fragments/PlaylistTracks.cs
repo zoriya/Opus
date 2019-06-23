@@ -157,7 +157,7 @@ namespace Opus.Fragments
                 if (YoutubeSearch.instances != null)
                 {
                     MainActivity.instance.FindViewById<TabLayout>(Resource.Id.tabs).Visibility = ViewStates.Visible;
-                    Android.Support.V7.Widget.SearchView searchView = (Android.Support.V7.Widget.SearchView)MainActivity.instance.menu.FindItem(Resource.Id.search).ActionView;
+                    SearchView searchView = (SearchView)MainActivity.instance.menu.FindItem(Resource.Id.search).ActionView;
                     searchView.Focusable = false;
                     MainActivity.instance.menu.FindItem(Resource.Id.search).ExpandActionView();
                     searchView.SetQuery(YoutubeSearch.instances[0].Query, false);
@@ -272,7 +272,7 @@ namespace Opus.Fragments
             instance = new PlaylistTracks { Arguments = new Bundle() };
             instance.item = item;
             instance.useHeader = true;
-            instance.isInEditMode = true;
+            instance.isInEditMode = item.HasWritePermission && item.LocalID != 0;
             instance.fullyLoadded = item.LocalID != 0 && item.LocalID != -1;
 
             Task.Run(async () =>
@@ -356,15 +356,9 @@ namespace Opus.Fragments
             Uri musicUri = Playlists.Members.GetContentUri("external", item.LocalID);
             string selection;
             if (query != null)
-            {
                 selection = Media.InterfaceConsts.Title + " LIKE \"%" + query + "%\" OR " + Media.InterfaceConsts.Artist + " LIKE \"%" + query + "%\"";
-                isInEditMode = false;
-            }
             else
-            {
                 selection = null;
-                isInEditMode = true;
-            }
 
             return new CursorLoader(Android.App.Application.Context, musicUri, null, selection, null, Playlists.Members.PlayOrder);
         }
@@ -451,11 +445,17 @@ namespace Opus.Fragments
         public void Search(object sender, SearchView.QueryTextChangeEventArgs e)
         {
             if (e.NewText == "")
+            {
                 query = null;
+                isInEditMode = item.HasWritePermission && item.LocalID != 0;
+            }
             else
+            {
                 query = e.NewText.ToLower();
+                isInEditMode = false;
+            }
 
-            if(item.LocalID != -1)
+            if (item.LocalID != -1)
                 LoaderManager.GetInstance(this).RestartLoader(0, null, this);
             else
             {

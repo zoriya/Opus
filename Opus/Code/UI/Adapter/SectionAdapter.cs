@@ -11,16 +11,16 @@ using System.Collections.Generic;
 
 namespace Opus.Adapter
 {
-    public class HomeAdapter : RecyclerView.Adapter
+    public class SectionAdapter : RecyclerView.Adapter
     {
-        public List<HomeSection> items;
+        public List<Section> items;
         private bool refreshDisabled = true;
 
         public event EventHandler<int> ItemClick;
         public event EventHandler<int> ItemLongClick;
 
 
-        public HomeAdapter(List<HomeSection> items)
+        public SectionAdapter(List<Section> items)
         {
             this.items = items;
         }
@@ -73,6 +73,11 @@ namespace Opus.Adapter
                     if(MusicPlayer.CurrentID() != -1 && MusicPlayer.CurrentID() <= MusicPlayer.queue.Count)
                         holder.recycler.ScrollToPosition(MusicPlayer.CurrentID());
                 }
+                else if(items[position].SectionTitle == null)
+                {
+                    //The playlist is loading
+                    holder.recycler.SetAdapter(new LineAdapter(new List<Song>(), holder.recycler));
+                }
                 else
                 {
                     holder.title.Text = items[position].SectionTitle;
@@ -80,8 +85,8 @@ namespace Opus.Adapter
                     holder.more.Click += (sender, e) =>
                     {
                         position = holder.AdapterPosition;
-                        MainActivity.instance.contentRefresh.Refresh -= Home.instance.OnRefresh;
-                        Home.instance = null;
+                        //MainActivity.instance.contentRefresh.Refresh -= Home.instance.OnRefresh;
+                        //Home.instance = null;
                         MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(items[position].contentValue, items[position].SectionTitle)).AddToBackStack(null).Commit();
                     };
                 }
@@ -138,13 +143,6 @@ namespace Opus.Adapter
             //        MainActivity.instance.StartActivity(intent);
             //    };
 
-            //}
-            //else if (items[position].contentType == SectionType.Shuffle)
-            //{
-            //    if (MainActivity.Theme == 1)
-            //        ((CardView)viewHolder.ItemView).SetCardBackgroundColor(Color.ParseColor("#212121"));
-            //    else
-            //        ((CardView)viewHolder.ItemView).SetCardBackgroundColor(Color.White);
             //}
         }
 

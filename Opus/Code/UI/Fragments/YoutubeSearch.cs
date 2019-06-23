@@ -293,11 +293,8 @@ namespace Opus.Fragments
             catch(Exception ex)
             {
                 Console.WriteLine("&Exception catched in the youtube search: " + ex.Source + " - " + ex.Message);
-                if(ex is System.Net.Http.HttpRequestException)
-                {
-                    EmptyView.Text = GetString(Resource.String.timout);
-                    EmptyView.Visibility = ViewStates.Visible;
-                }
+                EmptyView.Text = GetString(Resource.String.timout);
+                EmptyView.Visibility = ViewStates.Visible;
             }
         }
 
@@ -339,6 +336,11 @@ namespace Opus.Fragments
                     MainActivity.instance.menu.FindItem(Resource.Id.search).CollapseActionView();
                     MainActivity.instance.FindViewById<TabLayout>(Resource.Id.tabs).Visibility = ViewStates.Gone;
                     MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(result[position].playlist)).AddToBackStack("Playlist Track").Commit();
+                    break;
+                case YtKind.Channel:
+                    MainActivity.instance.menu.FindItem(Resource.Id.search).CollapseActionView();
+                    MainActivity.instance.FindViewById<TabLayout>(Resource.Id.tabs).Visibility = ViewStates.Gone;
+                    MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, ChannelDetails.NewInstance(result[position].channel)).AddToBackStack("Channel Details").Commit();
                     break;
                 default:
                     break;

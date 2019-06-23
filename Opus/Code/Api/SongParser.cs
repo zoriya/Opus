@@ -160,7 +160,7 @@ namespace Opus.Code.Api
                 Video video = await client.GetVideoAsync(song.YoutubeID);
                 song.Title = video.Title;
                 song.Artist = video.Author;
-                song.Album = await YoutubeManager.GetBestThumb(new string[] { video.Thumbnails.MaxResUrl, video.Thumbnails.StandardResUrl, video.Thumbnails.HighResUrl });
+                song.Album = await YoutubeManager.GetBestThumb(video.Thumbnails);
                 song.Duration = (int)video.Duration.TotalMilliseconds;
 
                 if (queuePosition == MusicPlayer.CurrentID())

@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using Opus.Fragments;
 using SQLite;
 using System;
+using System.Collections.Generic;
 
 namespace Opus.DataStructure
 {
@@ -76,6 +77,21 @@ namespace Opus.DataStructure
                 Album = "Unknow Album";
 
             return new Song(Title, playOrder ?? Artist, Album, null, AlbumArt, id, path);
+        }
+
+        public static explicit operator Song(YoutubeExplode.Models.Video video)
+        {
+            return new Song(video.Title, video.Author, video.Thumbnails.HighResUrl, video.Id, -1, -1, null, true, false);
+        }
+
+        public static List<Song> FromVideoArray(IReadOnlyList<YoutubeExplode.Models.Video> videos)
+        {
+            List<Song> songs = new List<Song>();
+            for (int i = 0; i < videos.Count; i++)
+            {
+                songs.Add((Song)videos[i]);
+            }
+            return songs;
         }
 
 

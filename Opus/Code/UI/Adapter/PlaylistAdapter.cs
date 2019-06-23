@@ -150,7 +150,7 @@ namespace Opus.Adapter
 
                     Color color;
                     TypedValue value = new TypedValue();
-                    if (MainActivity.instance.Theme.ResolveAttribute(Resource.Styleable.TextAppearance_android_textColor, value, true))
+                    if (MainActivity.instance.Theme.ResolveAttribute(Android.Resource.Attribute.TextColor, value, true))
                         color = Color.ParseColor("#" + Java.Lang.Integer.ToHexString(value.Data));
                     else
                         color = Color.Black;
