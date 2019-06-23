@@ -17,6 +17,10 @@ namespace Opus.Code.Api
     public class SongParser
     {
         private static readonly List<SongParser> instances = new List<SongParser>();
+        /// <summary>
+        /// The reference of the play item. The song parser will start the playback of this queue item as soon as possible.
+        /// </summary>
+        public static int playPosition = -1;
         private int queuePosition = -1;
         private bool canceled = false;
 
@@ -78,6 +82,11 @@ namespace Opus.Code.Api
         public async Task<Song> ParseSong(Song song, int position = -1, bool startPlaybackWhenPosible = false, bool forceParse = false)
         {
             queuePosition = position;
+            if(startPlaybackWhenPosible)
+            {
+                playPosition = position;
+                Queue.instance.RefreshCurrent();
+            }
 
             if ((!forceParse && song.IsParsed == true) || !song.IsYt)
             {
@@ -95,7 +104,7 @@ namespace Opus.Code.Api
                 if (canceled)
                     return song;
 
-                if (startPlaybackWhenPosible && (await MusicPlayer.GetItem()).YoutubeID != song.YoutubeID)
+                if (playPosition == queuePosition && (await MusicPlayer.GetItem()).YoutubeID != song.YoutubeID)
                     MusicPlayer.instance.Play(song, -1, queuePosition == -1);
 
                 return song; //Song is a class, the youtube id will be updated with another method
@@ -135,7 +144,7 @@ namespace Opus.Code.Api
                 if (canceled)
                     return song;
 
-                if (startPlaybackWhenPosible && song.Album != null)
+                if (playPosition == queuePosition && song.Album != null)
                 {
                     if (queuePosition != -1)
                     {
@@ -145,7 +154,7 @@ namespace Opus.Code.Api
                     }
 
                     MusicPlayer.instance.Play(song, -1, queuePosition == -1);
-                    startPlaybackWhenPosible = false;
+                    playPosition = -1;
                 }
 
                 Video video = await client.GetVideoAsync(song.YoutubeID);
@@ -166,7 +175,7 @@ namespace Opus.Code.Api
                 if (canceled)
                     return song;
 
-                if (startPlaybackWhenPosible)
+                if (playPosition == queuePosition)
                     MusicPlayer.instance.Play(song, -1, queuePosition == -1);
             }
             catch (System.Net.Http.HttpRequestException)
@@ -176,8 +185,13 @@ namespace Opus.Code.Api
                     MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
                 song.IsParsed = false;
 
-                if (startPlaybackWhenPosible)
+                if(playPosition == queuePosition)
+                {
+                    playPosition = -1;
+                    Queue.instance.RefreshCurrent();
                     Player.instance?.Ready();
+                    MainActivity.instance.Timout();
+                }
             }
             catch (YoutubeExplode.Exceptions.VideoUnplayableException ex)
             {
@@ -190,8 +204,12 @@ namespace Opus.Code.Api
                 if (queuePosition != -1)
                     MusicPlayer.RemoveFromQueue(queuePosition); //Remove the song from the queue since it can't be played.
 
-                if (startPlaybackWhenPosible)
+                if (playPosition == queuePosition)
+                {
+                    playPosition = -1;
+                    Queue.instance.RefreshCurrent();
                     Player.instance?.Ready();
+                }
             }
             catch (YoutubeExplode.Exceptions.VideoUnavailableException)
             {
@@ -203,22 +221,31 @@ namespace Opus.Code.Api
                 if (queuePosition != -1)
                     MusicPlayer.RemoveFromQueue(queuePosition); //Remove the song from the queue since it can't be played.
 
-                if (startPlaybackWhenPosible)
+                if (playPosition == queuePosition)
+                {
+                    playPosition = -1;
+                    Queue.instance.RefreshCurrent();
                     Player.instance?.Ready();
+                }
             }
             catch //We use this because when the network is reseted, an unknow error is thrown. We also don't want the app to crash at this state so it's ok to use a global catch.
             {
-                MainActivity.instance.UnknowError(ErrorCode.SP1, null, Snackbar.LengthLong);
-
                 song.IsParsed = false;
 
                 if (MainActivity.instance != null)
                     MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.ytProgress).Visibility = ViewStates.Gone;
 
-                if (startPlaybackWhenPosible)
+                if (playPosition == queuePosition)
+                {
+                    playPosition = -1;
+                    Queue.instance.RefreshCurrent();
                     Player.instance?.Ready();
+                    MainActivity.instance.UnknowError(ErrorCode.SP1, null, Snackbar.LengthLong);
+                }
             }
 
+            if (playPosition == queuePosition)
+                playPosition = -1;
             queuePosition = -1;
             instances.Remove(this);
             return song;

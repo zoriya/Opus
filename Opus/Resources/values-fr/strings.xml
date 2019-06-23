@@ -29,6 +29,7 @@
   <!--Queue-->
   <string name="playing">Lecture en cours</string>
   <string name="paused">En pause</string>
+  <string name="loading">Chargement</string>
   <string name="removed_from_queue"> a été enlevé de la liste de lecture.</string>
   <string name="save_as_playlist">Sauvegarder la liste de lecture dans une playlist</string>
   

@@ -15,6 +15,7 @@ using Opus;
 using Opus.Adapter;
 using Opus.Api;
 using Opus.Api.Services;
+using Opus.Code.Api;
 using Opus.DataStructure;
 using Opus.Others;
 using Opus.Views;
@@ -118,6 +119,16 @@ public class Queue : Fragment, RecyclerView.IOnItemTouchListener, PopupMenu.IOnM
                     holder.status.SetTextColor(MusicPlayer.isRunning ? Color.Argb(255, 244, 81, 30) : Color.Argb(255, 66, 165, 245));
 
                     string status = MusicPlayer.isRunning ? GetString(Resource.String.playing) : GetString(Resource.String.paused);
+                    SpannableString statusText = new SpannableString(status);
+                    statusText.SetSpan(new BackgroundColorSpan(Color.ParseColor("#8C000000")), 0, status.Length, SpanTypes.InclusiveInclusive);
+                    holder.status.TextFormatted = statusText;
+                }
+                else if(SongParser.playPosition == i - 1)
+                {
+                    holder.status.Visibility = ViewStates.Visible;
+                    holder.status.SetTextColor(Color.Argb(255, 0, 255, 255));
+
+                    string status = GetString(Resource.String.loading);
                     SpannableString statusText = new SpannableString(status);
                     statusText.SetSpan(new BackgroundColorSpan(Color.ParseColor("#8C000000")), 0, status.Length, SpanTypes.InclusiveInclusive);
                     holder.status.TextFormatted = statusText;

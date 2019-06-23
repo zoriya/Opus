@@ -451,7 +451,6 @@ namespace Opus.Api.Services
 
             if (action == "Play")
             {
-                Console.WriteLine("&Parse and play, action PLAY");
                 if (showPlayer)
                     MainActivity.instance.ShowPlayer();
                 else
@@ -962,7 +961,7 @@ namespace Opus.Api.Services
                     parseProgress.Visibility = ViewStates.Visible;
                     parseProgress.ScaleY = 6;
                 }
-                await new SongParser().ParseSong(song, position, !UseCastPlayer, true);
+                await new SongParser().ParseSong(song, position, true);
 
                 if (song == null) //Check if the parse has succeed, the song is set to null if there is an error
                     Player.instance?.Ready(); //Remove player's loading bar since we'll not load this song
@@ -975,6 +974,7 @@ namespace Opus.Api.Services
             }
             else
             {
+                SongParser.playPosition = -1;
                 currentID = position;
                 Play(song, StartFromOldPosition ? LastTimer : -1, false);
             }
