@@ -35,4 +35,8 @@
     android:clickable="false"
     android:text="View More"
     android:layout_centerHorizontal="true" />
+  <View
+    android:layout_width="match_parent"
+    android:layout_height="1dp"
+    android:background="?blackSeperatorColor"/>
 </LinearLayout>
