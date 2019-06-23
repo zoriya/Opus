@@ -12,6 +12,7 @@
     android:id="@+id/filter"
     android:icon="@drawable/Filter"
     android:title="@string/filter"
+    android:visible="false"
     app:showAsAction="always|collapseActionView"
     app:actionViewClass="android.support.v7.widget.SearchView" />
   <item

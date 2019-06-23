@@ -34,6 +34,7 @@ namespace Opus.Fragments
         {
             base.OnActivityCreated(savedInstanceState);
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
+            MainActivity.instance.AddFilterListener(Search);
 
             MainActivity.instance.SupportActionBar.SetDisplayShowTitleEnabled(true);
             MainActivity.instance.FindViewById(Resource.Id.toolbarLogo).Visibility = ViewStates.Gone;
@@ -42,6 +43,7 @@ namespace Opus.Fragments
 
         public override void OnDestroy()
         {
+            MainActivity.instance.RemoveFilterListener(Search);
             MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
             instance = null;
             base.OnDestroy();
@@ -125,12 +127,12 @@ namespace Opus.Fragments
             adapter.NotifyDataSetChanged();
         }
 
-        public void Search(string search)
+        public void Search(object sender, Android.Support.V7.Widget.SearchView.QueryTextChangeEventArgs e)
         {
-            if (search == "")
+            if (e.NewText == "")
                 query = null;
             else
-                query = search;
+                query = e.NewText;
 
             LoaderManager.GetInstance(this).RestartLoader(0, null, this);
         }

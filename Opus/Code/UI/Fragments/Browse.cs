@@ -34,12 +34,14 @@ namespace Opus.Fragments
         {
             base.OnActivityCreated(savedInstanceState);
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
+            MainActivity.instance.AddFilterListener(Search);
             ListView.NestedScrollingEnabled = true;
         }
 
         public override void OnDestroy()
         {
             MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
+            MainActivity.instance.RemoveFilterListener(Search);
             base.OnDestroy();
             instance = null;
         }
@@ -138,12 +140,12 @@ namespace Opus.Fragments
             adapter.NotifyDataSetChanged();
         }
 
-        public void Search(string search)
+        public void Search(object sender, Android.Support.V7.Widget.SearchView.QueryTextChangeEventArgs e)
         {
-            if (search == "")
+            if (e.NewText == "")
                 query = null;
             else
-                query = search;
+                query = e.NewText;
 
             LoaderManager.GetInstance(this).RestartLoader(0, null, this);
         }

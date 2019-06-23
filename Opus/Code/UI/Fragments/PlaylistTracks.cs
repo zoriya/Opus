@@ -19,6 +19,7 @@ using CursorLoader = Android.Support.V4.Content.CursorLoader;
 using PlaylistItem = Opus.DataStructure.PlaylistItem;
 using PopupMenu = Android.Support.V7.Widget.PopupMenu;
 using RecyclerView = Android.Support.V7.Widget.RecyclerView;
+using SearchView = Android.Support.V7.Widget.SearchView;
 using Toolbar = Android.Support.V7.Widget.Toolbar;
 
 namespace Opus.Fragments
@@ -46,7 +47,14 @@ namespace Opus.Fragments
         public override void OnActivityCreated(Bundle savedInstanceState)
         {
             base.OnActivityCreated(savedInstanceState);
+            if(item == null)
+            {
+                MainActivity.instance.SupportFragmentManager.PopBackStack();
+                return;
+            }
+
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
+            MainActivity.instance.AddFilterListener(Search);
             MainActivity.instance.DisplaySearch();
 
             MainActivity.instance.SupportActionBar.SetHomeButtonEnabled(true);
@@ -67,7 +75,7 @@ namespace Opus.Fragments
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             PopulateList();
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-            if(useHeader)
+            if(useHeader && item != null)
                 CreateHeader();
             //if (item.SyncState == SyncState.Error)
             //    CreateSyncBanner();
@@ -127,6 +135,7 @@ namespace Opus.Fragments
 
         public override void OnDestroyView()
         {
+            MainActivity.instance.RemoveFilterListener(Search);
             Activity.FindViewById<ImageButton>(Resource.Id.headerPlay).Click -= HeaderPlay;
             Activity.FindViewById<ImageButton>(Resource.Id.headerShuffle).Click -= HeaderShuffle;
             Activity.FindViewById<ImageButton>(Resource.Id.headerMore).Click -= PlaylistMore;
@@ -253,6 +262,7 @@ namespace Opus.Fragments
             instance.item = new PlaylistItem() { Name = playlistName, Count = songs.Count, HasWritePermission = false, LocalID = -1, YoutubeID = null };
             instance.useHeader = false;
             instance.fullyLoadded = true;
+            instance.isInEditMode = false;
             instance.adapter = new PlaylistTrackAdapter(new SearchableList<Song>(songs));
             return instance;
         }
@@ -262,6 +272,7 @@ namespace Opus.Fragments
             instance = new PlaylistTracks { Arguments = new Bundle() };
             instance.item = item;
             instance.useHeader = true;
+            instance.isInEditMode = true;
             instance.fullyLoadded = item.LocalID != 0 && item.LocalID != -1;
 
             Task.Run(async () =>
@@ -437,12 +448,12 @@ namespace Opus.Fragments
                 LoadMore();
         }
 
-        public void Search(string search)
+        public void Search(object sender, SearchView.QueryTextChangeEventArgs e)
         {
-            if (search == "")
+            if (e.NewText == "")
                 query = null;
             else
-                query = search.ToLower();
+                query = e.NewText.ToLower();
 
             if(item.LocalID != -1)
                 LoaderManager.GetInstance(this).RestartLoader(0, null, this);

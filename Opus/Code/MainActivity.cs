@@ -285,16 +285,29 @@ namespace Opus
             if(account != null)
                 Picasso.With(this).Load(account.PhotoUrl).Transform(new CircleTransformation()).Into(new AccountTarget());
 
-            var item = menu.FindItem(Resource.Id.filter);
-            var filterView = item.ActionView.JavaCast<SearchView>();
-            filterView.QueryTextChange += Search;
-            item.SetVisible(false);
             menu.FindItem(Resource.Id.search).SetOnActionExpandListener(this);
             ((SearchView)menu.FindItem(Resource.Id.search).ActionView).SetOnQueryTextFocusChangeListener(this);
             ((SearchView)menu.FindItem(Resource.Id.search).ActionView).QueryHint = GetString(Resource.String.youtube_search);
 
             CastButtonFactory.SetUpMediaRouteButton(this, menu, Resource.Id.media_route_menu_item);
             return base.OnCreateOptionsMenu(menu);
+        }
+
+        public void AddFilterListener(EventHandler<SearchView.QueryTextChangeEventArgs> textChanged)
+        {
+            if (menu == null)
+                return;
+
+            var item = menu.FindItem(Resource.Id.filter);
+            var filterView = item.ActionView.JavaCast<SearchView>();
+            filterView.QueryTextChange += textChanged;
+        }
+
+        public void RemoveFilterListener(EventHandler<SearchView.QueryTextChangeEventArgs> textChanged)
+        {
+            var item = menu.FindItem(Resource.Id.filter);
+            var filterView = item.ActionView.JavaCast<SearchView>();
+            filterView.QueryTextChange -= textChanged;
         }
 
         public override bool OnOptionsItemSelected(IMenuItem item)
@@ -346,16 +359,6 @@ namespace Opus
         public bool OnMenuItemActionExpand(IMenuItem item)
         {
             return true;
-        }
-
-        void Search(object sender, SearchView.QueryTextChangeEventArgs e)
-        {
-            if (Browse.instance != null)
-                Browse.instance.Search(e.NewText);
-            if (PlaylistTracks.instance != null)
-                PlaylistTracks.instance.Search(e.NewText);
-            if (FolderTracks.instance != null)
-                FolderTracks.instance.Search(e.NewText);
         }
 
         public void OnFocusChange(View v, bool hasFocus)
