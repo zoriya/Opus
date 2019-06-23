@@ -178,16 +178,16 @@ public class Queue : Fragment, RecyclerView.IOnItemTouchListener, PopupMenu.IOnM
         View bottomView = LayoutInflater.Inflate(Resource.Layout.BottomSheet, null);
         bottomView.FindViewById<TextView>(Resource.Id.bsTitle).Text = item.Title;
         bottomView.FindViewById<TextView>(Resource.Id.bsArtist).Text = item.Artist;
-        if (item.Album == null)
+        if (item.AlbumArt == -1 || item.IsYt)
         {
-            var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
-            var nextAlbumArtUri = ContentUris.WithAppendedId(songCover, item.AlbumArt);
-
-            Picasso.With(MainActivity.instance).Load(nextAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
+            Picasso.With(MainActivity.instance).Load(item.Album).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
         }
         else
         {
-            Picasso.With(MainActivity.instance).Load(item.Album).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
+            var songCover = Android.Net.Uri.Parse("content://media/external/audio/albumart");
+            var songAlbumArtUri = ContentUris.WithAppendedId(songCover, item.AlbumArt);
+
+            Picasso.With(MainActivity.instance).Load(songAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
         }
         bottomSheet.SetContentView(bottomView);
 
