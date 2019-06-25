@@ -274,6 +274,7 @@ namespace Opus.Api.Services
                 IExtractorsFactory extractorFactory = new DefaultExtractorsFactory();
                 Handler handler = new Handler();
 
+                Console.WriteLine("&Preparing exoplay, path: " + song.Path);
                 IMediaSource mediaSource;
                 if (song.IsLiveStream)
                     mediaSource = new HlsMediaSource(Uri.Parse(song.Path), dataSourceFactory, handler, null);
@@ -1156,7 +1157,7 @@ namespace Opus.Api.Services
 
         public async static Task<int> Duration()
         {
-            if(!UseCastPlayer)
+            if (!UseCastPlayer)
                 return player == null ? (await GetItem()).Duration : (int)player.Duration;
             else
                 return RemotePlayer == null ? (await GetItem()).Duration : (int)RemotePlayer.StreamDuration;
@@ -1170,12 +1171,16 @@ namespace Opus.Api.Services
                 Song song = await GetItem();
                 if (song.IsYt && song.IsParsed != true)
                     await new SongParser().ParseSong(song);
-                else if(!song.IsYt)
+                else if (!song.IsYt)
                 {
-                    MediaMetadataRetriever meta = new MediaMetadataRetriever();
-                    await meta.SetDataSourceAsync(song.Path);
-                    song.Duration = int.Parse(meta.ExtractMetadata(MetadataKey.Duration));
-                    meta.Release();
+                    try
+                    {
+                        MediaMetadataRetriever meta = new MediaMetadataRetriever();
+                        await meta.SetDataSourceAsync(song.Path);
+                        song.Duration = int.Parse(meta.ExtractMetadata(MetadataKey.Duration));
+                        meta.Release();
+                    }
+                    catch (Java.IO.FileNotFoundException) { }
                 }
 
                 return song.Duration;
