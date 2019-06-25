@@ -186,16 +186,8 @@ namespace Opus
             else if (MusicPlayer.UseCastPlayer)
                 MusicPlayer.GetQueueFromCast();
 
-            Console.WriteLine("&Resuming, Search Instance: " + SearchableActivity.instance + " SearchQuery: " + SearchableActivity.instance?.SearchQuery);
             if (SearchableActivity.instance != null && SearchableActivity.instance.SearchQuery != null && SearchableActivity.instance.SearchQuery != "")
             {
-                IMenuItem searchItem = menu.FindItem(Resource.Id.search);
-                searchItem.ExpandActionView();
-                SearchView searchView = (SearchView)searchItem.ActionView;
-                searchView.SetQuery(SearchableActivity.instance.SearchQuery, false);
-                searchView.ClearFocus();
-                searchView.Focusable = false;
-
                 if(YoutubeSearch.instances == null || SearchableActivity.instance.SearchQuery != YoutubeSearch.instances[0].querryType) //We don't want to redo the query if the user already searched for the exact same query.
                     SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(SearchableActivity.instance.SearchQuery, 0)).AddToBackStack("Youtube").Commit();
                 SearchableActivity.instance = null;
@@ -315,12 +307,31 @@ namespace Opus
             {
                 if (PlaylistTracks.instance != null  || FolderTracks.instance != null || ChannelDetails.instance != null)
                 {
-                    //for (int i = 0; i < SupportFragmentManager.BackStackEntryCount; i++)
-                    //{
-                    //    Console.WriteLine("&Back stack entry " + i + ": " + SupportFragmentManager.GetBackStackEntryAt(i));
-                    //}
+                    for (int i = 0; i < SupportFragmentManager.BackStackEntryCount; i++)
+                    {
+                        Console.WriteLine("&Back stack entry " + i + ": " + SupportFragmentManager.GetBackStackEntryAt(i));
+                    }
 
                     SupportFragmentManager.PopBackStack();
+                    Console.WriteLine("&YoutubeEngine instance: " + YoutubeSearch.instances);
+                    
+                    if (YoutubeSearch.instances != null)
+                    {
+                        Console.WriteLine("&Doing youtube back");
+                        FindViewById<TabLayout>(Resource.Id.tabs).Visibility = ViewStates.Visible;
+                        SearchView searchView = (SearchView)menu.FindItem(Resource.Id.search).ActionView;
+                        searchView.Focusable = false;
+                        menu.FindItem(Resource.Id.search).ExpandActionView();
+                        searchView.SetQuery(YoutubeSearch.instances[0].Query, false);
+                        searchView.ClearFocus();
+
+                        //int selectedTab = 0;
+                        //for (int i = 0; i < YoutubeSearch.instances.Length; i++)
+                        //{
+                        //    if (YoutubeSearch.instances[i].IsFocused)
+                        //        selectedTab = i;
+                        //}
+                    }
                 }
                 else if (YoutubeSearch.instances != null)
                 {
@@ -347,7 +358,7 @@ namespace Opus
 
         public bool OnMenuItemActionCollapse(IMenuItem item) //Youtube search collapse
         {
-            if (YoutubeSearch.instances == null /*|| SearchableActivity.IgnoreMyself*/)
+            if (YoutubeSearch.instances == null || !item.ActionView.Focusable)
                 return true;
 
             SupportFragmentManager.PopBackStack();
@@ -361,7 +372,7 @@ namespace Opus
 
         public void OnFocusChange(View v, bool hasFocus)
         {
-            if (hasFocus)
+            if (hasFocus && v.Focusable)
             {
                 Bundle animation = ActivityOptionsCompat.MakeCustomAnimation(this, Android.Resource.Animation.FadeIn, Android.Resource.Animation.FadeOut).ToBundle();
                 StartActivity(new Intent(this, typeof(SearchableActivity)), animation);

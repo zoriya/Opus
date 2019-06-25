@@ -2,6 +2,7 @@
 using Android.Support.Design.Widget;
 using Android.Support.V4.App;
 using Android.Support.V4.View;
+using Android.Support.V7.Widget;
 using Android.Views;
 using Opus.Adapter;
 
@@ -39,6 +40,8 @@ namespace Opus.Fragments
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
+            System.Console.WriteLine("&Pager view created");
+
             View view = inflater.Inflate(Resource.Layout.ViewPager, container, false);
             TabLayout tabs = Activity.FindViewById<TabLayout>(Resource.Id.tabs);
             ViewPager pager = view.FindViewById<ViewPager>(Resource.Id.pager);
@@ -95,6 +98,15 @@ namespace Opus.Fragments
 
                 YoutubeSearch.instances[pos].IsFocused = true;
                 YoutubeSearch.instances[pos].OnFocus();
+                MainActivity.instance.FindViewById<TabLayout>(Resource.Id.tabs).Visibility = ViewStates.Visible;
+
+                IMenuItem searchItem = MainActivity.instance.menu.FindItem(Resource.Id.search);
+                SearchView searchView = (SearchView)searchItem.ActionView;
+                searchView.Focusable = false;
+                searchItem.ExpandActionView();
+                searchView.SetQuery(query, false);
+                searchView.ClearFocus();
+                searchView.Focusable = true;
             }
             return view;
         }
@@ -114,7 +126,7 @@ namespace Opus.Fragments
                 {
                     if (instance.IsFocused)
                     {
-                        instance.ListView.SmoothScrollToPosition(0);
+                        instance.ListView?.SmoothScrollToPosition(0);
                     }
                 }
             }

@@ -18,7 +18,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Channel = Opus.DataStructure.Channel;
 using PlaylistItem = Opus.DataStructure.PlaylistItem;
-using SearchView = Android.Support.V7.Widget.SearchView;
 
 namespace Opus.Fragments
 {
@@ -335,12 +334,16 @@ namespace Opus.Fragments
                     YoutubeManager.Play(result[position].song);
                     break;
                 case YtKind.Playlist:
+                    MainActivity.instance.menu.FindItem(Resource.Id.search).ActionView.Focusable = false;
                     MainActivity.instance.menu.FindItem(Resource.Id.search).CollapseActionView();
+                    MainActivity.instance.menu.FindItem(Resource.Id.search).ActionView.Focusable = true;
                     MainActivity.instance.FindViewById<TabLayout>(Resource.Id.tabs).Visibility = ViewStates.Gone;
                     MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(result[position].playlist)).AddToBackStack("Playlist Track").Commit();
                     break;
                 case YtKind.Channel:
+                    MainActivity.instance.menu.FindItem(Resource.Id.search).ActionView.Focusable = false;
                     MainActivity.instance.menu.FindItem(Resource.Id.search).CollapseActionView();
+                    MainActivity.instance.menu.FindItem(Resource.Id.search).ActionView.Focusable = true;
                     MainActivity.instance.FindViewById<TabLayout>(Resource.Id.tabs).Visibility = ViewStates.Gone;
                     MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, ChannelDetails.NewInstance(result[position].channel)).AddToBackStack("Channel Details").Commit();
                     break;
@@ -462,6 +465,12 @@ namespace Opus.Fragments
         {
             outState.PutString("Query", Query);
             base.OnSaveInstanceState(outState);
+        }
+
+        public override void OnResume()
+        {
+            base.OnResume();
+            Console.WriteLine("&Youtube Search Resumed");
         }
     }
 }

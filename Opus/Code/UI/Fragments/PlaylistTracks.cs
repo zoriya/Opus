@@ -153,24 +153,6 @@ namespace Opus.Fragments
 
                 MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
                 Activity.FindViewById<AppBarLayout>(Resource.Id.appbar).RemoveOnOffsetChangedListener(this);
-
-
-                if (YoutubeSearch.instances != null)
-                {
-                    MainActivity.instance.FindViewById<TabLayout>(Resource.Id.tabs).Visibility = ViewStates.Visible;
-                    SearchView searchView = (SearchView)MainActivity.instance.menu.FindItem(Resource.Id.search).ActionView;
-                    searchView.Focusable = false;
-                    MainActivity.instance.menu.FindItem(Resource.Id.search).ExpandActionView();
-                    searchView.SetQuery(YoutubeSearch.instances[0].Query, false);
-                    searchView.ClearFocus();
-
-                    int selectedTab = 0;
-                    for (int i = 0; i < YoutubeSearch.instances.Length; i++)
-                    {
-                        if (YoutubeSearch.instances[i].IsFocused)
-                            selectedTab = i;
-                    }
-                }
                 instance = null;
             }
             base.OnDestroyView();                
