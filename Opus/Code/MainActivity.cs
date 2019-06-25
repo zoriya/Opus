@@ -186,10 +186,17 @@ namespace Opus
             else if (MusicPlayer.UseCastPlayer)
                 MusicPlayer.GetQueueFromCast();
 
-            if (SearchableActivity.instance != null && SearchableActivity.instance.SearchQuery != null && SearchableActivity.instance.SearchQuery != "")
+            if (SearchableActivity.instance != null)
             {
-                if(YoutubeSearch.instances == null || SearchableActivity.instance.SearchQuery != YoutubeSearch.instances[0].querryType) //We don't want to redo the query if the user already searched for the exact same query.
-                    SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(SearchableActivity.instance.SearchQuery, 0)).AddToBackStack("Youtube").Commit();
+                IMenuItem searchItem = menu.FindItem(Resource.Id.search);
+                SearchView searchView = (SearchView)searchItem.ActionView;
+                searchView.ClearFocus();
+
+                if(SearchableActivity.instance.SearchQuery != null && SearchableActivity.instance.SearchQuery != "")
+                {
+                    if (YoutubeSearch.instances == null || SearchableActivity.instance.SearchQuery != YoutubeSearch.instances[0].querryType) //We don't want to redo the query if the user already searched for the exact same query.
+                        SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(SearchableActivity.instance.SearchQuery, 0)).AddToBackStack("Youtube").Commit();
+                }
                 SearchableActivity.instance = null;
             }
 

@@ -100,8 +100,10 @@ namespace Opus.Fragments
             searchView = searchItem.ActionView.JavaCast<SearchView>();
             searchView.MaxWidth = int.MaxValue;
             searchView.QueryHint = GetString(Resource.String.youtube_search);
+            searchView.SetQuery(((SearchView)MainActivity.instance.menu.FindItem(Resource.Id.search).ActionView).Query, false);
             searchView.QueryTextChange += (s, e) =>
             {
+                Console.WriteLine("&Search view query changed, newText: " + e.NewText);
                 if (e.NewText.Length > 0)
                 {
                     Task.Run(() =>
@@ -121,7 +123,7 @@ namespace Opus.Fragments
                                     RunOnUiThread(new Java.Lang.Runnable(() => { ListView.Adapter = new SuggestionAdapter(instance, Resource.Layout.SuggestionLayout, suggestions); }));
                             }
                         }
-                        catch { }
+                        catch(Exception ex) { Console.WriteLine("&Search ex: " + ex.Message); }
                     });
                 }
                 else
@@ -140,8 +142,6 @@ namespace Opus.Fragments
                 e.Handled = true;
             };
             searchItem.SetOnActionExpandListener(this);
-            SearchQuery = ((SearchView)MainActivity.instance.menu.FindItem(Resource.Id.search).ActionView).Query;
-            searchView.SetQuery(SearchQuery, false);
             return base.OnCreateOptionsMenu(menu);
         }
 
