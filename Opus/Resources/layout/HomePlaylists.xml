@@ -20,6 +20,7 @@
       android:paddingLeft="20dp"
       android:layout_centerVertical="true"
       android:textStyle="bold"
+      android:layout_toLeftOf="@id/viewMore"
       android:layout_alignParentLeft="true"/>
     <Button
       android:id="@+id/viewMore"
@@ -34,6 +35,7 @@
   <android.support.v7.widget.RecyclerView
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:nestedScrollingEnabled="false"
     android:id="@+id/lineRecycler" />
   <View
     android:layout_width="match_parent"

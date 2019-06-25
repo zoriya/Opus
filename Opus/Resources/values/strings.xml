@@ -67,6 +67,7 @@
   <string name="more">MORE</string>
   <string name="queue">Queue</string>
   <string name="featured">Featured</string>
+  <string name="empty_queue">No song currently in queue,\nstart playing song now!</string>
   
   <!--Browse tab-->
   <string name="songs">Songs</string>
@@ -128,6 +129,11 @@
   <string name="create_local">Local playlist</string>
   <string name="create_youtube">Youtube playlist</string>
   <string name="create_synced">Synced playlist (both local and youtube)</string>
+
+  <!--Channel Details-->
+  <string name="long_loading">Loading, please wait...</string>
+  <string name="view_more">View more</string>
+  <string name="view_less">View less</string>
   
   <!--Edit metadata-->
   <string name="title">Title</string>

@@ -313,13 +313,12 @@ namespace Opus
         {
             if(item.ItemId == Android.Resource.Id.Home)
             {
-                if (PlaylistTracks.instance != null  || FolderTracks.instance != null)
+                if (PlaylistTracks.instance != null  || FolderTracks.instance != null || ChannelDetails.instance != null)
                 {
-                    Console.WriteLine("&PlaylistTrack back");
-                    for (int i = 0; i < SupportFragmentManager.BackStackEntryCount; i++)
-                    {
-                        Console.WriteLine("&Back stack entry " + i + ": " + SupportFragmentManager.GetBackStackEntryAt(i));
-                    }
+                    //for (int i = 0; i < SupportFragmentManager.BackStackEntryCount; i++)
+                    //{
+                    //    Console.WriteLine("&Back stack entry " + i + ": " + SupportFragmentManager.GetBackStackEntryAt(i));
+                    //}
 
                     SupportFragmentManager.PopBackStack();
                 }

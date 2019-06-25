@@ -113,7 +113,8 @@ namespace Opus.Fragments
                 if (item.Count == -1)
                     Activity.FindViewById<TextView>(Resource.Id.headerNumber).Text = "NaN" + " " + GetString(Resource.String.songs);
 
-                Picasso.With(Android.App.Application.Context).Load(item.ImageURL).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(Activity.FindViewById<ImageView>(Resource.Id.headerArt));
+                if(item.ImageURL != null)
+                    Picasso.With(Android.App.Application.Context).Load(item.ImageURL).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(Activity.FindViewById<ImageView>(Resource.Id.headerArt));
             }
             Activity.FindViewById(Resource.Id.collapsingToolbar).RequestLayout();
         }
@@ -147,8 +148,8 @@ namespace Opus.Fragments
                 MainActivity.instance.HideSearch();
                 MainActivity.instance.SupportActionBar.SetHomeButtonEnabled(false);
                 MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(false);
-                MainActivity.instance.SupportActionBar.SetDisplayShowTitleEnabled(true);
                 MainActivity.instance.SupportActionBar.SetDisplayShowTitleEnabled(false);
+                MainActivity.instance.FindViewById(Resource.Id.toolbarLogo).Visibility = ViewStates.Visible;
 
                 MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
                 Activity.FindViewById<AppBarLayout>(Resource.Id.appbar).RemoveOnOffsetChangedListener(this);
@@ -341,6 +342,9 @@ namespace Opus.Fragments
 
                     tracks.Invalidate();
                     adapter.NotifyDataSetChanged();
+
+                    if(item?.ImageURL == null)
+                        Picasso.With(Android.App.Application.Context).Load(tracks[0].Album).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(Activity.FindViewById<ImageView>(Resource.Id.headerArt));
 
                 }
                 catch (System.Net.Http.HttpRequestException) { }
@@ -603,12 +607,6 @@ namespace Opus.Fragments
                 Activity.FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Invisible;
                 MainActivity.instance.SupportActionBar.SetDisplayShowTitleEnabled(true);
             }
-        }
-
-        public override void OnDestroy()
-        {
-            base.OnDestroy();
-            MainActivity.instance.FindViewById(Resource.Id.toolbarLogo).Visibility = ViewStates.Visible;
         }
     }
 }

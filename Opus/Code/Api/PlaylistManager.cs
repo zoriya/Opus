@@ -39,23 +39,30 @@ namespace Opus.Api
         /// <returns></returns>
         public static async Task<PlaylistItem> GetPlaylist(string playlistID)
         {
-            PlaylistsResource.ListRequest request = YoutubeManager.YoutubeService.Playlists.List("snippet");
-            request.Id = playlistID;
-
-            PlaylistListResponse response = await request.ExecuteAsync();
-
-            if (response.Items.Count > 0)
+            try
             {
-                Playlist result = response.Items[0];
-                return new PlaylistItem(result.Snippet.Title, -1, playlistID)
+                PlaylistsResource.ListRequest request = YoutubeManager.YoutubeService.Playlists.List("snippet");
+                request.Id = playlistID;
+
+                PlaylistListResponse response = await request.ExecuteAsync();
+
+                if (response.Items.Count > 0)
                 {
-                    HasWritePermission = false,
-                    ImageURL = result.Snippet.Thumbnails.High.Url,
-                    Owner = result.Snippet.ChannelTitle
-                };
+                    return new PlaylistItem(response.Items[0].Snippet.Title, -1, playlistID)
+                    {
+                        HasWritePermission = false,
+                        ImageURL = response.Items[0].Snippet.Thumbnails.Standard.Url,
+                        Owner = response.Items[0].Snippet.ChannelTitle
+                    };
+                }
+                else
+                    return null;
             }
-            else
+            catch(Exception ex)
+            {
+                Console.WriteLine("&Get playlist catch called, ex: " + ex.Message);
                 return null;
+            }
         }
 
         #region PlayInOrder

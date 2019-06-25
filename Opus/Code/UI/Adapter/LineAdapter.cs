@@ -59,7 +59,7 @@ namespace Opus.Adapter
             if (position == 0 && isEmpty)
             {
                 EmptyHolder holder = (EmptyHolder)viewHolder;
-                holder.text.Text = "No song currently in queue,\nstart playing song now !";
+                holder.text.Text = UseQueue ? MainActivity.instance.GetString(Resource.String.empty_queue) : MainActivity.instance.GetString(Resource.String.long_loading);
                 holder.text.SetHeight(MainActivity.instance.DpToPx(157));
                 return;
             }

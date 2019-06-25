@@ -11,6 +11,7 @@ namespace Opus.DataStructure
         public List<Song> contentValue;
         public List<PlaylistItem> playlistContent;
         public List<Channel> channelContent;
+        public PlaylistItem playlist;
         public RecyclerView recycler;
 
         public Section(string sectionTitle, SectionType contentType)
@@ -24,6 +25,14 @@ namespace Opus.DataStructure
             SectionTitle = sectionTitle;
             this.contentType = contentType;
             this.contentValue = contentValue;
+        }
+
+        public Section(string sectionTitle, SectionType contentType, List<Song> contentValue, PlaylistItem playlist)
+        {
+            SectionTitle = sectionTitle;
+            this.contentType = contentType;
+            this.contentValue = contentValue;
+            this.playlist = playlist;
         }
 
         public Section(string sectionTitle, SectionType contentType, List<PlaylistItem> playlistContent)

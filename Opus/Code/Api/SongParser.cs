@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using YoutubeExplode;
 using YoutubeExplode.Models;
 
-namespace Opus.Code.Api
+namespace Opus.Api
 {
     public class SongParser
     {
@@ -20,7 +20,7 @@ namespace Opus.Code.Api
         /// <summary>
         /// The reference of the play item. The song parser will start the playback of this queue item as soon as possible.
         /// </summary>
-        public static int playPosition = -1;
+        public static int playPosition = -2;
         private int queuePosition = -1;
         private bool canceled = false;
 
@@ -154,7 +154,7 @@ namespace Opus.Code.Api
                     }
 
                     MusicPlayer.instance.Play(song, -1, queuePosition == -1);
-                    playPosition = -1;
+                    playPosition = -2;
                 }
 
                 Video video = await client.GetVideoAsync(song.YoutubeID);
@@ -187,7 +187,7 @@ namespace Opus.Code.Api
 
                 if(playPosition == queuePosition)
                 {
-                    playPosition = -1;
+                    playPosition = -2;
                     Queue.instance.RefreshCurrent();
                     Player.instance?.Ready();
                     MainActivity.instance.Timout();
@@ -206,7 +206,7 @@ namespace Opus.Code.Api
 
                 if (playPosition == queuePosition)
                 {
-                    playPosition = -1;
+                    playPosition = -2;
                     Queue.instance.RefreshCurrent();
                     Player.instance?.Ready();
                 }
@@ -223,7 +223,7 @@ namespace Opus.Code.Api
 
                 if (playPosition == queuePosition)
                 {
-                    playPosition = -1;
+                    playPosition = -2;
                     Queue.instance.RefreshCurrent();
                     Player.instance?.Ready();
                 }
@@ -237,7 +237,7 @@ namespace Opus.Code.Api
 
                 if (playPosition == queuePosition)
                 {
-                    playPosition = -1;
+                    playPosition = -2;
                     Queue.instance.RefreshCurrent();
                     Player.instance?.Ready();
                     MainActivity.instance.UnknowError(ErrorCode.SP1, null, Snackbar.LengthLong);
@@ -245,7 +245,7 @@ namespace Opus.Code.Api
             }
 
             if (playPosition == queuePosition)
-                playPosition = -1;
+                playPosition = -2;
             queuePosition = -1;
             instances.Remove(this);
             return song;

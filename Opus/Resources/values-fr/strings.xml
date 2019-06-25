@@ -67,6 +67,7 @@
   <string name="more">PLUS</string>
   <string name="queue">Liste de lecture</string>
   <string name="featured">Mis en avant</string>
+  <string name="empty_queue">Aucune musique dans la liste de lecture,\ncommencez maintenant.</string>
   
   <!--Browse tab-->
   <string name="songs">Titres</string>
@@ -128,6 +129,11 @@
   <string name="create_local">Playlist locale</string>
   <string name="create_youtube">Playlist youtube</string>
   <string name="create_synced">Playlist synchronisée (disponible localement et sur youtube)</string>
+
+  <!--Channel Details-->
+  <string name="long_loading">Chargement en cours, veuillez patientez...</string>
+  <string name="view_more">Voir plus</string>
+  <string name="view_less">Voir moins</string>
 
   <!--Edit metadata-->
   <string name="title">Titre</string>

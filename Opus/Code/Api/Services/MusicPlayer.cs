@@ -21,7 +21,7 @@ using Com.Google.Android.Exoplayer2.Trackselection;
 using Com.Google.Android.Exoplayer2.Upstream;
 using Com.Google.Android.Exoplayer2.Util;
 using Newtonsoft.Json;
-using Opus.Code.Api;
+using Opus.Api;
 using Opus.DataStructure;
 using Opus.Fragments;
 using Opus.Others;
@@ -974,7 +974,7 @@ namespace Opus.Api.Services
             }
             else
             {
-                SongParser.playPosition = -1;
+                SongParser.playPosition = -2;
                 currentID = position;
                 Play(song, StartFromOldPosition ? LastTimer : -1, false);
             }

@@ -295,6 +295,8 @@ namespace Opus.Fragments
                 Console.WriteLine("&Exception catched in the youtube search: " + ex.Source + " - " + ex.Message);
                 EmptyView.Text = GetString(Resource.String.timout);
                 EmptyView.Visibility = ViewStates.Visible;
+                EmptyView.Visibility = ViewStates.Visible;
+                LoadingView.Visibility = ViewStates.Gone;
             }
         }
 

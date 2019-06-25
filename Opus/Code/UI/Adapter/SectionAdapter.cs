@@ -70,10 +70,10 @@ namespace Opus.Adapter
                         MainActivity.instance.ShowPlayer();
                         Player.instance.ShowQueue();
                     };
-                    if(MusicPlayer.CurrentID() != -1 && MusicPlayer.CurrentID() <= MusicPlayer.queue.Count)
+                    if (MusicPlayer.CurrentID() != -1 && MusicPlayer.CurrentID() <= MusicPlayer.queue.Count)
                         holder.recycler.ScrollToPosition(MusicPlayer.CurrentID());
                 }
-                else if(items[position].SectionTitle == null)
+                else if (items[position].SectionTitle == null)
                 {
                     //The playlist is loading
                     holder.recycler.SetAdapter(new LineAdapter(new List<Song>(), holder.recycler));
@@ -85,65 +85,109 @@ namespace Opus.Adapter
                     holder.more.Click += (sender, e) =>
                     {
                         position = holder.AdapterPosition;
-                        //MainActivity.instance.contentRefresh.Refresh -= Home.instance.OnRefresh;
-                        //Home.instance = null;
-                        MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(items[position].contentValue, items[position].SectionTitle)).AddToBackStack(null).Commit();
+                        if (items[position].playlist == null)
+                            MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(items[position].contentValue, items[position].SectionTitle)).AddToBackStack(null).Commit();
+                        else
+                            MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(items[position].playlist)).AddToBackStack(null).Commit();
                     };
                 }
             }
-            else if(items[position].contentType == SectionType.ChannelList)
+            else if (items[position].contentType == SectionType.ChannelList)
             {
                 LineSongHolder holder = (LineSongHolder)viewHolder;
                 items[position].recycler = holder.recycler;
 
                 holder.title.Text = items[position].SectionTitle;
                 holder.recycler.SetLayoutManager(new LinearLayoutManager(MainActivity.instance, LinearLayoutManager.Vertical, false));
-                holder.recycler.SetAdapter(new HomeListAdapter(items[position].contentValue.GetRange(0, items[position].contentValue.Count > 4 ? 4 : items[position].contentValue.Count), holder.recycler) { allItems = items[position].contentValue.GetRange(4, items[position].contentValue.Count - 4) });
 
-                ((GradientDrawable)holder.more.Background).SetStroke(5, Android.Content.Res.ColorStateList.ValueOf(Color.Argb(255, 21, 183, 237)));
-                holder.more.SetTextColor(Color.Argb(255, 21, 183, 237));
-                holder.more.Text = ((HomeListAdapter)holder.recycler.GetAdapter()).channels.Count > 4 ? "View Less" : "View More";
-                holder.more.Click += (sender, e) =>
+                if(items[position].channelContent != null)
                 {
-                    HomeListAdapter adapter = (HomeListAdapter)holder.recycler.GetAdapter();
-                    if(adapter.ItemCount == 4)
+                    holder.recycler.SetAdapter(new SmallListAdapter(items[position].channelContent.GetRange(0, items[position].channelContent.Count > 4 ? 4 : items[position].channelContent.Count), holder.recycler));
+
+                    if (items[position].channelContent.Count > 4)
                     {
-                        adapter.channels.AddRange(items[position].contentValue.GetRange(4, items[position].contentValue.Count - 4));
-                        adapter.NotifyItemRangeInserted(4, items[position].contentValue.Count - 4);
-                        holder.more.Text = "View Less";
+                        holder.more.Visibility = ViewStates.Visible;
+                        ((GradientDrawable)holder.more.Background).SetStroke(5, Android.Content.Res.ColorStateList.ValueOf(Color.Argb(255, 21, 183, 237)));
+                        holder.more.SetTextColor(Color.Argb(255, 21, 183, 237));
+                        holder.more.Text = ((SmallListAdapter)holder.recycler.GetAdapter()).channels.Count > 4 ? MainActivity.instance.GetString(Resource.String.view_less) : MainActivity.instance.GetString(Resource.String.view_more);
+                        holder.more.Click += (sender, e) =>
+                        {
+                            SmallListAdapter adapter = (SmallListAdapter)holder.recycler.GetAdapter();
+                            if (adapter.ItemCount == 4)
+                            {
+                                adapter.channels.AddRange(items[position].channelContent.GetRange(4, items[position].channelContent.Count - 4));
+                                adapter.NotifyItemRangeInserted(4, items[position].channelContent.Count - 4);
+                                holder.more.Text = MainActivity.instance.GetString(Resource.String.view_less);
+                            }
+                            else
+                            {
+                                int count = adapter.channels.Count - 4;
+                                adapter.channels.RemoveRange(4, count);
+                                adapter.NotifyItemRangeRemoved(4, count);
+                                holder.more.Text = MainActivity.instance.GetString(Resource.String.view_more);
+                            }
+                        };
                     }
                     else
-                    {
-                        int count = adapter.channels.Count - 4;
-                        adapter.channels.RemoveRange(4, count);
-                        adapter.NotifyItemRangeRemoved(4, count);
-                        holder.more.Text = "View More";
-                    }
-                };
+                        holder.more.Visibility = ViewStates.Gone;
+                }
+                else
+                {
+                    holder.recycler.SetAdapter(new SmallListAdapter(false, holder.recycler));
+                }
+                
             }
             else if (items[position].contentType == SectionType.PlaylistList)
             {
                 LineSongHolder holder = (LineSongHolder)viewHolder;
+                items[position].recycler = holder.recycler;
                 holder.title.Text = items[position].SectionTitle;
                 holder.recycler.SetLayoutManager(new LinearLayoutManager(MainActivity.instance, LinearLayoutManager.Vertical, false));
-                holder.recycler.SetAdapter(new HomeListAdapter(items[position].playlistContent.GetRange(0, items[position].playlistContent.Count > 4 ? 4 : items[position].playlistContent.Count), holder.recycler));
-                holder.more.Click += (sender, e) => { MainActivity.instance.FindViewById<BottomNavigationView>(Resource.Id.bottomView).SelectedItemId = Resource.Id.playlistLayout; };
+                if (items[position].playlistContent != null)
+                {
+                    holder.recycler.SetAdapter(new SmallListAdapter(items[position].playlistContent.GetRange(0, items[position].playlistContent.Count > 4 ? 4 : items[position].playlistContent.Count), holder.recycler));
+
+                    if (ChannelDetails.instance != null)
+                    {
+                        if (items[position].playlistContent.Count > 4)
+                        {
+                            holder.more.Visibility = ViewStates.Visible;
+                            ((GradientDrawable)holder.more.Background).SetStroke(5, Android.Content.Res.ColorStateList.ValueOf(Color.Argb(255, 21, 183, 237)));
+                            holder.more.SetTextColor(Color.Argb(255, 21, 183, 237));
+                            holder.more.Text = ((SmallListAdapter)holder.recycler.GetAdapter()).playlists.Count > 4 ? MainActivity.instance.GetString(Resource.String.view_less) : MainActivity.instance.GetString(Resource.String.view_more);
+                            holder.more.Click += (sender, e) =>
+                            {
+                                SmallListAdapter adapter = (SmallListAdapter)holder.recycler.GetAdapter();
+                                if (adapter.ItemCount == 4)
+                                {
+                                    adapter.playlists.AddRange(items[position].playlistContent.GetRange(4, items[position].playlistContent.Count - 4));
+                                    adapter.NotifyItemRangeInserted(4, items[position].playlistContent.Count - 4);
+                                    holder.more.Text = MainActivity.instance.GetString(Resource.String.view_less);
+                                }
+                                else
+                                {
+                                    int count = adapter.playlists.Count - 4;
+                                    adapter.playlists.RemoveRange(4, count);
+                                    adapter.NotifyItemRangeRemoved(4, count);
+                                    holder.more.Text = MainActivity.instance.GetString(Resource.String.view_more);
+                                }
+                            };
+                        }
+                        else
+                            holder.more.Visibility = ViewStates.Gone;
+                    }
+                    else
+                    {
+                        holder.more.Click += (sender, e) => { MainActivity.instance.FindViewById<BottomNavigationView>(Resource.Id.bottomView).SelectedItemId = Resource.Id.playlistLayout; };
+                        holder.more.Visibility = ViewStates.Visible;
+                    }
+                }
+                else
+                {
+                    holder.recycler.SetAdapter(new SmallListAdapter(true, holder.recycler));
+                    holder.more.Visibility = ViewStates.Gone;
+                }
             }
-            //else if(items[position].contentType == SectionType.TopicSelector)
-            //{
-            //    LineSongHolder holder = (LineSongHolder)viewHolder;
-            //    items[position].recycler = holder.recycler;
-
-            //    holder.title.Text = items[position].SectionTitle;
-            //    holder.recycler.SetLayoutManager(new LinearLayoutManager(MainActivity.instance, LinearLayoutManager.Vertical, false));
-            //    holder.recycler.SetAdapter(new HomeListAdapter(items[position].contentValue));
-            //    holder.more.Click += (sender, e) =>
-            //    {
-            //        Intent intent = new Intent(MainActivity.instance, typeof(Preferences));
-            //        MainActivity.instance.StartActivity(intent);
-            //    };
-
-            //}
         }
 
         void OnClick(int position)
@@ -173,7 +217,11 @@ namespace Opus.Adapter
             else if (items[position].contentType == SectionType.ChannelList)
                 return 1;
             else if (items[position].contentType == SectionType.PlaylistList)
+            {
+                if (ChannelDetails.instance != null)
+                    return 1; //We want to display the playlists with the same view as the channels for this fragment.
                 return 2;
+            }
             else
                 return 4;
         }

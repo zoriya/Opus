@@ -15,7 +15,6 @@ using Opus;
 using Opus.Adapter;
 using Opus.Api;
 using Opus.Api.Services;
-using Opus.Code.Api;
 using Opus.DataStructure;
 using Opus.Others;
 using Opus.Views;
@@ -111,7 +110,8 @@ public class Queue : Fragment, RecyclerView.IOnItemTouchListener, PopupMenu.IOnM
         int last = ((LinearLayoutManager)ListView.GetLayoutManager()).FindLastVisibleItemPosition();
         for (int i = first; i <= last; i++)
         {
-            if (ListView.GetChildViewHolder(((LinearLayoutManager)ListView.GetLayoutManager()).FindViewByPosition(i)) is SongHolder holder)
+            View child = ((LinearLayoutManager)ListView.GetLayoutManager()).FindViewByPosition(i);
+            if (child != null && ListView.GetChildViewHolder(child) is SongHolder holder)
             {
                 if (MusicPlayer.CurrentID() == i - 1) //The -1 is because the first displayed item of the queue is a header.
                 {
