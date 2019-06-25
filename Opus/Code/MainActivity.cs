@@ -431,6 +431,12 @@ namespace Opus
                 SupportFragmentManager.PopBackStack(null, Android.Support.V4.App.FragmentManager.PopBackStackInclusive);
             }
 
+            if (ChannelDetails.instance != null)
+            {
+                SupportFragmentManager.BeginTransaction().Remove(ChannelDetails.instance).Commit();
+                SupportFragmentManager.PopBackStack(null, Android.Support.V4.App.FragmentManager.PopBackStackInclusive);
+            }
+
             Fragment fragment = null;
             switch (layout)
             {
