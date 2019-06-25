@@ -48,6 +48,7 @@
   <string name="download">Download</string>
   <string name="remove_from_queue">Remove from queue</string>
   <string name="remove_track_from_playlist">Remove track from playlist</string>
+  <string name="goto_channel">Open channel tab</string>
   <!--More menu of playlist or folders-->
   <string name="list_songs">List songs</string>
   <string name="play_in_order">Play in order</string>

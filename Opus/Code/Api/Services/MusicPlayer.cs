@@ -1158,9 +1158,9 @@ namespace Opus.Api.Services
         public async static Task<int> Duration()
         {
             if (!UseCastPlayer)
-                return player == null ? (await GetItem()).Duration : (int)player.Duration;
+                return (player == null ? (await GetItem())?.Duration : (int)player.Duration) ?? 0;
             else
-                return RemotePlayer == null ? (await GetItem()).Duration : (int)RemotePlayer.StreamDuration;
+                return (RemotePlayer == null ? (await GetItem())?.Duration : (int)RemotePlayer.StreamDuration) ?? 0;
         }
 
         public async static Task<long> LoadDuration()

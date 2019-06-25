@@ -31,6 +31,7 @@ namespace Opus.DataStructure
         public int Duration { get; set; }
         public bool IsLiveStream = false;
         public string TrackID;
+        public string channelID;
 
         public Song() { }
 

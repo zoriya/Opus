@@ -1326,6 +1326,7 @@ namespace Opus
         SP1, //Song parser 1
         SP2, //Song parser 2
         DL1, //Main downloader loop
-        SM1  //Song Mix 1
+        SM1, //Song Mix 1
+        CG1  //Channel Get 1
     }
 }

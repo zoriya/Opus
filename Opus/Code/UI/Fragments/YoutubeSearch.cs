@@ -304,7 +304,10 @@ namespace Opus.Fragments
             switch (result.Id.Kind)
             {
                 case "youtube#video":
-                    Song videoInfo = new Song(System.Net.WebUtility.HtmlDecode(result.Snippet.Title), result.Snippet.ChannelTitle, result.Snippet.Thumbnails.High.Url, result.Id.VideoId, -1, -1, null, true, false);
+                    Song videoInfo = new Song(System.Net.WebUtility.HtmlDecode(result.Snippet.Title), result.Snippet.ChannelTitle, result.Snippet.Thumbnails.High.Url, result.Id.VideoId, -1, -1, null, true, false)
+                    {
+                        channelID = result.Snippet.ChannelId
+                    };
                     if (result.Snippet.LiveBroadcastContent == "live")
                         videoInfo.IsLiveStream = true;
 
@@ -401,6 +404,15 @@ namespace Opus.Fragments
                 new BottomSheetAction(Resource.Drawable.Download, Resources.GetString(Resource.String.download), (sender, eventArg) =>
                 {
                     YoutubeManager.Download(new[] { item });
+                    bottomSheet.Dismiss();
+                }),
+                new BottomSheetAction(Resource.Drawable.account, Resources.GetString(Resource.String.goto_channel), (sender, eventArg) =>
+                {
+                    MainActivity.instance.menu.FindItem(Resource.Id.search).ActionView.Focusable = false;
+                    MainActivity.instance.menu.FindItem(Resource.Id.search).CollapseActionView();
+                    MainActivity.instance.menu.FindItem(Resource.Id.search).ActionView.Focusable = true;
+                    MainActivity.instance.FindViewById<TabLayout>(Resource.Id.tabs).Visibility = ViewStates.Gone;
+                    ChannelManager.OpenChannelTab(item.channelID);
                     bottomSheet.Dismiss();
                 })
             });
