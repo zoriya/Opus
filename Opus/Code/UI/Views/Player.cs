@@ -191,7 +191,11 @@ namespace Opus
                 //The width of the view in pixel (we'll multiply this by 0.75f because the drawer has a width of 75%)
                 int width = (int)(albumArt.Width * (float)drawable.Height / albumArt.Height);
                 int dX = (int)((drawable.Width - width) * 0.5f);
+                Console.WriteLine("&Drawable Info: Width: " + drawable.Width + " Height: " + drawable.Height);
+                Console.WriteLine("&AlbumArt Info: Width: " + albumArt.Width + " Height: " + albumArt.Height);
+                Console.WriteLine("&Blur Creation: Width: " + width + " dX: " + dX);
                 Bitmap blured = Bitmap.CreateBitmap(drawable, dX, 0, (int)(width * 0.75f), drawable.Height);
+                Console.WriteLine("&BLured bitmap created");
 
                 RenderScript rs = RenderScript.Create(MainActivity.instance);
                 Allocation input = Allocation.CreateFromBitmap(rs, blured);

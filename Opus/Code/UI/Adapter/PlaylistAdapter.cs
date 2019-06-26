@@ -1,6 +1,7 @@
 ﻿using Android.App;
 using Android.Content.Res;
 using Android.Graphics;
+using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Text;
 using Android.Util;
@@ -80,7 +81,13 @@ namespace Opus.Adapter
             else if (position < LocalPlaylists.Count && LocalPlaylists[position].Name == "Error" && LocalPlaylists[position].LocalID == -1)
             {
                 EmptyHolder holder = (EmptyHolder)viewHolder;
-                holder.text.TextFormatted  = Html.FromHtml(LocalPlaylists[position].Owner, FromHtmlOptions.OptionUseCssColors);
+
+                if(Build.VERSION.SdkInt >= BuildVersionCodes.N)
+                    holder.text.TextFormatted  = Html.FromHtml(LocalPlaylists[position].Owner, FromHtmlOptions.OptionUseCssColors);
+                else
+#pragma warning disable CS0618 // Type or member is obsolete
+                    holder.text.TextFormatted = Html.FromHtml(LocalPlaylists[position].Owner);
+#pragma warning restore CS0618 // Type or member is obsolete
 
                 if (!holder.text.HasOnClickListeners)
                 {
@@ -93,7 +100,12 @@ namespace Opus.Adapter
             else if(position >= LocalPlaylists.Count && YoutubePlaylists[position - LocalPlaylists.Count].Name == "Error" && YoutubePlaylists[position - LocalPlaylists.Count].YoutubeID == null)
             {
                 EmptyHolder holder = (EmptyHolder)viewHolder;
-                holder.text.TextFormatted = Html.FromHtml(YoutubePlaylists[position - LocalPlaylists.Count].Owner, FromHtmlOptions.OptionUseCssColors);
+                if (Build.VERSION.SdkInt >= BuildVersionCodes.N)
+                    holder.text.TextFormatted = Html.FromHtml(YoutubePlaylists[position - LocalPlaylists.Count].Owner, FromHtmlOptions.OptionUseCssColors);
+                else
+#pragma warning disable CS0618 // Type or member is obsolete
+                    holder.text.TextFormatted = Html.FromHtml(YoutubePlaylists[position - LocalPlaylists.Count].Owner);
+#pragma warning restore CS0618 // Type or member is obsolete
 
                 if (!holder.text.HasOnClickListeners)
                 {
