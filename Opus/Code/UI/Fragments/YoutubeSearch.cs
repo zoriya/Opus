@@ -37,6 +37,7 @@ namespace Opus.Fragments
         public ProgressBar LoadingView;
         private bool searching;
 
+        public YoutubeSearch() { }
 
         public YoutubeSearch(string Query, string querryType)
         {
@@ -477,12 +478,6 @@ namespace Opus.Fragments
         {
             outState.PutString("Query", Query);
             base.OnSaveInstanceState(outState);
-        }
-
-        public override void OnResume()
-        {
-            base.OnResume();
-            Console.WriteLine("&Youtube Search Resumed");
         }
     }
 }
