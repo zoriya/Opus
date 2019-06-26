@@ -291,7 +291,7 @@ namespace Opus.Fragments
             }
             catch(Exception ex)
             {
-                Console.WriteLine("&Exception catched in the youtube search: " + ex.Source + " - " + ex.Message);
+                Console.WriteLine("&Exception catched in the youtube search: " + ex.Source + " - " + ex.Message + " Inner: " + ex.InnerException.Message);
                 EmptyView.Text = GetString(Resource.String.timout);
                 EmptyView.Visibility = ViewStates.Visible;
                 EmptyView.Visibility = ViewStates.Visible;
@@ -380,33 +380,33 @@ namespace Opus.Fragments
 
             bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, new List<BottomSheetAction>
             {
-                new BottomSheetAction(Resource.Drawable.Play, Resources.GetString(Resource.String.play), (sender, eventArg) =>
+                new BottomSheetAction(Resource.Drawable.Play, MainActivity.instance.Resources.GetString(Resource.String.play), (sender, eventArg) =>
                 {
                     YoutubeManager.Play(item);
                     bottomSheet.Dismiss();
                 }),
-                new BottomSheetAction(Resource.Drawable.PlaylistPlay, Resources.GetString(Resource.String.play_next), (sender, eventArg) =>
+                new BottomSheetAction(Resource.Drawable.PlaylistPlay, MainActivity.instance.Resources.GetString(Resource.String.play_next), (sender, eventArg) =>
                 {
                     YoutubeManager.PlayNext(item);
                     bottomSheet.Dismiss();
                 }),
-                new BottomSheetAction(Resource.Drawable.Queue, Resources.GetString(Resource.String.play_last), (sender, eventArg) =>
+                new BottomSheetAction(Resource.Drawable.Queue, MainActivity.instance.Resources.GetString(Resource.String.play_last), (sender, eventArg) =>
                 {
                     YoutubeManager.PlayLast(item);
                     bottomSheet.Dismiss();
                 }),
-                new BottomSheetAction(Resource.Drawable.PlayCircle, Resources.GetString(Resource.String.create_mix_from_song), (sender, eventArg) =>
+                new BottomSheetAction(Resource.Drawable.PlayCircle, MainActivity.instance.Resources.GetString(Resource.String.create_mix_from_song), (sender, eventArg) =>
                 {
                     YoutubeManager.CreateMixFromSong(item);
                     bottomSheet.Dismiss();
                 }),
-                new BottomSheetAction(Resource.Drawable.PlaylistAdd, Resources.GetString(Resource.String.add_to_playlist), (sender, eventArg) => { PlaylistManager.AddSongToPlaylistDialog(item); bottomSheet.Dismiss(); }),
-                new BottomSheetAction(Resource.Drawable.Download, Resources.GetString(Resource.String.download), (sender, eventArg) =>
+                new BottomSheetAction(Resource.Drawable.PlaylistAdd, MainActivity.instance.Resources.GetString(Resource.String.add_to_playlist), (sender, eventArg) => { PlaylistManager.AddSongToPlaylistDialog(item); bottomSheet.Dismiss(); }),
+                new BottomSheetAction(Resource.Drawable.Download, MainActivity.instance.Resources.GetString(Resource.String.download), (sender, eventArg) =>
                 {
                     YoutubeManager.Download(new[] { item });
                     bottomSheet.Dismiss();
                 }),
-                new BottomSheetAction(Resource.Drawable.account, Resources.GetString(Resource.String.goto_channel), (sender, eventArg) =>
+                new BottomSheetAction(Resource.Drawable.account, MainActivity.instance.Resources.GetString(Resource.String.goto_channel), (sender, eventArg) =>
                 {
                     MainActivity.instance.menu.FindItem(Resource.Id.search).ActionView.Focusable = false;
                     MainActivity.instance.menu.FindItem(Resource.Id.search).CollapseActionView();
