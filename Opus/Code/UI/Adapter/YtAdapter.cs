@@ -1,5 +1,6 @@
 ﻿using Android.Graphics;
 using Android.Support.V7.Widget;
+using Android.Util;
 using Android.Views;
 using Android.Widget;
 using Opus.Api;
@@ -15,7 +16,7 @@ namespace Opus.Adapter
     public class YtAdapter : RecyclerView.Adapter
     {
         public int listPadding;
-        private List<YtFile> items;
+        private readonly List<YtFile> items;
         public event EventHandler<int> ItemClick;
         public event EventHandler<int> ItemLongCLick;
 
@@ -116,16 +117,35 @@ namespace Opus.Adapter
                 holder.Name.Text = channel.Name;
                 Picasso.With(Android.App.Application.Context).Load(channel.ImageURL).Placeholder(Resource.Color.placeholder).Transform(new CircleTransformation(true)).Into(holder.Logo);
 
-                List<YtFile> files = items.FindAll(x => x.Kind == YtKind.Video && x.song.Artist == channel.Name);
-                if(files.Count > 0)
-                    Picasso.With(Android.App.Application.Context).Load(files[0].song.Album).Transform(new RemoveBlackBorder()).Into(holder.MixOne);
-                if (files.Count > 1)
-                    Picasso.With(Android.App.Application.Context).Load(files[1].song.Album).Transform(new RemoveBlackBorder()).Into(holder.MixTwo);
 
-                holder.MixOne.ViewTreeObserver.Draw += (sender, e) => 
+                DisplayMetrics displayMetrics = new DisplayMetrics();
+                MainActivity.instance.WindowManager.DefaultDisplay.GetMetrics(displayMetrics);
+                int wholeWidth = (displayMetrics.WidthPixels - MainActivity.instance.DpToPx(15)) / 2;
+                int mixHeight = (int)(wholeWidth * 0.5625); /// width / 16 */ 9
+                holder.MixOne.LayoutParameters.Height = mixHeight;
+                holder.MixOne.RequestLayout();
+                holder.MixTwo.LayoutParameters.Height = mixHeight;
+                holder.ChannelLogo.LayoutParameters.Height = mixHeight * 2;
+
+                Picasso.With(Android.App.Application.Context).Load(channel.ImageURL).Placeholder(Resource.Color.placeholder).Fit().CenterCrop().Into(holder.ChannelLogo);
+
+                List<YtFile> files = items.FindAll(x => x.Kind == YtKind.Video && x.song.Artist == channel.Name);
+                if (files.Count > 0)
+                    Picasso.With(Android.App.Application.Context).Load(files[0].song.Album).Placeholder(Resource.Color.placeholder).Transform(new RemoveBlackBorder()).Into(holder.MixOne);
+                if (files.Count > 1)
+                    Picasso.With(Android.App.Application.Context).Load(files[1].song.Album).Placeholder(Resource.Color.placeholder).Transform(new RemoveBlackBorder()).Into(holder.MixTwo);
+
+                if (!holder.ChannelHolder.HasOnClickListeners)
                 {
-                    Picasso.With(Android.App.Application.Context).Load(channel.ImageURL).Placeholder(Resource.Color.placeholder).Fit().CenterCrop().Into(holder.ChannelLogo);
-                };
+                    holder.ChannelHolder.Click += (sender, e) =>
+                    {
+                        MainActivity.instance.menu.FindItem(Resource.Id.search).ActionView.Focusable = false;
+                        MainActivity.instance.menu.FindItem(Resource.Id.search).CollapseActionView();
+                        MainActivity.instance.menu.FindItem(Resource.Id.search).ActionView.Focusable = true;
+                        MainActivity.instance.FindViewById(Resource.Id.tabs).Visibility = ViewStates.Gone;
+                        MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, ChannelDetails.NewInstance(channel)).AddToBackStack("Channel Details").Commit();
+                    };
+                }
 
                 if (!holder.MixHolder.HasOnClickListeners)
                 {

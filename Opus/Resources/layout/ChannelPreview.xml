@@ -11,6 +11,7 @@
     android:background="#141414"
     android:clickable="true"
     android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground"
     android:id="@+id/channelHolder" >
     <TextView
       android:layout_width="wrap_content"
@@ -37,11 +38,13 @@
       android:orientation="horizontal"
       android:clickable="true"
       android:focusable="true"
+      android:foreground="?android:attr/selectableItemBackground"
       android:id="@+id/mixHolder" >
       <ImageView
         android:layout_width="0px"
         android:layout_weight="1"
         android:layout_height="match_parent"
+        android:src="@color/placeholder"
         android:id="@+id/channelLogo" />
       <LinearLayout
         android:layout_width="0px"
@@ -52,12 +55,14 @@
           android:layout_width="match_parent"
           android:layout_height="0px"
           android:layout_weight="1"
+          android:src="@color/placeholder"
           android:adjustViewBounds="true"
           android:id="@+id/mixOne" />
         <ImageView
           android:layout_width="match_parent"
           android:layout_height="0px"
           android:layout_weight="1"
+          android:src="@color/placeholder"
           android:adjustViewBounds="true"
           android:id="@+id/mixTwo" />
       </LinearLayout>

@@ -261,7 +261,7 @@ namespace Opus.Api
         }
 
         /// <summary>
-        /// This method will remove playback calls and get requests from the 
+        /// This method will remove playback calls
         /// </summary>
         private void Cancel()
         {
