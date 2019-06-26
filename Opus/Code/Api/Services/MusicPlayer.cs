@@ -464,6 +464,7 @@ namespace Opus.Api.Services
                 Queue.instance?.Refresh();
                 Player.instance?.RefreshPlayer();
                 currentID = 0;
+                SongParser.Cancel(0);
                 await new SongParser().ParseSong(song, 0, true);
             }
             else

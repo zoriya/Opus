@@ -252,6 +252,15 @@ namespace Opus.Api
         }
 
         /// <summary>
+        /// Will stop the parsing for a slot of the queue. Use this when the user wants to play something else before the end of a parsing (Want to play something on the same queue slot but not the same song has the one being parsed now).
+        /// </summary>
+        /// <param name="queuePosition"></param>
+        public static void Cancel(int queuePosition)
+        {
+            instances.Where(x => x.queuePosition == queuePosition).FirstOrDefault()?.Cancel();
+        }
+
+        /// <summary>
         /// This method will remove playback calls and get requests from the 
         /// </summary>
         private void Cancel()
