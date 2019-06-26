@@ -928,7 +928,7 @@ namespace Opus.Api
             {
                 AddToLocalPlaylist(playlistID, items); //Will only add files already downloaded
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                YoutubeManager.DownloadFiles(items.ToList().ConvertAll(x => DownloadFile.From(x, name))); //Will download missing files and add them (if there was youtube songs in the items array.
+                YoutubeManager.DownloadFiles(items.Where(x => x.LocalID == -1 || x.LocalID == 0).ToList().ConvertAll(x => DownloadFile.From(x, name))); //Will download missing files and add them (if there was youtube songs in the items array).
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             }
         }
