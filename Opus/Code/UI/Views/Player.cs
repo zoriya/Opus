@@ -159,7 +159,7 @@ namespace Opus
                     {
                         drawable = Picasso.With(Application.Context).Load(current.Album).Error(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Get();
                     }
-                    catch (Exception)
+                    catch
                     {
                         drawable = Picasso.With(Application.Context).Load(Resource.Drawable.noAlbum).Get();
                     }
@@ -176,7 +176,7 @@ namespace Opus
                     {
                         drawable = Picasso.With(Application.Context).Load(iconURI).Error(Resource.Drawable.noAlbum).Placeholder(Resource.Drawable.noAlbum).NetworkPolicy(NetworkPolicy.Offline).Get();
                     }
-                    catch (Exception)
+                    catch
                     {
                         drawable = Picasso.With(Application.Context).Load(Resource.Drawable.noAlbum).Get();
                     }
@@ -188,25 +188,33 @@ namespace Opus
 
             if (albumArt.Width > 0)
             {
-                //The width of the view in pixel (we'll multiply this by 0.75f because the drawer has a width of 75%)
-                int width = (int)(albumArt.Width * (float)drawable.Height / albumArt.Height);
-                int dX = (int)((drawable.Width - width) * 0.5f);
-                Console.WriteLine("&Drawable Info: Width: " + drawable.Width + " Height: " + drawable.Height);
-                Console.WriteLine("&AlbumArt Info: Width: " + albumArt.Width + " Height: " + albumArt.Height);
-                Console.WriteLine("&Blur Creation: Width: " + width + " dX: " + dX);
-                Bitmap blured = Bitmap.CreateBitmap(drawable, dX, 0, (int)(width * 0.75f), drawable.Height);
-                Console.WriteLine("&BLured bitmap created");
+                try
+                {
+                    //The width of the view in pixel (we'll multiply this by 0.75f because the drawer has a width of 75%)
+                    int width = (int)(albumArt.Width * (float)drawable.Height / albumArt.Height);
+                    int dX = (int)((drawable.Width - width) * 0.5f);
+                    Console.WriteLine("&Drawable Info: Width: " + drawable.Width + " Height: " + drawable.Height);
+                    Console.WriteLine("&AlbumArt Info: Width: " + albumArt.Width + " Height: " + albumArt.Height);
+                    Console.WriteLine("&Blur Creation: Width: " + width + " dX: " + dX);
+                    Bitmap blured = Bitmap.CreateBitmap(drawable, dX, 0, (int)(width * 0.75f), drawable.Height);
+                    Console.WriteLine("&BLured bitmap created");
 
-                RenderScript rs = RenderScript.Create(MainActivity.instance);
-                Allocation input = Allocation.CreateFromBitmap(rs, blured);
-                Allocation output = Allocation.CreateTyped(rs, input.Type);
-                ScriptIntrinsicBlur blurrer = ScriptIntrinsicBlur.Create(rs, Element.U8_4(rs));
-                blurrer.SetRadius(13);
-                blurrer.SetInput(input);
-                blurrer.ForEach(output);
+                    RenderScript rs = RenderScript.Create(MainActivity.instance);
+                    Allocation input = Allocation.CreateFromBitmap(rs, blured);
+                    Allocation output = Allocation.CreateTyped(rs, input.Type);
+                    ScriptIntrinsicBlur blurrer = ScriptIntrinsicBlur.Create(rs, Element.U8_4(rs));
+                    blurrer.SetRadius(13);
+                    blurrer.SetInput(input);
+                    blurrer.ForEach(output);
 
-                output.CopyTo(blured);
-                MainActivity.instance.FindViewById<ImageView>(Resource.Id.queueBackground).SetImageBitmap(blured);
+                    output.CopyTo(blured);
+                    MainActivity.instance.FindViewById<ImageView>(Resource.Id.queueBackground).SetImageBitmap(blured);
+                    Console.WriteLine("&Bitmap set to image view");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("&Queue background error: " + ex.Message);
+                }
             }
 
             if (bar != null)
