@@ -57,7 +57,6 @@ namespace Opus.Api.Services
         public static List<int> WaitForIndex = new List<int>();
         public static List<Song> autoPlay = new List<Song>();
         private MediaSessionCompat mediaSession;
-        private AudioManager audioManager;
         private AudioFocusRequestClass audioFocusRequest;
         public NotificationManager notificationManager;
         private bool noisyRegistered;
@@ -208,7 +207,6 @@ namespace Opus.Api.Services
 
         private void InitializeService()
         {
-            audioManager = (AudioManager)Application.Context.GetSystemService(AudioService);
             notificationManager = (NotificationManager)Application.Context.GetSystemService(NotificationService);
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
 
@@ -298,12 +296,14 @@ namespace Opus.Api.Services
                 RemotePlayer.Load(GetMediaInfo(song), new MediaLoadOptions.Builder().SetAutoplay(true).Build());
         }
 
-        public void RequestAudioFocus()
+        public bool RequestAudioFocus()
         {
             AudioAttributes attributes = new AudioAttributes.Builder()
                     .SetUsage(AudioUsageKind.Media)
                     .SetContentType(AudioContentType.Music)
                     .Build();
+
+            AudioManager audioManager = (AudioManager)MainActivity.instance.GetSystemService(AudioService);
 
             if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
             {
@@ -318,24 +318,23 @@ namespace Opus.Api.Services
                 if (audioFocus != AudioFocusRequest.Granted)
                 {
                     Console.WriteLine("Can't Get Audio Focus");
-                    return;
+                    return false;
                 }
             }
             else
             {
 #pragma warning disable CS0618 // Type or member is obsolete
-
-                AudioManager am = (AudioManager)MainActivity.instance.GetSystemService(AudioService);
-
-                AudioFocusRequest audioFocus = am.RequestAudioFocus(this, Stream.Music, AudioFocus.Gain);
+                AudioFocusRequest audioFocus = audioManager.RequestAudioFocus(this, Stream.Music, AudioFocus.Gain);
 
                 if (audioFocus != AudioFocusRequest.Granted)
                 {
                     Console.WriteLine("Can't Get Audio Focus");
-                    return;
+                    return false;
                 }
 #pragma warning restore CS0618
             }
+
+            return true;
         }
 
         public async void Play(string filePath, string title = null, string artist = null, string youtubeID = null, string thumbnailURI = null, bool isLive = false)
@@ -358,8 +357,11 @@ namespace Opus.Api.Services
 
             if (!UseCastPlayer)
             {
-                RequestAudioFocus();
-                player.PlayWhenReady = true;
+                if(RequestAudioFocus())
+                {
+                    player.PlayWhenReady = true;
+                }
+
                 CreateNotification(song.Title, song.Artist, song.AlbumArt, song.Album);
                 AddToQueue(song);
                 currentID = CurrentID() + 1;
@@ -403,8 +405,9 @@ namespace Opus.Api.Services
             Prepare(song);
             if(!UseCastPlayer)
             {
-                RequestAudioFocus();
-                player.PlayWhenReady = true;
+                if(RequestAudioFocus())
+                    player.PlayWhenReady = true;
+
                 CreateNotification(song.Title, song.Artist, song.AlbumArt, song.Album);
 
                 if (progress != -1) //I'm seeking after the prepare because with some format, exoplayer's prepare reset the position
@@ -1327,70 +1330,36 @@ namespace Opus.Api.Services
         {
             if(!UseCastPlayer && player != null && notification != null && !isRunning)
             {
-                ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
-                player.Volume = prefManager.GetInt("volumeMultiplier", 100) / 100f;
-                isRunning = true;
-                Intent tmpPauseIntent = new Intent(Application.Context, typeof(MusicPlayer));
-                tmpPauseIntent.SetAction("Pause");
-                PendingIntent pauseIntent = PendingIntent.GetService(Application.Context, 0, tmpPauseIntent, PendingIntentFlags.UpdateCurrent);
-
-                notification.Actions[1] = new Notification.Action(Resource.Drawable.Pause, "Pause", pauseIntent);
-
-                player.PlayWhenReady = true;
-                StartForeground(notificationID, notification);
-
-                if (noisyReceiver == null)
-                    noisyReceiver = new AudioStopper();
-
-                RegisterReceiver(noisyReceiver, new IntentFilter(AudioManager.ActionAudioBecomingNoisy));
-                noisyRegistered = true;
-
-                FrameLayout smallPlayer = MainActivity.instance.FindViewById<FrameLayout>(Resource.Id.smallPlayer);
-                smallPlayer?.FindViewById<ImageButton>(Resource.Id.spPlay)?.SetImageResource(Resource.Drawable.Pause);
-
-                if (Player.instance != null)
+                if(RequestAudioFocus())
                 {
-                    MainActivity.instance?.FindViewById<ImageButton>(Resource.Id.playButton)?.SetImageResource(Resource.Drawable.Pause);
-                    Player.instance.handler?.PostDelayed(Player.instance.UpdateSeekBar, 1000);
-                }
+                    ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
+                    player.Volume = prefManager.GetInt("volumeMultiplier", 100) / 100f;
+                    isRunning = true;
+                    Intent tmpPauseIntent = new Intent(Application.Context, typeof(MusicPlayer));
+                    tmpPauseIntent.SetAction("Pause");
+                    PendingIntent pauseIntent = PendingIntent.GetService(Application.Context, 0, tmpPauseIntent, PendingIntentFlags.UpdateCurrent);
 
-                Queue.instance?.RefreshCurrent();
+                    notification.Actions[1] = new Notification.Action(Resource.Drawable.Pause, "Pause", pauseIntent);
 
-                AudioAttributes attributes = new AudioAttributes.Builder()
-                    .SetUsage(AudioUsageKind.Media)
-                    .SetContentType(AudioContentType.Music)
-                    .Build();
+                    player.PlayWhenReady = true;
+                    StartForeground(notificationID, notification);
 
-                if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
-                {
-                    AudioFocusRequestClass focusRequest = new AudioFocusRequestClass.Builder(AudioFocus.Gain)
-                        .SetAudioAttributes(attributes)
-                        .SetAcceptsDelayedFocusGain(true)
-                        .SetWillPauseWhenDucked(true)
-                        .SetOnAudioFocusChangeListener(this)
-                        .Build();
-                    AudioFocusRequest audioFocus = audioManager.RequestAudioFocus(focusRequest);
+                    if (noisyReceiver == null)
+                        noisyReceiver = new AudioStopper();
 
-                    if (audioFocus != AudioFocusRequest.Granted)
+                    RegisterReceiver(noisyReceiver, new IntentFilter(AudioManager.ActionAudioBecomingNoisy));
+                    noisyRegistered = true;
+
+                    FrameLayout smallPlayer = MainActivity.instance.FindViewById<FrameLayout>(Resource.Id.smallPlayer);
+                    smallPlayer?.FindViewById<ImageButton>(Resource.Id.spPlay)?.SetImageResource(Resource.Drawable.Pause);
+
+                    if (Player.instance != null)
                     {
-                        Console.WriteLine("Can't Get Audio Focus");
-                        return;
+                        MainActivity.instance?.FindViewById<ImageButton>(Resource.Id.playButton)?.SetImageResource(Resource.Drawable.Pause);
+                        Player.instance.handler?.PostDelayed(Player.instance.UpdateSeekBar, 1000);
                     }
-                }
-                else
-                {
-#pragma warning disable CS0618 // Type or member is obsolete
 
-                    AudioManager am = (AudioManager)MainActivity.instance.GetSystemService(AudioService);
-
-                    AudioFocusRequest audioFocus = am.RequestAudioFocus(this, Stream.Music, AudioFocus.Gain);
-
-                    if (audioFocus != AudioFocusRequest.Granted)
-                    {
-                        Console.WriteLine("Can't Get Audio Focus");
-                        return;
-                    }
-#pragma warning restore CS0618
+                    Queue.instance?.RefreshCurrent();
                 }
             }
             else if(UseCastPlayer && RemotePlayer != null && !isRunning) //Maybe check that the session is initialised.
@@ -1570,6 +1539,8 @@ namespace Opus.Api.Services
 
             if(audioFocusRequest != null)
             {
+                AudioManager audioManager = (AudioManager)MainActivity.instance.GetSystemService(AudioService);
+
                 if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
                     audioManager.AbandonAudioFocusRequest(audioFocusRequest);
                 else
@@ -1626,7 +1597,8 @@ namespace Opus.Api.Services
                         if (player == null)
                             InitializeService();
 
-                        Resume();
+                        if(!isRunning)
+                            Resume();
                     }
 
                     if (player != null)
