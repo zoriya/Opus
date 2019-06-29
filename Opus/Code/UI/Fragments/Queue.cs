@@ -118,7 +118,7 @@ public class Queue : Fragment, RecyclerView.IOnItemTouchListener, PopupMenu.IOnM
                     holder.status.Visibility = ViewStates.Visible;
                     holder.status.SetTextColor(MusicPlayer.isRunning ? Color.Argb(255, 244, 81, 30) : Color.Argb(255, 66, 165, 245));
 
-                    string status = MusicPlayer.isRunning ? GetString(Resource.String.playing) : GetString(Resource.String.paused);
+                    string status = MusicPlayer.isRunning ? MainActivity.instance.GetString(Resource.String.playing) : MainActivity.instance.GetString(Resource.String.paused);
                     SpannableString statusText = new SpannableString(status);
                     statusText.SetSpan(new BackgroundColorSpan(Color.ParseColor("#8C000000")), 0, status.Length, SpanTypes.InclusiveInclusive);
                     holder.status.TextFormatted = statusText;
@@ -128,7 +128,7 @@ public class Queue : Fragment, RecyclerView.IOnItemTouchListener, PopupMenu.IOnM
                     holder.status.Visibility = ViewStates.Visible;
                     holder.status.SetTextColor(Color.Argb(255, 0, 255, 255));
 
-                    string status = GetString(Resource.String.loading);
+                    string status = MainActivity.instance.GetString(Resource.String.loading);
                     SpannableString statusText = new SpannableString(status);
                     statusText.SetSpan(new BackgroundColorSpan(Color.ParseColor("#8C000000")), 0, status.Length, SpanTypes.InclusiveInclusive);
                     holder.status.TextFormatted = statusText;
@@ -193,21 +193,21 @@ public class Queue : Fragment, RecyclerView.IOnItemTouchListener, PopupMenu.IOnM
 
         List<BottomSheetAction> actions = new List<BottomSheetAction>
         {
-            new BottomSheetAction(Resource.Drawable.Play, Resources.GetString(Resource.String.play), (sender, eventArg) => { ListView_ItemClick(null, position); bottomSheet.Dismiss(); }),
-            new BottomSheetAction(Resource.Drawable.Close, Resources.GetString(Resource.String.remove_from_queue), (sender, eventArg) => { MusicPlayer.RemoveFromQueue(position); bottomSheet.Dismiss(); }),
-            new BottomSheetAction(Resource.Drawable.PlaylistAdd, Resources.GetString(Resource.String.add_to_playlist), (sender, eventArg) => { PlaylistManager.AddSongToPlaylistDialog(item); bottomSheet.Dismiss(); })
+            new BottomSheetAction(Resource.Drawable.Play, MainActivity.instance.GetString(Resource.String.play), (sender, eventArg) => { ListView_ItemClick(null, position); bottomSheet.Dismiss(); }),
+            new BottomSheetAction(Resource.Drawable.Close, MainActivity.instance.GetString(Resource.String.remove_from_queue), (sender, eventArg) => { MusicPlayer.RemoveFromQueue(position); bottomSheet.Dismiss(); }),
+            new BottomSheetAction(Resource.Drawable.PlaylistAdd, MainActivity.instance.GetString(Resource.String.add_to_playlist), (sender, eventArg) => { PlaylistManager.AddSongToPlaylistDialog(item); bottomSheet.Dismiss(); })
         };
 
         if (item.IsYt)
         {
             actions.AddRange(new BottomSheetAction[]
             {
-                new BottomSheetAction(Resource.Drawable.PlayCircle, Resources.GetString(Resource.String.create_mix_from_song), (sender, eventArg) =>
+                new BottomSheetAction(Resource.Drawable.PlayCircle, MainActivity.instance.GetString(Resource.String.create_mix_from_song), (sender, eventArg) =>
                 {
                     YoutubeManager.CreateMixFromSong(item);
                     bottomSheet.Dismiss();
                 }),
-                new BottomSheetAction(Resource.Drawable.Download, Resources.GetString(Resource.String.download), (sender, eventArg) =>
+                new BottomSheetAction(Resource.Drawable.Download, MainActivity.instance.GetString(Resource.String.download), (sender, eventArg) =>
                 {
                     YoutubeManager.Download(new[] { item });
                     bottomSheet.Dismiss();
@@ -216,7 +216,7 @@ public class Queue : Fragment, RecyclerView.IOnItemTouchListener, PopupMenu.IOnM
         }
         else
         {
-            actions.Add(new BottomSheetAction(Resource.Drawable.Edit, Resources.GetString(Resource.String.edit_metadata), (sender, eventArg) =>
+            actions.Add(new BottomSheetAction(Resource.Drawable.Edit, MainActivity.instance.GetString(Resource.String.edit_metadata), (sender, eventArg) =>
             {
                 LocalManager.EditMetadata(item);
                 bottomSheet.Dismiss();

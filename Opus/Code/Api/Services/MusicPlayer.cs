@@ -949,7 +949,7 @@ namespace Opus.Api.Services
             Console.WriteLine("&Song is parsed: " + song.IsParsed);
 
             if(showPlayer)
-                MainActivity.instance.ShowPlayer();
+                MainActivity.instance?.ShowPlayer();
 
             if (UseCastPlayer)
             {

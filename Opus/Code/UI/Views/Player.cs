@@ -481,6 +481,9 @@ namespace Opus
 
         public void OnGenerated(Palette palette)
         {
+            if (MainActivity.instance == null || IsDetached)
+                return;
+
             List<Palette.Swatch> swatches = palette.Swatches.OrderBy(x => x.Population).ToList();
             int i = swatches.Count - 1;
             Palette.Swatch swatch = palette.MutedSwatch;
@@ -529,12 +532,15 @@ namespace Opus
             if (prepared)
             {
                 View spReveal = MainActivity.instance.FindViewById<View>(Resource.Id.spReveal);
-                Animator spAnim = ViewAnimationUtils.CreateCircularReveal(spReveal, playNext == false ? spReveal.Width : 0, spReveal.Height / 2, 0, spReveal.Width);
-                spAnim.AnimationStart += (sender, e) => { spReveal.SetBackgroundColor(background); };
-                spAnim.AnimationEnd += (sender, e) => { MainActivity.instance.FindViewById(Resource.Id.playersHolder).SetBackgroundColor(background); };
-                spAnim.SetDuration(500);
-                spAnim.StartDelay = 10;
-                spAnim.Start();
+                if (spReveal != null && spReveal.IsAttachedToWindow)
+                {
+                    Animator spAnim = ViewAnimationUtils.CreateCircularReveal(spReveal, playNext == false ? spReveal.Width : 0, spReveal.Height / 2, 0, spReveal.Width);
+                    spAnim.AnimationStart += (sender, e) => { spReveal.SetBackgroundColor(background); };
+                    spAnim.AnimationEnd += (sender, e) => { MainActivity.instance.FindViewById(Resource.Id.playersHolder).SetBackgroundColor(background); };
+                    spAnim.SetDuration(500);
+                    spAnim.StartDelay = 10;
+                    spAnim.Start();
+                }
             }
             else
             {
