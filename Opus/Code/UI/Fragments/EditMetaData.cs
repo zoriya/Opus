@@ -320,9 +320,9 @@ namespace Opus.Fragments
 
         async void DownloadMetaDataFromYT(bool onlyArt)
         {
-            if (song.YoutubeID == "")
+            if (song.YoutubeID == "" && YoutubeClient.ValidateVideoId(song.YoutubeID))
             {
-                Toast.MakeText(this, Resource.String.metdata_error_noid, ToastLength.Short).Show();
+                Toast.MakeText(this, Resource.String.metdata_error_noid, ToastLength.Long).Show();
                 return;
             }
 
@@ -337,17 +337,25 @@ namespace Opus.Fragments
                     await Task.Delay(500);
             }
 
-            YoutubeClient client = new YoutubeClient();
-            Video video = await client.GetVideoAsync(youtubeID.Text);
-            if (!onlyArt)
-            {
-                title.Text = video.Title;
-                artist.Text = video.Author;
-                album.Text = video.Title + " - " + video.Author;
-            }
 
-            ytThumbUri = await YoutubeManager.GetBestThumb(video.Thumbnails);
-            Picasso.With(this).Load(ytThumbUri).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).MemoryPolicy(MemoryPolicy.NoCache, MemoryPolicy.NoStore).Into(albumArt);
+            try
+            {
+                YoutubeClient client = new YoutubeClient();
+                Video video = await client.GetVideoAsync(youtubeID.Text);
+                if (!onlyArt)
+                {
+                    title.Text = video.Title;
+                    artist.Text = video.Author;
+                    album.Text = video.Title + " - " + video.Author;
+                }
+
+                ytThumbUri = await YoutubeManager.GetBestThumb(video.Thumbnails);
+                Picasso.With(this).Load(ytThumbUri).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).MemoryPolicy(MemoryPolicy.NoCache, MemoryPolicy.NoStore).Into(albumArt);
+            }
+            catch(YoutubeExplode.Exceptions.VideoUnavailableException)
+            {
+                Toast.MakeText(this, Resource.String.metdata_error_noid, ToastLength.Long).Show();
+            }
         }
 
         void UndoChange()
