@@ -289,6 +289,7 @@ namespace Opus
             menu.FindItem(Resource.Id.search).SetOnActionExpandListener(this);
             ((SearchView)menu.FindItem(Resource.Id.search).ActionView).SetOnQueryTextFocusChangeListener(this);
             ((SearchView)menu.FindItem(Resource.Id.search).ActionView).QueryHint = GetString(Resource.String.youtube_search);
+            ((SearchView)menu.FindItem(Resource.Id.filter).ActionView).QueryHint = GetString(Resource.String.filter_hint);
 
             CastButtonFactory.SetUpMediaRouteButton(this, menu, Resource.Id.media_route_menu_item);
             return base.OnCreateOptionsMenu(menu);

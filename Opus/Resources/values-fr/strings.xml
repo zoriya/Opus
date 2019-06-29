@@ -9,6 +9,7 @@
   <string name="repeat">Lire en boucle</string>
   <string name="youtube_search">Rechercher sur youtube</string>
   <string name="filter">Filtrer</string>
+  <string name="filter_hint">Filtrer...</string>
   <string name="cast">Cast</string>
   <string name="settings">Paramètres</string>
   
