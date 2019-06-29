@@ -195,7 +195,10 @@ namespace Opus
                 if(SearchableActivity.instance.SearchQuery != null && SearchableActivity.instance.SearchQuery != "")
                 {
                     if (YoutubeSearch.instances == null || SearchableActivity.instance.SearchQuery != YoutubeSearch.instances[0].querryType) //We don't want to redo the query if the user already searched for the exact same query.
+                    {
+                        HideFilter();
                         SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, Pager.NewInstance(SearchableActivity.instance.SearchQuery, 0)).AddToBackStack("Youtube").Commit();
+                    }
                 }
                 SearchableActivity.instance = null;
             }
@@ -392,7 +395,7 @@ namespace Opus
             searchItem.CollapseActionView();
         }
 
-        public void HideSearch()
+        public void HideFilter()
         {
             if (menu == null)
                 return;
@@ -408,7 +411,7 @@ namespace Opus
             item.CollapseActionView();
         }
 
-        public void DisplaySearch()
+        public void DisplayFilter()
         {
             var item = menu.FindItem(Resource.Id.filter);
             item.SetVisible(true);
@@ -465,7 +468,7 @@ namespace Opus
                         return;
                     }
 
-                    HideSearch();
+                    HideFilter();
                     fragment = Home.NewInstance();
                     break;
 
@@ -477,7 +480,7 @@ namespace Opus
                         return;
                     }
 
-                    DisplaySearch();
+                    DisplayFilter();
                     fragment = Pager.NewInstance(0, 0);
                     break;
 
@@ -488,7 +491,7 @@ namespace Opus
                         return;
                     }
 
-                    HideSearch();
+                    HideFilter();
                     fragment = Playlist.NewInstance();
                     break;
             }

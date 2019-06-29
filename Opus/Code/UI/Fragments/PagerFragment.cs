@@ -150,7 +150,7 @@ namespace Opus.Fragments
 
                     Browse.instance.focused = true;
                     FolderBrowse.instance.IsFocused = false;
-                    MainActivity.instance.DisplaySearch();
+                    MainActivity.instance.DisplayFilter();
                 }
                 else if (position == 1)
                 {
@@ -159,7 +159,7 @@ namespace Opus.Fragments
 
                     Browse.instance.focused = false;
                     FolderBrowse.instance.IsFocused = true;
-                    MainActivity.instance.HideSearch();
+                    MainActivity.instance.HideFilter();
                 }
             }
             else if (YoutubeSearch.instances != null)

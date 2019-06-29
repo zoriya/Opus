@@ -437,6 +437,7 @@ namespace Opus
                     }),
                     new BottomSheetAction(Resource.Drawable.Download, Resources.GetString(Resource.String.download), (sender, eventArg) =>
                     {
+                        Console.WriteLine("&Trying to download " + item.Title);
                         YoutubeManager.Download(new[]{ item });
                         bottomSheet.Dismiss();
                     }),

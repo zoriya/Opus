@@ -119,19 +119,31 @@ namespace Opus.Api.Services
         #region Downloading of the queue
         public async void StartDownload()
         {
+            System.Console.WriteLine("&Queue count: " + queue.Count);
+            foreach (var item in queue)
+            {
+                System.Console.WriteLine("&Item: " + item.Name + " State:  " + item.State.ToString());
+            }
+
+
             while (downloadCount < maxDownload && queue.Count(x => x.State == DownloadState.None) > 0)
             {
+                System.Console.WriteLine("&Initiating the download of a song");
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 Task.Run(() => { DownloadAudio(queue.FindIndex(x => x.State == DownloadState.None), downloadPath); }, cancellation.Token);
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 await Task.Delay(10);
             }
+
+            System.Console.WriteLine("&Start download finished");
         }
 
         private async void DownloadAudio(int position, string path)
         {
             if (position < 0 || position > queue.Count || queue[position].State != DownloadState.None)
                 return;
+
+            System.Console.WriteLine("&Downloading audio of: " + queue[position].Name);
 
             queue[position].State = DownloadState.Initialization;
             UpdateList(position);
@@ -270,7 +282,7 @@ namespace Opus.Api.Services
                 meta.Tag.Album = title + " - " + artist;
                 meta.Tag.Comment = queue[position].YoutubeID;
                 IPicture[] pictures = new IPicture[1];
-                Bitmap bitmap = Picasso.With(Application.Context).Load(await YoutubeManager.GetBestThumb(thumbnails)).Transform(new RemoveBlackBorder(true)).Get();
+                Bitmap bitmap = Picasso.With(Application.Context).Load(await YoutubeManager.GetBestThumb(thumbnails)).Transform(new RemoveBlackBorder(true)).MemoryPolicy(MemoryPolicy.NoCache).Get();
                 byte[] data;
                 using (var MemoryStream = new MemoryStream())
                 {

@@ -38,7 +38,7 @@ namespace Opus.Fragments
 
             MainActivity.instance.SupportActionBar.SetDisplayShowTitleEnabled(true);
             MainActivity.instance.FindViewById(Resource.Id.toolbarLogo).Visibility = ViewStates.Gone;
-            MainActivity.instance.DisplaySearch();
+            MainActivity.instance.DisplayFilter();
         }
 
         public override void OnDestroy()
@@ -183,7 +183,7 @@ namespace Opus.Fragments
             MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(false);
             MainActivity.instance.SupportActionBar.SetDisplayShowTitleEnabled(false);
             MainActivity.instance.FindViewById(Resource.Id.toolbarLogo).Visibility = ViewStates.Visible;
-            MainActivity.instance.HideSearch();
+            MainActivity.instance.HideFilter();
             base.OnDestroyView();
         }
     }

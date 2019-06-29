@@ -92,10 +92,11 @@ namespace Opus.Api
         /// <param name="items"></param>
         public static void Download(Song[] items)
         {
-            string[] names = items.ToList().Where(x => x.LocalID == -1).ToList().ConvertAll(x => x.Title).ToArray();
-            string[] videoIDs = items.ToList().Where(x => x.LocalID == -1).ToList().ConvertAll(x => x.YoutubeID).ToArray();
+            string[] names = items.ToList().Where(x => x.LocalID == -1 || x.LocalID == 0).ToList().ConvertAll(x => x.Title).ToArray();
+            string[] videoIDs = items.ToList().Where(x => x.LocalID == -1 || x.LocalID == 0).ToList().ConvertAll(x => x.YoutubeID).ToArray();
 
-            DownloadFiles(names, videoIDs);
+            if(names.Count() > 0)
+                DownloadFiles(names, videoIDs);
         }
 
         /// <summary>
@@ -112,7 +113,8 @@ namespace Opus.Api
                     files.Add(new DownloadFile(names[i], videoIDs[i], null));
             }
 
-            await DownloadFiles(files);
+            if(files.Count > 0)
+                await DownloadFiles(files);
         }
 
         public static async Task DownloadFiles(IEnumerable<DownloadFile> files)
@@ -123,10 +125,14 @@ namespace Opus.Api
             if (!await MainActivity.instance.GetWritePermission())
                 return;
 
+            Toast.MakeText(MainActivity.instance, Resource.String.downloading, ToastLength.Short).Show();
             await Downloader.Init();
+            Console.WriteLine("&Trying to download " + files.Count());
+            Console.WriteLine("&First item: " + files.First().Name);
 
             Downloader.queue.AddRange(files);
             Downloader.instance.StartDownload();
+            Console.WriteLine("&Downloader started");
         }
 
         /// <summary>

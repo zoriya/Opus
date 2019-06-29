@@ -38,7 +38,7 @@ namespace Opus.Fragments
             }
 
             MainActivity.instance.contentRefresh.Refresh += OnRefresh;
-            MainActivity.instance.DisplaySearch();
+            MainActivity.instance.DisplayFilter();
 
             MainActivity.instance.SupportActionBar.SetHomeButtonEnabled(true);
             MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(true);
@@ -81,7 +81,7 @@ namespace Opus.Fragments
                 Activity.FindViewById(Resource.Id.playlistButtons).Visibility = ViewStates.Visible;
                 Activity.FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Gone;
 
-                MainActivity.instance.HideSearch();
+                MainActivity.instance.HideFilter();
                 MainActivity.instance.SupportActionBar.SetHomeButtonEnabled(false);
                 MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(false);
                 MainActivity.instance.SupportActionBar.SetDisplayShowTitleEnabled(false);
