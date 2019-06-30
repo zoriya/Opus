@@ -27,11 +27,11 @@ namespace Opus.DataStructure
         public string Path { get; set; }
         public bool? IsParsed { get; set; }
         public bool IsYt { get; set; }
+        public string ChannelID { get; set; }
         public DateTimeOffset? ExpireDate { get; set;}
         public int Duration { get; set; }
         public bool IsLiveStream = false;
         public string TrackID;
-        public string channelID;
 
         public Song() { }
 
@@ -60,9 +60,9 @@ namespace Opus.DataStructure
             int albumID = cursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Album);
             int thisID = cursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Id);
             int pathID = cursor.GetColumnIndex(MediaStore.Audio.Media.InterfaceConsts.Data);
-            int playOrderID = cursor.GetColumnIndex(MediaStore.Audio.Playlists.Members.PlayOrder);
+            //int playOrderID = cursor.GetColumnIndex(MediaStore.Audio.Playlists.Members.PlayOrder);
 
-            string playOrder = PlaylistTracks.instance != null ? cursor.GetString(playOrderID) : null;
+            //string playOrder = PlaylistTracks.instance != null ? cursor.GetString(playOrderID) : null;
             string Artist = cursor.GetString(artistID);
             string Title = cursor.GetString(titleID);
             string Album = cursor.GetString(albumID);
@@ -77,7 +77,7 @@ namespace Opus.DataStructure
             if (Album == null)
                 Album = "Unknow Album";
 
-            return new Song(Title, playOrder ?? Artist, Album, null, AlbumArt, id, path);
+            return new Song(Title, /*playOrder ?? */Artist, Album, null, AlbumArt, id, path);
         }
 
         public static explicit operator Song(YoutubeExplode.Models.Video video)

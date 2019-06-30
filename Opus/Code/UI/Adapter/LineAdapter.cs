@@ -210,6 +210,15 @@ namespace Opus.Adapter
                             bottomSheet.Dismiss();
                         })
                     });
+
+                    if(item.ChannelID != null)
+                    {
+                        actions.Add(new BottomSheetAction(Resource.Drawable.account, MainActivity.instance.Resources.GetString(Resource.String.goto_channel), (sender, eventArg) =>
+                        {
+                            ChannelManager.OpenChannelTab(item.ChannelID);
+                            bottomSheet.Dismiss();
+                        }));
+                    }
                 }
                 else
                 {
@@ -289,6 +298,15 @@ namespace Opus.Adapter
                             bottomSheet.Dismiss();
                         })
                     });
+
+                    if (item.ChannelID != null)
+                    {
+                        actions.Add(new BottomSheetAction(Resource.Drawable.account, MainActivity.instance.Resources.GetString(Resource.String.goto_channel), (sender, eventArg) =>
+                        {
+                            ChannelManager.OpenChannelTab(item.ChannelID);
+                            bottomSheet.Dismiss();
+                        }));
+                    }
                 }
 
                 bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, actions);

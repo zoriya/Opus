@@ -448,6 +448,15 @@ namespace Opus
                         bottomSheet.Dismiss();
                     })
                 });
+
+                if (item.ChannelID != null)
+                {
+                    actions.Add(new BottomSheetAction(Resource.Drawable.account, Resources.GetString(Resource.String.goto_channel), (sender, eventArg) =>
+                    {
+                        ChannelManager.OpenChannelTab(item.ChannelID);
+                        bottomSheet.Dismiss();
+                    }));
+                }
             }
             else
             {

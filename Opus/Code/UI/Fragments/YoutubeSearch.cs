@@ -307,7 +307,7 @@ namespace Opus.Fragments
                 case "youtube#video":
                     Song videoInfo = new Song(System.Net.WebUtility.HtmlDecode(result.Snippet.Title), result.Snippet.ChannelTitle, result.Snippet.Thumbnails.High.Url, result.Id.VideoId, -1, -1, null, true, false)
                     {
-                        channelID = result.Snippet.ChannelId
+                        ChannelID = result.Snippet.ChannelId
                     };
                     if (result.Snippet.LiveBroadcastContent == "live")
                         videoInfo.IsLiveStream = true;
@@ -413,7 +413,7 @@ namespace Opus.Fragments
                     MainActivity.instance.menu.FindItem(Resource.Id.search).CollapseActionView();
                     MainActivity.instance.menu.FindItem(Resource.Id.search).ActionView.Focusable = true;
                     MainActivity.instance.FindViewById<TabLayout>(Resource.Id.tabs).Visibility = ViewStates.Gone;
-                    ChannelManager.OpenChannelTab(item.channelID);
+                    ChannelManager.OpenChannelTab(item.ChannelID);
                     bottomSheet.Dismiss();
                 })
             });

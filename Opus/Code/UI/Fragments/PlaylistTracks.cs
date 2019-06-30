@@ -312,7 +312,8 @@ namespace Opus.Fragments
                         {
                             Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.High.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false)
                             {
-                                TrackID = item.Id
+                                TrackID = item.Id,
+                                ChannelID = item.Snippet.ChannelId
                             };
                             tracks.Add(song);
                         }
@@ -401,7 +402,8 @@ namespace Opus.Fragments
                     {
                         Song song = new Song(item.Snippet.Title, item.Snippet.ChannelTitle, item.Snippet.Thumbnails.Default__.Url, item.ContentDetails.VideoId, -1, -1, item.ContentDetails.VideoId, true, false)
                         {
-                            TrackID = item.Id
+                            TrackID = item.Id,
+                            ChannelID = item.Snippet.ChannelId
                         };
                         adapter.tracks.Add(song);
                     }
@@ -532,6 +534,15 @@ namespace Opus.Fragments
                         bottomSheet.Dismiss();
                     })
                 });
+
+                if (song.ChannelID != null)
+                {
+                    actions.Add(new BottomSheetAction(Resource.Drawable.account, Resources.GetString(Resource.String.goto_channel), (sender, eventArg) =>
+                    {
+                        ChannelManager.OpenChannelTab(song.ChannelID);
+                        bottomSheet.Dismiss();
+                    }));
+                }
             }
 
             bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, actions);

@@ -146,8 +146,6 @@ public class Queue : Fragment, RecyclerView.IOnItemTouchListener, PopupMenu.IOnM
 
     private void ListView_ItemClick(object sender, int Position)
     {
-        Song item = MusicPlayer.queue[Position];
-
         if (Position == MusicPlayer.CurrentID())
         {
             Intent intent = new Intent(Activity, typeof(MusicPlayer));
@@ -213,6 +211,15 @@ public class Queue : Fragment, RecyclerView.IOnItemTouchListener, PopupMenu.IOnM
                     bottomSheet.Dismiss();
                 })
             });
+
+            if (item.ChannelID != null)
+            {
+                actions.Add(new BottomSheetAction(Resource.Drawable.account, Resources.GetString(Resource.String.goto_channel), (sender, eventArg) =>
+                {
+                    ChannelManager.OpenChannelTab(item.ChannelID);
+                    bottomSheet.Dismiss();
+                }));
+            }
         }
         else
         {
