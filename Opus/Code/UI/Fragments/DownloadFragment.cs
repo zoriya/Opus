@@ -201,14 +201,7 @@ namespace Opus.Fragments
         public override void OnStop()
         {
             base.OnStop();
-            Preferences.instance.toolbar.Title = Preferences.instance.GetString(Resource.String.settings);
-        }
-
-        public override void OnViewCreated(View view, Bundle savedInstanceState)
-        {
-            //if (MainActivity.Theme == 1)
-            //    view.SetBackgroundColor(Color.Argb(225, 33, 33, 33));
-            base.OnViewCreated(view, savedInstanceState);
+            Preferences.instance.SupportActionBar.Title = Preferences.instance.GetString(Resource.String.settings);
         }
     }
 }

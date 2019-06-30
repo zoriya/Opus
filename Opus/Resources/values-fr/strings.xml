@@ -191,12 +191,15 @@
   <string name="black_theme">Thème noir</string>
   <string name="others">Autres</string>
   <string name="check_updates">Rechercher des mises à jour</string>
-  <string name="version">Version</string>
+  <string name="about">À propos</string>
   <string name="not_log">Déconnecté</string>
   <string name="logged_in">Connecté en temps que</string>
   <string name="log_in">CONNECTION</string>
   <string name="log_out">DECONNECTION</string>
   <string name="login_disabled">Les connections ont été désactivée suite a une restriction de google.</string>
+  <string name="opensource">Licenses open source</string>
+  <string name="website">Site internet de l\'application</string>
+  <string name="github">Github de l\'application</string>
 
   <!--Snackbars and others-->
   <string name="undo">Annuler</string>

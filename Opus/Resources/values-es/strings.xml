@@ -170,7 +170,7 @@
   <string name="dark_theme">Tema Obscuro</string>
   <string name="others">Otros</string>
   <string name="check_updates">Buscar actualizaciones</string>
-  <string name="version">Version</string>
+  <string name="about">About</string>
   <string name="not_log">Desconectado</string>
   <string name="logged_in">Conectado al mismo tiempo que</string>
   <string name="log_in">CONEXIÓN</string>

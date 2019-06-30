@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<android.support.v7.preference.PreferenceScreen
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android/com/apk/res-auto"
+  android:id="@+id/PreferenceScreen">
+  <android.support.v7.preference.Preference
+    android:key="view_opensource"
+    android:title="@string/opensource" />
+  <android.support.v7.preference.Preference
+    android:key="website"
+    android:title="@string/website"
+    android:summary="www.raccoon-sdg.fr"/>
+  <android.support.v7.preference.Preference
+    android:key="github"
+    android:title="@string/github"
+    android:summary="github.com/AnonymusRaccoon/Opus"/>
+</android.support.v7.preference.PreferenceScreen>

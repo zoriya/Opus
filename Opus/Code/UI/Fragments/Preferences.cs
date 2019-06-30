@@ -28,7 +28,6 @@ namespace Opus.Fragments
     public class Preferences : AppCompatActivity
     {
         public static Preferences instance;
-        public Toolbar toolbar;
         private bool? PermissionGot;
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -36,18 +35,17 @@ namespace Opus.Fragments
             base.OnCreate(savedInstanceState);
             MainActivity.LoadTheme(this);
             SetContentView(Resource.Layout.PreferenceRoot);
-            toolbar = FindViewById<Toolbar>(Resource.Id.toolbar);
-            SetSupportActionBar(toolbar);
+            SetSupportActionBar(FindViewById<Toolbar>(Resource.Id.toolbar));
 
             instance = this;
-            toolbar.NavigationClick += (sender, e) =>
+            FindViewById<Toolbar>(Resource.Id.toolbar).NavigationClick += (sender, e) =>
             {
-                if (DownloadFragment.instance == null)
+                if (DownloadFragment.instance == null && AboutFragment.instance == null && OpenSourceViewer.instance == null)
                     Finish();
                 else if (DownloadFragment.instance != null)
-                {
                     DownloadFolderBack();
-                }
+                else
+                    SupportFragmentManager.PopBackStack();
             };
 
             SupportFragmentManager.BeginTransaction().Replace(Android.Resource.Id.ListContainer, new PreferencesFragment()).Commit();
@@ -137,6 +135,7 @@ namespace Opus.Fragments
         protected override void OnResume()
         {
             base.OnResume();
+            instance = this;
         }
     }
 
@@ -215,6 +214,7 @@ namespace Opus.Fragments
 
             versionPreference.Summary = "v" + version + (beta ? "-Beta" : "");
             versionPreference.IconSpaceReserved = false;
+            versionPreference.PreferenceClick += About;
 
             //Account
             Preference accountPreference = PreferenceScreen.FindPreference("account");
@@ -260,7 +260,7 @@ namespace Opus.Fragments
             if(await Preferences.instance.GetReadPermission())
             {
                 Preferences.instance.SupportFragmentManager.BeginTransaction().Replace(Android.Resource.Id.ListContainer, DownloadFragment.NewInstance(path)).AddToBackStack(null).Commit();
-                Preferences.instance.toolbar.Title = "Download Location";
+                Preferences.instance.SupportActionBar.Title = "Download Location";
             }
         }
         #endregion
@@ -341,6 +341,14 @@ namespace Opus.Fragments
         private void UpdatePreference_PreferenceClick(object sender, Preference.PreferenceClickEventArgs e)
         {
             MainActivity.CheckForUpdate(Preferences.instance, true);
+        }
+        #endregion
+
+        #region About
+        private void About(object sender, Preference.PreferenceClickEventArgs e)
+        {
+            Preferences.instance.SupportFragmentManager.BeginTransaction().Replace(Android.Resource.Id.ListContainer, new AboutFragment()).AddToBackStack(null).Commit();
+            Preferences.instance.SupportActionBar.Title = GetString(Resource.String.about);
         }
         #endregion
     }
