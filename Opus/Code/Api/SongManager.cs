@@ -1,5 +1,6 @@
 ﻿using Opus.Api.Services;
 using Opus.DataStructure;
+using Opus.Fragments;
 using SQLite;
 using System;
 using System.Collections.Generic;
@@ -126,30 +127,37 @@ namespace Opus.Api
         /// Add a song to the favorite playlist.
         /// </summary>
         /// <param name="song"></param>
-        public static void Fav(Song song)
+        public async static void Fav(Song song)
         {
-            Task.Run(() =>
+            Console.WriteLine("&Fav " + song.Title);
+            await Task.Run(() =>
             {
                 SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Favorites.sqlite"));
                 db.CreateTable<Song>();
 
                 db.Insert(song);
             });
+            Home.instance?.RefreshFavs();
         }
 
         /// <summary>
         /// Remove a song from the favorites.
         /// </summary>
         /// <param name="song"></param>
-        public static void UnFav(Song song)
+        public async static void UnFav(Song song)
         {
-            Task.Run(() =>
+            Console.WriteLine("&UnFav " + song.Title);
+            await Task.Run(() =>
             {
                 SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Favorites.sqlite"));
                 db.CreateTable<Song>();
 
-                db.Table<Song>().Delete(x => (x.IsYt && x.YoutubeID == song.YoutubeID) || (!x.IsYt && x.LocalID == song.LocalID));
+                if(song.IsYt)
+                    db.Table<Song>().Delete(x => x.IsYt && x.YoutubeID == song.YoutubeID);
+                else
+                    db.Table<Song>().Delete(x => !x.IsYt && x.LocalID == song.LocalID);
             });
+            Home.instance?.RefreshFavs();
         }
 
         /// <summary>

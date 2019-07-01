@@ -14,7 +14,7 @@ namespace Opus.DataStructure
     [Serializable]
     public class Song
     {
-        [PrimaryKey, Unique]
+        [PrimaryKey, Unique, AutoIncrement]
         public int Index { get; set; }
 
         public string Title { get; set; }
