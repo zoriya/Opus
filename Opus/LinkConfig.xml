@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<linker>
+  <assembly fullname="Mono.Android">
+    <type fullname="Android.Database.*" />
+  </assembly>
+  <assembly fullname="Xamarin.Android.Support.Core.Utils">
+    <type fullname="Android.Support.V4.Content.*" />
+  </assembly>
+</linker>

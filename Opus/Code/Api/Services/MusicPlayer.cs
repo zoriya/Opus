@@ -1288,10 +1288,10 @@ namespace Opus.Api.Services
                 return;
 
             ShouldResumePlayback = false;
-            FrameLayout smallPlayer = MainActivity.instance.FindViewById<FrameLayout>(Resource.Id.smallPlayer);
+            FrameLayout smallPlayer = MainActivity.instance?.FindViewById<FrameLayout>(Resource.Id.smallPlayer);
             smallPlayer?.FindViewById<ImageButton>(Resource.Id.spPlay)?.SetImageResource(Resource.Drawable.Play);
 
-            MainActivity.instance.FindViewById<ImageButton>(Resource.Id.playButton)?.SetImageResource(Resource.Drawable.Play);
+            MainActivity.instance?.FindViewById<ImageButton>(Resource.Id.playButton)?.SetImageResource(Resource.Drawable.Play);
             isRunning = false;
             Queue.instance?.RefreshCurrent();
 
