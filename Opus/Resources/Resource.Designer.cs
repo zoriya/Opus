@@ -3968,22 +3968,25 @@ namespace Opus
 			public const int design_snackbar_background = 2130837677;
 			
 			// aapt resource value: 0x7f0200ae
-			public const int Download = 2130837678;
+			public const int done = 2130837678;
 			
 			// aapt resource value: 0x7f0200af
-			public const int Edit = 2130837679;
+			public const int Download = 2130837679;
 			
 			// aapt resource value: 0x7f0200b0
-			public const int Error = 2130837680;
+			public const int Edit = 2130837680;
+			
+			// aapt resource value: 0x7f0200b1
+			public const int Error = 2130837681;
 			
 			// aapt resource value: 0x7f0201ee
 			public const int exo_controls_fastforward = 2130837998;
 			
-			// aapt resource value: 0x7f0200b1
-			public const int exo_controls_fullscreen_enter = 2130837681;
-			
 			// aapt resource value: 0x7f0200b2
-			public const int exo_controls_fullscreen_exit = 2130837682;
+			public const int exo_controls_fullscreen_enter = 2130837682;
+			
+			// aapt resource value: 0x7f0200b3
+			public const int exo_controls_fullscreen_exit = 2130837683;
 			
 			// aapt resource value: 0x7f0201ef
 			public const int exo_controls_next = 2130837999;
@@ -3997,44 +4000,44 @@ namespace Opus
 			// aapt resource value: 0x7f0201f2
 			public const int exo_controls_previous = 2130838002;
 			
-			// aapt resource value: 0x7f0200b3
-			public const int exo_controls_repeat_all = 2130837683;
-			
 			// aapt resource value: 0x7f0200b4
-			public const int exo_controls_repeat_off = 2130837684;
+			public const int exo_controls_repeat_all = 2130837684;
 			
 			// aapt resource value: 0x7f0200b5
-			public const int exo_controls_repeat_one = 2130837685;
+			public const int exo_controls_repeat_off = 2130837685;
+			
+			// aapt resource value: 0x7f0200b6
+			public const int exo_controls_repeat_one = 2130837686;
 			
 			// aapt resource value: 0x7f0201f3
 			public const int exo_controls_rewind = 2130838003;
 			
-			// aapt resource value: 0x7f0200b6
-			public const int exo_controls_shuffle = 2130837686;
-			
 			// aapt resource value: 0x7f0200b7
-			public const int exo_edit_mode_logo = 2130837687;
+			public const int exo_controls_shuffle = 2130837687;
 			
 			// aapt resource value: 0x7f0200b8
-			public const int exo_icon_fastforward = 2130837688;
+			public const int exo_edit_mode_logo = 2130837688;
 			
 			// aapt resource value: 0x7f0200b9
-			public const int exo_icon_next = 2130837689;
+			public const int exo_icon_fastforward = 2130837689;
 			
 			// aapt resource value: 0x7f0200ba
-			public const int exo_icon_pause = 2130837690;
+			public const int exo_icon_next = 2130837690;
 			
 			// aapt resource value: 0x7f0200bb
-			public const int exo_icon_play = 2130837691;
+			public const int exo_icon_pause = 2130837691;
 			
 			// aapt resource value: 0x7f0200bc
-			public const int exo_icon_previous = 2130837692;
+			public const int exo_icon_play = 2130837692;
 			
 			// aapt resource value: 0x7f0200bd
-			public const int exo_icon_rewind = 2130837693;
+			public const int exo_icon_previous = 2130837693;
 			
 			// aapt resource value: 0x7f0200be
-			public const int exo_icon_stop = 2130837694;
+			public const int exo_icon_rewind = 2130837694;
+			
+			// aapt resource value: 0x7f0200bf
+			public const int exo_icon_stop = 2130837695;
 			
 			// aapt resource value: 0x7f0201f4
 			public const int exo_notification_fastforward = 2130838004;
@@ -4054,59 +4057,56 @@ namespace Opus
 			// aapt resource value: 0x7f0201f9
 			public const int exo_notification_rewind = 2130838009;
 			
-			// aapt resource value: 0x7f0200bf
-			public const int exo_notification_small_icon = 2130837695;
+			// aapt resource value: 0x7f0200c0
+			public const int exo_notification_small_icon = 2130837696;
 			
 			// aapt resource value: 0x7f0201fa
 			public const int exo_notification_stop = 2130838010;
 			
-			// aapt resource value: 0x7f0200c0
-			public const int ExpandLess = 2130837696;
-			
 			// aapt resource value: 0x7f0200c1
-			public const int Fav = 2130837697;
+			public const int ExpandLess = 2130837697;
 			
 			// aapt resource value: 0x7f0200c2
-			public const int Filter = 2130837698;
+			public const int Fav = 2130837698;
 			
 			// aapt resource value: 0x7f0200c3
-			public const int FlatButtonBorder = 2130837699;
+			public const int Filter = 2130837699;
 			
 			// aapt resource value: 0x7f0200c4
-			public const int Folder = 2130837700;
+			public const int FlatButtonBorder = 2130837700;
 			
 			// aapt resource value: 0x7f0200c5
-			public const int googleg_disabled_color_18 = 2130837701;
+			public const int Folder = 2130837701;
 			
 			// aapt resource value: 0x7f0200c6
-			public const int googleg_standard_color_18 = 2130837702;
+			public const int googleg_disabled_color_18 = 2130837702;
 			
 			// aapt resource value: 0x7f0200c7
-			public const int GradientShape = 2130837703;
+			public const int googleg_standard_color_18 = 2130837703;
 			
 			// aapt resource value: 0x7f0200c8
-			public const int History = 2130837704;
+			public const int GradientShape = 2130837704;
 			
 			// aapt resource value: 0x7f0200c9
-			public const int Home = 2130837705;
+			public const int History = 2130837705;
 			
 			// aapt resource value: 0x7f0200ca
-			public const int ic_arrow_down_24dp = 2130837706;
+			public const int Home = 2130837706;
 			
 			// aapt resource value: 0x7f0200cb
-			public const int ic_audiotrack_dark = 2130837707;
+			public const int ic_arrow_down_24dp = 2130837707;
 			
 			// aapt resource value: 0x7f0200cc
-			public const int ic_audiotrack_light = 2130837708;
+			public const int ic_audiotrack_dark = 2130837708;
 			
 			// aapt resource value: 0x7f0200cd
-			public const int ic_dialog_close_dark = 2130837709;
+			public const int ic_audiotrack_light = 2130837709;
 			
 			// aapt resource value: 0x7f0200ce
-			public const int ic_dialog_close_light = 2130837710;
+			public const int ic_dialog_close_dark = 2130837710;
 			
 			// aapt resource value: 0x7f0200cf
-			public const int ic_done_black_24dp = 2130837711;
+			public const int ic_dialog_close_light = 2130837711;
 			
 			// aapt resource value: 0x7f0200d0
 			public const int ic_group_collapse_00 = 2130837712;
