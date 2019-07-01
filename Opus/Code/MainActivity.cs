@@ -43,7 +43,7 @@ using TransportType = Android.Net.TransportType;
 
 namespace Opus
 {
-    [Activity(Label = "Opus", MainLauncher = true, Icon = "@drawable/Icon", Theme = "@style/SplashScreen", ScreenOrientation = ScreenOrientation.Portrait, LaunchMode = LaunchMode.SingleTask)]
+    [Activity(Label = "Opus", MainLauncher = true, Icon = "@drawable/Icon", Theme = "@style/SplashScreen", ScreenOrientation = ScreenOrientation.Portrait, LaunchMode = LaunchMode.SingleTask, ResizeableActivity = true)]
     [IntentFilter(new[] {Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, DataHost = "www.youtube.com", DataMimeType = "text/*")]
     [IntentFilter(new[] {Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, DataHost = "m.youtube.com", DataMimeType = "text/plain")]
     [IntentFilter(new[] { Intent.ActionView }, Categories = new[] { Intent.CategoryDefault }, DataMimeTypes = new[] { "audio/*", "application/ogg", "application/x-ogg", "application/itunes" })]
@@ -556,7 +556,7 @@ namespace Opus
         {
             FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Visible;
             FindViewById<NestedScrollView>(Resource.Id.playerSheet).TranslationY = 0;
-            FindViewById<BottomNavigationView>(Resource.Id.bottomView).TranslationY = (int)(56 * Resources.DisplayMetrics.Density + 0.5f);
+            FindViewById<BottomNavigationView>(Resource.Id.bottomView).TranslationY = DpToPx(56);
             FindViewById(Resource.Id.playerContainer).Alpha = 1;
             FindViewById(Resource.Id.smallPlayer).Alpha = 0;
             SheetBehavior.State = BottomSheetBehavior.StateExpanded;

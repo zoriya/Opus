@@ -196,13 +196,20 @@ namespace Opus
             {
                 try
                 {
-                    //The width of the view in pixel (we'll multiply this by 0.75f because the drawer has a width of 75%)
-                    int width = (int)(albumArt.Width * (float)drawable.Height / albumArt.Height);
+                    //k is the coeficient to convert ImageView's size to Bitmap's size
+                    //We want to take the lower coeficient because if we take the higher, we will have a final bitmap larger than the initial one and we can't create pixels
+                    float k = Math.Min((float)drawable.Height / albumArt.Height, (float)drawable.Width / albumArt.Width); 
+                    int width = (int)(albumArt.Width * k);
+                    int height = (int)(albumArt.Height * k);
+
                     int dX = (int)((drawable.Width - width) * 0.5f);
+                    int dY = (int)((drawable.Height - height) * 0.5f);
+
                     Console.WriteLine("&Drawable Info: Width: " + drawable.Width + " Height: " + drawable.Height);
                     Console.WriteLine("&AlbumArt Info: Width: " + albumArt.Width + " Height: " + albumArt.Height);
-                    Console.WriteLine("&Blur Creation: Width: " + width + " dX: " + dX);
-                    Bitmap blured = Bitmap.CreateBitmap(drawable, dX, 0, (int)(width * 0.75f), drawable.Height);
+                    Console.WriteLine("&Blur Creation: Width: " + width + " Height: " + height + " dX: " + dX + " dY: " + dY);
+                    //The width of the view in pixel (we'll multiply this by 0.75f because the drawer has a width of 75%)
+                    Bitmap blured = Bitmap.CreateBitmap(drawable, dX, dY, (int)(width * 0.75f), height);
                     Console.WriteLine("&BLured bitmap created");
 
                     RenderScript rs = RenderScript.Create(MainActivity.instance);
@@ -225,8 +232,8 @@ namespace Opus
 
             if (bar != null)
             {
-                if(spBar == null)
-                    spBar = Activity.FindViewById<ProgressBar>(Resource.Id.spProgress);
+                if (spBar == null)
+                    spBar = MainActivity.instance.FindViewById<ProgressBar>(Resource.Id.spProgress);
 
                 if (current.IsLiveStream)
                 {
