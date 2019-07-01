@@ -50,6 +50,8 @@
   <string name="remove_from_queue">Enlever de la liste de lecture</string>
   <string name="remove_track_from_playlist">Enlever de la playlist</string>
   <string name="goto_channel">Allez voir la chaine</string>
+  <string name="fav">Ajouter cette musique au favoris</string>
+  <string name="unfav">Enlever cette musique des favoris</string>
   <!--More menu of playlist or folders-->
   <string name="list_songs">Lister les titres</string>
   <string name="play_in_order">Lire dans l\'ordre</string>

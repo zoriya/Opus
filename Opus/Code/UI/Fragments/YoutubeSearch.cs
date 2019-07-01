@@ -370,7 +370,7 @@ namespace Opus.Fragments
             }
         }
 
-        public void More(Song item)
+        public async void More(Song item)
         {
             BottomSheetDialog bottomSheet = new BottomSheetDialog(MainActivity.instance);
             View bottomView = MainActivity.instance.LayoutInflater.Inflate(Resource.Layout.BottomSheet, null);
@@ -379,7 +379,7 @@ namespace Opus.Fragments
             Picasso.With(MainActivity.instance).Load(item.Album).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
             bottomSheet.SetContentView(bottomView);
 
-            bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, new List<BottomSheetAction>
+            List<BottomSheetAction> actions = new List<BottomSheetAction>
             {
                 new BottomSheetAction(Resource.Drawable.Play, MainActivity.instance.Resources.GetString(Resource.String.play), (sender, eventArg) =>
                 {
@@ -416,7 +416,14 @@ namespace Opus.Fragments
                     ChannelManager.OpenChannelTab(item.ChannelID);
                     bottomSheet.Dismiss();
                 })
-            });
+            };
+
+            if (await SongManager.IsFavorite(item))
+                actions.Add(new BottomSheetAction(Resource.Drawable.Fav, MainActivity.instance.Resources.GetString(Resource.String.unfav), (sender, eventArg) => { SongManager.UnFav(item); bottomSheet.Dismiss(); }));
+            else
+                actions.Add(new BottomSheetAction(Resource.Drawable.Unfav, MainActivity.instance.Resources.GetString(Resource.String.fav), (sender, eventArg) => { SongManager.Fav(item); bottomSheet.Dismiss(); }));
+
+            bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, actions);
             bottomSheet.Show();
         }
 

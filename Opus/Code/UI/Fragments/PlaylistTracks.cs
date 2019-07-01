@@ -456,7 +456,7 @@ namespace Opus.Fragments
             }
         }
 
-        public void More(Song song, int position)
+        public async void More(Song song, int position)
         {
             BottomSheetDialog bottomSheet = new BottomSheetDialog(MainActivity.instance);
             View bottomView = LayoutInflater.Inflate(Resource.Layout.BottomSheet, null);
@@ -544,6 +544,11 @@ namespace Opus.Fragments
                     }));
                 }
             }
+
+            if (await SongManager.IsFavorite(song))
+                actions.Add(new BottomSheetAction(Resource.Drawable.Fav, MainActivity.instance.Resources.GetString(Resource.String.unfav), (sender, eventArg) => { SongManager.UnFav(song); bottomSheet.Dismiss(); }));
+            else
+                actions.Add(new BottomSheetAction(Resource.Drawable.Unfav, MainActivity.instance.Resources.GetString(Resource.String.fav), (sender, eventArg) => { SongManager.Fav(song); bottomSheet.Dismiss(); }));
 
             bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, actions);
             bottomSheet.Show();

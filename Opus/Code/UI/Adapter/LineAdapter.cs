@@ -19,7 +19,7 @@ namespace Opus.Adapter
         public RecyclerView recycler;
         public int listPadding = 0;
         private readonly bool UseQueue = false;
-        private List<Song> songList;
+        private readonly List<Song> songList;
         private bool isEmpty = false;
 
         public override int ItemCount
@@ -165,7 +165,7 @@ namespace Opus.Adapter
                 SongManager.Play(songList[position]);
         }
 
-        void OnLongClick(int position)
+        async void OnLongClick(int position)
         {
             Song item = songList[position];
 
@@ -228,6 +228,11 @@ namespace Opus.Adapter
                         bottomSheet.Dismiss();
                     }));
                 }
+
+                if (await SongManager.IsFavorite(item))
+                    actions.Add(new BottomSheetAction(Resource.Drawable.Fav, MainActivity.instance.Resources.GetString(Resource.String.unfav), (sender, eventArg) => { SongManager.UnFav(item); bottomSheet.Dismiss(); }));
+                else
+                    actions.Add(new BottomSheetAction(Resource.Drawable.Unfav, MainActivity.instance.Resources.GetString(Resource.String.fav), (sender, eventArg) => { SongManager.Fav(item); bottomSheet.Dismiss(); }));
 
                 bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, actions);
                 bottomSheet.Show();
@@ -308,6 +313,11 @@ namespace Opus.Adapter
                         }));
                     }
                 }
+
+                if (await SongManager.IsFavorite(item))
+                    actions.Add(new BottomSheetAction(Resource.Drawable.Fav, MainActivity.instance.Resources.GetString(Resource.String.unfav), (sender, eventArg) => { SongManager.UnFav(item); bottomSheet.Dismiss(); }));
+                else
+                    actions.Add(new BottomSheetAction(Resource.Drawable.Unfav, MainActivity.instance.Resources.GetString(Resource.String.fav), (sender, eventArg) => { SongManager.Fav(item); bottomSheet.Dismiss(); }));
 
                 bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, actions);
                 bottomSheet.Show();

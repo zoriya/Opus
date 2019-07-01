@@ -109,9 +109,9 @@ namespace Opus.Api
         /// </summary>
         /// <param name="song"></param>
         /// <returns></returns>
-        public async static Task<bool> IsFavorite(Song song)
+        public static Task<bool> IsFavorite(Song song)
         {
-            return await Task.Run(() =>
+            return Task.Run(() =>
             {
                 SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Favorites.sqlite"));
                 db.CreateTable<Song>();

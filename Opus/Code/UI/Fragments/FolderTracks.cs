@@ -137,7 +137,7 @@ namespace Opus.Fragments
             LoaderManager.GetInstance(this).RestartLoader(0, null, this);
         }
 
-        public void More(Song item, int position)
+        public async void More(Song item, int position)
         {
             BottomSheetDialog bottomSheet = new BottomSheetDialog(MainActivity.instance);
             View bottomView = LayoutInflater.Inflate(Resource.Layout.BottomSheet, null);
@@ -156,9 +156,9 @@ namespace Opus.Fragments
             }
             bottomSheet.SetContentView(bottomView);
 
-            bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, new List<BottomSheetAction>
+            List<BottomSheetAction> actions = new List<BottomSheetAction>
             {
-                new BottomSheetAction(Resource.Drawable.Play, Resources.GetString(Resource.String.play), (sender, eventArg) => 
+                new BottomSheetAction(Resource.Drawable.Play, Resources.GetString(Resource.String.play), (sender, eventArg) =>
                 {
                     LocalManager.PlayInOrder(path, position);
                     bottomSheet.Dismiss();
@@ -167,7 +167,14 @@ namespace Opus.Fragments
                 new BottomSheetAction(Resource.Drawable.Queue, Resources.GetString(Resource.String.play_last), (sender, eventArg) => { SongManager.PlayLast(item); bottomSheet.Dismiss(); }),
                 new BottomSheetAction(Resource.Drawable.PlaylistAdd, Resources.GetString(Resource.String.add_to_playlist), (sender, eventArg) => { PlaylistManager.AddSongToPlaylistDialog(item); bottomSheet.Dismiss(); }),
                 new BottomSheetAction(Resource.Drawable.Edit, Resources.GetString(Resource.String.edit_metadata), (sender, eventArg) => { LocalManager.EditMetadata(item); bottomSheet.Dismiss(); })
-            });
+            };
+
+            if (await SongManager.IsFavorite(item))
+                actions.Add(new BottomSheetAction(Resource.Drawable.Fav, MainActivity.instance.Resources.GetString(Resource.String.unfav), (sender, eventArg) => { SongManager.UnFav(item); bottomSheet.Dismiss(); }));
+            else
+                actions.Add(new BottomSheetAction(Resource.Drawable.Unfav, MainActivity.instance.Resources.GetString(Resource.String.fav), (sender, eventArg) => { SongManager.Fav(item); bottomSheet.Dismiss(); }));
+
+            bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, actions);
             bottomSheet.Show();
         }
 
