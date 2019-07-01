@@ -23,7 +23,7 @@ namespace Opus.DataStructure
         private Func<T, bool> filter = x => true;
 
         public SearchableList() { }
-        public SearchableList(IEnumerable<T> collection) : base(collection) { AddRange(collection); }
+        public SearchableList(IEnumerable<T> collection) : base(collection) {  }
 
         public void SetFilter(Func<T, bool> filter)
         {

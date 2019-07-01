@@ -208,7 +208,7 @@ namespace Opus.Fragments
 
         public void RefreshFavs()
         {
-            adapterItems.Find(x => x.SectionTitle == GetString(Resource.String.favorite)).recycler.GetAdapter().NotifyDataSetChanged();
+            adapterItems.Find(x => x.SectionTitle == GetString(Resource.String.favorite))?.recycler.GetAdapter().NotifyDataSetChanged();
         }
 
         public void NotifyQueueInserted(int position)
