@@ -76,11 +76,11 @@
       android:layout_marginBottom="25dp">
       <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="40dp" >
+        android:layout_height="48dp" >
         <ImageButton
           android:id="@+id/repeat"
-          android:layout_width="35dp"
-          android:layout_height="35dp"
+          android:layout_width="24dp"
+          android:layout_height="24dp"
           android:layout_margin="12dp"
           android:layout_alignParentLeft="true"
           android:tint="#ffffff"
@@ -88,8 +88,8 @@
           android:src="@drawable/repeat" />
         <ImageButton
           android:id="@+id/fav"
-          android:layout_width="35dp"
-          android:layout_height="35dp"
+          android:layout_width="24dp"
+          android:layout_height="24dp"
           android:layout_margin="12dp"
           android:layout_alignParentRight="true"
           android:tint="#ffffff"

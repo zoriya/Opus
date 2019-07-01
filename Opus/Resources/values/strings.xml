@@ -70,6 +70,7 @@
   <string name="queue">Queue</string>
   <string name="featured">Featured</string>
   <string name="empty_queue">No song currently in queue,\nstart playing song now!</string>
+  <string name="favorite">Favorites</string>
   
   <!--Browse tab-->
   <string name="songs">Songs</string>

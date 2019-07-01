@@ -16,6 +16,7 @@ namespace Opus.Views
     public class CurrentItemDecoration : RecyclerView.ItemDecoration
     {
         public QueueAdapter adapter;
+        private bool? lastFrameTop;
 
         public CurrentItemDecoration(QueueAdapter adapter) { this.adapter = adapter; }
 
@@ -38,6 +39,25 @@ namespace Opus.Views
                 int lastPos = parent.GetChildAdapterPosition(parent.GetChildAt(parent.ChildCount - 1));
                 int currentPos = MusicPlayer.CurrentID() + 1;
 
+
+                if (lastPos < firstPos) //It happen when the user just removed a song from the queue
+                {
+                    //We do this to continue the drawing of the current header when a song is being removed from the queue. It prevent a quick flash of the header.
+                    switch (lastFrameTop)
+                    {
+                        case true:
+                            System.Console.WriteLine("&DRAWING TOP - currentPos: " + currentPos + " firstPos: " + firstPos + " lastPos: " + lastPos);
+                            firstPos = currentPos;
+                            break;
+                        case false:
+                            System.Console.WriteLine("&DRAWING BOTTOM - currentPos: " + currentPos + " firstPos: " + firstPos + " lastPos: " + lastPos);
+                            lastPos = currentPos;
+                            break;
+                        default:
+                            return;
+                    }
+                }
+
                 if (currentPos <= firstPos)
                 {
                     View header = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.QueueCurrent, parent, false);
@@ -58,6 +78,7 @@ namespace Opus.Views
                     header.Draw(c);
                     c.Restore();
                     parent.SetPadding(0, header.MeasuredHeight, 0, 0);
+                    lastFrameTop = true;
                 }
                 else if (currentPos >= lastPos)
                 {
@@ -79,11 +100,13 @@ namespace Opus.Views
                     header.Draw(c);
                     c.Restore();
                     parent.SetPadding(0, 0, 0, header.MeasuredHeight);
+                    lastFrameTop = false;
                 }
                 else
                 {
                     Queue.instance.HeaderHeight = 0;
                     parent.SetPadding(0, 0, 0, 0);
+                    lastFrameTop = null;
                 }
             }
 

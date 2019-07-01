@@ -515,9 +515,6 @@
     </AndroidResource>
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\drawable\YtPlay.png" />
-  </ItemGroup>
-  <ItemGroup>
     <AndroidResource Include="Resources\drawable\needProcessing.png" />
   </ItemGroup>
   <ItemGroup>

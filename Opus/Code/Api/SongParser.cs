@@ -146,6 +146,7 @@ namespace Opus.Api
 
                 if (playPosition == queuePosition && song.Album != null)
                 {
+                    playPosition = -2;
                     if (queuePosition != -1)
                     {
                         MusicPlayer.currentID = queuePosition;
@@ -154,7 +155,6 @@ namespace Opus.Api
                     }
 
                     MusicPlayer.instance.Play(song, -1, queuePosition == -1);
-                    playPosition = -2;
                 }
 
                 Video video = await client.GetVideoAsync(song.YoutubeID);

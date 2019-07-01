@@ -70,7 +70,8 @@
   <string name="queue">Liste de lecture</string>
   <string name="featured">Mis en avant</string>
   <string name="empty_queue">Aucune musique dans la liste de lecture,\ncommencez maintenant.</string>
-  
+  <string name="favorite">Favoris</string>
+
   <!--Browse tab-->
   <string name="songs">Titres</string>
   <string name="folders">Dossiers</string>

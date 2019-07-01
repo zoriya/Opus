@@ -1,5 +1,6 @@
 ﻿using Opus.Api.Services;
 using Opus.DataStructure;
+using SQLite;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ namespace Opus.Api
 {
     public class SongManager
     {
+        #region Simple Playback
         /// <summary>
         /// Play a song, can be a local one or a youtube one. The class will handle it automatically.
         /// </summary>
@@ -44,7 +46,9 @@ namespace Opus.Api
             else
                 YoutubeManager.PlayLast(item);
         }
+        #endregion
 
+        #region Multi-Song Playback
         /// <summary>
         /// Play a list of song in it's default order
         /// </summary>
@@ -96,5 +100,72 @@ namespace Opus.Api
 
             MusicPlayer.instance.AddToQueue(items);
         }
+        #endregion
+
+        #region Favorites
+        /// <summary>
+        /// Check if a song is present in the favorite list.
+        /// </summary>
+        /// <param name="song"></param>
+        /// <returns></returns>
+        public async static Task<bool> IsFavorite(Song song)
+        {
+            return await Task.Run(() =>
+            {
+                SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Favorites.sqlite"));
+                db.CreateTable<Song>();
+
+                if(db.Table<Song>().Where(x => (x.IsYt && x.YoutubeID == song.YoutubeID) || (!x.IsYt && x.LocalID == song.LocalID)).Count() > 0)
+                    return true;
+                else
+                    return false;
+            });
+        }
+
+        /// <summary>
+        /// Add a song to the favorite playlist.
+        /// </summary>
+        /// <param name="song"></param>
+        public static void Fav(Song song)
+        {
+            Task.Run(() =>
+            {
+                SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Favorites.sqlite"));
+                db.CreateTable<Song>();
+
+                db.Insert(song);
+            });
+        }
+
+        /// <summary>
+        /// Remove a song from the favorites.
+        /// </summary>
+        /// <param name="song"></param>
+        public static void UnFav(Song song)
+        {
+            Task.Run(() =>
+            {
+                SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Favorites.sqlite"));
+                db.CreateTable<Song>();
+
+                db.Table<Song>().Delete(x => (x.IsYt && x.YoutubeID == song.YoutubeID) || (!x.IsYt && x.LocalID == song.LocalID));
+            });
+        }
+
+        /// <summary>
+        /// Return the complete list of favorites.
+        /// </summary>
+        /// <returns></returns>
+        public async static Task<List<Song>> GetFavorites()
+        {
+            return await Task.Run(() =>
+            {
+                SQLiteConnection db = new SQLiteConnection(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Favorites.sqlite"));
+                db.CreateTable<Song>();
+
+                return db.Table<Song>().ToList();
+            });
+        }
+        #endregion
     }
 }

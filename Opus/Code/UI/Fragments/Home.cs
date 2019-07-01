@@ -132,6 +132,10 @@ namespace Opus.Fragments
                     }
                 });
 
+                List<Song> favorites = await SongManager.GetFavorites();
+                if(favorites.Count > 0)
+                    adapterItems.Add(new Section(GetString(Resource.String.favorite), SectionType.SinglePlaylist, favorites));
+
                 view.FindViewById(Resource.Id.loading).Visibility = ViewStates.Gone;
                 adapter = new SectionAdapter(adapterItems);
                 ListView.SetAdapter(adapter);

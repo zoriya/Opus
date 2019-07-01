@@ -186,6 +186,12 @@ namespace Opus
             albumArt.SetImageBitmap(drawable);
             Palette.From(drawable).MaximumColorCount(28).Generate(this);
 
+            if (await SongManager.IsFavorite(current))
+                MainActivity.instance?.FindViewById<ImageButton>(Resource.Id.fav)?.SetImageResource(Resource.Drawable.Unfav);
+            else
+                MainActivity.instance?.FindViewById<ImageButton>(Resource.Id.fav)?.SetImageResource(Resource.Drawable.Fav);
+
+
             if (albumArt.Width > 0)
             {
                 try
@@ -392,11 +398,19 @@ namespace Opus
                 MainActivity.instance?.FindViewById<ImageButton>(Resource.Id.repeat)?.ClearColorFilter();
         }
 
-        private void Fav(object sender, EventArgs e)
+        private async void Fav(object sender, EventArgs e)
         {
-            Snackbar snackBar = Snackbar.Make(MainActivity.instance.FindViewById<CoordinatorLayout>(Resource.Id.snackBar), "Comming Soon", Snackbar.LengthLong);
-            snackBar.View.FindViewById<TextView>(Resource.Id.snackbar_text).SetTextColor(Color.White);
-            snackBar.Show();
+            Song current = await MusicPlayer.GetItem();
+            if (await SongManager.IsFavorite(current))
+            {
+                MainActivity.instance?.FindViewById<ImageButton>(Resource.Id.fav)?.SetImageResource(Resource.Drawable.Fav);
+                SongManager.UnFav(current);
+            }
+            else
+            {
+                MainActivity.instance?.FindViewById<ImageButton>(Resource.Id.fav)?.SetImageResource(Resource.Drawable.Unfav);
+                SongManager.Fav(current);
+            }
         }
 
         private async void More(object s, EventArgs e)
@@ -449,7 +463,7 @@ namespace Opus
                     })
                 });
 
-                if (item.ChannelID != null)
+                if (item.ChannelID != null && item.ChannelID != "")
                 {
                     actions.Add(new BottomSheetAction(Resource.Drawable.account, Resources.GetString(Resource.String.goto_channel), (sender, eventArg) =>
                     {

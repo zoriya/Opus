@@ -113,22 +113,22 @@ public class Queue : Fragment, RecyclerView.IOnItemTouchListener, PopupMenu.IOnM
             View child = ((LinearLayoutManager)ListView.GetLayoutManager()).FindViewByPosition(i);
             if (child != null && ListView.GetChildViewHolder(child) is SongHolder holder)
             {
-                if (MusicPlayer.CurrentID() == i - 1) //The -1 is because the first displayed item of the queue is a header.
-                {
-                    holder.status.Visibility = ViewStates.Visible;
-                    holder.status.SetTextColor(MusicPlayer.isRunning ? Color.Argb(255, 244, 81, 30) : Color.Argb(255, 66, 165, 245));
-
-                    string status = MusicPlayer.isRunning ? MainActivity.instance.GetString(Resource.String.playing) : MainActivity.instance.GetString(Resource.String.paused);
-                    SpannableString statusText = new SpannableString(status);
-                    statusText.SetSpan(new BackgroundColorSpan(Color.ParseColor("#8C000000")), 0, status.Length, SpanTypes.InclusiveInclusive);
-                    holder.status.TextFormatted = statusText;
-                }
-                else if(SongParser.playPosition == i - 1)
+                if (SongParser.playPosition == i - 1)
                 {
                     holder.status.Visibility = ViewStates.Visible;
                     holder.status.SetTextColor(Color.Argb(255, 0, 255, 255));
 
                     string status = MainActivity.instance.GetString(Resource.String.loading);
+                    SpannableString statusText = new SpannableString(status);
+                    statusText.SetSpan(new BackgroundColorSpan(Color.ParseColor("#8C000000")), 0, status.Length, SpanTypes.InclusiveInclusive);
+                    holder.status.TextFormatted = statusText;
+                }
+                else if (MusicPlayer.CurrentID() == i - 1) //The -1 is because the first displayed item of the queue is a header.
+                {
+                    holder.status.Visibility = ViewStates.Visible;
+                    holder.status.SetTextColor(MusicPlayer.isRunning ? Color.Argb(255, 244, 81, 30) : Color.Argb(255, 66, 165, 245));
+
+                    string status = MusicPlayer.isRunning ? MainActivity.instance.GetString(Resource.String.playing) : MainActivity.instance.GetString(Resource.String.paused);
                     SpannableString statusText = new SpannableString(status);
                     statusText.SetSpan(new BackgroundColorSpan(Color.ParseColor("#8C000000")), 0, status.Length, SpanTypes.InclusiveInclusive);
                     holder.status.TextFormatted = statusText;

@@ -5,7 +5,6 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Newtonsoft.Json;
-using Opus.Fragments;
 using SQLite;
 using System;
 using System.Collections.Generic;
