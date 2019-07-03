@@ -8,6 +8,7 @@ using Android.Widget;
 using Opus.Api;
 using Opus.Api.Services;
 using Opus.DataStructure;
+using Opus.Fragments;
 using Opus.Others;
 using Square.Picasso;
 using System.Collections.Generic;
@@ -16,17 +17,23 @@ namespace Opus.Adapter
 {
     public class LineAdapter : RecyclerView.Adapter
     {
+        private enum ListType { Song, Queue, Favs }
+
         public RecyclerView recycler;
         public int listPadding = 0;
-        private readonly bool UseQueue = false;
-        private readonly List<Song> songList;
+        private readonly ListType type = ListType.Song;
+        private List<Song> songs;
         private bool isEmpty = false;
 
         public override int ItemCount
         {
             get
             {
-                int count = UseQueue && MusicPlayer.UseCastPlayer ? MusicPlayer.RemotePlayer.MediaQueue.ItemCount : songList.Count;
+                int count = type == ListType.Queue && MusicPlayer.UseCastPlayer ? MusicPlayer.RemotePlayer.MediaQueue.ItemCount : songs.Count;
+
+                if (type == ListType.Favs)
+                    count++;
+
                 if (count == 0)
                 {
                     count++;
@@ -42,7 +49,15 @@ namespace Opus.Adapter
         public LineAdapter(List<Song> songList, RecyclerView recycler)
         {
             this.recycler = recycler;
-            this.songList = songList;
+            this.songs = songList;
+        }
+
+        public LineAdapter(bool FavPlaylist, List<Song> songList, RecyclerView recycler)
+        {
+            if (FavPlaylist)
+                type = ListType.Favs;
+            this.recycler = recycler;
+            this.songs = songList;
         }
         /*
          * Use this method if the songList is the queue
@@ -50,8 +65,8 @@ namespace Opus.Adapter
         public LineAdapter(RecyclerView recycler)
         {
             this.recycler = recycler;
-            UseQueue = true;
-            songList = MusicPlayer.queue;
+            type = ListType.Queue;
+            songs = MusicPlayer.queue;
         }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position)
@@ -59,7 +74,7 @@ namespace Opus.Adapter
             if (position == 0 && isEmpty)
             {
                 EmptyHolder holder = (EmptyHolder)viewHolder;
-                holder.text.Text = UseQueue ? MainActivity.instance.GetString(Resource.String.empty_queue) : MainActivity.instance.GetString(Resource.String.long_loading);
+                holder.text.Text = type == ListType.Queue ? MainActivity.instance.GetString(Resource.String.empty_queue) : MainActivity.instance.GetString(Resource.String.long_loading);
                 holder.text.SetHeight(MainActivity.instance.DpToPx(157));
                 return;
             }
@@ -67,33 +82,44 @@ namespace Opus.Adapter
             {
                 SongHolder holder = (SongHolder)viewHolder;
 
-                Song song = songList.Count <= position ? null : songList[position];
+                if (type == ListType.Favs)
+                    position--;
 
-
-                if (song == null && UseQueue)
+                if(position == -1)
                 {
-                    holder.Title.Text = "";
-                    holder.AlbumArt.SetImageResource(Resource.Color.background_material_dark);
-
-                    MusicPlayer.RemotePlayer.MediaQueue.GetItemAtIndex(position);
-                    return;
-                }
-
-                holder.Title.Text = song.Title;
-
-                if (song.AlbumArt == -1 || song.IsYt)
-                {
-                    if(song.Album != null)
-                        Picasso.With(Application.Context).Load(song.Album).Placeholder(Resource.Color.background_material_dark).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
-                    else
-                        Picasso.With(Application.Context).Load(Resource.Color.background_material_dark).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
+                    holder.Title.Text = MainActivity.instance.GetString(Resource.String.shuffle_all);
+                    holder.AlbumArt.SetImageResource(Resource.Drawable.Shuffle);
                 }
                 else
                 {
-                    var songCover = Uri.Parse("content://media/external/audio/albumart");
-                    var songAlbumArtUri = ContentUris.WithAppendedId(songCover, song.AlbumArt);
+                    Song song = songs.Count <= position ? null : songs[position];
 
-                    Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Color.background_material_dark).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
+
+                    if (song == null && type == ListType.Queue)
+                    {
+                        holder.Title.Text = "";
+                        holder.AlbumArt.SetImageResource(Resource.Color.background_material_dark);
+
+                        MusicPlayer.RemotePlayer.MediaQueue.GetItemAtIndex(position);
+                        return;
+                    }
+
+                    holder.Title.Text = song.Title;
+
+                    if (song.AlbumArt == -1 || song.IsYt)
+                    {
+                        if (song.Album != null)
+                            Picasso.With(Application.Context).Load(song.Album).Placeholder(Resource.Color.background_material_dark).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
+                        else
+                            Picasso.With(Application.Context).Load(Resource.Color.background_material_dark).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
+                    }
+                    else
+                    {
+                        var songCover = Uri.Parse("content://media/external/audio/albumart");
+                        var songAlbumArtUri = ContentUris.WithAppendedId(songCover, song.AlbumArt);
+
+                        Picasso.With(Application.Context).Load(songAlbumArtUri).Placeholder(Resource.Color.background_material_dark).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
+                    }
                 }
             }
         }
@@ -147,9 +173,27 @@ namespace Opus.Adapter
                 return 0;
         }
 
+        public async void Refresh()
+        {
+            if(type == ListType.Favs)
+                songs = await SongManager.GetFavorites();
+
+            if(songs.Count > 0)
+                NotifyDataSetChanged();
+            else
+            {
+                int pos = Home.sections.FindIndex(x => x.SectionTitle == "Fav");
+                Home.sections.RemoveAt(pos);
+                Home.instance.adapter.NotifyItemRemoved(pos);
+            }
+        }
+
         void OnClick(int position)
         {
-            if (UseQueue)
+            if (type == ListType.Favs)
+                position--;
+
+            if (type == ListType.Queue)
             {
                 if (MusicPlayer.instance != null)
                     MusicPlayer.instance.SwitchQueue(position);
@@ -161,15 +205,23 @@ namespace Opus.Adapter
                     MainActivity.instance.StartService(intent);
                 }
             }
+            else if (position == -1)
+                SongManager.Shuffle(songs);
             else
-                SongManager.Play(songList[position]);
+                SongManager.Play(songs[position]);
         }
 
         async void OnLongClick(int position)
         {
-            Song item = songList[position];
+            if (type == ListType.Favs)
+                position--;
 
-            if (UseQueue)
+            if (position == -1)
+                return;
+
+            Song item = songs[position];
+
+            if (type == ListType.Queue)
             {
                 BottomSheetDialog bottomSheet = new BottomSheetDialog(MainActivity.instance);
                 View bottomView = MainActivity.instance.LayoutInflater.Inflate(Resource.Layout.BottomSheet, null);

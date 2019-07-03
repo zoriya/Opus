@@ -790,10 +790,10 @@ namespace Opus.Api.Services
             if (queue.Count == 0)
             {
                 MainActivity.instance.HideSmallPlayer();
-                if (Home.instance != null && Home.adapterItems?.Count > 0 && Home.adapterItems[0]?.SectionTitle == "Queue")
+                if (Home.instance != null && Home.sections?.Count > 0 && Home.sections[0]?.SectionTitle == "Queue")
                 {
                     Home.instance?.adapter?.NotifyItemRemoved(0);
-                    Home.adapterItems?.RemoveAt(0);
+                    Home.sections?.RemoveAt(0);
                 }
                 Queue.instance?.NotifyItemRemoved(position);
             }
@@ -1530,10 +1530,10 @@ namespace Opus.Api.Services
                 currentID = -1;
 
                 MainActivity.instance?.HideSmallPlayer();
-                if (Home.adapterItems?.Count > 0 && Home.adapterItems[0]?.SectionTitle == "Queue")
+                if (Home.sections?.Count > 0 && Home.sections[0]?.SectionTitle == "Queue")
                 {
                     Home.instance?.adapter?.NotifyItemRemoved(0);
-                    Home.adapterItems?.RemoveAt(0);
+                    Home.sections?.RemoveAt(0);
                 }
             }
 

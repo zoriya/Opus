@@ -25,7 +25,7 @@ namespace Opus.Fragments
         public SectionAdapter adapter;
         public LineAdapter QueueAdapter;
         public ItemTouchHelper itemTouchHelper;
-        public static List<Section> adapterItems = new List<Section>();
+        public static List<Section> sections = new List<Section>();
         public List<string> selectedTopics = new List<string>();
         public List<string> selectedTopicsID = new List<string>();
         public View view;
@@ -39,8 +39,6 @@ namespace Opus.Fragments
 
         public override void OnDestroy()
         {
-            MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
-            ViewGroup rootView = Activity.FindViewById<ViewGroup>(Android.Resource.Id.Content);
             base.OnDestroy();
             instance = null;
         }
@@ -64,21 +62,27 @@ namespace Opus.Fragments
         }
 #pragma warning restore CS4014 
 
+        public override void OnDestroyView()
+        {
+            base.OnDestroyView();
+            MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
+        }
+
         private async Task PopulateView()
         {
             if (!populating)
             {
                 populating = true;
-                adapterItems = new List<Section>();
+                sections = new List<Section>();
 
                 if (MusicPlayer.UseCastPlayer || (MusicPlayer.queue != null && MusicPlayer.queue?.Count > 0))
                 {
                     Section queue = new Section("Queue", SectionType.SinglePlaylist, MusicPlayer.queue);
-                    adapterItems.Add(queue);
+                    sections.Add(queue);
                 }
 
                 Section shuffle = new Section(Resources.GetString(Resource.String.shuffle), SectionType.Shuffle);
-                adapterItems.Add(shuffle);
+                sections.Add(shuffle);
 
                 await Task.Run(() => 
                 {
@@ -127,17 +131,17 @@ namespace Opus.Fragments
                         if (songList.Count > 0)
                         {
                             Section featured = new Section(Resources.GetString(Resource.String.featured), SectionType.SinglePlaylist, songList.GetRange(0, songList.Count > 50 ? 50 : songList.Count));
-                            adapterItems.Add(featured);
+                            sections.Add(featured);
                         }
                     }
                 });
 
                 List<Song> favorites = await SongManager.GetFavorites();
                 if(favorites.Count > 0)
-                    adapterItems.Add(new Section(GetString(Resource.String.favorite), SectionType.SinglePlaylist, favorites));
+                    sections.Add(new Section("Fav", SectionType.SinglePlaylist, favorites));
 
                 view.FindViewById(Resource.Id.loading).Visibility = ViewStates.Gone;
-                adapter = new SectionAdapter(adapterItems);
+                adapter = new SectionAdapter(sections);
                 ListView.SetAdapter(adapter);
                 adapter.ItemClick += ListView_ItemClick;
                 ListView.SetItemAnimator(new DefaultItemAnimator());
@@ -150,8 +154,8 @@ namespace Opus.Fragments
                     sp.AddRange(saved);
                     sp.AddRange(pl);
 
-                    adapterItems.Add(new Section(GetString(Resource.String.playlists), SectionType.PlaylistList, sp));
-                    adapter.NotifyItemInserted(adapterItems.Count - 1);
+                    sections.Add(new Section(GetString(Resource.String.playlists), SectionType.PlaylistList, sp));
+                    adapter.NotifyItemInserted(sections.Count - 1);
                 }
                 else
                 {
@@ -159,8 +163,8 @@ namespace Opus.Fragments
 
                     if(saved != null && saved.Count > 0)
                     {
-                        adapterItems.Add(new Section(GetString(Resource.String.playlists), SectionType.PlaylistList, saved));
-                        adapter.NotifyItemInserted(adapterItems.Count - 1);
+                        sections.Add(new Section(GetString(Resource.String.playlists), SectionType.PlaylistList, saved));
+                        adapter.NotifyItemInserted(sections.Count - 1);
                     }
                 }
 
@@ -170,10 +174,10 @@ namespace Opus.Fragments
 
         public void AddQueue()
         {
-            if (adapterItems[0].SectionTitle != "Queue")
+            if (sections[0].SectionTitle != "Queue")
             {
                 Section queue = new Section("Queue", SectionType.SinglePlaylist, MusicPlayer.queue);
-                adapterItems.Insert(0, queue);
+                sections.Insert(0, queue);
                 adapter?.NotifyItemInserted(0);
             }
         }
@@ -198,22 +202,35 @@ namespace Opus.Fragments
 
         public void RefreshQueue(bool scroll = true)
         {
-            if (adapterItems.Count > 0)
+            if (sections.Count > 0)
             {
                 QueueAdapter?.NotifyDataSetChanged();
                 if (scroll && MusicPlayer.CurrentID() != -1 && MusicPlayer.CurrentID() <= MusicPlayer.queue.Count)
-                    adapterItems[0].recycler?.ScrollToPosition(MusicPlayer.CurrentID());
+                    sections[0].recycler?.ScrollToPosition(MusicPlayer.CurrentID());
             }
         }
 
-        public void RefreshFavs()
+        public async void RefreshFavs()
         {
-            adapterItems.Find(x => x.SectionTitle == GetString(Resource.String.favorite))?.recycler.GetAdapter().NotifyDataSetChanged();
+            Section section = sections.Find(x => x.SectionTitle == "Fav");
+
+            if(section != null)
+                ((LineAdapter)section.recycler.GetAdapter())?.Refresh();
+            else
+            {
+                List<Song> favorites = await SongManager.GetFavorites();
+                if (favorites.Count > 0)
+                {
+                    int x = MainActivity.instance.HasReadPermission() ? 1 : 0;
+                    sections.Insert(sections.Count - x, new Section("Fav", SectionType.SinglePlaylist, favorites));
+                    adapter.NotifyItemInserted(sections.Count - x);
+                }
+            }
         }
 
         public void NotifyQueueInserted(int position)
         {
-            if (adapterItems.Count > 0)
+            if (sections.Count > 0)
             {
                 if (MusicPlayer.queue.Count == 1)
                     QueueAdapter?.NotifyItemChanged(0);
@@ -224,25 +241,25 @@ namespace Opus.Fragments
 
         public void NotifyQueueRangeInserted(int position, int count)
         {
-            if (adapterItems.Count > 0)
+            if (sections.Count > 0)
                 QueueAdapter?.NotifyItemRangeInserted(position, count);
         }
 
         public void NotifyQueueChanged(int position, Java.Lang.Object payload)
         {
-            if (adapterItems.Count > 0)
+            if (sections.Count > 0)
                 QueueAdapter?.NotifyItemChanged(position, payload);
         }
 
         public void NotifyQueueRemoved(int position)
         {
-            if (adapterItems.Count > 0)
+            if (sections.Count > 0)
                 QueueAdapter?.NotifyItemRemoved(position);
         }
 
         private void ListView_ItemClick(object sender, int position)
         {
-            if(adapterItems[position].contentType == SectionType.Shuffle)
+            if(sections[position].contentType == SectionType.Shuffle)
             {
                 LocalManager.ShuffleAll();
             }
@@ -253,11 +270,11 @@ namespace Opus.Fragments
             base.OnResume();
             instance = this;
 
-            if(adapterItems.Count > 0)
+            if(sections.Count > 0)
             {
-                adapterItems[0].recycler?.GetAdapter()?.NotifyDataSetChanged();
+                sections[0].recycler?.GetAdapter()?.NotifyDataSetChanged();
                 if (MusicPlayer.CurrentID() != -1 && MusicPlayer.CurrentID() <= MusicPlayer.queue.Count)
-                    adapterItems[0].recycler?.ScrollToPosition(MusicPlayer.CurrentID());
+                    sections[0].recycler?.ScrollToPosition(MusicPlayer.CurrentID());
             }
         }
     }

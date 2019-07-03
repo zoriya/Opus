@@ -73,6 +73,16 @@ namespace Opus.Adapter
                     if (MusicPlayer.CurrentID() != -1 && MusicPlayer.CurrentID() <= MusicPlayer.queue.Count)
                         holder.recycler.ScrollToPosition(MusicPlayer.CurrentID());
                 }
+                else if(items[position].SectionTitle == "Fav")
+                {
+                    holder.title.Text = MainActivity.instance.GetString(Resource.String.favorite);
+                    holder.recycler.SetAdapter(new LineAdapter(true, items[position].contentValue.GetRange(0, items[position].contentValue.Count > 20 ? 20 : items[position].contentValue.Count), holder.recycler));
+                    holder.more.Click += (sender, e) =>
+                    {
+                        position = holder.AdapterPosition;
+                        MainActivity.instance.SupportFragmentManager.BeginTransaction().Replace(Resource.Id.contentView, PlaylistTracks.NewInstance(items[position].contentValue, items[position].SectionTitle)).AddToBackStack(null).Commit();
+                    };
+                }
                 else if (items[position].SectionTitle == null)
                 {
                     //The playlist is loading
