@@ -16,14 +16,21 @@ namespace Opus.Fragments
     {
         public static OpenSourceViewer instance;
         private bool isPaused = false;
+        /// <summary>
+        /// To update this dictionary, run the "Get-Package | Select-Object Id,LicenseUrl" command on the package manager console.
+        /// Then copy the output to a notepad and remove every spaces. Then replace http to: '", "http'
+        /// Then replace every \n to '{ "'
+        /// Then in extended mode (of notepad ++), replace $ to '" },'.
+        /// Finaly, past the result below (replace the initialized dictionary and solve the few errors that may be here.
+        /// </summary>
         private readonly ReadOnlyDictionary<string, string> libraries = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>
         {
-            { "AngleSharp", "https://github.com/AngleSharp/AngleSharp/blob/master/LICENSE" },
             { "Google.Apis", "https://aka.ms/deprecateLicenseUrl" },
             { "Google.Apis.Auth", "https://aka.ms/deprecateLicenseUrl" },
             { "Google.Apis.Core", "https://aka.ms/deprecateLicenseUrl" },
             { "Google.Apis.YouTube.v3", "https://aka.ms/deprecateLicenseUrl" },
             { "Karamunting.Android.AnderWeb.DiscreteSeekBar", "https://github.com/AnderWeb/discreteSeekBar/blob/master/LICENSE" },
+            { "LtGt", "https://licenses.nuget.org/MIT" },
             { "Microsoft.CSharp", "https://github.com/dotnet/corefx/blob/master/LICENSE.TXT" },
             { "Microsoft.NETCore.Platforms", "https://github.com/dotnet/corefx/blob/master/LICENSE.TXT" },
             { "NETStandard.Library", "https://github.com/dotnet/standard/blob/master/LICENSE.TXT" },
@@ -33,6 +40,7 @@ namespace Opus.Fragments
             { "PInvoke.Kernel32", "https://raw.githubusercontent.com/AArnott/pinvoke/cf0176c42b/LICENSE" },
             { "PInvoke.NCrypt", "https://raw.githubusercontent.com/AArnott/pinvoke/cf0176c42b/LICENSE" },
             { "PInvoke.Windows.Core", "https://raw.githubusercontent.com/AArnott/pinvoke/cf0176c42b/LICENSE" },
+            { "Sprache", "https://github.com/sprache/Sprache/blob/master/licence.txt" },
             { "sqlite-net-pcl", "https://raw.githubusercontent.com/praeclarum/sqlite-net/master/LICENSE.md" },
             { "SQLitePCLRaw.bundle_green", "https://licenses.nuget.org/Apache-2.0" },
             { "SQLitePCLRaw.core", "https://licenses.nuget.org/Apache-2.0" },
@@ -46,6 +54,7 @@ namespace Opus.Fragments
             { "System.ComponentModel.TypeConverter", "http://go.microsoft.com/fwlink/?LinkId=329770" },
             { "System.Console", "http://go.microsoft.com/fwlink/?LinkId=329770" },
             { "System.Diagnostics.Process", "http://go.microsoft.com/fwlink/?LinkId=329770" },
+            { "System.Globalization", "http://go.microsoft.com/fwlink/?LinkId=329770" },
             { "System.IO", "http://go.microsoft.com/fwlink/?LinkId=329770" },
             { "System.IO.Compression", "http://go.microsoft.com/fwlink/?LinkId=329770" },
             { "System.IO.Compression.ZipFile", "http://go.microsoft.com/fwlink/?LinkId=329770" },
@@ -142,7 +151,6 @@ namespace Opus.Fragments
             { "Xamarin.GooglePlayServices.Cast", "https://go.microsoft.com/fwlink/?linkid=865373" },
             { "Xamarin.GooglePlayServices.Cast.Framework", "https://go.microsoft.com/fwlink/?linkid=865373" },
             { "Xamarin.GooglePlayServices.Flags", "https://go.microsoft.com/fwlink/?linkid=865373" },
-            { "Xamarin.GooglePlayServices.Oss.Licenses", "https://go.microsoft.com/fwlink/?linkid=865373" },
             { "Xamarin.GooglePlayServices.Tasks", "https://go.microsoft.com/fwlink/?linkid=865373" },
             { "YoutubeExplode", "https://licenses.nuget.org/LGPL-3.0-only" }
         });

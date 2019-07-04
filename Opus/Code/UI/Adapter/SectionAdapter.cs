@@ -112,17 +112,17 @@ namespace Opus.Adapter
 
                 if(items[position].channelContent != null)
                 {
-                    holder.recycler.SetAdapter(new SmallListAdapter(items[position].channelContent.GetRange(0, items[position].channelContent.Count > 4 ? 4 : items[position].channelContent.Count), holder.recycler));
+                    holder.recycler.SetAdapter(new VerticalSectionAdapter(items[position].channelContent.GetRange(0, items[position].channelContent.Count > 4 ? 4 : items[position].channelContent.Count), holder.recycler));
 
                     if (items[position].channelContent.Count > 4)
                     {
                         holder.more.Visibility = ViewStates.Visible;
                         ((GradientDrawable)holder.more.Background).SetStroke(5, Android.Content.Res.ColorStateList.ValueOf(Color.Argb(255, 21, 183, 237)));
                         holder.more.SetTextColor(Color.Argb(255, 21, 183, 237));
-                        holder.more.Text = ((SmallListAdapter)holder.recycler.GetAdapter()).channels.Count > 4 ? MainActivity.instance.GetString(Resource.String.view_less) : MainActivity.instance.GetString(Resource.String.view_more);
+                        holder.more.Text = ((VerticalSectionAdapter)holder.recycler.GetAdapter()).channels.Count > 4 ? MainActivity.instance.GetString(Resource.String.view_less) : MainActivity.instance.GetString(Resource.String.view_more);
                         holder.more.Click += (sender, e) =>
                         {
-                            SmallListAdapter adapter = (SmallListAdapter)holder.recycler.GetAdapter();
+                            VerticalSectionAdapter adapter = (VerticalSectionAdapter)holder.recycler.GetAdapter();
                             if (adapter.ItemCount == 4)
                             {
                                 adapter.channels.AddRange(items[position].channelContent.GetRange(4, items[position].channelContent.Count - 4));
@@ -143,7 +143,7 @@ namespace Opus.Adapter
                 }
                 else
                 {
-                    holder.recycler.SetAdapter(new SmallListAdapter(false, holder.recycler));
+                    holder.recycler.SetAdapter(new VerticalSectionAdapter(false, holder.recycler));
                 }
                 
             }
@@ -155,7 +155,7 @@ namespace Opus.Adapter
                 holder.recycler.SetLayoutManager(new LinearLayoutManager(MainActivity.instance, LinearLayoutManager.Vertical, false));
                 if (items[position].playlistContent != null)
                 {
-                    holder.recycler.SetAdapter(new SmallListAdapter(items[position].playlistContent.GetRange(0, items[position].playlistContent.Count > 4 ? 4 : items[position].playlistContent.Count), holder.recycler));
+                    holder.recycler.SetAdapter(new VerticalSectionAdapter(items[position].playlistContent.GetRange(0, items[position].playlistContent.Count > 4 ? 4 : items[position].playlistContent.Count), holder.recycler));
 
                     if (ChannelDetails.instance != null)
                     {
@@ -164,10 +164,10 @@ namespace Opus.Adapter
                             holder.more.Visibility = ViewStates.Visible;
                             ((GradientDrawable)holder.more.Background).SetStroke(5, Android.Content.Res.ColorStateList.ValueOf(Color.Argb(255, 21, 183, 237)));
                             holder.more.SetTextColor(Color.Argb(255, 21, 183, 237));
-                            holder.more.Text = ((SmallListAdapter)holder.recycler.GetAdapter()).playlists.Count > 4 ? MainActivity.instance.GetString(Resource.String.view_less) : MainActivity.instance.GetString(Resource.String.view_more);
+                            holder.more.Text = ((VerticalSectionAdapter)holder.recycler.GetAdapter()).playlists.Count > 4 ? MainActivity.instance.GetString(Resource.String.view_less) : MainActivity.instance.GetString(Resource.String.view_more);
                             holder.more.Click += (sender, e) =>
                             {
-                                SmallListAdapter adapter = (SmallListAdapter)holder.recycler.GetAdapter();
+                                VerticalSectionAdapter adapter = (VerticalSectionAdapter)holder.recycler.GetAdapter();
                                 if (adapter.ItemCount == 4)
                                 {
                                     adapter.playlists.AddRange(items[position].playlistContent.GetRange(4, items[position].playlistContent.Count - 4));
@@ -194,7 +194,7 @@ namespace Opus.Adapter
                 }
                 else
                 {
-                    holder.recycler.SetAdapter(new SmallListAdapter(true, holder.recycler));
+                    holder.recycler.SetAdapter(new VerticalSectionAdapter(true, holder.recycler));
                     holder.more.Visibility = ViewStates.Gone;
                 }
             }

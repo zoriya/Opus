@@ -13,7 +13,7 @@ using System.Collections.Generic;
 
 namespace Opus.Adapter
 {
-    public class SmallListAdapter : RecyclerView.Adapter
+    public class VerticalSectionAdapter : RecyclerView.Adapter
     {
         public RecyclerView recycler;
         public List<Channel> channels;
@@ -33,21 +33,21 @@ namespace Opus.Adapter
             }
         }
 
-        public SmallListAdapter(List<Channel> channels, RecyclerView recycler)
+        public VerticalSectionAdapter(List<Channel> channels, RecyclerView recycler)
         {
             this.recycler = recycler;
             this.channels = channels;
             UseChannel = true;
         }
 
-        public SmallListAdapter(List<PlaylistItem> playlists, RecyclerView recycler)
+        public VerticalSectionAdapter(List<PlaylistItem> playlists, RecyclerView recycler)
         {
             this.recycler = recycler;
             this.playlists = playlists;
             UseChannel = false;
         }
 
-        public SmallListAdapter(bool UseChannel, RecyclerView recycler)
+        public VerticalSectionAdapter(bool UseChannel, RecyclerView recycler)
         {
             this.recycler = recycler;
             this.UseChannel = UseChannel;
@@ -74,10 +74,9 @@ namespace Opus.Adapter
                 else
                 {
                     holder.Title.Text = playlists[position].Name;
-                    Picasso.With(Application.Context).Load(playlists[position].ImageURL).Placeholder(Resource.Color.background_material_dark).Resize(400, 400).CenterCrop().Into(holder.AlbumArt);
+                    Picasso.With(Application.Context).Load(playlists[position].ImageURL).Placeholder(Resource.Color.background_material_dark).Transform(new RemoveBlackBorder(true)).Into(holder.AlbumArt);
                     if (!holder.RightButtons.FindViewById<ImageButton>(Resource.Id.play).HasOnClickListeners)
                     {
-                        //Only support local playlists for now.
                         holder.RightButtons.FindViewById<ImageButton>(Resource.Id.play).Click += (sender, e) => { PlaylistManager.PlayInOrder(playlists[position]); };
                         holder.RightButtons.FindViewById<ImageButton>(Resource.Id.shuffle).Click += (sender, e) => { PlaylistManager.Shuffle(playlists[position]); };
                     }

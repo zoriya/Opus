@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.sdg.opus" android:installLocation="preferExternal" android:versionName="3.4.6" android:versionCode="51">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.sdg.opus" android:installLocation="preferExternal" android:versionName="3.4.9" android:versionCode="54">
 	<uses-sdk android:minSdkVersion="21" android:targetSdkVersion="28" />
 	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
