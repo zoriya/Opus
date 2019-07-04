@@ -136,26 +136,28 @@ namespace Opus.Fragments
 
         public override void OnDestroyView()
         {
-            MainActivity.instance.RemoveFilterListener(Search);
             Activity.FindViewById<ImageButton>(Resource.Id.headerPlay).Click -= HeaderPlay;
             Activity.FindViewById<ImageButton>(Resource.Id.headerShuffle).Click -= HeaderShuffle;
             Activity.FindViewById<ImageButton>(Resource.Id.headerMore).Click -= PlaylistMore;
+            base.OnDestroyView();
 
             if (!MainActivity.instance.Paused)
             {
                 Activity.FindViewById<RelativeLayout>(Resource.Id.playlistHeader).Visibility = ViewStates.Gone;
 
+                MainActivity.instance.RemoveFilterListener(Search);
                 MainActivity.instance.HideFilter();
                 MainActivity.instance.SupportActionBar.SetHomeButtonEnabled(false);
                 MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(false);
                 MainActivity.instance.SupportActionBar.SetDisplayShowTitleEnabled(false);
-                MainActivity.instance.FindViewById(Resource.Id.toolbarLogo).Visibility = ViewStates.Visible;
+
+                if(MainActivity.instance.FindViewById(Resource.Id.toolbarLogo) != null)
+                    MainActivity.instance.FindViewById(Resource.Id.toolbarLogo).Visibility = ViewStates.Visible;
 
                 MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
                 Activity.FindViewById<AppBarLayout>(Resource.Id.appbar).RemoveOnOffsetChangedListener(this);
                 instance = null;
             }
-            base.OnDestroyView();                
         }
 
 
