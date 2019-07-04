@@ -43,7 +43,6 @@ namespace Opus.Fragments
 
         public override void OnDestroy()
         {
-            MainActivity.instance.RemoveFilterListener(Search);
             MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
             instance = null;
             base.OnDestroy();
@@ -153,7 +152,9 @@ namespace Opus.Fragments
             MainActivity.instance.SupportActionBar.SetHomeButtonEnabled(false);
             MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(false);
             MainActivity.instance.SupportActionBar.SetDisplayShowTitleEnabled(false);
-            MainActivity.instance.FindViewById(Resource.Id.toolbarLogo).Visibility = ViewStates.Visible;
+            if (MainActivity.instance.FindViewById(Resource.Id.toolbarLogo) != null)
+                MainActivity.instance.FindViewById(Resource.Id.toolbarLogo).Visibility = ViewStates.Visible;
+            MainActivity.instance.RemoveFilterListener(Search);
             MainActivity.instance.HideFilter();
             base.OnDestroyView();
         }

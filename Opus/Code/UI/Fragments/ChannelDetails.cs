@@ -85,30 +85,13 @@ namespace Opus.Fragments
                 MainActivity.instance.SupportActionBar.SetHomeButtonEnabled(false);
                 MainActivity.instance.SupportActionBar.SetDisplayHomeAsUpEnabled(false);
                 MainActivity.instance.SupportActionBar.SetDisplayShowTitleEnabled(false);
-                MainActivity.instance.FindViewById(Resource.Id.toolbarLogo).Visibility = ViewStates.Visible;
+                if (MainActivity.instance.FindViewById(Resource.Id.toolbarLogo) != null)
+                    MainActivity.instance.FindViewById(Resource.Id.toolbarLogo).Visibility = ViewStates.Visible;
 
                 MainActivity.instance.contentRefresh.Refresh -= OnRefresh;
                 Activity.FindViewById<AppBarLayout>(Resource.Id.appbar).RemoveOnOffsetChangedListener(this);
-
-
-                if (YoutubeSearch.instances != null)
-                {
-                    MainActivity.instance.FindViewById<TabLayout>(Resource.Id.tabs).Visibility = ViewStates.Visible;
-                    SearchView searchView = (SearchView)MainActivity.instance.menu.FindItem(Resource.Id.search).ActionView;
-                    searchView.Focusable = false;
-                    MainActivity.instance.menu.FindItem(Resource.Id.search).ExpandActionView();
-                    searchView.SetQuery(YoutubeSearch.instances[0].Query, false);
-                    searchView.ClearFocus();
-
-                    int selectedTab = 0;
-                    for (int i = 0; i < YoutubeSearch.instances.Length; i++)
-                    {
-                        if (YoutubeSearch.instances[i].IsFocused)
-                            selectedTab = i;
-                    }
-                }
-                instance = null;
             }
+            instance = null;
             base.OnDestroyView();
         }
 

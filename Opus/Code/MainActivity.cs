@@ -438,7 +438,6 @@ namespace Opus
         public void Navigate(int layout)
         {
             contentRefresh.Refreshing = false;
-
             if (YoutubeSearch.instances != null)
             {
                 var searchView = menu.FindItem(Resource.Id.search).ActionView.JavaCast<SearchView>();
@@ -450,6 +449,8 @@ namespace Opus
 
                 SupportFragmentManager.PopBackStack(null, Android.Support.V4.App.FragmentManager.PopBackStackInclusive);
             }
+
+            FindViewById(Resource.Id.toolbarLogo).Visibility = ViewStates.Visible;
 
             if (PlaylistTracks.instance != null)
             {
