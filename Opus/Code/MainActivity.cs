@@ -23,12 +23,15 @@ using Android.Views;
 using Android.Widget;
 using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
+using Opus.Adapter;
 using Opus.Api;
 using Opus.Api.Services;
+using Opus.DataStructure;
 using Opus.Fragments;
 using Opus.Others;
 using Square.Picasso;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
@@ -40,6 +43,7 @@ using Playlist = Opus.Fragments.Playlist;
 using SearchView = Android.Support.V7.Widget.SearchView;
 using Toolbar = Android.Support.V7.Widget.Toolbar;
 using TransportType = Android.Net.TransportType;
+using Uri = Android.Net.Uri;
 
 namespace Opus
 {
@@ -579,6 +583,119 @@ namespace Opus
             FindViewById<FrameLayout>(Resource.Id.contentView).SetPadding(0, 0, 0, 0);
             SheetBehavior.State = BottomSheetBehavior.StateHidden;
             FindViewById<NestedScrollView>(Resource.Id.playerSheet).Visibility = ViewStates.Gone;
+        }
+        #endregion
+
+        #region More Menues
+        public async void More(Song item, Action overridedPlayAction = null, BottomSheetAction endAction = null)
+        {
+            if (!item.IsYt)
+                item = LocalManager.CompleteItem(item);
+
+            BottomSheetDialog bottomSheet = new BottomSheetDialog(this);
+            View bottomView = LayoutInflater.Inflate(Resource.Layout.BottomSheet, null);
+            bottomView.FindViewById<TextView>(Resource.Id.bsTitle).Text = item.Title;
+            bottomView.FindViewById<TextView>(Resource.Id.bsArtist).Text = item.Artist;
+            bottomSheet.SetContentView(bottomView);
+            if (item.AlbumArt == -1 || item.IsYt)
+            {
+                Picasso.With(this).Load(item.Album).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
+            }
+            else
+            {
+                var songCover = Uri.Parse("content://media/external/audio/albumart");
+                var songAlbumArtUri = ContentUris.WithAppendedId(songCover, item.AlbumArt);
+
+                Picasso.With(this).Load(songAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
+            }
+
+            List<BottomSheetAction> actions = new List<BottomSheetAction>
+            {
+                new BottomSheetAction(Resource.Drawable.Play, Resources.GetString(Resource.String.play), (sender, eventArg) => 
+                {
+                    if(overridedPlayAction == null)
+                        SongManager.Play(item);
+                    else
+                        overridedPlayAction.Invoke();
+                    bottomSheet.Dismiss();
+                }),
+                new BottomSheetAction(Resource.Drawable.PlaylistPlay, Resources.GetString(Resource.String.play_next), (sender, eventArg) => 
+                {
+                    SongManager.PlayNext(item);
+                    bottomSheet.Dismiss();
+                }),
+                new BottomSheetAction(Resource.Drawable.Queue, Resources.GetString(Resource.String.play_last), (sender, eventArg) => 
+                {
+                    SongManager.PlayLast(item);
+                    bottomSheet.Dismiss();
+                }),
+                new BottomSheetAction(Resource.Drawable.PlaylistAdd, Resources.GetString(Resource.String.add_to_playlist), (sender, eventArg) => 
+                {
+                    PlaylistManager.AddSongToPlaylistDialog(item);
+                    bottomSheet.Dismiss();
+                }),
+            };
+
+            if (await SongManager.IsFavorite(item))
+                actions.Add(new BottomSheetAction(Resource.Drawable.Fav, Resources.GetString(Resource.String.unfav), (sender, eventArg) => { SongManager.UnFav(item); bottomSheet.Dismiss(); }));
+            else
+                actions.Add(new BottomSheetAction(Resource.Drawable.Unfav, Resources.GetString(Resource.String.fav), (sender, eventArg) => { SongManager.Fav(item); bottomSheet.Dismiss(); }));
+
+            if (!item.IsYt)
+            {
+                actions.Add(new BottomSheetAction(Resource.Drawable.Edit, Resources.GetString(Resource.String.edit_metadata), (sender, eventArg) =>
+                {
+                    LocalManager.EditMetadata(item);
+                    bottomSheet.Dismiss();
+                }));
+            }
+            else
+            {
+                if (item.ChannelID != null)
+                {
+                    actions.Add(new BottomSheetAction(Resource.Drawable.account, Resources.GetString(Resource.String.goto_channel), (sender, eventArg) =>
+                    {
+                        if(YoutubeSearch.instances != null)
+                        {
+                            menu.FindItem(Resource.Id.search).ActionView.Focusable = false;
+                            menu.FindItem(Resource.Id.search).CollapseActionView();
+                            menu.FindItem(Resource.Id.search).ActionView.Focusable = true;
+                            FindViewById<TabLayout>(Resource.Id.tabs).Visibility = ViewStates.Gone;
+                        }
+                        ChannelManager.OpenChannelTab(item.ChannelID);
+                        bottomSheet.Dismiss();
+                    }));
+                }
+
+                actions.AddRange(new BottomSheetAction[]
+                {
+                    new BottomSheetAction(Resource.Drawable.PlayCircle, Resources.GetString(Resource.String.create_mix_from_song), (sender, eventArg) =>
+                    {
+                        YoutubeManager.CreateMixFromSong(item);
+                        bottomSheet.Dismiss();
+                    }),
+                    new BottomSheetAction(Resource.Drawable.Download, Resources.GetString(Resource.String.download), (sender, eventArg) =>
+                    {
+                        YoutubeManager.Download(new[] { item });
+                        bottomSheet.Dismiss();
+                    })
+                });
+            }
+
+            if (endAction != null)
+            {
+                actions.Add(new BottomSheetAction(endAction)
+                {
+                    action = (sender, eventArg) =>
+                    {
+                        endAction.action.Invoke(sender, eventArg);
+                        bottomSheet.Dismiss();
+                    }
+                });
+            }
+
+            bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(this, Resource.Layout.BottomSheetText, actions);
+            bottomSheet.Show();
         }
         #endregion
 

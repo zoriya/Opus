@@ -23,6 +23,13 @@ namespace Opus.Adapter
             this.name = name;
             this.action = action;
         }
+
+        public BottomSheetAction(BottomSheetAction baseAction)
+        {
+            Ressource = baseAction.Ressource;
+            name = baseAction.name;
+            action = baseAction.action;
+        }
     }
 
     public class BottomSheetAdapter : ArrayAdapter

@@ -361,70 +361,13 @@ namespace Opus.Fragments
             if(result[position].Kind == YtKind.Video)
             {
                 Song item = result[position].song;
-                More(item);
+                MainActivity.instance.More(item);
             }
             else if(result[position].Kind == YtKind.Playlist)
             {
                 PlaylistItem item = result[position].playlist;
                 PlaylistMore(item);
             }
-        }
-
-        public async void More(Song item)
-        {
-            BottomSheetDialog bottomSheet = new BottomSheetDialog(MainActivity.instance);
-            View bottomView = MainActivity.instance.LayoutInflater.Inflate(Resource.Layout.BottomSheet, null);
-            bottomView.FindViewById<TextView>(Resource.Id.bsTitle).Text = item.Title;
-            bottomView.FindViewById<TextView>(Resource.Id.bsArtist).Text = item.Artist;
-            Picasso.With(MainActivity.instance).Load(item.Album).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
-            bottomSheet.SetContentView(bottomView);
-
-            List<BottomSheetAction> actions = new List<BottomSheetAction>
-            {
-                new BottomSheetAction(Resource.Drawable.Play, MainActivity.instance.Resources.GetString(Resource.String.play), (sender, eventArg) =>
-                {
-                    YoutubeManager.Play(item);
-                    bottomSheet.Dismiss();
-                }),
-                new BottomSheetAction(Resource.Drawable.PlaylistPlay, MainActivity.instance.Resources.GetString(Resource.String.play_next), (sender, eventArg) =>
-                {
-                    YoutubeManager.PlayNext(item);
-                    bottomSheet.Dismiss();
-                }),
-                new BottomSheetAction(Resource.Drawable.Queue, MainActivity.instance.Resources.GetString(Resource.String.play_last), (sender, eventArg) =>
-                {
-                    YoutubeManager.PlayLast(item);
-                    bottomSheet.Dismiss();
-                }),
-                new BottomSheetAction(Resource.Drawable.PlayCircle, MainActivity.instance.Resources.GetString(Resource.String.create_mix_from_song), (sender, eventArg) =>
-                {
-                    YoutubeManager.CreateMixFromSong(item);
-                    bottomSheet.Dismiss();
-                }),
-                new BottomSheetAction(Resource.Drawable.PlaylistAdd, MainActivity.instance.Resources.GetString(Resource.String.add_to_playlist), (sender, eventArg) => { PlaylistManager.AddSongToPlaylistDialog(item); bottomSheet.Dismiss(); }),
-                new BottomSheetAction(Resource.Drawable.Download, MainActivity.instance.Resources.GetString(Resource.String.download), (sender, eventArg) =>
-                {
-                    YoutubeManager.Download(new[] { item });
-                    bottomSheet.Dismiss();
-                }),
-                new BottomSheetAction(Resource.Drawable.account, MainActivity.instance.Resources.GetString(Resource.String.goto_channel), (sender, eventArg) =>
-                {
-                    MainActivity.instance.menu.FindItem(Resource.Id.search).ActionView.Focusable = false;
-                    MainActivity.instance.menu.FindItem(Resource.Id.search).CollapseActionView();
-                    MainActivity.instance.menu.FindItem(Resource.Id.search).ActionView.Focusable = true;
-                    MainActivity.instance.FindViewById<TabLayout>(Resource.Id.tabs).Visibility = ViewStates.Gone;
-                    ChannelManager.OpenChannelTab(item.ChannelID);
-                    bottomSheet.Dismiss();
-                })
-            };
-
-            if (await SongManager.IsFavorite(item))
-                actions.Add(new BottomSheetAction(Resource.Drawable.Fav, MainActivity.instance.Resources.GetString(Resource.String.unfav), (sender, eventArg) => { SongManager.UnFav(item); bottomSheet.Dismiss(); }));
-            else
-                actions.Add(new BottomSheetAction(Resource.Drawable.Unfav, MainActivity.instance.Resources.GetString(Resource.String.fav), (sender, eventArg) => { SongManager.Fav(item); bottomSheet.Dismiss(); }));
-
-            bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, actions);
-            bottomSheet.Show();
         }
 
         public async void PlaylistMore(PlaylistItem item)

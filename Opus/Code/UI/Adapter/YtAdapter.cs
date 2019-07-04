@@ -47,7 +47,7 @@ namespace Opus.Adapter
                     holder.more.Click += (sender, e) =>
                     {
                         int tagPosition = (int)((ImageView)sender).Tag;
-                        YoutubeSearch.instances[0].More(items[tagPosition].song);
+                        MainActivity.instance.More(items[tagPosition].song);
                     };
                 }
 

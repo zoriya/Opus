@@ -60,7 +60,7 @@ namespace Opus.Fragments
                 SongManager.Play(song);
             }, (song, position) => 
             {
-                More(song);
+                MainActivity.instance.More(song);
             }, (position) => 
             {
                 LocalManager.ShuffleAll();
@@ -148,45 +148,6 @@ namespace Opus.Fragments
                 query = e.NewText;
 
             LoaderManager.GetInstance(this).RestartLoader(0, null, this);
-        }
-
-        public async void More(Song item)
-        {
-            item = LocalManager.CompleteItem(item);
-
-            BottomSheetDialog bottomSheet = new BottomSheetDialog(MainActivity.instance);
-            View bottomView = MainActivity.instance.LayoutInflater.Inflate(Resource.Layout.BottomSheet, null);
-            bottomView.FindViewById<TextView>(Resource.Id.bsTitle).Text = item.Title;
-            bottomView.FindViewById<TextView>(Resource.Id.bsArtist).Text = item.Artist;
-            bottomSheet.SetContentView(bottomView);
-            if(item.AlbumArt == -1 || item.IsYt)
-            {
-                Picasso.With(MainActivity.instance).Load(item.Album).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
-            }
-            else
-            {
-                var songCover = Uri.Parse("content://media/external/audio/albumart");
-                var songAlbumArtUri = ContentUris.WithAppendedId(songCover, item.AlbumArt);
-
-                Picasso.With(MainActivity.instance).Load(songAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
-            }
-
-            List<BottomSheetAction> actions = new List<BottomSheetAction>
-            {
-                new BottomSheetAction(Resource.Drawable.Play, MainActivity.instance.Resources.GetString(Resource.String.play), (sender, eventArg) => { SongManager.Play(item); bottomSheet.Dismiss(); }),
-                new BottomSheetAction(Resource.Drawable.PlaylistPlay, MainActivity.instance.Resources.GetString(Resource.String.play_next), (sender, eventArg) => { SongManager.PlayNext(item); bottomSheet.Dismiss(); }),
-                new BottomSheetAction(Resource.Drawable.Queue, MainActivity.instance.Resources.GetString(Resource.String.play_last), (sender, eventArg) => { SongManager.PlayLast(item); bottomSheet.Dismiss(); }),
-                new BottomSheetAction(Resource.Drawable.PlaylistAdd, MainActivity.instance.Resources.GetString(Resource.String.add_to_playlist), (sender, eventArg) => { PlaylistManager.AddSongToPlaylistDialog(item); bottomSheet.Dismiss(); }),
-                new BottomSheetAction(Resource.Drawable.Edit, MainActivity.instance.Resources.GetString(Resource.String.edit_metadata), (sender, eventArg) => { LocalManager.EditMetadata(item); bottomSheet.Dismiss(); })
-            };
-
-            if (await SongManager.IsFavorite(item))
-                actions.Add(new BottomSheetAction(Resource.Drawable.Fav, MainActivity.instance.Resources.GetString(Resource.String.unfav), (sender, eventArg) => { SongManager.UnFav(item); bottomSheet.Dismiss(); }));
-            else
-                actions.Add(new BottomSheetAction(Resource.Drawable.Unfav, MainActivity.instance.Resources.GetString(Resource.String.fav), (sender, eventArg) => { SongManager.Fav(item); bottomSheet.Dismiss(); }));
-
-            bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, actions);
-            bottomSheet.Show();
         }
 
         public override void OnViewStateRestored(Bundle savedInstanceState)

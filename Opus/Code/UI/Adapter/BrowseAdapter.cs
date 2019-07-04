@@ -52,7 +52,7 @@ namespace Opus.Adapter
             {
                 holder.more.Click += (sender, e) =>
                 {
-                    Browse.instance?.More(GetItem(holder.AdapterPosition));
+                    MainActivity.instance.More(GetItem(holder.AdapterPosition));
                 };
             }
         }

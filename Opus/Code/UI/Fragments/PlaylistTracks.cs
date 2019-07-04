@@ -458,102 +458,17 @@ namespace Opus.Fragments
             }
         }
 
-        public async void More(Song song, int position)
+        public void More(Song song, int position)
         {
-            BottomSheetDialog bottomSheet = new BottomSheetDialog(MainActivity.instance);
-            View bottomView = LayoutInflater.Inflate(Resource.Layout.BottomSheet, null);
-            bottomView.FindViewById<TextView>(Resource.Id.bsTitle).Text = song.Title;
-            bottomView.FindViewById<TextView>(Resource.Id.bsArtist).Text = song.Artist;
-            if (song.AlbumArt == -1 || song.IsYt)
+            BottomSheetAction endAction = new BottomSheetAction(Resource.Drawable.Close, Resources.GetString(Resource.String.remove_track_from_playlist), (sender, eventArg) =>
             {
-                Picasso.With(MainActivity.instance).Load(song.Album).Placeholder(Resource.Drawable.noAlbum).Transform(new RemoveBlackBorder(true)).Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
-            }
+                RemoveFromPlaylist(song, position);
+            });
+
+            if (useHeader)
+                MainActivity.instance.More(song, () => { PlaylistManager.PlayInOrder(item, position); }, endAction);
             else
-            {
-                var songCover = Uri.Parse("content://media/external/audio/albumart");
-                var songAlbumArtUri = ContentUris.WithAppendedId(songCover, song.AlbumArt);
-
-                Picasso.With(MainActivity.instance).Load(songAlbumArtUri).Placeholder(Resource.Drawable.noAlbum).Resize(400, 400).CenterCrop().Into(bottomView.FindViewById<ImageView>(Resource.Id.bsArt));
-            }
-            bottomSheet.SetContentView(bottomView);
-
-            List<BottomSheetAction> actions = new List<BottomSheetAction>
-            {
-                new BottomSheetAction(Resource.Drawable.Play, Resources.GetString(Resource.String.play), (sender, eventArg) => 
-                {
-                    if(useHeader)
-                        PlaylistManager.PlayInOrder(item, position);
-                    else
-                        SongManager.Play(song);
-                    bottomSheet.Dismiss();
-                }),
-                new BottomSheetAction(Resource.Drawable.PlaylistPlay, Resources.GetString(Resource.String.play_next), (sender, eventArg) =>
-                {
-                    SongManager.PlayNext(song);
-                    bottomSheet.Dismiss();
-                }),
-                new BottomSheetAction(Resource.Drawable.Queue, Resources.GetString(Resource.String.play_last), (sender, eventArg) =>
-                {
-                    SongManager.PlayLast(song);
-                    bottomSheet.Dismiss();
-                }),
-                new BottomSheetAction(Resource.Drawable.PlaylistAdd, Resources.GetString(Resource.String.add_to_playlist), (sender, eventArg) => 
-                {
-                    PlaylistManager.AddSongToPlaylistDialog(song);
-                    bottomSheet.Dismiss();
-                })
-            };
-
-            if (item.HasWritePermission)
-            {
-                actions.Add(new BottomSheetAction(Resource.Drawable.Close, Resources.GetString(Resource.String.remove_track_from_playlist), (sender, eventArg) =>
-                {
-                    RemoveFromPlaylist(song, position);
-                    bottomSheet.Dismiss();
-                }));
-            }
-
-            if (!song.IsYt)
-            {
-                actions.Add(new BottomSheetAction(Resource.Drawable.Edit, Resources.GetString(Resource.String.edit_metadata), (sender, eventArg) =>
-                {
-                    LocalManager.EditMetadata(song);
-                    bottomSheet.Dismiss();
-                }));
-            }
-            else
-            {
-                actions.AddRange(new BottomSheetAction[]
-                {
-                    new BottomSheetAction(Resource.Drawable.PlayCircle, Resources.GetString(Resource.String.create_mix_from_song), (sender, eventArg) =>
-                    {
-                        YoutubeManager.CreateMixFromSong(song);
-                        bottomSheet.Dismiss();
-                    }),
-                    new BottomSheetAction(Resource.Drawable.Download, Resources.GetString(Resource.String.download), (sender, eventArg) =>
-                    {
-                        YoutubeManager.Download(new[] { song });
-                        bottomSheet.Dismiss();
-                    })
-                });
-
-                if (song.ChannelID != null)
-                {
-                    actions.Add(new BottomSheetAction(Resource.Drawable.account, Resources.GetString(Resource.String.goto_channel), (sender, eventArg) =>
-                    {
-                        ChannelManager.OpenChannelTab(song.ChannelID);
-                        bottomSheet.Dismiss();
-                    }));
-                }
-            }
-
-            if (await SongManager.IsFavorite(song))
-                actions.Add(new BottomSheetAction(Resource.Drawable.Fav, MainActivity.instance.Resources.GetString(Resource.String.unfav), (sender, eventArg) => { SongManager.UnFav(song); bottomSheet.Dismiss(); }));
-            else
-                actions.Add(new BottomSheetAction(Resource.Drawable.Unfav, MainActivity.instance.Resources.GetString(Resource.String.fav), (sender, eventArg) => { SongManager.Fav(song); bottomSheet.Dismiss(); }));
-
-            bottomSheet.FindViewById<ListView>(Resource.Id.bsItems).Adapter = new BottomSheetAdapter(MainActivity.instance, Resource.Layout.BottomSheetText, actions);
-            bottomSheet.Show();
+                MainActivity.instance.More(song, null, endAction);
         }
 
         public void RemoveFromPlaylist(Song item, int position)
