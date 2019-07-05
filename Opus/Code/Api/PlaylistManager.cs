@@ -188,9 +188,23 @@ namespace Opus.Api
             if (tracks.Count == 0)
                 return;
 
-            tracks.RemoveAt(playPos);
-            tracks = tracks.OrderBy(x => r.Next()).ToList();
-            MusicPlayer.instance.AddToQueue(tracks);
+            if (tracks.Count >= playPos)
+            {
+                tracks.RemoveAt(playPos);
+                tracks = tracks.OrderBy(x => r.Next()).ToList();
+                MusicPlayer.instance.AddToQueue(tracks);
+            }
+            else
+            {
+                playPos = r.Next(tracks.Count);
+                MusicPlayer.currentID = -1;
+                SongManager.Play(tracks[playPos]);
+
+                tracks.RemoveAt(playPos);
+                tracks = tracks.OrderBy(x => r.Next()).ToList();
+                MusicPlayer.instance.AddToQueue(tracks);
+            }
+            
         }
         #endregion
 
