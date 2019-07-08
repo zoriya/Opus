@@ -2,14 +2,14 @@
 <android.support.design.widget.CoordinatorLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
-  xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
+  android:fitsSystemWindows="true"
   android:orientation="vertical" >
   <android.support.design.widget.AppBarLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="@*android:dimen/status_bar_height"
+    android:fitsSystemWindows="true"
     android:background="?colorAccent"
     android:id="@+id/appbar" >
     <android.support.v7.widget.Toolbar
@@ -21,6 +21,7 @@
   </android.support.design.widget.AppBarLayout>
   <android.support.v7.widget.RecyclerView
     android:id="@+id/list"
+    android:background="?android:colorBackground"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     android:layout_height="match_parent"
     android:layout_width="match_parent" />

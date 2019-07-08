@@ -1,6 +1,7 @@
 ﻿using Android.App;
-using Android.Graphics;
 using Android.OS;
+using Android.Support.Design.Widget;
+using Android.Support.V4.View;
 using Android.Support.V7.App;
 using Android.Support.V7.Widget;
 using Android.Views;
@@ -26,8 +27,9 @@ namespace Opus.Fragments
             instance = this;
             SetContentView(Resource.Layout.DownloadQueue);
 
-            Toolbar ToolBar = FindViewById<Toolbar>(Resource.Id.toolbar);
-            SetSupportActionBar(ToolBar);
+            Toolbar toolbar = FindViewById<Toolbar>(Resource.Id.toolbar);
+            ViewCompat.SetOnApplyWindowInsetsListener(toolbar, new FixToolbarPadding());
+            SetSupportActionBar(toolbar);
             SupportActionBar.Title = GetString(Resource.String.download_queue);
             SupportActionBar.SetHomeAsUpIndicator(Resource.Drawable.Close);
             SupportActionBar.SetDisplayHomeAsUpEnabled(true);
@@ -95,6 +97,17 @@ namespace Opus.Fragments
             }
 
             return true;
+        }
+
+        
+    }
+
+    class FixToolbarPadding : Java.Lang.Object, IOnApplyWindowInsetsListener
+    {
+        public WindowInsetsCompat OnApplyWindowInsets(View v, WindowInsetsCompat insets)
+        {
+            ((AppBarLayout.LayoutParams)v.LayoutParameters).TopMargin =  insets.SystemWindowInsetTop;
+            return insets;
         }
     }
 }
