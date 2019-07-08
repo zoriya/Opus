@@ -227,7 +227,7 @@ namespace Opus.Api.Services
             RegisterReceiver(noisyReceiver, new IntentFilter(AudioManager.ActionAudioBecomingNoisy));
             noisyRegistered = true;
 
-            RemotePlayer = MainActivity.CastContext.SessionManager.CurrentCastSession?.RemoteMediaClient;
+            RemotePlayer = MainActivity.CastContext?.SessionManager.CurrentCastSession?.RemoteMediaClient;
             if(RemotePlayer != null)
             {
                 if (CastCallback == null)
