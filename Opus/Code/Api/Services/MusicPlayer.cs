@@ -211,11 +211,11 @@ namespace Opus.Api.Services
             ISharedPreferences prefManager = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
 
             //This is for the current version of ExoPlayer
-            AdaptiveTrackSelection.Factory trackSelectionFactory = new AdaptiveTrackSelection.Factory(new DefaultBandwidthMeter());
-            TrackSelector trackSelector = new DefaultTrackSelector(trackSelectionFactory);
-            player = ExoPlayerFactory.NewSimpleInstance(Application.Context, trackSelector);
+            //AdaptiveTrackSelection.Factory trackSelectionFactory = new AdaptiveTrackSelection.Factory(new DefaultBandwidthMeter());
+            //TrackSelector trackSelector = new DefaultTrackSelector(trackSelectionFactory);
+            //player = ExoPlayerFactory.NewSimpleInstance(Application.Context, trackSelector);
             //This is for the newers versions of ExoPlayer
-            //player = ExoPlayerFactory.NewSimpleInstance(Application.Context);
+            player = ExoPlayerFactory.NewSimpleInstance(Application.Context);
 
             volume = prefManager.GetInt("volumeMultiplier", 100) / 100f;
             player.Volume = volume;
@@ -269,26 +269,26 @@ namespace Opus.Api.Services
                 DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(Application.Context, "Opus");
 
                 //This is for the current version of ExoPlayer
-                IExtractorsFactory extractorFactory = new DefaultExtractorsFactory();
-                Handler handler = new Handler();
+                //IExtractorsFactory extractorFactory = new DefaultExtractorsFactory();
+                //Handler handler = new Handler();
 
-                Console.WriteLine("&Preparing exoplay, path: " + song.Path);
-                IMediaSource mediaSource;
-                if (song.IsLiveStream)
-                    mediaSource = new HlsMediaSource(Uri.Parse(song.Path), dataSourceFactory, handler, null);
-                else if (!song.IsYt)
-                    mediaSource = new ExtractorMediaSource(Uri.FromFile(new Java.IO.File(song.Path)), dataSourceFactory, extractorFactory, handler, null);
-                else
-                    mediaSource = new ExtractorMediaSource(Uri.Parse(song.Path), dataSourceFactory, extractorFactory, handler, null);
-
-                //This is for newers versions of ExoPlayer
+                //Console.WriteLine("&Preparing exoplay, path: " + song.Path);
                 //IMediaSource mediaSource;
                 //if (song.IsLiveStream)
-                //    mediaSource = new HlsMediaSource.Factory(dataSourceFactory).CreateMediaSource(Uri.Parse(song.Path));
+                //    mediaSource = new HlsMediaSource(Uri.Parse(song.Path), dataSourceFactory, handler, null);
                 //else if (!song.IsYt)
-                //    mediaSource = new ExtractorMediaSource.Factory(dataSourceFactory).CreateMediaSource(Uri.FromFile(new Java.IO.File(song.Path)));
+                //    mediaSource = new ExtractorMediaSource(Uri.FromFile(new Java.IO.File(song.Path)), dataSourceFactory, extractorFactory, handler, null);
                 //else
-                //    mediaSource = new ExtractorMediaSource.Factory(dataSourceFactory).CreateMediaSource(Uri.Parse(song.Path));
+                //    mediaSource = new ExtractorMediaSource(Uri.Parse(song.Path), dataSourceFactory, extractorFactory, handler, null);
+
+                //This is for newers versions of ExoPlayer
+                IMediaSource mediaSource;
+                if (song.IsLiveStream)
+                    mediaSource = new HlsMediaSource.Factory(dataSourceFactory).CreateMediaSource(Uri.Parse(song.Path));
+                else if (!song.IsYt)
+                    mediaSource = new ExtractorMediaSource.Factory(dataSourceFactory).CreateMediaSource(Uri.FromFile(new Java.IO.File(song.Path)));
+                else
+                    mediaSource = new ExtractorMediaSource.Factory(dataSourceFactory).CreateMediaSource(Uri.Parse(song.Path));
 
                 player.Prepare(mediaSource, true, true);
             }
@@ -1184,7 +1184,7 @@ namespace Opus.Api.Services
                         song.Duration = int.Parse(meta.ExtractMetadata(MetadataKey.Duration));
                         meta.Release();
                     }
-                    catch (Java.IO.FileNotFoundException) { }
+                    catch (Exception ex) { Console.WriteLine("&LoadDuration error: " + ex.Message); }
                 }
 
                 return song.Duration;

@@ -1,10 +1,13 @@
 ﻿using Android.App;
 using Android.Content;
+using Android.Graphics;
 using Android.Net;
 using Android.Support.Design.Widget;
 using Android.Support.V7.Widget;
+using Android.Util;
 using Android.Views;
 using Android.Widget;
+using Java.Lang;
 using Opus.Api;
 using Opus.Api.Services;
 using Opus.DataStructure;
@@ -89,9 +92,21 @@ namespace Opus.Adapter
                 {
                     holder.Title.Text = MainActivity.instance.GetString(Resource.String.shuffle_all);
                     holder.AlbumArt.SetImageResource(Resource.Drawable.Shuffle);
+
+                    Color color;
+                    TypedValue value = new TypedValue();
+                    if (MainActivity.instance.Theme.ResolveAttribute(Android.Resource.Attribute.ColorForeground, value, true))
+                        color = Color.ParseColor("#" + Integer.ToHexString(value.Data));
+                    else
+                        color = Color.Black;
+
+                    holder.AlbumArt.SetColorFilter(color);
                 }
                 else
                 {
+                    holder.AlbumArt.ClearColorFilter();
+
+
                     Song song = songs.Count <= position ? null : songs[position];
 
 
