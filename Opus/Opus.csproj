@@ -296,34 +296,34 @@
       <HintPath>..\packages\Xamarin.Android.Support.ViewPager.28.0.0.1\lib\monoandroid90\Xamarin.Android.Support.ViewPager.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.GooglePlayServices.Auth, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Xamarin.GooglePlayServices.Auth.71.1600.0-preview9\lib\monoandroid90\Xamarin.GooglePlayServices.Auth.dll</HintPath>
+      <HintPath>..\packages\Xamarin.GooglePlayServices.Auth.71.1600.0\lib\monoandroid90\Xamarin.GooglePlayServices.Auth.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.GooglePlayServices.Auth.Api.Phone, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Xamarin.GooglePlayServices.Auth.Api.Phone.71.1600.0-preview9\lib\monoandroid90\Xamarin.GooglePlayServices.Auth.Api.Phone.dll</HintPath>
+      <HintPath>..\packages\Xamarin.GooglePlayServices.Auth.Api.Phone.71.1600.0\lib\monoandroid90\Xamarin.GooglePlayServices.Auth.Api.Phone.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.GooglePlayServices.Auth.Base, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Xamarin.GooglePlayServices.Auth.Base.71.1600.0-preview9\lib\monoandroid90\Xamarin.GooglePlayServices.Auth.Base.dll</HintPath>
+      <HintPath>..\packages\Xamarin.GooglePlayServices.Auth.Base.71.1600.0\lib\monoandroid90\Xamarin.GooglePlayServices.Auth.Base.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.GooglePlayServices.Base, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Xamarin.GooglePlayServices.Base.71.1610.0-preview9\lib\monoandroid90\Xamarin.GooglePlayServices.Base.dll</HintPath>
+      <HintPath>..\packages\Xamarin.GooglePlayServices.Base.71.1610.0\lib\monoandroid90\Xamarin.GooglePlayServices.Base.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.GooglePlayServices.Basement, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Xamarin.GooglePlayServices.Basement.71.1620.0-preview9\lib\monoandroid90\Xamarin.GooglePlayServices.Basement.dll</HintPath>
+      <HintPath>..\packages\Xamarin.GooglePlayServices.Basement.71.1620.0\lib\monoandroid90\Xamarin.GooglePlayServices.Basement.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.GooglePlayServices.Cast, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Xamarin.GooglePlayServices.Cast.71.1602.0-preview9\lib\monoandroid90\Xamarin.GooglePlayServices.Cast.dll</HintPath>
+      <HintPath>..\packages\Xamarin.GooglePlayServices.Cast.71.1602.0\lib\monoandroid90\Xamarin.GooglePlayServices.Cast.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.GooglePlayServices.Cast.Framework, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Xamarin.GooglePlayServices.Cast.Framework.71.1602.0-preview9\lib\monoandroid90\Xamarin.GooglePlayServices.Cast.Framework.dll</HintPath>
+      <HintPath>..\packages\Xamarin.GooglePlayServices.Cast.Framework.71.1602.0\lib\monoandroid90\Xamarin.GooglePlayServices.Cast.Framework.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.GooglePlayServices.Flags, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Xamarin.GooglePlayServices.Flags.71.1601.0-preview9\lib\monoandroid90\Xamarin.GooglePlayServices.Flags.dll</HintPath>
+      <HintPath>..\packages\Xamarin.GooglePlayServices.Flags.71.1601.0\lib\monoandroid90\Xamarin.GooglePlayServices.Flags.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.GooglePlayServices.Tasks, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Xamarin.GooglePlayServices.Tasks.71.1601.0-preview9\lib\monoandroid90\Xamarin.GooglePlayServices.Tasks.dll</HintPath>
+      <HintPath>..\packages\Xamarin.GooglePlayServices.Tasks.71.1601.0\lib\monoandroid90\Xamarin.GooglePlayServices.Tasks.dll</HintPath>
     </Reference>
-    <Reference Include="YoutubeExplode, Version=4.7.6.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\YoutubeExplode.4.7.6\lib\netstandard2.0\YoutubeExplode.dll</HintPath>
+    <Reference Include="YoutubeExplode, Version=4.7.7.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\YoutubeExplode.4.7.7\lib\netstandard2.0\YoutubeExplode.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -958,15 +958,15 @@
     <Error Condition="!Exists('..\packages\Xamarin.Android.Support.Design.28.0.0.1\build\monoandroid90\Xamarin.Android.Support.Design.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Android.Support.Design.28.0.0.1\build\monoandroid90\Xamarin.Android.Support.Design.targets'))" />
     <Error Condition="!Exists('..\packages\Xamarin.Android.Support.v7.MediaRouter.28.0.0.1\build\monoandroid90\Xamarin.Android.Support.v7.MediaRouter.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Android.Support.v7.MediaRouter.28.0.0.1\build\monoandroid90\Xamarin.Android.Support.v7.MediaRouter.targets'))" />
     <Error Condition="!Exists('..\packages\Xamarin.Android.Support.v7.Preference.28.0.0.1\build\monoandroid90\Xamarin.Android.Support.v7.Preference.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Android.Support.v7.Preference.28.0.0.1\build\monoandroid90\Xamarin.Android.Support.v7.Preference.targets'))" />
-    <Error Condition="!Exists('..\packages\Xamarin.GooglePlayServices.Basement.71.1620.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Basement.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.GooglePlayServices.Basement.71.1620.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Basement.targets'))" />
-    <Error Condition="!Exists('..\packages\Xamarin.GooglePlayServices.Tasks.71.1601.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Tasks.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.GooglePlayServices.Tasks.71.1601.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Tasks.targets'))" />
-    <Error Condition="!Exists('..\packages\Xamarin.GooglePlayServices.Base.71.1610.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Base.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.GooglePlayServices.Base.71.1610.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Base.targets'))" />
-    <Error Condition="!Exists('..\packages\Xamarin.GooglePlayServices.Auth.Api.Phone.71.1600.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Auth.Api.Phone.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.GooglePlayServices.Auth.Api.Phone.71.1600.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Auth.Api.Phone.targets'))" />
-    <Error Condition="!Exists('..\packages\Xamarin.GooglePlayServices.Auth.Base.71.1600.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Auth.Base.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.GooglePlayServices.Auth.Base.71.1600.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Auth.Base.targets'))" />
-    <Error Condition="!Exists('..\packages\Xamarin.GooglePlayServices.Auth.71.1600.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Auth.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.GooglePlayServices.Auth.71.1600.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Auth.targets'))" />
-    <Error Condition="!Exists('..\packages\Xamarin.GooglePlayServices.Flags.71.1601.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Flags.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.GooglePlayServices.Flags.71.1601.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Flags.targets'))" />
-    <Error Condition="!Exists('..\packages\Xamarin.GooglePlayServices.Cast.71.1602.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Cast.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.GooglePlayServices.Cast.71.1602.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Cast.targets'))" />
-    <Error Condition="!Exists('..\packages\Xamarin.GooglePlayServices.Cast.Framework.71.1602.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Cast.Framework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.GooglePlayServices.Cast.Framework.71.1602.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Cast.Framework.targets'))" />
+    <Error Condition="!Exists('..\packages\Xamarin.GooglePlayServices.Basement.71.1620.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Basement.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.GooglePlayServices.Basement.71.1620.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Basement.targets'))" />
+    <Error Condition="!Exists('..\packages\Xamarin.GooglePlayServices.Tasks.71.1601.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Tasks.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.GooglePlayServices.Tasks.71.1601.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Tasks.targets'))" />
+    <Error Condition="!Exists('..\packages\Xamarin.GooglePlayServices.Base.71.1610.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Base.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.GooglePlayServices.Base.71.1610.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Base.targets'))" />
+    <Error Condition="!Exists('..\packages\Xamarin.GooglePlayServices.Auth.Api.Phone.71.1600.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Auth.Api.Phone.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.GooglePlayServices.Auth.Api.Phone.71.1600.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Auth.Api.Phone.targets'))" />
+    <Error Condition="!Exists('..\packages\Xamarin.GooglePlayServices.Auth.Base.71.1600.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Auth.Base.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.GooglePlayServices.Auth.Base.71.1600.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Auth.Base.targets'))" />
+    <Error Condition="!Exists('..\packages\Xamarin.GooglePlayServices.Auth.71.1600.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Auth.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.GooglePlayServices.Auth.71.1600.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Auth.targets'))" />
+    <Error Condition="!Exists('..\packages\Xamarin.GooglePlayServices.Flags.71.1601.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Flags.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.GooglePlayServices.Flags.71.1601.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Flags.targets'))" />
+    <Error Condition="!Exists('..\packages\Xamarin.GooglePlayServices.Cast.71.1602.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Cast.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.GooglePlayServices.Cast.71.1602.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Cast.targets'))" />
+    <Error Condition="!Exists('..\packages\Xamarin.GooglePlayServices.Cast.Framework.71.1602.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Cast.Framework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.GooglePlayServices.Cast.Framework.71.1602.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Cast.Framework.targets'))" />
   </Target>
   <Import Project="..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.targets')" />
   <Import Project="..\packages\Xamarin.Android.Support.Annotations.28.0.0.1\build\monoandroid90\Xamarin.Android.Support.Annotations.targets" Condition="Exists('..\packages\Xamarin.Android.Support.Annotations.28.0.0.1\build\monoandroid90\Xamarin.Android.Support.Annotations.targets')" />
@@ -1008,15 +1008,15 @@
   <Import Project="..\packages\Xamarin.Android.Support.Design.28.0.0.1\build\monoandroid90\Xamarin.Android.Support.Design.targets" Condition="Exists('..\packages\Xamarin.Android.Support.Design.28.0.0.1\build\monoandroid90\Xamarin.Android.Support.Design.targets')" />
   <Import Project="..\packages\Xamarin.Android.Support.v7.MediaRouter.28.0.0.1\build\monoandroid90\Xamarin.Android.Support.v7.MediaRouter.targets" Condition="Exists('..\packages\Xamarin.Android.Support.v7.MediaRouter.28.0.0.1\build\monoandroid90\Xamarin.Android.Support.v7.MediaRouter.targets')" />
   <Import Project="..\packages\Xamarin.Android.Support.v7.Preference.28.0.0.1\build\monoandroid90\Xamarin.Android.Support.v7.Preference.targets" Condition="Exists('..\packages\Xamarin.Android.Support.v7.Preference.28.0.0.1\build\monoandroid90\Xamarin.Android.Support.v7.Preference.targets')" />
-  <Import Project="..\packages\Xamarin.GooglePlayServices.Basement.71.1620.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Basement.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.Basement.71.1620.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Basement.targets')" />
-  <Import Project="..\packages\Xamarin.GooglePlayServices.Tasks.71.1601.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Tasks.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.Tasks.71.1601.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Tasks.targets')" />
-  <Import Project="..\packages\Xamarin.GooglePlayServices.Base.71.1610.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Base.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.Base.71.1610.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Base.targets')" />
-  <Import Project="..\packages\Xamarin.GooglePlayServices.Auth.Api.Phone.71.1600.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Auth.Api.Phone.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.Auth.Api.Phone.71.1600.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Auth.Api.Phone.targets')" />
-  <Import Project="..\packages\Xamarin.GooglePlayServices.Auth.Base.71.1600.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Auth.Base.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.Auth.Base.71.1600.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Auth.Base.targets')" />
-  <Import Project="..\packages\Xamarin.GooglePlayServices.Auth.71.1600.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Auth.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.Auth.71.1600.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Auth.targets')" />
-  <Import Project="..\packages\Xamarin.GooglePlayServices.Flags.71.1601.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Flags.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.Flags.71.1601.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Flags.targets')" />
-  <Import Project="..\packages\Xamarin.GooglePlayServices.Cast.71.1602.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Cast.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.Cast.71.1602.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Cast.targets')" />
-  <Import Project="..\packages\Xamarin.GooglePlayServices.Cast.Framework.71.1602.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Cast.Framework.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.Cast.Framework.71.1602.0-preview9\build\MonoAndroid90\Xamarin.GooglePlayServices.Cast.Framework.targets')" />
+  <Import Project="..\packages\Xamarin.GooglePlayServices.Basement.71.1620.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Basement.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.Basement.71.1620.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Basement.targets')" />
+  <Import Project="..\packages\Xamarin.GooglePlayServices.Tasks.71.1601.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Tasks.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.Tasks.71.1601.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Tasks.targets')" />
+  <Import Project="..\packages\Xamarin.GooglePlayServices.Base.71.1610.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Base.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.Base.71.1610.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Base.targets')" />
+  <Import Project="..\packages\Xamarin.GooglePlayServices.Auth.Api.Phone.71.1600.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Auth.Api.Phone.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.Auth.Api.Phone.71.1600.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Auth.Api.Phone.targets')" />
+  <Import Project="..\packages\Xamarin.GooglePlayServices.Auth.Base.71.1600.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Auth.Base.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.Auth.Base.71.1600.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Auth.Base.targets')" />
+  <Import Project="..\packages\Xamarin.GooglePlayServices.Auth.71.1600.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Auth.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.Auth.71.1600.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Auth.targets')" />
+  <Import Project="..\packages\Xamarin.GooglePlayServices.Flags.71.1601.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Flags.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.Flags.71.1601.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Flags.targets')" />
+  <Import Project="..\packages\Xamarin.GooglePlayServices.Cast.71.1602.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Cast.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.Cast.71.1602.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Cast.targets')" />
+  <Import Project="..\packages\Xamarin.GooglePlayServices.Cast.Framework.71.1602.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Cast.Framework.targets" Condition="Exists('..\packages\Xamarin.GooglePlayServices.Cast.Framework.71.1602.0\build\MonoAndroid90\Xamarin.GooglePlayServices.Cast.Framework.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
 		Other similar extension points exist, see Microsoft.Common.targets.
 		<Target Name="BeforeBuild">

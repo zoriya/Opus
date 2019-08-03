@@ -438,19 +438,24 @@ namespace Opus
         public void Navigate(int layout)
         {
             contentRefresh.Refreshing = false;
-            if (YoutubeSearch.instances != null)
+
+            if(menu?.FindItem(Resource.Id.search)?.IsActionViewExpanded == true)
             {
                 var searchView = menu.FindItem(Resource.Id.search).ActionView.JavaCast<SearchView>();
                 menu.FindItem(Resource.Id.search).CollapseActionView();
                 searchView.ClearFocus();
                 searchView.Iconified = true;
                 searchView.SetQuery("", false);
-                SupportActionBar.SetDisplayHomeAsUpEnabled(false);
+            }
 
+            if (YoutubeSearch.instances != null)
+            {
+                SupportActionBar.SetDisplayHomeAsUpEnabled(false);
                 SupportFragmentManager.PopBackStack(null, Android.Support.V4.App.FragmentManager.PopBackStackInclusive);
             }
 
-            FindViewById(Resource.Id.toolbarLogo).Visibility = ViewStates.Visible;
+            if(FindViewById(Resource.Id.toolbarLogo) != null)
+                FindViewById(Resource.Id.toolbarLogo).Visibility = ViewStates.Visible;
 
             if (PlaylistTracks.instance != null)
             {

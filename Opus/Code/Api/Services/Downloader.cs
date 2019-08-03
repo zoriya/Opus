@@ -114,18 +114,22 @@ namespace Opus.Api.Services
 
             instance.downloadPath = downloadPath;
             instance.maxDownload = prefManager.GetInt("maxDownload", 4);
+
+            const string permission = Manifest.Permission.WriteExternalStorage;
+            if (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(instance, permission) != (int)Permission.Granted)
+            {
+                string[] permissions = new string[] { permission };
+                MainActivity.instance.RequestPermissions(permissions, RequestCode);
+
+                await Task.Delay(1000);
+                while (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(instance, permission) != (int)Permission.Granted)
+                    await Task.Delay(500);
+            }
         }
 
         #region Downloading of the queue
         public async void StartDownload()
         {
-            System.Console.WriteLine("&Queue count: " + queue.Count);
-            foreach (var item in queue)
-            {
-                System.Console.WriteLine("&Item: " + item.Name + " State:  " + item.State.ToString());
-            }
-
-
             while (downloadCount < maxDownload && queue.Count(x => x.State == DownloadState.None) > 0)
             {
                 System.Console.WriteLine("&Initiating the download of a song");
@@ -147,16 +151,6 @@ namespace Opus.Api.Services
 
             queue[position].State = DownloadState.Initialization;
             UpdateList(position);
-            const string permission = Manifest.Permission.WriteExternalStorage;
-            if (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(this, permission) != (int)Permission.Granted)
-            {
-                string[] permissions = new string[] { permission };
-                MainActivity.instance.RequestPermissions(permissions, RequestCode);
-
-                await Task.Delay(1000);
-                while (Android.Support.V4.Content.ContextCompat.CheckSelfPermission(this, permission) != (int)Permission.Granted)
-                    await Task.Delay(500);
-            }
 
             while (downloadCount >= maxDownload)
                 await Task.Delay(1000);
@@ -183,7 +177,7 @@ namespace Opus.Api.Services
                     if (queue.Count != 0)
                         DownloadAudio(queue.FindIndex(x => x.State == DownloadState.None), path);
 
-                    Playlist.instance?.CheckForSync();
+                    Playlist.instance?.Activity.RunOnUiThread(() => { Playlist.instance.CheckForSync(); });
                     return;
                 }
                     
@@ -248,7 +242,7 @@ namespace Opus.Api.Services
                 if (queue.Count != 0)
                     DownloadAudio(queue.FindIndex(x => x.State == DownloadState.None), path);
 
-                Playlist.instance?.CheckForSync();
+                Playlist.instance?.Activity.RunOnUiThread(() => { Playlist.instance.CheckForSync(); });
             }
             catch (System.Net.Http.HttpRequestException)
             {
@@ -282,7 +276,7 @@ namespace Opus.Api.Services
                 meta.Tag.Album = title + " - " + artist;
                 meta.Tag.Comment = queue[position].YoutubeID;
                 IPicture[] pictures = new IPicture[1];
-                Bitmap bitmap = Picasso.With(Application.Context).Load(await YoutubeManager.GetBestThumb(thumbnails)).Transform(new RemoveBlackBorder(true)).MemoryPolicy(MemoryPolicy.NoCache).Get();
+                Bitmap bitmap = Picasso.With(this).Load(await YoutubeManager.GetBestThumb(thumbnails)).Transform(new RemoveBlackBorder(true)).MemoryPolicy(MemoryPolicy.NoCache).Get();
                 byte[] data;
                 using (var MemoryStream = new MemoryStream())
                 {
