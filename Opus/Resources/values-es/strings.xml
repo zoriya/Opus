@@ -24,13 +24,13 @@
   <string name="hour">hora</string>
   <string name="hours">horas</string>
   <string name="timer">Sleep timer</string>
-  <string name="open_youtube">Watch clip on youtube</string>
+  <string name="open_youtube">Ver video en Youtube</string>
 
   <!--Queue-->
   <string name="playing">Reproducción en curso</string>
   <string name="paused">Pausa</string>
   <string name="removed_from_queue"> se ha eliminado de la cola.</string>
-  <string name="save_as_playlist">Save queue as playlist</string>
+  <string name="save_as_playlist">Guardar cola como Playlist</string>
 
   <!--Autoplay-->
   <string name="autoplay">Lectura automática</string>
@@ -119,20 +119,20 @@
   <string name="new_playlist">Nueva playlist</string>
   <string name="create_local">Playlist local</string>
   <string name="create_youtube">Playlist youtube</string>
-  <string name="create_synced">Playlist syncronizada (disponible localemente y sobre youtube)</string>
+  <string name="create_synced">Playlist sincronizada (disponible localmente y en Youtube)</string>
 
   <!--Edit metadata-->
   <string name="title">Musica</string>
   <string name="artist">Artista</string>
-  <string name="album">álbum</string>
+  <string name="album">Álbum</string>
   <string name="youtubeid">Youtube ID</string>
   <string name="change_albumart">Cambiar la imagen del álbum</string>
   <string name="pick_album_local">Elegir una imagen desde el almacenamiento interno</string>
-  <string name="download_albumart">Descargar la cobija desde youtube</string>
-  <string name="download_meta">Descargar les metadata desde youtube</string>
+  <string name="download_albumart">Descargar la imagen del album desde Youtube</string>
+  <string name="download_meta">Descargar la metadata desde Youtube</string>
   <string name="undo_change">Anular las modificaciones</string>
   <string name="changes_saved">Cambio guardado.</string>
-  <string name="metdata_error_noid">Imposible de descargar las metadatas desde youtube, la id youtube no ha sido définida.</string>
+  <string name="metdata_error_noid">Imposible de descargar la metadata desde Youtube, la id de Youtube no ha sido definida.</string>
 
   <!--Download Queue-->
   <string name="download_queue">Lista de descargas</string>
@@ -144,7 +144,7 @@
   <string name="completed">Finalizado</string>
 
   <!--Chromecast-->
-  <string name="cast_queue_push">Vuestra lista de reproducción es enviada a la chromecast, por favor espere...</string>
+  <string name="cast_queue_push">Vuestra lista de reproducción está siendo enviada a ChromeCast, por favor espere...</string>
   <string name="cast_queue_pushed">Terminado, la musica empezará pronto.</string>
 
   <!--Settings-->
@@ -174,27 +174,27 @@
   <string name="not_log">Desconectado</string>
   <string name="logged_in">Conectado al mismo tiempo que</string>
   <string name="log_in">CONEXIÓN</string>
-  <string name="log_out">DECONEXIÓN</string>
+  <string name="log_out">DESCONEXIÓN</string>
 
   <!--Snackbars and others-->
   <string name="undo">Anular</string>
 
   <string name="no_permission">permiso denegado, imposible de completar esta acción.</string>
   <string name="no_song_mix">ninguna musica encontrada, imposible de crear un mix.</string>
-  <string name="youtube_endpoint">El algoritmo youtube a cambiado, la aplicación no puede leer este video.Espere la proxima actualización.</string>
+  <string name="youtube_endpoint">El algoritmo youtube ha cambiado, la aplicación no puede leer este video.Espere la proxima actualización.</string>
   <string name="timout">Timout, compruebe su conexión internet.</string>
-  <string name="unknow">Un error desconozido est sucedió.</string>
-  <string name="country_blocked"> is not available in your country.</string>
+  <string name="unknow">Un error desconocido sucedió</string>
+  <string name="country_blocked"> No está disponible en tu país.</string>
   <string name="not_streamable"> no pude ser reproducido, el audio no está disponible.</string> <!--A song title will be placed before this sentence-->
   <string name="update_no_internet">No está conectado a internet, imposible de comprobar si existen actualizaciones.</string>
   <string name="update">La versión %1$s está disponible</string> <!--%1$s will be replaced with the version number-->
   <string name="update_message">¿Una  actualización está disponible, desea instalarla ahora?</string>
   <string name="up_to_date">Ninguna Actualización disponible.</string>
-  <string name="beta_available">Une versión beta está disponible.</string>
-  <string name="downloading_update">Descargando, se le informara cuando la instalacio este lista.</string>
+  <string name="beta_available">Una versión beta está disponible.</string>
+  <string name="downloading_update">Descargando, se le informara cuando la instalación este lista.</string>
   <string name="updating">Actualizando...</string>
   <string name="cant_play_non_youtube">Imposible de reproducir este tipo de video.</string>
-  <string name="sleep_timer">La musica parara dentro de :</string>
+  <string name="sleep_timer">La musica parará dentro de :</string>
   <string name="downloading_notification">Descargando :</string>
   <string name="tap_details">toque para mas detalles</string>
   <string name="cancelling">Anulando...</string>
