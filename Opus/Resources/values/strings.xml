@@ -36,7 +36,7 @@
   
   <!--Autoplay-->
   <string name="autoplay">Autoplay</string>
-  <string name="autoplay_desc">Automatically add similars songs from youtube</string>
+  <string name="autoplay_desc">Automatically add similar songs from youtube</string>
   <string name="create_mix">CREATE MIX</string>
   
   <!--More menu (long clicks)-->
@@ -152,7 +152,7 @@
   <string name="undo_change">Undo changes</string>
   <string name="changes_saved">Changes saved.</string>
   <string name="metdata_error_noid">Can\'t get meta data on youtube, Youtube ID isn\'t set.</string>
-  <string name="mount_error">There is a probleme with your storage, please stop using your storage elsewhere and try again.</string>
+  <string name="mount_error">There is a problem with your storage, please stop using your storage elsewhere and try again.</string>
   <string name="mount_error_action">DISCARD AND LEAVE</string>
   <string name="format_unsupported">The format of this song doesn\'t support metadatas.</string>
   
